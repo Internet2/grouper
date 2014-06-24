@@ -111,7 +111,7 @@ Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/intern
 Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest">GrouperServiceRest</A>
 <DD>
  based on a group name, put the member
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co#addMemberSuccessResultCode(boolean, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult)"><B>addMemberSuccessResultCode(boolean, WsSubjectLookup.SubjectFindResult)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co#addMemberSuccessResultCode(boolean, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindResult, boolean)"><B>addMemberSuccessResultCode(boolean, WsSubjectLookup.SubjectFindResult, boolean)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperWsVersionUtils</A>
 <DD>result code changed in 1.4 to include a response for if the membership already existed
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#addResponseHeaders(javax.servlet.http.HttpServletResponse, java.lang.String, java.lang.String, java.lang.String)"><B>addResponseHeaders(HttpServletResponse, String, String, String)</B></A> - 
@@ -635,7 +635,7 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemSaveResults.html?view=co#assignResultCodeException(edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults.WsStemSaveResultsCode, java.lang.String, java.lang.Exception, GrouperVersion)"><B>assignResultCodeException(WsStemSaveResults.WsStemSaveResultsCode, String, Exception, GrouperVersion)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemSaveResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStemSaveResults</A>
 <DD>prcess an exception, log, etc
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsDeleteMemberResult.html?view=co#assignResultCodeSuccess(boolean, boolean)"><B>assignResultCodeSuccess(boolean, boolean)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsDeleteMemberResult.html?view=co#assignResultCodeSuccess(boolean, boolean, boolean)"><B>assignResultCodeSuccess(boolean, boolean, boolean)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsDeleteMemberResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsDeleteMemberResult</A>
 <DD>assign a success based on four situations based on hasImmediate and hasEffective
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsFindStemsResults.html?view=co#assignStemResult(Stem)"><B>assignStemResult(Stem)</B></A> - 
@@ -696,6 +696,9 @@ Method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co#authenticateKerberos(java.lang.String, java.lang.String)"><B>authenticateKerberos(String, String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperKerberosAuthentication</A>
 <DD>see if a user and pass are correct with berberos
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#authenticateLdap(java.lang.String, java.lang.String)"><B>authenticateLdap(String, String)</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperLdapAuthentication</A>
+<DD>see if a user and pass are correct with ldap
 </DL>
 <HR>
 <A NAME="_B_"><!-- --></A><H2>
@@ -751,6 +754,9 @@ Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/i
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#classLoader()"><B>classLoader()</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
 <DD>fast class loader
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#clearCachedCalculatedValues()"><B>clearCachedCalculatedValues()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
+<DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/j2ee/ServletReaderCopier.html?view=co#close()"><B>close()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.j2ee.<A HREF="./edu/internet2/middleware/grouper/ws/j2ee/ServletReaderCopier.html?view=co" title="class in edu.internet2.middleware.grouper.ws.j2ee">ServletReaderCopier</A>
 <DD>&nbsp;
@@ -859,7 +865,7 @@ Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/i
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#convertMemberFilter(java.lang.String)"><B>convertMemberFilter(String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
 <DD>convert the member filter, default to all
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#convertMembers(java.util.Set, java.util.Set, java.util.Set)"><B>convertMembers(Set&lt;Object[]&gt;, Set&lt;Group&gt;, Set&lt;Member&gt;)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#convertMembers(java.util.Set, java.util.Set, java.util.Set, java.util.Set, java.util.Set)"><B>convertMembers(Set&lt;Object[]&gt;, Set&lt;Group&gt;, Set&lt;Stem&gt;, Set&lt;AttributeDef&gt;, Set&lt;Member&gt;)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
 <DD>convert members to subject results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html?view=co#convertMembers(java.util.Set, java.lang.String[], boolean)"><B>convertMembers(Set&lt;Member&gt;, String[], boolean)</B></A> - 
@@ -1029,6 +1035,9 @@ Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/i
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co#copyFields(edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta)"><B>copyFields(WsResultMeta)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A>
 <DD>copy fields from another result meta.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#createIfNeeded(java.lang.String, java.lang.String)"><B>createIfNeeded(String, String)</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>
+<DD>create if any not null, otherwise null
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#createIfNeeded(java.lang.String, java.lang.String, java.lang.String)"><B>createIfNeeded(String, String, String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>create if any not null, otherwise null
@@ -1227,19 +1236,19 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetPermissionAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetPermissionAssignmentsResults</A>
 <DD>pass in the subject lookups that were found by inputs, and add the subject ids 
  found by the attribute assign results
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#findAttributeDefNames(java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.coresoap.WsParam[])"><B>findAttributeDefNames(String, String, String, WsAttributeDefLookup, String, String, WsAttributeDefNameLookup[], String, String, String, String, String, WsSubjectLookup, WsParam[])</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#findAttributeDefNames(java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, java.lang.String)"><B>findAttributeDefNames(String, String, String, WsAttributeDefLookup, String, String, WsAttributeDefNameLookup[], String, String, String, String, String, WsSubjectLookup, WsParam[], WsSubjectLookup, String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">GrouperService</A>
 <DD>find an attribute def name or attribute def names.
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#findAttributeDefNames(GrouperVersion, java.lang.String, java.lang.Boolean, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup, AttributeAssignType, AttributeDefType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Boolean, edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.coresoap.WsParam[])"><B>findAttributeDefNames(GrouperVersion, String, Boolean, WsAttributeDefLookup, AttributeAssignType, AttributeDefType, WsAttributeDefNameLookup[], Integer, Integer, String, Boolean, WsInheritanceSetRelation, WsSubjectLookup, WsParam[])</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#findAttributeDefNames(GrouperVersion, java.lang.String, java.lang.Boolean, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup, AttributeAssignType, AttributeDefType, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup[], java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Boolean, edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, ServiceRole)"><B>findAttributeDefNames(GrouperVersion, String, Boolean, WsAttributeDefLookup, AttributeAssignType, AttributeDefType, WsAttributeDefNameLookup[], Integer, Integer, String, Boolean, WsInheritanceSetRelation, WsSubjectLookup, WsParam[], WsSubjectLookup, ServiceRole)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
 <DD>find an attribute def name or attribute def names.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#findAttributeDefNames(GrouperVersion, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest)"><B>findAttributeDefNames(GrouperVersion, WsRestFindAttributeDefNamesRequest)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest">GrouperServiceRest</A>
 <DD>find an attribute def name or attribute def names.
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#findAttributeDefNamesLite(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>findAttributeDefNamesLite(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#findAttributeDefNamesLite(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>findAttributeDefNamesLite(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">GrouperService</A>
 <DD>find an attribute def name or attribute def names.
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#findAttributeDefNamesLite(GrouperVersion, java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String, AttributeAssignType, AttributeDefType, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Boolean, edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>findAttributeDefNamesLite(GrouperVersion, String, Boolean, String, String, AttributeAssignType, AttributeDefType, String, String, Integer, Integer, String, Boolean, WsInheritanceSetRelation, String, String, String, String, String, String, String)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#findAttributeDefNamesLite(GrouperVersion, java.lang.String, java.lang.Boolean, java.lang.String, java.lang.String, AttributeAssignType, AttributeDefType, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Boolean, edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, ServiceRole)"><B>findAttributeDefNamesLite(GrouperVersion, String, Boolean, String, String, AttributeAssignType, AttributeDefType, String, String, Integer, Integer, String, Boolean, WsInheritanceSetRelation, String, String, String, String, String, String, String, String, String, String, ServiceRole)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
 <DD>find an attribute def name or attribute def names.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#findAttributeDefNamesLite(GrouperVersion, java.lang.String, edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest)"><B>findAttributeDefNamesLite(GrouperVersion, String, WsRestFindAttributeDefNamesLiteRequest)</B></A> - 
@@ -1693,6 +1702,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#getAscending()"><B>getAscending()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>ascending or null for ascending, F for descending.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#getAscending()"><B>getAscending()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>ascending T or null for ascending, F for descending.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#getAscending()"><B>getAscending()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
+<DD>ascending T or null for ascending, F for descending.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributeDefNameInheritanceLiteRequest.html?view=co#getAssign()"><B>getAssign()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributeDefNameInheritanceLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributeDefNameInheritanceLiteRequest</A>
 <DD>T to assign, or F to remove assignment
@@ -2408,6 +2423,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/
 Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/internet2/middleware/grouper/ws/rest/subject/WsRestGetSubjectsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.subject">WsRestGetSubjectsRequest</A>
 <DD>is if the memberships should be retrieved from a certain field membership
  of the group (certain list)
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getFieldType()"><B>getFieldType()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>fieldType is the type of field to look at, e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#getFieldType()"><B>getFieldType()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>fieldType is the type of field to look at, e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#getGroupAttributeName()"><B>getGroupAttributeName()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>if querying, this is the attribute name, or null or search
@@ -2698,6 +2719,30 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html?view=co#getIdentifierLookup()"><B>getIdentifierLookup()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubject</A>
 <DD>identifier used to lookup subject
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDef</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefName</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroup.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroupLookup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStem.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStem</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co#getIdIndex()"><B>getIdIndex()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStemLookup</A>
+<DD>integer ID for object
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssignDetail.html?view=co#getImmediateMembership()"><B>getImmediateMembership()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssignDetail.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsPermissionAssignDetail</A>
 <DD>T or F if the membership is immediate to the role
@@ -3039,15 +3084,15 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssignDetail.html?view=co#getMemberId()"><B>getMemberId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssignDetail.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsPermissionAssignDetail</A>
 <DD>if this is a member attribute, this is the foreign key
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMembers(java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, java.lang.String, java.lang.String, java.lang.String, java.lang.String[], edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.lang.String, java.lang.String)"><B>getMembers(String, WsGroupLookup[], String, WsSubjectLookup, String, String, String, String[], WsParam[], String[], String, String)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMembers(java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, java.lang.String, java.lang.String, java.lang.String, java.lang.String[], edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>getMembers(String, WsGroupLookup[], String, WsSubjectLookup, String, String, String, String[], WsParam[], String[], String, String, String, String, String, String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">GrouperService</A>
 <DD>get members from a group based on a filter (all, immediate only,
  effective only, composite)
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMembers(GrouperVersion, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, Field, boolean, boolean, java.lang.String[], edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.sql.Timestamp, java.sql.Timestamp)"><B>getMembers(GrouperVersion, WsGroupLookup[], WsMemberFilter, WsSubjectLookup, Field, boolean, boolean, String[], WsParam[], String[], Timestamp, Timestamp)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMembers(GrouperVersion, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, Field, boolean, boolean, java.lang.String[], edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.sql.Timestamp, java.sql.Timestamp, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Boolean)"><B>getMembers(GrouperVersion, WsGroupLookup[], WsMemberFilter, WsSubjectLookup, Field, boolean, boolean, String[], WsParam[], String[], Timestamp, Timestamp, Integer, Integer, String, Boolean)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
 <DD>get members from a group based on a filter (all, immediate only,
  effective only, composite)
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?view=co#getMembers(Group, Field, java.util.Set)"><B>getMembers(Group, Field, Set&lt;Source&gt;)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?view=co#getMembers(Group, Field, java.util.Set, QueryOptions)"><B>getMembers(Group, Field, Set&lt;Source&gt;, QueryOptions)</B></A> - 
 Method in enum edu.internet2.middleware.grouper.ws.member.<A HREF="./edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>
 <DD>get the members from the group based on type of filter
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co#getMembers(GrouperVersion, edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest)"><B>getMembers(GrouperVersion, WsRestGetMembersRequest)</B></A> - 
@@ -3069,11 +3114,11 @@ Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./e
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#getMembershipIds()"><B>getMembershipIds()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
 <DD>membershipIds are the ids to search for if they are known
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMemberships(java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, java.lang.String, java.lang.String, java.lang.String[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, java.lang.String, java.lang.String, java.lang.String[])"><B>getMemberships(String, WsGroupLookup[], WsSubjectLookup[], String, WsSubjectLookup, String, String, String[], String, WsParam[], String[], String, WsStemLookup, String, String, String[])</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMemberships(java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, java.lang.String, java.lang.String, java.lang.String[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, java.lang.String, java.lang.String, java.lang.String[], edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup)"><B>getMemberships(String, WsGroupLookup[], WsSubjectLookup[], String, WsSubjectLookup, String, String, String[], String, WsParam[], String[], String, WsStemLookup, String, String, String[], WsStemLookup[], WsAttributeDefLookup[], String, String, WsAttributeDefNameLookup)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">GrouperService</A>
 <DD>get memberships from groups and or subjects based on a filter (all, immediate only,
  effective only, composite, nonimmediate).
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMemberships(GrouperVersion, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, Field, boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, java.lang.String, java.lang.String[])"><B>getMemberships(GrouperVersion, WsGroupLookup[], WsSubjectLookup[], WsMemberFilter, WsSubjectLookup, Field, boolean, String[], boolean, WsParam[], String[], String, WsStemLookup, StemScope, String, String[])</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMemberships(GrouperVersion, edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, Field, boolean, java.lang.String[], boolean, edu.internet2.middleware.grouper.ws.coresoap.WsParam[], java.lang.String[], java.lang.String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, java.lang.String, java.lang.String[], edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[], edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[], FieldType, ServiceRole, edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup)"><B>getMemberships(GrouperVersion, WsGroupLookup[], WsSubjectLookup[], WsMemberFilter, WsSubjectLookup, Field, boolean, String[], boolean, WsParam[], String[], String, WsStemLookup, StemScope, String, String[], WsStemLookup[], WsAttributeDefLookup[], FieldType, ServiceRole, WsAttributeDefNameLookup)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
 <DD>get memberships from groups and or subjects based on a filter (all, immediate only,
  effective only, composite, nonimmediate).
@@ -3084,11 +3129,11 @@ Method in enum edu.internet2.middleware.grouper.ws.member.<A HREF="./edu/interne
 Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest">GrouperServiceRest</A>
 <DD>
  based on a group name, get memberships.
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMembershipsLite(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>getMembershipsLite(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMembershipsLite(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>getMembershipsLite(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">GrouperService</A>
 <DD>get memberships from a group based on a filter (all, immediate only,
  effective only, composite)
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMembershipsLite(GrouperVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, boolean, java.lang.String, java.lang.String, java.lang.String, Field, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.query.StemScope, java.lang.String, java.lang.String)"><B>getMembershipsLite(GrouperVersion, String, String, String, String, String, WsMemberFilter, boolean, String, String, String, Field, String, boolean, String, String, String, String, String, String, String, String, StemScope, String, String)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMembershipsLite(GrouperVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, boolean, java.lang.String, java.lang.String, java.lang.String, Field, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.query.StemScope, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, FieldType, ServiceRole, java.lang.String, java.lang.String)"><B>getMembershipsLite(GrouperVersion, String, String, String, String, String, WsMemberFilter, boolean, String, String, String, Field, String, boolean, String, String, String, String, String, String, String, String, StemScope, String, String, String, String, String, String, FieldType, ServiceRole, String, String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
 <DD>get memberships from a group based on a filter (all, immediate only,
  effective only, composite)
@@ -3102,11 +3147,11 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?view=co#getMembershipType()"><B>getMembershipType()</B></A> - 
 Method in enum edu.internet2.middleware.grouper.ws.member.<A HREF="./edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>
 <DD>get the membership type for this member filter
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMembersLite(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>getMembersLite(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co#getMembersLite(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><B>getMembersLite(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/GrouperService.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">GrouperService</A>
 <DD>get members from a group based on a filter (all, immediate only,
  effective only, composite)
-<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMembersLite(GrouperVersion, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, java.lang.String, java.lang.String, java.lang.String, Field, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp)"><B>getMembersLite(GrouperVersion, String, String, WsMemberFilter, String, String, String, Field, boolean, boolean, String, String, String, String, String, String, Timestamp, Timestamp)</B></A> - 
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#getMembersLite(GrouperVersion, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, java.lang.String, java.lang.String, java.lang.String, Field, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.sql.Timestamp, java.lang.Integer, java.lang.Integer, java.lang.String, java.lang.Boolean)"><B>getMembersLite(GrouperVersion, String, String, WsMemberFilter, String, String, String, Field, boolean, boolean, String, String, String, String, String, String, Timestamp, Timestamp, Integer, Integer, String, Boolean)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
 <DD>get members from a group based on a filter (all, immediate only,
  effective only, composite)
@@ -3166,6 +3211,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#getNameOfAttributeDef()"><B>getNameOfAttributeDef()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
 <DD>find names associated with this attribute definition, mutually exclusive with idOfAttributeDef
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getNameOfOwnerAttributeDef()"><B>getNameOfOwnerAttributeDef()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on attribute definitions, put the name of the attribute definition here
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestMemberChangeSubjectLiteRequest.html?view=co#getNewSubjectId()"><B>getNewSubjectId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestMemberChangeSubjectLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestMemberChangeSubjectLiteRequest</A>
 <DD>newSubjectId preferred way to identify the new subject id
@@ -3206,12 +3254,18 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerAttributeDefName()"><B>getOwnerAttributeDefName()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is an attribute def attribute, this is the name of foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getOwnerAttributeDefUuid()"><B>getOwnerAttributeDefUuid()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on attribute definitions, put the uuid of the attribute definition here
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerGroupId()"><B>getOwnerGroupId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a group attribute, this is the foreign key
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerGroupName()"><B>getOwnerGroupName()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a group attribute, this is the name of the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#getOwnerIdOfAttributeDef()"><B>getOwnerIdOfAttributeDef()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>id of the attr def for attr def privileges
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerMemberId()"><B>getOwnerMemberId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a member attribute, this is the foreign key
@@ -3224,12 +3278,27 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerMemberSubjectId()"><B>getOwnerMemberSubjectId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a member attribute, this is the subject of the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#getOwnerNameOfAttributeDef()"><B>getOwnerNameOfAttributeDef()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>name of the attr def for attr def privileges
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerStemId()"><B>getOwnerStemId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a stem attribute, this is the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#getOwnerStemId()"><B>getOwnerStemId()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>uuid of the stem for stem privileges
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#getOwnerStemName()"><B>getOwnerStemName()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a stem attribute, this is the stem of the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#getOwnerStemName()"><B>getOwnerStemName()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>name of the stem for stem privileges
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getOwnerStemName()"><B>getOwnerStemName()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on stems, put the stem name to look for here
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getOwnerStemUuid()"><B>getOwnerStemUuid()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on stems, put the stem uuid here
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co#getOwnerSubject()"><B>getOwnerSubject()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGrouperPrivilegeResult</A>
 <DD>owner subject of privilege
@@ -3254,6 +3323,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#getPageNumber()"><B>getPageNumber()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>pageNumber page number 1 indexed if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#getPageNumber()"><B>getPageNumber()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>page number 1 indexed if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#getPageNumber()"><B>getPageNumber()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
+<DD>page number 1 indexed if paging
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#getPageSize()"><B>getPageSize()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>page size if paging
@@ -3275,6 +3350,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#getPageSize()"><B>getPageSize()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>pageSize page size if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#getPageSize()"><B>getPageSize()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>page size if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#getPageSize()"><B>getPageSize()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
+<DD>page size if paging
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/WsHttpServletRequest.html?view=co#getParameter(java.lang.String)"><B>getParameter(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/WsHttpServletRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws">WsHttpServletRequest</A>
 <DD>&nbsp;
@@ -3856,20 +3937,19 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DD>privilegeType (e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#getProperties()"><B>getProperties()</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
-<DD>get all properties
+<DD><B>Deprecated.</B>&nbsp;<I>use GrouperWsConfig.retrieveConfig().properties()</I>
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#getPropertyBoolean(java.lang.String, boolean)"><B>getPropertyBoolean(String, boolean)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
-<DD>Get a Grouper configuration parameter as boolean (must be true|t|false|f
- case-insensitive)
+<DD><B>Deprecated.</B>&nbsp;<I>use GrouperWsConfig.retrieveConfig().propertyValueBoolean instead</I>
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#getPropertyInt(java.lang.String, int)"><B>getPropertyInt(String, int)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
-<DD>Get a Grouper configuration parameter an integer
+<DD><B>Deprecated.</B>&nbsp;<I>use GrouperWsConfig.retrieveConfig().propertyValueInt instead</I>
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#getPropertyString(java.lang.String)"><B>getPropertyString(String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
-<DD>Get a Grouper configuration parameter.
+<DD><B>Deprecated.</B>&nbsp;<I>use GrouperWsConfig.retrieveConfig().propertyValueString instead</I>
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#getPropertyString(java.lang.String, java.lang.String)"><B>getPropertyString(String, String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
-<DD>Get a Grouper configuration parameter.
+<DD><B>Deprecated.</B>&nbsp;<I>use GrouperWsConfig.retrieveConfig().propertyValueString instead</I>
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#getQueryFilter0()"><B>getQueryFilter0()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>if 'and' or 'or' this is the first group, and if complement, 
@@ -4372,6 +4452,28 @@ Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co#getServerVersion()"><B>getServerVersion()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResponseMeta</A>
 <DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getServiceId()"><B>getServiceId()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#getServiceLookup()"><B>getServiceLookup()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>serviceLookup if filtering by users in a service, then this is the service to look in
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getServiceName()"><B>getServiceName()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#getServiceRole()"><B>getServiceRole()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>serviceRole to filter attributes that a user has a certain role
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co#getServiceRole()"><B>getServiceRole()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesRequest</A>
+<DD>from ServiceRole enum, which service role you are querying
+ e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#getServiceRole()"><B>getServiceRole()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>serviceRole to filter attributes that a user has a certain role
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#getServiceRole()"><B>getServiceRole()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>serviceRole to filter attributes that a user has a certain role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#getSortString()"><B>getSortString()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>must be an hql query field, e.g.
@@ -4392,6 +4494,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DD>sortString must be an hql query field, e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#getSortString()"><B>getSortString()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
+<DD>sortString must be an hql query field, e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#getSortString()"><B>getSortString()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>sortString must be an hql query field, e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#getSortString()"><B>getSortString()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
 <DD>sortString must be an hql query field, e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssign.html?view=co#getSourceId()"><B>getSourceId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsPermissionAssign</A>
@@ -4704,6 +4812,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#getSubjectId()"><B>getSubjectId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>id of the subject
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#getSubjectId()"><B>getSubjectId()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>subjectId subject id if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co#getSubjectId()"><B>getSubjectId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>
 <DD>subject id of subject to search for privileges.
@@ -4731,6 +4842,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#getSubjectIdentifier()"><B>getSubjectIdentifier()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>any identifier of the subject
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#getSubjectIdentifier()"><B>getSubjectIdentifier()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>subjectIdentifier subject identifier if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co#getSubjectIdentifier()"><B>getSubjectIdentifier()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>
 <DD>subject identifier of subject.
@@ -4755,6 +4869,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./e
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/subject/WsRestGetSubjectsLiteRequest.html?view=co#getSubjectIdentifier()"><B>getSubjectIdentifier()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/internet2/middleware/grouper/ws/rest/subject/WsRestGetSubjectsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.subject">WsRestGetSubjectsLiteRequest</A>
 <DD>subject id to look for memberships
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co#getSubjectLookup()"><B>getSubjectLookup()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesRequest</A>
+<DD>subject if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#getSubjectLookups()"><B>getSubjectLookups()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>&nbsp;
@@ -4811,6 +4928,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#getSubjectSourceId()"><B>getSubjectSourceId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>optional: source of subject in the subject api source list
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#getSubjectSourceId()"><B>getSubjectSourceId()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>subjectSourceId subject source id if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co#getSubjectSourceId()"><B>getSubjectSourceId()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>
 <DD>source id of subject object (optional)
@@ -5190,6 +5310,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co#getWsAttributeDefs()"><B>getWsAttributeDefs()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A>
 <DD>attribute def references in the assignments or inputs (and able to be read)
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co#getWsAttributeDefs()"><B>getWsAttributeDefs()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetMembershipsResults</A>
+<DD>attributeDefs that are in the results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetPermissionAssignmentsResults.html?view=co#getWsAttributeDefs()"><B>getWsAttributeDefs()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetPermissionAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetPermissionAssignmentsResults</A>
 <DD>attribute def references in the assignments or inputs (and able to be read)
@@ -5360,6 +5483,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./ed
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co#getWsOwnerAttributeDefLookups()"><B>getWsOwnerAttributeDefLookups()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsRequest</A>
 <DD>to query attributes assigned on attribute defs
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#getWsOwnerAttributeDefLookups()"><B>getWsOwnerAttributeDefLookups()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>attribute definition lookups if looking for memberships on certain attribute definitions
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co#getWsOwnerAttributeDefName()"><B>getWsOwnerAttributeDefName()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesLiteRequest</A>
 <DD>to query attributes assigned on attribute def
@@ -5456,6 +5582,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./ed
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co#getWsOwnerStemLookups()"><B>getWsOwnerStemLookups()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsRequest</A>
 <DD>are stems to look in
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#getWsOwnerStemLookups()"><B>getWsOwnerStemLookups()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>stem lookups if looking for memberships on certain stems
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co#getWsOwnerStemName()"><B>getWsOwnerStemName()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesLiteRequest</A>
 <DD>is stem to assign
@@ -5554,6 +5683,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DD>stems that are in the results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co#getWsStems()"><B>getWsStems()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A>
+<DD>stems that are in the results
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co#getWsStems()"><B>getWsStems()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetMembershipsResults</A>
 <DD>stems that are in the results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/stem/WsRestStemSaveRequest.html?view=co#getWsStemToSaves()"><B>getWsStemToSaves()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.stem.<A HREF="./edu/internet2/middleware/grouper/ws/rest/stem/WsRestStemSaveRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.stem">WsRestStemSaveRequest</A>
@@ -6079,6 +6211,9 @@ Static method in enum edu.internet2.middleware.grouper.ws.rest.contentType.<A HR
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co#main(java.lang.String[])"><B>main(String[])</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperKerberosAuthentication</A>
 <DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#main(java.lang.String[])"><B>main(String[])</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperLdapAuthentication</A>
+<DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#marshalHttpParamsToObject(java.util.Map, javax.servlet.http.HttpServletRequest, java.lang.StringBuilder)"><B>marshalHttpParamsToObject(Map&lt;String, String&gt;, HttpServletRequest, StringBuilder)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
 <DD>take http params and put into an object (type is specified in the http params object
@@ -6107,6 +6242,9 @@ Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/i
 <DD>
  based on a member, change the subject
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#mergeArrays(T[], T[], java.lang.String, java.lang.Class)"><B>mergeArrays(T[], T[], String, Class&lt;T&gt;)</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
+<DD>merge one array into another array and return it
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#mergeArrays(T[], T[], java.lang.String[], java.lang.Class)"><B>mergeArrays(T[], T[], String[], Class&lt;T&gt;)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
 <DD>merge one array into another array and return it
 </DL>
@@ -6302,6 +6440,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMemberChangeSubjectResult.html?view=co#processSubjectNew(edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup, java.lang.String[])"><B>processSubjectNew(WsSubjectLookup, String[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMemberChangeSubjectResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMemberChangeSubjectResult</A>
 <DD>assign the code from the enum
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#propertyNameValues(java.lang.Object, java.lang.String[])"><B>propertyNameValues(Object, String[])</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
+<DD>&nbsp;
 </DL>
 <HR>
 <A NAME="_R_"><!-- --></A><H2>
@@ -6328,6 +6469,12 @@ Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/i
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co#removeCurrentClientVersion(boolean)"><B>removeCurrentClientVersion(boolean)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperWsVersionUtils</A>
 <DD>put the current client version
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#removePrivsNotAllowedToSee(java.util.Set)"><B>removePrivsNotAllowedToSee(Set&lt;GrouperPrivilege&gt;)</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
+<DD>remove privileges not allowed to see
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co#removePrivsNotAllowedToSee(java.util.TreeSet)"><B>removePrivsNotAllowedToSee(TreeSet&lt;GrouperPrivilege&gt;)</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperServiceLogic</A>
+<DD>remove privileges not allowed to see
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperRestServlet.html?view=co#requestDebugInfo(javax.servlet.http.HttpServletRequest)"><B>requestDebugInfo(HttpServletRequest)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/internet2/middleware/grouper/ws/rest/GrouperRestServlet.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest">GrouperRestServlet</A>
 <DD>for error messages, get a detailed report of the request
@@ -6443,6 +6590,9 @@ Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/i
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/WsRestClassLookup.html?view=co#retrieveClassBySimpleName(java.lang.String)"><B>retrieveClassBySimpleName(String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.rest.<A HREF="./edu/internet2/middleware/grouper/ws/rest/WsRestClassLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest">WsRestClassLookup</A>
 <DD>find a class object based on simple name
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co#retrieveConfig()"><B>retrieveConfig()</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.<A HREF="./edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?view=co" title="class in edu.internet2.middleware.grouper.ws">GrouperWsConfig</A>
+<DD>retrieve a config from the config file or from cache
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co#retrieveCurrentClientVersion()"><B>retrieveCurrentClientVersion()</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperWsVersionUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperWsVersionUtils</A>
 <DD>return current client version or null
@@ -6459,6 +6609,9 @@ Method in class edu.internet2.middleware.grouper.ws.status.<A HREF="./edu/intern
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#retrieveField(java.lang.String)"><B>retrieveField(String)</B></A> - 
 Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
 <DD>convert a fieldName into a Field
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co#retrieveFieldType(java.lang.String)"><B>retrieveFieldType(String)</B></A> - 
+Static method in class edu.internet2.middleware.grouper.ws.util.<A HREF="./edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.util">GrouperServiceUtils</A>
+<DD>convert a fieldTypeName into a FieldType
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co#retrieveGroup()"><B>retrieveGroup()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroupLookup</A>
 <DD>
@@ -6516,6 +6669,9 @@ Method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/inte
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)"><B>retrieveLoggedInSubjectId(HttpServletRequest)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperKerberosAuthentication</A>
+<DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)"><B>retrieveLoggedInSubjectId(HttpServletRequest)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperLdapAuthentication</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#retrieveMember()"><B>retrieveMember()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
@@ -7372,6 +7528,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#setAscending(java.lang.String)"><B>setAscending(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>ascending or null for ascending, F for descending.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#setAscending(java.lang.String)"><B>setAscending(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>ascending T or null for ascending, F for descending.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#setAscending(java.lang.String)"><B>setAscending(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
+<DD>ascending T or null for ascending, F for descending.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributeDefNameInheritanceLiteRequest.html?view=co#setAssign(java.lang.String)"><B>setAssign(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributeDefNameInheritanceLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributeDefNameInheritanceLiteRequest</A>
 <DD>T to assign, or F to remove assignment
@@ -8050,6 +8212,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/
 Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/internet2/middleware/grouper/ws/rest/subject/WsRestGetSubjectsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.subject">WsRestGetSubjectsRequest</A>
 <DD>is if the memberships should be retrieved from a certain field membership
  of the group (certain list)
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setFieldType(java.lang.String)"><B>setFieldType(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>fieldType is the type of field to look at, e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#setFieldType(java.lang.String)"><B>setFieldType(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>fieldType is the type of field to look at, e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#setGroupAttributeName(java.lang.String)"><B>setGroupAttributeName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>if querying, this is the attribute name, or null or search
@@ -8181,6 +8349,30 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html?view=co#setIdentifierLookup(java.lang.String)"><B>setIdentifierLookup(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubject.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubject</A>
 <DD>return the identifier looked up
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDef</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefName</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroup.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroupLookup</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStem.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStem.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStem</A>
+<DD>integer ID for object
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co#setIdIndex(java.lang.String)"><B>setIdIndex(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStemLookup</A>
+<DD>integer ID for object
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssignDetail.html?view=co#setImmediateMembership(java.lang.String)"><B>setImmediateMembership(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssignDetail.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsPermissionAssignDetail</A>
 <DD>T or F if the membership is immediate to the role
@@ -8591,6 +8783,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#setNameOfAttributeDef(java.lang.String)"><B>setNameOfAttributeDef(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
 <DD>find names associated with this attribute definition, mutually exclusive with idOfAttributeDef
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setNameOfOwnerAttributeDef(java.lang.String)"><B>setNameOfOwnerAttributeDef(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on attribute definitions, put the name of the attribute definition here
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestMemberChangeSubjectLiteRequest.html?view=co#setNewSubjectId(java.lang.String)"><B>setNewSubjectId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestMemberChangeSubjectLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestMemberChangeSubjectLiteRequest</A>
 <DD>newSubjectId preferred way to identify the new subject id
@@ -8628,12 +8823,18 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerAttributeDefName(java.lang.String)"><B>setOwnerAttributeDefName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is an attribute def attribute, this is the name of foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setOwnerAttributeDefUuid(java.lang.String)"><B>setOwnerAttributeDefUuid(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on attribute definitions, put the uuid of the attribute definition here
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerGroupId(java.lang.String)"><B>setOwnerGroupId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a group attribute, this is the foreign key
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerGroupName(java.lang.String)"><B>setOwnerGroupName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a group attribute, this is the name of the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#setOwnerIdOfAttributeDef(java.lang.String)"><B>setOwnerIdOfAttributeDef(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>id of the attr def for attr def privileges
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerMemberId(java.lang.String)"><B>setOwnerMemberId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a member attribute, this is the foreign key
@@ -8646,12 +8847,27 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerMemberSubjectId(java.lang.String)"><B>setOwnerMemberSubjectId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a member attribute, this is the subject of the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#setOwnerNameOfAttributeDef(java.lang.String)"><B>setOwnerNameOfAttributeDef(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>name of the attr def for attr def privileges
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerStemId(java.lang.String)"><B>setOwnerStemId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a stem attribute, this is the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#setOwnerStemId(java.lang.String)"><B>setOwnerStemId(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>uuid of the stem for stem privileges
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co#setOwnerStemName(java.lang.String)"><B>setOwnerStemName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeAssign</A>
 <DD>if this is a stem attribute, this is the stem of the foreign key
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#setOwnerStemName(java.lang.String)"><B>setOwnerStemName(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>name of the stem for stem privileges
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setOwnerStemName(java.lang.String)"><B>setOwnerStemName(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on stems, put the stem name to look for here
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setOwnerStemUuid(java.lang.String)"><B>setOwnerStemUuid(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>if looking for privileges on stems, put the stem uuid here
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co#setOwnerSubject(edu.internet2.middleware.grouper.ws.coresoap.WsSubject)"><B>setOwnerSubject(WsSubject)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGrouperPrivilegeResult</A>
 <DD>owner subject of privilege
@@ -8676,6 +8892,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#setPageNumber(java.lang.String)"><B>setPageNumber(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>pageNumber page number 1 indexed if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#setPageNumber(java.lang.String)"><B>setPageNumber(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>page number 1 indexed if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#setPageNumber(java.lang.String)"><B>setPageNumber(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
+<DD>page number 1 indexed if paging
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#setPageSize(java.lang.String)"><B>setPageSize(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>page size if paging
@@ -8697,6 +8919,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#setPageSize(java.lang.String)"><B>setPageSize(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>pageSize page size if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#setPageSize(java.lang.String)"><B>setPageSize(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>page size if paging
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#setPageSize(java.lang.String)"><B>setPageSize(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
+<DD>page size if paging
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co#setParamName(java.lang.String)"><B>setParamName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsParam.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsParam</A>
 <DD>&nbsp;
@@ -9729,6 +9957,28 @@ Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co#setServerVersion(java.lang.String)"><B>setServerVersion(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResponseMeta</A>
 <DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setServiceId(java.lang.String)"><B>setServiceId(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#setServiceLookup(edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup)"><B>setServiceLookup(WsAttributeDefNameLookup)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>serviceLookup if filtering by users in a service, then this is the service to look in
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setServiceName(java.lang.String)"><B>setServiceName(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#setServiceRole(java.lang.String)"><B>setServiceRole(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>serviceRole to filter attributes that a user has a certain role
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co#setServiceRole(java.lang.String)"><B>setServiceRole(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesRequest</A>
+<DD>from ServiceRole enum, which service role you are querying
+ e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co#setServiceRole(java.lang.String)"><B>setServiceRole(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsLiteRequest</A>
+<DD>serviceRole to filter attributes that a user has a certain role
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#setServiceRole(java.lang.String)"><B>setServiceRole(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>serviceRole to filter attributes that a user has a certain role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co#setSortString(java.lang.String)"><B>setSortString(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsQueryFilter</A>
 <DD>must be an hql query field, e.g.
@@ -9749,6 +9999,12 @@ Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/in
 <DD>sortString must be an hql query field, e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#setSortString(java.lang.String)"><B>setSortString(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
+<DD>sortString must be an hql query field, e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co#setSortString(java.lang.String)"><B>setSortString(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersLiteRequest</A>
+<DD>sortString must be an hql query field, e.g.
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co#setSortString(java.lang.String)"><B>setSortString(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.member.<A HREF="./edu/internet2/middleware/grouper/ws/rest/member/WsRestGetMembersRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.member">WsRestGetMembersRequest</A>
 <DD>sortString must be an hql query field, e.g.
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssign.html?view=co#setSourceId(java.lang.String)"><B>setSourceId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsPermissionAssign.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsPermissionAssign</A>
@@ -10068,6 +10324,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#setSubjectId(java.lang.String)"><B>setSubjectId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>id of the subject
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#setSubjectId(java.lang.String)"><B>setSubjectId(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>subjectId subject id if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co#setSubjectId(java.lang.String)"><B>setSubjectId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>
 <DD>subject id of subject to search for privileges.
@@ -10095,6 +10354,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#setSubjectIdentifier(java.lang.String)"><B>setSubjectIdentifier(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>any identifier of the subject
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#setSubjectIdentifier(java.lang.String)"><B>setSubjectIdentifier(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>subjectIdentifier subject identifier if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co#setSubjectIdentifier(java.lang.String)"><B>setSubjectIdentifier(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>
 <DD>subject identifier of subject.
@@ -10119,6 +10381,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./e
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/subject/WsRestGetSubjectsLiteRequest.html?view=co#setSubjectIdentifier(java.lang.String)"><B>setSubjectIdentifier(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.subject.<A HREF="./edu/internet2/middleware/grouper/ws/rest/subject/WsRestGetSubjectsLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.subject">WsRestGetSubjectsLiteRequest</A>
 <DD>subject id to look for memberships
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co#setSubjectLookup(edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup)"><B>setSubjectLookup(WsSubjectLookup)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesRequest</A>
+<DD>subject if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co#setSubjectLookups(edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup[])"><B>setSubjectLookups(WsSubjectLookup[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>
 <DD>&nbsp;
@@ -10155,6 +10420,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co#setSubjectSourceId(java.lang.String)"><B>setSubjectSourceId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsSubjectLookup</A>
 <DD>optional: source of subject in the subject api source list
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co#setSubjectSourceId(java.lang.String)"><B>setSubjectSourceId(String)</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestFindAttributeDefNamesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestFindAttributeDefNamesLiteRequest</A>
+<DD>subjectSourceId subject source id if looking for privileges or service role
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co#setSubjectSourceId(java.lang.String)"><B>setSubjectSourceId(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.group.<A HREF="./edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>
 <DD>source id of subject object (optional)
@@ -10528,6 +10796,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co#setWsAttributeDefs(edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef[])"><B>setWsAttributeDefs(WsAttributeDef[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A>
 <DD>attribute def references in the assignments or inputs (and able to be read)
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co#setWsAttributeDefs(edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef[])"><B>setWsAttributeDefs(WsAttributeDef[])</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetMembershipsResults</A>
+<DD>attributeDefs that are in the results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetPermissionAssignmentsResults.html?view=co#setWsAttributeDefs(edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef[])"><B>setWsAttributeDefs(WsAttributeDef[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetPermissionAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetPermissionAssignmentsResults</A>
 <DD>attribute def references in the assignments or inputs (and able to be read)
@@ -10698,6 +10969,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./ed
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co#setWsOwnerAttributeDefLookups(edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[])"><B>setWsOwnerAttributeDefLookups(WsAttributeDefLookup[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsRequest</A>
 <DD>to query attributes assigned on attribute defs
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#setWsOwnerAttributeDefLookups(edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup[])"><B>setWsOwnerAttributeDefLookups(WsAttributeDefLookup[])</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>attribute definition lookups if looking for memberships on certain attribute definitions
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co#setWsOwnerAttributeDefName(java.lang.String)"><B>setWsOwnerAttributeDefName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesLiteRequest</A>
 <DD>to query attributes assigned on attribute def
@@ -10794,6 +11068,9 @@ Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./ed
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co#setWsOwnerStemLookups(edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[])"><B>setWsOwnerStemLookups(WsStemLookup[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestGetAttributeAssignmentsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestGetAttributeAssignmentsRequest</A>
 <DD>are stems to look in
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co#setWsOwnerStemLookups(edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup[])"><B>setWsOwnerStemLookups(WsStemLookup[])</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.rest.membership.<A HREF="./edu/internet2/middleware/grouper/ws/rest/membership/WsRestGetMembershipsRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.membership">WsRestGetMembershipsRequest</A>
+<DD>stem lookups if looking for memberships on certain stems
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co#setWsOwnerStemName(java.lang.String)"><B>setWsOwnerStemName(String)</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.attribute.<A HREF="./edu/internet2/middleware/grouper/ws/rest/attribute/WsRestAssignAttributesLiteRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.attribute">WsRestAssignAttributesLiteRequest</A>
 <DD>is stem to assign
@@ -10892,6 +11169,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DD>stems that are in the results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co#setWsStems(edu.internet2.middleware.grouper.ws.coresoap.WsStem[])"><B>setWsStems(WsStem[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetAttributeAssignmentsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetAttributeAssignmentsResults</A>
+<DD>stems that are in the results
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co#setWsStems(edu.internet2.middleware.grouper.ws.coresoap.WsStem[])"><B>setWsStems(WsStem[])</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGetMembershipsResults.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGetMembershipsResults</A>
 <DD>stems that are in the results
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/rest/stem/WsRestStemSaveRequest.html?view=co#setWsStemToSaves(edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave[])"><B>setWsStemToSaves(WsStemToSave[])</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.rest.stem.<A HREF="./edu/internet2/middleware/grouper/ws/rest/stem/WsRestStemSaveRequest.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest.stem">WsRestStemSaveRequest</A>
@@ -11194,6 +11474,9 @@ Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/inte
 <DD>make sure this is an explicit toString
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMemberChangeSubject.html?view=co#toString()"><B>toString()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMemberChangeSubject.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMemberChangeSubject</A>
+<DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#toString()"><B>toString()</B></A> - 
+Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html?view=co#toString()"><B>toString()</B></A> - 
 Method in class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembershipAnyLookup</A>
@@ -12302,6 +12585,9 @@ Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./ed
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#WsAttributeDefLookup(java.lang.String, java.lang.String)"><B>WsAttributeDefLookup(String, String)</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>
 <DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co#WsAttributeDefLookup(java.lang.String, java.lang.String, java.lang.String)"><B>WsAttributeDefLookup(String, String, String)</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefLookup</A>
+<DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefLookup.AttributeDefFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap"><B>WsAttributeDefLookup.AttributeDefFindResult</B></A> - Enum in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>result of attribute def name find<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>WsAttributeDefName</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>Result of one attribute def name being retrieved.<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co#WsAttributeDefName()"><B>WsAttributeDefName()</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefName</A>
 <DD>no arg constructor
@@ -12335,6 +12621,9 @@ Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./ed
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#WsAttributeDefNameLookup(java.lang.String, java.lang.String)"><B>WsAttributeDefNameLookup(String, String)</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>
+<DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co#WsAttributeDefNameLookup(java.lang.String, java.lang.String, java.lang.String)"><B>WsAttributeDefNameLookup(String, String, String)</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsAttributeDefNameLookup</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameLookup.AttributeDefNameFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap"><B>WsAttributeDefNameLookup.AttributeDefNameFindResult</B></A> - Enum in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>result of attribute def name find<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsAttributeDefNameSaveLiteResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>WsAttributeDefNameSaveLiteResult</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>
@@ -12498,6 +12787,12 @@ Constructor for class edu.internet2.middleware.grouper.ws.security.<A HREF="./ed
   1.<DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co#WsGrouperKerberosAuthentication()"><B>WsGrouperKerberosAuthentication()</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperKerberosAuthentication</A>
 <DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security"><B>WsGrouperLdapAuthentication</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/security/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.security</A><DD>
+ ldap bind authentication for grouper, settings are specified in grouper-ws.properties, and the grouper-loader.properties
+ note: this can be used for rest and soap, though it is not a bastion of security:
+  1.<DT><A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#WsGrouperLdapAuthentication()"><B>WsGrouperLdapAuthentication()</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.security.<A HREF="./edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security">WsGrouperLdapAuthentication</A>
+<DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>WsGrouperPrivilegeResult</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>Query for one privilege.<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co#WsGrouperPrivilegeResult()"><B>WsGrouperPrivilegeResult()</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGrouperPrivilegeResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGrouperPrivilegeResult</A>
 <DD>&nbsp;
@@ -12511,6 +12806,9 @@ Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./ed
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroupLookup</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co#WsGroupLookup(java.lang.String, java.lang.String)"><B>WsGroupLookup(String, String)</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroupLookup</A>
+<DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co#WsGroupLookup(java.lang.String, java.lang.String, java.lang.String)"><B>WsGroupLookup(String, String, String)</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsGroupLookup</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupLookup.GroupFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap"><B>WsGroupLookup.GroupFindResult</B></A> - Enum in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>result of group find<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsGroupSaveLiteResult.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>WsGroupSaveLiteResult</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>
@@ -12591,6 +12889,12 @@ Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./ed
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#WsMembership(Membership, Group, Member)"><B>WsMembership(Membership, Group, Member)</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>construct with membership and other objects to set internal fields
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#WsMembership(Membership, Stem, Member)"><B>WsMembership(Membership, Stem, Member)</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
+<DD>construct with membership and other objects to set internal fields
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co#WsMembership(Membership, AttributeDef, Member)"><B>WsMembership(Membership, AttributeDef, Member)</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembership.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsMembership</A>
 <DD>construct with membership and other objects to set internal fields
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsMembershipAnyLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>WsMembershipAnyLookup</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>
@@ -12837,6 +13141,9 @@ Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./ed
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStemLookup</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co#WsStemLookup(java.lang.String, java.lang.String)"><B>WsStemLookup(String, String)</B></A> - 
+Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStemLookup</A>
+<DD>&nbsp;
+<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co#WsStemLookup(java.lang.String, java.lang.String, java.lang.String)"><B>WsStemLookup(String, String, String)</B></A> - 
 Constructor for class edu.internet2.middleware.grouper.ws.coresoap.<A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsStemLookup</A>
 <DD>&nbsp;
 <DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemLookup.StemFindResult.html?view=co" title="enum in edu.internet2.middleware.grouper.ws.coresoap"><B>WsStemLookup.StemFindResult</B></A> - Enum in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>result of stem find<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap"><B>WsStemQueryFilter</B></A> - Class in <A HREF="./edu/internet2/middleware/grouper/ws/coresoap/package-summary.html?view=co">edu.internet2.middleware.grouper.ws.coresoap</A><DD>this represents a query which can be and'ed or or'ed<DT><A HREF="./edu/internet2/middleware/grouper/ws/coresoap/WsStemQueryFilter.html?view=co#WsStemQueryFilter()"><B>WsStemQueryFilter()</B></A> - 

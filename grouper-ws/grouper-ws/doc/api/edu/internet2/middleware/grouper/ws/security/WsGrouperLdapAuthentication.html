@@ -3,7 +3,7 @@
 <HTML>
 <HEAD>
 <TITLE>
-WsRestResultProblem
+WsGrouperLdapAuthentication
 </TITLE>
 
 
@@ -13,7 +13,7 @@ WsRestResultProblem
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="WsRestResultProblem";
+        parent.document.title="WsGrouperLdapAuthentication";
     }
 }
 </SCRIPT>
@@ -52,11 +52,11 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResponseHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.rest"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsRestResultProblem.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsGrouperLdapAuthentication.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -85,20 +85,32 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <!-- ======== START OF CLASS DATA ======== -->
 <H2>
 <FONT SIZE="-1">
-edu.internet2.middleware.grouper.ws.rest</FONT>
+edu.internet2.middleware.grouper.ws.security</FONT>
 <BR>
-Class WsRestResultProblem</H2>
+Class WsGrouperLdapAuthentication</H2>
 <PRE>
 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem</B>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.security.WsGrouperLdapAuthentication</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsCustomAuthentication.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.security">WsCustomAuthentication</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsRestResultProblem</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></DL>
+<DT><PRE>public class <B>WsGrouperLdapAuthentication</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsCustomAuthentication.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.security">WsCustomAuthentication</A></DL>
 </PRE>
+
+<P>
+<pre>
+ ldap bind authentication for grouper, settings are specified in grouper-ws.properties, and the grouper-loader.properties
+ note: this can be used for rest and soap, though it is not a bastion of security:
+  1. for soap, ws-security would be better since a ticket is passed instead of user/pass
+  2. for rest, Im not sure there is another option
+  3. the user/pass is transmitted in basic auth, so make sure SSL is on
+  4. if using proxied web services, the password goes to the middle component
+ 
+ </pre>
+<P>
 
 <P>
 <HR>
@@ -114,16 +126,10 @@ Class WsRestResultProblem</H2>
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?view=co#WsRestResultProblem()">WsRestResultProblem</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#WsGrouperLdapAuthentication()">WsGrouperLdapAuthentication</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;empty</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?view=co#WsRestResultProblem(edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta)">WsRestResultProblem</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A>&nbsp;wsResultMeta1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;construct with result</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -137,35 +143,28 @@ Class WsRestResultProblem</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResponseMeta</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?view=co#getResponseMetadata()">getResponseMetadata</A></B>()</CODE>
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#authenticateLdap(java.lang.String, java.lang.String)">authenticateLdap</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;principal,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;password)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the response metadata</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a user and pass are correct with ldap</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?view=co#getResultMetadata()">getResultMetadata</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the result metadata</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?view=co#setResponseMetadata(edu.internet2.middleware.grouper.ws.coresoap.WsResponseMeta)">setResponseMetadata</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResponseMeta</A>&nbsp;responseMetadata1)</CODE>
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#main(java.lang.String[])">main</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResultProblem.html?view=co#setResultMetadata(edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta)">setResultMetadata</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A>&nbsp;resultMetadata1)</CODE>
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsGrouperLdapAuthentication.html?view=co#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)">retrieveLoggedInSubjectId</A></B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServletRequest.html?view=co" title="class or interface in javax.servlet.http">HttpServletRequest</A>&nbsp;httpServletRequest)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the current username (subjectId) from the request object.</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -190,25 +189,11 @@ Class WsRestResultProblem</H2>
 </TR>
 </TABLE>
 
-<A NAME="WsRestResultProblem()"><!-- --></A><H3>
-WsRestResultProblem</H3>
+<A NAME="WsGrouperLdapAuthentication()"><!-- --></A><H3>
+WsGrouperLdapAuthentication</H3>
 <PRE>
-public <B>WsRestResultProblem</B>()</PRE>
+public <B>WsGrouperLdapAuthentication</B>()</PRE>
 <DL>
-<DD>empty
-<P>
-</DL>
-<HR>
-
-<A NAME="WsRestResultProblem(edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta)"><!-- --></A><H3>
-WsRestResultProblem</H3>
-<PRE>
-public <B>WsRestResultProblem</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A>&nbsp;wsResultMeta1)</PRE>
-<DL>
-<DD>construct with result
-<P>
-<DL>
-<DT><B>Parameters:</B><DD><CODE>wsResultMeta1</CODE> - </DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->
@@ -221,66 +206,59 @@ public <B>WsRestResultProblem</B>(<A HREF="../../../../../../edu/internet2/middl
 </TR>
 </TABLE>
 
-<A NAME="setResultMetadata(edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta)"><!-- --></A><H3>
-setResultMetadata</H3>
+<A NAME="main(java.lang.String[])"><!-- --></A><H3>
+main</H3>
 <PRE>
-public void <B>setResultMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A>&nbsp;resultMetadata1)</PRE>
+public static void <B>main</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)
+                 throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Exception.html?view=co" title="class or interface in java.lang">Exception</A></PRE>
 <DL>
 <DD><DL>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>resultMetadata1</CODE> - the resultMetadata to set</DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Exception.html?view=co" title="class or interface in java.lang">Exception</A></CODE></DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="setResponseMetadata(edu.internet2.middleware.grouper.ws.coresoap.WsResponseMeta)"><!-- --></A><H3>
-setResponseMetadata</H3>
+<A NAME="retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)"><!-- --></A><H3>
+retrieveLoggedInSubjectId</H3>
 <PRE>
-public void <B>setResponseMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResponseMeta</A>&nbsp;responseMetadata1)</PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>retrieveLoggedInSubjectId</B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServletRequest.html?view=co" title="class or interface in javax.servlet.http">HttpServletRequest</A>&nbsp;httpServletRequest)
+                                 throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/RuntimeException.html?view=co" title="class or interface in java.lang">RuntimeException</A></PRE>
 <DL>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>responseMetadata1</CODE> - the responseMetadata to set</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getResultMetadata()"><!-- --></A><H3>
-getResultMetadata</H3>
-<PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResultMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResultMeta</A> <B>getResultMetadata</B>()</PRE>
-<DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co#getResultMetadata()">WsResponseBean</A></CODE></B></DD>
-<DD>get the result metadata
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsCustomAuthentication.html?view=co#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)">WsCustomAuthentication</A></CODE></B></DD>
+<DD>retrieve the current username (subjectId) from the request object.
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsCustomAuthentication.html?view=co#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)">retrieveLoggedInSubjectId</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsCustomAuthentication.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.security">WsCustomAuthentication</A></CODE></DL>
 </DD>
 <DD><DL>
 
-<DT><B>Returns:</B><DD>the resultMetadata</DL>
+<DT><B>Returns:</B><DD>the logged in username (subjectId)
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?view=co" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if there is a problem
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/RuntimeException.html?view=co" title="class or interface in java.lang">RuntimeException</A></CODE><DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsCustomAuthentication.html?view=co#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)"><CODE>WsCustomAuthentication.retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="getResponseMetadata()"><!-- --></A><H3>
-getResponseMetadata</H3>
+<A NAME="authenticateLdap(java.lang.String, java.lang.String)"><!-- --></A><H3>
+authenticateLdap</H3>
 <PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsResponseMeta.html?view=co" title="class in edu.internet2.middleware.grouper.ws.coresoap">WsResponseMeta</A> <B>getResponseMetadata</B>()</PRE>
+public static boolean <B>authenticateLdap</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;principal,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;password)</PRE>
 <DL>
-<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co#getResponseMetadata()">WsResponseBean</A></CODE></B></DD>
-<DD>get the response metadata
+<DD>see if a user and pass are correct with ldap
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co#getResponseMetadata()">getResponseMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></CODE></DL>
+</DL>
 </DD>
 <DD><DL>
-
-<DT><B>Returns:</B><DD>the response metadata<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?view=co#getResponseMetadata()"><CODE>WsResponseBean.getResponseMetadata()</CODE></A></DL>
+<DT><B>Parameters:</B><DD><CODE>principal</CODE> - <DD><CODE>password</CODE> - 
+<DT><B>Returns:</B><DD>true for ok, false for not</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -313,11 +291,11 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/W
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestResponseHandler.html?view=co" title="interface in edu.internet2.middleware.grouper.ws.rest"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsRestUtils.html?view=co" title="class in edu.internet2.middleware.grouper.ws.rest"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/WsGrouperKerberosAuthentication.html?view=co" title="class in edu.internet2.middleware.grouper.ws.security"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;NEXT CLASS</FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsRestResultProblem.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsGrouperLdapAuthentication.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
