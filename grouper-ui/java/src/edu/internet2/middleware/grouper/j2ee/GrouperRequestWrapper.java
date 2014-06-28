@@ -390,7 +390,19 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    */
   @Override
   public String getParameter(String name) {
-  
+
+    //radios give a name as brackets????  add them if it helps
+    if (this.wrapped.getParameter(name) == null && this.wrapped.getParameter(name+"[]") != null) {
+      name = name+"[]";
+    }
+    //remove brackets if that helps...
+    if (this.wrapped.getParameter(name) == null && StringUtils.defaultString(name).endsWith("[]")) {
+      String tempName = name.substring(0,name.length()-2);
+      if (this.wrapped.getParameter(tempName) != null) {
+        name = tempName;
+      }
+    }
+    
     if (!this.multipart) {
       String param = this.wrapped.getParameter(name);
       if (param != null && StringUtils.equals("GET", this.getMethod()) && GrouperUiConfig.retrieveConfig().propertyValueBoolean("convertInputToUtf8", true)) {
