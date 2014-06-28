@@ -2145,6 +2145,14 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
       
+      //create index GROUPER_FIELDS_TYPE_IDX on GROUPER_FIELDS (TYPE)
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Field.TABLE_GROUPER_FIELDS,
+          "grouper_fields_type_idx", false, Field.COLUMN_TYPE);
+       
+      //create index GROUPMEM_OWNID_FIELDID_IDX on GROUPER_MEMBERSHIPS (OWNER_ID,FIELD_ID)
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Membership.TABLE_GROUPER_MEMBERSHIPS,
+          "groupmem_ownid_fieldid_idx", false, Membership.COLUMN_OWNER_ID, Membership.COLUMN_FIELD_ID);
+      
       int legacyAttributesCount = 0;
       
       if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {

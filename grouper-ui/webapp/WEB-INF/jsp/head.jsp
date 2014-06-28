@@ -54,6 +54,6 @@ base.append("/");
 </c:if>
 </c:if>
 <script src="grouperExternal/public/OwaspJavaScriptServlet"></script>
-<script type="text/javascript" src="<%=base%>i2mi/signet.js"></script>
+<script type="text/javascript" src="i2mi/signet.js"></script>
 <script type="text/javascript" src="scripts/grouper.js"></script> 
 </grouper:recordTile>

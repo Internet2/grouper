@@ -22,6 +22,7 @@
 <%@ taglib uri="/WEB-INF/tld/taglibs-datetime.tld" prefix="dt" %>
 <%@ taglib uri="/WEB-INF/tld/taglibs-request.tld" prefix="req" %>
 <%@ taglib uri="/WEB-INF/tld/grouper-el.tld" prefix="grouper"%>
+<%@ taglib uri="/WEB-INF/tld/csrfguard.tld" prefix="csrf" %>
 
 <%-- @ taglib uri="/WEB-INF/tld/fn.tld" prefix="fn" --%>
 
