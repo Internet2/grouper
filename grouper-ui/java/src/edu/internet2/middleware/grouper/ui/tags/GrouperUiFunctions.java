@@ -53,6 +53,8 @@ public class GrouperUiFunctions {
 
   /**
    * if an owner has a privilege by the authenticated user
+   * @param owner 
+   * @param privilegeOrListName 
    * @return true if has privilege, false if not
    */
   public static boolean canHavePrivilege(GrouperObject owner, String privilegeOrListName) {

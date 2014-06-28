@@ -33,7 +33,7 @@
 
 
 <c:if test="${!stemHasChildren && browsePrivs.stem}"> 
-<html:link page="/deleteStem.do" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message key="stems.action.delete" /></html:link>
+<html:link page="/deleteStem.do?${csrf:token()}" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message key="stems.action.delete" /></html:link>
 </c:if>
 <c:if test="${browsePrivs.stem}"> 
 <html:link page="/populateCreateStem.do"><grouper:message key="stems.action.create"/></html:link>
