@@ -124,12 +124,6 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesChildStem.setAttribute("name", "parentStem:childStem");
     correctAttributesChildStem.setAttribute("displayName", "Parent Stem:Child Stem");
 
-    // custom list
-    GroupType type = GroupType.createType(grouperSession, "groupType");
-    type.addAttribute(grouperSession, "attr1", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false);
-    type.addList(grouperSession, "customList", AccessPrivilege.READ, AccessPrivilege.UPDATE);
-    Field customList = FieldFinder.find("customList", true);
-
     // group A
     groupA = StemHelper.addChildGroup(this.parentStem, "groupA", "Group A");
     groupA.addMember(SubjectTestHelper.SUBJ0);
@@ -139,17 +133,12 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesA.setAttribute("displayExtension", "Group A");
     correctAttributesA.setAttribute("name", "parentStem:groupA");
     correctAttributesA.setAttribute("displayName", "Parent Stem:Group A");
-    correctAttributesA.setAttribute("groupType",
-        new ArrayList<GroupType>(groupA.getTypes()).toArray(new GroupType[] {}));
 
     // group B
     groupB = StemHelper.addChildGroup(this.parentStem, "groupB", "Group B");
     groupB.setDescription("Group B Description");
-    groupB.addType(type);
-    groupB.setAttribute("attr1", "value1", false);
     groupB.addMember(SubjectTestHelper.SUBJ1);
     groupB.addMember(groupA.toSubject());
-    groupB.addMember(SubjectTestHelper.SUBJ2, customList);
     groupB.store();
 
     correctAttributesB = new AttributeMap();
@@ -159,9 +148,7 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesB.setAttribute("displayName", "Parent Stem:Group B");
     correctAttributesB.setAttribute("description", "Group B Description");
     correctAttributesB.setAttribute("attr1", "value1");
-    correctAttributesB.setAttribute("groupType",
-        new ArrayList<GroupType>(groupB.getTypes()).toArray(new GroupType[] {}));
-
+  
     // group C
     groupC = StemHelper.addChildGroup(this.childStem, "groupC", "Group C");
 
@@ -170,8 +157,6 @@ public abstract class BaseDataConnectorTest extends GrouperTest {
     correctAttributesC.setAttribute("displayExtension", "Group C");
     correctAttributesC.setAttribute("name", "parentStem:childStem:groupC");
     correctAttributesC.setAttribute("displayName", "Parent Stem:Child Stem:Group C");
-    correctAttributesC.setAttribute("groupType",
-        new ArrayList<GroupType>(groupC.getTypes()).toArray(new GroupType[] {}));
 
     memberSubj0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, false);
     memberSubj1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, false);

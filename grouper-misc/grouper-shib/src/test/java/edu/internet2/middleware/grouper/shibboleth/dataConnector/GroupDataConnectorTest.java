@@ -189,7 +189,7 @@ public class GroupDataConnectorTest extends BaseDataConnectorTest {
   }
 
   public void testAllA() {
-    correctAttributesA.setAttribute("members", memberSubj0);
+    //correctAttributesA.setAttribute("members", memberSubj0);
     correctAttributesA.setAttribute("members:all", memberSubj0);
     correctAttributesA.setAttribute("members:immediate", memberSubj0);
 
