@@ -542,6 +542,9 @@ public class UiV2Subject {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/subject/subjectMoreActionsButtonContents.jsp"));
   
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -580,7 +583,10 @@ public class UiV2Subject {
       //redisplay so the button will change
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/subject/subjectMoreActionsButtonContents.jsp"));
-  
+
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -676,7 +682,10 @@ public class UiV2Subject {
       }
       
       filterHelper(request, response, subject);
-  
+
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -765,6 +774,9 @@ public class UiV2Subject {
       
       filterHelper(request, response, subject);
   
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -855,6 +867,11 @@ public class UiV2Subject {
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('parentFolderComboId').set('displayedValue', ''); " +
           "dijit.byId('parentFolderComboId').set('value', '');"));
+
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -979,6 +996,11 @@ public class UiV2Subject {
           "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
           "dijit.byId('groupAddMemberComboId').set('value', '');"));
   
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2062,7 +2084,12 @@ public class UiV2Subject {
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('attributeDefAddMemberComboId').set('displayedValue', ''); " +
           "dijit.byId('attributeDefAddMemberComboId').set('value', '');"));
-  
+
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
+      GrouperUserDataApi.recentlyUsedAttributeDefAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, attributeDef);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

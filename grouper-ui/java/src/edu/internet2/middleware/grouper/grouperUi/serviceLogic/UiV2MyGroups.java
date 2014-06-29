@@ -41,6 +41,8 @@ import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -89,6 +91,9 @@ public class UiV2MyGroups {
       
       myGroupsJoinHelper(request, response);
   
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -428,6 +433,9 @@ public class UiV2MyGroups {
       
       myGroupsMembershipsHelper(request, response);
   
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

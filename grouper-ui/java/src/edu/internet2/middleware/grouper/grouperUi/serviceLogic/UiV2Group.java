@@ -270,6 +270,9 @@ public class UiV2Group {
       
       filterThisGroupsMembershipsHelper(request, response, group);
 
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -341,6 +344,9 @@ public class UiV2Group {
       
       filterThisGroupsMembershipsHelper(request, response, group);
 
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -397,6 +403,12 @@ public class UiV2Group {
       }
       
       filterHelper(request, response, group);
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, member);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -777,11 +789,16 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoChangesSuccess")));
 
       }
-
+      
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
           "dijit.byId('groupAddMemberComboId').set('value', '');"));
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, subject);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -850,7 +867,13 @@ public class UiV2Group {
       
       
       filterPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
+      GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, member);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -892,6 +915,9 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
 
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -931,6 +957,9 @@ public class UiV2Group {
       //redisplay so the button will change, note, this will not change the memberships
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1010,6 +1039,9 @@ public class UiV2Group {
       //redisplay so the button will change
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1101,6 +1133,7 @@ public class UiV2Group {
               AccessPrivilege.listToPriv(Field.FIELD_NAME_UPDATERS)
           } : new Privilege[]{AccessPrivilege.listToPriv(fieldName)});
       
+      int count = 0;
       for (Member member : members) {
         
         for (Privilege privilege : privileges) {
@@ -1110,6 +1143,13 @@ public class UiV2Group {
             changes += group.revokePriv(member.getSubject(), privilege, false) ? 1 : 0;
           }
         }
+        
+        if (count++ < 5) {
+          GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+              loggedInSubject, member);
+
+        }
+        
       }
       
       //reset the data (not really necessary, just in case)
@@ -1128,7 +1168,10 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1393,7 +1436,10 @@ public class UiV2Group {
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupDeleteSuccess")));
-      
+
+      GrouperUserDataApi.recentlyUsedGroupRemove(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1459,7 +1505,7 @@ public class UiV2Group {
         return;
       }
       
-      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.CREATE)
+      final Stem parentFolder = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
 
@@ -1560,6 +1606,8 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupCreateSuccess")));
 
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1942,7 +1990,7 @@ public class UiV2Group {
       
       boolean moveChangeAlternateNames = GrouperUtil.booleanValue(request.getParameter("moveChangeAlternateNames[]"), false);
       
-      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.CREATE)
+      final Stem parentFolder = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
@@ -1978,6 +2026,8 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupMoveSuccess")));
       
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -2026,7 +2076,8 @@ public class UiV2Group {
         parentFolderId = request.getParameter("parentFolderComboNameDisplay");
       }
       
-      final Stem parentFolder = StringUtils.isBlank(parentFolderId) ? null : new StemFinder().addPrivilege(NamingPrivilege.CREATE)
+      final Stem parentFolder = StringUtils.isBlank(parentFolderId) ? null : new StemFinder()
+          .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
@@ -2085,6 +2136,10 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupCopySuccess")));
       
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, newGroup);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -2367,12 +2422,20 @@ public class UiV2Group {
       int successes = 0;
       int failures = 0;
       
+      int count=0;
       for (String membershipId : membershipsIds) {
         try {
           Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
 
-          group.deleteMember(membership.getMember(), false);
+          Member member = membership.getMember();
+          group.deleteMember(member, false);
 
+          if (count++ < 5) {
+            GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+                loggedInSubject, member);
+
+          }
+          
           successes++;
         } catch (Exception e) {
           LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
@@ -2392,7 +2455,10 @@ public class UiV2Group {
       }
       
       filterHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2594,7 +2660,10 @@ public class UiV2Group {
       }
   
       filterThisGroupsGroupPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2709,7 +2778,10 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsGroupPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2912,7 +2984,10 @@ public class UiV2Group {
       }
   
       filterThisGroupsStemPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3019,7 +3094,10 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsStemPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3191,6 +3269,9 @@ public class UiV2Group {
   
       filterThisGroupsAttributeDefPrivilegesHelper(request, response, group);
   
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3305,7 +3386,10 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsAttributeDefPrivilegesHelper(request, response, group);
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3627,7 +3711,10 @@ public class UiV2Group {
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupRemoveMembersSuccess")));
-  
+
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -4080,6 +4167,12 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccess")));
 
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, leftFactorGroup);
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, rightFactorGroup);
     
     } finally {
       GrouperSession.stopQuietly(grouperSession);
