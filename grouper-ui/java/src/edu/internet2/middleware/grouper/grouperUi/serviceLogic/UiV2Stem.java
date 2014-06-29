@@ -538,6 +538,10 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemCopySuccess")));
       
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, newStem);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -580,6 +584,9 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/stem/stemMoreActionsButtonContents.jsp"));
 
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -620,6 +627,9 @@ public class UiV2Stem {
       //redisplay so the button will change
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/stem/stemMoreActionsButtonContents.jsp"));
+
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -759,6 +769,9 @@ public class UiV2Stem {
 
       filterPrivilegesHelper(request, response, stem);
 
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -826,6 +839,9 @@ public class UiV2Stem {
       
       
       filterPrivilegesHelper(request, response, stem);
+
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1334,7 +1350,9 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemMoveSuccess")));
       
-  
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1436,6 +1454,8 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemDeleteSuccess")));
       
+      GrouperUserDataApi.recentlyUsedStemRemove(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1459,7 +1479,7 @@ public class UiV2Stem {
       @Override
       public Stem lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
-        Stem theStem = new StemFinder().addPrivilege(NamingPrivilege.CREATE).assignSubject(loggedInSubject)
+        Stem theStem = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignSubject(loggedInSubject)
             .assignFindByUuidOrName(true).assignScope(query).findStem();
         return theStem;
       }
@@ -1472,7 +1492,7 @@ public class UiV2Stem {
         Subject loggedInSubject = grouperSession.getSubject();
         int stemComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.stemComboboxResultSize", 200);
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, stemComboSize);
-        return new StemFinder().addPrivilege(NamingPrivilege.CREATE).assignScope(query).assignSubject(loggedInSubject)
+        return new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignScope(query).assignSubject(loggedInSubject)
             .assignSplitScope(true).assignQueryOptions(queryOptions).findStems();
       }
   
@@ -1656,7 +1676,9 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("stemCreateSuccess")));
   
-  
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1794,7 +1816,9 @@ public class UiV2Stem {
         return;
   
       }
-    
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2121,6 +2145,9 @@ public class UiV2Stem {
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
           "dijit.byId('groupAddMemberComboId').set('value', '');"));
+
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -66,7 +66,9 @@ import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -252,6 +254,9 @@ public class UiV2GroupImport {
         
       }
       
+      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -752,7 +757,10 @@ public class UiV2GroupImport {
         }
         
         reportByGroupName.put(group.getName(), report.toString());
-        
+
+        GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            loggedInSubject, group);
+
       }
       
       //show the report screen
@@ -760,7 +768,8 @@ public class UiV2GroupImport {
           "/WEB-INF/grouperUi2/groupImport/groupImportReport.jsp"));
 
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
-          
+
+
     } catch (NoSessionException se) {
       throw se;
     } catch (ControllerDone cd) {
