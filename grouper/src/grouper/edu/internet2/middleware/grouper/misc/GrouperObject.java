@@ -23,14 +23,8 @@ import java.util.Set;
  * @author mchyzer
  *
  */
-public interface GrouperObject {
+public interface GrouperObject extends GrouperId {
 
-  /**
-   * id of object
-   * @return id
-   */
-  public String getId();
-  
   /**
    * see if this object matches the filter strings
    * @param filterStrings
