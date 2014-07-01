@@ -121,6 +121,7 @@ import edu.internet2.middleware.grouper.exception.ExpressionLanguageMissingVaria
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.misc.GrouperId;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.subject.Source;
@@ -11586,5 +11587,55 @@ public class GrouperUtil {
     return fullLine;
   }
 
+  /**
+   * based on some ids, sort a set of grouper objects by that
+   * @param <T>
+   * @param ids
+   * @param grouperObjects
+   * @return the set of grouper objects
+   */
+  public static <T extends GrouperId> Set<T> sortByIds(Collection<String> ids, Collection<T> grouperObjects) {
+
+    //if null, do nothing
+    if (grouperObjects == null) {
+      return null;
+    }
+    Set<T> result = new LinkedHashSet<T>();
+    
+    //if empty, we done
+    if (grouperObjects.size() > 0) {
+      
+      //make a map of objects
+      Map<String, T> lookupMap = new HashMap<String, T>();
+      
+      for (T grouperObject : grouperObjects) {
+        lookupMap.put(grouperObject.getId(), grouperObject);
+      }
+      
+      //loop through the ids, and put the objects in the result
+      //keep track of ids we have used
+      Set<String> idsWeHaveUsed = new HashSet<String>();
+      
+      for (String id : ids) {
+        T grouperObject = lookupMap.get(id);
+        if (grouperObject != null) {
+          result.add(grouperObject);
+
+          idsWeHaveUsed.add(id);
+          
+        }
+      }
+
+      //this doesnt really make sense, but if there are any objects we havent used, put them in there
+      for (T grouperObject : grouperObjects) {
+        if (!idsWeHaveUsed.contains(grouperObject.getId())) {
+          result.add(grouperObject);
+        }
+      }
+      
+    }
+    
+    return result;
+  }
   
 }

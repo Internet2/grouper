@@ -288,7 +288,8 @@ public class GrouperUserDataApi {
           attributeAssignValue.saveOrUpdate();
         }
       }
-      
+
+
     }
     
     
@@ -519,6 +520,10 @@ public class GrouperUserDataApi {
         } finally {
           GrouperSession.stopQuietly(userSession);
         }
+        
+        //reorder them to be in id order
+        groups = GrouperUtil.sortByIds(uuids, groups);
+        
       }
       
       //remove the not allowed ones?
@@ -535,6 +540,7 @@ public class GrouperUserDataApi {
       }
       
     }
+    
     return groups;
     
   }
@@ -1030,6 +1036,10 @@ public class GrouperUserDataApi {
         } finally {
           GrouperSession.stopQuietly(userSession);
         }
+        
+        //reorder them to be in id order
+        attributeDefs = GrouperUtil.sortByIds(uuids, attributeDefs);
+
       }
       
       //remove the not allowed ones?
@@ -1170,6 +1180,10 @@ public class GrouperUserDataApi {
         } finally {
           GrouperSession.stopQuietly(userSession);
         }
+
+        //reorder them to be in id order
+        attributeDefNames = GrouperUtil.sortByIds(uuids, attributeDefNames);
+
       }
       
       //remove the not allowed ones?
@@ -1360,6 +1374,9 @@ public class GrouperUserDataApi {
           GrouperSession.stopQuietly(userSession);
         }
 
+        //reorder them to be in id order
+        stems = GrouperUtil.sortByIds(uuids, stems);
+
       }
       
       //remove the not allowed ones?
@@ -1537,6 +1554,10 @@ public class GrouperUserDataApi {
     
             }
           });
+          
+          //reorder them to be in id order
+          members = GrouperUtil.sortByIds(uuids, members);
+
         } finally {
           GrouperSession.stopQuietly(userSession);
         }

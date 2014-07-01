@@ -95,6 +95,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperId;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
@@ -127,7 +128,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * @version $Id: Member.java,v 1.135 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, 
-    Comparable<Member>, XmlImportable<Member>, AttributeAssignable {
+    Comparable<Member>, XmlImportable<Member>, AttributeAssignable, GrouperId {
 
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
