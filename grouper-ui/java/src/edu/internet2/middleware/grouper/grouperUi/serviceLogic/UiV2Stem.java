@@ -165,64 +165,55 @@ public class UiV2Stem {
   private void stemSearchFormSubmitHelper(final HttpServletRequest request, HttpServletResponse response, 
       StemSearchType stemSearchType) {
    
-    GrouperSession grouperSession = null;
-
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
      
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
-      StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+    StemContainer stemContainer = grouperRequestContainer.getStemContainer();
 
-      stemContainer.setStemSearchType(stemSearchType);
+    stemContainer.setStemSearchType(stemSearchType);
 
-      String searchString = request.getParameter("stemSearch");
+    String searchString = request.getParameter("stemSearch");
+    
+    boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+    if (!searchOk) {
       
-      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
-      if (!searchOk) {
-        
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#folderSearchResultsId", 
-            TextContainer.retrieveFromRequest().getText().get("stemSearchNotEnoughChars")));
-        return;
-      }
-      
-      stemContainer.setParentStemFilterText(searchString);
-      QueryOptions queryOptions = new QueryOptions();
-      
-      GuiPaging guiPaging = stemContainer.getParentStemGuiPaging();
-      
-      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
-      
-      StemFinder stemFinder = new StemFinder().assignScope(searchString).assignSplitScope(true)
-          .addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
-          .assignQueryOptions(queryOptions);
-      
-      //set of stems that match, and what memberships each subject has
-      Set<Stem> results = stemFinder.findStems();
-
-      Set<GuiStem> guiResults = GuiStem.convertFromStems(results);
-      
-      stemContainer.setParentStemSearchResults(guiResults);
-      
-      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-
-      if (GrouperUtil.length(guiResults) == 0) {
-   
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#folderSearchResultsId", 
-            TextContainer.retrieveFromRequest().getText().get("stemSearchNoStemsFound")));
-        return;
-      }
-            
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#folderSearchResultsId", 
-          "/WEB-INF/grouperUi2/stem/parentFolderSearchResults.jsp"));
-      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#folderSearchResultsId", 
+          TextContainer.retrieveFromRequest().getText().get("stemSearchNotEnoughChars")));
+      return;
     }
+    
+    stemContainer.setParentStemFilterText(searchString);
+    QueryOptions queryOptions = new QueryOptions();
+    
+    GuiPaging guiPaging = stemContainer.getParentStemGuiPaging();
+    
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+    
+    StemFinder stemFinder = new StemFinder().assignScope(searchString).assignSplitScope(true)
+        .addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
+        .assignQueryOptions(queryOptions);
+    
+    //set of stems that match, and what memberships each subject has
+    Set<Stem> results = stemFinder.findStems();
+
+    Set<GuiStem> guiResults = GuiStem.convertFromStems(results);
+    
+    stemContainer.setParentStemSearchResults(guiResults);
+    
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
+    if (GrouperUtil.length(guiResults) == 0) {
+ 
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#folderSearchResultsId", 
+          TextContainer.retrieveFromRequest().getText().get("stemSearchNoStemsFound")));
+      return;
+    }
+          
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#folderSearchResultsId", 
+        "/WEB-INF/grouperUi2/stem/parentFolderSearchResults.jsp"));
+    
   }
   
   /**
@@ -646,7 +637,6 @@ public class UiV2Stem {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
         
     GrouperSession grouperSession = null;
-    
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
@@ -1194,10 +1184,8 @@ public class UiV2Stem {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
-    
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-
 
       Stem stem = retrieveStemHelper(request, true).getStem();
       
@@ -2132,7 +2120,7 @@ public class UiV2Stem {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("stemAddMemberMadeChangesSuccess")));
 
-        filterPrivileges(request, response);
+        filterPrivilegesHelper(request, response, stem);
 
       } else {
 

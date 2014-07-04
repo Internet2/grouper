@@ -275,71 +275,59 @@ public class UiV2MyGroups {
 
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
-      GrouperSession grouperSession = null;
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
       
-      try {
-    
-        grouperSession = GrouperSession.start(loggedInSubject);
-    
-
-        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-        String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
-        
-        MyGroupsContainer myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
-        
-        //dont give an error if 0
-        if (myGroupsFilter.length() == 1) {
+      MyGroupsContainer myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
       
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myGroupsFilterId",
-              TextContainer.retrieveFromRequest().getText().get("myGroupsErrorNotEnoughChars")));
-          
-          //clear out the results
-          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myGroupsResultsId", ""));
-      
-          return;
-        }
-        
-        GuiPaging guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
-        QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
-        
-        GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
-        
-        GroupFinder groupFinder = new GroupFinder()
-          .assignSubject(GrouperSession.staticGrouperSession().getSubject())
-          .assignPrivileges(AccessPrivilege.OPTIN_PRIVILEGES)
-          .assignSubjectNotInGroup(loggedInSubject)
-          .assignQueryOptions(queryOptions);
+      //dont give an error if 0
+      if (myGroupsFilter.length() == 1) {
     
-        if (!StringUtils.isBlank(myGroupsFilter)) {
-          groupFinder.assignSplitScope(true);
-          groupFinder.assignScope(myGroupsFilter);
-        }
-      
-        Set<Group> results = groupFinder.findGroups();
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myGroupsFilterId",
+            TextContainer.retrieveFromRequest().getText().get("myGroupsErrorNotEnoughChars")));
         
-        //this shouldnt be null, but make sure
-        if (results == null) {
-          results = new HashSet<Group>();
-        }
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myGroupsResultsId", ""));
     
-        if (GrouperUtil.length(results) == 0) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("myGroupsNoResultsFound")));
-        }
-        
-        myGroupsContainer.setGuiGroupsUserManages(GuiGroup.convertFromGroups(results));
-        
-        guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-        
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myGroupsResultsId", 
-            "/WEB-INF/grouperUi2/myGroups/myGroupsJoinContents.jsp"));
-        
-        
-      } finally {
-        GrouperSession.stopQuietly(grouperSession);
+        return;
       }
-
+      
+      GuiPaging guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
+      QueryOptions queryOptions = QueryOptions.create("displayName", true, null, null);
+      
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+      
+      GroupFinder groupFinder = new GroupFinder()
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignPrivileges(AccessPrivilege.OPTIN_PRIVILEGES)
+        .assignSubjectNotInGroup(loggedInSubject)
+        .assignQueryOptions(queryOptions);
+  
+      if (!StringUtils.isBlank(myGroupsFilter)) {
+        groupFinder.assignSplitScope(true);
+        groupFinder.assignScope(myGroupsFilter);
+      }
+    
+      Set<Group> results = groupFinder.findGroups();
+      
+      //this shouldnt be null, but make sure
+      if (results == null) {
+        results = new HashSet<Group>();
+      }
+  
+      if (GrouperUtil.length(results) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("myGroupsNoResultsFound")));
+      }
+      
+      myGroupsContainer.setGuiGroupsUserManages(GuiGroup.convertFromGroups(results));
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myGroupsResultsId", 
+          "/WEB-INF/grouperUi2/myGroups/myGroupsJoinContents.jsp"));
+        
   }
 
   /**
@@ -478,73 +466,61 @@ public class UiV2MyGroups {
     private void myGroupsMembershipsHelper(HttpServletRequest request, HttpServletResponse response) {
   
       final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      GrouperSession grouperSession = null;
+      String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
       
-      try {
-    
-        grouperSession = GrouperSession.start(loggedInSubject);
-    
-  
-        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-        String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
-        
-        MyGroupsContainer myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
-        
-        //dont give an error if 0
-        if (myGroupsFilter.length() == 1) {
+      MyGroupsContainer myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
       
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myGroupsFilterId",
-              TextContainer.retrieveFromRequest().getText().get("myGroupsErrorNotEnoughChars")));
-          
-          //clear out the results
-          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myGroupsResultsId", ""));
-      
-          return;
-        }
-        
-        GuiPaging guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
-        QueryOptions queryOptions = new QueryOptions();
-        
-        GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
-
-        MembershipFinder membershipFinder = new MembershipFinder()
-          .assignSubjectHasMembershipForGroup(loggedInSubject)
-          .addSubject(loggedInSubject)
-          .assignCheckSecurity(true)
-          .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
-          .assignEnabled(true)
-          .assignQueryOptionsForGroup(queryOptions);
-        
+      //dont give an error if 0
+      if (myGroupsFilter.length() == 1) {
     
-        if (!StringUtils.isBlank(myGroupsFilter)) {
-          membershipFinder.assignSplitScopeForGroup(true);
-          membershipFinder.assignScopeForGroup(myGroupsFilter);
-        }
-      
-        Set<MembershipSubjectContainer> results = membershipFinder
-            .findMembershipResult().getMembershipSubjectContainers();
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myGroupsFilterId",
+            TextContainer.retrieveFromRequest().getText().get("myGroupsErrorNotEnoughChars")));
         
-        MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
-        
-        myGroupsContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
-        
-        if (GrouperUtil.length(results) == 0) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("myGroupsNoResultsFound")));
-        }
-        
-        guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-        
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myGroupsResultsId", 
-            "/WEB-INF/grouperUi2/myGroups/myGroupsMembershipsContents.jsp"));
-        
-        
-      } finally {
-        GrouperSession.stopQuietly(grouperSession);
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myGroupsResultsId", ""));
+    
+        return;
       }
+      
+      GuiPaging guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
+      QueryOptions queryOptions = new QueryOptions();
+      
+      GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignSubjectHasMembershipForGroup(loggedInSubject)
+        .addSubject(loggedInSubject)
+        .assignCheckSecurity(true)
+        .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
+        .assignEnabled(true)
+        .assignQueryOptionsForGroup(queryOptions);
+      
   
+      if (!StringUtils.isBlank(myGroupsFilter)) {
+        membershipFinder.assignSplitScopeForGroup(true);
+        membershipFinder.assignScopeForGroup(myGroupsFilter);
+      }
+    
+      Set<MembershipSubjectContainer> results = membershipFinder
+          .findMembershipResult().getMembershipSubjectContainers();
+      
+      MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
+      
+      myGroupsContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+      
+      if (GrouperUtil.length(results) == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("myGroupsNoResultsFound")));
+      }
+      
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myGroupsResultsId", 
+          "/WEB-INF/grouperUi2/myGroups/myGroupsMembershipsContents.jsp"));
+        
   }
 
   /**

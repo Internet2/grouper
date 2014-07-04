@@ -673,10 +673,12 @@ public class UiV2ExternalEntities {
    * setup the extra groups (other than combobox), and maybe move the combobox down
    * @param loggedInSubject
    * @param request
-   * @param removeGroupId if removing one
+   * @param guiResponseJs 
+   * @param considerRemoveGroupId 
    * @param includeCombobox
-   * @param allGroups, pass in a blank linked hash set, and all groups will be populated including combobox
+   * @param allGroups 
    * @param errorOnNullCombobox true if an error should appear if there is nothing in the combobox
+   * @param nonComboGroups 
    * @return true if ok, false if not
    */
   private boolean inviteSetupExtraGroups(Subject loggedInSubject, 

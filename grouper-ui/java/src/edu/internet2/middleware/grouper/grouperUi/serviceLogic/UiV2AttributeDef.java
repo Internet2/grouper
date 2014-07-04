@@ -99,7 +99,7 @@ public class UiV2AttributeDef {
   /**
    * get the attributeDef from the request where the attributeDef is required and require privilege is either needed or not
    * @param request
-   * @param requireStemPrivilege
+   * @param requireAttributeDefPrivilege 
    * @return the stem finder result
    */
   public static RetrieveAttributeDefHelperResult retrieveStemHelper(HttpServletRequest request, 

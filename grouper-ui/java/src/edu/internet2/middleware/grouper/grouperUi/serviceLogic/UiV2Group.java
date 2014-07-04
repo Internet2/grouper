@@ -770,7 +770,7 @@ public class UiV2Group {
         if (StringUtils.equals(groupRefreshPart, "audits")) {
           viewAuditsFilter(request, response);
         } else if (StringUtils.equals(groupRefreshPart, "privileges")) {
-          filterPrivileges(request, response);
+          filterPrivilegesHelper(request, response, group);
         } else if (StringUtils.equals(groupRefreshPart, "thisGroupsAttributeDefPrivileges")) {
           //doesnt affect
         } else if (StringUtils.equals(groupRefreshPart, "thisGroupsGroupPrivileges")) {
