@@ -54,7 +54,7 @@ public class AttributeDefTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testDeleteWithPrivileges"));
+    TestRunner.run(new AttributeDefTest("testHibernateSecurity"));
   }
   
   /**
@@ -117,7 +117,8 @@ public class AttributeDefTest extends GrouperTest {
     //grant that subject stem on that stem
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.startRootSession();
-    this.top.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
+    this.top.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+    this.top.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_UPDATE);
     
     this.grouperSession.stop();
     this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ0 );
@@ -143,6 +144,18 @@ public class AttributeDefTest extends GrouperTest {
     
     //this should work
     this.top.addChildAttributeDef("test", AttributeDefType.attr);
+    
+    //####################################
+    //grant that subject stem on that stem
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.startRootSession();
+    this.top.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM);
+
+    this.grouperSession.stop();
+    this.grouperSession = GrouperSession.start( SubjectTestHelper.SUBJ1 );
+    
+    //this should work
+    this.top.addChildAttributeDef("test1", AttributeDefType.attr);
     
     
   }
