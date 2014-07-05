@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -460,24 +461,26 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
             AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
             AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
             
-            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-              AuditEntry auditEntry = new AuditEntry(
-                  isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
-                      "id", 
-                  AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
-                  "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                  "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
-  
-              if (isInsert) {
-                
-                auditEntry.setDescription("Added attribute assignment value");
-  
-              } else {
-  
-                auditEntry.setDescription("Updated attribute assignment value: " + differences);
-                
+            if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId())) {
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(
+                    isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
+                        "id", 
+                    AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                    "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                    "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+    
+                if (isInsert) {
+                  
+                  auditEntry.setDescription("Added attribute assignment value");
+    
+                } else {
+    
+                  auditEntry.setDescription("Updated attribute assignment value: " + differences);
+                  
+                }
+                auditEntry.saveOrUpdate(true);
               }
-              auditEntry.saveOrUpdate(true);
             }
             
             return null;
@@ -802,16 +805,19 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   
                 GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
   
-                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                  AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
-                  AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
-                          "id", 
-                      AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
-                      "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                      "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
-                  auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
-                  auditEntry.saveOrUpdate(true);
+                if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(
+                    AttributeAssignValue.this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+                  if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                    AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
+                    AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+                    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+                            "id", 
+                        AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                        "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                        "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+                    auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
+                    auditEntry.saveOrUpdate(true);
+                  }
                 }
                 return null;
           }});
@@ -1137,15 +1143,18 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
-  
-    //TODO have a switch to turn this off?
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion().valueString(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+
+    if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit()
+        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+      
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion().valueString(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, HooksAttributeAssignValueBean.class, 
@@ -1212,14 +1221,16 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     }
     this.setLastUpdatedDb(now);
     
-    //TODO have a switch to turn this off?
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value.name(), this.valueString(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit()
+        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value.name(), this.valueString(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, HooksAttributeAssignValueBean.class, 
