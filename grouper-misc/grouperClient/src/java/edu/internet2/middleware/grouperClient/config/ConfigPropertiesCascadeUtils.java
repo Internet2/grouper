@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouperClient.config;
 
 import java.util.Map;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
 /**
  * utility methods specific to grouper client
  */
@@ -50,10 +52,11 @@ public class ConfigPropertiesCascadeUtils extends ConfigPropertiesCascadeCommonU
    */
   public static String substituteExpressionLanguage(String stringToParse, 
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient, boolean logOnNull) {
-    
-    //we dont have jexl so dont do this logic
-    return stringToParse;
-  }
 
+    //  //we dont have jexl so dont do this logic
+    //  return stringToParse;
+
+    return GrouperClientUtils.substituteExpressionLanguage(stringToParse, variableMap, allowStaticClasses, silent, lenient, logOnNull);
+  }
 
 }

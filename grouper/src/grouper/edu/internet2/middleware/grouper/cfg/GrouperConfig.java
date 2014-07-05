@@ -31,13 +31,19 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
 /** 
@@ -49,6 +55,93 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
  */
 public class GrouperConfig extends ConfigPropertiesCascadeBase {
 
+  /**
+   * cache this so we dont have to lookup ids all the time
+   */
+  private static ExpirableCache<String, Set<String>> attributeDefIdsToIgnoreChangeLogAndAuditSetCache = new ExpirableCache<String, Set<String>>(10);
+  
+  /**
+   * attribute def ids that shouldnt be stored in change log or audited
+   */
+  private Set<String> attributeDefIdsToIgnoreChangeLogAndAuditSet = null;
+  
+  /**
+   * get the attribute def ids to ignore when sending to change log, and audit 
+   * @return the set of attribute definition ids
+   */
+  public Set<String> attributeDefIdsToIgnoreChangeLogAndAudit() {
+    
+    if (this.attributeDefIdsToIgnoreChangeLogAndAuditSet == null) {
+      
+      synchronized (this) {
+
+        if (this.attributeDefIdsToIgnoreChangeLogAndAuditSet == null) {
+          Set<String> result = new HashSet<String>();
+          String namesOfAttributeDefsCommaSeparated = this.propertyValueString("grouper.attribute.namesOfAttributeDefsToIgnoreAuditsChangeLogPit");
+            
+          Set<String> tempResult = attributeDefIdsToIgnoreChangeLogAndAuditSetCache.get(namesOfAttributeDefsCommaSeparated);
+          
+          if (tempResult == null) {
+            
+            if (!StringUtils.isBlank(namesOfAttributeDefsCommaSeparated)) {
+              String[] namesOfAttributeDefs = GrouperUtil.splitTrim(namesOfAttributeDefsCommaSeparated, ",");
+              
+              //get a root session, or use existing
+              GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+              boolean startedSession = grouperSession == null;
+              try {
+                if (startedSession) {
+                  grouperSession = GrouperSession.startRootSession();
+                } else {
+                  grouperSession = grouperSession.internal_getRootSession();
+                }
+                
+                for (String nameOfAttributeDef : namesOfAttributeDefs) {
+                  try {
+                    //throw an exception if not there... that is a problem
+                    AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, true);
+                    result.add(attributeDef.getId());
+                    
+                    if (result.size() > 150) {
+                      throw new RuntimeException("Cant have a size of more than 150 for attributeDefs excluded from audits and PIT");
+                    }
+                    
+                  } catch (RuntimeException re) {
+                    GrouperUtil.injectInException(re, "name of attributeDef configured "
+                        + "in grouper properties file: grouper.attribute.namesOfAttributeDefsToIgnoreAuditsChangeLogPit, "
+                        + "that attribute cannot be found.  ");
+                    throw re;
+                  }
+                }
+                
+              } finally {
+                if (startedSession) {
+                  GrouperSession.stopQuietly(grouperSession);
+                }
+              }
+            }
+            
+            //you dont want callers modifying this
+            result = Collections.unmodifiableSet(result);
+
+            //put back in cache
+            attributeDefIdsToIgnoreChangeLogAndAuditSetCache.put(namesOfAttributeDefsCommaSeparated, result);
+          } else {
+            result = tempResult;
+          }
+          this.attributeDefIdsToIgnoreChangeLogAndAuditSet = result;
+            
+        }
+
+      }
+      
+    }
+    return this.attributeDefIdsToIgnoreChangeLogAndAuditSet;
+    
+  }
+
+  
+  
   /**
    * use the factory
    */
