@@ -68,6 +68,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
@@ -297,9 +298,13 @@ public class XmlExporter {
     }
     XmlExporter exporter = null;
     try {
+      GrouperSession session = GrouperSession.startRootSession();
+      Subject subj = SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true );
+      GrouperSession.stopQuietly(session);
+      
       exporter = new XmlExporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false),
+          subj, false),
         XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS)));
       _handleArgs(exporter, rc);
       LOG.debug("Finished export to [" + rc.getProperty(XmlArgs.RC_EFILE) + "]");
@@ -1096,7 +1101,6 @@ public class XmlExporter {
     this.xml.internal_indent();
     this.xml.internal_puts("<field name="  + Quote.single( XML.escape( f.getName() ) ) );
     this.xml.internal_indent();
-    this.xml.internal_puts("required="     + Quote.single( f.getRequired() )              );
     this.xml.internal_puts("type="         + Quote.single( f.getType().toString() )       );
     this.xml.internal_puts("readPriv="     + Quote.single( f.getReadPriv().toString() )   );
     this.xml.internal_puts("writePriv="    + Quote.single( f.getWritePriv().toString() )  );
@@ -1106,6 +1110,17 @@ public class XmlExporter {
     this.xml.internal_undent();
   } // private void _writeFieldMetaData(f)
 
+  private void _writeFieldMetaData(AttributeDefName attribute) throws  IOException {
+    this.xml.internal_indent();
+    this.xml.internal_puts("<field name="  + Quote.single( XML.escape( attribute.getLegacyAttributeName(true) ) ) );
+    this.xml.internal_indent();
+    this.xml.internal_puts("type="         + Quote.single( "attribute" )       );
+    this.xml.internal_puts(contextIdAttribute(attribute.getContextId(), false)  );
+    this.xml.internal_undent();
+    this.xml.internal_puts("/>");
+    this.xml.internal_undent();
+  }
+  
   // @since   1.1.0
   private void _writeFooter()
     throws  IOException
@@ -1205,6 +1220,11 @@ public class XmlExporter {
     while (it.hasNext()) {
       this._writeGroupTypeField(g, (Field) it.next());
     }
+    
+    for (AttributeDefName attribute : gt.getLegacyAttributes()) {
+      this._writeGroupTypeField(g, attribute);
+    }
+    
     this.xml.internal_puts("</groupType>");
     this.xml.internal_undent();
     this.xml.internal_puts();
@@ -1238,6 +1258,29 @@ public class XmlExporter {
     }
   } // private void _writeGroupTypeField(g, f)
 
+  private void _writeGroupTypeField(Group g, AttributeDefName attribute) throws  IOException, SchemaException
+  {
+    try {
+      String            val = XML.escape( g.getAttributeValue( attribute.getLegacyAttributeName(true),true, true ) );
+      NotNullValidator  v   = NotNullValidator.validate(val);
+      if (
+        v.isValid() && ":description:extension:displayExtension:".indexOf(":" + attribute.getLegacyAttributeName(true) + ":") == -1
+      ) 
+      {
+        this.xml.internal_indent();
+        this.xml.internal_puts(
+          "<attribute name='"
+          + XML.escape( attribute.getLegacyAttributeName(true) ) + "'>" + val
+          + "</attribute>"
+        );
+        this.xml.internal_undent();
+      }
+    }
+    catch (AttributeNotFoundException eANF) {
+      LOG.error(eANF.getMessage());
+    }
+  }
+  
   // @since   1.1.0
   private void _writeAttributes(Group g) 
     throws  IOException,
@@ -1325,6 +1368,11 @@ public class XmlExporter {
     while (it.hasNext()) {
       this._writeFieldMetaData( (Field) it.next() );
     }
+    
+    for (AttributeDefName attribute : gt.getLegacyAttributes()) {
+      this._writeFieldMetaData(attribute);
+    }
+    
     this.xml.internal_puts("</groupTypeDef>");
     this.xml.internal_undent();
   } // private void _writeGroupTypesMetaData(gt)
@@ -1507,7 +1555,7 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts(
           "<list field="  + Quote.single( XML.escape( f.getName() )                 )
-        + " groupType="   + Quote.single( XML.escape( f.getGroupType().getName() )  )
+        + " groupType="   + Quote.single( XML.escape( f.getUuid().equals(Group.getDefaultList().getUuid()) ? "" : f.getGroupType().getName() )  )
         + ">"
       );
       if (isComposite) {

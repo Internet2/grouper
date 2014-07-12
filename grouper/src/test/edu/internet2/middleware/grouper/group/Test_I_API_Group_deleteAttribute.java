@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -102,7 +103,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
   private GroupType groupType;
   /** */
   @SuppressWarnings("unused")
-  private Field field;
+  private AttributeDefName attr;
 
   /**
    * 
@@ -117,8 +118,8 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
       
       //make sure a user can change a type
       this.groupType = GroupType.createType(s, GROUP_TYPE1, false);
-      this.field = this.groupType.addAttribute(s,ATTRIBUTE1, 
-          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      this.attr = this.groupType.addAttribute(s,ATTRIBUTE1, 
+          false);
       gA.addType(this.groupType, false);
     }
     catch (Exception eShouldNotHappen) {

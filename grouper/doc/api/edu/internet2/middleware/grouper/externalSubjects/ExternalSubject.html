@@ -1,0 +1,2289 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+ExternalSubject
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="ExternalSubject";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttrFramework.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="ExternalSubject.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.externalSubjects</FONT>
+<BR>
+Class ExternalSubject</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">edu.internet2.middleware.grouper.GrouperAPI</A>
+      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.externalSubjects.ExternalSubject</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/util/GrouperUtil.FieldValuable.html?view=co" title="interface in edu.internet2.middleware.grouper.util">GrouperUtil.FieldValuable</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/io/Serializable.html?view=co" title="class or interface in java.io">Serializable</A>, org.hibernate.classic.Lifecycle</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>ExternalSubject</B><DT>extends <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A><DT>implements <A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3GrouperVersioned.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3GrouperVersioned</A></DL>
+</PRE>
+
+<P>
+database object for external subject
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>mchyzer</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../serialized-form.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject">Serialized Form</A></DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_CONTEXT_ID">COLUMN_CONTEXT_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for context id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_CREATE_TIME">COLUMN_CREATE_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for create time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_CREATOR_MEMBER_ID">COLUMN_CREATOR_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for creator member id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_DESCRIPTION">COLUMN_DESCRIPTION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for description</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_DISABLED_TIME">COLUMN_DISABLED_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for disabled time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_EMAIL">COLUMN_EMAIL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for email</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_ENABLED">COLUMN_ENABLED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for enabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_IDENTIFIER">COLUMN_IDENTIFIER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for identifier</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_INSTITUTION">COLUMN_INSTITUTION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for institution</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_MODIFIER_MEMBER_ID">COLUMN_MODIFIER_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for modifier member id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_MODIFY_TIME">COLUMN_MODIFY_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for modify time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_NAME">COLUMN_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_SEARCH_STRING_LOWER">COLUMN_SEARCH_STRING_LOWER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for searchStringLower</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_UUID">COLUMN_UUID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for uuid</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#COLUMN_VETTED_EMAIL_ADDRESSES">COLUMN_VETTED_EMAIL_ADDRESSES</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column name for vettedEmailAddresses</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_CONTEXT_ID">FIELD_CONTEXT_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: contextId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_CREATE_TIME">FIELD_CREATE_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: createTime</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_CREATOR_MEMBER_ID">FIELD_CREATOR_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: creatorMemberId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_DESCRIPTION">FIELD_DESCRIPTION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: description</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_DISABLED_TIME">FIELD_DISABLED_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: disabledTime</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_EMAIL">FIELD_EMAIL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: email</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_ENABLED">FIELD_ENABLED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: enabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_IDENTIFIER">FIELD_IDENTIFIER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: identifier</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_INSTITUTION">FIELD_INSTITUTION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: institution</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_MODIFIER_MEMBER_ID">FIELD_MODIFIER_MEMBER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: modifierMemberId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_MODIFY_TIME">FIELD_MODIFY_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: modifyTime</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_NAME">FIELD_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_SEARCH_STRING_LOWER">FIELD_SEARCH_STRING_LOWER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: searchStringLower</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_UUID">FIELD_UUID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: uuid</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#FIELD_VETTED_EMAIL_ADDRESSES">FIELD_VETTED_EMAIL_ADDRESSES</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: vettedEmailAddresses</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#TABLE_GROUPER_EXT_SUBJ">TABLE_GROUPER_EXT_SUBJ</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;table name for external subjects</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#COLUMN_HIBERNATE_VERSION_NUMBER">COLUMN_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_DB_VERSION">FIELD_DB_VERSION</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#FIELD_HIBERNATE_VERSION_NUMBER">FIELD_HIBERNATE_VERSION_NUMBER</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#INITIAL_VERSION_NUMBER">INITIAL_VERSION_NUMBER</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_org.hibernate.classic.Lifecycle"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from interface org.hibernate.classic.Lifecycle</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>NO_VETO, VETO</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#ExternalSubject()">ExternalSubject</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#addVettedEmailAddress(java.lang.String)">addVettedEmailAddress</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vettedEmailAddress)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a vetted email address and store this object if necessary</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#assignAttribute(java.lang.String, java.lang.String)">assignAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign an attribute to this subject, change value if already exists, add if not</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubject</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#clone()">clone</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deep clone the fields in this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#delete()">delete</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete this object from the DB.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getContextId()">getContextId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contextId links to audit tables</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getCreateTime()">getCreateTime</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get creation time for this subject.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getCreateTimeDb()">getCreateTimeDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getCreatorMemberId()">getCreatorMemberId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getDescription()">getDescription</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description, which is generated from other attributes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getDisabledTime()">getDisabledTime</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when this was disabled, or when it will be disabled, millis from 1970</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getDisabledTimeDb()">getDisabledTimeDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when this was disabled, or when it will be disabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getEmail()">getEmail</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;email address</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getEnabledDb()">getEnabledDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is enabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getIdentifier()">getIdentifier</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the thing that the subject uses to login</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getInstitution()">getInstitution</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;institution where the user is from</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getModifierMemberId()">getModifierMemberId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getModifyTime()">getModifyTime</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get modify time for this subject.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getModifyTimeDb()">getModifyTimeDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getName()">getName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getSearchStringLower()">getSearchStringLower</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;search string to find a subject, in all lower case</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getUuid()">getUuid</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid for row</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#getVettedEmailAddresses()">getVettedEmailAddresses</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comma separated vetted email addresses</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#internal_daemonCalcFields()">internal_daemonCalcFields</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fix enabled and disabled memberships, and return the count of how many were fixed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#internal_fixDisabled()">internal_fixDisabled</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fix enabled and disabled memberships, and return the count of how many were fixed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#isEnabled()">isEnabled</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is enabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#notifyWatcherAboutRegistration(java.lang.String, java.lang.String, java.lang.String)">notifyWatcherAboutRegistration</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;identifier,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailAddressToNotify,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailAddressOfInvitee)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notify watcher about a registration.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before a save (insert) occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;before an update occurs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#removeAttribute(java.lang.String)">removeAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove an attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#retrieveAttribute(java.lang.String, boolean)">retrieveAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName,
+                  boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get an attributes for this subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#retrieveAttributes()">retrieveAttributes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all attributes for this subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#retrieveFieldValue(java.lang.String)">retrieveFieldValue</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fieldOrAttributeName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the value by field name or attribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setContextId(java.lang.String)">setContextId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contextId links to audit tables</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setCreateTimeDb(long)">setCreateTimeDb</A></B>(long&nbsp;createTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;create time</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setCreatorMemberId(java.lang.String)">setCreatorMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;creatorMemberId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member id of creator</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setDescription(java.lang.String)">setDescription</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description, which is generated from other attributes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setDisabledTime(java.util.Date)">setDisabledTime</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A>&nbsp;theDisabledTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when this was disabled, or when it will be disabled, millis from 1970</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setDisabledTimeDb(java.lang.Long)">setDisabledTimeDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;disabledTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when this was disabled, or when it will be disabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setEmail(java.lang.String)">setEmail</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;email1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;email address</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setEnabled(boolean)">setEnabled</A></B>(boolean&nbsp;enabled1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is enabled</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setEnabledDb(java.lang.String)">setEnabledDb</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is enabled, T or F</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setIdentifier(java.lang.String)">setIdentifier</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;identifier1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the thing that the subject uses to login</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setInstitution(java.lang.String)">setInstitution</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;institution1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;institution where the user is from</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setModifierMemberId(java.lang.String)">setModifierMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;modifierMemberId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member id of modifier</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setModifyTimeDb(long)">setModifyTimeDb</A></B>(long&nbsp;modifyTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last time modified</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setName(java.lang.String)">setName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setSearchStringLower(java.lang.String)">setSearchStringLower</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchStringLower1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;search string to find a subject, in all lower case</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setUuid(java.lang.String)">setUuid</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uuid for row</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#setVettedEmailAddresses(java.lang.String)">setVettedEmailAddresses</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vettedEmailAddresses1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;comma separated vetted email addresses</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#sourceId()">sourceId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source id for external subjects</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#sourceName()">sourceName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source name for external subjects</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#store()">store</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store this object to the DB.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#store(java.util.Set, java.lang.String, boolean, boolean, boolean)">store</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A>&gt;&nbsp;externalSubjectAttributes,
+      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;externalSubjectInviteName,
+      boolean&nbsp;validateAttributes,
+      boolean&nbsp;autoaddGroups,
+      boolean&nbsp;fromRecalcDaemon)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store this object to the DB.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#subjectCanEditExternalUser(edu.internet2.middleware.subject.Subject)">subjectCanEditExternalUser</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if someone is allowed to edit, cache for 1 minute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co#validateIdentifier()">validateIdentifier</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;validate that the identifier is ok, based on grouper.properties</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.GrouperAPI"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersion()">dbVersion</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionClear()">dbVersionClear</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionDifferentFields()">dbVersionDifferentFields</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionIsDifferent()">dbVersionIsDifferent</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#dbVersionReset()">dbVersionReset</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#fieldValue(java.lang.String)">fieldValue</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#getHibernateVersionNumber()">getHibernateVersionNumber</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onDelete(org.hibernate.Session)">onDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onLoad(org.hibernate.Session, java.io.Serializable)">onLoad</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPostUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreDelete</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onSave(org.hibernate.Session)">onSave</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onUpdate(org.hibernate.Session)">onUpdate</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#setHibernateVersionNumber(java.lang.Long)">setHibernateVersionNumber</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="TABLE_GROUPER_EXT_SUBJ"><!-- --></A><H3>
+TABLE_GROUPER_EXT_SUBJ</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>TABLE_GROUPER_EXT_SUBJ</B></PRE>
+<DL>
+<DD>table name for external subjects
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.TABLE_GROUPER_EXT_SUBJ">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_CONTEXT_ID"><!-- --></A><H3>
+COLUMN_CONTEXT_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_CONTEXT_ID</B></PRE>
+<DL>
+<DD>column name for context id
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_CONTEXT_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_DESCRIPTION"><!-- --></A><H3>
+COLUMN_DESCRIPTION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_DESCRIPTION</B></PRE>
+<DL>
+<DD>column name for description
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_DESCRIPTION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_DISABLED_TIME"><!-- --></A><H3>
+COLUMN_DISABLED_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_DISABLED_TIME</B></PRE>
+<DL>
+<DD>column name for disabled time
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_DISABLED_TIME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_EMAIL"><!-- --></A><H3>
+COLUMN_EMAIL</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_EMAIL</B></PRE>
+<DL>
+<DD>column name for email
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_EMAIL">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_ENABLED"><!-- --></A><H3>
+COLUMN_ENABLED</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_ENABLED</B></PRE>
+<DL>
+<DD>column name for enabled
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_ENABLED">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_IDENTIFIER"><!-- --></A><H3>
+COLUMN_IDENTIFIER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_IDENTIFIER</B></PRE>
+<DL>
+<DD>column name for identifier
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_IDENTIFIER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_INSTITUTION"><!-- --></A><H3>
+COLUMN_INSTITUTION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_INSTITUTION</B></PRE>
+<DL>
+<DD>column name for institution
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_INSTITUTION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_NAME"><!-- --></A><H3>
+COLUMN_NAME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_NAME</B></PRE>
+<DL>
+<DD>column name for name
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_SEARCH_STRING_LOWER"><!-- --></A><H3>
+COLUMN_SEARCH_STRING_LOWER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_SEARCH_STRING_LOWER</B></PRE>
+<DL>
+<DD>column name for searchStringLower
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_SEARCH_STRING_LOWER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_VETTED_EMAIL_ADDRESSES"><!-- --></A><H3>
+COLUMN_VETTED_EMAIL_ADDRESSES</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_VETTED_EMAIL_ADDRESSES</B></PRE>
+<DL>
+<DD>column name for vettedEmailAddresses
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_VETTED_EMAIL_ADDRESSES">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_UUID"><!-- --></A><H3>
+COLUMN_UUID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_UUID</B></PRE>
+<DL>
+<DD>column name for uuid
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_UUID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_CREATE_TIME"><!-- --></A><H3>
+COLUMN_CREATE_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_CREATE_TIME</B></PRE>
+<DL>
+<DD>column name for create time
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_CREATE_TIME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_CREATOR_MEMBER_ID"><!-- --></A><H3>
+COLUMN_CREATOR_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_CREATOR_MEMBER_ID</B></PRE>
+<DL>
+<DD>column name for creator member id
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_CREATOR_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_MODIFY_TIME"><!-- --></A><H3>
+COLUMN_MODIFY_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_MODIFY_TIME</B></PRE>
+<DL>
+<DD>column name for modify time
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_MODIFY_TIME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COLUMN_MODIFIER_MEMBER_ID"><!-- --></A><H3>
+COLUMN_MODIFIER_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>COLUMN_MODIFIER_MEMBER_ID</B></PRE>
+<DL>
+<DD>column name for modifier member id
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.COLUMN_MODIFIER_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CONTEXT_ID"><!-- --></A><H3>
+FIELD_CONTEXT_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CONTEXT_ID</B></PRE>
+<DL>
+<DD>constant for field name for: contextId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_CONTEXT_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CREATE_TIME"><!-- --></A><H3>
+FIELD_CREATE_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CREATE_TIME</B></PRE>
+<DL>
+<DD>constant for field name for: createTime
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_CREATE_TIME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_CREATOR_MEMBER_ID"><!-- --></A><H3>
+FIELD_CREATOR_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_CREATOR_MEMBER_ID</B></PRE>
+<DL>
+<DD>constant for field name for: creatorMemberId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_CREATOR_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_DESCRIPTION"><!-- --></A><H3>
+FIELD_DESCRIPTION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_DESCRIPTION</B></PRE>
+<DL>
+<DD>constant for field name for: description
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_DESCRIPTION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_DISABLED_TIME"><!-- --></A><H3>
+FIELD_DISABLED_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_DISABLED_TIME</B></PRE>
+<DL>
+<DD>constant for field name for: disabledTime
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_DISABLED_TIME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_EMAIL"><!-- --></A><H3>
+FIELD_EMAIL</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_EMAIL</B></PRE>
+<DL>
+<DD>constant for field name for: email
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_EMAIL">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ENABLED"><!-- --></A><H3>
+FIELD_ENABLED</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ENABLED</B></PRE>
+<DL>
+<DD>constant for field name for: enabled
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_ENABLED">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_IDENTIFIER"><!-- --></A><H3>
+FIELD_IDENTIFIER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_IDENTIFIER</B></PRE>
+<DL>
+<DD>constant for field name for: identifier
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_IDENTIFIER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_INSTITUTION"><!-- --></A><H3>
+FIELD_INSTITUTION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_INSTITUTION</B></PRE>
+<DL>
+<DD>constant for field name for: institution
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_INSTITUTION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_MODIFIER_MEMBER_ID"><!-- --></A><H3>
+FIELD_MODIFIER_MEMBER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_MODIFIER_MEMBER_ID</B></PRE>
+<DL>
+<DD>constant for field name for: modifierMemberId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_MODIFIER_MEMBER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_MODIFY_TIME"><!-- --></A><H3>
+FIELD_MODIFY_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_MODIFY_TIME</B></PRE>
+<DL>
+<DD>constant for field name for: modifyTime
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_MODIFY_TIME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_NAME"><!-- --></A><H3>
+FIELD_NAME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_NAME</B></PRE>
+<DL>
+<DD>constant for field name for: name
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_SEARCH_STRING_LOWER"><!-- --></A><H3>
+FIELD_SEARCH_STRING_LOWER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_SEARCH_STRING_LOWER</B></PRE>
+<DL>
+<DD>constant for field name for: searchStringLower
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_SEARCH_STRING_LOWER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_VETTED_EMAIL_ADDRESSES"><!-- --></A><H3>
+FIELD_VETTED_EMAIL_ADDRESSES</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_VETTED_EMAIL_ADDRESSES</B></PRE>
+<DL>
+<DD>constant for field name for: vettedEmailAddresses
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_VETTED_EMAIL_ADDRESSES">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_UUID"><!-- --></A><H3>
+FIELD_UUID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_UUID</B></PRE>
+<DL>
+<DD>constant for field name for: uuid
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.externalSubjects.ExternalSubject.FIELD_UUID">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="ExternalSubject()"><!-- --></A><H3>
+ExternalSubject</H3>
+<PRE>
+public <B>ExternalSubject</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getVettedEmailAddresses()"><!-- --></A><H3>
+getVettedEmailAddresses</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getVettedEmailAddresses</B>()</PRE>
+<DL>
+<DD>comma separated vetted email addresses
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>comma separated vetted email addresses</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setVettedEmailAddresses(java.lang.String)"><!-- --></A><H3>
+setVettedEmailAddresses</H3>
+<PRE>
+public void <B>setVettedEmailAddresses</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vettedEmailAddresses1)</PRE>
+<DL>
+<DD>comma separated vetted email addresses
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>vettedEmailAddresses1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="notifyWatcherAboutRegistration(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+notifyWatcherAboutRegistration</H3>
+<PRE>
+public static void <B>notifyWatcherAboutRegistration</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;identifier,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailAddressToNotify,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;emailAddressOfInvitee)</PRE>
+<DL>
+<DD>notify watcher about a registration.  If there is a problem, just log the exception
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>identifier</CODE> - <DD><CODE>emailAddressToNotify</CODE> - <DD><CODE>emailAddressOfInvitee</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addVettedEmailAddress(java.lang.String)"><!-- --></A><H3>
+addVettedEmailAddress</H3>
+<PRE>
+public void <B>addVettedEmailAddress</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;vettedEmailAddress)</PRE>
+<DL>
+<DD>add a vetted email address and store this object if necessary
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>vettedEmailAddress</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDisabledTimeDb()"><!-- --></A><H3>
+getDisabledTimeDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getDisabledTimeDb</B>()</PRE>
+<DL>
+<DD>when this was disabled, or when it will be disabled
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the millis from 1970</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDisabledTimeDb(java.lang.Long)"><!-- --></A><H3>
+setDisabledTimeDb</H3>
+<PRE>
+public void <B>setDisabledTimeDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;disabledTime1)</PRE>
+<DL>
+<DD>when this was disabled, or when it will be disabled
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>disabledTime1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDisabledTime()"><!-- --></A><H3>
+getDisabledTime</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A> <B>getDisabledTime</B>()</PRE>
+<DL>
+<DD>when this was disabled, or when it will be disabled, millis from 1970
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>disabled time</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDisabledTime(java.util.Date)"><!-- --></A><H3>
+setDisabledTime</H3>
+<PRE>
+public void <B>setDisabledTime</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A>&nbsp;theDisabledTime1)</PRE>
+<DL>
+<DD>when this was disabled, or when it will be disabled, millis from 1970
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theDisabledTime1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isEnabled()"><!-- --></A><H3>
+isEnabled</H3>
+<PRE>
+public boolean <B>isEnabled</B>()</PRE>
+<DL>
+<DD>if this is enabled
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if enabled</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getEnabledDb()"><!-- --></A><H3>
+getEnabledDb</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getEnabledDb</B>()</PRE>
+<DL>
+<DD>if this is enabled
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>T or F</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setEnabled(boolean)"><!-- --></A><H3>
+setEnabled</H3>
+<PRE>
+public void <B>setEnabled</B>(boolean&nbsp;enabled1)</PRE>
+<DL>
+<DD>if this is enabled
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>enabled1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setEnabledDb(java.lang.String)"><!-- --></A><H3>
+setEnabledDb</H3>
+<PRE>
+public void <B>setEnabledDb</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;enabled1)</PRE>
+<DL>
+<DD>if this is enabled, T or F
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>enabled1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getContextId()"><!-- --></A><H3>
+getContextId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getContextId</B>()</PRE>
+<DL>
+<DD>contextId links to audit tables
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>context id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSearchStringLower()"><!-- --></A><H3>
+getSearchStringLower</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getSearchStringLower</B>()</PRE>
+<DL>
+<DD>search string to find a subject, in all lower case
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>search string lower</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSearchStringLower(java.lang.String)"><!-- --></A><H3>
+setSearchStringLower</H3>
+<PRE>
+public void <B>setSearchStringLower</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchStringLower1)</PRE>
+<DL>
+<DD>search string to find a subject, in all lower case
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>searchStringLower1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getUuid()"><!-- --></A><H3>
+getUuid</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getUuid</B>()</PRE>
+<DL>
+<DD>uuid for row
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>uuid</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setUuid(java.lang.String)"><!-- --></A><H3>
+setUuid</H3>
+<PRE>
+public void <B>setUuid</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid1)</PRE>
+<DL>
+<DD>uuid for row
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>uuid1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getIdentifier()"><!-- --></A><H3>
+getIdentifier</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getIdentifier</B>()</PRE>
+<DL>
+<DD>the thing that the subject uses to login
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>identifier</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setIdentifier(java.lang.String)"><!-- --></A><H3>
+setIdentifier</H3>
+<PRE>
+public void <B>setIdentifier</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;identifier1)</PRE>
+<DL>
+<DD>the thing that the subject uses to login
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>identifier1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getName()"><!-- --></A><H3>
+getName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getName</B>()</PRE>
+<DL>
+<DD>name of subject
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setName(java.lang.String)"><!-- --></A><H3>
+setName</H3>
+<PRE>
+public void <B>setName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name1)</PRE>
+<DL>
+<DD>name of subject
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getDescription()"><!-- --></A><H3>
+getDescription</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getDescription</B>()</PRE>
+<DL>
+<DD>description, which is generated from other attributes
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>description</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setDescription(java.lang.String)"><!-- --></A><H3>
+setDescription</H3>
+<PRE>
+public void <B>setDescription</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;description1)</PRE>
+<DL>
+<DD>description, which is generated from other attributes
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>description1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getEmail()"><!-- --></A><H3>
+getEmail</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getEmail</B>()</PRE>
+<DL>
+<DD>email address
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>email</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setEmail(java.lang.String)"><!-- --></A><H3>
+setEmail</H3>
+<PRE>
+public void <B>setEmail</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;email1)</PRE>
+<DL>
+<DD>email address
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>email1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getInstitution()"><!-- --></A><H3>
+getInstitution</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getInstitution</B>()</PRE>
+<DL>
+<DD>institution where the user is from
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>institution</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setInstitution(java.lang.String)"><!-- --></A><H3>
+setInstitution</H3>
+<PRE>
+public void <B>setInstitution</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;institution1)</PRE>
+<DL>
+<DD>institution where the user is from
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>institution1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clone()"><!-- --></A><H3>
+clone</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubject.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubject</A> <B>clone</B>()</PRE>
+<DL>
+<DD>deep clone the fields in this object
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co#clone()">clone</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperCloneable.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperCloneable</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#clone()">clone</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the clone of the object<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.clone()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setContextId(java.lang.String)"><!-- --></A><H3>
+setContextId</H3>
+<PRE>
+public void <B>setContextId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;contextId1)</PRE>
+<DL>
+<DD>contextId links to audit tables
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co#setContextId(java.lang.String)">setContextId</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/misc/GrouperHasContext.html?view=co" title="interface in edu.internet2.middleware.grouper.misc">GrouperHasContext</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>contextId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreateTime()"><!-- --></A><H3>
+getCreateTime</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A> <B>getCreateTime</B>()</PRE>
+<DL>
+<DD>Get creation time for this subject.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util"><CODE>Date</CODE></A> that this subject was created.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreateTimeDb()"><!-- --></A><H3>
+getCreateTimeDb</H3>
+<PRE>
+public long <B>getCreateTimeDb</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>create time</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCreatorMemberId()"><!-- --></A><H3>
+getCreatorMemberId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getCreatorMemberId</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>creator</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getModifierMemberId()"><!-- --></A><H3>
+getModifierMemberId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getModifierMemberId</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the modifier member id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCreateTimeDb(long)"><!-- --></A><H3>
+setCreateTimeDb</H3>
+<PRE>
+public void <B>setCreateTimeDb</B>(long&nbsp;createTime1)</PRE>
+<DL>
+<DD>create time
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>createTime1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCreatorMemberId(java.lang.String)"><!-- --></A><H3>
+setCreatorMemberId</H3>
+<PRE>
+public void <B>setCreatorMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;creatorMemberId1)</PRE>
+<DL>
+<DD>member id of creator
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>creatorMemberId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setModifierMemberId(java.lang.String)"><!-- --></A><H3>
+setModifierMemberId</H3>
+<PRE>
+public void <B>setModifierMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;modifierMemberId1)</PRE>
+<DL>
+<DD>member id of modifier
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>modifierMemberId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setModifyTimeDb(long)"><!-- --></A><H3>
+setModifyTimeDb</H3>
+<PRE>
+public void <B>setModifyTimeDb</B>(long&nbsp;modifyTime1)</PRE>
+<DL>
+<DD>last time modified
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>modifyTime1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getModifyTime()"><!-- --></A><H3>
+getModifyTime</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util">Date</A> <B>getModifyTime</B>()</PRE>
+<DL>
+<DD>Get modify time for this subject.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Date.html?view=co" title="class or interface in java.util"><CODE>Date</CODE></A> that this subject was created.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getModifyTimeDb()"><!-- --></A><H3>
+getModifyTimeDb</H3>
+<PRE>
+public long <B>getModifyTimeDb</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>modify time</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="subjectCanEditExternalUser(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+subjectCanEditExternalUser</H3>
+<PRE>
+public static boolean <B>subjectCanEditExternalUser</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>see if someone is allowed to edit, cache for 1 minute
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed to edit</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreSave</H3>
+<PRE>
+public void <B>onPreSave</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before a save (insert) occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreSave</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreSave(HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><!-- --></A><H3>
+onPreUpdate</H3>
+<PRE>
+public void <B>onPreUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html?view=co" title="class in edu.internet2.middleware.grouper.hibernate">HibernateSession</A>&nbsp;hibernateSession)</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">HibGrouperLifecycle</A></CODE></B></DD>
+<DD>before an update occurs
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HibGrouperLifecycle.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HibGrouperLifecycle</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)">onPreUpdate</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperAPI</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/GrouperAPI.html?view=co#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)"><CODE>GrouperAPI.onPreUpdate(HibernateSession)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="store()"><!-- --></A><H3>
+store</H3>
+<PRE>
+public void <B>store</B>()</PRE>
+<DL>
+<DD>store this object to the DB.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveFieldValue(java.lang.String)"><!-- --></A><H3>
+retrieveFieldValue</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>retrieveFieldValue</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;fieldOrAttributeName)</PRE>
+<DL>
+<DD>get the value by field name or attribute
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>fieldOrAttributeName</CODE> - 
+<DT><B>Returns:</B><DD>the value</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="store(java.util.Set, java.lang.String, boolean, boolean, boolean)"><!-- --></A><H3>
+store</H3>
+<PRE>
+public void <B>store</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A>&gt;&nbsp;externalSubjectAttributes,
+                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;externalSubjectInviteName,
+                  boolean&nbsp;validateAttributes,
+                  boolean&nbsp;autoaddGroups,
+                  boolean&nbsp;fromRecalcDaemon)</PRE>
+<DL>
+<DD>store this object to the DB.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>externalSubjectAttributes</CODE> - null to not worry, not null to affect the external subject attributes too<DD><CODE>externalSubjectInviteName</CODE> - is a variable you could put in the URL to pass to the hook so you can
+ add the users to custom groups or whatnot<DD><CODE>validateAttributes</CODE> - if required attributes should be validated<DD><CODE>autoaddGroups</CODE> - if groups should be auto-added (e.g. not from daemon)<DD><CODE>fromRecalcDaemon</CODE> - if the recalc daemon is doing the storing</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="validateIdentifier()"><!-- --></A><H3>
+validateIdentifier</H3>
+<PRE>
+public void <B>validateIdentifier</B>()</PRE>
+<DL>
+<DD>validate that the identifier is ok, based on grouper.properties
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sourceName()"><!-- --></A><H3>
+sourceName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>sourceName</B>()</PRE>
+<DL>
+<DD>source name for external subjects
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sourceId()"><!-- --></A><H3>
+sourceId</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>sourceId</B>()</PRE>
+<DL>
+<DD>source id for external subjects
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delete()"><!-- --></A><H3>
+delete</H3>
+<PRE>
+public void <B>delete</B>()</PRE>
+<DL>
+<DD>delete this object from the DB.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_fixDisabled()"><!-- --></A><H3>
+internal_fixDisabled</H3>
+<PRE>
+public static int <B>internal_fixDisabled</B>()</PRE>
+<DL>
+<DD>fix enabled and disabled memberships, and return the count of how many were fixed
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the number of records affected</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_daemonCalcFields()"><!-- --></A><H3>
+internal_daemonCalcFields</H3>
+<PRE>
+public static int <B>internal_daemonCalcFields</B>()</PRE>
+<DL>
+<DD>fix enabled and disabled memberships, and return the count of how many were fixed
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the number of records affected</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignAttribute(java.lang.String, java.lang.String)"><!-- --></A><H3>
+assignAttribute</H3>
+<PRE>
+public boolean <B>assignAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeValue)</PRE>
+<DL>
+<DD>assign an attribute to this subject, change value if already exists, add if not
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - <DD><CODE>attributeValue</CODE> - 
+<DT><B>Returns:</B><DD>true if changed anything, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttributes()"><!-- --></A><H3>
+retrieveAttributes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A>&gt; <B>retrieveAttributes</B>()</PRE>
+<DL>
+<DD>get all attributes for this subject
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attributes</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveAttribute(java.lang.String, boolean)"><!-- --></A><H3>
+retrieveAttribute</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttribute.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects">ExternalSubjectAttribute</A> <B>retrieveAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName,
+                                                  boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD>get an attributes for this subject
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>the attributes</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeAttribute(java.lang.String)"><!-- --></A><H3>
+removeAttribute</H3>
+<PRE>
+public boolean <B>removeAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeName)</PRE>
+<DL>
+<DD>remove an attribute
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeName</CODE> - 
+<DT><B>Returns:</B><DD>true if did anything</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/externalSubjects/ExternalSubjectAttrFramework.html?view=co" title="class in edu.internet2.middleware.grouper.externalSubjects"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="ExternalSubject.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

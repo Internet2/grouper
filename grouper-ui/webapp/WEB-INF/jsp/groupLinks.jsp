@@ -15,8 +15,8 @@
 		<tiles:insert definition="selectGroupPrivilegeDef"/>
 	</c:if>
 	   <c:if test="${groupPrivResolver.canEditGroup}">
-    
-      <html:link page="/deleteGroup.do" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
+
+      <html:link page="/deleteGroup.do?${csrf:token()}" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
         <grouper:message key="groups.action.delete"/>
       </html:link>
 
@@ -56,6 +56,14 @@
 		
 		</c:if>
 		
+    <c:if test="${mediaMap['ui-new.link-from-admin-ui'] == 'true'}">
+    
+      <html:link page="${mediaMap['ui.new.group-link']}${group.id}" >
+        <grouper:message key="ui-new.group-link"/>
+      </html:link>
+    
+    </c:if>
+    
 		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers && mediaMap['ui-lite.link-from-admin-ui'] == 'true'}">
 		
 			<html:link page="${mediaMap['ui.lite.group-link']}${group.id}" >

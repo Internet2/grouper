@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite,
 #########################################
 
 
-GET /grouper-ws/servicesRest/xhtml/v2_1_001/subjects/test.subject.0 HTTP/1.1
+GET /grouper-ws/servicesRest/xhtml/v2_2_000/subjects/test.subject.0 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,9 +34,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:04:32 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:02:19 GMT
 Connection: close
 
+3b0
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -45,31 +47,32 @@ Connection: close
   </head>
   <body>
     <div title="WsGetSubjectsResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">12</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="resultCode2" />
         <p class="resultMessage">Queried 1 subjects</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">269</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsGroup" title="WsGroup" />
       <ul class="wsSubjects">
         <li title="WsSubject">
-          <p class="name">my name is test.subject.0</p>
           <p class="id">test.subject.0</p>
-          <p class="sourceId">jdbc</p>
-          <p class="resultCode">SUCCESS</p>
-          <p class="success">T</p>
           <p class="identifierLookup" />
+          <p class="name">my name is test.subject.0</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="sourceId">jdbc</p>
+          <p class="success">T</p>
         </li>
       </ul>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -218,4 +221,4 @@ public class WsSampleGetSubjectsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 1 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 1 subjects

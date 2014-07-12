@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperPrivilegesRestLite, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/grouperPrivileges HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/grouperPrivileges HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 270
 Content-Type: text/xml; charset=UTF-8
@@ -41,9 +41,11 @@ X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 15:58:43 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:32:21 GMT
 Connection: close
 
+123
 <WsGetGrouperPrivilegesLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_NOT_ALLOWED</resultCode>
@@ -51,10 +53,11 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>266</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>52</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsGetGrouperPrivilegesLiteResult>
+0
 
 
 #########################################
@@ -229,4 +232,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_NOT_ALLOWED, result message: null
+Server version: 2.2.0, result code: SUCCESS_NOT_ALLOWED, result message: null

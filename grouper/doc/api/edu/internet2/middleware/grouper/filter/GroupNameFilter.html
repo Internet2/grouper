@@ -1,0 +1,548 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+GroupNameFilter
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GroupNameFilter";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameExactFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GroupNameFilter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.filter</FONT>
+<BR>
+Class GroupNameFilter</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter">edu.internet2.middleware.grouper.filter.BaseQueryFilter</A>
+      <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.filter.GroupNameFilter</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.filter">QueryFilter</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>GroupNameFilter</B><DT>extends <A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter">BaseQueryFilter</A></DL>
+</PRE>
+
+<P>
+Query by group name.
+ <p/>
+<P>
+
+<P>
+<DL>
+<DT><B>Version:</B></DT>
+  <DD>$Id: GroupNameFilter.java,v 1.4 2009-03-27 19:32:41 shilen Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#GroupNameFilter(java.lang.String, edu.internet2.middleware.grouper.Stem)">GroupNameFilter</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.filter"><CODE>QueryFilter</CODE></A> that returns groups matching the specified
+ name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#GroupNameFilter(java.lang.String, edu.internet2.middleware.grouper.Stem, java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer, java.util.Set)">GroupNameFilter</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theSortString,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theAscending,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;thePageNumber,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;thePageSize,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.filter"><CODE>QueryFilter</CODE></A> that returns groups matching the specified
+ name.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#getAscending()">getAscending</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true or null for ascending, false for descending.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#getPageNumber()">getPageNumber</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;page number 1 indexed if paging</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#getPageSize()">getPageSize</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;page size if paging</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#getResults(edu.internet2.middleware.grouper.GrouperSession)">getResults</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get filter results.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#getSortString()">getSortString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;must be an hql query field, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#getTypeOfGroups()">getTypeOfGroups</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type of group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#setAscending(java.lang.Boolean)">setAscending</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;ascending1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true or null for ascending, false for descending.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#setPageNumber(java.lang.Integer)">setPageNumber</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageNumber1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;page number 1 indexed if paging</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#setPageSize(java.lang.Integer)">setPageSize</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageSize1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;page size if paging</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#setSortString(java.lang.String)">setSortString</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sortString1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;must be an hql query field, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameFilter.html?view=co#setTypeOfGroup(java.util.Set)">setTypeOfGroup</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type of group</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.grouper.filter.BaseQueryFilter"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.grouper.filter.<A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter">BaseQueryFilter</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co#filterByScope(edu.internet2.middleware.grouper.Stem, java.util.Set)">filterByScope</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="GroupNameFilter(java.lang.String, edu.internet2.middleware.grouper.Stem)"><!-- --></A><H3>
+GroupNameFilter</H3>
+<PRE>
+public <B>GroupNameFilter</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns)</PRE>
+<DL>
+<DD><A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.filter"><CODE>QueryFilter</CODE></A> that returns groups matching the specified
+ name.
+ <p>
+ This performs a substring, lowercased query against <i>name</i>, <i>alternateName</i>,
+ <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
+ </p>
+ <p><b>NOTE:</b> This query will perform a full table scan.</p>
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Find groups matching this name.<DD><CODE>ns</CODE> - Restrict results to within this stem.</DL>
+</DL>
+<HR>
+
+<A NAME="GroupNameFilter(java.lang.String, edu.internet2.middleware.grouper.Stem, java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer, java.util.Set)"><!-- --></A><H3>
+GroupNameFilter</H3>
+<PRE>
+public <B>GroupNameFilter</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;theSortString,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theAscending,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;thePageNumber,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;thePageSize,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups1)</PRE>
+<DL>
+<DD><A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.filter"><CODE>QueryFilter</CODE></A> that returns groups matching the specified
+ name.
+ <p>
+ This performs a substring, lowercased query against <i>name</i>, <i>alternateName</i>,
+ <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
+ </p>
+ <p><b>NOTE:</b> This query will perform a full table scan.</p>
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Find groups matching this name.<DD><CODE>ns</CODE> - Restrict results to within this stem.<DD><CODE>theSortString</CODE> - <DD><CODE>theAscending</CODE> - <DD><CODE>thePageNumber</CODE> - <DD><CODE>thePageSize</CODE> - <DD><CODE>typeOfGroups1</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getTypeOfGroups()"><!-- --></A><H3>
+getTypeOfGroups</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt; <B>getTypeOfGroups</B>()</PRE>
+<DL>
+<DD>type of group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>type of group</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setTypeOfGroup(java.util.Set)"><!-- --></A><H3>
+setTypeOfGroup</H3>
+<PRE>
+public void <B>setTypeOfGroup</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;&nbsp;typeOfGroups1)</PRE>
+<DL>
+<DD>type of group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>typeOfGroups1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getResults(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+getResults</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>getResults</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)
+               throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></PRE>
+<DL>
+<DD><B>Description copied from class: <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co#getResults(edu.internet2.middleware.grouper.GrouperSession)">BaseQueryFilter</A></CODE></B></DD>
+<DD>Get filter results.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co#getResults(edu.internet2.middleware.grouper.GrouperSession)">getResults</A></CODE> in interface <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/filter/QueryFilter.html?view=co" title="interface in edu.internet2.middleware.grouper.filter">QueryFilter</A></CODE><DT><B>Overrides:</B><DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co#getResults(edu.internet2.middleware.grouper.GrouperSession)">getResults</A></CODE> in class <CODE><A HREF="../../../../../edu/internet2/middleware/grouper/filter/BaseQueryFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter">BaseQueryFilter</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Get groups within this session context.
+<DT><B>Returns:</B><DD>Objects that match filter constraints.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/QueryException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">QueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAscending()"><!-- --></A><H3>
+getAscending</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A> <B>getAscending</B>()</PRE>
+<DL>
+<DD>true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ascending</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPageNumber()"><!-- --></A><H3>
+getPageNumber</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A> <B>getPageNumber</B>()</PRE>
+<DL>
+<DD>page number 1 indexed if paging
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the pageNumber</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPageSize()"><!-- --></A><H3>
+getPageSize</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A> <B>getPageSize</B>()</PRE>
+<DL>
+<DD>page size if paging
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the pageSize</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSortString()"><!-- --></A><H3>
+getSortString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getSortString</B>()</PRE>
+<DL>
+<DD>must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the sortString</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAscending(java.lang.Boolean)"><!-- --></A><H3>
+setAscending</H3>
+<PRE>
+public void <B>setAscending</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;ascending1)</PRE>
+<DL>
+<DD>true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ascending1</CODE> - the ascending to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageNumber(java.lang.Integer)"><!-- --></A><H3>
+setPageNumber</H3>
+<PRE>
+public void <B>setPageNumber</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageNumber1)</PRE>
+<DL>
+<DD>page number 1 indexed if paging
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pageNumber1</CODE> - the pageNumber to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setPageSize(java.lang.Integer)"><!-- --></A><H3>
+setPageSize</H3>
+<PRE>
+public void <B>setPageSize</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageSize1)</PRE>
+<DL>
+<DD>page size if paging
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pageSize1</CODE> - the pageSize to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSortString(java.lang.String)"><!-- --></A><H3>
+setSortString</H3>
+<PRE>
+public void <B>setSortString</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sortString1)</PRE>
+<DL>
+<DD>must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sortString1</CODE> - the sortString to set</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupNameExactFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/filter/GroupsInStemFilter.html?view=co" title="class in edu.internet2.middleware.grouper.filter"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GroupNameFilter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

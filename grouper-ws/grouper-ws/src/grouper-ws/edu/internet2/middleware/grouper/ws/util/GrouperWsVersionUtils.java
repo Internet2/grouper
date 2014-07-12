@@ -32,11 +32,15 @@ public class GrouperWsVersionUtils {
    * result code changed in 1.4 to include a response for if the membership already existed
    * @param didntAlreadyExist
    * @param subjectFindResult 
+   * @param canRead if the user can read the members or not
    * @return the code success or if it already existed
    */
-  public static WsAddMemberResultCode addMemberSuccessResultCode(boolean didntAlreadyExist, WsSubjectLookup.SubjectFindResult subjectFindResult) {
+  public static WsAddMemberResultCode addMemberSuccessResultCode(boolean didntAlreadyExist, 
+      WsSubjectLookup.SubjectFindResult subjectFindResult, boolean canRead) {
     
-    if (retrieveCurrentClientVersion().greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v1_4_000"))) {
+    //20140618: mch: not sure whats going on here, not sure why subjectFindResult factors
+    //into it, and i dont know why SUCCESS is returned and not SUCCESS_CREATED
+    if (retrieveCurrentClientVersion().greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v1_4_000")) && canRead) {
 
       if (subjectFindResult == SubjectFindResult.SUCCESS_CREATED) {
         return WsAddMemberResultCode.SUCCESS_CREATED;

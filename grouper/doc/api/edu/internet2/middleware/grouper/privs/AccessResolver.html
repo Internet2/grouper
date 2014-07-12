@@ -1,0 +1,801 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+AccessResolver
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="AccessResolver";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessPrivilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolverDecorator.html?view=co" title="class in edu.internet2.middleware.grouper.privs"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AccessResolver.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.privs</FONT>
+<BR>
+Interface AccessResolver</H2>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolverDecorator.html?view=co" title="class in edu.internet2.middleware.grouper.privs">AccessResolverDecorator</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessWrapper.html?view=co" title="class in edu.internet2.middleware.grouper.privs">AccessWrapper</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/privs/CachingAccessResolver.html?view=co" title="class in edu.internet2.middleware.grouper.privs">CachingAccessResolver</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/privs/GrouperAllAccessResolver.html?view=co" title="class in edu.internet2.middleware.grouper.privs">GrouperAllAccessResolver</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/privs/GrouperSystemAccessResolver.html?view=co" title="class in edu.internet2.middleware.grouper.privs">GrouperSystemAccessResolver</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/privs/ValidatingAccessResolver.html?view=co" title="class in edu.internet2.middleware.grouper.privs">ValidatingAccessResolver</A>, <A HREF="../../../../../edu/internet2/middleware/grouper/privs/WheelAccessResolver.html?view=co" title="class in edu.internet2.middleware.grouper.privs">WheelAccessResolver</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>AccessResolver</B></DL>
+</PRE>
+
+<P>
+Facade for the <A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co" title="interface in edu.internet2.middleware.grouper.privs"><CODE>AccessAdapter</CODE></A> interface.
+ <p/>
+<P>
+
+<P>
+<DL>
+<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>Version:</B></DT>
+  <DD>$Id: AccessResolver.java,v 1.12 2009-08-29 15:57:59 shilen Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#flushCache()">flushCache</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;flush cache if caching resolver</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#getGrouperSession()">getGrouperSession</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a reference to the session</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#getGroupsWhereSubjectDoesntHavePrivilege(java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, boolean, java.lang.String)">getGroupsWhereSubjectDoesntHavePrivilege</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemId,
+                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope,
+                                         edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                         <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege,
+                                         boolean&nbsp;considerAllSubject,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sqlLikeString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the groups which do not have a certain privilege</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#getGroupsWhereSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">getGroupsWhereSubjectHasPrivilege</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                  <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get all groups where <i>subject</i> has <i>privilege</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessPrivilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">AccessPrivilege</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#getPrivileges(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">getPrivileges</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+              edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get all privileges <i>subject</i> has on <i>group</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">getStemsWhereGroupThatSubjectHasPrivilege</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                          <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get all stems which have groups where <i>subject</i> has <i>privilege</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Subject&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#getSubjectsWithPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)">getSubjectsWithPrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                         <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get all subjects with <i>privilege</i> on <i>group</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#grantPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, java.lang.String)">grantPrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+               edu.internet2.middleware.subject.Subject&nbsp;subject,
+               <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Grant <i>privilege</i> to <i>subject</i> on <i>group</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#hasPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">hasPrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+             edu.internet2.middleware.subject.Subject&nbsp;subject,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Check whether <i>subject</i> has <i>privilege</i> on <i>group</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, edu.internet2.middleware.grouper.privs.Privilege, boolean)">hqlFilterGroupsNotWithPrivWhereClause</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;hqlQuery,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;hql,
+                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupColumn,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege,
+                                      boolean&nbsp;considerAllSubject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for a group query, check to make sure the subject cant see the records</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)">hqlFilterGroupsWhereClause</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;hqlQuery,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;hql,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupColumn,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for a group query, check to make sure the subject can see the records (if filtering HQL, you can do 
+ the postHqlFilterGroups instead if you like)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)">postHqlFilterGroups</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;groups,
+                    edu.internet2.middleware.subject.Subject&nbsp;subject,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after HQL is run, filter groups.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)">postHqlFilterMemberships</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt;&nbsp;memberships)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filter memberships for things the subject can see</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)">postHqlFilterStemsWithGroups</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;&nbsp;stems,
+                             edu.internet2.middleware.subject.Subject&nbsp;subject,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;inPrivSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;after HQL is run, filter stems that have groups with privs.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#privilegeCopy(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)">privilegeCopy</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g1,
+              <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g2,
+              <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copies privileges for subjects that have the specified privilege on g1 to g2.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">privilegeCopy</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj1,
+              edu.internet2.middleware.subject.Subject&nbsp;subj2,
+              <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeSubjectContainer.html?view=co" title="interface in edu.internet2.middleware.grouper.privs">PrivilegeSubjectContainer</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#retrievePrivileges(edu.internet2.middleware.grouper.Group, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, java.util.Set)">retrievePrivileges</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html?view=co" title="enum in edu.internet2.middleware.grouper.membership">MembershipType</A>&nbsp;membershipType,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A>&nbsp;queryPaging,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;&nbsp;additionalMembers)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a list of privilege subjects, there are no results with the same subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)">revokeAllPrivilegesForSubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Revoke all access privileges that this subject has.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#revokePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)">revokePrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Revoke <i>privilege</i> from all subjects on <i>group</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#revokePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">revokePrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                edu.internet2.middleware.subject.Subject&nbsp;subject,
+                <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Revoke <i>privilege</i> from <i>subject</i> on <i>group</i>.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolver.html?view=co#stop()">stop</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clean up  resources, session is stopped</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="stop()"><!-- --></A><H3>
+stop</H3>
+<PRE>
+void <B>stop</B>()</PRE>
+<DL>
+<DD>clean up  resources, session is stopped
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperSession()"><!-- --></A><H3>
+getGrouperSession</H3>
+<PRE>
+<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A> <B>getGrouperSession</B>()</PRE>
+<DL>
+<DD>get a reference to the session
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the session</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="flushCache()"><!-- --></A><H3>
+flushCache</H3>
+<PRE>
+void <B>flushCache</B>()</PRE>
+<DL>
+<DD>flush cache if caching resolver
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupsWhereSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+getGroupsWhereSubjectHasPrivilege</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>getGroupsWhereSubjectHasPrivilege</B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                             <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)
+                                             throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Get all groups where <i>subject</i> has <i>privilege</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>the set
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#getGroupsWhereSubjectHasPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><CODE>AccessAdapter.getGroupsWhereSubjectHasPriv(edu.internet2.middleware.grouper.GrouperSession, Subject, Privilege)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupsWhereSubjectDoesntHavePrivilege(java.lang.String, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, boolean, java.lang.String)"><!-- --></A><H3>
+getGroupsWhereSubjectDoesntHavePrivilege</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>getGroupsWhereSubjectDoesntHavePrivilege</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;stemId,
+                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope,
+                                                    edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege,
+                                                    boolean&nbsp;considerAllSubject,
+                                                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sqlLikeString)</PRE>
+<DL>
+<DD>find the groups which do not have a certain privilege
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>stemId</CODE> - <DD><CODE>scope</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - <DD><CODE>considerAllSubject</CODE> - <DD><CODE>sqlLikeString</CODE> - 
+<DT><B>Returns:</B><DD>the groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getStemsWhereGroupThatSubjectHasPrivilege(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+getStemsWhereGroupThatSubjectHasPrivilege</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt; <B>getStemsWhereGroupThatSubjectHasPrivilege</B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                                    <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)
+                                                    throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Get all stems which have groups where <i>subject</i> has <i>privilege</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>the set
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#getGroupsWhereSubjectHasPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><CODE>AccessAdapter.getGroupsWhereSubjectHasPriv(edu.internet2.middleware.grouper.GrouperSession, Subject, Privilege)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPrivileges(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+getPrivileges</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessPrivilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">AccessPrivilege</A>&gt; <B>getPrivileges</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subject)
+                                   throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Get all privileges <i>subject</i> has on <i>group</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>the set
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#getPrivs(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><CODE>AccessAdapter.getPrivs(GrouperSession, Group, Subject)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectsWithPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+getSubjectsWithPrivilege</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Subject&gt; <B>getSubjectsWithPrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                                                       <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)
+                                                                       throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Get all subjects with <i>privilege</i> on <i>group</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>the set
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#getSubjectsWithPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)"><CODE>AccessAdapter.getSubjectsWithPriv(GrouperSession, Group, Privilege)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="grantPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege, java.lang.String)"><!-- --></A><H3>
+grantPrivilege</H3>
+<PRE>
+void <B>grantPrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                    edu.internet2.middleware.subject.Subject&nbsp;subject,
+                    <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)
+                    throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A>,
+                           <A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></PRE>
+<DL>
+<DD>Grant <i>privilege</i> to <i>subject</i> on <i>group</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - <DD><CODE>uuid</CODE> - send uuid if known, else null
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></CODE> - if the privilege could not be granted.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><CODE>AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasPrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+hasPrivilege</H3>
+<PRE>
+boolean <B>hasPrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                     edu.internet2.middleware.subject.Subject&nbsp;subject,
+                     <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)
+                     throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Check whether <i>subject</i> has <i>privilege</i> on <i>group</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>boolean
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#hasPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><CODE>AccessAdapter.hasPriv(GrouperSession, Group, Subject, Privilege)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="revokePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+revokePrivilege</H3>
+<PRE>
+void <B>revokePrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                     <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)
+                     throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A>,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></PRE>
+<DL>
+<DD>Revoke <i>privilege</i> from all subjects on <i>group</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></CODE> - if the privilege could not be revoked.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#revokePriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)"><CODE>AccessAdapter.revokePriv(GrouperSession, Group, Privilege)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="revokePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+revokePrivilege</H3>
+<PRE>
+void <B>revokePrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                     edu.internet2.middleware.subject.Subject&nbsp;subject,
+                     <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)
+                     throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A>,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></PRE>
+<DL>
+<DD>Revoke <i>privilege</i> from <i>subject</i> on <i>group</i>.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if any parameter is null.
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></CODE> - if the privilege could not be revoked.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessAdapter.html?view=co#revokePriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><CODE>AccessAdapter.revokePriv(GrouperSession, Group, Subject, Privilege)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="privilegeCopy(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+privilegeCopy</H3>
+<PRE>
+void <B>privilegeCopy</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g1,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g2,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)
+                   throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A>,
+                          <A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></PRE>
+<DL>
+<DD>Copies privileges for subjects that have the specified privilege on g1 to g2.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>g1</CODE> - <DD><CODE>g2</CODE> - <DD><CODE>priv</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+privilegeCopy</H3>
+<PRE>
+void <B>privilegeCopy</B>(edu.internet2.middleware.subject.Subject&nbsp;subj1,
+                   edu.internet2.middleware.subject.Subject&nbsp;subj2,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)
+                   throws <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A>,
+                          <A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></PRE>
+<DL>
+<DD>Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+ For instance, if subj1 has ADMIN privilege to Group x, this method will result with subj2
+ having ADMIN privilege to Group x.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subj1</CODE> - <DD><CODE>subj2</CODE> - <DD><CODE>priv</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/UnableToPerformException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">UnableToPerformException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+postHqlFilterGroups</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>postHqlFilterGroups</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;groups,
+                               edu.internet2.middleware.subject.Subject&nbsp;subject,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</PRE>
+<DL>
+<DD>after HQL is run, filter groups.  If you are filtering in HQL, then dont filter here
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groups</CODE> - <DD><CODE>subject</CODE> - which needs view access to the groups<DD><CODE>privInSet</CODE> - find a privilege which is in this set 
+ (e.g. for view, send all access privs).  There are pre-canned sets in AccessAdapter
+<DT><B>Returns:</B><DD>the set of filtered groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="postHqlFilterStemsWithGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+postHqlFilterStemsWithGroups</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt; <B>postHqlFilterStemsWithGroups</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&gt;&nbsp;stems,
+                                       edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;inPrivSet)</PRE>
+<DL>
+<DD>after HQL is run, filter stems that have groups with privs.  If you are filtering
+ HQL, then dont filter here.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>stems</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>inPrivSet</CODE> - 
+<DT><B>Returns:</B><DD>the set of filtered stems</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)"><!-- --></A><H3>
+hqlFilterGroupsWhereClause</H3>
+<PRE>
+boolean <B>hqlFilterGroupsWhereClause</B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;hqlQuery,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;hql,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupColumn,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</PRE>
+<DL>
+<DD>for a group query, check to make sure the subject can see the records (if filtering HQL, you can do 
+ the postHqlFilterGroups instead if you like)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - which needs view access to the groups<DD><CODE>hqlQuery</CODE> - <DD><CODE>hql</CODE> - the select and current from part<DD><CODE>groupColumn</CODE> - is the name of the group column to join to<DD><CODE>privInSet</CODE> - find a privilege which is in this set (e.g. for view, send all access privs)
+<DT><B>Returns:</B><DD>if the statement was changed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hqlFilterGroupsNotWithPrivWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, edu.internet2.middleware.grouper.privs.Privilege, boolean)"><!-- --></A><H3>
+hqlFilterGroupsNotWithPrivWhereClause</H3>
+<PRE>
+boolean <B>hqlFilterGroupsNotWithPrivWhereClause</B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                              <A HREF="../../../../../edu/internet2/middleware/grouper/hibernate/HqlQuery.html?view=co" title="interface in edu.internet2.middleware.grouper.hibernate">HqlQuery</A>&nbsp;hqlQuery,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/StringBuilder.html?view=co" title="class or interface in java.lang">StringBuilder</A>&nbsp;hql,
+                                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupColumn,
+                                              <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege,
+                                              boolean&nbsp;considerAllSubject)</PRE>
+<DL>
+<DD>for a group query, check to make sure the subject cant see the records
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - which needs view access to the groups<DD><CODE>hqlQuery</CODE> - <DD><CODE>hql</CODE> - the select and current from part<DD><CODE>groupColumn</CODE> - is the name of the group column to join to<DD><CODE>privilege</CODE> - find a privilege which is in this set (e.g. for view, send all access privs)<DD><CODE>considerAllSubject</CODE> - if true, then consider GrouperAll when seeign if subject has priv, else do not
+<DT><B>Returns:</B><DD>if the statement was changed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+postHqlFilterMemberships</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt; <B>postHqlFilterMemberships</B>(edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt;&nbsp;memberships)</PRE>
+<DL>
+<DD>filter memberships for things the subject can see
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>memberships</CODE> - <DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>the memberships</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+revokeAllPrivilegesForSubject</H3>
+<PRE>
+void <B>revokeAllPrivilegesForSubject</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>Revoke all access privileges that this subject has.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrievePrivileges(edu.internet2.middleware.grouper.Group, java.util.Set, edu.internet2.middleware.grouper.membership.MembershipType, edu.internet2.middleware.grouper.internal.dao.QueryPaging, java.util.Set)"><!-- --></A><H3>
+retrievePrivileges</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeSubjectContainer.html?view=co" title="interface in edu.internet2.middleware.grouper.privs">PrivilegeSubjectContainer</A>&gt; <B>retrievePrivileges</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privileges,
+                                                  <A HREF="../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html?view=co" title="enum in edu.internet2.middleware.grouper.membership">MembershipType</A>&nbsp;membershipType,
+                                                  <A HREF="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A>&nbsp;queryPaging,
+                                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;&nbsp;additionalMembers)</PRE>
+<DL>
+<DD>get a list of privilege subjects, there are no results with the same subject
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - to search on<DD><CODE>privileges</CODE> - if blank, get all<DD><CODE>membershipType</CODE> - if immediate, effective, or blank for all<DD><CODE>queryPaging</CODE> - if a certain page should be returned, based on subject<DD><CODE>additionalMembers</CODE> - additional members to query that the user is finding or adding
+<DT><B>Returns:</B><DD>the privilege subject combinations</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessPrivilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/AccessResolverDecorator.html?view=co" title="class in edu.internet2.middleware.grouper.privs"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AccessResolver.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

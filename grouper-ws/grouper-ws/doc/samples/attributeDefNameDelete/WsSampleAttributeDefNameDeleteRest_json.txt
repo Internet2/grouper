@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRest, manually written lite/rest, format: json, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRest, manually written lite/rest, format: json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 244
 Content-Type: text/x-json; charset=UTF-8
@@ -50,18 +50,18 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1421
-Date: Sun, 01 Jul 2012 13:28:13 GMT
+Date: Wed, 28 May 2014 23:01:51 GMT
 Connection: close
 
 {
   "WsAttributeDefNameDeleteResults":{
     "responseMetadata":{
-      "millis":"38",
-      "serverVersion":"2.1.1"
+      "millis":"26",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_json]\n[1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttr...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_json]\n[1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttr...\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "results":[
@@ -282,7 +282,7 @@ public class WsSampleAttributeDefNameDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_json]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_json]
 [1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttr...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

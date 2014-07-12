@@ -232,6 +232,9 @@ public class GrouperDdlUtils {
 
   /** if inside bootstrap, ok to use hibernate */
   private static boolean insideBootstrap = false;
+  
+  /** if we are dropping tables then creating */
+  private static boolean isDropBeforeCreate = false;
 
   /**
    * if we are inside the bootstrap, or if everything is ok, we are good to go
@@ -382,6 +385,7 @@ public class GrouperDdlUtils {
     
     try {
       insideBootstrap = true;
+      isDropBeforeCreate = theDropBeforeCreate;
   
       //clear out for this run (in case testing, might call this multiple times)
       alreadyInsertedForObjectName.clear();
@@ -553,6 +557,8 @@ public class GrouperDdlUtils {
               result.append(script).append("\n");
               //result.append("\n-- end drop all tables \n\n");
             }
+
+            GrouperDdl.alreadyAddedTableIndices = false;
             
           }
           
@@ -790,6 +796,7 @@ public class GrouperDdlUtils {
       }
     } finally {
       insideBootstrap = false;
+      isDropBeforeCreate = false;
     }
     return false;
   }
@@ -1487,15 +1494,16 @@ public class GrouperDdlUtils {
    * drop a view if it is detected as existing
    * @param ddlVersionBean
    * @param viewName
+   * @param falseIfDropBeforeCreate 
    */
-  public static void ddlutilsDropViewIfExists(DdlVersionBean ddlVersionBean, String viewName) {
-    boolean exists = assertTablesThere(false, false, viewName);
+  public static void ddlutilsDropViewIfExists(DdlVersionBean ddlVersionBean, String viewName, boolean falseIfDropBeforeCreate) {
+    boolean exists = assertTablesThere(false, false, viewName, falseIfDropBeforeCreate);
     if (!exists) {
       viewName = viewName.toUpperCase();
       //MCH 20090131 mysql can be case sensitive, and we moved to lower case view names,
       //so see if the upper case one if there...
       //at some point (grouper 1.6 or 1.7?) we can remove this
-      exists = assertTablesThere(false, false, viewName);
+      exists = assertTablesThere(false, false, viewName, falseIfDropBeforeCreate);
     }
     if (exists) {
       if (ddlVersionBean.isPostgres()) {
@@ -1528,7 +1536,13 @@ public class GrouperDdlUtils {
       		"delete that table and try again): " + backupTableName);
     }
     
-    String script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
+    String script;
+    
+    if (isHsql()) {
+      script = "\nselect * into " + backupTableName + " from " + tableName + " ;\n";
+    } else {
+      script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
+    }
     
     //not sure if this works on all dbs... it does work on mysql, oracle, and postgres
     ddlVersionBean.appendAdditionalScriptUnique(script);
@@ -2297,9 +2311,10 @@ public class GrouperDdlUtils {
    * find and drop a table if it is there
    * @param ddlVersionBean 
    * @param tableName
+   * @param falseIfDropBeforeCreate 
    */
-  public static void ddlutilsDropTable(DdlVersionBean ddlVersionBean, String tableName) {
-    if (GrouperDdlUtils.assertTablesThere(false, false, tableName)) {
+  public static void ddlutilsDropTable(DdlVersionBean ddlVersionBean, String tableName, boolean falseIfDropBeforeCreate) {
+    if (GrouperDdlUtils.assertTablesThere(false, false, tableName, falseIfDropBeforeCreate)) {
       if (ddlVersionBean.isOracle()) {
         ddlVersionBean.appendAdditionalScriptUnique("\ndrop table " + tableName + " cascade constraints;\n");
       } else {
@@ -2364,7 +2379,7 @@ public class GrouperDdlUtils {
    * if exception is thrown and expect true.false if exception and not expect true
    */
   public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue) {
-    return assertTablesThere(expectRecords, expectTrue, "grouper_stems");
+    return assertTablesThere(expectRecords, expectTrue, "grouper_stems", false);
   }
 
   /**
@@ -2372,10 +2387,20 @@ public class GrouperDdlUtils {
    * @param expectRecords 
    * @param expectTrue pritn exception if expecting true
    * @param tableName 
+   * @param falseIfDropBeforeCreate 
    * @return true if expect records, and records there.  false if records not there.  exception
    * if exception is thrown and expect true.false if exception and not expect true
    */
-  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, String tableName) {
+  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, String tableName, boolean falseIfDropBeforeCreate) {
+    
+    if (falseIfDropBeforeCreate && isDropBeforeCreate) {
+      if (expectTrue) {
+        throw new RuntimeException("isDropBeforeCreate set to true");
+      }
+      
+      return false;
+    }
+    
     try {
       //first, see if tables are there
       int count = HibernateSession.bySqlStatic().select(int.class, 
@@ -2458,7 +2483,7 @@ public class GrouperDdlUtils {
     boolean tableThere = false;
     String sampleTableNameExists = null;
     for (String sampleTableName : sampleTablenames) {
-      tableThere = assertTablesThere(false, false, sampleTableName);
+      tableThere = assertTablesThere(false, false, sampleTableName, false);
       if (tableThere) {
         sampleTableNameExists = sampleTableName;
         break;

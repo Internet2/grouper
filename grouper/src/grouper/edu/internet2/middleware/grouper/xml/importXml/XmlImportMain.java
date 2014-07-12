@@ -54,7 +54,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.xml.export.XmlExportAttribute;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssign;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignAction;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAttributeAssignActionSet;
@@ -68,8 +67,6 @@ import edu.internet2.middleware.grouper.xml.export.XmlExportAuditType;
 import edu.internet2.middleware.grouper.xml.export.XmlExportComposite;
 import edu.internet2.middleware.grouper.xml.export.XmlExportField;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGroup;
-import edu.internet2.middleware.grouper.xml.export.XmlExportGroupType;
-import edu.internet2.middleware.grouper.xml.export.XmlExportGroupTypeTuple;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMain;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMember;
 import edu.internet2.middleware.grouper.xml.export.XmlExportMembership;
@@ -251,7 +248,7 @@ public class XmlImportMain {
       
       processXmlSecondPass(reader, filePath);
     } catch (FileNotFoundException fnfe) {
-      throw new RuntimeException("Cant find file: " + filePath);
+      throw new RuntimeException("Cant find file: " + filePath, fnfe);
     } finally {
       if (this.recordReport) {
         GrouperUtil.closeQuietly(this.recordReportWriter);
@@ -355,11 +352,8 @@ public class XmlImportMain {
               XmlExportMember.processXmlFirstPass(XmlImportMain.this);
               XmlExportStem.processXmlFirstPass(XmlImportMain.this);
               XmlExportGroup.processXmlFirstPass(XmlImportMain.this);
-              XmlExportGroupType.processXmlFirstPass(XmlImportMain.this);
               XmlExportField.processXmlFirstPass(XmlImportMain.this);
-              XmlExportGroupTypeTuple.processXmlFirstPass(XmlImportMain.this);
               XmlExportComposite.processXmlFirstPass(XmlImportMain.this);
-              XmlExportAttribute.processXmlFirstPass(XmlImportMain.this);
               XmlExportAttributeDef.processXmlFirstPass(XmlImportMain.this);
               XmlExportMembership.processXmlFirstPass(XmlImportMain.this);
               XmlExportAttributeDefName.processXmlFirstPass(XmlImportMain.this);
@@ -415,11 +409,8 @@ public class XmlImportMain {
     total += XmlExportMember.dbCount(xmlExportMain);
     total += XmlExportStem.dbCount(xmlExportMain);
     total += XmlExportGroup.dbCount(xmlExportMain);
-    total += XmlExportGroupType.dbCount(xmlExportMain);
     total += XmlExportField.dbCount();
-    total += XmlExportGroupTypeTuple.dbCount(xmlExportMain);
     total += XmlExportComposite.dbCount(xmlExportMain);
-    total += XmlExportAttribute.dbCount(xmlExportMain);
     total += XmlExportAttributeDef.dbCount(xmlExportMain);
     total += XmlExportMembership.dbCount(xmlExportMain);
     total += XmlExportAttributeDefName.dbCount(xmlExportMain);
@@ -528,11 +519,8 @@ public class XmlImportMain {
                 XmlExportMember.processXmlSecondPass(XmlImportMain.this);
                 XmlExportStem.processXmlSecondPass(XmlImportMain.this);
                 XmlExportGroup.processXmlSecondPass(XmlImportMain.this);
-                XmlExportGroupType.processXmlSecondPass(XmlImportMain.this);
                 XmlExportField.processXmlSecondPass(XmlImportMain.this);
-                XmlExportGroupTypeTuple.processXmlSecondPass(XmlImportMain.this);
                 XmlExportComposite.processXmlSecondPass(XmlImportMain.this);
-                XmlExportAttribute.processXmlSecondPass(XmlImportMain.this);
                 XmlExportAttributeDef.processXmlSecondPass(XmlImportMain.this);
                 XmlExportMembership.processXmlSecondPass(XmlImportMain.this);
                 XmlExportAttributeDefName.processXmlSecondPass(XmlImportMain.this);

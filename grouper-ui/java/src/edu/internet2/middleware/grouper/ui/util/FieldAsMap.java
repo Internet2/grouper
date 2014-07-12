@@ -33,14 +33,13 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.util;
 
 import java.util.HashSet;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.apache.commons.beanutils.WrapDynaBean;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Wraps a Field - allows non persistent values to be stored for the UI and
@@ -55,6 +54,7 @@ public class FieldAsMap extends ObjectAsMap {
 	protected String objType = "Field";
 
 	private Field field = null;
+	private AttributeDefName legacyAttribute = null;
 	
 	protected FieldAsMap() {}
 	
@@ -78,6 +78,27 @@ public class FieldAsMap extends ObjectAsMap {
 		this.field = field;
 		wrappedObject = field;
 	}
+	
+  /**
+   * @param legacyAttribute
+   *            to wrap
+    * @param bundle
+   *            where to lookup display names
+   */
+  public FieldAsMap(AttributeDefName legacyAttribute) {
+    super();
+    init(legacyAttribute);
+  }
+  
+  protected void init(AttributeDefName legacyAttribute) {
+    super.objType = objType;
+    dynaBean = new WrapDynaBean(legacyAttribute);
+    if (legacyAttribute == null)
+      throw new NullPointerException(
+          "Cannot create SubjectAsMap with a null Subject");
+    this.legacyAttribute = legacyAttribute;
+    wrappedObject = legacyAttribute;
+  }
 
 	/*
 	 * (non-Javadoc)
@@ -85,22 +106,26 @@ public class FieldAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
-		Class stemClass = field.getClass();
-		Object obj = getByIntrospection(key);
-		if(obj!=null) return obj;
-		obj = super.get(key);
-		//Map overrides wrapped Subject
-		
-		if(obj!=null && !"".equals(obj)) return obj;
+	  Object obj = null;
+	  if (field != null || !"displayName".equals(key)) {
+  	 obj = getByIntrospection(key);
+  		if(obj!=null) return obj;
+  		obj = super.get(key);
+  		//Map overrides wrapped Subject
+  		
+  		if(obj!=null && !"".equals(obj)) return obj;
+	  }
+	  
 			//if (values != null && values.size() != 0)
 			//	obj = values.iterator().next();
 		
+		    String name = field != null ? field.getName() : legacyAttribute.getLegacyAttributeName(true);
 				if ("displayName".equals(key)) {
 					String displayName = null;
 					try {
-						displayName =  GrouperUiFilter.retrieveSessionNavResourceBundle().getString("field.displayName." + field.getName());
+						displayName =  GrouperUiFilter.retrieveSessionNavResourceBundle().getString("field.displayName." + name);
 					}catch(Exception e) {
-						displayName = field.getName();
+						displayName = name;
 					}
 					obj=displayName;
 				}

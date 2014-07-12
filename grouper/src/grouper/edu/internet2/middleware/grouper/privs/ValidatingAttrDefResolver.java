@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -143,6 +144,9 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
    */
   public Set<AttributeDef> postHqlFilterAttrDefs(Set<AttributeDef> attributeDefs, Subject subject,
       Set<Privilege> privInSet) {
+    if (GrouperUtil.length(privInSet) == 0) {
+      return attributeDefs;
+    }
     this.param.notNullSubject(subject);
     return super.getDecoratedResolver().postHqlFilterAttrDefs(attributeDefs, subject, privInSet);
   }
@@ -185,6 +189,9 @@ public class ValidatingAttrDefResolver extends AttributeDefResolverDecorator {
   public boolean hqlFilterAttrDefsWhereClause(Subject subject, HqlQuery hqlQuery,
       StringBuilder hqlTables, StringBuilder hqlWhereClause, String attrDefColumn, Set<Privilege> privInSet) {
 
+    if (GrouperUtil.length(privInSet) == 0) {
+      return false;
+    }
     this.param.notNullSubject(subject).notNullHqlQuery(hqlQuery);
 
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();

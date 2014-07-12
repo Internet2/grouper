@@ -84,6 +84,9 @@ public class LoaderJobBean {
     /** constant for field name for: hib3GrouploaderLogOverall */
     public static final String FIELD_HIB3_GROUPLOADER_LOG_OVERALL = "hib3GrouploaderLogOverall";
 
+    /** constant for field name for: ldapAttributeFilterExpression */
+    public static final String FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION = "ldapAttributeFilterExpression";
+
     /** constant for field name for: ldapErrorUnresolvable */
     public static final String FIELD_LDAP_ERROR_UNRESOLVABLE = "ldapErrorUnresolvable";
 
@@ -145,7 +148,8 @@ public class LoaderJobBean {
         FIELD_AND_GROUPS, FIELD_ATTRIBUTE_DEF_NAME, FIELD_ATTRIBUTE_LOADER_ACTION_QUERY, FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY, 
         FIELD_ATTRIBUTE_LOADER_ATTR_QUERY, FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY, FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE, FIELD_GROUP_LIKE_STRING, 
         FIELD_GROUP_NAME_OVERALL, FIELD_GROUP_QUERY, FIELD_GROUP_TYPES, FIELD_GROUPER_LOADER_DB, 
-        FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, FIELD_HIB3_GROUPLOADER_LOG_OVERALL, FIELD_LDAP_ERROR_UNRESOLVABLE, 
+        FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, FIELD_HIB3_GROUPLOADER_LOG_OVERALL, 
+        FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION, FIELD_LDAP_ERROR_UNRESOLVABLE, 
         FIELD_LDAP_EXTRA_ATTRIBUTES, FIELD_LDAP_FILTER, FIELD_LDAP_GROUP_ATTRIBUTE, FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION, 
         FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION, FIELD_LDAP_GROUP_NAME_EXPRESSION, FIELD_LDAP_QUARTZ_CRON, FIELD_LDAP_SEARCH_DN, 
         FIELD_LDAP_SEARCH_SCOPE, FIELD_LDAP_SERVER_ID, FIELD_LDAP_SOURCE_ID, FIELD_LDAP_SUBJECT_ATTRIBUTE, 
@@ -524,6 +528,25 @@ public class LoaderJobBean {
    */
   public void setLdapGroupDescriptionExpression(String ldapGroupDescriptionExpression1) {
     this.ldapGroupDescriptionExpression = ldapGroupDescriptionExpression1;
+  }
+
+  /** if filtering which attributes, this is the jexl expression */
+  private String ldapAttributeFilterExpression;
+
+  /**
+   * if filtering which attributes, this is the jexl expression
+   * @return ldap attribute filter expression
+   */
+  public String getLdapAttributeFilterExpression() {
+    return this.ldapAttributeFilterExpression;
+  }
+
+  /**
+   * if filtering which attributes, this is the jexl expression
+   * @param ldapAttributeFilterExpression1
+   */
+  public void setLdapAttributeFilterExpression(String ldapAttributeFilterExpression1) {
+    this.ldapAttributeFilterExpression = ldapAttributeFilterExpression1;
   }
 
   /**
@@ -1063,6 +1086,7 @@ public class LoaderJobBean {
    * @param ldapGroupUpdaters1 
    * @param ldapGroupOptins1 
    * @param ldapGroupOptouts1 
+   * @param ldapAttributeFilterExpression1
    * @param ldapGroupAttrReaders1
    * @param ldapGroupAttrUpdaters1
    * @param groupsLike1 
@@ -1077,7 +1101,8 @@ public class LoaderJobBean {
       String ldapGroupDisplayExtensionExpression1, String ldapGroupDescriptionExpression1,
       String ldapSubjectExpression1, List<GroupType> groupTypes1, String ldapGroupReaders1,
       String ldapGroupViewers1, String ldapGroupAdmins1, String ldapGroupUpdaters1, String ldapGroupOptins1,
-      String ldapGroupOptouts1, String ldapGroupAttrReaders1, String ldapGroupAttrUpdaters1, String groupsLike1
+      String ldapGroupOptouts1, String groupsLike1, String ldapAttributeFilterExpression1, 
+      String ldapGroupAttrReaders1, String ldapGroupAttrUpdaters1
       ) {
     super();
     this.ldapType = ldapType1;
@@ -1094,6 +1119,7 @@ public class LoaderJobBean {
     this.hib3GrouploaderLogOverall = hib3GrouploaderLogOverall1;
     this.grouperSession = grouperSession1;
     this.andGroups = andGroups1;
+    this.ldapAttributeFilterExpression = ldapAttributeFilterExpression1;
     this.ldapGroupAttribute = ldapGroupAttribute1;
     this.ldapExtraAttributes = extraAttributes1;
     this.ldapErrorUnresolvable = errorUnresolvable1;

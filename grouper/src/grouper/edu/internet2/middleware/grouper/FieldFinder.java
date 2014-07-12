@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -64,7 +65,6 @@ public class FieldFinder {
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
 
   /** default field cache seconds */
@@ -178,16 +178,6 @@ public class FieldFinder {
   }
 
   /**
-   * find the field id or null if the name is empty.  Runtime exception if problem
-   * @param attrName
-   * @param exceptionIfNull 
-   * @return the field uuid
-   */
-  public static String findFieldIdForAttribute(String attrName, boolean exceptionIfNull) {
-    return findFieldId(attrName, "attribute", exceptionIfNull);
-  }
-
-  /**
    * Get the specified field.
    * <pre class="eg">
    * Field f = FieldFinder.find(field);
@@ -211,11 +201,44 @@ public class FieldFinder {
    * @return field
    * @throws  SchemaException
    */
-  public static Field find(String name, boolean exceptionIfNotFound) 
+  public static Field find(String name, boolean exceptionIfNotFound) {
+    return find(name, exceptionIfNotFound, true);
+  }
+
+  /**
+   * Get the specified field.
+   * <pre class="eg">
+   * Field f = FieldFinder.find(field);
+   * </pre>
+   * @param   name  Name of {@link Field} to return.
+   * @param exceptionIfNotFound true if exception if not found, otherwise null
+   * @param includePrivilegeSearch if should also use name as privilege
+   * @return field
+   * @throws  SchemaException
+   */
+  public static Field find(String name, boolean exceptionIfNotFound, boolean includePrivilegeSearch) 
     throws  SchemaException {
     Map<String, Field> theFieldCache = fieldCache();
     if ( theFieldCache.containsKey(name) ) {
       return theFieldCache.get(name);
+    }
+    
+    //try by privilege name
+    if (includePrivilegeSearch) {
+      try {
+        Privilege privilege = Privilege.getInstance(name);
+        if (privilege != null ) {
+          Field field = privilege.getField();
+          if (field != null) {
+            return field;
+          }
+        }
+      } catch (Exception e) {
+        //this is generally ok
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Problem finding privilege: " + name, e);
+        }
+      }
     }
     if (exceptionIfNotFound) {
       //dont refresh more than 2 minutes (or whatever it is set for)
@@ -305,11 +328,16 @@ public class FieldFinder {
       throws  GrouperDAOException {
     Set<Field> fields  = new LinkedHashSet();
     
-    for (Field field : fieldCache().values()) {
-      if (StringUtils.equals(groupType.getUuid(),field.getGroupTypeUuid())) {
-        fields.add(field);
+    Set<Field> allListFields = FieldFinder.findAllByType(FieldType.LIST);
+    for (Field listField : allListFields) {
+      if (!listField.getUuid().equals(Group.getDefaultList().getUuid())) {
+        GroupType currGroupType = GroupTypeFinder.internal_findGroupTypeByField(listField, false);
+        if (currGroupType != null && groupType.getUuid().equals(currGroupType.getUuid())) {
+          fields.add(listField);
+        }
       }
     }
+
     return fields;
   }
   
@@ -320,14 +348,11 @@ public class FieldFinder {
    */
   public static Set<Field> findAllByGroupType(String groupTypeId)
       throws  GrouperDAOException {
-    Set<Field> fields  = new LinkedHashSet();
     
-    for (Field field : fieldCache().values()) {
-      if (StringUtils.equals(groupTypeId,field.getGroupTypeUuid())) {
-        fields.add(field);
-      }
-    }
-    return fields;
+    @SuppressWarnings("deprecation")
+    GroupType groupType = GroupTypeFinder.findByUuid(groupTypeId, true);
+
+    return findAllByGroupType(groupType);
   }
 
   /**
@@ -353,7 +378,7 @@ public class FieldFinder {
   }
 
   /**
-   * 
+   * @return map
    */
   public static Map<String, Field> internal_updateKnownFields() {
 

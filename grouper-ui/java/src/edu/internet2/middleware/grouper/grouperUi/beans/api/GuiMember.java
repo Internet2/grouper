@@ -22,10 +22,19 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
@@ -33,7 +42,73 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * member bean wraps grouper class with useful methods for UIs
  */
+@SuppressWarnings("serial")
 public class GuiMember implements Serializable {
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GuiMember)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.member, ( (GuiMember) other ).member )
+      .isEquals();
+  }
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.member )
+      .toHashCode();
+  }
+
+
+  /**
+   * 
+   * @param members
+   * @param configMax
+   * @param max
+   * @return
+   */
+  public static Set<GuiMember> convertFromMembers(Set<Member> members) {
+    return convertFromMembers(members, null, -1);
+  }
+
+  /**
+   * 
+   * @param members
+   * @param configMax
+   * @param max
+   * @return
+   */
+  public static Set<GuiMember> convertFromMembers(Set<Member> members, String configMax, int defaultMax) {
+    Set<GuiMember> tempMembers = new LinkedHashSet<GuiMember>();
+    
+    Integer max = null;
+    
+    if (!StringUtils.isBlank(configMax)) {
+      max = GrouperUiConfig.retrieveConfig().propertyValueInt(configMax, defaultMax);
+    }
+    
+    int count = 0;
+    for (Member member : GrouperUtil.nonNull(members)) {
+      tempMembers.add(new GuiMember(member));
+      if (max != null && ++count >= max) {
+        break;
+      }
+    }
+    
+    return tempMembers;
+    
+  }
 
   /**
    * default constructor
@@ -97,6 +172,45 @@ public class GuiMember implements Serializable {
     return this.membership != null && this.membership.getDisabledTime() != null;
   }
   
+  /**
+   * 
+   * @return the short link for a webpage for this member
+   */
+  public String getShortLink() {
+    return shortLinkHelper(false);
+  }
+  
+  /**
+   * 
+   * @return the short link for a webpage for this member
+   */
+  public String getShortLinkWithIcon() {
+    return shortLinkHelper(true);
+  }
+  
+  /**
+   * 
+   * @return the short link for a webpage for this member
+   */
+  private String shortLinkHelper(boolean showIcon) {
+    Member theMember = this.getMember();
+
+    GuiSubject guiSubject = null;
+
+    if (theMember != null) {
+      guiSubject = this.getGuiSubject();
+    }
+    
+    if (guiSubject == null) { 
+      return TextContainer.retrieveFromRequest().getText().get("guiObjectUnknown");
+    }
+    if (showIcon) {
+      return guiSubject.getShortLinkWithIcon();
+    }
+    return guiSubject.getShortLink();
+    
+  }
+
   /**
    * 
    * @return the disabled date

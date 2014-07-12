@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, manually written lite/rest, type: _withInput, format: http_json, for version: 2.1.1
+Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, manually written lite/rest, type: _withInput, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 136
 
-wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&actAsSubjectId=GrouperSystem&stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE
+wsLiteObjectType=WsRestFindStemsLiteRequest&actAsSubjectId=GrouperSystem&stemName=aSte&stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE
 
 
 #########################################
@@ -34,19 +34,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 571
-Date: Sun, 01 Jul 2012 13:41:58 GMT
+Content-Length: 588
+Date: Wed, 28 May 2014 23:25:12 GMT
 Connection: close
 
 {
   "WsFindStemsResults":{
     "responseMetadata":{
-      "millis":"166",
-      "serverVersion":"2.1.1"
+      "millis":"58",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n, wsStemLookups: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n, wsStemLookups: null",
       "success":"T"
     },
     "stemResults":[
@@ -55,8 +55,9 @@ Connection: close
         "displayExtension":"a stem",
         "displayName":"a stem",
         "extension":"aStem",
+        "idIndex":"10022",
         "name":"aStem",
-        "uuid":"fbe12d628a004996a12b6e201ce2fb43"
+        "uuid":"0c88730ba446420d9f2478d14a435bf2"
       }
     ]
   }
@@ -236,6 +237,6 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 , wsStemLookups: null

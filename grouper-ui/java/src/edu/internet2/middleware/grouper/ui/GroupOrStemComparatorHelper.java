@@ -74,7 +74,7 @@ public class GroupOrStemComparatorHelper implements GrouperComparatorHelper{
 		}
 	
 		if(! (obj instanceof SubjectPrivilegeAsMap)) {
-			throw new IllegalArgumentException(obj + "is not a group or stem");
+			throw new IllegalArgumentException(obj + "is not a group or stem: " + (obj == null ? null : obj.getClass()));
 		}
 		SubjectPrivilegeAsMap spam = (SubjectPrivilegeAsMap)obj;
 		ObjectAsMap groupOrStem = (ObjectAsMap)spam.get("groupOrStem");

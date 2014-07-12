@@ -19,6 +19,11 @@
  */
 package edu.internet2.middleware.grouper.audit;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
+
 
 
 /**
@@ -550,4 +555,48 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
       auditTypeBuiltin.internalAuditTypeDefault.setHibernateVersionNumber(-1l);
     }
   }
+  
+  /**
+   * cache of category and action to enum
+   */
+  private static Map<MultiKey, AuditTypeBuiltin> categoryAndActionToBuiltin = null;
+  
+  /**
+   * cache of category and action to enum
+   * @return the map
+   */
+  private static Map<MultiKey, AuditTypeBuiltin> categoryAndActionToBuiltin() {
+    if (categoryAndActionToBuiltin == null) {
+      synchronized(AuditTypeBuiltin.class) {
+        
+        if (categoryAndActionToBuiltin == null) {
+          Map<MultiKey, AuditTypeBuiltin> tempMap = new HashMap<MultiKey, AuditTypeBuiltin>();
+          for (AuditTypeBuiltin auditTypeBuiltin : values()) {
+            tempMap.put(new MultiKey(auditTypeBuiltin.getAuditCategory(), auditTypeBuiltin.getActionName()), auditTypeBuiltin);
+          }
+          categoryAndActionToBuiltin = tempMap;
+        }
+      }
+    }
+    return categoryAndActionToBuiltin;
+  }
+  
+  
+  /**
+   * get the enum based on category and action
+   * @param category
+   * @param action
+   * @param exceptionIfNotFound
+   * @return the enum
+   */
+  public static AuditTypeBuiltin valueOfIgnoreCase(String category, String action, boolean exceptionIfNotFound) {
+    
+    MultiKey multiKey = new MultiKey(category, action);
+    AuditTypeBuiltin auditTypeBuiltin = categoryAndActionToBuiltin().get(multiKey);
+    if (auditTypeBuiltin == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find AuditTypeBuilting for " + category + " and " + action);
+    }
+    return auditTypeBuiltin;
+  }
+  
 }

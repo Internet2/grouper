@@ -99,7 +99,7 @@ public class ChangeLogIdTest extends GrouperTest {
    */
   public void testHibernate() {
     ChangeLogEntry changeLogEntryTemp = new ChangeLogEntry();
-    changeLogEntryTemp.setChangeLogTypeId(ChangeLogTypeBuiltin.GROUP_TYPE_ADD.getChangeLogType().getId());
+    changeLogEntryTemp.setChangeLogTypeId(ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId());
     changeLogEntryTemp.setContextId("abc");
     changeLogEntryTemp.setString01("string1");
     changeLogEntryTemp.setString02("string2");

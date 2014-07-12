@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="contrib/struts-patch/java/src"/>
+	<classpathentry kind="src" path="GROUPER_TRUNK_CLIENT_SOURCE"/>
 	<classpathentry kind="src" path="GROUPER_TRUNK_CONF"/>
 	<classpathentry kind="src" path="GROUPER_TRUNK_SOURCE"/>
 	<classpathentry kind="src" path="contrib/yale-cas-auth/java/src"/>
@@ -26,6 +27,7 @@
 	<classpathentry exported="true" kind="lib" path="java/lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="contrib/penn-auth/java/lib/fastWebsec.jar"/>
 	<classpathentry kind="lib" path="java/lib/opencsv.jar"/>
+	<classpathentry kind="lib" path="java/lib/csrfguard.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

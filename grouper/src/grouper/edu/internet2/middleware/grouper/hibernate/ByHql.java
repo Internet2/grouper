@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -248,26 +249,46 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    */
   public <T> T uniqueResult(@SuppressWarnings("unused") Class<T> returnType) throws GrouperDAOException {
 
-    GrouperContext.incrementQueryCount();
-    HibernateSession hibernateSession = this.getHibernateSession();
-    Session session  = hibernateSession.getSession();
-    Query query = ByHql.this.attachQueryInfo(session);
-    T object = null;
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+
     try {
-      object = (T) query.uniqueResult();
-    } catch (ObjectNotFoundException onfe) {
-      //hibernate error when it couldnt find what was in cache perhaps, run the query again without caching
-      if (this.cacheable != null && this.cacheable) {
-        this.cacheable = false;
-        query = ByHql.this.attachQueryInfo(session);
-        object = (T) query.uniqueResult();
-        //set this back
-        this.cacheable = true;
+
+      GrouperContext.incrementQueryCount();
+      HibernateSession hibernateSession = this.getHibernateSession();
+      
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("returnType", returnType.getSimpleName());
+        debugMap.put("hibernateSession", hibernateSession);
       }
-    }
-    HibUtils.evict(hibernateSession, object, true);
-    return object;
-    
+      
+      Session session  = hibernateSession.getSession();
+      Query query = ByHql.this.attachQueryInfo(session);
+      T object = null;
+      try {
+        object = (T) query.uniqueResult();
+      } catch (ObjectNotFoundException onfe) {
+        //hibernate error when it couldnt find what was in cache perhaps, run the query again without caching
+        if (this.cacheable != null && this.cacheable) {
+          this.cacheable = false;
+          query = ByHql.this.attachQueryInfo(session);
+          object = (T) query.uniqueResult();
+          //set this back
+          this.cacheable = true;
+        }
+        
+      }
+  
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundObject", object != null);
+      }
+      
+      HibUtils.evict(hibernateSession, object, true);
+      return object;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }    
   }
   
   /**
@@ -305,78 +326,96 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * @throws GrouperDAOException
    */
   public <T> List<T> list(@SuppressWarnings("unused") Class<T> returnType) {
-    GrouperContext.incrementQueryCount();
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
 
-    HibernateSession hibernateSession = this.getHibernateSession();
-    Session session  = hibernateSession.getSession();
-    List<T> list = null;
-    
-    //see if we are even retrieving the results
-    if (this.queryOptions == null || this.queryOptions.isRetrieveResults()) {
-      Query query = ByHql.this.attachQueryInfo(session);
-      //not sure this can ever be null, but make sure not to make iterating results easier
-      list = query.list();
-      HibUtils.evict(hibernateSession,  list, true);
-    }
-    //no nulls
-    list = GrouperUtil.nonNull(list);
-    QueryPaging queryPaging = this.queryOptions == null ? null : this.queryOptions.getQueryPaging();
-    
-    //now see if we should get the query count
-    boolean retrieveQueryCountNotForPaging = this.queryOptions != null && this.queryOptions.isRetrieveCount();
-    boolean findQueryCount = (queryPaging != null && queryPaging.isDoTotalCount()) 
-      || (retrieveQueryCountNotForPaging);
-    if (findQueryCount) {
+    try {
+
+      GrouperContext.incrementQueryCount();
+      HibernateSession hibernateSession = this.getHibernateSession();
       
-      int resultSize = -1;
-      if (queryPaging != null) {
-        //see if we already know the total size (if less than page size and first page)
-        resultSize = GrouperUtil.length(list);
-        if (resultSize >= queryPaging.getPageSize()) {
-          resultSize = -1;
-        } else {
-          //we are on the last page, see how many records came before us, add those in
-          resultSize += (queryPaging.getPageSize() * (queryPaging.getPageNumber() - 1)); 
-        }
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("returnType", returnType.getSimpleName());
+        debugMap.put("hibernateSession", hibernateSession);
       }
       
-      boolean needsPagingQuery = false;
-      if (queryPaging != null && (queryPaging.getTotalRecordCount() <= 0 || !queryPaging.isCacheTotalCount())) {
-        needsPagingQuery = true;
+      
+      Session session  = hibernateSession.getSession();
+      List<T> list = null;
+      
+      //see if we are even retrieving the results
+      if (this.queryOptions == null || this.queryOptions.isRetrieveResults()) {
+        Query query = ByHql.this.attachQueryInfo(session);
+        //not sure this can ever be null, but make sure not to make iterating results easier
+        list = query.list();
+        HibUtils.evict(hibernateSession,  list, true);
       }
-      if (retrieveQueryCountNotForPaging) {
-        needsPagingQuery = true;
-      }
-      //we already know the size
-      if (resultSize != -1) {
-        needsPagingQuery = false;
-      }
-
-      //do this if we dont have a total, or if we are not caching the total
-      if (needsPagingQuery) {
+      //no nulls
+      list = GrouperUtil.nonNull(list);
+      QueryPaging queryPaging = this.queryOptions == null ? null : this.queryOptions.getQueryPaging();
+      
+      //now see if we should get the query count
+      boolean retrieveQueryCountNotForPaging = this.queryOptions != null && this.queryOptions.isRetrieveCount();
+      boolean findQueryCount = (queryPaging != null && queryPaging.isDoTotalCount()) 
+        || (retrieveQueryCountNotForPaging);
+      if (findQueryCount) {
         
-        queryCountQueries++;
-        String countQueryHql = HibUtils.convertHqlToCountHql(this.query);
-        Query countQuery = session.createQuery(countQueryHql);
-        attachBindValues(countQuery);
-        Long theCount = (Long)countQuery.iterate().next();
-        resultSize = theCount.intValue();
-      }
-      if (resultSize != -1) {
+        int resultSize = -1;
         if (queryPaging != null) {
-          queryPaging.setTotalRecordCount(resultSize);
-
-          //calculate the page stuff like how many pages etc
-          queryPaging.calculateIndexes();
+          //see if we already know the total size (if less than page size and first page)
+          resultSize = GrouperUtil.length(list);
+          if (resultSize >= queryPaging.getPageSize()) {
+            resultSize = -1;
+          } else {
+            //we are on the last page, see how many records came before us, add those in
+            resultSize += (queryPaging.getPageSize() * (queryPaging.getPageNumber() - 1)); 
+          }
+        }
+        
+        boolean needsPagingQuery = false;
+        if (queryPaging != null && (queryPaging.getTotalRecordCount() <= 0 || !queryPaging.isCacheTotalCount())) {
+          needsPagingQuery = true;
         }
         if (retrieveQueryCountNotForPaging) {
-          this.queryOptions.setCount((long)resultSize);
+          needsPagingQuery = true;
+        }
+        //we already know the size
+        if (resultSize != -1) {
+          needsPagingQuery = false;
+        }
+  
+        //do this if we dont have a total, or if we are not caching the total
+        if (needsPagingQuery) {
+          
+          queryCountQueries++;
+          String countQueryHql = HibUtils.convertHqlToCountHql(this.query);
+          Query countQuery = session.createQuery(countQueryHql);
+          attachBindValues(countQuery);
+          Long theCount = (Long)countQuery.iterate().next();
+          resultSize = theCount.intValue();
+        }
+        if (resultSize != -1) {
+          if (queryPaging != null) {
+            queryPaging.setTotalRecordCount(resultSize);
+  
+            //calculate the page stuff like how many pages etc
+            queryPaging.calculateIndexes();
+          }
+          if (retrieveQueryCountNotForPaging) {
+            this.queryOptions.setCount((long)resultSize);
+          }
         }
       }
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("foundSize", GrouperUtil.length(list));
+      }
+  
+      return list;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+      
     }
-
-    return list;
-    
   }
   
   /**

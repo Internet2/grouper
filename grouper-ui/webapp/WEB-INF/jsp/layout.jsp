@@ -9,6 +9,10 @@
 
 <body>
 
+    <noscript>
+      <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
+    </noscript>
+
 <%-- @annotation@ tiles:insert #1 --%>
 <tiles:insert>
 </tiles:insert>

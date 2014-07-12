@@ -30,6 +30,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -38,6 +39,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -50,7 +52,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeAssignValueBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -414,6 +418,9 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
                   AttributeAssignValue.this, AttributeAssignValue.this.dbVersion() != null ? AttributeAssignValue.this.dbVersionDifferentFields() : AttributeAssignValue.CLONE_FIELDS);
             }
             
+            boolean isLegacyAttributeUpdate = false;
+            Attribute attribute = Attribute.internal_getAttribute(AttributeAssignValue.this, null, false);
+            
             if (!isInsert) {
               // delete and re-add the row if values change
               if (AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_INTEGER) ||
@@ -421,6 +428,16 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
                   AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_STRING) ||
                   AttributeAssignValue.this.dbVersionDifferentFields().contains(FIELD_VALUE_MEMBER_ID)) {
                
+                if (attribute != null) {
+                  isLegacyAttributeUpdate = true;
+                }
+                
+                if (isLegacyAttributeUpdate) {
+                  GrouperHooksUtils.callHooksIfRegistered(attribute, GrouperHookType.ATTRIBUTE,
+                      AttributeHooks.METHOD_ATTRIBUTE_PRE_UPDATE, HooksAttributeBean.class,
+                      attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_UPDATE, false, false);
+                }
+                
                 GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
                 AttributeAssignValue.this.id = GrouperUuid.getUuid();
                 AttributeAssignValue.this.createdOnDb = null;
@@ -431,26 +448,41 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     
             GrouperDAOFactory.getFactory().getAttributeAssignValue().saveOrUpdate(AttributeAssignValue.this);
             
+            if (isLegacyAttributeUpdate) {
+              GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE,
+                  AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_UPDATE, HooksAttributeBean.class,
+                  attribute, Attribute.class);
+
+              GrouperHooksUtils.callHooksIfRegistered(attribute, GrouperHookType.ATTRIBUTE,
+                  AttributeHooks.METHOD_ATTRIBUTE_POST_UPDATE, HooksAttributeBean.class,
+                  attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_UPDATE, true, false);
+            }
+            
             AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
             AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
             
-            AuditEntry auditEntry = new AuditEntry(
-                isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
-                    "id", 
-                AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
-                "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
-
-            if (isInsert) {
-              
-              auditEntry.setDescription("Added attribute assignment value");
-
-            } else {
-
-              auditEntry.setDescription("Updated attribute assignment value: " + differences);
-              
+            if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId())) {
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(
+                    isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
+                        "id", 
+                    AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                    "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                    "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+    
+                if (isInsert) {
+                  
+                  auditEntry.setDescription("Added attribute assignment value");
+    
+                } else {
+    
+                  auditEntry.setDescription("Updated attribute assignment value: " + differences);
+                  
+                }
+                auditEntry.saveOrUpdate(true);
+              }
             }
-            auditEntry.saveOrUpdate(true);
+            
             return null;
           }
         });
@@ -773,16 +805,19 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   
                 GrouperDAOFactory.getFactory().getAttributeAssignValue().delete(AttributeAssignValue.this);
   
-                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                  AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
-                  AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
-                          "id", 
-                      AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
-                      "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                      "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
-                  auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
-                  auditEntry.saveOrUpdate(true);
+                if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(
+                    AttributeAssignValue.this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+                  if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                    AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
+                    AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+                    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+                            "id", 
+                        AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
+                        "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
+                        "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+                    auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
+                    auditEntry.saveOrUpdate(true);
+                  }
                 }
                 return null;
           }});
@@ -999,6 +1034,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_DELETE, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_POST_DELETE, false, true);
   
+    Attribute attribute = Attribute.internal_getAttribute(this, null, false);
+    if (attribute != null) {
+      // this is a legacy attribute
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE,
+          AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_DELETE, HooksAttributeBean.class,
+          attribute, Attribute.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(attribute, GrouperHookType.ATTRIBUTE,
+          AttributeHooks.METHOD_ATTRIBUTE_POST_DELETE, HooksAttributeBean.class,
+          attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_DELETE, false, true);
+    }
   }
 
   /**
@@ -1021,7 +1067,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_COMMIT_INSERT, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class);
   
-  
+    Attribute attribute = Attribute.internal_getAttribute(this, null, false);
+    if (attribute != null) {
+      // this is a legacy attribute
+      GrouperHooksUtils.callHooksIfRegistered(attribute, GrouperHookType.ATTRIBUTE,
+          AttributeHooks.METHOD_ATTRIBUTE_POST_INSERT, HooksAttributeBean.class,
+          attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_INSERT, true, false);
+
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE,
+          AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_INSERT, HooksAttributeBean.class,
+          attribute, Attribute.class);
+    }
   }
 
   /**
@@ -1043,8 +1099,6 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_POST_UPDATE, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_POST_UPDATE, true, false);
-  
-  
   }
 
   /**
@@ -1089,19 +1143,31 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
-  
-    //TODO have a switch to turn this off?
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion().valueString(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+
+    if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit()
+        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+      
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), this.getAttributeAssignId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), this.dbVersion().valueString(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_DELETE, false, false);
+    
+    Attribute attribute = Attribute.internal_getAttribute(this, null, false);
+    if (attribute != null) {
+      // this is a legacy attribute
+      
+      GrouperHooksUtils.callHooksIfRegistered(attribute, GrouperHookType.ATTRIBUTE,
+          AttributeHooks.METHOD_ATTRIBUTE_PRE_DELETE, HooksAttributeBean.class,
+          attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_DELETE, false, false);
+    }
   }
 
   /**
@@ -1155,19 +1221,28 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     }
     this.setLastUpdatedDb(now);
     
-    //TODO have a switch to turn this off?
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value.name(), this.valueString(),
-        ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit()
+        .contains(this.getAttributeAssign().getAttributeDefName().getAttributeDefId())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), this.getId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), this.getAttributeAssignId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId.name(), this.getAttributeAssign().getAttributeDefNameId(), 
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName.name(), this.getAttributeAssign().getAttributeDefName().getName(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value.name(), this.valueString(),
+          ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name(), this.getAttributeAssign().getAttributeDef().getValueType().name()).save();
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_INSERT, false, false);
     
+    Attribute attribute = Attribute.internal_getAttribute(this, null, false);
+    if (attribute != null) {
+      // this is a legacy attribute
+      GrouperHooksUtils.callHooksIfRegistered(attribute, GrouperHookType.ATTRIBUTE,
+          AttributeHooks.METHOD_ATTRIBUTE_PRE_INSERT, HooksAttributeBean.class,
+          attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_INSERT, false, false);
+    }
   }
 
   /**
@@ -1195,7 +1270,6 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_ASSIGN_VALUE, 
         AttributeAssignValueHooks.METHOD_ATTRIBUTE_ASSIGN_VALUE_PRE_UPDATE, HooksAttributeAssignValueBean.class, 
         this, AttributeAssignValue.class, VetoTypeGrouper.ATTRIBUTE_ASSIGN_VALUE_PRE_UPDATE, false, false);
-  
   }
 
   /**
@@ -1231,4 +1305,19 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     return result;
   }
   
+  /**
+   * set this for caching
+   * @param attributeAssign1
+   */
+  public void internalSetAttributeAssign(AttributeAssign attributeAssign1) {
+    
+    if (attributeAssign1 != null) {
+      if (!StringUtils.equals(this.attributeAssignId, attributeAssign1.getId())) {
+        throw new RuntimeException("Why does the attributeAssign id " 
+            + this.attributeAssignId + " not equal the param id: " + attributeAssign1.getId());
+      }
+    }
+    
+    this.attributeAssign = attributeAssign1;
+  }
 }

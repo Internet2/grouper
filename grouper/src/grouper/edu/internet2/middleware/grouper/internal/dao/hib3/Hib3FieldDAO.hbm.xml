@@ -46,26 +46,6 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
-    <!-- groupTypeUuid -->
-    <property name="groupTypeUuid"
-              type="string"
-              update="false"
-    >
-      <column name="grouptype_uuid"
-              not-null="true"
-              length="128"
-      />
-    </property>
-    <!-- groupTypeUuid -->
-
-    <!-- isNullable -->
-    <property name="isNullable"
-              type="boolean"
-    >
-      <column name="is_nullable"/>
-    </property>
-    <!-- isNullable -->
-
     <!-- name -->
     <property name="name"
               type="string"

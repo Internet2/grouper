@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
@@ -66,6 +67,13 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
    */
   public void delete(PITGroupSet pitGroupSet) {
     HibernateSession.byObjectStatic().delete(pitGroupSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#saveBatch(java.util.Set)
+   */
+  public void saveBatch(Set<PITGroupSet> pitGroupSets) {
+    HibernateSession.byObjectStatic().saveBatch(pitGroupSets);
   }
   
   /**
@@ -466,9 +474,9 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingActivePITGroupSets()
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingActivePITGroupSets(edu.internet2.middleware.grouper.internal.dao.QueryOptions)
    */
-  public Set<GroupSet> findMissingActivePITGroupSets() {
+  public Set<GroupSet> findMissingActivePITGroupSets(QueryOptions options) {
 
     Set<GroupSet> groupSets = HibernateSession
       .byHqlStatic()
@@ -476,7 +484,25 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
           "not exists (select 1 from PITGroupSet pit where g.id = pit.sourceId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp " +
           "    where temp.string01 = g.ownerId or temp.string01 = g.fieldId or temp.string02 = g.ownerId)")
+      .options(options)
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITGroupSets")
+      .listSet(GroupSet.class);
+    
+    return groupSets;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findMissingActivePITGroupSetsSecondPass()
+   */
+  public Set<GroupSet> findMissingActivePITGroupSetsSecondPass() {
+
+    Set<GroupSet> groupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select g from GroupSet g where g.depth > '0' and " +
+          "not exists (select 1 from PITGroupSet pit where g.id = pit.sourceId) " +
+          "and not exists (select 1 from ChangeLogEntryTemp temp " +
+          "    where temp.string06 = g.ownerId or temp.string07 = g.ownerId)")
+      .setCacheable(false).setCacheRegion(KLASS + ".findMissingActivePITGroupSetsSecondPass")
       .listSet(GroupSet.class);
     
     return groupSets;

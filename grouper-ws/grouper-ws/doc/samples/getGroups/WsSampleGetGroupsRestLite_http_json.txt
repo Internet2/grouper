@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v2_1_001/subjects/10021368/groups HTTP/1.1
+GET /grouper-ws/servicesRest/json/v2_2_000/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,19 +34,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1503
-Date: Sun, 01 Jul 2012 13:49:35 GMT
+Content-Length: 1575
+Date: Wed, 28 May 2014 23:38:30 GMT
 Connection: close
 
 {
   "WsGetGroupsLiteResult":{
     "responseMetadata":{
-      "millis":"28",
-      "serverVersion":"2.1.1"
+      "millis":"29",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: null\n fieldName1: null\n, scope: null, wsStemLookup: WsStemLookup[]\n, stemScope: null, enabled: null, pageSize: null, pageNumber: null, sortString: null, ascending: null\n, pointInTimeFrom: null, pointInTimeTo: null",
       "success":"T"
     },
     "wsGroups":[
@@ -55,34 +55,38 @@ Connection: close
         "displayExtension":"a group",
         "displayName":"a stem:a group",
         "extension":"aGroup",
+        "idIndex":"10001",
         "name":"aStem:aGroup",
         "typeOfGroup":"group",
-        "uuid":"be313a3917c74a92b0b75bebdf476e6b"
+        "uuid":"52edfaa03f244fe9acea6412b29de56f"
       },
       {
         "description":"a group description2",
         "displayExtension":"a group2",
         "displayName":"a stem:a group2",
         "extension":"aGroup2",
+        "idIndex":"10002",
         "name":"aStem:aGroup2",
         "typeOfGroup":"group",
-        "uuid":"1717ec4bef184d86b09efa70231b7c7f"
+        "uuid":"964ab93678f94d988408f22368576199"
       },
       {
         "displayExtension":"sysadmingroup",
         "displayName":"etc:sysadmingroup",
         "extension":"sysadmingroup",
+        "idIndex":"10005",
         "name":"etc:sysadmingroup",
         "typeOfGroup":"group",
-        "uuid":"5bceb8f1403c4538a835e7bd4bf11474"
+        "uuid":"8488994018134a489799d9a120e80d46"
       },
       {
         "displayExtension":"webServiceActAsGroup",
         "displayName":"etc:webServiceActAsGroup",
         "extension":"webServiceActAsGroup",
+        "idIndex":"10004",
         "name":"etc:webServiceActAsGroup",
         "typeOfGroup":"group",
-        "uuid":"919d7229910f42a6a5708ecee0d3d108"
+        "uuid":"6b003a2023d94225bbfa9634a9afbd16"
       }
     ]
     ,
@@ -242,7 +246,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
 , params: null

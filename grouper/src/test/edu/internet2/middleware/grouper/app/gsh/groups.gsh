@@ -16,7 +16,7 @@ ns4        = addStem(root.getName(), "nsit4", "nsit4")
 g         = addGroup(ns.getName(), "nas", "nas")
 grouperSession = GrouperSession.startRootSession();
 groupType = GroupType.createType(grouperSession, "aGroupType", false); 
-groupType.addAttribute(grouperSession, "aGroupAttribute", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+groupType.addAttribute(grouperSession, "aGroupAttribute", false);
 g.addType(groupType, false);
 
 

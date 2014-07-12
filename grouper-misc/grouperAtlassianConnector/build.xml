@@ -72,7 +72,7 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
-    <javac  target="1.5"
+    <javac  target="1.5"  source="1.5" 
       srcdir="${main.sourceDir}" destdir="${main.binDir}" classpath="${main.theClasspath}" debug="true" />
   </target>
 

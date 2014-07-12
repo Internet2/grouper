@@ -1,0 +1,704 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+QueryOptions
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="QueryOptions";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITStemDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="QueryOptions.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.internal.dao</FONT>
+<BR>
+Class QueryOptions</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.internal.dao.QueryOptions</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>QueryOptions</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+<pre>
+ options on a query (e.g. sorting, paging, total result size, etc)
+ 
+ Sorting example:
+    queryOptions = new QueryOptions().sortAsc("m.subjectIdDb");
+
+    Set&lt;Member&gt; members = group.getImmediateMembers(field, queryOptions);
+
+ Paging example:
+    QueryPaging queryPaging = new QueryPaging();
+    queryPaging.setPageSize(pageSize);
+    queryPaging.setPageNumber(pageNumberOneIndexed);
+    -or- queryPaging.setFirstIndexOnPage(startZeroIndexed);
+    queryOptions = new QueryOptions().paging(queryPaging);
+
+    Set&lt;Member&gt; members = group.getImmediateMembers(field, queryOptions);
+
+ Query count example:
+ 
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    group.getImmediateMembers(field, queryOptions);
+    int totalSize = queryOptions.getCount().intValue();
+ 
+ </pre>
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#QueryOptions()">QueryOptions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#create(java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer)">create</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sortString,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;ascending,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageNumber,
+       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageSize)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#getCount()">getCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count of the query if it is being calculated.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#getQueryPaging()">getQueryPaging</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If this is a paged query, and what are specs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QuerySort.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QuerySort</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#getQuerySort()">getQuerySort</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this query is sorted (by options), and what the col(s) are</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#getSecondLevelCache()">getSecondLevelCache</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#getSecondLevelCacheRegion()">getSecondLevelCacheRegion</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#initTotalCount(edu.internet2.middleware.grouper.internal.dao.QueryOptions)">initTotalCount</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#isRetrieveCount()">isRetrieveCount</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the count of the query should be retrieved (sometimes paging will get
+ the count)
+ default to false</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#isRetrieveResults()">isRetrieveResults</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the results should be retrieved (generally only false for size queries).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#paging(int, int, boolean)">paging</A></B>(int&nbsp;pageSize,
+       int&nbsp;pageNumber,
+       boolean&nbsp;doTotalCount)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;factory for query paging</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#paging(edu.internet2.middleware.grouper.internal.dao.QueryPaging)">paging</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A>&nbsp;queryPaging1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If this is a paged query, and what are specs</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#retrieveCount(boolean)">retrieveCount</A></B>(boolean&nbsp;retrieveCount1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the count of the query should be retrieved (sometimes paging will get
+ the count)
+ default to false</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#retrieveResults(boolean)">retrieveResults</A></B>(boolean&nbsp;retrieveResults1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the results should be retrieved (generally only false for size queries).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#secondLevelCache(boolean)">secondLevelCache</A></B>(boolean&nbsp;secondLevelCache1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#secondLevelCacheRegion(java.lang.String)">secondLevelCacheRegion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;secondLevelCacheRegion1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#setCount(java.lang.Long)">setCount</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;count1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count of the query if it is being calculated.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#sort(edu.internet2.middleware.grouper.internal.dao.QuerySort)">sort</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QuerySort.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QuerySort</A>&nbsp;querySort1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this query is sorted (by options), and what the col(s) are</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#sortAsc(java.lang.String)">sortAsc</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort ascending on this field</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#sortDesc(java.lang.String)">sortDesc</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sort ascending on this field</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="QueryOptions()"><!-- --></A><H3>
+QueryOptions</H3>
+<PRE>
+public <B>QueryOptions</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="initTotalCount(edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+initTotalCount</H3>
+<PRE>
+public static void <B>initTotalCount</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>queryOptions</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="create(java.lang.String, java.lang.Boolean, java.lang.Integer, java.lang.Integer)"><!-- --></A><H3>
+create</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>create</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;sortString,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;ascending,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageNumber,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A>&nbsp;pageSize)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>sortString</CODE> - <DD><CODE>ascending</CODE> - <DD><CODE>pageNumber</CODE> - 1 indexed page number<DD><CODE>pageSize</CODE> - 
+<DT><B>Returns:</B><DD>the query options if needed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="secondLevelCache(boolean)"><!-- --></A><H3>
+secondLevelCache</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>secondLevelCache</B>(boolean&nbsp;secondLevelCache1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>secondLevelCache1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSecondLevelCache()"><!-- --></A><H3>
+getSecondLevelCache</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A> <B>getSecondLevelCache</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if second level cache</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="secondLevelCacheRegion(java.lang.String)"><!-- --></A><H3>
+secondLevelCacheRegion</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>secondLevelCacheRegion</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;secondLevelCacheRegion1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>secondLevelCacheRegion1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSecondLevelCacheRegion()"><!-- --></A><H3>
+getSecondLevelCacheRegion</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getSecondLevelCacheRegion</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if second level cache</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getQuerySort()"><!-- --></A><H3>
+getQuerySort</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QuerySort.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QuerySort</A> <B>getQuerySort</B>()</PRE>
+<DL>
+<DD>if this query is sorted (by options), and what the col(s) are
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>sort</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sort(edu.internet2.middleware.grouper.internal.dao.QuerySort)"><!-- --></A><H3>
+sort</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>sort</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QuerySort.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QuerySort</A>&nbsp;querySort1)</PRE>
+<DL>
+<DD>if this query is sorted (by options), and what the col(s) are
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>querySort1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getQueryPaging()"><!-- --></A><H3>
+getQueryPaging</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A> <B>getQueryPaging</B>()</PRE>
+<DL>
+<DD>If this is a paged query, and what are specs
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>paging</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sortAsc(java.lang.String)"><!-- --></A><H3>
+sortAsc</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>sortAsc</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field)</PRE>
+<DL>
+<DD>sort ascending on this field
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>field</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="paging(int, int, boolean)"><!-- --></A><H3>
+paging</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>paging</B>(int&nbsp;pageSize,
+                           int&nbsp;pageNumber,
+                           boolean&nbsp;doTotalCount)</PRE>
+<DL>
+<DD>factory for query paging
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pageSize</CODE> - <DD><CODE>pageNumber</CODE> - 1 indexed page number<DD><CODE>doTotalCount</CODE> - true to do total count, false to not
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="sortDesc(java.lang.String)"><!-- --></A><H3>
+sortDesc</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>sortDesc</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;field)</PRE>
+<DL>
+<DD>sort ascending on this field
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>field</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="paging(edu.internet2.middleware.grouper.internal.dao.QueryPaging)"><!-- --></A><H3>
+paging</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>paging</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryPaging</A>&nbsp;queryPaging1)</PRE>
+<DL>
+<DD>If this is a paged query, and what are specs
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>queryPaging1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isRetrieveResults()"><!-- --></A><H3>
+isRetrieveResults</H3>
+<PRE>
+public boolean <B>isRetrieveResults</B>()</PRE>
+<DL>
+<DD>If the results should be retrieved (generally only false for size queries).
+ default to true
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>retrieve results</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveResults(boolean)"><!-- --></A><H3>
+retrieveResults</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>retrieveResults</B>(boolean&nbsp;retrieveResults1)</PRE>
+<DL>
+<DD>If the results should be retrieved (generally only false for size queries).
+ default to true
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>retrieveResults1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isRetrieveCount()"><!-- --></A><H3>
+isRetrieveCount</H3>
+<PRE>
+public boolean <B>isRetrieveCount</B>()</PRE>
+<DL>
+<DD>If the count of the query should be retrieved (sometimes paging will get
+ the count)
+ default to false
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>retrieve count</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveCount(boolean)"><!-- --></A><H3>
+retrieveCount</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A> <B>retrieveCount</B>(boolean&nbsp;retrieveCount1)</PRE>
+<DL>
+<DD>If the count of the query should be retrieved (sometimes paging will get
+ the count)
+ default to false
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>retrieveCount1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getCount()"><!-- --></A><H3>
+getCount</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A> <B>getCount</B>()</PRE>
+<DL>
+<DD>count of the query if it is being calculated.  Note the hibernateSession API
+ is what sets this
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the count or null if not set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setCount(java.lang.Long)"><!-- --></A><H3>
+setCount</H3>
+<PRE>
+public void <B>setCount</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Long.html?view=co" title="class or interface in java.lang">Long</A>&nbsp;count1)</PRE>
+<DL>
+<DD>count of the query if it is being calculated.  Note the hibernateSession API
+ is what sets this
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>count1</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITStemDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="QueryOptions.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

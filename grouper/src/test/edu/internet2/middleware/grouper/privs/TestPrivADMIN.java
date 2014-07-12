@@ -606,7 +606,7 @@ public class TestPrivADMIN extends TestCase {
 
     GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
     groupType.addAttribute(grouperSession,ATTRIBUTE1, 
-          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+          false);
     a.addType(groupType, false);
     a.setAttribute(ATTRIBUTE1, "whatever");
 
@@ -646,7 +646,7 @@ public class TestPrivADMIN extends TestCase {
 
     GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
     groupType.addAttribute(grouperSession,ATTRIBUTE1, 
-          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+          false);
     a.addType(groupType, false);
     a.setAttribute(ATTRIBUTE1, "whatever");
 

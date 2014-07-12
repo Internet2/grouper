@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!DOCTYPE web-app PUBLIC 
+          "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+          "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  <filter>
+    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
+    <filter-name>Grouper service filter</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee</filter-class>
+  </filter>
+
+  <!-- Map the filter to a Servlet or URL -->
+  <filter-mapping>
+    <filter-name>Grouper service filter</filter-name>
+    <url-pattern>/services/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>Grouper service filter</filter-name>
+    <url-pattern>/servicesRest/*</url-pattern>
+  </filter-mapping>
+	<servlet>
+		<servlet-name>AxisServlet</servlet-name>
+		<display-name>Apache-Axis Servlet</display-name>
+		<servlet-class>edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+    <!-- hint that this is the wssec servlet -->
+    <!-- init-param>
+      <param-name>wssec</param-name>
+      <param-value>true</param-value>
+    </init-param --> 
+	</servlet>
+  <servlet>
+    <servlet-name>RestServlet</servlet-name>
+    <display-name>WS REST Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>StatusServlet</servlet-name>
+    <display-name>Status Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.grouper.ws.status.GrouperStatusServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>StatusServlet</servlet-name>
+    <url-pattern>/status</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>RestServlet</servlet-name>
+    <url-pattern>/servicesRest/*</url-pattern>
+  </servlet-mapping>
+
+  <session-config>
+    <session-timeout>1</session-timeout> 
+  </session-config>
+  
+</web-app>

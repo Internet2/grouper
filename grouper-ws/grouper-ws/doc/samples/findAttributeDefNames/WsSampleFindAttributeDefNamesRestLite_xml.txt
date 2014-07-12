@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRestLite, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 101
 Content-Type: text/xml; charset=UTF-8
@@ -37,44 +37,75 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:37:22 GMT
+Transfer-Encoding: chunked
+Date: Tue, 03 Jun 2014 21:51:02 GMT
 Connection: close
 
+3ff
 <WsFindAttributeDefNamesResults>
   <attributeDefNameResults>
     <WsAttributeDefName>
+      <idIndex>10116</idIndex>
       <extension>testAttributeAssignAssignName</extension>
       <displayExtension>testAttributeAssignAssignName</displayExtension>
       <displayName>test:testAttributeAssignAssignName</displayName>
       <name>test:testAttributeAssignAssignName</name>
-      <uuid>a68e1b48374d4ee1af384b0b4ec3f21e</uuid>
-      <attributeDefId>d4f44a15aa704de7998ab8c081e788cc</attributeDefId>
+      <uuid>e29d54ea293f41199fa12aa5ae6048fd</uuid>
+      <attributeDefId>c2d4598ee0344f5f9568ac4d47765828</attributeDefId>
       <attributeDefName>test:testAttributeAssignAssignNameDef</attributeDefName>
     </WsAttributeDefName>
     <WsAttributeDefName>
+      <idIndex>10115</idIndex>
       <extension>testAttributeAssignDefName</extension>
       <displayExtension>testAttributeAssignDefName</displayExtension>
       <displayName>test:testAttributeAssignDefName</displayName>
       <name>test:testAttributeAssignDefName</name>
-      <uuid>4f87d94ce9c1459685a86791da6119e1</uuid>
-      <attributeDefId>8b65770f05d84fd9b4b177d9a7530476</attributeDefId>
+      <uuid>ee274ca669004fb69f0086bb470d2526</uuid>
+      <attributeDefId>5ac8c8f0f6834ad9b40fdf114ecb3ae1</attributeDefId>
       <attributeDefName>test:testAttributeAssignDefNameDef</attributeDefName>
+    </WsAttributeDefName>
+    <WsAttributeDefName>
+      <idIndex>10
+3fd
+114</idIndex>
+      <extension>testAttrName</extension>
+      <displayExtension>testAttrName</displayExtension>
+      <displayName>test:testAttrName</displayName>
+      <name>test:testAttrName</name>
+      <uuid>cfd4f42ff26747e5a218a6c048798278</uuid>
+      <attributeDefId>8a9a1c82bf9940e5b42cb2183ac557d2</attributeDefId>
+      <attributeDefName>test:testAttrNameDef</attributeDefName>
     </WsAttributeDefName>
   </attributeDefNameResults>
   <attributeDefs>
     <WsAttributeDef>
+      <idIndex>10030</idIndex>
+      <extension>testAttrNameDef</extension>
+      <name>test:testAttrNameDef</name>
+      <uuid>8a9a1c82bf9940e5b42cb2183ac557d2</uuid>
+      <attributeDefType>attr</attributeDefType>
+      <multiAssignable>F</multiAssignable>
+      <multiValued>T</multiValued>
+      <valueType>string</valueType>
+    </WsAttributeDef>
+    <WsAttributeDef>
+      <idIndex>10032</idIndex>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>d4f44a15aa704de7998ab8c081e788cc</uuid>
+      <uuid>c2d4598ee0344f5f9568ac4d47765828</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
-      <valueType>marker</valueType>
+      <valueType>
+      </
+3fd
+valueType>
     </WsAttributeDef>
     <WsAttributeDef>
+      <idIndex>10031</idIndex>
       <extension>testAttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>8b65770f05d84fd9b4b177d9a7530476</uuid>
+      <uuid>5ac8c8f0f6834ad9b40fdf114ecb3ae1</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -83,18 +114,20 @@ Connection: close
   </attributeDefs>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+    <resultMessage>Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames:
-, params: null</resultMessage>
+, params: null
+, wsSubjectLookup: null, serviceRole: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>47</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>48</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefNamesResults>
+0
 
 
 #########################################
@@ -263,7 +296,8 @@ public class WsSampleFindAttributeDefNamesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: null, paramNames: 
 , params: null
+, wsSubjectLookup: null, serviceRole: null

@@ -393,7 +393,6 @@ public enum GrouperLoaderType {
           LOG.debug(groupNameOverall + ": start syncing membership");
         }
         
-        long startTimeLoadData = 0;
         GrouperLoaderStatus[] statusOverall = new GrouperLoaderStatus[]{GrouperLoaderStatus.SUCCESS};
         
         try {
@@ -929,6 +928,7 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
+            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
@@ -987,9 +987,9 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapGroupNameExpression(), 
               loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(),
-              groupNameToDisplayName, groupNameToDescription);
-          
-          
+              groupNameToDisplayName, groupNameToDescription, loaderJobBean.getLdapAttributeFilterExpression());
+
+
           String groupNameOverall = hib3GrouploaderLogOverall.getGroupNameFromJobName();
   
           GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
@@ -2062,16 +2062,16 @@ public enum GrouperLoaderType {
                   }
                 } finally {
                   if (!skipPriv && LOG.isDebugEnabled()) {
-                  String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
-                        + GrouperUtil.subjectToString(subject) + " already existed? " + (added == null ? null : !added);
-                  //System.out.println(logMessage);
-                  LOG.debug(logMessage);
+                    String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
+                          + GrouperUtil.subjectToString(subject) + " already existed? " + (added == null ? null : !added);
+                    //System.out.println(logMessage);
+                    LOG.debug(logMessage);
+                  }
                 }
               }
             }
           }
         }
-      }
       }
       if (LOG.isDebugEnabled()) {
         LOG.debug("Done assigning privilege to related groups: " + theGroup.getName());
@@ -2085,10 +2085,34 @@ public enum GrouperLoaderType {
           currentMembers.add(new LoaderMemberWrapper((String)multiKey.getKey(0), (String)multiKey.getKey(1)));
         }
       } else {
-        Set<Member> members = group[0].getImmediateMembers();
-        for (Member member : GrouperUtil.nonNull(members)) {
-          currentMembers.add(new LoaderMemberWrapper(member));
+        
+        if (GrouperLoaderConfig.getPropertyBoolean("loader.useMemberObjectsInInitalQuery", false)) {
+
+          Set<Member> members = group[0].getImmediateMembers();
+          for (Member member : GrouperUtil.nonNull(members)) {
+            currentMembers.add(new LoaderMemberWrapper(member));
+          }
+          
+        } else {
+
+          //TODO put this in the DAO
+          StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb "
+          		+ " from Member m, MembershipEntry ms "
+          		+ " where ms.ownerGroupId = :ownerGroupId and ms.memberUuid = m.uuid "
+              + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
+              + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'");
+
+          Set<Object[]> results = HibernateSession.byHqlStatic().createQuery(sql.toString())
+            .setString("ownerGroupId", group[0].getId()).listSet(Object[].class);
+          
+          for (Object[] row : GrouperUtil.nonNull(results)) {
+            String subjectId = (String)row[0];
+            String sourceId = (String)row[1];
+            currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId));
+          }
+          
         }
+        
       }
       
       //now lets remove data from each since the member is there and is supposed to be there
@@ -3334,6 +3358,8 @@ public enum GrouperLoaderType {
               LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
+          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
+              LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 

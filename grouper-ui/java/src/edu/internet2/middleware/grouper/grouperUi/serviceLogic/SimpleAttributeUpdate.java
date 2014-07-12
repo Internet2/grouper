@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.attributeUpdate.AttributeUpdateRequestContainer;
@@ -551,7 +552,7 @@ public class SimpleAttributeUpdate {
         
         if (!attributeDef.getPrivilegeDelegate().canAttrAdmin(loggedInSubject)) {
           LOG.error("Subject " + GrouperUtil.subjectToString(loggedInSubject) + " cannot admin attribute definition: " + attributeDef.getName());
-          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDef", false)));
+          guiResponseJs.addAction(GuiScreenAction.newAlert(GrouperUiUtils.message("simpleAttributeUpdate.errorCantEditAttributeDefPriv", false)));
           return;
         }
   
@@ -2185,18 +2186,17 @@ public class SimpleAttributeUpdate {
       }
 
       AttributeAssign attributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssignId, true, false);
-      
+
       //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
-        
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+      } catch (InsufficientPrivilegeException e) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
         return;
       }
       
-      //todo check more security, e.g. where it is assigned
-
       String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
       
       if (StringUtils.isBlank(attributeAssignValueId)) {
@@ -2395,18 +2395,17 @@ public class SimpleAttributeUpdate {
 
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
       
-      attributeAssign.delete();
-      
-      //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
-        
+      // check security
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+      } catch (InsufficientPrivilegeException e) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
         return;
       }
       
-      //todo check more security, e.g. where it is assigned
+      attributeAssign.delete();
       
       String successMessage = TagUtils.navResourceString("simpleAttributeUpdate.assignSuccessDelete");
       successMessage = GrouperUiUtils.escapeHtml(successMessage, true);
@@ -2643,15 +2642,14 @@ public class SimpleAttributeUpdate {
       AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
   
       //now we need to check security
-      if (!PrivilegeHelper.canAttrUpdate(grouperSession, attributeAssign.getAttributeDef(), loggedInSubject)) {
-        
+      try {
+        attributeAssign.retrieveAttributeAssignable().getAttributeDelegate().assertCanUpdateAttributeDefName(attributeAssign.getAttributeDefName());
+      } catch (InsufficientPrivilegeException e) {
         String notAllowed = TagUtils.navResourceString("simpleAttributeAssign.assignEditNotAllowed");
         notAllowed = GrouperUiUtils.escapeHtml(notAllowed, true);
         guiResponseJs.addAction(GuiScreenAction.newAlert(notAllowed));
         return;
       }
-
-      //todo check more security, e.g. where it is assigned
 
       String attributeAssignValueId = httpServletRequest.getParameter("attributeAssignValueId");
       

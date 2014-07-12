@@ -99,9 +99,11 @@ public class ExpirableCache<K,V> implements Serializable {
    */
   public ExpirableCache(int defaultTimeToLiveInMinutes) {
     super();
-    GrouperClientUtils.assertion(defaultTimeToLiveInMinutes > 0, "Time to live in minutes must be greater than 0");
+    if (defaultTimeToLiveInMinutes <= 0) {
+      throw new RuntimeException("Time to live in minutes must be greater than 0");
+    }
     //make sure this is less than the max
-    long newTimeToLiveMillis = defaultTimeToLiveInMinutes * 60 * 1000;
+    long newTimeToLiveMillis = (long)defaultTimeToLiveInMinutes * 60 * 1000;
     if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
       this.defaultTimeToLiveInMillis = newTimeToLiveMillis;
     }
@@ -121,7 +123,7 @@ public class ExpirableCache<K,V> implements Serializable {
        */
       @Override
       public long defaultTimeToLiveMillis(int input) {
-        return input * 60 * 1000;
+        return (long)input * 60 * 1000;
       }
     },
     
@@ -133,7 +135,7 @@ public class ExpirableCache<K,V> implements Serializable {
        */
       @Override
       public long defaultTimeToLiveMillis(int input) {
-        return input * 1000;
+        return (long)input * 1000;
       }
     };
     
@@ -152,7 +154,9 @@ public class ExpirableCache<K,V> implements Serializable {
    */
   public ExpirableCache(ExpirableCacheUnit expirableCacheUnit, int defaultTimeToLive) {
     super();
-    GrouperClientUtils.assertion(defaultTimeToLive > 0, "Time to live in minutes must be greater than 0");
+    if (defaultTimeToLive <= 0) {
+      throw new RuntimeException("Time to live in minutes must be greater than 0");
+    }
     //make sure this is less than the max
     long newTimeToLiveMillis = expirableCacheUnit.defaultTimeToLiveMillis(defaultTimeToLive);
     if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
@@ -192,8 +196,10 @@ public class ExpirableCache<K,V> implements Serializable {
       return;
     }
     
-    GrouperClientUtils.assertion(timeToLiveInMinutes > 0, "Time to live in minutes must be greater than 0");
-    this.putHelper(key, value, timeToLiveInMinutes * 60 * 1000);
+    if (timeToLiveInMinutes <= 0) {
+      throw new RuntimeException("Time to live in minutes must be greater than 0");
+    }
+    this.putHelper(key, value, (long)timeToLiveInMinutes * 60 * 1000);
   }
 
   /**

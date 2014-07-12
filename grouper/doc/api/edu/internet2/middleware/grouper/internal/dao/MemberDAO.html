@@ -1,0 +1,1012 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+MemberDAO
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="MemberDAO";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GroupSetDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MembershipDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="MemberDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.internal.dao</FONT>
+<BR>
+Interface MemberDAO</H2>
+<DL>
+<DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">GrouperDAO</A></DD>
+</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3MemberDAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3MemberDAO</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>MemberDAO</B><DT>extends <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">GrouperDAO</A></DL>
+</PRE>
+
+<P>
+Basic <code>Member</code> DAO interface.
+<P>
+
+<P>
+<DL>
+<DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+<DT><B>Version:</B></DT>
+  <DD>$Id: MemberDAO.java,v 1.11 2009-12-28 06:08:37 mchyzer Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#_internal_membersComplement(java.lang.String, java.lang.String)">_internal_membersComplement</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid1,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid2)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the set of member uuids of the complement of two groups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#_internal_membersIntersection(java.lang.String, java.lang.String)">_internal_membersIntersection</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid1,
+                              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid2)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the set of member uuids of the intersection of two groups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#_internal_membersUnion(java.lang.String, java.lang.String)">_internal_membersUnion</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid1,
+                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid2)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find the set of member uuids of the union of two groups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#create(edu.internet2.middleware.grouper.Member)">create</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;_m)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#exists(java.lang.String)">exists</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#existsCachePut(java.lang.String, boolean)">existsCachePut</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+               boolean&nbsp;exists)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;update the exists cache</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findAll()">findAll</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findAll(edu.internet2.middleware.subject.Source)">findAll</A></B>(edu.internet2.middleware.subject.Source&nbsp;source)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findAllUsed(edu.internet2.middleware.subject.Source)">findAllUsed</A></B>(edu.internet2.middleware.subject.Source&nbsp;source)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find all members that are used somewhere (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findByIds(java.util.Collection, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findByIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;ids,
+          <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by ids secure</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>use overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String, boolean)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+              boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by subject id only (cant be duplicates)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String, java.lang.String)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>use overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String, java.lang.String, boolean)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+              boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by subject id and source id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String, java.lang.String, java.lang.String)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>use overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String, java.lang.String, java.lang.String, boolean)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type,
+              boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(java.lang.String, java.lang.String, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">findBySubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type,
+              boolean&nbsp;exceptionIfNull,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find member by subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(edu.internet2.middleware.subject.Subject)">findBySubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>use overload</I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubject(edu.internet2.middleware.subject.Subject, boolean)">findBySubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+              boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubjects(java.util.Collection, boolean)">findBySubjects</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;edu.internet2.middleware.subject.Subject&gt;&nbsp;subjects,
+               boolean&nbsp;createIfNotExists)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find members by subjects and create if not exist possibly</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findBySubjectsInGroup(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.membership.MembershipType)">findBySubjectsInGroup</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Subject&gt;&nbsp;subjects,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;field,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html?view=co" title="enum in edu.internet2.middleware.grouper.membership">MembershipType</A>&nbsp;membershipType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert a set of subjects to a set of members</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findByUuid(java.lang.String)">findByUuid</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I></I>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findByUuid(java.lang.String, boolean)">findByUuid</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+           boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#findByUuidOrSubject(java.lang.String, java.lang.String, java.lang.String, boolean)">findByUuidOrSubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                    <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;source,
+                    boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a member by uuid or subject id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#saveUpdateProperties(edu.internet2.middleware.grouper.Member)">saveUpdateProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;member)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the udpate properties which are auto saved when business method is called</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#update(edu.internet2.middleware.grouper.Member)">update</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;_m)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MemberDAO.html?view=co#uuid2dtoCacheRemove(java.lang.String)">uuid2dtoCacheRemove</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remove from cache</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="findByIds(java.util.Collection, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findByIds</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt; <B>findByIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;ids,
+                      <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</PRE>
+<DL>
+<DD>find by ids secure
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ids</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>the members empty set or exception</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="create(edu.internet2.middleware.grouper.Member)"><!-- --></A><H3>
+create</H3>
+<PRE>
+void <B>create</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;_m)
+            throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="exists(java.lang.String)"><!-- --></A><H3>
+exists</H3>
+<PRE>
+boolean <B>exists</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)
+               throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findAll()"><!-- --></A><H3>
+findAll</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt; <B>findAll</B>()
+                    throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.3.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findAll(edu.internet2.middleware.subject.Source)"><!-- --></A><H3>
+findAll</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt; <B>findAll</B>(edu.internet2.middleware.subject.Source&nbsp;source)
+                    throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.3.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findAllUsed(edu.internet2.middleware.subject.Source)"><!-- --></A><H3>
+findAllUsed</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt; <B>findAllUsed</B>(edu.internet2.middleware.subject.Source&nbsp;source)
+                        throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD>find all members that are used somewhere (e.g. memberships or attributes)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>source</CODE> - 
+<DT><B>Returns:</B><DD>the members
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.6.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT><A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(edu.internet2.middleware.subject.Subject&nbsp;subj)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>use overload</I>
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(edu.internet2.middleware.subject.Subject, boolean)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(edu.internet2.middleware.subject.Subject&nbsp;subj,
+                     boolean&nbsp;exceptionIfNull)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT><A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>use overload</I>
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String, java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type,
+                     boolean&nbsp;exceptionIfNull)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String, java.lang.String, java.lang.String, boolean, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;type,
+                     boolean&nbsp;exceptionIfNull,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD>find member by subject
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>src</CODE> - <DD><CODE>type</CODE> - <DD><CODE>exceptionIfNull</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>the member or null
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT><A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotUniqueException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotUniqueException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>use overload</I>
+<P>
+<DD>find by subject id only (cant be duplicates)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - 
+<DT><B>Returns:</B><DD>the member
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotUniqueException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotUniqueException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String, boolean)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                     boolean&nbsp;exceptionIfNull)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotUniqueException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotUniqueException</A></PRE>
+<DL>
+<DD>find by subject id only (cant be duplicates)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - 
+<DT><B>Returns:</B><DD>the member
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotUniqueException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotUniqueException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src,
+                     boolean&nbsp;exceptionIfNull)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD>find by subject id and source id
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>src</CODE> - 
+<DT><B>Returns:</B><DD>the member
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubject(java.lang.String, java.lang.String)"><!-- --></A><H3>
+findBySubject</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT><A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findBySubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;src)
+                     throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I>use overload</I>
+<P>
+<DD>find by subject id and source id
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjectId</CODE> - <DD><CODE>src</CODE> - 
+<DT><B>Returns:</B><DD>the member
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(java.lang.String)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT><A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findByUuid</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)
+                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                         <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;<I></I>
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuid(java.lang.String, boolean)"><!-- --></A><H3>
+findByUuid</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findByUuid</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                  boolean&nbsp;exceptionIfNull)
+                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A>,
+                         <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/MemberNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">MemberNotFoundException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="update(edu.internet2.middleware.grouper.Member)"><!-- --></A><H3>
+update</H3>
+<PRE>
+void <B>update</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;_m)
+            throws <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">GrouperDAOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.2.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="existsCachePut(java.lang.String, boolean)"><!-- --></A><H3>
+existsCachePut</H3>
+<PRE>
+void <B>existsCachePut</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                    boolean&nbsp;exists)</PRE>
+<DL>
+<DD>update the exists cache
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>uuid</CODE> - <DD><CODE>exists</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="uuid2dtoCacheRemove(java.lang.String)"><!-- --></A><H3>
+uuid2dtoCacheRemove</H3>
+<PRE>
+void <B>uuid2dtoCacheRemove</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid)</PRE>
+<DL>
+<DD>remove from cache
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>uuid</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="_internal_membersIntersection(java.lang.String, java.lang.String)"><!-- --></A><H3>
+_internal_membersIntersection</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>_internal_membersIntersection</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid1,
+                                          <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid2)</PRE>
+<DL>
+<DD>find the set of member uuids of the intersection of two groups
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupUuid1</CODE> - <DD><CODE>groupUuid2</CODE> - 
+<DT><B>Returns:</B><DD>the set of member uuids (non null)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="_internal_membersUnion(java.lang.String, java.lang.String)"><!-- --></A><H3>
+_internal_membersUnion</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>_internal_membersUnion</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid1,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid2)</PRE>
+<DL>
+<DD>find the set of member uuids of the union of two groups
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupUuid1</CODE> - <DD><CODE>groupUuid2</CODE> - 
+<DT><B>Returns:</B><DD>the set of member uuids (non null)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="_internal_membersComplement(java.lang.String, java.lang.String)"><!-- --></A><H3>
+_internal_membersComplement</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>_internal_membersComplement</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid1,
+                                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupUuid2)</PRE>
+<DL>
+<DD>find the set of member uuids of the complement of two groups
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupUuid1</CODE> - <DD><CODE>groupUuid2</CODE> - 
+<DT><B>Returns:</B><DD>the set of member uuids (non null)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubjectsInGroup(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.membership.MembershipType)"><!-- --></A><H3>
+findBySubjectsInGroup</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt; <B>findBySubjectsInGroup</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                  <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Subject&gt;&nbsp;subjects,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;field,
+                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html?view=co" title="enum in edu.internet2.middleware.grouper.membership">MembershipType</A>&nbsp;membershipType)</PRE>
+<DL>
+<DD>convert a set of subjects to a set of members
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>subjects</CODE> - to convert to members<DD><CODE>group</CODE> - that subjects must be in<DD><CODE>field</CODE> - that they must be in in the group (null will default to eh members list<DD><CODE>membershipType</CODE> - that they must be in in the group or null for any
+<DT><B>Returns:</B><DD>the members in the group</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySubjects(java.util.Collection, boolean)"><!-- --></A><H3>
+findBySubjects</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&gt; <B>findBySubjects</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;edu.internet2.middleware.subject.Subject&gt;&nbsp;subjects,
+                           boolean&nbsp;createIfNotExists)</PRE>
+<DL>
+<DD>find members by subjects and create if not exist possibly
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subjects</CODE> - <DD><CODE>createIfNotExists</CODE> - 
+<DT><B>Returns:</B><DD>the members</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuidOrSubject(java.lang.String, java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+findByUuidOrSubject</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A> <B>findByUuidOrSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;uuid,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;source,
+                           boolean&nbsp;exceptionIfNull)</PRE>
+<DL>
+<DD>find a member by uuid or subject id
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>uuid</CODE> - <DD><CODE>subjectId</CODE> - <DD><CODE>source</CODE> - <DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>the member</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="saveUpdateProperties(edu.internet2.middleware.grouper.Member)"><!-- --></A><H3>
+saveUpdateProperties</H3>
+<PRE>
+void <B>saveUpdateProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/Member.html?view=co" title="class in edu.internet2.middleware.grouper">Member</A>&nbsp;member)</PRE>
+<DL>
+<DD>save the udpate properties which are auto saved when business method is called
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>member</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GroupSetDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/MembershipDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="MemberDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

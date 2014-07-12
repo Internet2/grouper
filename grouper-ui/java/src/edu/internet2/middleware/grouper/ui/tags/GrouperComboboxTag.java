@@ -37,7 +37,6 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * <pre>

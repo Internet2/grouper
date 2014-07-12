@@ -36,6 +36,7 @@ import java.util.List;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
 import org.kuali.rice.kew.engine.RouteContext;
 import org.kuali.rice.kew.engine.RouteHelper;
 import org.kuali.rice.kew.engine.node.SplitNode;
@@ -44,7 +45,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * this is a custom split node which decides to go left or right
@@ -58,7 +58,7 @@ public class RemoveGoRightSplitNode implements SplitNode {
   /**
    * logger
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(RemoveGoRightSplitNode.class);
+  private static final Logger LOG = Logger.getLogger(RemoveGoRightSplitNode.class);
 
   /**
    * This overridden method ...

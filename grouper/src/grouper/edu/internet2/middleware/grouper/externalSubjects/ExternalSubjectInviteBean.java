@@ -350,7 +350,7 @@ public class ExternalSubjectInviteBean {
       attributeAssign.getAttributeValueDelegate().assignValue(
           ExternalSubjectAttrFramework.externalSubjectInviteExpireDateName(), Long.toString(this.getExpireDate()));
       attributeAssign.setDisabledTime(new Timestamp(this.getExpireDate()));
-      attributeAssign.saveOrUpdate();
+      attributeAssign.saveOrUpdate(true);
     }
     
     attributeAssign.getAttributeValueDelegate().assignValue(

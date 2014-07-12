@@ -83,7 +83,162 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
  */
 public class SubjectFinder {
 
+  /**
+   * subject id to search for
+   */
+  private String subjectId;
+  
+  /**
+   * assign a subjectId to search for
+   * @param theSubjectId
+   * @return this for chaining
+   */
+  public SubjectFinder assignSubjectId(String theSubjectId) {
+    this.subjectId = theSubjectId;
+    return this;
+  }
+  
+  /**
+   * source id to search for
+   */
+  private String sourceId;
 
+  /**
+   * assign the source id to search in
+   * @param theSourceId
+   * @return this for chaining
+   */
+  public SubjectFinder assignSourceId(String theSourceId) {
+    this.sourceId = theSourceId;
+    return this;
+  }
+  
+  /**
+   * subject identifier to search for
+   */
+  private String subjectIdentifier;
+  
+  /**
+   * assign a subject identifier to search for
+   * @param theSubjectIdentifier1
+   * @return this for chaining
+   */
+  public SubjectFinder assignSubjectIdentifier(String theSubjectIdentifier1) {
+    this.subjectIdentifier = theSubjectIdentifier1;
+    return this;
+  }
+  
+  /**
+   * subjectIdOrIdentifier to search for
+   */
+  private String subjectIdOrIdentifier;
+
+  /**
+   * assign subject id or identifier to search for
+   * @param theSubjectIdOrIdentifier
+   * @return this for chaining
+   */
+  public SubjectFinder assignSubjectIdOrIdentifier(String theSubjectIdOrIdentifier) {
+    this.subjectIdOrIdentifier = theSubjectIdOrIdentifier;
+    return this;
+  }
+  
+  /**
+   * memberId of the subject to search for
+   */
+  private String memberId;
+  
+  /**
+   * assign a member id to search for
+   * @param theMemberId
+   * @return this for chaining
+   */
+  public SubjectFinder assignMemberId(String theMemberId) {
+    this.memberId = theMemberId;
+    return this;
+  }
+
+  /**
+   * if there should be an exception if not found
+   */
+  private boolean exceptionIfNotFound;
+  
+  /**
+   * if there should be an exception if not found on one subject to query
+   * @param theExceptionIfNotFound
+   * @return this for chaining
+   */
+  public SubjectFinder assignExceptionIfNotFound(boolean theExceptionIfNotFound) {
+    this.exceptionIfNotFound = theExceptionIfNotFound;
+    return this;
+  }
+  
+  public Subject findSubject() {
+    
+    //can query by subjectId, subjectIdentifier, or subjectIdOrIdentifier
+    int countSelectionCritieria = 0;
+    
+    if (!StringUtils.isBlank(this.subjectId)) {
+      countSelectionCritieria++;
+    }
+
+    if (!StringUtils.isBlank(this.subjectIdentifier)) {
+      countSelectionCritieria++;
+    }
+
+    if (!StringUtils.isBlank(this.subjectIdOrIdentifier)) {
+      countSelectionCritieria++;
+    }
+
+    if (!StringUtils.isBlank(this.memberId)) {
+      countSelectionCritieria++;
+    }
+    
+    if (countSelectionCritieria != 1) {
+      throw new RuntimeException("You need to pass in 1 criteria, either id, identifier, idOrIdentifier, or memberId: '" + this.subjectId + "', '"
+          + this.subjectIdentifier + "', '" + this.subjectIdOrIdentifier +  "', '" + this.memberId + "'");
+    }
+
+    if (!StringUtils.isBlank(this.subjectId)) {
+      if (!StringUtils.isBlank(this.sourceId)) {
+        return SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, this.exceptionIfNotFound);
+      }
+      return SubjectFinder.findById(this.subjectId, this.exceptionIfNotFound);
+    }
+    
+    if (!StringUtils.isBlank(this.subjectIdentifier)) {
+      if (!StringUtils.isBlank(this.sourceId)) {
+        return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, this.exceptionIfNotFound);
+      }
+      return SubjectFinder.findByIdentifier(this.subjectId, this.exceptionIfNotFound);
+    }
+    
+    if (!StringUtils.isBlank(this.subjectIdOrIdentifier)) {
+      if (!StringUtils.isBlank(this.sourceId)) {
+        return SubjectFinder.findByIdOrIdentifierAndSource(this.subjectIdOrIdentifier, this.sourceId, this.exceptionIfNotFound);
+      }
+      return SubjectFinder.findByIdOrIdentifier(this.subjectIdOrIdentifier, this.exceptionIfNotFound);
+    }
+
+    if (!StringUtils.isBlank(this.memberId)) {
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), this.memberId, this.exceptionIfNotFound);
+      if (!StringUtils.isBlank(this.sourceId)) {
+        if (member != null && !StringUtils.equals(member.getSubjectSourceId(), this.sourceId)) {
+          throw new RuntimeException("Member id: " + this.memberId + ", which is source: " + member.getSubjectSourceId()
+              + ", and subjectId: " + member.getSubjectId() + ", but was queried with source id: " + this.sourceId);
+        }
+      }
+      
+      //this seems weird, why would a memberId not be found???
+      if (member == null) {
+        return null;
+      }
+      return member.getSubject();
+    }
+
+    throw new RuntimeException("Why are we here?");
+  }
+  
   /** */
   private static GrouperSession  rootSession;
 
@@ -1336,6 +1491,34 @@ public class SubjectFinder {
   public static SearchPageResult findPageInStem(String stemName, String query) {
     
     return getResolver().findPageInStem(stemName, query);
+    
+  }
+
+  /**
+   * Find a page of subjects matching the query, in a certain folder.  If there are
+   * rules restricting subjects, then dont search those folders
+   * <p>
+   * The query string specification is currently unique to each subject
+   * source adapter.  Queries may not work or may lead to erratic
+   * results across different source adapters.  Consult the
+   * documentation for each source adapter for more information on the
+   * query language supported by each adapter.
+   * </p>
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * // Find all subjects matching the given query string.
+   * Set subjects = SubjectFinder.findAll(query);
+   * </pre>
+   * @param stemName stem name to search in
+   * @param   query     Subject query string.
+   * @return  A {@link Set} of {@link Subject} objects.
+   * @throws SubjectTooManyResults if more results than configured
+   */
+  public static SearchPageResult findPageInStem(String stemName, String query, Set<Source> sources) {
+    
+    return getResolver().findPageInStem(stemName, query, sources);
     
   }
 

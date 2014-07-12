@@ -53,7 +53,7 @@ public class AttributeAssignTest2 {
       Timestamp enabledTimestamp = GrouperUtil.toTimestamp("2011/01/01");
       attributeAssign.setEnabledTime(enabledTimestamp);
       
-      attributeAssign.saveOrUpdate();
+      attributeAssign.saveOrUpdate(true);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

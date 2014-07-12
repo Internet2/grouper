@@ -126,6 +126,8 @@ public class AddMissingGroupSets {
 
     addMissingSelfGroupSetsForGroups();
     
+    addMissingSelfGroupSetsForGroupsWithCustomFields();
+    
     addMissingSelfGroupSetsForStems();
     
     addMissingImmediateGroupSetsForAttrDefOwners();
@@ -172,6 +174,57 @@ public class AddMissingGroupSets {
         if (Group.getDefaultList().equals(field) && compositeOwnerIds.contains(group.getUuid())) {
           groupSet.setType(MembershipType.COMPOSITE.getTypeString());
         }
+        
+        batch.add(groupSet);
+        logDetail("Adding self groupSet for " + group.getName() + " for field " + field.getTypeString() + " / " + field.getName());
+
+        if (batch.size() % batchSize == 0 || !groupsAndFieldsIter.hasNext()) {
+          if (saveUpdates) {
+            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);
+          }
+          batch.clear();
+        }
+        
+        processedCount++;
+      }
+      
+      if (groupsAndFields.size() > 0 && saveUpdates) {
+        showStatus("Done making " + totalCount + " updates");
+      }
+    } finally {
+      stopStatusThread();
+    }
+  }
+  
+  /**
+   * Add missing self group sets for groups with custom fields
+   */
+  public void addMissingSelfGroupSetsForGroupsWithCustomFields() {
+    showStatus("Searching for missing self groupSets for groups with custom fields");
+    Set<Object[]> groupsAndFields = GrouperDAOFactory.getFactory().getGroupSet().findMissingSelfGroupSetsForGroupsWithCustomFields();
+    totalCount = groupsAndFields.size();
+    showStatus("Found " + totalCount + " missing groupSets");
+    
+    Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
+    int batchSize = getBatchSize();
+
+    try {
+      reset();
+    Iterator<Object[]> groupsAndFieldsIter = groupsAndFields.iterator();
+    while (groupsAndFieldsIter.hasNext()) {
+      Object[] groupAndField = groupsAndFieldsIter.next();
+      Group group = (Group)groupAndField[0];
+      Field field = (Field)groupAndField[1];
+      
+        GroupSet groupSet = new GroupSet();
+        groupSet.setId(GrouperUuid.getUuid());
+        groupSet.setCreatorId(group.getCreatorUuid());
+        groupSet.setCreateTime(group.getCreateTimeLong());
+        groupSet.setDepth(0);
+        groupSet.setMemberGroupId(group.getUuid());
+        groupSet.setOwnerGroupId(group.getUuid());
+        groupSet.setParentId(groupSet.getId());
+        groupSet.setFieldId(field.getUuid());
         
         batch.add(groupSet);
         logDetail("Adding self groupSet for " + group.getName() + " for field " + field.getTypeString() + " / " + field.getName());

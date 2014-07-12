@@ -27,25 +27,6 @@ package edu.internet2.middleware.grouper.changeLog;
 public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
 
   /**
-   * add group type
-   */
-  GROUP_TYPE_ADD(new ChangeLogType("groupType", "addGroupType", ChangeLogLabels.GROUP_TYPE_ADD.id, 
-      ChangeLogLabels.GROUP_TYPE_ADD.name)),
-  
-  /**
-   * update group type
-   */
-  GROUP_TYPE_UPDATE(new ChangeLogType("groupType", "updateGroupType", ChangeLogLabels.GROUP_TYPE_UPDATE.id, 
-      ChangeLogLabels.GROUP_TYPE_UPDATE.name, ChangeLogLabels.GROUP_TYPE_UPDATE.propertyChanged, 
-      ChangeLogLabels.GROUP_TYPE_UPDATE.propertyOldValue, ChangeLogLabels.GROUP_TYPE_UPDATE.propertyNewValue)),
-  
-  /**
-   * delete group type
-   */
-  GROUP_TYPE_DELETE(new ChangeLogType("groupType", "deleteGroupType", 
-      ChangeLogLabels.GROUP_TYPE_DELETE.id, ChangeLogLabels.GROUP_TYPE_DELETE.name)),
-  
-  /**
    * add group field
    */
   GROUP_FIELD_ADD(new ChangeLogType("groupField", "addGroupField", ChangeLogLabels.GROUP_FIELD_ADD.id, 
@@ -144,7 +125,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_DELETE.groupId, 
       ChangeLogLabels.MEMBERSHIP_DELETE.groupName,
       ChangeLogLabels.MEMBERSHIP_DELETE.memberId,
-      ChangeLogLabels.MEMBERSHIP_DELETE.fieldId)),
+      ChangeLogLabels.MEMBERSHIP_DELETE.fieldId,
+      ChangeLogLabels.MEMBERSHIP_DELETE.subjectName)),
 
   /**
    * add privilege

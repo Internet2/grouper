@@ -8,7 +8,6 @@
   <short-name>grouper</short-name>
   <uri>http://internet2.edu/grouper/gui</uri>
 
-
   <tag>
     <description>
       Creates a dhtmlx combobox
@@ -67,6 +66,84 @@
     </attribute>
 
   </tag>
+
+  <tag>
+    <description>
+      Creates a dojo combobox
+    </description>
+    <name>combobox2</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperComboboxTag2</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        id and class of elements, and name of combobox. Make this unique in page.
+        e.g. personPicker.  The id of the tag will be personPickerId, name will be
+        personPickerName.  Will generate a QueryReadStore too... 
+        </description>
+      <name>idBase</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        style, could include the width of the textfield
+        </description>
+      <name>style</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        class to use when drawing the control.  default is claro.  should be a dojo class theme, e.g.  claro, tundra, nihilo and soria
+        </description>
+      <name>classCss</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        if there should be a down arrow to click.  Default to false.  Generally this is useful only for 
+        combos with less then a few hundred options
+        </description>
+      <name>hasDownArrow</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        search delay in ms defaults to 500
+        </description>
+      <name>searchDelay</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the operation to call when filtering, relative to this page url to call
+        </description>
+      <name>filterOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        the default value (will be submitted) which should appear in the combo box when drawn.  Will lookup the label via ajax
+        </description>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        send more form element names to the filter operation, comma separated
+        </description>
+      <name>additionalFormElementNames</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+
+  </tag>
+
   
   <tag>
     <description>
@@ -245,6 +322,46 @@
         name of pager (should be unique in the whole app)
         </description>
       <name>pagingName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <description>
+      Prints out paging labels or buttons, ui v2
+    </description>
+    <name>paging2</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        form name must be unique on page, note, the id of the form will be this name with Id appended to the end
+        </description>
+      <name>formName</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        if there are extra form ids to submit with the paging, put it here
+        </description>
+      <name>ajaxFormIds</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        Ajax operation to call to refresh the list when a button is clicked
+        </description>
+      <name>refreshOperation</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        gui paging object has page number etc
+      </description>
+      <name>guiPaging</name>
       <required>true</required>
       <rtexprvalue>true</rtexprvalue>
     </attribute>
@@ -477,7 +594,31 @@
   </function>
   <function>
     <description>
-      Escapes XML ( ampersand, lessthan, greater than, double quote)
+      concat two strings
+    </description>
+    <name>concat2</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String concat2(java.lang.Object, java.lang.Object)</function-signature>
+    <example>
+      ${grouper:concat2(something.somewhere, 20)}
+    </example>
+  </function>
+  <function>
+    <description>
+      concat three strings
+    </description>
+    <name>concat3</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String concat3(java.lang.Object, java.lang.Object, java.lang.Object)</function-signature>
+    <example>
+      ${grouper:concat3(30, something.somewhere, 20)}
+    </example>
+  </function>
+  <function>
+    <description>
+      Escapes HTML/XML ( ampersand, lessthan, greater than, double quote)
     </description>
     <name>escapeHtml</name>
     <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
@@ -501,6 +642,48 @@
       &lt;a onclick="alert('${grouper:escapeJavascript('somestuff')}'); return false;" ...
     </example>
   </function>
+  <function>
+    <description>
+      Escapes URL
+    </description>
+    <name>escapeUrl</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String escapeUrl(java.lang.String)
+    </function-signature>
+    <example>
+      &lt;a href="${grouper:escapeUrl(something)}" ...
+    </example>
+  </function>
+
+  <function>
+    <description>
+      Formats a long date to a date for the screen based on the user's locale
+    </description>
+    <name>formatDateLong</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String formatDateLong(java.lang.Long)
+    </function-signature>
+    <example>
+      ${grouper:formatDateLong(someGroup.createdOn)}
+    </example>
+  </function>
+
+  <function>
+    <description>
+      If the user using the app has a certain privilege (or privilege that implies that privilege) on an object
+    </description>
+    <name>canHavePrivilege</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>boolean canHavePrivilege(edu.internet2.middleware.grouper.misc.GrouperObject, java.lang.String)
+    </function-signature>
+    <example>
+      &lt;c:if test="${grouper:canHavePrivilege(owner, "ADMIN")}"&gt;
+    </example>
+  </function>
+
   <function>
     <description>
       Prints out appropriate styles (or none) for hide show. Note this will
@@ -546,6 +729,19 @@
     </function-signature>
     <example>
       &lt;img alt="${grouper:message('some.key', true, false)}" ...
+    </example>
+  </function>
+  <function>
+    <description>
+      Take in a member id, and return the gui subject label short 2 format for the subject
+    </description>
+    <name>subjectStringLabelShort2fromMemberId</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String subjectStringLabelShort2fromMemberId(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:subjectStringLabelShort2fromMemberId(group.creatorUuid)}
     </example>
   </function>
   

@@ -1,4 +1,9 @@
 <%@ include file="../common/commonTaglib.jsp" %>
+
+<%-- note this wont work for token per page --%>
+<input type="hidden" name="<csrf:token-name/>" value="<csrf:token-value />"/>
+
+
 <div id="topLeftLogo">
   <img src="../../${mediaMap['image.organisation-logo']}" id="topLeftLogoImage" />
 </div>

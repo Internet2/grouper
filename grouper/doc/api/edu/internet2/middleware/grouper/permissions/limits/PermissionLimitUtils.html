@@ -1,0 +1,1047 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+PermissionLimitUtils
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PermissionLimitUtils";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.limits"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;NEXT CLASS</FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PermissionLimitUtils.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.permissions.limits</FONT>
+<BR>
+Class PermissionLimitUtils</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>PermissionLimitUtils</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+utils for permission limits
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#CALENDAR">CALENDAR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of variable in the env map</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#DAY_OF_WEEK">DAY_OF_WEEK</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of variable in the env map</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#HOUR_OF_DAY">HOUR_OF_DAY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of variable in the env map</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_AMOUNT_LESS_THAN">LIMIT_AMOUNT_LESS_THAN</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_AMOUNT_LESS_THAN_OR_EQUAL">LIMIT_AMOUNT_LESS_THAN_OR_EQUAL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_DEF">LIMIT_DEF</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_DEF_INT">LIMIT_DEF_INT</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_DEF_MARKER">LIMIT_DEF_MARKER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limits def extension</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_EL">LIMIT_EL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_IP_ON_NETWORK_REALM">LIMIT_IP_ON_NETWORK_REALM</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_IP_ON_NETWORKS">LIMIT_IP_ON_NETWORKS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_LABELS_CONTAIN">LIMIT_LABELS_CONTAIN</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#LIMIT_WEEKDAY_9_TO_5">LIMIT_WEEKDAY_9_TO_5</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#MINUTE_OF_HOUR">MINUTE_OF_HOUR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of variable in the env map</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#MONTH_OF_YEAR">MONTH_OF_YEAR</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of variable in the env map</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#PermissionLimitUtils()">PermissionLimitUtils</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#addStandardLimitVariablesIfNotExist(java.util.Map)">addStandardLimitVariablesIfNotExist</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;limitEnvVarsObject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add standard limit variables</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#attributeLimitStemName()">attributeLimitStemName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the stem name where the limit attributes go, without colon on end</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#clearLimitLogicMap()">clearLimitLogicMap</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for testing, clear this to put things in the api test config</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAmountLessThanAttributeDefName()">limitAmountLessThanAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount less than</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAmountLessThanName()">limitAmountLessThanName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit amount less than</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAmountLessThanOrEqualAttributeDefName()">limitAmountLessThanOrEqualAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount less than or equal</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAmountLessThanOrEqualName()">limitAmountLessThanOrEqualName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit amount less than or equal</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAttributeDef()">limitAttributeDef</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the limit type attribute def
+ this throws exception if cant find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAttributeDefInt()">limitAttributeDefInt</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the limit type attribute def
+ this throws exception if cant find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitAttributeDefMarker()">limitAttributeDefMarker</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the limit type attribute def
+ this throws exception if cant find</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitElAttributeDefName()">limitElAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;regex limit</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitElClasses()">limitElClasses</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;custom el instances to add to the variable map for limit EL</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitElName()">limitElName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit el name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitIpOnNetworkRealmAttributeDefName()">limitIpOnNetworkRealmAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount less than or equal</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitIpOnNetworkRealmName()">limitIpOnNetworkRealmName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit ip on network realm</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitIpOnNetworksAttributeDefName()">limitIpOnNetworksAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount less than or equal</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitIpOnNetworksName()">limitIpOnNetworksName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit ip on networks</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitLabelsContainAttributeDefName()">limitLabelsContainAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amount labels contain</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitLabelsContainName()">limitLabelsContainName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit labels contain a label</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitRealms()">limitRealms</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a logic instance based on attributeDefName of the limit</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitWeekday9to5AttributeDefName()">limitWeekday9to5AttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;weekday 9 to 5</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#limitWeekday9to5Name()">limitWeekday9to5Name</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit el name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitInterface</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitUtils.html?view=co#logicInstance(java.lang.String)">logicInstance</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;limitName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a logic instance based on attributeDefName of the limit</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="MONTH_OF_YEAR"><!-- --></A><H3>
+MONTH_OF_YEAR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>MONTH_OF_YEAR</B></PRE>
+<DL>
+<DD>name of variable in the env map
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.MONTH_OF_YEAR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="MINUTE_OF_HOUR"><!-- --></A><H3>
+MINUTE_OF_HOUR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>MINUTE_OF_HOUR</B></PRE>
+<DL>
+<DD>name of variable in the env map
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.MINUTE_OF_HOUR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="HOUR_OF_DAY"><!-- --></A><H3>
+HOUR_OF_DAY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>HOUR_OF_DAY</B></PRE>
+<DL>
+<DD>name of variable in the env map
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.HOUR_OF_DAY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="DAY_OF_WEEK"><!-- --></A><H3>
+DAY_OF_WEEK</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>DAY_OF_WEEK</B></PRE>
+<DL>
+<DD>name of variable in the env map
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.DAY_OF_WEEK">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="CALENDAR"><!-- --></A><H3>
+CALENDAR</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>CALENDAR</B></PRE>
+<DL>
+<DD>name of variable in the env map
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.CALENDAR">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_DEF"><!-- --></A><H3>
+LIMIT_DEF</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_DEF</B></PRE>
+<DL>
+<DD>limits def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_DEF">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_DEF_INT"><!-- --></A><H3>
+LIMIT_DEF_INT</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_DEF_INT</B></PRE>
+<DL>
+<DD>limits def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_DEF_INT">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_DEF_MARKER"><!-- --></A><H3>
+LIMIT_DEF_MARKER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_DEF_MARKER</B></PRE>
+<DL>
+<DD>limits def extension
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_DEF_MARKER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_EL"><!-- --></A><H3>
+LIMIT_EL</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_EL</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_EL">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_WEEKDAY_9_TO_5"><!-- --></A><H3>
+LIMIT_WEEKDAY_9_TO_5</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_WEEKDAY_9_TO_5</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_WEEKDAY_9_TO_5">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_AMOUNT_LESS_THAN"><!-- --></A><H3>
+LIMIT_AMOUNT_LESS_THAN</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_AMOUNT_LESS_THAN</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_AMOUNT_LESS_THAN_OR_EQUAL"><!-- --></A><H3>
+LIMIT_AMOUNT_LESS_THAN_OR_EQUAL</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_AMOUNT_LESS_THAN_OR_EQUAL</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_AMOUNT_LESS_THAN_OR_EQUAL">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_IP_ON_NETWORKS"><!-- --></A><H3>
+LIMIT_IP_ON_NETWORKS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_IP_ON_NETWORKS</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_IP_ON_NETWORKS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_IP_ON_NETWORK_REALM"><!-- --></A><H3>
+LIMIT_IP_ON_NETWORK_REALM</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_IP_ON_NETWORK_REALM</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_IP_ON_NETWORK_REALM">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="LIMIT_LABELS_CONTAIN"><!-- --></A><H3>
+LIMIT_LABELS_CONTAIN</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>LIMIT_LABELS_CONTAIN</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils.LIMIT_LABELS_CONTAIN">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="PermissionLimitUtils()"><!-- --></A><H3>
+PermissionLimitUtils</H3>
+<PRE>
+public <B>PermissionLimitUtils</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="limitAttributeDef()"><!-- --></A><H3>
+limitAttributeDef</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A> <B>limitAttributeDef</B>()</PRE>
+<DL>
+<DD>return the limit type attribute def
+ this throws exception if cant find
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitAttributeDefInt()"><!-- --></A><H3>
+limitAttributeDefInt</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A> <B>limitAttributeDefInt</B>()</PRE>
+<DL>
+<DD>return the limit type attribute def
+ this throws exception if cant find
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitAttributeDefMarker()"><!-- --></A><H3>
+limitAttributeDefMarker</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A> <B>limitAttributeDefMarker</B>()</PRE>
+<DL>
+<DD>return the limit type attribute def
+ this throws exception if cant find
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="attributeLimitStemName()"><!-- --></A><H3>
+attributeLimitStemName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>attributeLimitStemName</B>()</PRE>
+<DL>
+<DD>return the stem name where the limit attributes go, without colon on end
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>stem name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitElName()"><!-- --></A><H3>
+limitElName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitElName</B>()</PRE>
+<DL>
+<DD>limit el name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitElAttributeDefName()"><!-- --></A><H3>
+limitElAttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitElAttributeDefName</B>()</PRE>
+<DL>
+<DD>regex limit
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitWeekday9to5Name()"><!-- --></A><H3>
+limitWeekday9to5Name</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitWeekday9to5Name</B>()</PRE>
+<DL>
+<DD>limit el name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitWeekday9to5AttributeDefName()"><!-- --></A><H3>
+limitWeekday9to5AttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitWeekday9to5AttributeDefName</B>()</PRE>
+<DL>
+<DD>weekday 9 to 5
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitAmountLessThanName()"><!-- --></A><H3>
+limitAmountLessThanName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitAmountLessThanName</B>()</PRE>
+<DL>
+<DD>limit amount less than
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitAmountLessThanAttributeDefName()"><!-- --></A><H3>
+limitAmountLessThanAttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitAmountLessThanAttributeDefName</B>()</PRE>
+<DL>
+<DD>amount less than
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitAmountLessThanOrEqualName()"><!-- --></A><H3>
+limitAmountLessThanOrEqualName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitAmountLessThanOrEqualName</B>()</PRE>
+<DL>
+<DD>limit amount less than or equal
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitAmountLessThanOrEqualAttributeDefName()"><!-- --></A><H3>
+limitAmountLessThanOrEqualAttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitAmountLessThanOrEqualAttributeDefName</B>()</PRE>
+<DL>
+<DD>amount less than or equal
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitIpOnNetworksName()"><!-- --></A><H3>
+limitIpOnNetworksName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitIpOnNetworksName</B>()</PRE>
+<DL>
+<DD>limit ip on networks
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitIpOnNetworksAttributeDefName()"><!-- --></A><H3>
+limitIpOnNetworksAttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitIpOnNetworksAttributeDefName</B>()</PRE>
+<DL>
+<DD>amount less than or equal
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitIpOnNetworkRealmName()"><!-- --></A><H3>
+limitIpOnNetworkRealmName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitIpOnNetworkRealmName</B>()</PRE>
+<DL>
+<DD>limit ip on network realm
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitIpOnNetworkRealmAttributeDefName()"><!-- --></A><H3>
+limitIpOnNetworkRealmAttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitIpOnNetworkRealmAttributeDefName</B>()</PRE>
+<DL>
+<DD>amount less than or equal
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitLabelsContainName()"><!-- --></A><H3>
+limitLabelsContainName</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>limitLabelsContainName</B>()</PRE>
+<DL>
+<DD>limit labels contain a label
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitLabelsContainAttributeDefName()"><!-- --></A><H3>
+limitLabelsContainAttributeDefName</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A> <B>limitLabelsContainAttributeDefName</B>()</PRE>
+<DL>
+<DD>amount labels contain
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attribute def name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addStandardLimitVariablesIfNotExist(java.util.Map)"><!-- --></A><H3>
+addStandardLimitVariablesIfNotExist</H3>
+<PRE>
+public static void <B>addStandardLimitVariablesIfNotExist</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;limitEnvVarsObject)</PRE>
+<DL>
+<DD>add standard limit variables
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>limitEnvVarsObject</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitRealms()"><!-- --></A><H3>
+limitRealms</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>limitRealms</B>()</PRE>
+<DL>
+<DD>get a logic instance based on attributeDefName of the limit
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an instance of the interface</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clearLimitLogicMap()"><!-- --></A><H3>
+clearLimitLogicMap</H3>
+<PRE>
+public static void <B>clearLimitLogicMap</B>()</PRE>
+<DL>
+<DD>for testing, clear this to put things in the api test config
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="logicInstance(java.lang.String)"><!-- --></A><H3>
+logicInstance</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitInterface</A> <B>logicInstance</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;limitName)</PRE>
+<DL>
+<DD>get a logic instance based on attributeDefName of the limit
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>limitName</CODE> - name of the attribute def name
+<DT><B>Returns:</B><DD>an instance of the interface</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="limitElClasses()"><!-- --></A><H3>
+limitElClasses</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt; <B>limitElClasses</B>()</PRE>
+<DL>
+<DD>custom el instances to add to the variable map for limit EL
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the map</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitInterface.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.limits"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;NEXT CLASS</FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PermissionLimitUtils.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

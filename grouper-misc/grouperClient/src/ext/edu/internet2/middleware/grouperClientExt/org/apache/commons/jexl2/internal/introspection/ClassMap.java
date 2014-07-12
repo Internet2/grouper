@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * A cache of introspection information for a specific class instance.

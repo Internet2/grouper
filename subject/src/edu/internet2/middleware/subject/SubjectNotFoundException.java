@@ -18,7 +18,31 @@ package edu.internet2.middleware.subject;
 /**
  * Indicates that a Subject is not found within a Source.
  */
+@SuppressWarnings("serial")
 public class SubjectNotFoundException extends RuntimeException {
+
+  
+  
+  /**
+   * subject id
+   */
+  private String subjectId;
+  
+  /**
+   * subjectId
+   * @return subjectId
+   */
+  public String getSubjectId() {
+    return this.subjectId;
+  }
+  
+  /**
+   * subjectId
+   * @param subjectId1
+   */
+  public void setSubjectId(String subjectId1) {
+    this.subjectId = subjectId1;
+  }
 
   /**
    * 
@@ -36,5 +60,24 @@ public class SubjectNotFoundException extends RuntimeException {
 	public SubjectNotFoundException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
+
+  /**
+   * 
+   * @param msg
+   */
+  public SubjectNotFoundException(String subjectId1, String msg) {
+    super(msg);
+    this.subjectId = subjectId1;
+  }
+
+  /**
+   * 
+   * @param msg
+   * @param cause
+   */
+  public SubjectNotFoundException(String subjectId1, String msg, Throwable cause) {
+    super(msg, cause);
+    this.subjectId = subjectId1;
+  }
 
 }

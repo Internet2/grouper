@@ -16,6 +16,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>GROUPER_TRUNK_CLIENT_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_TRUNK_CLIENT_SOURCE</locationURI>
+		</link>
+		<link>
 			<name>GROUPER_TRUNK_CONF</name>
 			<type>2</type>
 			<locationURI>GROUPER_TRUNK_CONF</locationURI>
@@ -26,4 +31,18 @@
 			<locationURI>GROUPER_TRUNK_SOURCE</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GROUPER_TRUNK_CLIENT_SOURCE</name>
+			<value>file:/C:/mchyzer/grouper/trunk/grouperClient/src/java</value>
+		</variable>
+		<variable>
+			<name>GROUPER_TRUNK_CONF</name>
+			<value>file:/C:/mchyzer/grouper/trunk/grouper/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_TRUNK_SOURCE</name>
+			<value>file:/C:/mchyzer/grouper/trunk/grouper/src/grouper</value>
+		</variable>
+	</variableList>
 </projectDescription>

@@ -50,7 +50,11 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -67,6 +71,7 @@ import edu.internet2.middleware.grouper.filter.GroupAnyAttributeFilter;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.StemNameAnyFilter;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -102,6 +107,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 public class GrouperHelper {
+  
+  /** logger */
 	protected static final Log LOG = LogFactory.getLog(GrouperHelper.class);
 
 	private static Map superPrivs = null; //Privs automatically granted to the
@@ -159,9 +166,9 @@ public class GrouperHelper {
 		*/
 		type = GroupTypeFinder.find("community", true);
 		type.addList(s,"contributors",Privilege.getInstance("read"),Privilege.getInstance("update"));
-		type.addAttribute(s,"scope",Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type.addAttribute(s,"scope",true);
 		type = GroupTypeFinder.find("staff", true);
-		type.addAttribute(s,"dept",Privilege.getInstance("read"),Privilege.getInstance("update"),true);
+		type.addAttribute(s,"dept",true);
 		/*type.addField(s,"staff",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),false);
 		type.addField(s,"clerical",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),false);
 		type.addField(s,"faculty_code",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
@@ -1210,7 +1217,6 @@ public class GrouperHelper {
       String from, String searchInDisplayNameOrExtension,
       String searchInNameOrExtension,String browseMode) throws Exception{
     List<Group> groups = searchGroupsHelper(s, query, from, searchInDisplayNameOrExtension, searchInNameOrExtension, browseMode);
-    Group.initGroupAttributes(groups);
     return groups;
   }
 	
@@ -2798,14 +2804,11 @@ public class GrouperHelper {
 		}
 		
 		
-		Set fields = FieldFinder.findAllByType(FieldType.ATTRIBUTE);
-		Iterator it = fields.iterator();
-		Field field;
-		while(it.hasNext()) {
-			field = (Field) it.next();
-			if(noSearchFields.indexOf(":" + field.getName() + ":") == -1) {
-				names.add(field.getName());
-				res.add(ObjectAsMap.getInstance("FieldAsMap",field));
+		for (AttributeDefName legacyAttribute : GroupTypeFinder.internal_findAllLegacyAttributes()) {
+		  String name = legacyAttribute.getLegacyAttributeName(true);
+			if(noSearchFields.indexOf(":" + name + ":") == -1) {
+				names.add(name);
+				res.add(ObjectAsMap.getInstance("FieldAsMap",legacyAttribute));
 			}
 		}
 		accumulateFields(names);
@@ -2860,6 +2863,11 @@ public class GrouperHelper {
 			fieldMap=ObjectAsMap.getInstance("FieldAsMap",field);
 			map.put(field.getName(),fieldMap);
 		}
+		
+		for (AttributeDefName legacyAttribute : GroupTypeFinder.internal_findAllLegacyAttributes()) {
+		  map.put(legacyAttribute.getName(), ObjectAsMap.getInstance("FieldAsMap", legacyAttribute));
+		}
+		
 		String[] primaryFields = new String[] {"extension","displayExtension","name","displayName","description"};
 		for (int i=0;i<primaryFields.length;i++) {
 			Map dummyField = new HashMap();
@@ -2904,25 +2912,31 @@ public class GrouperHelper {
 	 * @throws SchemaException
 	 */
 	public static boolean canUserEditAnyCustomAttribute(Group group) throws SchemaException{
-		Set types = group.getTypes();
-		if(types.isEmpty()) return false;
-		Iterator it = types.iterator();
-		GroupType groupType;
-		Set fields;
-		Iterator fieldsIterator;
-		Field field;
-		while(it.hasNext()) {
-			groupType=(GroupType)it.next();
-			if(groupType.isSystemType()) continue;
-			fields = groupType.getFields();
-			fieldsIterator = fields.iterator();
-			while(fieldsIterator.hasNext()) {
-				field=(Field)fieldsIterator.next();
-				if(field.getType().equals(FieldType.ATTRIBUTE)&& group.canWriteField(field)) {
-					return true;
-				}
+		Map<String, AttributeAssign> assignmentsMap = group.internal_getGroupTypeAssignments();
+		
+		for (String groupTypeName : assignmentsMap.keySet()) {
+			GroupType legacyGroupType = GroupTypeFinder.find(groupTypeName, true);
+			AttributeAssign groupTypeAssignment = assignmentsMap.get(groupTypeName);
+
+			try {
+  			AttributeDef attributeDef = legacyGroupType.internal_getAttributeDefForAttributes();
+  
+  			if (attributeDef != null) {
+          Set<AttributeDefName> attrs = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(attributeDef.getId());
+          for (AttributeDefName attr : attrs) {
+            if (attr.getLegacyAttributeName(false) != null) {
+              groupTypeAssignment.getAttributeDelegate().assertCanUpdateAttributeDefName(attr);
+              return true;
+            }
+          }
+  			}  			
+			} catch (InsufficientPrivilegeException e) {
+			  // don't have access
+			} catch (AttributeDefNotFoundException e) {
+			  // don't have access
 			}
 		}
+		
 		return false;
 	}
 	

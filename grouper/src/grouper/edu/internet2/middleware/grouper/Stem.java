@@ -71,8 +71,10 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsExc
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
@@ -88,6 +90,8 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -163,6 +167,47 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     Hib3GrouperVersioned, Comparable<Stem>, XmlImportable<Stem>, AttributeAssignable, GrouperSetElement,
     GrouperObject {
 
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_NAME_TOO_LONG_KEY = "stemNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY = "stemDisplayNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_EXTENSION_TOO_LONG_KEY = "stemExtensionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY = "stemDisplayExtensionTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_STEM_DESCRIPTION_TOO_LONG_KEY = "stemDescriptionTooLong";
+
+  /**
+   * get the name of the parent stem
+   * @return the name of the parent stem
+   */
+  public String getParentStemName() {
+    return GrouperUtil.parentStemNameFromName(this.getName(), false);
+  } 
+
+  /**
+   * id is same as uuid
+   * @return id
+   */
+  public String getId() {
+    return this.getUuid();
+  }
+  
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
 
@@ -514,6 +559,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   }
 
   /**
+   * Add a new attribute def to the registry.
+   * @param attributeDef is the definition of this attribute
+   * @param   extension attributeDef's extension
+   * @param displayExtension 
+   * @return  The added {@link AttributeDef}
+   * @throws  InsufficientPrivilegeException
+   */
+  public AttributeDefName addChildAttributeDefName(AttributeDef attributeDef, String extension, String displayExtension, String uuid) 
+    throws InsufficientPrivilegeException {
+    return this.internal_addChildAttributeDefName(GrouperSession.staticGrouperSession(true), attributeDef,
+        extension, displayExtension, StringUtils.trimToNull(uuid), null);
+  }
+
+  /**
    * Add a new stem to the registry.
    * <pre class="eg">
    * // Add a stem with the extension "edu" beneath this stem.
@@ -848,12 +907,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     throws  SubjectNotFoundException
   {
     if (this.creator == null) {
+      String subjectId = null;
       try {
-        this.creator = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
-            this.getCreatorUuid(), true ).getSubject();
+        Member member = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
+            this.getCreatorUuid(), true );
+        subjectId = member.getSubjectId();
+        this.creator = member.getSubject();
       }
       catch (MemberNotFoundException eMNF) {
-        throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
+        throw new SubjectNotFoundException( subjectId, eMNF.getMessage(), eMNF );
       }
     }
     return this.creator; 
@@ -1035,6 +1097,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @return the alternate name
    */
   public String getAlternateNameDb() {
+    return this.alternateNameDb;
+  }
+  
+  /**
+   * Returns the alternate name for the stem.  If multiple, returns the first one
+   * @return the alternate name
+   */
+  public String getAlternateName() {
     return this.alternateNameDb;
   }
   
@@ -1406,6 +1476,33 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   } 
  
   /**
+   * see if the subject has a privilege
+   * @param subject
+   * @param privilegeOrListName
+   * @return true if has privilege
+   */
+  public boolean hasPrivilege(Subject subject, String privilegeOrListName) {
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())) {
+      return this.hasStem(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
+      return this.hasCreate(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getListName())) {
+      return this.hasStemAttrRead(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getListName())) {
+      return this.hasStemAttrUpdate(subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+
+  }
+
+  /**
    * TODO 20070813 make public?
    * @param group group
    * @return  True if <i>group</i> is child, at any depth, of this stem.
@@ -1674,7 +1771,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * will be implemented soon
    */
   public void store() {
-    
+
+    validate();
+
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -1710,6 +1809,48 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           
 
     
+  }
+
+  /**
+   * 
+   */
+  public void validate() {
+    //lets validate
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "extension", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getExtension()) > 255 ) {
+      throw new GrouperValidationException("Stem extension too long: " + GrouperUtil.lengthAscii(this.getExtension()), 
+          VALIDATION_STEM_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getExtension()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_extension", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayExtension()) > 255 ) {
+      throw new GrouperValidationException("Stem display extension too long: " + GrouperUtil.lengthAscii(this.getDisplayExtension()), 
+          VALIDATION_STEM_DISPLAY_EXTENSION_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getName()) > 255) {
+      throw new GrouperValidationException("Stem name too long: " + GrouperUtil.lengthAscii(this.getName()), 
+          VALIDATION_STEM_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name", 
+    //        Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayName()) > 255) {
+      throw new GrouperValidationException("Stem display name too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
+          VALIDATION_STEM_DISPLAY_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "description", 
+    //        Types.VARCHAR, "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDescription()) > 1024 ) {
+      throw new GrouperValidationException("Stem description too long: " + GrouperUtil.lengthAscii(this.getDescription()), 
+          VALIDATION_STEM_DESCRIPTION_TOO_LONG_KEY, 1024, GrouperUtil.lengthAscii(this.getDescription()));
+    }
   }
   
   /**
@@ -2026,22 +2167,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid, final TypeOfGroup typeOfGroup) 
     throws GroupAddException, InsufficientPrivilegeException {
 
-    Set types = null;
+    Set types = new LinkedHashSet<GroupType>();
     
-    types = new LinkedHashSet<GroupType>();
-    try {
-      types.add(GroupTypeFinder.find("base", true));
-    } catch (SchemaException e) {
-      throw new GroupAddException(e);
-    } 
-    
-    return internal_addChildGroup(GrouperSession.staticGrouperSession(), extn, dExtn, uuid, 
-        null, types, new HashMap<String, String>(), true, typeOfGroup);    
+    return internal_addChildGroup(extn, dExtn, uuid, 
+        null, types, new HashMap<String, String>(), true, typeOfGroup, true);    
   }
   
   /**
    * 
-   * @param session
    * @param extn
    * @param dExtn
    * @param uuid
@@ -2050,13 +2183,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param attributes
    * @param addDefaultGroupPrivileges
    * @param typeOfGroup or null for default
+   * @param checkSecurity 
    * @return group
    * @throws GroupAddException
    * @throws InsufficientPrivilegeException
    */
-  public Group internal_addChildGroup(final GrouperSession session, final String extn, final String dExtn,
+  public Group internal_addChildGroup(final String extn, final String dExtn,
       final String uuid, final String description, final Set<GroupType> types,
-      final Map<String, String> attributes, final boolean addDefaultGroupPrivileges, final TypeOfGroup typeOfGroup)
+      final Map<String, String> attributes, final boolean addDefaultGroupPrivileges, final TypeOfGroup typeOfGroup,
+      final boolean checkSecurity)
       throws GroupAddException, InsufficientPrivilegeException {
     
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
@@ -2066,6 +2201,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
   
+          @SuppressWarnings("deprecation")
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             
@@ -2075,10 +2211,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               
               StopWatch sw = new StopWatch();
               sw.start();
-              if (!PrivilegeHelper.canCreate(session, 
-                  Stem.this, session.getSubject())) {
-                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix + ", " + session);
-              } 
+              if (checkSecurity) {
+                if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), 
+                    Stem.this, GrouperSession.staticGrouperSession().getSubject())) {
+                  throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix + ", " + GrouperSession.staticGrouperSession());
+                } 
+              }
               GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
               if (v.isInvalid()) {
                 if (v.getErrorMessage().startsWith(AddGroupValidator.GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX)) {
@@ -2100,7 +2238,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               }
               _g.setDescription(description);
               _g.setCreateTimeLong(new Date().getTime());
-              _g.setCreatorUuid(session.getMember().getUuid());
+              _g.setCreatorUuid(GrouperSession.staticGrouperSession().getMember().getUuid());
               _g.setTypes(types);
               
               if (typeOfGroup != null) {
@@ -2144,10 +2282,23 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                 }
         
 
-                GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m, attributes );
+                GrouperDAOFactory.getFactory().getStem().createChildGroup(Stem.this, _g, _m);
                 if (addDefaultGroupPrivileges) {
                   _grantDefaultPrivsUponCreate(_g);
                 }
+                
+                // take care of attributes now that default privs have been added
+                for (GroupType groupType : _g.getTypesDb()) {    
+                  _g.getAttributeDelegate().internal_assignAttributeHelper(null, groupType.getAttributeDefName(), checkSecurity, null, null);
+                }
+                
+                //loop through in case an attribute is set in hook
+                if (attributes != null) {
+                  for (String key : attributes.keySet()) {
+                    _g.setAttribute(key, attributes.get(key), checkSecurity);
+                  }
+                }
+                
                 //fire a rule
                 RulesGroupBean rulesGroupBean = new RulesGroupBean(_g);
                 //fire rules directly connected to this membership remove
@@ -2176,7 +2327,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               }
               
               sw.stop();
-              EventLog.info(session, M.GROUP_ADD + Quote.single(_g.getName()), sw);
+              EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(_g.getName()), sw);
               
               return _g;
             } catch (GrouperDAOException eDAO) {
@@ -2784,6 +2935,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * Rename attributeDef and attributeDefName due to a name and/or displayName change
    * @param nameChange
    * @param displayNameChange
+   * @return the children
    */
   private Set<GrouperAPI> _renameAttr(boolean nameChange, boolean displayNameChange) {
     Set<GrouperAPI> children  = new LinkedHashSet();
@@ -3658,6 +3810,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               throw new InsufficientPrivilegeException("User cannot copy stems.");      
             }
             
+            if (!PrivilegeHelper.canStem(Stem.this, GrouperSession.staticGrouperSession().getSubject())) {
+              throw new InsufficientPrivilegeException("Cannot copy stem: " + Stem.this.getName());      
+            }
+            
             Map<String, Stem> oldStemUuidToNewStem = new HashMap<String, Stem>();
             Map<String, Group> oldGroupUuidToNewGroup = new HashMap<String, Group>();
             Set<Composite> oldComposites = new LinkedHashSet<Composite>();
@@ -3722,8 +3878,16 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               // we'll create the composite using the old factors...
               // maybe the way this works should be configurable? 
               if (newCompositeLeftGroup == null || newCompositeRightGroup == null) {
-                newCompositeLeftGroup = oldComposite.getLeftGroup();
-                newCompositeRightGroup = oldComposite.getRightGroup();
+                try {
+                  newCompositeLeftGroup = oldComposite.getLeftGroup();
+                  newCompositeRightGroup = oldComposite.getRightGroup();
+                } catch (GroupNotFoundException gnfe) {
+                  if (LOG.isDebugEnabled()) {
+                    LOG.debug("Not allowed to see composite factor of owner in stem copy: " + newCompositeOwnerGroup.getName() );
+                  }
+                  //not allowed to view left or right?  skip it
+                  continue;
+                }
               }
 
               newCompositeOwnerGroup.internal_addCompositeMember(GrouperSession
@@ -4302,5 +4466,138 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void setIdIndex(Long idIndex1) {
     this.idIndex = idIndex1;
   }
+  
+  /**
+   * @see GrouperObject#matchesLowerSearchStrings(Set)
+   */
+  @Override
+  public boolean matchesLowerSearchStrings(Set<String> filterStrings) {
+
+    if (GrouperUtil.length(filterStrings) == 0) {
+      return true;
+    }
+
+    String lowerId = this.getId().toLowerCase();
+    String lowerName = StringUtils.defaultString(this.getName()).toLowerCase();
+    String lowerDisplayName = StringUtils.defaultString(this.getDisplayName()).toLowerCase();
+    String lowerDescription = StringUtils.defaultString(this.getDescription()).toLowerCase();
+    String lowerAlternateName = StringUtils.defaultString(this.getAlternateName()).toLowerCase();
+    
+    for (String filterString : GrouperUtil.nonNull(filterStrings)) {
+      
+      //if all dont match, return false
+      if (!lowerId.contains(filterString)
+          && !lowerName.contains(filterString)
+          && !lowerDisplayName.contains(filterString)
+          && !lowerDescription.contains(filterString)
+          && !lowerAlternateName.contains(filterString)) {
+        return false;
+      }
+      
+    }
+    return true;
+  }
+
+  /**
+   * see if the subject has a privilege or another privilege that implies this privilege.
+   * @param subject
+   * @param privilegeOrListName
+   * @param secure if the user must be an admin to check
+   * @return true if has privilege
+   */
+  public boolean canHavePrivilege(Subject subject, String privilegeOrListName, boolean secure) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    if (secure) {
+      PrivilegeHelper.dispatch(grouperSession, this, grouperSession.getSubject(), NamingPrivilege.STEM);
+    }
+    
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())) {
+      return PrivilegeHelper.canStem(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
+      return PrivilegeHelper.canCreate(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getListName())) {
+      return PrivilegeHelper.canStemAttrRead(grouperSession, this, subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getListName())) {
+      return PrivilegeHelper.canStemAttrUpdate(grouperSession, this, subject);
+    }
+    throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
+  
+  }
+
+  /**
+   * grant privs to stem
+   * @param subject to add
+   * @param createChecked
+   * @param stemChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean grantPrivs(final Subject subject,
+      final boolean stemChecked,
+      final boolean createChecked, final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final boolean revokeIfUnchecked) {
+    
+    return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+  
+        boolean hadChange = false;
+        
+        //see if add or remove
+        if (stemChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM, false);
+          }
+        }
+
+        //see if add or remove
+        if (createChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.CREATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.CREATE, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrReadChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM_ATTR_READ, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM_ATTR_READ, false);
+          }
+        }
+
+        //see if add or remove
+        if (attrUpdateChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM_ATTR_UPDATE, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM_ATTR_UPDATE, false);
+          }
+        }
+
+        return hadChange;
+      }
+    });
+  
+    
+  }
+
 }
 

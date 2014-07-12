@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: json, for version: 2.1.1
+Grouper web service sample of service: findStems, WsSampleFindStemsRest, manually written lite/rest, format: json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/stems HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/stems HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 173
 Content-Type: text/x-json; charset=UTF-8
@@ -45,19 +45,19 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 571
-Date: Sun, 01 Jul 2012 13:40:53 GMT
+Content-Length: 588
+Date: Wed, 28 May 2014 23:23:16 GMT
 Connection: close
 
 {
   "WsFindStemsResults":{
     "responseMetadata":{
-      "millis":"197",
-      "serverVersion":"2.1.1"
+      "millis":"59",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n, wsStemLookups: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null\n, wsStemLookups: null",
       "success":"T"
     },
     "stemResults":[
@@ -66,8 +66,9 @@ Connection: close
         "displayExtension":"a stem",
         "displayName":"a stem",
         "extension":"aStem",
+        "idIndex":"10022",
         "name":"aStem",
-        "uuid":"1a8bbe8d691e4810afb3f6d90f511a2f"
+        "uuid":"aa78b7bc16fd4e1b8ea6825b2f24f1a2"
       }
     ]
   }
@@ -254,6 +255,6 @@ public class WsSampleFindStemsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null
 , wsStemLookups: null

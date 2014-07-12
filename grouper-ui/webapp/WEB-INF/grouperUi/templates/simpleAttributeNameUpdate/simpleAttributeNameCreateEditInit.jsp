@@ -37,6 +37,8 @@
         <td class="formTableRight">
           <div class="combohint"><grouper:message key="simpleAttributeNameUpdate.selectAttributeDefNameCombohint"/></div>
           <grouper:combobox filterOperation="SimpleAttributeNameUpdateFilter.filterAttributeDefNames" id="simpleAttributeNameUpdatePickAttributeDefName" 
+            comboDefaultText="${attributeNameUpdateRequestContainer.attributeDefNameToEdit.name}"  
+            comboDefaultValue="${attributeNameUpdateRequestContainer.attributeDefNameToEdit.id}"
             width="700" additionalFormElementNames="simpleAttributeNameUpdatePickAttributeDef" />
 
            <div style="margin-top: 5px;">

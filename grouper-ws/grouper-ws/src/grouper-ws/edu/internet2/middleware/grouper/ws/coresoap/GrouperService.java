@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -2384,6 +2385,10 @@ public class GrouperService {
    * @param stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @param enabled is A for all, T or null for enabled only, F for disabled 
    * @param membershipIds are the ids to search for if they are known
+   * @param wsOwnerStemLookups are the stem lookups if looking for stem privileges
+   * @param wsOwnerAttributeDefLookups are the attribute definition lookups if looking for attribute definition privileges
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
@@ -2395,7 +2400,7 @@ public class GrouperService {
       String[] subjectAttributeNames, String includeGroupDetail, final WsParam[] params, 
       String[] sourceIds, String scope, 
       WsStemLookup wsStemLookup, String stemScope, String enabled, String[] membershipIds, 
-      String serviceRole, WsAttributeDefNameLookup serviceLookup) {  
+      WsStemLookup[] wsOwnerStemLookups, WsAttributeDefLookup[] wsOwnerAttributeDefLookups, String fieldType, String serviceRole, WsAttributeDefNameLookup serviceLookup) {  
     
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
@@ -2414,6 +2419,8 @@ public class GrouperService {
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
       
+      FieldType fieldTypeEnum = GrouperServiceUtils.retrieveFieldType(fieldType);
+      
       StemScope theStemScope = StringUtils.isBlank(stemScope) ? null : StemScope.valueOfIgnoreCase(stemScope);
 
       //if its blank it is a placeholder for axis, just null it out
@@ -2426,7 +2433,7 @@ public class GrouperService {
       wsGetMembershipsResults = GrouperServiceLogic.getMemberships(grouperWsVersion, wsGroupLookups, 
           wsSubjectLookups, memberFilter, actAsSubjectLookup, field, includeSubjectDetailBoolean, 
           subjectAttributeNames, includeGroupDetailBoolean, params, sourceIds, scope, wsStemLookup, theStemScope, enabled, membershipIds,
-          serviceRoleEnum, serviceLookup);
+          wsOwnerStemLookups, wsOwnerAttributeDefLookups, fieldTypeEnum, serviceRoleEnum, serviceLookup);
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);
     }
@@ -2487,6 +2494,12 @@ public class GrouperService {
    * @param stemScope to specify if we are searching in or under the stem
    * @param enabled A for all, null or T for enabled only, F for disabled only
    * @param membershipIds comma separated list of membershipIds to retrieve
+   * @param ownerStemName if looking for privileges on stems, put the stem name to look for here
+   * @param ownerStemUuid if looking for privileges on stems, put the stem uuid here
+   * @param nameOfOwnerAttributeDef if looking for privileges on attribute definitions, put the name of the attribute definition here
+   * @param ownerAttributeDefUuid if looking for privileges on attribute definitions, put the uuid of the attribute definition here
+   * @param fieldType is the type of field to look at, e.g. list (default, memberships), 
+   * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @param serviceRole to filter attributes that a user has a certain role
    * @param serviceId if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName
    * @param serviceName if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId
@@ -2499,7 +2512,8 @@ public class GrouperService {
       String actAsSubjectIdentifier, String fieldName, String subjectAttributeNames,
       String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1, String sourceIds, String scope, String stemName, 
-      String stemUuid, String stemScope, String enabled, String membershipIds, String serviceRole, 
+      String stemUuid, String stemScope, String enabled, String membershipIds, String ownerStemName, String ownerStemUuid, String nameOfOwnerAttributeDef, 
+      String ownerAttributeDefUuid, String fieldType, String serviceRole, 
       String serviceId, String serviceName) {
   
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
@@ -2516,6 +2530,7 @@ public class GrouperService {
       
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
+      FieldType fieldTypeEnum = GrouperServiceUtils.retrieveFieldType(fieldType);
       
       StemScope theStemScope = StringUtils.isBlank(stemScope) ? null : StemScope.valueOfIgnoreCase(stemScope);
 
@@ -2525,7 +2540,8 @@ public class GrouperService {
           groupUuid, subjectId, sourceId, subjectIdentifier, memberFilter,includeSubjectDetailBoolean, 
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, field, subjectAttributeNames, 
           includeGroupDetailBoolean, paramName0, paramValue1, paramName1, paramValue1, sourceIds, scope, 
-          stemName, stemUuid, theStemScope, enabled, membershipIds, serviceRoleEnum, serviceId, serviceName);
+          stemName, stemUuid, theStemScope, enabled, membershipIds, ownerStemName, ownerStemUuid, 
+          nameOfOwnerAttributeDef, ownerAttributeDefUuid, fieldTypeEnum, serviceRoleEnum, serviceId, serviceName);
 
     } catch (Exception e) {
       wsGetMembershipsResults.assignResultCodeException(null, null, e);

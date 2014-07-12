@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: json, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, manually written lite/rest, format: json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 195
 Content-Type: text/x-json; charset=UTF-8
@@ -54,14 +54,14 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 672
-Date: Sun, 01 Jul 2012 14:04:02 GMT
+Date: Thu, 29 May 2014 00:01:27 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
     "responseMetadata":{
-      "millis":"27",
-      "serverVersion":"2.1.1"
+      "millis":"49",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -283,4 +283,4 @@ public class WsSampleGetSubjectsRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 2 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 2 subjects

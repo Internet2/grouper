@@ -105,7 +105,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     top.addChildStem("bottom", "bottom");
     
     GroupType testType = GroupType.createType(session, "testType", true);
-    testType.addAttribute(session, "testAttribute", AccessPrivilege.READ, AccessPrivilege.UPDATE, false, true);
+    testType.addAttribute(session, "testAttribute", true);
     Field fieldTestList = testType.addList(session, "testList", AccessPrivilege.READ, AccessPrivilege.UPDATE);
     
     Group composite1Owner = top.addChildGroup("composite1Owner", "composite1Owner");

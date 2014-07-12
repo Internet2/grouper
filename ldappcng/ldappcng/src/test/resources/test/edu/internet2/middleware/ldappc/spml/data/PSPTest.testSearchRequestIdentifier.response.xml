@@ -1,5 +1,0 @@
-<spmlsearch:searchResponse xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlsearch='urn:oasis:names:tc:SPML:2:0:search' status='success' requestID='REQUESTID_TEST'>
-  <spmlsearch:pso entityName='group'>
-    <psoID ID='cn=groupB,ou=testgroups,${base}' targetID='ldap'/>
-  </spmlsearch:pso>
-</spmlsearch:searchResponse>

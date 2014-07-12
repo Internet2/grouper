@@ -87,10 +87,8 @@ public class XmlExportFieldTest extends GrouperTest {
     XmlExportField xmlExportField = new XmlExportField();
     
     xmlExportField.setContextId("contextId");
-    xmlExportField.setGroupTypeUuid("groupTypeUuid");
     xmlExportField.setHibernateVersionNumber(3L);
     xmlExportField.setName("name");
-    xmlExportField.setNullable("nullable");
     xmlExportField.setReadPrivilege("readPrivilege");
     xmlExportField.setType("type");
     xmlExportField.setUuid("uuid");
@@ -101,10 +99,8 @@ public class XmlExportFieldTest extends GrouperTest {
     xmlExportField = XmlExportField.fromXml(new GrouperVersion(GrouperVersion.GROUPER_VERSION), xml);
     
     assertEquals("contextId", xmlExportField.getContextId());
-    assertEquals("groupTypeUuid", xmlExportField.getGroupTypeUuid());
     assertEquals(3L, xmlExportField.getHibernateVersionNumber());
     assertEquals("name", xmlExportField.getName());
-    assertEquals("nullable", xmlExportField.getNullable());
     assertEquals("readPrivilege", xmlExportField.getReadPrivilege());
     assertEquals("type", xmlExportField.getType());
     assertEquals("uuid", xmlExportField.getUuid());
@@ -124,10 +120,8 @@ public class XmlExportFieldTest extends GrouperTest {
     field = xmlExportField.toField();
     
     assertEquals("contextId", field.getContextId());
-    assertEquals("groupTypeUuid", field.getGroupTypeUuid());
     assertEquals(new Long(3L), field.getHibernateVersionNumber());
     assertEquals("name", field.getName());
-    assertEquals(true, field.getIsNullable());
     assertEquals("readPrivilege", field.getReadPrivilege());
     assertEquals("type", field.getTypeString());
     assertEquals("uuid", field.getUuid());

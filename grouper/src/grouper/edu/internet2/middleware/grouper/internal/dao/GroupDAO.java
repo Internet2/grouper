@@ -38,7 +38,6 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -56,13 +55,6 @@ import edu.internet2.middleware.subject.Subject;
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
-
-  /**
-   * find al types for a group
-   * @param uuid
-   * @return the types
-   */
-  public Set<GroupType> _findAllTypesByGroup(final String uuid);
   
   /**
    * put in cache
@@ -71,22 +63,11 @@ public interface GroupDAO extends GrouperDAO {
    */
   public void putInExistsCache(String uuid, boolean exists);
 
-  /**
-   * @since   1.2.0
-   */
-  GroupTypeTuple addType(Group _g, GroupType _gt) 
-    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
   void delete(Group _g)
-    throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  GroupTypeTuple deleteType(Group _g, GroupType _gt) 
     throws  GrouperDAOException;
 
   /**
@@ -111,6 +92,19 @@ public interface GroupDAO extends GrouperDAO {
             IllegalStateException
             ;
 
+  /**
+   * @param val
+   * @param scope
+   * @param secureQuery
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  Set<Group> findAllByAnyApproximateAttr(String val, String scope, boolean secureQuery) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+  
 
   /**
    * @since   1.2.0
@@ -159,6 +153,19 @@ public interface GroupDAO extends GrouperDAO {
             IllegalStateException
             ;
 
+  /**
+   * @param attr
+   * @param val
+   * @param scope
+   * @param secureQuery
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  Set<Group> findAllByAttr(String attr, String val, String scope, boolean secureQuery) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
 
   /**
    * @since   1.2.0
@@ -286,6 +293,18 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Group findByAttribute(String attr, String val, boolean exceptionIfNotFound) 
+    throws  GrouperDAOException, GroupNotFoundException;
+  
+  /**
+   * @param attr
+   * @param val
+   * @param exceptionIfNotFound
+   * @param secureQuery
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByAttribute(String attr, String val, boolean exceptionIfNotFound, boolean secureQuery) 
     throws  GrouperDAOException, GroupNotFoundException;
 
   /**
@@ -757,6 +776,49 @@ public interface GroupDAO extends GrouperDAO {
   public Set<Group> getAllGroupsSplitScopeSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, TypeOfGroup typeOfGroup);
 
+  /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroup or null for all
+   * @param splitScope
+   * @param field
+   * @return set of group
+   */
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroup, boolean splitScope, Subject membershipSubject, Field field);  
+  
+  /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroup or null for all
+   * @param splitScope
+   * @param field
+   * @param parentStemId
+   * @param stemScope
+   * @param findByUuidOrName
+   * @param subjectNotInGroup is a subject which does not have a membership in the group
+   * @param groupIds are the group ids to search for
+   * @param groupNames are the group names to search for
+   * @param compositeOwner if we are filtering for groups which are or are not composite owners
+   * @return set of group
+   * @since v2.2
+   */
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroup, boolean splitScope, 
+      Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
+      Collection<String> groupNames, Boolean compositeOwner);  
+  
   /**
    * find by uuid secure
    * @param uuids

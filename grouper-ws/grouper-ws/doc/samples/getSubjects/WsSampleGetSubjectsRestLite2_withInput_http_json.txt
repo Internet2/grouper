@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: http_json, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 63
 
@@ -34,31 +34,38 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1600
-Date: Sun, 01 Jul 2012 14:06:05 GMT
+Content-Length: 1721
+Date: Thu, 29 May 2014 00:04:47 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
     "responseMetadata":{
-      "millis":"466",
-      "serverVersion":"2.1.1"
+      "millis":"57",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
-      "resultMessage":"Queried 12 subjects",
+      "resultMessage":"Queried 13 subjects",
       "success":"T"
     },
     "wsSubjects":[
       {
-        "id":"88459dab119c49939cc3ae552f0071ca",
+        "id":"23eb824c33484bd28dbd96cca8759605",
         "name":"test:groupTestAttrAssign2",
         "resultCode":"SUCCESS",
         "sourceId":"g:gsa",
         "success":"T"
       },
       {
-        "id":"ab8ce94dd52d493ca49fb478f5515fb9",
+        "id":"58d9812df0954c998f6a59c91005b0ea",
+        "name":"test:testGroup",
+        "resultCode":"SUCCESS",
+        "sourceId":"g:gsa",
+        "success":"T"
+      },
+      {
+        "id":"fd483f38acd249d4ae870655bf063f6c",
         "name":"test:groupTestAttrAssign",
         "resultCode":"SUCCESS",
         "sourceId":"g:gsa",
@@ -302,4 +309,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 12 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 13 subjects

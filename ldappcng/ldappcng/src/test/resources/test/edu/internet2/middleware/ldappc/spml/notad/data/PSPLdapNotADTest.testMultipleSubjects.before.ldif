@@ -1,7 +1,0 @@
-dn: cn=test.subject.10,ou=testpeople,${base}
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-cn: test.subject.10
-cn: test.subject.1
-sn: subject.10

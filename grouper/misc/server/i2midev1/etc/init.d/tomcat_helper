@@ -6,7 +6,6 @@
 export PATH="$PATH:$JAVA_HOME/bin"
 
 
-export TOMCAT_USER="appadmin"
 
 echo
 

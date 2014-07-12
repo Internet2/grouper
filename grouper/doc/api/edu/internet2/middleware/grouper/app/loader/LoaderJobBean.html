@@ -1,0 +1,2989 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+LoaderJobBean
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="LoaderJobBean";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderMemberWrapper.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="LoaderJobBean.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.app.loader</FONT>
+<BR>
+Class LoaderJobBean</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.app.loader.LoaderJobBean</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>LoaderJobBean</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+bean to hold objects for loader job
+<P>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_AND_GROUPS">FIELD_AND_GROUPS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: andGroups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_ATTRIBUTE_DEF_NAME">FIELD_ATTRIBUTE_DEF_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: attributeDefName</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_ATTRIBUTE_LOADER_ACTION_QUERY">FIELD_ATTRIBUTE_LOADER_ACTION_QUERY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: attributeLoaderActionQuery</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY">FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: attributeLoaderActionSetQuery</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_ATTRIBUTE_LOADER_ATTR_QUERY">FIELD_ATTRIBUTE_LOADER_ATTR_QUERY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: attributeLoaderAttrQuery</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY">FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: attributeLoaderAttrSetQuery</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE">FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: attributeLoaderAttrsLike</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUP_LIKE_STRING">FIELD_GROUP_LIKE_STRING</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: groupLikeString</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUP_NAME_OVERALL">FIELD_GROUP_NAME_OVERALL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: groupNameOverall</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUP_QUERY">FIELD_GROUP_QUERY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: groupQuery</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUP_TYPES">FIELD_GROUP_TYPES</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: groupTypes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUPER_LOADER_DB">FIELD_GROUPER_LOADER_DB</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: grouperLoaderDb</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUPER_LOADER_TYPE">FIELD_GROUPER_LOADER_TYPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: grouperLoaderType</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_GROUPER_SESSION">FIELD_GROUPER_SESSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: grouperSession</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_HIB3_GROUPLOADER_LOG_OVERALL">FIELD_HIB3_GROUPLOADER_LOG_OVERALL</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: hib3GrouploaderLogOverall</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION">FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapAttributeFilterExpression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_ERROR_UNRESOLVABLE">FIELD_LDAP_ERROR_UNRESOLVABLE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapErrorUnresolvable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_EXTRA_ATTRIBUTES">FIELD_LDAP_EXTRA_ATTRIBUTES</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapExtraAttributes</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_FILTER">FIELD_LDAP_FILTER</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapFilter</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_GROUP_ATTRIBUTE">FIELD_LDAP_GROUP_ATTRIBUTE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapGroupAttribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION">FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapGroupDescriptionExpression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION">FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapGroupDisplayExtensionExpression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_GROUP_NAME_EXPRESSION">FIELD_LDAP_GROUP_NAME_EXPRESSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapGroupNameExpression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_QUARTZ_CRON">FIELD_LDAP_QUARTZ_CRON</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapQuartzCron</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SEARCH_DN">FIELD_LDAP_SEARCH_DN</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapSearchDn</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SEARCH_SCOPE">FIELD_LDAP_SEARCH_SCOPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapSearchScope</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SERVER_ID">FIELD_LDAP_SERVER_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapServerId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SOURCE_ID">FIELD_LDAP_SOURCE_ID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapSourceId</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SUBJECT_ATTRIBUTE">FIELD_LDAP_SUBJECT_ATTRIBUTE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapSubjectAttribute</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SUBJECT_EXPRESSION">FIELD_LDAP_SUBJECT_EXPRESSION</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapSubjectExpression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_SUBJECT_ID_TYPE">FIELD_LDAP_SUBJECT_ID_TYPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapSubjectIdType</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_LDAP_TYPE">FIELD_LDAP_TYPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: ldapType</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_QUERY">FIELD_QUERY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: query</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#FIELD_START_TIME">FIELD_START_TIME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constant for field name for: startTime</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#LoaderJobBean()">LoaderJobBean</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#LoaderJobBean(edu.internet2.middleware.grouper.app.loader.GrouperLoaderType, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, long)">LoaderJobBean</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefName,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A>&nbsp;grouperLoaderDb1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrQuery1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrSetQuery1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrsLike1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionQuery1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionSetQuery1,
+              long&nbsp;startTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#LoaderJobBean(edu.internet2.middleware.grouper.app.loader.GrouperLoaderType, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, edu.internet2.middleware.grouper.GrouperSession, java.util.List, java.util.List, java.lang.String, java.lang.String, long)">LoaderJobBean</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameOverall1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A>&nbsp;grouperLoaderDb1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;query1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;andGroups1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;&nbsp;groupTypes1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupLikeString1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupQuery1,
+              long&nbsp;startTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#LoaderJobBean(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, edu.internet2.middleware.grouper.app.loader.GrouperLoaderType, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, edu.internet2.middleware.grouper.GrouperSession, java.util.List, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">LoaderJobBean</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapType1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapFilter1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectAttribute1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchDn1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSourceId1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectIdType1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchScope1,
+              long&nbsp;startTime1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameOverall1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;andGroups1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttribute1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extraAttributes1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;errorUnresolvable1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupNameExpression1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDisplayExtensionExpression1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDescriptionExpression1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;&nbsp;groupTypes1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupReaders1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupViewers1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAdmins1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupUpdaters1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptins1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptouts1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupsLike1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapAttributeFilterExpression1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrReaders1,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrUpdaters1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;constructor for ldap jobs</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">LoaderJobBean</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#clone()">clone</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deep clone the fields in this object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAndGroups()">getAndGroups</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members must be in these groups also to be in the overall group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAttributeDefName()">getAttributeDefName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributeDef name for the job</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAttributeLoaderActionQuery()">getAttributeLoaderActionQuery</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least the following column: action_name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAttributeLoaderActionSetQuery()">getAttributeLoaderActionSetQuery</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least the following columns: if_has_action_name, then_has_action_name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAttributeLoaderAttrQuery()">getAttributeLoaderAttrQuery</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAttributeLoaderAttrSetQuery()">getAttributeLoaderAttrSetQuery</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least the following columns: if_has_attr_name, then_has_attr_name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getAttributeLoaderAttrsLike()">getAttributeLoaderAttrsLike</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGrouperLoaderDb()">getGrouperLoaderDb</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database this runs against</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGrouperLoaderType()">getGrouperLoaderType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type of job, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGrouperSession()">getGrouperSession</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grouper session (probably a root session)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGroupLikeString()">getGroupLikeString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGroupNameOverall()">getGroupNameOverall</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;overall group name (if a group list job, then overall, if sql simple, then the group)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGroupQuery()">getGroupQuery</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group query</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getGroupTypes()">getGroupTypes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group types to add to loader managed group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getHib3GrouploaderLogOverall()">getHib3GrouploaderLogOverall</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log entry for the job</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapAttributeFilterExpression()">getLdapAttributeFilterExpression</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if filtering which attributes, this is the jexl expression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapErrorUnresolvable()">getLdapErrorUnresolvable</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value could be true or false (default to true).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapExtraAttributes()">getLdapExtraAttributes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute names (comma separated) to get LDAP data for expressions in group name, 
+ displayExtension, description, optional, for LDAP_GROUP_LIST</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapFilter()">getLdapFilter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupAdmins()">getLdapGroupAdmins</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can ADMIN the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupAttribute()">getLdapGroupAttribute</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required for LDAP_GROUPS_FROM_ATTRIBUTES 
+ Attribute name of the filter object result that holds the group name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupAttrReaders()">getLdapGroupAttrReaders</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupAttrUpdaters()">getLdapGroupAttrUpdaters</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupDescriptionExpression()">getLdapGroupDescriptionExpression</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEXL expression language fragment that evaluates to the group description, optional 
+ for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupDisplayNameExpression()">getLdapGroupDisplayNameExpression</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEXL expression language fragment that evaluates to the group display 
+ extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupNameExpression()">getLdapGroupNameExpression</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+ JEXL expression language fragment that evaluates to the group name (relative 
+ in the stem as the group which has the loader definition)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupOptins()">getLdapGroupOptins</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTIN their group membership</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupOptouts()">getLdapGroupOptouts</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTOUT their group membership</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupReaders()">getLdapGroupReaders</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can READ the group memberships</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupUpdaters()">getLdapGroupUpdaters</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can UPDATE the group memberships</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapGroupViewers()">getLdapGroupViewers</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can VIEW the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapQuartzCron()">getLdapQuartzCron</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quartz cron config string, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapSearchDn()">getLdapSearchDn</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Location that constrains the subtree where the filter is applicable.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapSearchScope()">getLdapSearchScope</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;How the deep in the subtree the search will take place.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapServerId()">getLdapServerId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapSourceId()">getLdapSourceId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Source ID from the sources.xml that narrows the search for subjects.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapSubjectAttribute()">getLdapSubjectAttribute</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute name of the filter object result that holds the subject id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapSubjectExpression()">getLdapSubjectExpression</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEXL expression language fragment that processes the subject string before passing it to the subject API</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapSubjectIdType()">getLdapSubjectIdType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The type of subject ID.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getLdapType()">getLdapType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extension of the attribute def name for type of ldap loader (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getQuery()">getQuery</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;query for the job</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;long</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#getStartTime()">getStartTime</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start time of job</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAndGroups(java.util.List)">setAndGroups</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;andGroups1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members must be in these groups also to be in the overall group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAttributeDefName(java.lang.String)">setAttributeDefName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefName1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributeDef name for the job</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAttributeLoaderActionQuery(java.lang.String)">setAttributeLoaderActionQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionQuery1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least the following column: action_name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAttributeLoaderActionSetQuery(java.lang.String)">setAttributeLoaderActionSetQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionSetQuery1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least the following columns: if_has_action_name, then_has_action_name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAttributeLoaderAttrQuery(java.lang.String)">setAttributeLoaderAttrQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrQuery1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAttributeLoaderAttrSetQuery(java.lang.String)">setAttributeLoaderAttrSetQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrSetQuery1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SQL query with at least the following columns: if_has_attr_name, then_has_attr_name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setAttributeLoaderAttrsLike(java.lang.String)">setAttributeLoaderAttrsLike</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrsLike1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGrouperLoaderDb(edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb)">setGrouperLoaderDb</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A>&nbsp;grouperLoaderDb)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db this job runs against</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGrouperLoaderType(edu.internet2.middleware.grouper.app.loader.GrouperLoaderType)">setGrouperLoaderType</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type of job, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGrouperSession(edu.internet2.middleware.grouper.GrouperSession)">setGrouperSession</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grouper session, probably a root session</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGroupLikeString(java.lang.String)">setGroupLikeString</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupLikeString)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;groups with this like DB sql string are managed by the loader.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGroupNameOverall(java.lang.String)">setGroupNameOverall</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameOverall)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group name for job (if group list, this is the overall name)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGroupQuery(java.lang.String)">setGroupQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupQuery1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setGroupTypes(java.util.List)">setGroupTypes</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;&nbsp;groupTypes)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group types to add to loader managed group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setHib3GrouploaderLogOverall(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog)">setHib3GrouploaderLogOverall</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapAttributeFilterExpression(java.lang.String)">setLdapAttributeFilterExpression</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapAttributeFilterExpression1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if filtering which attributes, this is the jexl expression</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapErrorUnresolvable(java.lang.String)">setLdapErrorUnresolvable</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapErrorUnresolvable1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Value could be true or false (default to true).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapExtraAttributes(java.lang.String)">setLdapExtraAttributes</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapExtraAttributes1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute names (comma separated) to get LDAP data for expressions in group name, 
+ displayExtension, description, optional, for LDAP_GROUP_LIST</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapFilter(java.lang.String)">setLdapFilter</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapFilter1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupAdmins(java.lang.String)">setLdapGroupAdmins</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAdmins1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can ADMIN the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupAttribute(java.lang.String)">setLdapGroupAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttribute1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required for LDAP_GROUPS_FROM_ATTRIBUTES 
+ Attribute name of the filter object result that holds the group name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupAttrReaders(java.lang.String)">setLdapGroupAttrReaders</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrReaders1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupAttrUpdate(java.lang.String)">setLdapGroupAttrUpdate</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrUpdaters1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupDescriptionExpression(java.lang.String)">setLdapGroupDescriptionExpression</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDescriptionExpression1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEXL expression language fragment that evaluates to the group description, optional 
+ for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupDisplayNameExpression(java.lang.String)">setLdapGroupDisplayNameExpression</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDisplayExtensionExpression1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEXL expression language fragment that evaluates to the group display 
+ extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupNameExpression(java.lang.String)">setLdapGroupNameExpression</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupNameExpression1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+ JEXL expression language fragment that evaluates to the group name (relative 
+ in the stem as the group which has the loader definition)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupOptins(java.lang.String)">setLdapGroupOptins</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptins1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTIN their group membership</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupOptouts(java.lang.String)">setLdapGroupOptouts</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptouts1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTOUT their group membership</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupReaders(java.lang.String)">setLdapGroupReaders</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupReaders1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can READ the group memberships</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupUpdaters(java.lang.String)">setLdapGroupUpdaters</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupUpdaters1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can UPDATE the group memberships</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapGroupViewers(java.lang.String)">setLdapGroupViewers</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupViewers1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can VIEW the group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapQuartzCron(java.lang.String)">setLdapQuartzCron</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapQuartzCron1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quartz cron config string, e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapSearchDn(java.lang.String)">setLdapSearchDn</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchDn1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Location that constrains the subtree where the filter is applicable.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapSearchScope(java.lang.String)">setLdapSearchScope</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchScope1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;How the deep in the subtree the search will take place.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapServerId(java.lang.String)">setLdapServerId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapSourceId(java.lang.String)">setLdapSourceId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSourceId1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Source ID from the sources.xml that narrows the search for subjects.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapSubjectAttribute(java.lang.String)">setLdapSubjectAttribute</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectAttribute1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute name of the filter object result that holds the subject id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapSubjectExpression(java.lang.String)">setLdapSubjectExpression</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEXL expression language fragment that processes the subject string before passing it to the subject API</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapSubjectIdType(java.lang.String)">setLdapSubjectIdType</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectIdType1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The type of subject ID.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setLdapType(java.lang.String)">setLdapType</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapType1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;extension of the attribute def name for type of ldap loader (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setQuery(java.lang.String)">setQuery</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;query1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;query for this job (if runs against query)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co#setStartTime(long)">setStartTime</A></B>(long&nbsp;startTime1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;start time of job</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="FIELD_AND_GROUPS"><!-- --></A><H3>
+FIELD_AND_GROUPS</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_AND_GROUPS</B></PRE>
+<DL>
+<DD>constant for field name for: andGroups
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_AND_GROUPS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ATTRIBUTE_DEF_NAME"><!-- --></A><H3>
+FIELD_ATTRIBUTE_DEF_NAME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ATTRIBUTE_DEF_NAME</B></PRE>
+<DL>
+<DD>constant for field name for: attributeDefName
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_ATTRIBUTE_DEF_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ATTRIBUTE_LOADER_ACTION_QUERY"><!-- --></A><H3>
+FIELD_ATTRIBUTE_LOADER_ACTION_QUERY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ATTRIBUTE_LOADER_ACTION_QUERY</B></PRE>
+<DL>
+<DD>constant for field name for: attributeLoaderActionQuery
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_ATTRIBUTE_LOADER_ACTION_QUERY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY"><!-- --></A><H3>
+FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY</B></PRE>
+<DL>
+<DD>constant for field name for: attributeLoaderActionSetQuery
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_ATTRIBUTE_LOADER_ACTION_SET_QUERY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ATTRIBUTE_LOADER_ATTR_QUERY"><!-- --></A><H3>
+FIELD_ATTRIBUTE_LOADER_ATTR_QUERY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ATTRIBUTE_LOADER_ATTR_QUERY</B></PRE>
+<DL>
+<DD>constant for field name for: attributeLoaderAttrQuery
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_ATTRIBUTE_LOADER_ATTR_QUERY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY"><!-- --></A><H3>
+FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY</B></PRE>
+<DL>
+<DD>constant for field name for: attributeLoaderAttrSetQuery
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE"><!-- --></A><H3>
+FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE</B></PRE>
+<DL>
+<DD>constant for field name for: attributeLoaderAttrsLike
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUP_LIKE_STRING"><!-- --></A><H3>
+FIELD_GROUP_LIKE_STRING</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUP_LIKE_STRING</B></PRE>
+<DL>
+<DD>constant for field name for: groupLikeString
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUP_LIKE_STRING">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUP_NAME_OVERALL"><!-- --></A><H3>
+FIELD_GROUP_NAME_OVERALL</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUP_NAME_OVERALL</B></PRE>
+<DL>
+<DD>constant for field name for: groupNameOverall
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUP_NAME_OVERALL">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUP_QUERY"><!-- --></A><H3>
+FIELD_GROUP_QUERY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUP_QUERY</B></PRE>
+<DL>
+<DD>constant for field name for: groupQuery
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUP_QUERY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUP_TYPES"><!-- --></A><H3>
+FIELD_GROUP_TYPES</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUP_TYPES</B></PRE>
+<DL>
+<DD>constant for field name for: groupTypes
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUP_TYPES">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUPER_LOADER_DB"><!-- --></A><H3>
+FIELD_GROUPER_LOADER_DB</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUPER_LOADER_DB</B></PRE>
+<DL>
+<DD>constant for field name for: grouperLoaderDb
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUPER_LOADER_DB">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUPER_LOADER_TYPE"><!-- --></A><H3>
+FIELD_GROUPER_LOADER_TYPE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUPER_LOADER_TYPE</B></PRE>
+<DL>
+<DD>constant for field name for: grouperLoaderType
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUPER_LOADER_TYPE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_GROUPER_SESSION"><!-- --></A><H3>
+FIELD_GROUPER_SESSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_GROUPER_SESSION</B></PRE>
+<DL>
+<DD>constant for field name for: grouperSession
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_GROUPER_SESSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_HIB3_GROUPLOADER_LOG_OVERALL"><!-- --></A><H3>
+FIELD_HIB3_GROUPLOADER_LOG_OVERALL</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_HIB3_GROUPLOADER_LOG_OVERALL</B></PRE>
+<DL>
+<DD>constant for field name for: hib3GrouploaderLogOverall
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_HIB3_GROUPLOADER_LOG_OVERALL">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION"><!-- --></A><H3>
+FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION</B></PRE>
+<DL>
+<DD>constant for field name for: ldapAttributeFilterExpression
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_ERROR_UNRESOLVABLE"><!-- --></A><H3>
+FIELD_LDAP_ERROR_UNRESOLVABLE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_ERROR_UNRESOLVABLE</B></PRE>
+<DL>
+<DD>constant for field name for: ldapErrorUnresolvable
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_ERROR_UNRESOLVABLE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_EXTRA_ATTRIBUTES"><!-- --></A><H3>
+FIELD_LDAP_EXTRA_ATTRIBUTES</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_EXTRA_ATTRIBUTES</B></PRE>
+<DL>
+<DD>constant for field name for: ldapExtraAttributes
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_EXTRA_ATTRIBUTES">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_FILTER"><!-- --></A><H3>
+FIELD_LDAP_FILTER</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_FILTER</B></PRE>
+<DL>
+<DD>constant for field name for: ldapFilter
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_FILTER">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_GROUP_ATTRIBUTE"><!-- --></A><H3>
+FIELD_LDAP_GROUP_ATTRIBUTE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_GROUP_ATTRIBUTE</B></PRE>
+<DL>
+<DD>constant for field name for: ldapGroupAttribute
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_GROUP_ATTRIBUTE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION"><!-- --></A><H3>
+FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION</B></PRE>
+<DL>
+<DD>constant for field name for: ldapGroupDescriptionExpression
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION"><!-- --></A><H3>
+FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION</B></PRE>
+<DL>
+<DD>constant for field name for: ldapGroupDisplayExtensionExpression
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_GROUP_NAME_EXPRESSION"><!-- --></A><H3>
+FIELD_LDAP_GROUP_NAME_EXPRESSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_GROUP_NAME_EXPRESSION</B></PRE>
+<DL>
+<DD>constant for field name for: ldapGroupNameExpression
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_GROUP_NAME_EXPRESSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_QUARTZ_CRON"><!-- --></A><H3>
+FIELD_LDAP_QUARTZ_CRON</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_QUARTZ_CRON</B></PRE>
+<DL>
+<DD>constant for field name for: ldapQuartzCron
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_QUARTZ_CRON">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SEARCH_DN"><!-- --></A><H3>
+FIELD_LDAP_SEARCH_DN</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SEARCH_DN</B></PRE>
+<DL>
+<DD>constant for field name for: ldapSearchDn
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SEARCH_DN">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SEARCH_SCOPE"><!-- --></A><H3>
+FIELD_LDAP_SEARCH_SCOPE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SEARCH_SCOPE</B></PRE>
+<DL>
+<DD>constant for field name for: ldapSearchScope
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SEARCH_SCOPE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SERVER_ID"><!-- --></A><H3>
+FIELD_LDAP_SERVER_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SERVER_ID</B></PRE>
+<DL>
+<DD>constant for field name for: ldapServerId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SERVER_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SOURCE_ID"><!-- --></A><H3>
+FIELD_LDAP_SOURCE_ID</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SOURCE_ID</B></PRE>
+<DL>
+<DD>constant for field name for: ldapSourceId
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SOURCE_ID">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SUBJECT_ATTRIBUTE"><!-- --></A><H3>
+FIELD_LDAP_SUBJECT_ATTRIBUTE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SUBJECT_ATTRIBUTE</B></PRE>
+<DL>
+<DD>constant for field name for: ldapSubjectAttribute
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SUBJECT_ATTRIBUTE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SUBJECT_EXPRESSION"><!-- --></A><H3>
+FIELD_LDAP_SUBJECT_EXPRESSION</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SUBJECT_EXPRESSION</B></PRE>
+<DL>
+<DD>constant for field name for: ldapSubjectExpression
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SUBJECT_EXPRESSION">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_SUBJECT_ID_TYPE"><!-- --></A><H3>
+FIELD_LDAP_SUBJECT_ID_TYPE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_SUBJECT_ID_TYPE</B></PRE>
+<DL>
+<DD>constant for field name for: ldapSubjectIdType
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_SUBJECT_ID_TYPE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_LDAP_TYPE"><!-- --></A><H3>
+FIELD_LDAP_TYPE</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_LDAP_TYPE</B></PRE>
+<DL>
+<DD>constant for field name for: ldapType
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_LDAP_TYPE">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_QUERY"><!-- --></A><H3>
+FIELD_QUERY</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_QUERY</B></PRE>
+<DL>
+<DD>constant for field name for: query
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_QUERY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="FIELD_START_TIME"><!-- --></A><H3>
+FIELD_START_TIME</H3>
+<PRE>
+public static final <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>FIELD_START_TIME</B></PRE>
+<DL>
+<DD>constant for field name for: startTime
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../../constant-values.html?view=co#edu.internet2.middleware.grouper.app.loader.LoaderJobBean.FIELD_START_TIME">Constant Field Values</A></DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="LoaderJobBean()"><!-- --></A><H3>
+LoaderJobBean</H3>
+<PRE>
+public <B>LoaderJobBean</B>()</PRE>
+<DL>
+</DL>
+<HR>
+
+<A NAME="LoaderJobBean(edu.internet2.middleware.grouper.app.loader.GrouperLoaderType, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, edu.internet2.middleware.grouper.GrouperSession, java.util.List, java.util.List, java.lang.String, java.lang.String, long)"><!-- --></A><H3>
+LoaderJobBean</H3>
+<PRE>
+public <B>LoaderJobBean</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameOverall1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A>&nbsp;grouperLoaderDb1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;query1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;andGroups1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;&nbsp;groupTypes1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupLikeString1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupQuery1,
+                     long&nbsp;startTime1)</PRE>
+<DL>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>grouperLoaderType1</CODE> - <DD><CODE>groupNameOverall1</CODE> - <DD><CODE>grouperLoaderDb1</CODE> - <DD><CODE>query1</CODE> - <DD><CODE>hib3GrouploaderLogOverall1</CODE> - <DD><CODE>grouperSession1</CODE> - <DD><CODE>andGroups1</CODE> - <DD><CODE>groupTypes1</CODE> - <DD><CODE>groupLikeString1</CODE> - groups with this like DB sql string are managed by the loader.
+ Any group in this list with no memberships and not in the group
+ metadata query will be emptied and if configured deleted<DD><CODE>groupQuery1</CODE> - <DD><CODE>startTime1</CODE> - </DL>
+</DL>
+<HR>
+
+<A NAME="LoaderJobBean(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, edu.internet2.middleware.grouper.app.loader.GrouperLoaderType, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, edu.internet2.middleware.grouper.GrouperSession, java.util.List, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+LoaderJobBean</H3>
+<PRE>
+public <B>LoaderJobBean</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapType1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapFilter1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectAttribute1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchDn1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSourceId1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectIdType1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchScope1,
+                     long&nbsp;startTime1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameOverall1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;andGroups1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttribute1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;extraAttributes1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;errorUnresolvable1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupNameExpression1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDisplayExtensionExpression1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDescriptionExpression1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;&nbsp;groupTypes1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupReaders1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupViewers1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAdmins1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupUpdaters1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptins1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptouts1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupsLike1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapAttributeFilterExpression1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrReaders1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrUpdaters1)</PRE>
+<DL>
+<DD>constructor for ldap jobs
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>ldapType1</CODE> - <DD><CODE>ldapServerId1</CODE> - <DD><CODE>ldapFilter1</CODE> - <DD><CODE>ldapSubjectAttribute1</CODE> - <DD><CODE>ldapSearchDn1</CODE> - <DD><CODE>ldapSourceId1</CODE> - <DD><CODE>ldapSubjectIdType1</CODE> - <DD><CODE>ldapSearchScope1</CODE> - <DD><CODE>startTime1</CODE> - <DD><CODE>grouperLoaderType1</CODE> - <DD><CODE>groupNameOverall1</CODE> - <DD><CODE>hib3GrouploaderLogOverall1</CODE> - <DD><CODE>grouperSession1</CODE> - <DD><CODE>andGroups1</CODE> - <DD><CODE>ldapGroupAttribute1</CODE> - <DD><CODE>extraAttributes1</CODE> - <DD><CODE>errorUnresolvable1</CODE> - <DD><CODE>ldapGroupNameExpression1</CODE> - <DD><CODE>ldapGroupDisplayExtensionExpression1</CODE> - <DD><CODE>ldapGroupDescriptionExpression1</CODE> - <DD><CODE>ldapSubjectExpression1</CODE> - <DD><CODE>groupTypes1</CODE> - <DD><CODE>ldapGroupReaders1</CODE> - <DD><CODE>ldapGroupViewers1</CODE> - <DD><CODE>ldapGroupAdmins1</CODE> - <DD><CODE>ldapGroupUpdaters1</CODE> - <DD><CODE>ldapGroupOptins1</CODE> - <DD><CODE>ldapGroupOptouts1</CODE> - <DD><CODE>ldapAttributeFilterExpression1</CODE> - <DD><CODE>ldapGroupAttrReaders1</CODE> - <DD><CODE>ldapGroupAttrUpdaters1</CODE> - <DD><CODE>groupsLike1</CODE> - </DL>
+</DL>
+<HR>
+
+<A NAME="LoaderJobBean(edu.internet2.middleware.grouper.app.loader.GrouperLoaderType, java.lang.String, edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb, edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog, edu.internet2.middleware.grouper.GrouperSession, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, long)"><!-- --></A><H3>
+LoaderJobBean</H3>
+<PRE>
+public <B>LoaderJobBean</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefName,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A>&nbsp;grouperLoaderDb1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1,
+                     <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrQuery1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrSetQuery1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrsLike1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionQuery1,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionSetQuery1,
+                     long&nbsp;startTime1)</PRE>
+<DL>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>grouperLoaderType1</CODE> - <DD><CODE>attributeDefName</CODE> - <DD><CODE>grouperLoaderDb1</CODE> - <DD><CODE>hib3GrouploaderLogOverall1</CODE> - <DD><CODE>grouperSession1</CODE> - <DD><CODE>startTime1</CODE> - <DD><CODE>attributeLoaderAttrQuery1</CODE> - <DD><CODE>attributeLoaderAttrSetQuery1</CODE> - <DD><CODE>attributeLoaderAttrsLike1</CODE> - <DD><CODE>attributeLoaderActionQuery1</CODE> - <DD><CODE>attributeLoaderActionSetQuery1</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="getLdapType()"><!-- --></A><H3>
+getLdapType</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapType</B>()</PRE>
+<DL>
+<DD>extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
+ Like the SQL loader, this holds the type of job from the GrouperLoaderType enum,
+ currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES.
+ Simple is a group loaded from LDAP filter which returns subject ids or identifiers.
+ Group list is an LDAP filter which returns group objects, and the group objects
+ have a list of subjects.  Groups from attributes is an LDAP filter that returns
+ subjects which have a multi-valued attribute e.g. affiliations where groups will
+ be created based on subject who have each attribute value
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapType(java.lang.String)"><!-- --></A><H3>
+setLdapType</H3>
+<PRE>
+public void <B>setLdapType</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapType1)</PRE>
+<DL>
+<DD>extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
+ Like the SQL loader, this holds the type of job from the GrouperLoaderType enum,
+ currently the only valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES.
+ Simple is a group loaded from LDAP filter which returns subject ids or identifiers.
+ Group list is an LDAP filter which returns group objects, and the group objects
+ have a list of subjects.  Groups from attributes is an LDAP filter that returns
+ subjects which have a multi-valued attribute e.g. affiliations where groups will
+ be created based on subject who have each attribute value
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapType1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapExtraAttributes()"><!-- --></A><H3>
+getLdapExtraAttributes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapExtraAttributes</B>()</PRE>
+<DL>
+<DD>Attribute names (comma separated) to get LDAP data for expressions in group name, 
+ displayExtension, description, optional, for LDAP_GROUP_LIST
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapExtraAttributes</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapExtraAttributes(java.lang.String)"><!-- --></A><H3>
+setLdapExtraAttributes</H3>
+<PRE>
+public void <B>setLdapExtraAttributes</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapExtraAttributes1)</PRE>
+<DL>
+<DD>Attribute names (comma separated) to get LDAP data for expressions in group name, 
+ displayExtension, description, optional, for LDAP_GROUP_LIST
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapExtraAttributes1</CODE> - the ldapExtraAttributes to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupOptouts()"><!-- --></A><H3>
+getLdapGroupOptouts</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupOptouts</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTOUT their group membership
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>optouts</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupAttrReaders()"><!-- --></A><H3>
+getLdapGroupAttrReaders</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupAttrReaders</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>optouts</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupAttrUpdaters()"><!-- --></A><H3>
+getLdapGroupAttrUpdaters</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupAttrUpdaters</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>optouts</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupOptouts(java.lang.String)"><!-- --></A><H3>
+setLdapGroupOptouts</H3>
+<PRE>
+public void <B>setLdapGroupOptouts</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptouts1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTOUT their group membership
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupOptouts1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupAttrReaders(java.lang.String)"><!-- --></A><H3>
+setLdapGroupAttrReaders</H3>
+<PRE>
+public void <B>setLdapGroupAttrReaders</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrReaders1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_READ
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupAttrReaders1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupAttrUpdate(java.lang.String)"><!-- --></A><H3>
+setLdapGroupAttrUpdate</H3>
+<PRE>
+public void <B>setLdapGroupAttrUpdate</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttrUpdaters1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can GROUP_ATTR_UPDATE
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupAttrUpdaters1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupOptins()"><!-- --></A><H3>
+getLdapGroupOptins</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupOptins</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTIN their group membership
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>optins</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupOptins(java.lang.String)"><!-- --></A><H3>
+setLdapGroupOptins</H3>
+<PRE>
+public void <B>setLdapGroupOptins</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupOptins1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can OPTIN their group membership
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupOptins1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupUpdaters()"><!-- --></A><H3>
+getLdapGroupUpdaters</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupUpdaters</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can UPDATE the group memberships
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>updaters</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupUpdaters(java.lang.String)"><!-- --></A><H3>
+setLdapGroupUpdaters</H3>
+<PRE>
+public void <B>setLdapGroupUpdaters</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupUpdaters1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can UPDATE the group memberships
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupUpdaters1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupAdmins()"><!-- --></A><H3>
+getLdapGroupAdmins</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupAdmins</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can ADMIN the group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>admins</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupAdmins(java.lang.String)"><!-- --></A><H3>
+setLdapGroupAdmins</H3>
+<PRE>
+public void <B>setLdapGroupAdmins</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAdmins1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can ADMIN the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupAdmins1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupViewers()"><!-- --></A><H3>
+getLdapGroupViewers</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupViewers</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can VIEW the group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>viewers</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupViewers(java.lang.String)"><!-- --></A><H3>
+setLdapGroupViewers</H3>
+<PRE>
+public void <B>setLdapGroupViewers</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupViewers1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can VIEW the group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupViewers1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupReaders()"><!-- --></A><H3>
+getLdapGroupReaders</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupReaders</B>()</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can READ the group memberships
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>readers</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupReaders(java.lang.String)"><!-- --></A><H3>
+setLdapGroupReaders</H3>
+<PRE>
+public void <B>setLdapGroupReaders</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupReaders1)</PRE>
+<DL>
+<DD>optional for LDAP_GROUPS_FROM_ATTRIBUTES, LDAP_GROUP_LIST
+ Comma separated list of subjectIds or subjectIdentifiers who can READ the group memberships
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupReaders1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapErrorUnresolvable()"><!-- --></A><H3>
+getLdapErrorUnresolvable</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapErrorUnresolvable</B>()</PRE>
+<DL>
+<DD>Value could be true or false (default to true).  If true, then there will be 
+ an error if there are unresolvable subjects in the results.  If you know there
+ are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapErrorUnresolvable</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapErrorUnresolvable(java.lang.String)"><!-- --></A><H3>
+setLdapErrorUnresolvable</H3>
+<PRE>
+public void <B>setLdapErrorUnresolvable</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapErrorUnresolvable1)</PRE>
+<DL>
+<DD>Value could be true or false (default to true).  If true, then there will be 
+ an error if there are unresolvable subjects in the results.  If you know there
+ are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapErrorUnresolvable1</CODE> - the ldapErrorUnresolvable to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupNameExpression()"><!-- --></A><H3>
+getLdapGroupNameExpression</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupNameExpression</B>()</PRE>
+<DL>
+<DD>optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+ JEXL expression language fragment that evaluates to the group name (relative 
+ in the stem as the group which has the loader definition)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapGroupNameExpression</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupNameExpression(java.lang.String)"><!-- --></A><H3>
+setLdapGroupNameExpression</H3>
+<PRE>
+public void <B>setLdapGroupNameExpression</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupNameExpression1)</PRE>
+<DL>
+<DD>optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
+ JEXL expression language fragment that evaluates to the group name (relative 
+ in the stem as the group which has the loader definition)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupNameExpression1</CODE> - the ldapGroupNameExpression to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupDisplayNameExpression()"><!-- --></A><H3>
+getLdapGroupDisplayNameExpression</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupDisplayNameExpression</B>()</PRE>
+<DL>
+<DD>JEXL expression language fragment that evaluates to the group display 
+ extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapGroupDisplayExtensionExpression</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupDisplayNameExpression(java.lang.String)"><!-- --></A><H3>
+setLdapGroupDisplayNameExpression</H3>
+<PRE>
+public void <B>setLdapGroupDisplayNameExpression</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDisplayExtensionExpression1)</PRE>
+<DL>
+<DD>JEXL expression language fragment that evaluates to the group display 
+ extension, optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupDisplayExtensionExpression1</CODE> - the ldapGroupDisplayExtensionExpression to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupDescriptionExpression()"><!-- --></A><H3>
+getLdapGroupDescriptionExpression</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupDescriptionExpression</B>()</PRE>
+<DL>
+<DD>JEXL expression language fragment that evaluates to the group description, optional 
+ for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapGroupDescriptionExpression</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupDescriptionExpression(java.lang.String)"><!-- --></A><H3>
+setLdapGroupDescriptionExpression</H3>
+<PRE>
+public void <B>setLdapGroupDescriptionExpression</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupDescriptionExpression1)</PRE>
+<DL>
+<DD>JEXL expression language fragment that evaluates to the group description, optional 
+ for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupDescriptionExpression1</CODE> - the ldapGroupDescriptionExpression to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapAttributeFilterExpression()"><!-- --></A><H3>
+getLdapAttributeFilterExpression</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapAttributeFilterExpression</B>()</PRE>
+<DL>
+<DD>if filtering which attributes, this is the jexl expression
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>ldap attribute filter expression</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapAttributeFilterExpression(java.lang.String)"><!-- --></A><H3>
+setLdapAttributeFilterExpression</H3>
+<PRE>
+public void <B>setLdapAttributeFilterExpression</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapAttributeFilterExpression1)</PRE>
+<DL>
+<DD>if filtering which attributes, this is the jexl expression
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapAttributeFilterExpression1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapSubjectExpression()"><!-- --></A><H3>
+getLdapSubjectExpression</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapSubjectExpression</B>()</PRE>
+<DL>
+<DD>JEXL expression language fragment that processes the subject string before passing it to the subject API
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapSubjectExpression</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapSubjectExpression(java.lang.String)"><!-- --></A><H3>
+setLdapSubjectExpression</H3>
+<PRE>
+public void <B>setLdapSubjectExpression</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectExpression1)</PRE>
+<DL>
+<DD>JEXL expression language fragment that processes the subject string before passing it to the subject API
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapSubjectExpression1</CODE> - the ldapSubjectExpression to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapGroupAttribute()"><!-- --></A><H3>
+getLdapGroupAttribute</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapGroupAttribute</B>()</PRE>
+<DL>
+<DD>required for LDAP_GROUPS_FROM_ATTRIBUTES 
+ Attribute name of the filter object result that holds the group name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the ldapGroupAttribute</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapGroupAttribute(java.lang.String)"><!-- --></A><H3>
+setLdapGroupAttribute</H3>
+<PRE>
+public void <B>setLdapGroupAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapGroupAttribute1)</PRE>
+<DL>
+<DD>required for LDAP_GROUPS_FROM_ATTRIBUTES 
+ Attribute name of the filter object result that holds the group name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapGroupAttribute1</CODE> - the ldapGroupAttribute to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapServerId()"><!-- --></A><H3>
+getLdapServerId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapServerId</B>()</PRE>
+<DL>
+<DD>Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>server id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapServerId(java.lang.String)"><!-- --></A><H3>
+setLdapServerId</H3>
+<PRE>
+public void <B>setLdapServerId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapServerId1)</PRE>
+<DL>
+<DD>Server ID that is configured in the grouper-loader.properties that identifies the connection information to the LDAP server
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapServerId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapFilter()"><!-- --></A><H3>
+getLdapFilter</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapFilter</B>()</PRE>
+<DL>
+<DD>LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>filter</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapFilter(java.lang.String)"><!-- --></A><H3>
+setLdapFilter</H3>
+<PRE>
+public void <B>setLdapFilter</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapFilter1)</PRE>
+<DL>
+<DD>LDAP filter returns objects that have subjectIds or subjectIdentifiers and group name (if LDAP_GROUP_LIST)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapFilter1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapSubjectAttribute()"><!-- --></A><H3>
+getLdapSubjectAttribute</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapSubjectAttribute</B>()</PRE>
+<DL>
+<DD>Attribute name of the filter object result that holds the subject id.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>attribute name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapSubjectAttribute(java.lang.String)"><!-- --></A><H3>
+setLdapSubjectAttribute</H3>
+<PRE>
+public void <B>setLdapSubjectAttribute</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectAttribute1)</PRE>
+<DL>
+<DD>Attribute name of the filter object result that holds the subject id.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapSubjectAttribute1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapSearchDn()"><!-- --></A><H3>
+getLdapSearchDn</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapSearchDn</B>()</PRE>
+<DL>
+<DD>Location that constrains the subtree where the filter is applicable.  
+ Note, this is relative to the base DN in the ldap server config in the 
+ grouper-loader.properties for this server.  This makes the query more efficient
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>search dn</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapSearchDn(java.lang.String)"><!-- --></A><H3>
+setLdapSearchDn</H3>
+<PRE>
+public void <B>setLdapSearchDn</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchDn1)</PRE>
+<DL>
+<DD>Location that constrains the subtree where the filter is applicable.  
+ Note, this is relative to the base DN in the ldap server config in the 
+ grouper-loader.properties for this server.  This makes the query more efficient
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapSearchDn1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapQuartzCron()"><!-- --></A><H3>
+getLdapQuartzCron</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapQuartzCron</B>()</PRE>
+<DL>
+<DD>Quartz cron config string, e.g. every day at 8am is: 0 0 8 * * ?
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>quartz cron</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapQuartzCron(java.lang.String)"><!-- --></A><H3>
+setLdapQuartzCron</H3>
+<PRE>
+public void <B>setLdapQuartzCron</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapQuartzCron1)</PRE>
+<DL>
+<DD>Quartz cron config string, e.g. every day at 8am is: 0 0 8 * * ?
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapQuartzCron1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapSourceId()"><!-- --></A><H3>
+getLdapSourceId</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapSourceId</B>()</PRE>
+<DL>
+<DD>Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>source id</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapSourceId(java.lang.String)"><!-- --></A><H3>
+setLdapSourceId</H3>
+<PRE>
+public void <B>setLdapSourceId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSourceId1)</PRE>
+<DL>
+<DD>Source ID from the sources.xml that narrows the search for subjects.  This is optional though makes the loader job more efficient
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapSourceId1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapSubjectIdType()"><!-- --></A><H3>
+getLdapSubjectIdType</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapSubjectIdType</B>()</PRE>
+<DL>
+<DD>The type of subject ID.  This can be either: subjectId (most efficient, default), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>subject id type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapSubjectIdType(java.lang.String)"><!-- --></A><H3>
+setLdapSubjectIdType</H3>
+<PRE>
+public void <B>setLdapSubjectIdType</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSubjectIdType1)</PRE>
+<DL>
+<DD>The type of subject ID.  This can be either: subjectId (most efficient, default), subjectIdentifier (2nd most efficient), or subjectIdOrIdentifier
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapSubjectIdType1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLdapSearchScope()"><!-- --></A><H3>
+getLdapSearchScope</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getLdapSearchScope</B>()</PRE>
+<DL>
+<DD>How the deep in the subtree the search will take place.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>search scope</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setLdapSearchScope(java.lang.String)"><!-- --></A><H3>
+setLdapSearchScope</H3>
+<PRE>
+public void <B>setLdapSearchScope</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ldapSearchScope1)</PRE>
+<DL>
+<DD>How the deep in the subtree the search will take place.  Can be OBJECT_SCOPE, ONELEVEL_SCOPE, or SUBTREE_SCOPE (default)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ldapSearchScope1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeDefName()"><!-- --></A><H3>
+getAttributeDefName</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeDefName</B>()</PRE>
+<DL>
+<DD>attributeDef name for the job
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>attributeDef name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeDefName(java.lang.String)"><!-- --></A><H3>
+setAttributeDefName</H3>
+<PRE>
+public void <B>setAttributeDefName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefName1)</PRE>
+<DL>
+<DD>attributeDef name for the job
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeLoaderActionQuery()"><!-- --></A><H3>
+getAttributeLoaderActionQuery</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeLoaderActionQuery</B>()</PRE>
+<DL>
+<DD>SQL query with at least the following column: action_name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeLoaderActionQuery(java.lang.String)"><!-- --></A><H3>
+setAttributeLoaderActionQuery</H3>
+<PRE>
+public void <B>setAttributeLoaderActionQuery</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionQuery1)</PRE>
+<DL>
+<DD>SQL query with at least the following column: action_name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeLoaderActionQuery1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeLoaderActionSetQuery()"><!-- --></A><H3>
+getAttributeLoaderActionSetQuery</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeLoaderActionSetQuery</B>()</PRE>
+<DL>
+<DD>SQL query with at least the following columns: if_has_action_name, then_has_action_name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeLoaderActionSetQuery(java.lang.String)"><!-- --></A><H3>
+setAttributeLoaderActionSetQuery</H3>
+<PRE>
+public void <B>setAttributeLoaderActionSetQuery</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderActionSetQuery1)</PRE>
+<DL>
+<DD>SQL query with at least the following columns: if_has_action_name, then_has_action_name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeLoaderActionSetQuery1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeLoaderAttrsLike()"><!-- --></A><H3>
+getAttributeLoaderAttrsLike</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeLoaderAttrsLike</B>()</PRE>
+<DL>
+<DD>If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>attrs like</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeLoaderAttrsLike(java.lang.String)"><!-- --></A><H3>
+setAttributeLoaderAttrsLike</H3>
+<PRE>
+public void <B>setAttributeLoaderAttrsLike</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrsLike1)</PRE>
+<DL>
+<DD>If empty, then orphans will be left alone (for attributeDefName and attributeDefNameSets).  If %, then all orphans deleted.  If a SQL like string, then only ones in that like string not in loader will be deleted
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeLoaderAttrsLike1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeLoaderAttrQuery()"><!-- --></A><H3>
+getAttributeLoaderAttrQuery</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeLoaderAttrQuery</B>()</PRE>
+<DL>
+<DD>SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeLoaderAttrQuery(java.lang.String)"><!-- --></A><H3>
+setAttributeLoaderAttrQuery</H3>
+<PRE>
+public void <B>setAttributeLoaderAttrQuery</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrQuery1)</PRE>
+<DL>
+<DD>SQL query with at least some of the following columns: attr_name, attr_display_name, attr_description
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeLoaderAttrQuery1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeLoaderAttrSetQuery()"><!-- --></A><H3>
+getAttributeLoaderAttrSetQuery</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getAttributeLoaderAttrSetQuery</B>()</PRE>
+<DL>
+<DD>SQL query with at least the following columns: if_has_attr_name, then_has_attr_name
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>sql query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAttributeLoaderAttrSetQuery(java.lang.String)"><!-- --></A><H3>
+setAttributeLoaderAttrSetQuery</H3>
+<PRE>
+public void <B>setAttributeLoaderAttrSetQuery</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeLoaderAttrSetQuery1)</PRE>
+<DL>
+<DD>SQL query with at least the following columns: if_has_attr_name, then_has_attr_name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeLoaderAttrSetQuery1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clone()"><!-- --></A><H3>
+clone</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderJobBean.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader">LoaderJobBean</A> <B>clone</B>()</PRE>
+<DL>
+<DD>deep clone the fields in this object
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">clone</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperLoaderType()"><!-- --></A><H3>
+getGrouperLoaderType</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A> <B>getGrouperLoaderType</B>()</PRE>
+<DL>
+<DD>type of job, e.g. group list, or sql simple
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>type</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupNameOverall()"><!-- --></A><H3>
+getGroupNameOverall</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getGroupNameOverall</B>()</PRE>
+<DL>
+<DD>overall group name (if a group list job, then overall, if sql simple, then the group)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>group name overall</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperLoaderDb()"><!-- --></A><H3>
+getGrouperLoaderDb</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A> <B>getGrouperLoaderDb</B>()</PRE>
+<DL>
+<DD>database this runs against
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>loader db</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getQuery()"><!-- --></A><H3>
+getQuery</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getQuery</B>()</PRE>
+<DL>
+<DD>query for the job
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getHib3GrouploaderLogOverall()"><!-- --></A><H3>
+getHib3GrouploaderLogOverall</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A> <B>getHib3GrouploaderLogOverall</B>()</PRE>
+<DL>
+<DD>log entry for the job
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>log</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperSession()"><!-- --></A><H3>
+getGrouperSession</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A> <B>getGrouperSession</B>()</PRE>
+<DL>
+<DD>grouper session (probably a root session)
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>session</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAndGroups()"><!-- --></A><H3>
+getAndGroups</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>getAndGroups</B>()</PRE>
+<DL>
+<DD>members must be in these groups also to be in the overall group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>and groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupTypes()"><!-- --></A><H3>
+getGroupTypes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt; <B>getGroupTypes</B>()</PRE>
+<DL>
+<DD>group types to add to loader managed group
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>group types</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupLikeString()"><!-- --></A><H3>
+getGroupLikeString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getGroupLikeString</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>group like string</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupQuery()"><!-- --></A><H3>
+getGroupQuery</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>getGroupQuery</B>()</PRE>
+<DL>
+<DD>group query
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>group query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGrouperLoaderType(edu.internet2.middleware.grouper.app.loader.GrouperLoaderType)"><!-- --></A><H3>
+setGrouperLoaderType</H3>
+<PRE>
+public void <B>setGrouperLoaderType</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader">GrouperLoaderType</A>&nbsp;grouperLoaderType)</PRE>
+<DL>
+<DD>type of job, e.g. sql simple or group list
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperLoaderType</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGroupNameOverall(java.lang.String)"><!-- --></A><H3>
+setGroupNameOverall</H3>
+<PRE>
+public void <B>setGroupNameOverall</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupNameOverall)</PRE>
+<DL>
+<DD>group name for job (if group list, this is the overall name)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupNameOverall</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGrouperLoaderDb(edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb)"><!-- --></A><H3>
+setGrouperLoaderDb</H3>
+<PRE>
+public void <B>setGrouperLoaderDb</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">GrouperLoaderDb</A>&nbsp;grouperLoaderDb)</PRE>
+<DL>
+<DD>db this job runs against
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperLoaderDb</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setQuery(java.lang.String)"><!-- --></A><H3>
+setQuery</H3>
+<PRE>
+public void <B>setQuery</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;query1)</PRE>
+<DL>
+<DD>query for this job (if runs against query)
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>query1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setHib3GrouploaderLogOverall(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog)"><!-- --></A><H3>
+setHib3GrouploaderLogOverall</H3>
+<PRE>
+public void <B>setHib3GrouploaderLogOverall</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/db/Hib3GrouperLoaderLog.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader.db">Hib3GrouperLoaderLog</A>&nbsp;hib3GrouploaderLogOverall1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>hib3GrouploaderLogOverall1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGrouperSession(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+setGrouperSession</H3>
+<PRE>
+public void <B>setGrouperSession</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession1)</PRE>
+<DL>
+<DD>grouper session, probably a root session
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setAndGroups(java.util.List)"><!-- --></A><H3>
+setAndGroups</H3>
+<PRE>
+public void <B>setAndGroups</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;&nbsp;andGroups1)</PRE>
+<DL>
+<DD>members must be in these groups also to be in the overall group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>andGroups1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGroupTypes(java.util.List)"><!-- --></A><H3>
+setGroupTypes</H3>
+<PRE>
+public void <B>setGroupTypes</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/List.html?view=co" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/GroupType.html?view=co" title="class in edu.internet2.middleware.grouper">GroupType</A>&gt;&nbsp;groupTypes)</PRE>
+<DL>
+<DD>group types to add to loader managed group
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupTypes</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGroupLikeString(java.lang.String)"><!-- --></A><H3>
+setGroupLikeString</H3>
+<PRE>
+public void <B>setGroupLikeString</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupLikeString)</PRE>
+<DL>
+<DD>groups with this like DB sql string are managed by the loader.
+ Any group in this list with no memberships and not in the group
+ metadata query will be emptied and if configured deleted
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupLikeString</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setGroupQuery(java.lang.String)"><!-- --></A><H3>
+setGroupQuery</H3>
+<PRE>
+public void <B>setGroupQuery</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupQuery1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupQuery1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getStartTime()"><!-- --></A><H3>
+getStartTime</H3>
+<PRE>
+public long <B>getStartTime</B>()</PRE>
+<DL>
+<DD>start time of job
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>start time</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setStartTime(long)"><!-- --></A><H3>
+setStartTime</H3>
+<PRE>
+public void <B>setStartTime</B>(long&nbsp;startTime1)</PRE>
+<DL>
+<DD>start time of job
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>startTime1</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderType.html?view=co" title="enum in edu.internet2.middleware.grouper.app.loader"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/app/loader/LoaderMemberWrapper.html?view=co" title="class in edu.internet2.middleware.grouper.app.loader"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="LoaderJobBean.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

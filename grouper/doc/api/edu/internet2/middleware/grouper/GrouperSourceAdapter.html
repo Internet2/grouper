@@ -1,0 +1,862 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+GrouperSourceAdapter
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="GrouperSourceAdapter";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperSourceAdapter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper</FONT>
+<BR>
+Class GrouperSourceAdapter</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../resources/inherit.gif" ALT="extended by ">edu.internet2.middleware.subject.provider.BaseSourceAdapter
+      <IMG SRC="../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.GrouperSourceAdapter</B>
+</PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD>edu.internet2.middleware.subject.Source</DD>
+</DL>
+<DL>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../edu/internet2/middleware/grouper/entity/EntitySourceAdapter.html?view=co" title="class in edu.internet2.middleware.grouper.entity">EntitySourceAdapter</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>GrouperSourceAdapter</B><DT>extends edu.internet2.middleware.subject.provider.BaseSourceAdapter</DL>
+</PRE>
+
+<P>
+Source adapter for using Grouper groups as I2MI Subjects.
+ <p/>
+ <p>
+ This is an adapter I2MI Subjects of type <i>group</i>.  It allows
+ groups within a Group Groups Registry to be referenced as I2MI
+ Subjects.  
+ <p>
+ To use, add the following to your <i>sources.xml</i> file:
+ </p>
+ <pre class="eg">
+ &lt;source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter"&gt;
+   &lt;id&gt;g:gsa&lt;/id&gt;
+   &lt;name&gt;Grouper: Grouper Source Adapter&lt;/name&gt;
+   &lt;type&gt;group&lt;/type&gt;
+ &lt;/source&gt;
+ </pre>
+<P>
+
+<P>
+<DL>
+<DT><B>Version:</B></DT>
+  <DD>$Id: GrouperSourceAdapter.java,v 1.31 2009-08-12 04:52:21 mchyzer Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#failOnSearchForTesting">failOnSearchForTesting</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for testing if we should fail on testing</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#GrouperSourceAdapter()">GrouperSourceAdapter</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Allocates new GrouperSourceAdapter.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#GrouperSourceAdapter(java.lang.String, java.lang.String)">GrouperSourceAdapter</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Allocates new GrouperSourceAdapter.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#checkConfig()">checkConfig</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#clearSearchForGroupsWithReadPrivilege()">clearSearchForGroupsWithReadPrivilege</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put this in a finally block to clear that we are searching for groups with certain privileges</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getMaxPage()">getMaxPage</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max Page size</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.subject.Subject</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubject(java.lang.String)">getSubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.subject.Subject</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubject(java.lang.String, boolean)">getSubject</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+           boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get a <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A> subject by UUID.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.subject.Subject</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectByIdentifier(java.lang.String)">getSubjectByIdentifier</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.subject.Subject</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectByIdentifier(java.lang.String, boolean)">getSubjectByIdentifier</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                       boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A> subject by its name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,edu.internet2.middleware.subject.Subject&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectsByIdentifiers(java.util.Collection)">getSubjectsByIdentifiers</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;identifiers)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,edu.internet2.middleware.subject.Subject&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectsByIds(java.util.Collection)">getSubjectsByIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;ids)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#getSubjectTypes()">getSubjectTypes</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets the SubjectTypes supported by this source.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#groupSourceId()">groupSourceId</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the group source id</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#init()">init</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initializes the Grouper source adapter.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#internal_getSessionOrRootForSubjectFinder()">internal_getSessionOrRootForSubjectFinder</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#printConfig()">printConfig</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Subject&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#search(java.lang.String)">search</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#searchForGroupsWithReadPrivilege()">searchForGroupsWithReadPrivilege</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if searching for groups with read privilege</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#searchForGroupsWithReadPrivilege(boolean)">searchForGroupsWithReadPrivilege</A></B>(boolean&nbsp;searchForRead)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;when doing a subject search, search for groups with privileges</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.subject.SearchPageResult</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#searchPage(java.lang.String)">searchPage</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../edu/internet2/middleware/grouper/GrouperSourceAdapter.html?view=co#typeOfGroups()">typeOfGroups</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type of groups to search on</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_edu.internet2.middleware.subject.provider.BaseSourceAdapter"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class edu.internet2.middleware.subject.provider.BaseSourceAdapter</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>addAttribute, addInitParam, addInternalAttribute, addSubjectType, equals, getId, getInitParam, getInitParams, getInternalAttributes, getName, getSearchAttributes, getSortAttributes, getSubject, getSubjectByIdentifier, getSubjectByIdOrIdentifier, getSubjectByIdOrIdentifier, getSubjectsByIdentifiers, getSubjectsByIds, getSubjectsByIdsOrIdentifiers, getSubjectsByIdsOrIdentifiers, getSubjectStatusConfig, getSubjectType, hashCode, loadSearch, removeInitParam, resultSetLimit, search, searchPage, setId, setName, setSearchAttributes, setSortAttributes</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="failOnSearchForTesting"><!-- --></A><H3>
+failOnSearchForTesting</H3>
+<PRE>
+public static boolean <B>failOnSearchForTesting</B></PRE>
+<DL>
+<DD>for testing if we should fail on testing
+<P>
+<DL>
+</DL>
+</DL>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="GrouperSourceAdapter()"><!-- --></A><H3>
+GrouperSourceAdapter</H3>
+<PRE>
+public <B>GrouperSourceAdapter</B>()</PRE>
+<DL>
+<DD>Allocates new GrouperSourceAdapter.
+<P>
+</DL>
+<HR>
+
+<A NAME="GrouperSourceAdapter(java.lang.String, java.lang.String)"><!-- --></A><H3>
+GrouperSourceAdapter</H3>
+<PRE>
+public <B>GrouperSourceAdapter</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+<DL>
+<DD>Allocates new GrouperSourceAdapter.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>name</CODE> - </DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="searchForGroupsWithReadPrivilege(boolean)"><!-- --></A><H3>
+searchForGroupsWithReadPrivilege</H3>
+<PRE>
+public static void <B>searchForGroupsWithReadPrivilege</B>(boolean&nbsp;searchForRead)</PRE>
+<DL>
+<DD>when doing a subject search, search for groups with privileges
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privileges1</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="searchForGroupsWithReadPrivilege()"><!-- --></A><H3>
+searchForGroupsWithReadPrivilege</H3>
+<PRE>
+public static boolean <B>searchForGroupsWithReadPrivilege</B>()</PRE>
+<DL>
+<DD>if searching for groups with read privilege
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>if searching</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clearSearchForGroupsWithReadPrivilege()"><!-- --></A><H3>
+clearSearchForGroupsWithReadPrivilege</H3>
+<PRE>
+public static void <B>clearSearchForGroupsWithReadPrivilege</B>()</PRE>
+<DL>
+<DD>put this in a finally block to clear that we are searching for groups with certain privileges
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubject(java.lang.String)"><!-- --></A><H3>
+getSubject</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public edu.internet2.middleware.subject.Subject <B>getSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)
+                                                    throws edu.internet2.middleware.subject.SubjectNotFoundException</PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;
+<P>
+<DD>Get a <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A> subject by UUID.
+ <p/>
+ <pre class="eg">
+ // Use it within the Grouper API
+ try {
+   Subject subj = SubjectFinder.getSubject(uuid, "group");
+ } 
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+
+ // Use it directly
+ try {
+   Subject subj = source.getSubject(uuid, "group");
+ } 
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubject</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Specified by:</B><DD><CODE>getSubject</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - Group UUID
+<DT><B>Returns:</B><DD>A <CODE>Subject</CODE>
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubject(java.lang.String, boolean)"><!-- --></A><H3>
+getSubject</H3>
+<PRE>
+public edu.internet2.middleware.subject.Subject <B>getSubject</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                                                           boolean&nbsp;exceptionIfNotFound)
+                                                    throws edu.internet2.middleware.subject.SubjectNotFoundException</PRE>
+<DL>
+<DD>Get a <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A> subject by UUID.
+ <p/>
+ <pre class="eg">
+ // Use it within the Grouper API
+ try {
+   Subject subj = SubjectFinder.getSubject(uuid, "group");
+ } 
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+
+ // Use it directly
+ try {
+   Subject subj = source.getSubject(uuid, "group");
+ } 
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubject</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>getSubject</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - Group UUID<DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>A <CODE>Subject</CODE>
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectByIdentifier(java.lang.String)"><!-- --></A><H3>
+getSubjectByIdentifier</H3>
+<PRE>
+<FONT SIZE="-1"><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?view=co" title="class or interface in java.lang">@Deprecated</A>
+</FONT>public edu.internet2.middleware.subject.Subject <B>getSubjectByIdentifier</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)
+                                                                throws edu.internet2.middleware.subject.SubjectNotFoundException</PRE>
+<DL>
+<DD><B>Deprecated.</B>&nbsp;
+<P>
+<DD>Gets a <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A> subject by its name.
+ <p/>
+ <pre class="eg">
+ // Use it within the Grouper API
+ try {
+   Subject subj = SubjectFinder.getSubjectByIdentifier(name, "group");
+ }
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+
+ // Use it directly
+ try {
+   Subject subj = source.getSubjectByIdentifier(name, "group");
+ } 
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubjectByIdentifier</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Specified by:</B><DD><CODE>getSubjectByIdentifier</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Group name
+<DT><B>Returns:</B><DD>A <CODE>Subject</CODE>
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectsByIdentifiers(java.util.Collection)"><!-- --></A><H3>
+getSubjectsByIdentifiers</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,edu.internet2.middleware.subject.Subject&gt; <B>getSubjectsByIdentifiers</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;identifiers)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubjectsByIdentifiers</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>getSubjectsByIdentifiers</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>Source.getSubjectsByIdentifiers(Collection)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectsByIds(java.util.Collection)"><!-- --></A><H3>
+getSubjectsByIds</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,edu.internet2.middleware.subject.Subject&gt; <B>getSubjectsByIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;ids)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubjectsByIds</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>getSubjectsByIds</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>Source.getSubjectsByIds(Collection)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectByIdentifier(java.lang.String, boolean)"><!-- --></A><H3>
+getSubjectByIdentifier</H3>
+<PRE>
+public edu.internet2.middleware.subject.Subject <B>getSubjectByIdentifier</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name,
+                                                                       boolean&nbsp;exceptionIfNull)
+                                                                throws edu.internet2.middleware.subject.SubjectNotFoundException</PRE>
+<DL>
+<DD>Gets a <A HREF="../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A> subject by its name.
+ <p/>
+ <pre class="eg">
+ // Use it within the Grouper API
+ try {
+   Subject subj = SubjectFinder.getSubjectByIdentifier(name, "group");
+ }
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+
+ // Use it directly
+ try {
+   Subject subj = source.getSubjectByIdentifier(name, "group");
+ } 
+ catch (SubjectNotFoundException e) {
+   // Subject not found
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubjectByIdentifier</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>getSubjectByIdentifier</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - Group name<DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>A <CODE>Subject</CODE>
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SubjectNotFoundException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectTypes()"><!-- --></A><H3>
+getSubjectTypes</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>getSubjectTypes</B>()</PRE>
+<DL>
+<DD>Gets the SubjectTypes supported by this source.
+ <pre class="eg">
+ SourceAdapter  sa    = new GrouperSourceAdapter();
+ Set            types = sa.getSubjectTypes();
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getSubjectTypes</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>getSubjectTypes</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>Subject types supported by this source.</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="init()"><!-- --></A><H3>
+init</H3>
+<PRE>
+public void <B>init</B>()
+          throws edu.internet2.middleware.subject.SourceUnavailableException</PRE>
+<DL>
+<DD>Initializes the Grouper source adapter.
+ <p/>
+ <p>
+ No initialization is currently performed by this adapter.
+ </p>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>init</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Specified by:</B><DD><CODE>init</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE>edu.internet2.middleware.subject.SourceUnavailableException</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="groupSourceId()"><!-- --></A><H3>
+groupSourceId</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>groupSourceId</B>()</PRE>
+<DL>
+<DD>return the group source id
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the source id for the group source</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="typeOfGroups()"><!-- --></A><H3>
+typeOfGroups</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../edu/internet2/middleware/grouper/group/TypeOfGroup.html?view=co" title="enum in edu.internet2.middleware.grouper.group">TypeOfGroup</A>&gt; <B>typeOfGroups</B>()</PRE>
+<DL>
+<DD>type of groups to search on
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>type of groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_getSessionOrRootForSubjectFinder()"><!-- --></A><H3>
+internal_getSessionOrRootForSubjectFinder</H3>
+<PRE>
+public static <A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A> <B>internal_getSessionOrRootForSubjectFinder</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>session</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="checkConfig()"><!-- --></A><H3>
+checkConfig</H3>
+<PRE>
+public void <B>checkConfig</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>Source.checkConfig()</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="printConfig()"><!-- --></A><H3>
+printConfig</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>printConfig</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>Source.printConfig()</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getMaxPage()"><!-- --></A><H3>
+getMaxPage</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Integer.html?view=co" title="class or interface in java.lang">Integer</A> <B>getMaxPage</B>()</PRE>
+<DL>
+<DD>max Page size
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the maxPage</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="search(java.lang.String)"><!-- --></A><H3>
+search</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.subject.Subject&gt; <B>search</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchValue)</PRE>
+<DL>
+<DD>
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>search</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Specified by:</B><DD><CODE>search</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="searchPage(java.lang.String)"><!-- --></A><H3>
+searchPage</H3>
+<PRE>
+public edu.internet2.middleware.subject.SearchPageResult <B>searchPage</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;searchValue)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>searchPage</CODE> in interface <CODE>edu.internet2.middleware.subject.Source</CODE><DT><B>Overrides:</B><DD><CODE>searchPage</CODE> in class <CODE>edu.internet2.middleware.subject.provider.BaseSourceAdapter</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><CODE>BaseSourceAdapter.searchPage(java.lang.String)</CODE></DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../edu/internet2/middleware/grouper/GroupFinder.html?view=co" title="class in edu.internet2.middleware.grouper"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="GrouperSourceAdapter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

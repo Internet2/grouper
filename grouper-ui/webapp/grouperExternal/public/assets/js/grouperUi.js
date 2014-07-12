@@ -5,12 +5,12 @@ var guiAjaxSessionProblem = "There was an error communicating with the server.  
 function guiRoundCorners() {
   //round those corners
   //IE messes up
-  if (!jQuery.browser.msie) {
-    Nifty("div.sectionBody", "bottom");   
-    Nifty("div.sectionHeader", "top");   
+//  if (!jQuery.browser.msie) {
+//    Nifty("div.sectionBody", "bottom");   
+//    Nifty("div.sectionHeader", "top");   
     //this leaves a white line for some reason...
     //Nifty("div#navbar"); 
-  }  
+//  }  
 }
 
 $(document).ready(function(){
@@ -26,20 +26,229 @@ $(document).ready(function(){
   // Initialize history plugin.
   // The callback is called at once by present location.hash. 
 
-  processUrl();  
   var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
-  if (typeof urlArgObjectMap.operation == 'undefined') {
-    //alert('going back to index: ' + location.href);
-	
-	//if the url is an external URL, then go to the external index page
-    if (!guiIsEmpty(location.href) && location.href.indexOf("/grouperExternal/appHtml/grouper.html") != -1) {
-      location.href = "grouper.html?operation=ExternalSubjectSelfRegister.index";
-    } else {
-      location.href = "grouper.html?operation=Misc.index";
+
+  if (location.href.indexOf('/UiV2') == -1) {
+
+    processUrl();  
+    
+    if (typeof urlArgObjectMap.operation == 'undefined') {
+      //alert('going back to index: ' + location.href);
+      
+      //if the url is an external URL, then go to the external index page
+      if (!guiIsEmpty(location.href) && location.href.indexOf("/grouperExternal/appHtml/grouper.html") != -1) {
+        location.href = "grouper.html?operation=ExternalSubjectSelfRegister.index";
+      } else if (!guiIsEmpty(location.href) && location.href.indexOf("/test/") != -1) {
+        //nothing
+      } else {
+        location.href = "grouper.html?operation=Misc.index";
+      }
+      return;
     }
-    return;
+  } else {
+    
+    History.Adapter.bind(window,'statechange',function(){ 
+
+      var State = History.getState(); // Note: We are using History.getState() instead of event.state
+      
+      if (typeof State.data != 'undefined' && State.data != null
+          && typeof State.data.handleStateInitially != undefined && State.data.handleStateInitially == false ) {
+        
+        //null this out for next time
+        State.data.handleStateInitially = null;
+        return;
+      }
+
+      // State.hash is /grouper/grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain
+      //alert(State.hash);
+      guiProcessUrlForAjax(State.hash);
+
+    });
+
+    //if(location.href);
+    //UiV2Main.index
+    //urlArgObjectMap.operation
+    if (typeof urlArgObjectMap.operation == 'undefined') {
+      urlArgObjectMap.operation = 'UiV2Main.indexMain';
+      History.pushState(null, null, "?operation=" + urlArgObjectMap.operation);
+    } else {
+      guiProcessUrlForAjax(location.href);
+      guiScrollTop();
+    }
+    
   }
+
 });
+
+/**
+ * go to a url, e.g. operation=UiV2Group.viewGroup&groupId=abc123
+ * @param url
+ */
+function guiV2link(url, options) {
+
+  if (typeof options == 'undefined') {
+    options = {};
+  }
+  
+  if (!options.dontScrollTop) {
+    guiScrollTop();
+  }
+  url = '?' + url;  
+  if (typeof options.optionalFormElementNamesToSend != 'undefined' && options.optionalFormElementNamesToSend != null) { 
+    
+    //add additional form element names to filter based on other things on the screen 
+    var additionalFormElementNamesArray = guiSplitTrim(options.optionalFormElementNamesToSend, ","); 
+    for (var i = 0; i<additionalFormElementNamesArray.length; i++) { 
+      var additionalFormElementName = additionalFormElementNamesArray[i]; 
+
+      //its ok if it is not there
+      if (document.getElementsByName(additionalFormElementName) != null
+          && document.getElementsByName(additionalFormElementName).length > 0
+          && document.getElementsByName(additionalFormElementName)[0] != null) {
+        url += url.indexOf("?") == -1 ? "?" : "&"; 
+        url += additionalFormElementName + "="; 
+        //this will work for simple elements 
+        url += encodeURIComponent(document.getElementsByName(additionalFormElementName)[0].value); 
+      }
+    } 
+  } 
+
+  var handleStateChangeInitially = true;
+
+  var stateObj = { };
+
+  if (typeof options.handleStateInitially != 'undefined' && options.handleStateInitially == false ) {
+    stateObj.handleStateInitially = false;
+  }
+  
+  History.pushState(stateObj, null, url);
+
+  //return false so the browser navigate
+  return false;
+}
+
+/**
+ * take a url for ajax with an operation=Something.else and call ajax with it
+ * @param url
+ */
+function guiProcessUrlForAjax(url) {
+
+  //clear the error div...
+  $('#messaging').hide().empty();
+  
+  var poundIndex = url.indexOf("?");
+  if (poundIndex == -1) {
+    poundIndex = url.indexOf("#");
+    if (poundIndex == -1) {
+      //alert('cant find opreation! ' + State.hash);
+      return;
+    }
+  }
+  var poundString = url.substring(poundIndex + 1, url.length);
+  
+  var args = guiSplitTrim(poundString, "&");
+  var ajaxUrl = '../app/';
+  var foundOperation = false;
+  for (var i=0;i<args.length;i++) {
+
+    //split by =
+    var equalsIndex = args[i].indexOf("=");
+    if (equalsIndex == -1) {
+      return allObjects.appState.urlArgObjects;
+    }
+    var key = args[i].substring(0,equalsIndex);
+    var value = args[i].substring(equalsIndex+1,args[i].length);
+    if (key == 'operation') {
+      ajaxUrl += value;
+      if (args.length > 1) {
+        ajaxUrl += '?';
+      }
+      foundOperation = true;
+      
+      //if this is a public operation, then replace the part of the path to make it public
+      if (guiStartsWith(ajaxUrl, '../app/UiV2Public.')) {
+        ajaxUrl = guiReplaceString(ajaxUrl, '../app/UiV2Public.', '../public/UiV2Public.');
+      }
+      
+    } else {
+      ajaxUrl += key + '=' + value;
+      if (i < args.length-1) {
+        ajaxUrl += '&';
+      }
+    }
+  }
+  if (foundOperation) {
+    ajax(ajaxUrl);    
+  }
+
+}
+
+function guiScrollTop() {
+  window.scrollTo(0,0);
+  window.scroll(0,0);
+  if (document.all){
+    document.body.scrollLeft = 0;
+    document.body.scrollTop = 0;
+  } else{
+    window.pageXOffset = 0;
+    window.pageYOffset = 0;
+  }
+}
+
+/**
+ * add a success message to top
+ * @param message
+ */
+function guiMessageSuccess(message) {
+  guiMessageHelper('success', message);
+}
+
+/**
+ * add am info message to top
+ * @param message
+ */
+function guiMessageInfo(message) {
+  guiMessageHelper('info', message);
+}
+
+/**
+ * add an error message to top
+ * @param message
+ */
+function guiMessageError(message) {
+  guiMessageHelper('error', message);
+}
+
+/**
+ * add a message to the ui v2 screen
+ * @param messageType must be success, info, error
+ * @param message the escaped message for the screen, or could be HTML
+ */
+function guiMessageHelper(messageType, message) {
+  
+  if (messageType != 'success' && messageType != 'info' && messageType != 'error') {
+    alert('messageType must be success, info, or error: ' + messageType);
+  }
+  
+  var finalMessage = '<div class="alert alert-' + messageType 
+    + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
+    + message + '</div>';
+  $('#messaging').hide().empty().append(finalMessage).slideDown('slow');
+  $('#messaging').focus();
+
+}
+
+/** sees if input ends with ending */
+function guiEndsWith(input, ending) {
+  if (guiIsEmpty(input) || guiIsEmpty(ending)) {
+    return false;
+  }
+  var inputString = "" + input;
+  var lastIndex = inputString.lastIndexOf(ending);
+  return lastIndex == input.length - ending.length;
+
+}
+
 
 /** replace html in an element with a template (substituted).  
   jqueryKey e.g. #topDiv
@@ -71,39 +280,39 @@ function processUrl() {
   } else {
     var ajaxUrl = '../app/' + urlArgObjectMap.operation;
 
-    if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
+    if (typeof urlArgObjectMap.membershipLiteName != 'undefined' && ajaxUrl.indexOf('membershipLiteName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
     }
-    if (typeof urlArgObjectMap.groupId != 'undefined') {
+    if (typeof urlArgObjectMap.groupId != 'undefined' && ajaxUrl.indexOf('groupId=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "groupId=" +  urlArgObjectMap.groupId;
     }
-    if (typeof urlArgObjectMap.groupName != 'undefined') {
+    if (typeof urlArgObjectMap.groupName != 'undefined' && ajaxUrl.indexOf('groupName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "groupName=" +  urlArgObjectMap.groupName;
     }
-    if (typeof urlArgObjectMap.subjectPickerName != 'undefined') {
+    if (typeof urlArgObjectMap.subjectPickerName != 'undefined' && ajaxUrl.indexOf('subjectPickerName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "subjectPickerName=" +  urlArgObjectMap.subjectPickerName;
     }
-    if (typeof urlArgObjectMap.subjectPickerElementName != 'undefined') {
+    if (typeof urlArgObjectMap.subjectPickerElementName != 'undefined' && ajaxUrl.indexOf('subjectPickerElementName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "subjectPickerElementName=" +  urlArgObjectMap.subjectPickerElementName;
     }
-    if (typeof urlArgObjectMap.attributeDefNamePickerName != 'undefined') {
+    if (typeof urlArgObjectMap.attributeDefNamePickerName != 'undefined'  && ajaxUrl.indexOf('attributeDefNamePickerName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "attributeDefNamePickerName=" +  urlArgObjectMap.attributeDefNamePickerName;
     }
-    if (typeof urlArgObjectMap.attributeDefNamePickerElementName != 'undefined') {
+    if (typeof urlArgObjectMap.attributeDefNamePickerElementName != 'undefined' && ajaxUrl.indexOf('attributeDefNamePickerElementName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "attributeDefNamePickerElementName=" +  urlArgObjectMap.attributeDefNamePickerElementName;
     }
-    if (typeof urlArgObjectMap.externalSubjectInviteId != 'undefined') {
+    if (typeof urlArgObjectMap.externalSubjectInviteId != 'undefined' && ajaxUrl.indexOf('externalSubjectInviteId=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "externalSubjectInviteId=" +  urlArgObjectMap.externalSubjectInviteId;
     }
-    if (typeof urlArgObjectMap.externalSubjectInviteName != 'undefined') {
+    if (typeof urlArgObjectMap.externalSubjectInviteName != 'undefined' && ajaxUrl.indexOf('externalSubjectInviteName=') == -1) {
       ajaxUrl += ajaxUrl.indexOf("?") == -1 ? "?" : "&";
       ajaxUrl += "externalSubjectInviteName=" +  urlArgObjectMap.externalSubjectInviteName;
     }
@@ -283,27 +492,58 @@ var allObjects = new AllObjects();
 function guiDecorateUrl(theUrl) {
   var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
 
-  if (typeof urlArgObjectMap.groupId != 'undefined') {
+  if (typeof urlArgObjectMap.groupId != 'undefined' && theUrl.indexOf('groupId=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "groupId=" +  urlArgObjectMap.groupId;
   }
-  if (typeof urlArgObjectMap.groupName != 'undefined') {
+  if (typeof urlArgObjectMap.groupName != 'undefined' && theUrl.indexOf('groupName=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "groupName=" +  urlArgObjectMap.groupName;
   }
-  if (typeof urlArgObjectMap.membershipLiteName != 'undefined') {
+  if (typeof urlArgObjectMap.membershipLiteName != 'undefined' && theUrl.indexOf('membershipLiteName=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "membershipLiteName=" +  urlArgObjectMap.membershipLiteName;
   }
-  if (typeof urlArgObjectMap.attributeDefIdForFilter != 'undefined') {
+  if (typeof urlArgObjectMap.attributeDefIdForFilter != 'undefined' && theUrl.indexOf('attributeDefIdForFilter=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "attributeDefIdForFilter=" +  urlArgObjectMap.attributeDefIdForFilter;
   }
-  if (typeof urlArgObjectMap.attributeDefId != 'undefined') {
+  if (typeof urlArgObjectMap.attributeDefId != 'undefined' && theUrl.indexOf('attributeDefId=') == -1) {
     theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
     theUrl += "attributeDefId=" +  urlArgObjectMap.attributeDefId;
   }
+  if (typeof urlArgObjectMap.attributeDefNameId != 'undefined' && theUrl.indexOf('attributeDefNameId=') == -1) {
+    theUrl += theUrl.indexOf("?") == -1 ? "?" : "&";
+    theUrl += "attributeDefNameId=" +  urlArgObjectMap.attributeDefNameId;
+  }
   return theUrl;
+}
+
+/**
+ * unregister a widget
+ * @param id
+ */
+function dojoUnregisterWidget(id) {
+  
+  var widget = dijit.byId(id);
+  if (widget != null) {
+    if (typeof widget.destroyRecursive != 'undefined') {
+      widget.destroyRecursive();
+    }
+  }
+}
+
+/**
+ * see if two strings are equal without considering case
+ */
+function guiEqualsIgnoreCase(a, b) {
+  if (a==b) {
+    return true;
+  }
+  if (guiIsEmpty(a) || guiIsEmpty(b)) {
+    return false;
+  }
+  return a.toLowerCase() == b.toLowerCase();
 }
 
 /** generic ajax method takes a url, callback function, and params or forms.
@@ -315,8 +555,11 @@ function guiDecorateUrl(theUrl) {
  *  ajax(operation, {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
  */
 function ajax(theUrl, options) {
-  
-  if (!guiStartsWith(theUrl, "../app/" )) {
+
+  //hide messaging
+  $('#messaging').hide().empty();
+
+  if (!guiStartsWith(theUrl, "../app/" ) && !guiStartsWith(theUrl, "../public/")) {
     theUrl = "../app/" + theUrl; 
   }
   
@@ -330,9 +573,28 @@ function ajax(theUrl, options) {
     options.requestParams = {};
   }
   
-  if (!guiIsEmpty(options.formIds)) {
+  //copy display values of filtering selects to its hidden field
+  //see if that function even exists
+  if (typeof dojoCopyFilteringSelectDisplays != 'undefined') {
+    dojoCopyFilteringSelectDisplays();
+  }
+  
+  if (!guiIsEmpty(options.formIds) || !guiIsEmpty(options.formIdsOptional)) {
+
+    var formIdsOptionalArray = guiIsEmpty(options.formIdsOptional) ?
+        new Array() : guiSplitTrim(options.formIdsOptional, ",");
+    var formIdsArray = guiIsEmpty(options.formIds) ?
+        new Array() : guiSplitTrim(options.formIds, ",");
     
-    var formIdsArray = guiSplitTrim(options.formIds, ",");
+    //add optional forms to send
+    for (var i = 0; i<formIdsOptionalArray.length; i++) {
+      var formId = formIdsOptionalArray[i];
+      var theForm = $("#" + formId);
+      if (theForm && theForm.length > 0) {
+        formIdsArray.push(formId);
+      }
+    }
+    
     for (var i = 0; i<formIdsArray.length; i++) {
       var formId = formIdsArray[i];
       
@@ -342,6 +604,7 @@ function ajax(theUrl, options) {
         alert('Cant find form by id: "' + formId + '"!');
         return;
       }
+      
       theForm = theForm[0];
       for(var j=0;j<theForm.elements.length;j++) {
         var element = theForm.elements[j];
@@ -361,6 +624,17 @@ function ajax(theUrl, options) {
 //        }
       }
     }
+  }
+
+  //add owasp token
+  
+  
+  var owaspCsrfTokenName = 'OWASP_CSRFTOKEN';
+  var owaspCsrfTokenHeader = {};
+  if (document.getElementsByName(owaspCsrfTokenName) != null
+      && document.getElementsByName(owaspCsrfTokenName).length > 0
+      && document.getElementsByName(owaspCsrfTokenName)[0] != null) {
+    owaspCsrfTokenHeader = {OWASP_CSRFTOKEN: document.getElementsByName(owaspCsrfTokenName)[0].value};
   }
   
   //make sure combos have the right state
@@ -386,6 +660,7 @@ function ajax(theUrl, options) {
   $.blockUI();  
   $.ajax({
     url: theUrl,
+    headers: owaspCsrfTokenHeader,
     type: 'POST',
     cache: false,
     dataType: 'json',
@@ -393,19 +668,24 @@ function ajax(theUrl, options) {
     timeout: 180000,
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
-    error: function(error){
-      $.unblockUI(); 
-      //note, this is probably a session problem.
-      var shouldRedirect = confirm(guiAjaxSessionProblem);
-      if (shouldRedirect) {
-        //this should redirect
-        location.href = location.href; 
+    error: function(jqXHR, textStatus, errorThrown) {
+        
+      $.unblockUI();
+      
+      var grouperPath = jqXHR.getResponseHeader("X-Grouper-path");
+      if (!guiIsEmpty(grouperPath)) {
+        grouperPath = decodeURIComponent(grouperPath);
+        location.href=grouperPath;
+        return;
       }
-      //alert('error' + error);        
+
+      location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError";
+      
     },
     //TODO process the response object
     success: function(json){
       guiProcessJsonResponse(json);
+      $.unblockUI();  
     }
   });
 }
@@ -418,6 +698,9 @@ function guiProcessJsonResponse(guiResponseJs) {
 
   //$.unblockUI();
 
+  //remove validation icons
+  $(".validationError").remove();
+  
   //message if session ends
   if (guiResponseJs.guiAjaxSessionProblem) {
     guiAjaxSessionProblem = guiResponseJs.guiAjaxSessionProblem;
@@ -475,7 +758,12 @@ function guiProcessJsonResponse(guiResponseJs) {
   //if (successResultFunction) {
   //  successResultFunction.call(this, json);
   //}
-
+  
+  if (typeof dojo != 'undefined' && typeof dojo.parser != 'undefined') {
+    //parse the new doc for changes
+    dojo.parser.parse();
+  }
+  
   //round those corners
   guiRoundCorners();
 
@@ -495,7 +783,7 @@ function guiProcessAction(guiScreenAction) {
     eval(guiScreenAction.script);
   }
   //replace some html
-  if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
+  if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle) && guiIsEmpty(guiScreenAction.validationMessage)) {
      $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.html);
   }
 
@@ -518,7 +806,9 @@ function guiProcessAction(guiScreenAction) {
   }
   
   if (typeof guiScreenAction.closeModal != 'undefined' && guiScreenAction.closeModal) {
-    $.modal.close(); 
+    if ($ && $.modal && typeof($.modal.close) == "function") {
+      $.modal.close(); 
+    }
   }
   
   //do an alert
@@ -573,7 +863,16 @@ function guiProcessAction(guiScreenAction) {
   if (!guiIsEmpty(guiScreenAction.formFieldName)) {
     guiFormElementAssignValue(guiScreenAction.formFieldName, guiScreenAction.formFieldValues);
   }
-
+  if (!guiIsEmpty(guiScreenAction.message)) {
+    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.message);
+    guiScrollTop();
+  }
+  if (!guiIsEmpty(guiScreenAction.validationMessage)) {
+    guiMessageHelper(guiScreenAction.messageType, guiScreenAction.validationMessage);
+    guiScrollTop();
+    //put up the validation error thing
+    $(guiScreenAction.innerHtmlJqueryHandle).after('&nbsp;<a class="validationError" href="#" onclick="alert(\'' + guiEscapeHtml(guiScreenAction.validationMessage, true) + '\'); return false;"><i class="fa fa-exclamation-triangle fa-lg" style="color:#CC3333;"></i></span>');
+  }
 }
 
 /**
@@ -655,7 +954,8 @@ function guiFormElementAssignValue(name, values) {
         
         if (theElement.value == value || 
           (guiIsEmpty(theElement.value) && guiIsEmpty(value))) {
-          theElement.checked = true;
+          //instead of setting checked to true, call click, which fires onchange
+          theElement.click();
         }
       } else if (theElement.nodeName.toUpperCase() == "SELECT") {
         var options = theElement.options;
@@ -1483,307 +1783,8 @@ function guiValidateDateHelper(month, day, year, args) {
   return null;
 
 }
-function guiValidateDate(x) {
-  return formatValid_datevalid("dateValid", null, x) == null;
-}
-/** validate that the date is valid */
-function formatValid_datevalid(functionName, args, x) {
-  //if x is blank, thats ok.
-  if (fastIsEmpty(x)) {
-    return null;
-  }
-  var re = new RegExp("^(\\d{4})(\\d{2})(\\d{2})$");
-  var matches = x.match(re);
-  if (!matches) {
-    //this is a formatting problem
-    return guiBuildErrorArgs(functionName, args);
-  }
-    
-  //check for valid days, get the month number (int)
-  var month = fastParseInt(matches[2]);
-  var day = fastParseInt(matches[3]);
-  var year = fastParseInt(matches[1]);
-  
-  return guiValidateDateHelper(month, day, year, args);
-}
 
 
-/** convert a string to a ccyymmdd or mm/dd/ccyy HH:MM:ss.SSS */
-function guiConvertStringToDateOrTimestampHelper(input, isDate) {
-  //empty ok
-  if (guiIsEmpty(input)) {
-    return input;
-  }
-  //if the date is valid, we are done
-  if (isDate) {
-    //if timestamp, convert to date
-    input = guiConvertDateFromTimestamp(input);
-  
-    //if we are already valid we are all set
-    if (guiValidateDate(input)) {
-      return input;
-    }
-  }
-  
-  //if the timestamp is valid, we are done
-  if (!isDate) {
-
-    //if we are already valid we are all set
-    if (fastValidateTimestamp(input)) {
-      return input;
-    }
-  }
-   
-  //if its not ccyymmdd, then it has delimiters
-  var origInput = input;
-  input = fastTrim(input);
-  
-  //if today, we know the answer
-  if (fastStrEqIgCase(input,"d")) {
-    var now = fastNewDate();
-    if (isDate) {
-      return fastConvertStringToDateOrTimestamp(
-        (1+now.getMonth()) + "/" + now.getDate() + "/" + now.getFullYear(), isDate);
-    } 
-    return fastConvertStringToDateOrTimestamp(
-       (now.getMonth()+1) + "/" + now.getDate() + "/" + now.getFullYear()  
-      + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds()
-      + "." + now.getMilliseconds(), isDate);
-  }
-  
-  var monthString=null; //2 padded month
-  var yearString=null; //4 padded year
-  var dayString=null; //2 padded day
-  var re;
-  var m;
-  var theTime="";
-  var foundMatch=false;
-  var hourString=null;
-  var minuteString=null;
-  var secondString=null;
-  var millisString=null;
-  
-  //allow a 8 digit date yyyymmdd
-  re = new RegExp("^([0-9]{4})([0-9]{2})([0-9]{2})(.*)$");
-  m = input.match(re);
-  if (m) {
-    yearString = m[1];
-    monthString = m[2];
-    dayString = m[3];
-    theTime = m[4];
-    foundMatch = true;
-  }
-  if (!foundMatch) {
-    //allow a 6 digit date mmddyy
-    re = new RegExp("^([0-9]{2})([0-9]{2})([0-9]{2})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1];
-      dayString = m[2];
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month by text
-  if (!foundMatch) {
-    //try with 2 or 4 digit year
-    //see if there is the date by text Jan 1 2004 or february 4, 2005
-    re = new RegExp("^([a-zA-Z]+)\\D*([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1].toLowerCase();
-      monthString = fastMonthsNumber[monthString];
-      if (monthString == null) {
-        return origInput;
-      }
-      dayString = m[2];
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month by text
-  if (!foundMatch) {
-    //try with 2 or 4 digit year
-    //see if there is the date by text 1 Jan 2004 or 4 february, 2005
-    re = new RegExp("^([0-9]{1,2})\\W+([a-zA-Z]+)\\W*([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      dayString = m[1];
-      monthString = m[2].toLowerCase();
-      monthString = fastMonthsNumber[monthString];
-      if (monthString == null) {
-        return origInput;
-      }
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the year first, 4 digit only
-  if (!foundMatch) {
-    //try with 2 or 4 digit year
-    re = new RegExp("^([0-9]{4})\\D+([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
-    m = input.match(re);
-    if (m) {
-      yearString = m[1];
-      monthString = m[2];
-      dayString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month first, any digit year
-  if (!foundMatch) {
-    re = new RegExp("^([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1];
-      dayString = m[2];
-      yearString = m[3];
-      theTime = m[4];
-      foundMatch = true;
-    }
-  }
-  //see if there is the month first, any digit year
-  if (!foundMatch) {
-    re = new RegExp("^([0-9]{1,2})\\D+([0-9]{1,4})(.*)$");
-    m = input.match(re);
-    if (m) {
-      monthString = m[1];
-      dayString = "01";
-      yearString = m[2];
-      theTime = m[3];
-      foundMatch = true;
-    }
-  }
-  //see if we havent found the date yet
-  if (!foundMatch) {
-    return origInput;
-  }
-  //make sure no neglected numbers
-  if (isDate) {
-    if (fastHasDigits(theTime)) {
-      return origInput;
-    }
-  } 
-  monthString = fastPadIntString(monthString, 2);
-  dayString = fastPadIntString(dayString, 2);
-
-  if (yearString.length < 4) {
-  
-    var year = fastParseInt(yearString);
-    yearString = fastPadIntString(yearString, 2);
-    if (year == 99) {
-      yearString = "9999";
-    } else if (year < 40) {
-      yearString = "20" + yearString;
-    } else {
-      yearString = "19" + yearString;
-    }
-  }
-  //mainframe conversion
-  if (fastStrEq(yearString, "9999") && fastStrEq(monthString, "99") && fastStrEq(dayString, "99")) {
-    yearString = "2099";
-    monthString = "12";
-    dayString = "31";
-  }
-  var ret;
-  if (isDate) {
-    ret = yearString + monthString + dayString;
-    return ret;
-  }
-
-  foundMatch = false;
-  var theRest = "";
-  if (fastIsEmpty(theTime)) {
-    hourString = "00";
-    minuteString = "00";
-    secondString = "00";
-    millisString = "000";
-    foundMatch = true;
-  }
-  if (!foundMatch) {
-    //timestamp, try millis, 1 to 3 of them
-    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,3})(.*)$");
-    m = theTime.match(re);
-    if (m) {
-      hourString = m[1];
-      minuteString = m[2];
-      secondString = m[3];
-      millisString = m[4];
-      theRest = m[5];
-      foundMatch = true;
-    }
-  }
-  if (!foundMatch) {
-    //timestamp, no millis
-    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
-    m = theTime.match(re);
-    if (m) {
-      hourString = m[1];
-      minuteString = m[2];
-      secondString = m[3];
-      theRest = m[4];
-      millisString = "000";
-      foundMatch = true;
-    }
-  }
-  if (!foundMatch) {
-    //timestamp, no seconds or millis
-    re = new RegExp("^\\D*([0-9]{1,2})\\D+([0-9]{1,2})(.*)$");
-    m = theTime.match(re);
-    if (m) {
-      hourString = m[1];
-      minuteString = m[2];
-      secondString = "00";
-      theRest = m[3];
-      millisString = "000";
-      foundMatch = true;
-    }
-  }
-  if (!foundMatch || fastHasDigits(theRest)) {
-    return origInput;
-  }
-  //see if there is an AM or PM in the timeString
-  re = new RegExp("([aApP][mM])");
-  theTime = fastDefaultString(theTime);
-  m = theTime.match(re);
-  var amPm = null;
-  var hasAmPm = false;
-  var isAm = true;
-  if (m) {
-    amPm = m[1].toLowerCase();
-    hasAmPm = true;
-    if (fastStrEq(amPm,"am")) {
-      isAm = true;
-    } else if (fastStrEq(amPm,"pm")) {
-      isAm = false;
-    } else {
-      fastAlert("Illegal AM/PM: " + amPm, false, 5);
-      return origInput;
-    }
-  } 
-  if (hasAmPm) {
-    var hour = fastParseInt(hourString);
-    if (hour <= 12 && hour > 0) {
-      hour = hour == 12 ? 0 : hour;
-      if (!isAm) {
-        hour+=12;
-      }
-      hourString = "" + hour;
-    }
-  }
-  hourString = fastPadIntString(hourString, 2);
-  minuteString = fastPadIntString(minuteString, 2);
-  secondString = fastPadIntString(secondString, 2);
-  millisString = fastPadIntString(millisString, 3);    
-  
-  ret = yearString + "/" + monthString + "/" + dayString + " " + hourString
-    + ":" + minuteString + ":" + secondString + "." + millisString;
-  return ret;
-}
 
 function guiCalendarInit(formElementId) {
 
@@ -1829,8 +1830,12 @@ function guiCalendarInit(formElementId) {
  * @return
  */
 function guiSubmitFileForm(event, formJqueryHandle, operation) {
-  eventCancelBubble(event);
   
+  eventCancelBubble(event);
+
+  //clear the error div... / messaging
+  $('#messaging').hide().empty();
+
   //make sure there is a hidden field for appState
   var appState = allObjects.appState;
   
@@ -1942,4 +1947,88 @@ function guiScrollTo(jqueryId) {
   
   //$('html, body').animate({scrollTop: $(document).height()},1500);
   $('html, body').animate({scrollTop: targetTop},500);
+}
+
+//just keep the state for each screen once so they dont have to keep confirming
+var confirmedChanged = false;
+
+/**
+ * only check once per screen that changes can be made
+ * @param prompt
+ * @returns {Boolean} true if should proceed
+ */
+function confirmChange(prompt) {
+  if (!confirmedChanged) {
+    if (confirm(prompt)) {
+      confirmedChanged = true;
+    } else {
+      return false;
+    }
+  }
+  return true;
+}
+
+//MCH 20131223: keep track of the ids of filtering selects.  note, some might be gone due to ajax
+//note the naming convention, if the bsae id is peoplePicker, then the id is peoplePickerId,
+//name is peoplePickerName, displays are peoplePickerIdDisplay, and peoplePickerNameDisplay
+var dojoFilteringSelectBaseIds = {};
+
+//MCH 20131223: copy the display value of filtering selects to the hidden field so it is submitted
+//with the filtering select value
+function dojoAddFilteringSelectBaseId(dojoFilteringSelectBaseId) {
+
+  dojoFilteringSelectBaseIds[dojoFilteringSelectBaseId] = true;
+
+}
+
+//MCH 20131223: copy the display value of filtering selects to the hidden field so it is submitted
+//with the filtering select value
+function dojoCopyFilteringSelectDisplays() {
+
+  //loop through all the filtering selects that have been registered
+  for(var dojoFilteringSelectBaseId in dojoFilteringSelectBaseIds) {
+  
+    var filteringSelect = dijit.byId(dojoFilteringSelectBaseId + 'Id');
+    
+    //if it hasnt been removed by javascript
+    if (filteringSelect != null) {
+      
+      var displayValue = filteringSelect.get('displayedValue');
+      
+      //set this in the value of the display hidden field
+      var displayInput = document.getElementById(dojoFilteringSelectBaseId + 'IdDisplay');
+      
+      if (displayInput != null) {
+        displayInput.value = displayValue;
+      }
+    }
+  }  
+}
+
+/** this does three things.  When typing in name field, syncs to id field if checkbox checked
+ * when clicking checkbox, either sync and disable, or enable the id field
+ * or when clicking the id field, if disabled, give a helpful message
+*/
+function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId, isElementClick, elementMessage) {
+
+  var nameDifferentThanIdChecked = $('#' + nameDifferentThanIdElementId).is(':checked');
+  
+  //if someone clicks on the disabled textfield, then tell them they need to check the checkbox
+  if (isElementClick) {
+    if (!nameDifferentThanIdChecked) {
+      alert(elementMessage);
+    }
+    return;
+  } 
+
+  //if its checked, then sync up the id with the name
+  if (!nameDifferentThanIdChecked) {
+    $('#' + idElementId).attr('disabled', 'disabled');
+    var nameValue = $('#' + nameElementId).val();
+    //set this in the id
+    $('#' + idElementId).val(nameValue);
+  } else {
+    $('#' + idElementId).attr('disabled', null);
+  }
+  
 }

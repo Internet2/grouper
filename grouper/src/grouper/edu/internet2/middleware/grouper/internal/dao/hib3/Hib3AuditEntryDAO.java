@@ -14,10 +14,16 @@
  * limitations under the License.
  ******************************************************************************/
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AuditEntryNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 
 /**
  * Data Access Object for audit entry
@@ -29,7 +35,6 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
   /**
    * 
    */
-  @SuppressWarnings("unused")
   private static final String KLASS = Hib3AuditEntryDAO.class.getName();
 
   /**
@@ -78,6 +83,37 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
         .setLong("theModifyTimeLong", auditEntry.getLastUpdatedDb())
         .setString("theContextId", auditEntry.getContextId())
         .setString("theUuid", auditEntry.getId()).executeUpdate();
+  }
+
+  /**
+   * find audit entries that a user did
+   * @see AuditEntryDAO#findByActingUser(QueryOptions)
+   */
+  @Override
+  public Set<AuditEntry> findByActingUser(String actAsMemberId, QueryOptions queryOptions) {
+
+    StringBuilder sql = new StringBuilder("select theAuditEntry "
+        + " from AuditEntry theAuditEntry where "
+        + " (theAuditEntry.actAsMemberId = :actAsMemberId) or (theAuditEntry.loggedInMemberId = :loggedInMemberId and theAuditEntry.actAsMemberId is null) ");
+
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQueryPaging() == null) {
+      int defaultHib3AuditEntryPageSize = GrouperConfig.retrieveConfig().propertyValueInt("defaultHib3AuditEntryPageSize", 1000);
+      queryOptions.paging(QueryPaging.page(defaultHib3AuditEntryPageSize, 1, false));
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sort(QuerySort.desc("createdOnDb"));
+    }
+    
+    return HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery(sql.toString())
+      .setCacheable(true)
+      .setCacheRegion(KLASS + ".FindByActingUser")
+      .setString( "actAsMemberId", actAsMemberId ) 
+      .setString( "loggedInMemberId", actAsMemberId ) 
+      .listSet(AuditEntry.class);
   }
 
 } 

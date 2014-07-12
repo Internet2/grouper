@@ -40,6 +40,7 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -699,7 +700,7 @@ public class XmlExportAttributeAssign {
    * @param writer
    */
   public static void exportAttributeAssigns(final Writer writer, final XmlExportMain xmlExportMain) {
-    //get the members
+
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -728,8 +729,12 @@ public class XmlExportAttributeAssign {
               Object object = results.get(0);
               final AttributeAssign attributeAssign = (AttributeAssign)object;
               
-              //do the attribute assigns of assigns later on
-              if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+              if (attributeAssign.getAttributeAssignType() == AttributeAssignType.imm_mem || 
+                  attributeAssign.getAttributeAssignType() == AttributeAssignType.imm_mem_asgn) {
+                //do these in a future phase
+                xmlExportMain.getAttributeAssignsForSecondPhase().put(attributeAssign.getId(), attributeAssign);
+              } else if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+                //do the attribute assigns of assigns later on (just below)
                 attributeAssignsOfAssigns.add(attributeAssign);
               } else {
               
@@ -763,6 +768,66 @@ public class XmlExportAttributeAssign {
           writer.write("  </attributeAssigns>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attributeAssigns", ioe);
+        }
+        return null;
+      }
+
+    });
+  }
+  
+  /**
+   * @param xmlExportMain
+   * @param writer
+   */
+  public static void exportAttributeAssignsSecondPhase(final Writer writer, final XmlExportMain xmlExportMain) {
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        
+        Set<AttributeAssign> attributeAssignsOfAssigns = new LinkedHashSet<AttributeAssign>();
+        
+        try {
+          writer.write("  <attributeAssigns>\n");
+              
+          for (AttributeAssign attributeAssign : xmlExportMain.getAttributeAssignsForSecondPhase().values()) {
+            
+            if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+              //do the attribute assigns of assigns later on (just below)
+              attributeAssignsOfAssigns.add(attributeAssign);
+            } else {
+            
+              xmlExportMain.getAttributeAssignIds().add(attributeAssign.getId());
+
+              exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                  attributeAssign);
+            }
+          }
+
+          for (AttributeAssign attributeAssignOfAssign: attributeAssignsOfAssigns) {
+            
+            //if the foreign key isnt there, then dont export
+            if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignOfAssign.getOwnerAttributeAssignId())) {
+
+              xmlExportMain.getAttributeAssignIds().add(attributeAssignOfAssign.getId());
+
+              exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                  attributeAssignOfAssign);
+            }
+          }
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute assigns element 
+          writer.write("  </attributeAssigns>\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming attributeAssigns (second phase)", ioe);
         }
         return null;
       }

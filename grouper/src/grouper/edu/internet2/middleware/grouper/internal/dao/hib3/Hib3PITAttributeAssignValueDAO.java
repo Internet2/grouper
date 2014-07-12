@@ -19,10 +19,14 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -176,13 +180,25 @@ public class Hib3PITAttributeAssignValueDAO extends Hib3DAO implements PITAttrib
    */
   public Set<AttributeAssignValue> findMissingActivePITAttributeAssignValues() {
 
-    Set<AttributeAssignValue> values = HibernateSession
-      .byHqlStatic()
-      .createQuery("select value from AttributeAssignValue value where " +
-          "not exists (select 1 from PITAttributeAssignValue pit where value.id = pit.sourceId) " +
-          "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
-          "    where temp.string01 = value.id " +
-          "    and type.actionName='addAttributeAssignValue' and type.changeLogCategory='attributeAssignValue' and type.id=temp.changeLogTypeId)")
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder hql = new StringBuilder("select value from AttributeAssignValue value where " +
+        "not exists (select 1 from PITAttributeAssignValue pit where value.id = pit.sourceId) " +
+        "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
+        "    where temp.string01 = value.id " +
+        "    and type.actionName='addAttributeAssignValue' and type.changeLogCategory='attributeAssignValue' and type.id=temp.changeLogTypeId)");
+    
+    Set<String> idsOfAttributeDefsToIgnore = GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit();
+    if (GrouperUtil.length(idsOfAttributeDefsToIgnore) > 0) {
+      
+      hql.append(" and not exists (select 1 from AttributeDefName adn, AttributeAssign aa where value.attributeAssignId = aa.id "
+          + "and aa.attributeDefNameId = adn.id and adn.attributeDefId in (" 
+          + HibUtils.convertToInClause(idsOfAttributeDefsToIgnore, byHqlStatic) + ") )");
+      
+    }
+    
+    Set<AttributeAssignValue> values = byHqlStatic
+      .createQuery(hql.toString())
       .setCacheable(false).setCacheRegion(KLASS + ".FindMissingActivePITAttributeAssignValues")
       .listSet(AttributeAssignValue.class);
     

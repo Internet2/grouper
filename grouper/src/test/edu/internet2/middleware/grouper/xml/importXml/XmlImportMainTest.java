@@ -20,6 +20,8 @@
 package edu.internet2.middleware.grouper.xml.importXml;
 
 import java.io.File;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Set;
 
 import junit.textui.TestRunner;
@@ -32,6 +34,8 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -39,6 +43,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -46,12 +52,15 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.export.XmlExportMain;
 
 
 /**
@@ -64,7 +73,7 @@ public class XmlImportMainTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new XmlImportMainTest("testImport_v1_6_0"));
+    TestRunner.run(new XmlImportMainTest("testMembershipAssignments"));
   }
 
   /**
@@ -258,6 +267,49 @@ public class XmlImportMainTest extends GrouperTest {
     assertEquals("etc", auditEntry.retrieveStringValue("name"));
     
     
+  }
+
+  /**
+   * 
+   */
+  public void testMembershipAssignments() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = StemFinder.findByName(grouperSession, "etc", true);
+
+    Group groupA = stem.addChildGroup("groupA", "groupA");
+    groupA.addMember(SubjectTestHelper.SUBJ0);
+
+    AttributeDef attributeDef = stem.addChildAttributeDef("attributeDef", AttributeDefType.attr);
+    attributeDef.setAssignToStem(true);
+    attributeDef.setAssignToImmMembership(true);
+    attributeDef.setAssignToImmMembershipAssn(true);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+    AttributeDefName attributeDefName = stem.addChildAttributeDefName(attributeDef, "attribute", "attribute");
+
+    Membership immediateMembership = MembershipFinder.findImmediateMembership(grouperSession, groupA, SubjectTestHelper.SUBJ0, Group.getDefaultList(), true);
+    AttributeAssign attributeAssignment1 = immediateMembership.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "value1").getAttributeAssignResult().getAttributeAssign();
+    attributeAssignment1.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "value2").getAttributeAssignResult().getAttributeAssign();
+
+    // export
+    Writer w = new StringWriter();
+    XmlExportMain xmlExportMain = new XmlExportMain();
+    xmlExportMain.writeAllTables(w, "a string");
+    String xml = w.toString();
+    
+    RegistryReset.reset();
+    GrouperTest.initGroupsAndAttributes();
+    
+    // import
+    XmlImportMain xmlImportMain = new XmlImportMain();
+    xmlImportMain.setRecordReport(true);
+    xmlImportMain.processXml(xml);
+    
+    immediateMembership = MembershipFinder.findImmediateMembership(grouperSession, groupA, SubjectTestHelper.SUBJ0, Group.getDefaultList(), true);
+    assertEquals("value1", immediateMembership.getAttributeValueDelegate().retrieveValueString(attributeDefName.getName()));
+    assertEquals("value2", immediateMembership.getAttributeDelegate().retrieveAssignments().iterator().next().getAttributeValueDelegate().retrieveValueString(attributeDefName.getName()));
   }
   
 }

@@ -18,7 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * Query for one privilege.
@@ -32,7 +31,24 @@ public class WsGrouperPrivilegeResult {
    */
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+
+    StringBuilder result = new StringBuilder();
+    if (this.wsSubject != null) {
+      result.append("subject: " ).append(this.wsSubject.getSourceId()).append(" - ").append(this.wsSubject.getId()).append(", ");
+    }
+    if (this.ownerSubject != null) {
+      result.append("ownerSubject: " ).append(this.ownerSubject.getSourceId()).append(" - ").append(this.ownerSubject.getId()).append(", ");
+    }
+    
+    result.append(this.privilegeName).append(", ");
+
+    if (this.wsGroup != null) {
+      result.append("group: ").append(this.wsGroup.getName()).append(", ");
+    }
+    if (this.wsStem != null) {
+      result.append("stem: ").append(this.wsStem.getName()).append(", ");
+    }
+    return result.toString();
   }
 
   /** whether this privilege is allowed T/F */

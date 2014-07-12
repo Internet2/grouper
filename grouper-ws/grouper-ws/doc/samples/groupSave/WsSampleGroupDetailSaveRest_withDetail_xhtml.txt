@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 3252
+Content-Length: 3415
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -25,104 +25,112 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGroupSaveRequest">
-      <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="txType" />
+      <p class="clientVersion" />
       <p class="includeGroupDetail" />
+      <p class="txType" />
       <ul class="wsGroupToSaves">
         <li title="WsGroupToSave">
-          <div class="wsGroupLookup" title="WsGroupLookup">
-            <p class="uuid" />
-            <p class="groupName">aStem:whateverGroupLeft</p>
-          </div>
-          <p class="saveMode" />
           <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">whateverGroupLeftDispExt</p>
-            <p class="typeOfGroup" />
-            <div class="detail" title="WsGroupDetail" />
-            <p class="name">aStem:whateverGroupLeft</p>
-            <p class="displayName" />
             <p class="description">whateverGroupLeftDesc</p>
-            <p class="extension">whateverGroupLeft</p>
-          </div>
-        </li>
-        <li title="WsGroupToSave">
-          <div class="wsGroupLookup" title="WsGroupLookup">
-            <p class="uuid" />
-            <p class="groupName">aStem:whateverGroupRight</p>
-          </div>
-          <p class="saveMode" />
-          <p class="createParentStemsIfNotExist" />
-          <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">whateverGroupRightDispExt</p>
-            <p class="typeOfGroup" />
             <div class="detail" title="WsGroupDetail" />
-            <p class="name">aStem:whateverGroupRight</p>
+            <p class="displayExtension">whateverGroupLeftDispExt</p>
             <p class="displayName" />
-            <p class="description">whateverGroupRightDesc</p>
-            <p class="extension">whateverGroupRight</p>
+            <p class="extension">whateverGroupLeft</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverGroupLeft</p>
+            <p class="typeOfGroup" />
+            <p class="uuid" />
+          </div>
+          <div class="wsGroupLookup" title="WsGroupLookup">
+            <p class="groupName">aStem:whateverGroupLeft</p>
+            <p class="idIndex" />
+            <p class="uuid" />
           </div>
         </li>
         <li title="WsGroupToSave">
-          <div class="wsGroupLookup" title="WsGroupLookup">
-            <p class="uuid" />
-            <p class="groupName">aStem:whateverGroup</p>
-          </div>
-          <p class="saveMode" />
           <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp1</p>
+            <p class="description">whateverGroupRightDesc</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="displayExtension">whateverGroupRightDispExt</p>
+            <p class="displayName" />
+            <p class="extension">whateverGroupRight</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverGroupRight</p>
             <p class="typeOfGroup" />
+            <p class="uuid" />
+          </div>
+          <div class="wsGroupLookup" title="WsGroupLookup">
+            <p class="groupName">aStem:whateverGroupRight</p>
+            <p class="idIndex" />
+            <p class="uuid" />
+          </div>
+        </li>
+        <li title="WsGroupToSave">
+          <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
+          <div class="wsGroup" title="WsGroup">
+            <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail">
-              <p class="createTime" />
-              <div class="leftGroup" title="WsGroup">
-                <p class="uuid" />
-                <p class="displayExtension">whateverGroupLeftDispExt</p>
-                <p class="typeOfGroup" />
-                <div class="detail" title="WsGroupDetail" />
-                <p class="name">aStem:whateverGroupLeft</p>
-                <p class="displayName" />
-                <p class="description">whateverGroupLeftDesc</p>
-                <p class="extension">whateverGroupLeft</p>
-              </div>
-              <div class="rightGroup" title="WsGroup">
-                <p class="uuid" />
-                <p class="displayExtension">whateverGroupRightDispExt</p>
-                <p class="typeOfGroup" />
-                <div class="detail" title="WsGroupDetail" />
-                <p class="name">aStem:whateverGroupRight</p>
-                <p class="displayName" />
-                <p class="description">whateverGroupRightDesc</p>
-                <p class="extension">whateverGroupRight</p>
-              </div>
-              <p class="modifyTime" />
-              <p class="createSubjectId" />
-              <p class="hasComposite">T</p>
-              <p class="isCompositeFactor" />
-              <p class="modifySource" />
-              <p class="modifySubjectId" />
-              <ul class="typeNames">
-                <li>aType</li>
-                <li>aType2</li>
+              <ul class="attributeNames">
+                <li>attr_1</li>
+                <li>attr2_1</li>
               </ul>
               <ul class="attributeValues">
                 <li>val_1</li>
                 <li>val2_1</li>
               </ul>
               <p class="compositeType">intersection</p>
-              <ul class="attributeNames">
-                <li>attr_1</li>
-                <li>attr2_1</li>
+              <p class="createSubjectId" />
+              <p class="createTime" />
+              <p class="hasComposite">T</p>
+              <p class="isCompositeFactor" />
+              <div class="leftGroup" title="WsGroup">
+                <p class="description">whateverGroupLeftDesc</p>
+                <div class="detail" title="WsGroupDetail" />
+                <p class="displayExtension">whateverGroupLeftDispExt</p>
+                <p class="displayName" />
+                <p class="extension">whateverGroupLeft</p>
+                <p class="idIndex" />
+                <p class="name">aStem:whateverGroupLeft</p>
+                <p class="typeOfGroup" />
+                <p class="uuid" />
+              </div>
+              <p class="modifySource" />
+              <p class="modifySubjectId" />
+              <p class="modifyTime" />
+              <div class="rightGroup" title="WsGroup">
+                <p class="description">whateverGroupRightDesc</p>
+                <div class="detail" title="WsGroupDetail" />
+                <p class="displayExtension">whateverGroupRightDispExt</p>
+                <p class="displayName" />
+                <p class="extension">whateverGroupRight</p>
+                <p class="idIndex" />
+                <p class="name">aStem:whateverGroupRight</p>
+                <p class="typeOfGroup" />
+                <p class="uuid" />
+              </div>
+              <ul class="typeNames">
+                <li>aType</li>
+                <li>aType2</li>
               </ul>
             </div>
-            <p class="name">aStem:whateverGroup</p>
+            <p class="displayExtension">disp1</p>
             <p class="displayName" />
-            <p class="description">desc1</p>
             <p class="extension">whateverGroup</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverGroup</p>
+            <p class="typeOfGroup" />
+            <p class="uuid" />
+          </div>
+          <div class="wsGroupLookup" title="WsGroupLookup">
+            <p class="groupName">aStem:whateverGroup</p>
+            <p class="idIndex" />
+            <p class="uuid" />
           </div>
         </li>
       </ul>
@@ -146,10 +154,12 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:11:29 GMT
+Transfer-Encoding: chunked
+Date: Wed, 18 Jun 2014 18:33:43 GMT
 Connection: close
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+b3d
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -157,6 +167,21 @@ Connection: close
   </head>
   <body>
     <div title="WsGroupSaveResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">969</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
+wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: null</p>
+        <p class="success">T</p>
+      </div>
       <ul class="results">
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -166,14 +191,15 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroupLeft</p>
-            <p class="displayName">a stem:whateverGroupLeftDispExt</p>
             <p class="description">whateverGroupLeftDesc</p>
-            <p class="uuid">de5bb9d025654ef78bd2798e4f6532f7</p>
             <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroupLeft</p>
             <p class="displayExtension">whateverGroupLeftDispExt</p>
+            <p class="displayName">a stem:whateverGroupLeftDispExt</p>
+            <p class="extension">whateverGroupLeft</p>
+            <p class="idIndex">10017</p>
+            <p class="name">aStem:whateverGroupLeft</p>
             <p class="typeOfGroup">group</p>
+            <p class="uuid">500b7ffa003b49878e0849169db58372</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
@@ -184,14 +210,15 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroupRight</p>
-            <p class="displayName">a stem:whateverGroupRightDispExt</p>
             <p class="description">whateverGroupRightDesc</p>
-            <p class="uuid">40f9f34135074a7c86e0d1c64cffbbcd</p>
             <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroupRight</p>
             <p class="displayExtension">whateverGroupRightDispExt</p>
+            <p class="displayName">a stem:whateverGroupRightDispExt</p>
+            <p class="extension">whateverGroupRight</p>
+            <p class="idIndex">10018</p>
+            <p class="name">aStem:whateverGroupRight</p>
             <p class="typeOfGroup">group</p>
+            <p class="uuid">739531b97b4d4ae590ec47bce7a3a387</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
@@ -202,35 +229,22 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
-            <p class="uuid">40c6e57934664f89a6b6033b7f37436f</p>
             <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroup</p>
             <p class="displayExtension">disp1</p>
+            <p class="displayName">a stem:disp1</p>
+            <p class="extension">whateverGroup</p>
+            <p class="idIndex">10019</p>
+            <p class="name">aStem:whateverGroup</p>
             <p class="typeOfGroup">group</p>
+            <p class="uuid">795aad746aba4838a43b6dd6b7ef5391</p>
           </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
-wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
-, actAsSubject: null, txType: NONE, paramNames:
-, params: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">627</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -445,7 +459,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroupLeft],
   wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDis...
 , actAsSubject: null, txType: NONE, paramNames: 

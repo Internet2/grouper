@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest2, manual
 #########################################
 
 
-PUT /grouper-ws/servicesRest/v2_1_001/groups HTTP/1.1
+PUT /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 934
+Content-Length: 955
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -25,27 +25,28 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAddMemberRequest">
-      <p class="enabledTime" />
-      <p class="disabledTime" />
-      <p class="clientVersion" />
-      <div class="wsGroupLookup" title="WsGroupLookup">
-        <p class="uuid" />
-        <p class="groupName">test:testGroup</p>
-      </div>
-      <ul class="subjectLookups">
-        <li title="WsSubjectLookup">
-          <p class="subjectSourceId">jdbc</p>
-          <p class="subjectId">test.subject.0</p>
-          <p class="subjectIdentifier" />
-        </li>
-      </ul>
-      <p class="replaceAllExisting" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="txType" />
+      <p class="addExternalSubjectIfNotFound" />
+      <p class="clientVersion" />
+      <p class="disabledTime" />
+      <p class="enabledTime" />
+      <p class="fieldName" />
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
-      <p class="addExternalSubjectIfNotFound" />
-      <p class="fieldName" />
+      <p class="replaceAllExisting" />
+      <ul class="subjectLookups">
+        <li title="WsSubjectLookup">
+          <p class="subjectId">test.subject.0</p>
+          <p class="subjectIdentifier" />
+          <p class="subjectSourceId">jdbc</p>
+        </li>
+      </ul>
+      <p class="txType" />
+      <div class="wsGroupLookup" title="WsGroupLookup">
+        <p class="groupName">test:testGroup</p>
+        <p class="idIndex" />
+        <p class="uuid" />
+      </div>
     </div>
   </body>
 </html>
@@ -69,9 +70,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 16:46:54 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:24:45 GMT
 Connection: close
 
+770
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -80,6 +83,21 @@ Connection: close
   </head>
   <body>
     <div title="WsAddMemberResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">171</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
+, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null
+, disabledDate: null, enabledDate: null</p>
+        <p class="success">T</p>
+      </div>
       <ul class="results">
         <li title="WsAddMemberResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -89,43 +107,30 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsSubject" title="WsSubject">
-            <p class="name">my name is test.subject.0</p>
             <p class="id">test.subject.0</p>
-            <p class="sourceId">jdbc</p>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
             <p class="identifierLookup" />
+            <p class="name">my name is test.subject.0</p>
+            <p class="resultCode">SUCCESS</p>
+            <p class="sourceId">jdbc</p>
+            <p class="success">T</p>
           </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
-
-, replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-, params: null
-, disabledDate: null, enabledDate: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">92</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsGroupAssigned" title="WsGroup">
-        <p class="name">test:testGroup</p>
-        <p class="displayName">test:testGroup</p>
         <p class="description" />
-        <p class="uuid">c25e04ef0d9f4ff3bc390f1cdafcf4a9</p>
         <div class="detail" title="WsGroupDetail" />
-        <p class="extension">testGroup</p>
         <p class="displayExtension">testGroup</p>
+        <p class="displayName">test:testGroup</p>
+        <p class="extension">testGroup</p>
+        <p class="idIndex">10000</p>
+        <p class="name">test:testGroup</p>
         <p class="typeOfGroup">group</p>
+        <p class="uuid">7b162f46484b4925b72eb9683c3915b1</p>
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -307,7 +312,7 @@ public class WsSampleAddMemberRest2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookup: WsGroupLookup[pitGroups=[],groupName=test:testGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 , replaceAllExisting: false, actAsSubject: null, fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

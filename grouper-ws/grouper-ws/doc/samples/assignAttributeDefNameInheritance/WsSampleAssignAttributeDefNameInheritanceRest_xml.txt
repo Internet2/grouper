@@ -1,4 +1,4 @@
-Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRest, manually written lite/rest, format: xml, for version: 2.1.1
+Grouper web service sample of service: assignAttributeDefNameInheritance, WsSampleAssignAttributeDefNameInheritanceRest, manually written lite/rest, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: assignAttributeDefNameInheritance, WsSamp
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 530
 Content-Type: text/xml; charset=UTF-8
@@ -51,9 +51,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:16:11 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 22:31:21 GMT
 Connection: close
 
+1b8
 <WsAssignAttributeDefNameInheritanceResults>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -62,10 +64,11 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>215</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>119</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsAssignAttributeDefNameInheritanceResults>
+0
 
 
 #########################################
@@ -262,4 +265,4 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.
+Server version: 2.2.0, result code: SUCCESS, result message: Had 2 successful adds, 0 adds which already existed, 0 successful removes, and 0 removes which didnt exist.

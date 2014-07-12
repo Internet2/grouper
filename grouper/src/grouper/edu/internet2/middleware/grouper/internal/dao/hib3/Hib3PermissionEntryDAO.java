@@ -203,7 +203,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
           grouperSessionSubject, byHqlStatic, 
@@ -546,7 +546,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -655,7 +655,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -786,7 +786,7 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
 
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 

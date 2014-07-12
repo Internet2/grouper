@@ -41,6 +41,7 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -81,17 +82,18 @@ import edu.internet2.middleware.grouper.grouperUi.beans.RequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.ExternalSubjectSelfRegister;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.InviteExternalSubjects;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -108,12 +110,31 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 public class GrouperUiFilter implements Filter {
 
+  static {
+    GrouperStatusServlet.registerStartup();
+  }
+
   /** keep 100k in memory, why not */
   private static FileItemFactory fileItemFactory = new DiskFileItemFactory(100000, null);
 
   /** Create a new file upload handler */
   private static ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
 
+  /**
+   * get the request locale or null if there is no request is scope...
+   * @return the locale
+   */
+  public static Locale retrieveLocale() {
+    
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    if (httpServletRequest == null) {
+      return null;
+    }
+    
+    return httpServletRequest.getLocale();
+    
+  }
+  
   /**
    * get the nav resource bundle from session
    * @return the nav resource bundle
@@ -259,14 +280,35 @@ public class GrouperUiFilter implements Filter {
   public static Subject retrieveSubjectLoggedIn() {
     return retrieveSubjectLoggedIn(false);
   }
-    
 
   /**
    * retrieve the subject logged in
    * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
    * @return the subject
    */
-  private static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
+  public static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
+    Subject subject = retrieveSubjectLoggedInHelper(allowNoUserLoggedIn);
+
+    UiSection uiSectionForRequest = uiSectionForRequest();
+
+    ensureUserAllowedInSection(uiSectionForRequest, subject);
+
+    if (subject != null) {
+      SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
+      
+      sessionContainer.setSubjectLoggedIn(subject);
+    }
+    
+    return subject;
+  }
+
+
+  /**
+   * retrieve the subject logged in
+   * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
+   * @return the subject
+   */
+  private static Subject retrieveSubjectLoggedInHelper(boolean allowNoUserLoggedIn) {
     
     GrouperSession grouperSession = SessionInitialiser.getGrouperSession(retrieveHttpServletRequest().getSession());
     if (grouperSession != null && grouperSession.getSubject() != null) {
@@ -279,32 +321,25 @@ public class GrouperUiFilter implements Filter {
     
     HttpServletRequest request = retrieveHttpServletRequest();
 
-    UiSection uiSectionForRequest = uiSectionForRequest();
-
     if (subjectLoggedIn != null) {
       return subjectLoggedIn;
     }
   
-  
     //currently assumes user is in getUserPrincipal
     String userIdLoggedIn = remoteUser(request);
-
-    if (StringUtils.isBlank(userIdLoggedIn) && uiSectionForRequest.isAnonymous()) {
-      return null;
-    }
 
     if (StringUtils.isBlank(userIdLoggedIn)) {
       if (allowNoUserLoggedIn) {
         return null;
       }
-      throw new RuntimeException("Cant find logged in user");
+      throw new NoUserAuthenticatedException("Cant find logged in user");
     }
     
     GrouperSession rootSession = GrouperSession.startRootSession();
     try {
       subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
     } catch (RuntimeException re) {
-      if (re instanceof SubjectNotFoundException && uiSectionForRequest.isAnonymous()) {
+      if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
         return null;
       }
       //this is probably a system error...  not a user error
@@ -313,11 +348,7 @@ public class GrouperUiFilter implements Filter {
     } finally {
       GrouperSession.stopQuietly(rootSession);
     }
-    
-    ensureUserAllowedInSection(uiSectionForRequest, subjectLoggedIn);
-    
-    sessionContainer.setSubjectLoggedIn(subjectLoggedIn);
-    
+        
     return subjectLoggedIn;
 
   }
@@ -328,6 +359,10 @@ public class GrouperUiFilter implements Filter {
    * @param subjectLoggedIn
    */
   private static void ensureUserAllowedInSection(UiSection uiSection, Subject subjectLoggedIn) {
+
+    if (subjectLoggedIn == null && uiSection.isAnonymous()) {
+      return;
+    }
 
     //if the user is allowed in the admin ui, we are all good
     Set<UiSection> uiSectionsThatAllowThisSection = GrouperUtil.nonNull(uiSection.getUiSectionsThatAllowThisSection());
@@ -574,6 +609,23 @@ public class GrouperUiFilter implements Filter {
     }
   }
   
+  /**
+   * servlet context will be /grouper or whatever or empty string if no context
+   * @return context
+   */
+  public static String retrieveServletContext() {
+    HttpServletRequest request = retrieveHttpServletRequest();
+    if (request == null) {
+      throw new NullPointerException("No request");
+    }
+    String servletContext = request.getContextPath();
+
+    //since this is just a prefix of a path, then if there is no servlet context, it is the empty string
+    if (servletContext == null || "/".equals(servletContext)) {
+      servletContext = "";
+    }
+    return servletContext;
+  }
   
   /**
    * get the ui section we are in
@@ -621,6 +673,18 @@ public class GrouperUiFilter implements Filter {
       return UiSection.ANONYMOUS;
     }
     if (uri.matches("^/[^/]+/grouperExternal[/]?.*/index.html$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.index$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.index$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperExternal/public/UiV2Public\\.postIndex$")) {
+      return UiSection.ANONYMOUS;
+    }
+    if (uri.matches("^/[^/]+/grouperUi/app/UiV2Public\\.postIndex$")) {
       return UiSection.ANONYMOUS;
     }
     
@@ -694,6 +758,7 @@ public class GrouperUiFilter implements Filter {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   private static final long serialVersionUID = 1L;
 
   /**
@@ -772,7 +837,13 @@ public class GrouperUiFilter implements Filter {
             //this is not really ok, but cant do much about it
             String error = "Cant find login subject: " + remoteUser + ", " + uiSection;
             LOG.error(error, e);
-            throw new RuntimeException(error);
+            //redirect to the error screen if loginid did not resolve to a subject
+            try {
+              ((HttpServletResponse)response).sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=authenticatedSubjectNotFound");
+            } catch (IOException ioe) {
+              throw new RuntimeException("Cant redirect", ioe);
+            }
+            throw new ControllerDone();
           }
         } finally {
           GrouperSession.stopQuietly(rootSession);
@@ -844,9 +915,19 @@ public class GrouperUiFilter implements Filter {
     try {
       
       servletRequest.setCharacterEncoding("UTF-8");
+      response.setCharacterEncoding("UTF-8");
       
       httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) servletRequest);
-      
+
+      // Set standard HTTP/1.1 no-cache headers.
+      ((HttpServletResponse)response).setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+
+      // Set standard HTTP/1.0 no-cache header.
+      ((HttpServletResponse)response).setHeader("Pragma", "no-cache");
+
+      // belt and suspenders
+      ((HttpServletResponse)response).setHeader("Expires", "0");
+
       httpServletRequest = initRequest(httpServletRequest, response);
   
       try {
@@ -876,11 +957,11 @@ public class GrouperUiFilter implements Filter {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream    out  = new ObjectOutputStream(baos);
                     out.writeObject(current);
-  
+
                   } catch (Exception e2) {
                     LOG.error("Error serializing in map: " + key, e2);
                   }
-                  
+
                 }
               }
             }
@@ -898,6 +979,8 @@ public class GrouperUiFilter implements Filter {
         UiSection uiSection = uiSectionForRequest();
         ensureUserAllowedInSection(uiSection, subjectLoggedIn);
       }
+
+      TextContainer.retrieveFromRequest();
       
       filterChain.doFilter(httpServletRequest, response);
       
@@ -1016,7 +1099,7 @@ public class GrouperUiFilter implements Filter {
     try {
       HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
 
-      String error = (String)httpServletRequest.getAttribute("error");
+      String error = httpServletRequest == null ? null : (String)httpServletRequest.getAttribute("error");
       if (!StringUtils.isBlank(error)) {
         
         String errorMailAddresses = GrouperUiConfig.retrieveConfig().propertyValueString("errorMailAddresses");

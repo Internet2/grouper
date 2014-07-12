@@ -55,8 +55,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sf.cglib.proxy.Enhancer;
-
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -135,6 +133,19 @@ public class SubjectUtils {
    * cache the properties read from resource 
    */
   private static Map<String, Properties> resourcePropertiesCache = new HashMap<String, Properties>();
+
+  /**
+   * create one jexlEngine instance so we can cache expressions
+   */
+  private static final JexlEngine jexlEngine = new JexlEngine();
+  
+  /**
+   * settings for jexlEngine
+   */
+  static {
+    jexlEngine.setCache(512);
+    jexlEngine.setSilent(false);
+  }
 
   /**
    * do a case-insensitive matching
@@ -966,7 +977,7 @@ public class SubjectUtils {
    * @return the classname
    */
   public static String className(Object object) {
-    return object == null ? null : unenhanceClass(object.getClass())
+    return object == null ? null : object.getClass()
         .getName();
   }
 
@@ -1620,22 +1631,6 @@ public class SubjectUtils {
     }
   }
 
-  /**
-   * if a class is enhanced, get the unenhanced version
-   * 
-   * @param theClass
-   * @return the unenhanced version
-   */
-  public static Class unenhanceClass(Class theClass) {
-    try {
-      while (Enhancer.isEnhanced(theClass)) {
-        theClass = theClass.getSuperclass();
-      }
-      return theClass;
-    } catch (Exception e) {
-      throw new RuntimeException("Problem unenhancing " + theClass, e);
-    }
-  }
 
   /**
    * null safe iterator getter if the type if collection
@@ -1976,9 +1971,6 @@ public class SubjectUtils {
       
       StringBuilder result = new StringBuilder();
   
-      JexlEngine jexlEngine = new JexlEngine();
-      jexlEngine.setSilent(false);
-
       
       //loop through and find each script
       while(matcher.find()) {

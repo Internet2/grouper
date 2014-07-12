@@ -154,27 +154,20 @@ public class SessionInitialiser {
           String module = (String)multiKey.getKey(0);
           Locale localeObj = (Locale)multiKey.getKey(1);
           
-          ResourceBundle grouperBundle = ResourceBundle.getBundle(
-              "resources.grouper.nav", localeObj);
+          ResourceBundle grouperBundle = new GrouperNavResourceBundle(localeObj);
           ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
               "resources.grouper.media", localeObj);
           
-          ChainedResourceBundle chainedBundle = null;
           ChainedResourceBundle chainedMediaBundle = null;
+          ChainedResourceBundle chainedBundle = new ChainedResourceBundle(grouperBundle,
+              "navResource");
 
           if (module.equals("i2mi") || module.equals("grouper")) {
-            chainedBundle = new ChainedResourceBundle(grouperBundle,
-                "navResource");
             chainedMediaBundle = new ChainedResourceBundle(grouperMediaBundle,
                 "mediaResource");
           } else {
-            ResourceBundle moduleBundle = ResourceBundle.getBundle("resources."
-                + module + ".nav", localeObj);
             ResourceBundle moduleMediaBundle = ResourceBundle.getBundle(
                 "resources." + module + ".media", localeObj);
-            chainedBundle = new ChainedResourceBundle(moduleBundle,
-                "navResource");
-            chainedBundle.addBundle(grouperBundle);
 
             chainedMediaBundle = new ChainedResourceBundle(moduleMediaBundle,
                 "mediaResource");

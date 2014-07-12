@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -279,7 +280,8 @@ public class PrivilegeHelper {
    */
   public static boolean canStemAttrRead(GrouperSession s, Stem stem, Subject subj) {
     NamingResolver resolver = s.getNamingResolver();
-    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_READ);
+    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_READ)
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM);
   } 
   
   /**
@@ -290,7 +292,8 @@ public class PrivilegeHelper {
    */
   public static boolean canStemAttrUpdate(GrouperSession s, Stem stem, Subject subj) {
     NamingResolver resolver = s.getNamingResolver();
-    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_UPDATE);
+    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_UPDATE)
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM);
   } 
 
   /**
@@ -313,7 +316,9 @@ public class PrivilegeHelper {
    */
   public static boolean canAttrOptin(GrouperSession s, AttributeDef attributeDef, Subject subj) {
     AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
-    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN);
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTIN)
+        || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN)
+        || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE);
   } 
 
   /**
@@ -324,7 +329,9 @@ public class PrivilegeHelper {
    */
   public static boolean canAttrOptout(GrouperSession s, AttributeDef attributeDef, Subject subj) {
     AttributeDefResolver attributeDefResolver = s.getAttributeDefResolver();
-    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTOUT);
+    return attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_OPTOUT)
+        || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_ADMIN)
+        || attributeDefResolver.hasPrivilege(attributeDef, subj, AttributeDefPrivilege.ATTR_UPDATE);
   }
 
   /**
@@ -338,7 +345,8 @@ public class PrivilegeHelper {
   public static boolean canCreate(GrouperSession s, Stem ns, Subject subj) {
     // TODO 20070820 deprecate
     // TODO 20070820 perform query for all privs and compare internally
-    return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.CREATE);
+    return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.CREATE)
+        || s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
   } 
 
   /**
@@ -1164,6 +1172,9 @@ public class PrivilegeHelper {
       return true;
 
     } catch (InsufficientPrivilegeException e) {
+      //ignore, not allowed, dont add
+      return false;
+    } catch (AttributeDefNotFoundException e) {
       //ignore, not allowed, dont add
       return false;
     }

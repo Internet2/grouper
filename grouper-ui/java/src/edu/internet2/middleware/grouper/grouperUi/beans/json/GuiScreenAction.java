@@ -31,6 +31,68 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class GuiScreenAction implements Serializable {
 
+  /**
+   * message type in v2 ui
+   */
+  public static enum GuiMessageType {
+    
+    /** green message */
+    success,
+    
+    /** blue message */
+    info,
+    
+    /** red message */
+    error;
+  }
+ 
+  /**
+   * add a new message to the top of a v2 screen
+   * @param guiMessageType
+   * @param message
+   * @return the action
+   */
+  public static GuiScreenAction newMessage(GuiMessageType guiMessageType, String message) {
+    
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setMessage(message);
+    guiScreenAction.setMessageType(guiMessageType.name());
+    return guiScreenAction;
+    
+  }
+  
+  /**
+   * add a message (v2)
+   * @return the message
+   */
+  public String getMessage() {
+    return this.message;
+  }
+
+  /**
+   * add a message (v2)
+   * @param message1
+   */
+  public void setMessage(String message1) {
+    this.message = message1;
+  }
+
+  /**
+   * add a message type (v2)
+   * @return message type
+   */
+  public String getMessageType() {
+    return this.messageType;
+  }
+
+  /**
+   * add a message type (v2)
+   * @param messageType1
+   */
+  public void setMessageType(String messageType1) {
+    this.messageType = messageType1;
+  }
+
   /** the place in object model to assign */
   private String assignmentName;
   
@@ -59,6 +121,38 @@ public class GuiScreenAction implements Serializable {
    * single values)
    */
   private List<String> formFieldValues;
+  
+  /**
+   * add a message (v2)
+   */
+  private String message;
+  
+  /**
+   * add a validation message
+   */
+  private String validationMessage;
+  
+  /**
+   * add a validation message
+   * @return validation message
+   */
+  public String getValidationMessage() {
+    return this.validationMessage;
+  }
+
+  /**
+   * add a validation message
+   * @param validationMessage1
+   */
+  public void setValidationMessage(String validationMessage1) {
+    this.validationMessage = validationMessage1;
+  }
+
+  /**
+   * add a message type (v2)
+   */
+  private String messageType;
+  
   
   
   /**
@@ -577,6 +671,23 @@ public class GuiScreenAction implements Serializable {
    */
   public void setCloseModal(Boolean closeModal1) {
     this.closeModal = closeModal1;
+  }
+
+  /**
+   * add a new message to the top of a v2 screen
+   * @param guiMessageType
+   * @param message
+   * @return the action
+   */
+  public static GuiScreenAction newValidationMessage(GuiMessageType guiMessageType, 
+      String jqueryHandle, String message) {
+    
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setValidationMessage(message);
+    guiScreenAction.setInnerHtmlJqueryHandle(jqueryHandle);
+    guiScreenAction.setMessageType(guiMessageType.name());
+    return guiScreenAction;
+    
   }
 
   /**

@@ -1,9 +1,0 @@
-dn: ou=edu,ou=testgroups,${base}
-objectclass: organizationalUnit
-ou: edu
-
-dn: cn=group/F,ou=edu,ou=testgroups,${base}
-objectClass: top
-objectClass: ${groupObjectClass}
-cn: group/F
-member: cn=test.subject.1,ou=testpeople,${base}

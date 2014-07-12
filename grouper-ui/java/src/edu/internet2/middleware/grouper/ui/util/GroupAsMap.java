@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -122,7 +124,8 @@ public class GroupAsMap extends ObjectAsMap {
 			}
 			if(obj!=null) return obj;
 			try{
-				obj = group.getAttributeValue((String)key, false, false);
+			  AttributeDefName legacyAttribute = AttributeDefNameFinder.findByName((String)key, true);
+				obj = group.getAttributeValue(legacyAttribute.getLegacyAttributeName(true), true, false);
 			}catch(Exception e){}
 			
 		}

@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttributeDefNamesRest, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: findAttributeDefNames, WsSampleFindAttrib
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 853
+Content-Length: 926
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -25,22 +25,24 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestFindAttributeDefNamesRequest">
-      <p class="scope">test:</p>
-      <p class="pageSize" />
-      <p class="pageNumber" />
-      <p class="attributeDefType" />
-      <p class="attributeAssignType" />
-      <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
         <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
+        <p class="subjectSourceId" />
       </div>
-      <p class="sortString" />
       <p class="ascending" />
+      <p class="attributeAssignType" />
+      <p class="attributeDefType" />
+      <p class="clientVersion" />
+      <p class="pageNumber" />
+      <p class="pageSize" />
+      <p class="scope">test:</p>
+      <p class="serviceRole" />
+      <p class="sortString" />
       <p class="splitScope" />
-      <p class="wsInheritanceSetRelation" />
+      <div class="subjectLookup" title="WsSubjectLookup" />
       <div class="wsAttributeDefLookup" title="WsAttributeDefLookup" />
+      <p class="wsInheritanceSetRelation" />
     </div>
   </body>
 </html>
@@ -61,10 +63,12 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:35:47 GMT
+Transfer-Encoding: chunked
+Date: Tue, 03 Jun 2014 21:48:11 GMT
 Connection: close
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+e31
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -72,67 +76,95 @@ Connection: close
   </head>
   <body>
     <div title="WsFindAttributeDefNamesResults">
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
-wsAttributeDefNameLookups: null
-wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
-, params: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">196</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
+      <ul class="attributeDefNameResults">
+        <li title="WsAttributeDefName">
+          <p class="attributeDefId">38ef84e546c54f73965ca10fd431ab71</p>
+          <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
+          <p class="description" />
+          <p class="displayExtension">testAttributeAssignAssignName</p>
+          <p class="displayName">test:testAttributeAssignAssignName</p>
+          <p class="extension">testAttributeAssignAssignName</p>
+          <p class="idIndex">10116</p>
+          <p class="name">test:testAttributeAssignAssignName</p>
+          <p class="uuid">a1cff84c4eae4dfe8e950b3ce0d12f66</p>
+        </li>
+        <li title="WsAttributeDefName">
+          <p class="attributeDefId">8b5f3ba48bb046ab8068eb42b0ff4d57</p>
+          <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
+          <p class="description" />
+          <p class="displayExtension">testAttributeAssignDefName</p>
+          <p class="displayName">test:testAttributeAssignDefName</p>
+          <p class="extension">testAttributeAssignDefName</p>
+          <p class="idIndex">10115</p>
+          <p class="name">test:testAttributeAssignDefName</p>
+          <p class="uuid">e3cc3c4fe2424be5a07f04d5a451120f</p>
+        </li>
+        <li title="WsAttributeDefName">
+          <p class="attributeDefId">5ab02a3d5d5241c3ab169138f627c40b</p>
+          <p class="attributeDefName">test:testAttrNameDef</p>
+          <p class="description" />
+          <p class="displayExtension">testAttrName</p>
+          <p class="displayName">test:testAttrName</p>
+          <p class="extension">testAttrName</p>
+          <p class="idIndex">10114</p>
+          <p class="name">test:testAttrName</p>
+          <p class="uuid">6cf2fdc4f35a4add8dd56d234b458e4a</p>
+        </li>
+      </ul>
       <ul class="attributeDefs">
         <li title="WsAttributeDef">
-          <p class="name">test:testAttributeAssignAssignNameDef</p>
-          <p class="description" />
-          <p class="uuid">690f36b3e8da4304bf1c2e87e3541f62</p>
-          <p class="extension">testAttributeAssignAssignNameDef</p>
           <p class="attributeDefType">attr</p>
+          <p class="description" />
+          <p class="extension">testAttrNameDef</p>
+          <p class="idIndex">10030</p>
+          <p class="multiAssignable">F</p>
+          <p class="multiValued">T</p>
+          <p class="name">test:testAttrNameDef</p>
+          <p class="uuid">5ab02a3d5d5241c3ab169138f627c40b</p>
+          <p class="valueType">string</p>
+        </li>
+        <li title="WsAttributeDef">
+          <p class="attributeDefType">attr</p>
+          <p class="description" />
+          <p class="extension">testAttributeAssignAssignNameDef</p>
+          <p class="idIndex">10032</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
+          <p class="name">test:testAttributeAssignAssignNameDef</p>
+          <p class="uuid">38ef84e546c54f73965ca10fd431ab71</p>
           <p class="valueType">marker</p>
         </li>
         <li title="WsAttributeDef">
-          <p class="name">test:testAttributeAssignDefNameDef</p>
-          <p class="description" />
-          <p class="uuid">fe1e1b8b545f401a8dc83cbdf854d7e4</p>
-          <p class="extension">testAttributeAssignDefNameDef</p>
           <p class="attributeDefType">attr</p>
+          <p class="description" />
+          <p class="extension">testAttributeAssignDefNameDef</p>
+          <p class="idIndex">10031</p>
           <p class="multiAssignable">F</p>
           <p class="multiValued">T</p>
+          <p class="name">test:testAttributeAssignDefNameDef</p>
+          <p class="uuid">8b5f3ba48bb046ab8068eb42b0ff4d57</p>
           <p class="valueType">integer</p>
         </li>
       </ul>
-      <ul class="attributeDefNameResults">
-        <li title="WsAttributeDefName">
-          <p class="name">test:testAttributeAssignAssignName</p>
-          <p class="displayName">test:testAttributeAssignAssignName</p>
-          <p class="description" />
-          <p class="uuid">e0663c1b98564dc6a5fc341625063ac1</p>
-          <p class="extension">testAttributeAssignAssignName</p>
-          <p class="displayExtension">testAttributeAssignAssignName</p>
-          <p class="attributeDefName">test:testAttributeAssignAssignNameDef</p>
-          <p class="attributeDefId">690f36b3e8da4304bf1c2e87e3541f62</p>
-        </li>
-        <li title="WsAttributeDefName">
-          <p class="name">test:testAttributeAssignDefName</p>
-          <p class="displayName">test:testAttributeAssignDefName</p>
-          <p class="description" />
-          <p class="uuid">8fb0b7cbc2cb40a08ec708265667dadf</p>
-          <p class="extension">testAttributeAssignDefName</p>
-          <p class="displayExtension">testAttributeAssignDefName</p>
-          <p class="attributeDefName">test:testAttributeAssignDefNameDef</p>
-          <p class="attributeDefId">fe1e1b8b545f401a8dc83cbdf854d7e4</p>
-        </li>
-      </ul>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">298</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+wsAttributeDefNameLookups: null
+wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
+, params: null
+, wsSubjectLookup: null, serviceRole: null</p>
+        <p class="success">T</p>
+      </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -307,7 +339,8 @@ public class WsSampleFindAttributeDefNamesRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, scope: test:, splitScope: null, wsAttributeDefLookup: null, attributeAssignType: null, attributeDefType: null
 wsAttributeDefNameLookups: null
 wsInheritanceSetRelation: null, pageSize: null, pageNumber: null, sortString: null, ascending: null, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null
+, wsSubjectLookup: null, serviceRole: null

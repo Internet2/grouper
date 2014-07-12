@@ -93,8 +93,8 @@ public class GrouperLoader {
     GrouperCheckConfig.checkResource("grouper-loader.properties");
     
     //make sure properties are there
-    GrouperCheckConfig.checkConfigProperties("grouper-loader.properties", 
-        "grouper-loader.example.properties");
+//    GrouperCheckConfig.checkConfigProperties("grouper-loader.properties", 
+//        "grouper-loader.example.properties");
     
     GrouperCheckConfig.checkGrouperLoaderConfigDbs();
     GrouperCheckConfig.checkGrouperLoaderConsumers();

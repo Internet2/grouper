@@ -5284,7 +5284,20 @@ public class GrouperUtilElSafe {
     }
     return collection.iterator().next();
   }
-  
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input) {
+    return xmlEscape(input, true);
+  }
+
   /**
    * Convert an XML string to HTML to display on the screen
    * 
@@ -6181,4 +6194,50 @@ public class GrouperUtilElSafe {
       }
   }
  
+  /**
+   * concat two strings
+   * @param a
+   * @param b
+   * @return the concatted string
+   */
+  public static String concat(String a, String b) {
+    return a+b;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c) {
+    return a+b+c;
+  }
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @param d
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c, String d) {
+    return a+b+c+d;
+  }
+  
+  
+  /**
+   * concat strings
+   * @param a
+   * @param b
+   * @param c
+   * @param d
+   * @return the concatted string
+   */
+  public static String concat(String a, String b, String c, String d, String e) {
+    return a+b+c+d+e;
+  }
+  
 }

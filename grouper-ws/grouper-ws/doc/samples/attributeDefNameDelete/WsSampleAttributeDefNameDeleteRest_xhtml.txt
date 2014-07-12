@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRest, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRest, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,12 +9,12 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 869
+Content-Length: 911
 Content-Type: application/xhtml+xml; charset=UTF-8
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -25,21 +25,23 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAttributeDefNameDeleteRequest">
-      <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
         <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
+        <p class="subjectSourceId" />
       </div>
+      <p class="clientVersion" />
       <p class="txType" />
       <ul class="wsAttributeDefNameLookups">
         <li title="WsAttributeDefNameLookup">
-          <p class="uuid" />
+          <p class="idIndex" />
           <p class="name">test:testAttributeAssignDefNameToDeleteRest1_xhtml</p>
+          <p class="uuid" />
         </li>
         <li title="WsAttributeDefNameLookup">
-          <p class="uuid" />
+          <p class="idIndex" />
           <p class="name">test:testAttributeAssignDefNameToDeleteRest2_xhtml</p>
+          <p class="uuid" />
         </li>
       </ul>
     </div>
@@ -62,9 +64,11 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:27:58 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:01:25 GMT
 Connection: close
 
+a76
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -73,6 +77,20 @@ Connection: close
   </head>
   <body>
     <div title="WsAttributeDefNameDeleteResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">59</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_xhtml]
+[1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAtt...
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
+, params: null</p>
+        <p class="success">T</p>
+      </div>
       <ul class="results">
         <li title="WsAttributeDefNameDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -83,14 +101,15 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]'.</p>
             <p class="success">T</p>
           </div>
           <div class="wsAttributeDefName" title="WsAttributeDefName">
-            <p class="name">test:testAttributeAssignDefNameToDeleteRest1_xhtml</p>
-            <p class="displayName" />
-            <p class="description" />
-            <p class="uuid" />
-            <p class="extension">testAttributeAssignDefNameToDeleteRest1_xhtml</p>
-            <p class="displayExtension" />
-            <p class="attributeDefName" />
             <p class="attributeDefId" />
+            <p class="attributeDefName" />
+            <p class="description" />
+            <p class="displayExtension" />
+            <p class="displayName" />
+            <p class="extension">testAttributeAssignDefNameToDeleteRest1_xhtml</p>
+            <p class="idIndex" />
+            <p class="name">test:testAttributeAssignDefNameToDeleteRest1_xhtml</p>
+            <p class="uuid" />
           </div>
         </li>
         <li title="WsAttributeDefNameDeleteResult">
@@ -102,34 +121,22 @@ attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]'.</p>
             <p class="success">T</p>
           </div>
           <div class="wsAttributeDefName" title="WsAttributeDefName">
-            <p class="name">test:testAttributeAssignDefNameToDeleteRest2_xhtml</p>
-            <p class="displayName" />
-            <p class="description" />
-            <p class="uuid" />
-            <p class="extension">testAttributeAssignDefNameToDeleteRest2_xhtml</p>
-            <p class="displayExtension" />
-            <p class="attributeDefName" />
             <p class="attributeDefId" />
+            <p class="attributeDefName" />
+            <p class="description" />
+            <p class="displayExtension" />
+            <p class="displayName" />
+            <p class="extension">testAttributeAssignDefNameToDeleteRest2_xhtml</p>
+            <p class="idIndex" />
+            <p class="name">test:testAttributeAssignDefNameToDeleteRest2_xhtml</p>
+            <p class="uuid" />
           </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_xhtml]
-[1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAtt...
-, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
-, params: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">200</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -321,7 +328,7 @@ public class WsSampleAttributeDefNameDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_xhtml]
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 2: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDeleteRest1_xhtml]
 [1]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAtt...
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames: 
 , params: null

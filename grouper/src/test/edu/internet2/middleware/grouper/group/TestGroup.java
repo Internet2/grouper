@@ -31,17 +31,16 @@
 */
 
 package edu.internet2.middleware.grouper.group;
-import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -60,7 +59,7 @@ import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
-import edu.internet2.middleware.grouper.helper.FieldHelper;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.PrivHelper;
@@ -80,6 +79,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -98,7 +98,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGetTypes"));
+    TestRunner.run(new TestGroup("testCreateAssignTypesAttributes"));
     //TestRunner.run(TestGroup.class);
   }
   
@@ -130,6 +130,46 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  public void testCreateAssignTypesAttributes() {
+    GrouperSession grouperSession = null;
+    try {
+      
+      grouperSession = GrouperSession.startRootSession();
+
+      //add some types and attributes
+      final GroupType groupType = GroupType.createType(grouperSession, "aType", false);
+      final GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false);
+      final GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false);
+      final String attribute1name = "attr_1";
+      groupType.addAttribute(grouperSession, attribute1name, false);
+      groupType.addAttribute(grouperSession, "attr_2", false);
+      groupType2.addAttribute(grouperSession, "attr2_1", false);
+      groupType2.addAttribute(grouperSession, "attr2_2", false);
+      groupType3.addAttribute(grouperSession, "attr3_1", false);
+      groupType3.addAttribute(grouperSession, "attr3_2", false);
+
+      
+      
+      GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+        
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          
+          Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("someNewStem:someGroup").save();
+          group.addType(groupType);
+          group.setAttribute(attribute1name, "123");
+          return null;
+        }
+      });
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
   /**
    * test that privileges are ok for member list
    */
@@ -478,65 +518,62 @@ public class TestGroup extends GrouperTest {
    */
   public void testGetTypes() {
     LOG.info("testGetTypes");
+    GroupType testType = GroupType.createType(s, "testType");
+    i2.addType(testType);
     Set types = i2.getTypes();
     Assert.assertTrue("has 1 type/" + types.size(), types.size() == 1);
-    Iterator iter = types.iterator();
-    while (iter.hasNext()) {
-      GroupType type = (GroupType) iter.next();
-      Assert.assertNotNull("type !null", type);
-      Assert.assertTrue("type instanceof GroupType", type instanceof GroupType);
-      Assert.assertTrue("type name == base", type.getName().equals("base"));
-      Set fields = type.getFields();
-      Assert.assertEquals("type has 9 fields", 9, fields.size());
-      Iterator  fIter = fields.iterator();
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_ADMINS              , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-          (Field) fIter.next()   , 
-          Field.FIELD_NAME_GROUP_ATTR_READERS              , FieldType.ACCESS,
-          AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-        );
-      FieldHelper.testField( 
-          (Field) fIter.next()   , 
-          Field.FIELD_NAME_GROUP_ATTR_UPDATERS              , FieldType.ACCESS,
-          AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-        );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "members"             , FieldType.LIST,
-        AccessPrivilege.READ  , AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_OPTINS              , FieldType.ACCESS,
-        AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_OPTOUTS             , FieldType.ACCESS,
-        AccessPrivilege.UPDATE, AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "readers"             , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        Field.FIELD_NAME_UPDATERS            , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "viewers"             , FieldType.ACCESS,
-        AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
-      );
-    }
   } // public void testGetTypes()
 
+  /**
+   * 
+   */
+  public void testGetTypesSecurity() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GroupType testType1 = GroupType.createType(s, "testType1");
+    GroupType testType2 = GroupType.createType(s, "testType2");
+    i2.addType(testType1);
+    i2.addType(testType2);
+    assertEquals(2, i2.getTypes().size());
+    
+    i2.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.GROUP_ATTR_READ);
+    i2.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.GROUP_ATTR_READ);
+    i2.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.GROUP_ATTR_READ);
+    
+    testType1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ2, AttributeDefPrivilege.ATTR_READ, true);
+    testType1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ3, AttributeDefPrivilege.ATTR_READ, true);
+    testType1.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, true);
+    testType2.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ4, AttributeDefPrivilege.ATTR_READ, true);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    assertEquals(0, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    assertEquals(0, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    assertEquals(0, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ3);
+    assertEquals(1, i2.getTypes().size());
+    assertEquals("testType1", i2.getTypes().iterator().next().getName());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ4);
+    assertEquals(2, i2.getTypes().size());
+    assertEquals(2, i2.getTypes(false).size());
+    GrouperSession.stopQuietly(grouperSession);
+  }
+  
   public void testAddChildGroupWithBadExtnOrDisplayExtn() {
     LOG.info("testAddChildGroupWithBadExtnOrDisplayExtn");
     try {
@@ -775,6 +812,37 @@ public class TestGroup extends GrouperTest {
     catch (Exception e) {
       Assert.fail(e.getMessage());
     }
+  } // public void testSetDescription()
+
+  /**
+   * 
+   */
+  public void testSetInvalidDescription() {
+    LOG.info("testSetInvalidDescription");
+    s     = SessionHelper.getRootSession();
+    i2 =  new GroupSave(s).assignGroupNameToEdit("edu:i2").assignCreateParentStemsIfNotExist(true).save();
+    String          set   = "this is a group"; 
+    set = StringUtils.repeat(set, 100);
+    i2.setDescription(set);
+    try {
+      i2.store();
+    } catch (GrouperValidationException gve) {
+      assertEquals(Group.VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY, gve.getGrouperValidationKey());
+      assertEquals(1024, gve.getMaxLength().intValue());
+      assertEquals(1500, gve.getCurrentLength().intValue());
+    }
+
+    //try with group save
+    try {
+      new GroupSave(s).assignGroupNameToEdit(i2.getName()).assignDescription(set).save();
+    } catch (GrouperValidationException gve) {
+      assertEquals(Group.VALIDATION_GROUP_DESCRIPTION_TOO_LONG_KEY, gve.getGrouperValidationKey());
+      assertEquals(1024, gve.getMaxLength().intValue());
+      assertEquals(1500, gve.getCurrentLength().intValue());
+    }
+    
+    
+    s.stop();
   } // public void testSetDescription()
 
   // Tests

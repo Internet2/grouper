@@ -43,6 +43,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Member;
@@ -356,6 +357,18 @@ public class SubjectHelper {
     
   }
 
+  /**
+   * hashcode for subject
+   * @param subject
+   * @return the hashcode
+   */
+  public static int hashcode(Subject subject) {
+    if (subject == null) {
+      return new HashCodeBuilder().append(subject).toHashCode();
+    }
+    return new HashCodeBuilder().append(subject.getSourceId()).append(subject.getId()).toHashCode();
+  }
+  
   /**
    * @param a 
    * @param b 

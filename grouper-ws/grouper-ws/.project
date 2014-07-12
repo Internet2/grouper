@@ -21,11 +21,6 @@
 			<locationURI>GROUPER_CLIENT_TRUNK_SOURCE</locationURI>
 		</link>
 		<link>
-			<name>GROUPER_TRUNK_CLIENT</name>
-			<type>2</type>
-			<locationURI>GROUPER_TRUNK_CLIENT</locationURI>
-		</link>
-		<link>
 			<name>GROUPER_TRUNK_CONF</name>
 			<type>2</type>
 			<locationURI>GROUPER_TRUNK_CONF</locationURI>
@@ -36,4 +31,18 @@
 			<locationURI>GROUPER_TRUNK_SOURCE</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GROUPER_CLIENT_TRUNK_SOURCE</name>
+			<value>file:/C:/mchyzer/grouper/trunk/GROUPER_TRUNK_SVN/grouper-misc/grouperClient/src/java</value>
+		</variable>
+		<variable>
+			<name>GROUPER_TRUNK_CONF</name>
+			<value>file:/C:/mchyzer/grouper/trunk/GROUPER_TRUNK_SVN/grouper/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_TRUNK_SOURCE</name>
+			<value>file:/C:/mchyzer/grouper/trunk/GROUPER_TRUNK_SVN/grouper/src/grouper</value>
+		</variable>
+	</variableList>
 </projectDescription>

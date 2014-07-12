@@ -193,18 +193,28 @@ public class UserAuditQuery {
     if (this.extraCriterion != null) {
       criterionList.add(this.extraCriterion);
     }
+    Date theOnDate = this.onDate;
+    Date theFromDate = this.fromDate;
+    Date theToDate = this.toDate;
     
-    if (this.fromDate != null) {
-      criterionList.add(Restrictions.ge(AuditEntry.FIELD_LAST_UPDATED_DB, this.fromDate.getTime()));
-    }
-    if (this.toDate != null) {
-      criterionList.add(Restrictions.le(AuditEntry.FIELD_LAST_UPDATED_DB, this.toDate.getTime()));
+    //if dates are equal, then its just "on"
+    if (theOnDate == null && theFromDate != null && theToDate != null && GrouperUtil.equals(theFromDate, theToDate)) {
+      theOnDate = theFromDate;
+      theFromDate = null;
+      theToDate = null;
     }
     
-    if (this.onDate != null) {
+    if (theFromDate != null) {
+      criterionList.add(Restrictions.ge(AuditEntry.FIELD_LAST_UPDATED_DB, theFromDate.getTime()));
+    }
+    if (theToDate != null) {
+      criterionList.add(Restrictions.le(AuditEntry.FIELD_LAST_UPDATED_DB, theToDate.getTime()));
+    }
+    
+    if (theOnDate != null) {
       //get beginning of the date
       Calendar calendar = Calendar.getInstance();
-      calendar.setTime(this.onDate);
+      calendar.setTime(theOnDate);
       calendar.clear(Calendar.HOUR_OF_DAY);
       calendar.clear(Calendar.MINUTE);
       calendar.clear(Calendar.SECOND);

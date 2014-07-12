@@ -292,7 +292,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   }
 
   /**
-   * 
+   * used when calling getLeftGroup(), getRightGroup(), or getOwnerGroup()
    * @param uuid
    * @return group
    * @throws GroupNotFoundException
@@ -300,7 +300,9 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   private Group _getGroup(String uuid) 
     throws  GroupNotFoundException {
     Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true) ;
-    GrouperSession.staticGrouperSession().getMember().canView(g);
+    if (!GrouperSession.staticGrouperSession().getMember().canView(g)) {
+      throw new GroupNotFoundException("Cant view group: " + g.getUuid());
+    }
     return g;
   } 
 

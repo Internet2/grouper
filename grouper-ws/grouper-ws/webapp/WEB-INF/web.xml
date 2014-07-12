@@ -51,7 +51,7 @@
   <servlet>
     <servlet-name>StatusServlet</servlet-name>
     <display-name>Status Servlet</display-name>
-    <servlet-class>edu.internet2.middleware.grouper.ws.status.GrouperStatusServlet</servlet-class>
+    <servlet-class>edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>

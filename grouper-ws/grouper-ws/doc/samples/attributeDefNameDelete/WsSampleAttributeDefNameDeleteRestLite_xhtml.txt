@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameDelete, WsSampleAttributeDefNameDeleteRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: attributeDefNameDelete, WsSampleAttribute
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 714
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -25,16 +25,16 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAttributeDefNameDeleteLiteRequest">
-      <p class="attributeDefNameName">test:testAttributeAssignDefNameToDelete1RestLite_xhtml</p>
-      <p class="clientVersion" />
       <p class="actAsSubjectId" />
-      <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
-      <p class="paramName0" />
-      <p class="paramValue0" />
-      <p class="paramName1" />
-      <p class="paramValue1" />
+      <p class="actAsSubjectSourceId" />
+      <p class="attributeDefNameName">test:testAttributeAssignDefNameToDelete1RestLite_xhtml</p>
       <p class="attributeDefNameUuid" />
+      <p class="clientVersion" />
+      <p class="paramName0" />
+      <p class="paramName1" />
+      <p class="paramValue0" />
+      <p class="paramValue1" />
     </div>
   </body>
 </html>
@@ -55,9 +55,11 @@ X-Grouper-resultCode: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 13:28:43 GMT
+Transfer-Encoding: chunked
+Date: Wed, 28 May 2014 23:02:45 GMT
 Connection: close
 
+5fb
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -66,34 +68,36 @@ Connection: close
   </head>
   <body>
     <div title="WsAttributeDefNameDeleteLiteResult">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">20</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xhtml]
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xhtml]
 
 , actAsSubject: null, txType: NONE, paramNames:
 , params: nullCant find attributeDefName: 'WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xhtml,
 attributeDefNameFindResult=ATTRIBUTE_DEF_NAME_NOT_FOUND]'.</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">130</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsAttributeDefName" title="WsAttributeDefName">
-        <p class="name">test:testAttributeAssignDefNameToDelete1RestLite_xhtml</p>
-        <p class="displayName" />
-        <p class="description" />
-        <p class="uuid" />
-        <p class="extension">testAttributeAssignDefNameToDelete1RestLite_xhtml</p>
-        <p class="displayExtension" />
-        <p class="attributeDefName" />
         <p class="attributeDefId" />
+        <p class="attributeDefName" />
+        <p class="description" />
+        <p class="displayExtension" />
+        <p class="displayName" />
+        <p class="extension">testAttributeAssignDefNameToDelete1RestLite_xhtml</p>
+        <p class="idIndex" />
+        <p class="name">test:testAttributeAssignDefNameToDelete1RestLite_xhtml</p>
+        <p class="uuid" />
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -262,7 +266,7 @@ public class WsSampleAttributeDefNameDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xhtml]
+Server version: 2.2.0, result code: SUCCESS_ATTRIBUTE_DEF_NAME_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xhtml]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: nullCant find attributeDefName: 'WsAttributeDefNameLookup[pitAttributeDefNames=[],name=test:testAttributeAssignDefNameToDelete1RestLite_xhtml,

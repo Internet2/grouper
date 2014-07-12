@@ -95,6 +95,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
+import edu.internet2.middleware.grouper.misc.GrouperId;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
@@ -127,7 +128,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * @version $Id: Member.java,v 1.135 2009-12-28 06:08:37 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, 
-    Comparable<Member>, XmlImportable<Member>, AttributeAssignable {
+    Comparable<Member>, XmlImportable<Member>, AttributeAssignable, GrouperId {
 
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
@@ -759,25 +760,6 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 }
                 if (report == null) {
                   hibernateSession.byObject().saveOrUpdate(stems);
-                }
-              }
-            }
-            
-            {
-              //grouper_types.creator_uuid
-              Set<GroupType> groupTypes = GrouperDAOFactory.getFactory().getGroupType().findAllByCreator(Member.this);
-              if (GrouperUtil.length(groupTypes) > 0) {
-                for (GroupType groupType : groupTypes) {
-                  if (report == null) {
-                    groupType.setCreatorUuid(newMemberUuid);
-                  } else {
-                    report.append("CHANGE groupType: " 
-                        + groupType.getUuid() + ", " + groupType.getName()
-                        + ", creator id FROM: " + groupType.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
-                  }
-                }
-                if (report == null) {
-                  hibernateSession.byObject().saveOrUpdate(groupTypes);
                 }
               }
             }
@@ -1687,6 +1669,14 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     return this.memberUUID;
   }
 
+  /**
+   * get a members id
+   * @return the id
+   */
+  public String getId() {
+    return this.getUuid();
+  }
+  
   /**
    * Get groups where this member has the ADMIN privilege.
    * <pre class="eg">

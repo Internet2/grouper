@@ -858,6 +858,11 @@
                         <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="membershipIds" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ownerStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ownerStemUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="nameOfOwnerAttributeDef" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="ownerAttributeDefUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="fieldType" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -873,8 +878,10 @@
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeDefs" nillable="true" type="ns:WsAttributeDef"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroups" nillable="true" type="ns:WsGroup"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsMemberships" nillable="true" type="ns:WsMembership"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStems" nillable="true" type="ns:WsStem"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
@@ -892,6 +899,10 @@
                     <xs:element minOccurs="0" name="memberId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="membershipId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="membershipType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ownerIdOfAttributeDef" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ownerNameOfAttributeDef" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ownerStemId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ownerStemName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="subjectSourceId" nillable="true" type="xs:string"/>
                 </xs:sequence>
@@ -915,6 +926,9 @@
                         <xs:element minOccurs="0" name="stemScope" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="enabled" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="membershipIds" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerStemLookups" nillable="true" type="ns:WsStemLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsOwnerAttributeDefLookups" nillable="true" type="ns:WsAttributeDefLookup"/>
+                        <xs:element minOccurs="0" name="fieldType" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

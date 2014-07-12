@@ -198,6 +198,7 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned, XmlIm
     }
     return labels;
   }
+
   
   /**
    * get the field in audit entry for this label
@@ -205,6 +206,16 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned, XmlIm
    * @return the field
    */
   public String retrieveAuditEntryFieldForLabel(String label) {
+    return retrieveAuditEntryFieldForLabel(label, true);
+  }
+
+  /**
+   * get the field in audit entry for this label
+   * @param label
+   * @param exceptionIfNotFound true if exception if not found
+   * @return the field
+   */
+  public String retrieveAuditEntryFieldForLabel(String label, boolean exceptionIfNotFound) {
     if (StringUtils.equals(label, this.labelString01)) {
       return "string01";
     }
@@ -245,8 +256,10 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned, XmlIm
     if (StringUtils.equals(label, this.labelInt05)) {
       return "int05";
     }
-
-    throw new RuntimeException("Cant find label '" + label + "' for type: " + this);
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find label '" + label + "' for type: " + this);
+    }
+    return null;
   }
   
   /**

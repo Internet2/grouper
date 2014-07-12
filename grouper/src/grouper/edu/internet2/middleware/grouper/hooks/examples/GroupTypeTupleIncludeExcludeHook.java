@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
@@ -43,6 +42,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -146,7 +146,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   @Override
   public void groupTypeTuplePostDelete(HooksContext hooksContext,
       HooksGroupTypeTupleBean postDeleteBean) {
-    groupTypeTupleHelper(postDeleteBean, true);
+    groupTypeTupleHelper(postDeleteBean, false);
   }
 
   /**
@@ -157,15 +157,15 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   public void groupTypeTuplePostInsert(HooksContext hooksContext,
       HooksGroupTypeTupleBean postInsertBean) {
     
-    groupTypeTupleHelper(postInsertBean, false);
+    groupTypeTupleHelper(postInsertBean, true);
   
   }
 
   /**
    * @param postInsertBean
-   * @param requireRequireGroups true if only callable from required groups type
+   * @param isInsert
    */
-  private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, @SuppressWarnings("unused") boolean requireRequireGroups) {
+  private void groupTypeTupleHelper(HooksGroupTypeTupleBean postInsertBean, boolean isInsert) {
     boolean useGrouperIncludeExclude = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.use", false);
     boolean useRequireGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperIncludeExclude.requireGroups.use", false);
     
@@ -188,7 +188,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     try {
       
       GroupType includeExcludeType = useGrouperIncludeExclude ? GroupTypeFinder.find(includeExcludeTypeName, false) : null;
-      boolean fireHook = useGrouperIncludeExclude 
+      boolean fireHook = (useGrouperIncludeExclude && isInsert)
         ? StringUtils.equals(groupTypeTuple.getTypeUuid(), 
             includeExcludeType == null ? null : includeExcludeType.getUuid()) : false;
 
@@ -391,7 +391,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       
       includesExcludesType = GroupTypeFinder.find(includeExcludeName, true);
       
-      includeExclude = typedGroup.hasType(includesExcludesType);
+      includeExclude = typedGroup.hasType(includesExcludesType, false);
       
       //if other groups are there, then this is include/exclude.  we dont remove when the checkbox is
       //unchecked
@@ -409,7 +409,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       
       requireGroupsType = GroupTypeFinder.find(groupTypeName, true);
   
-      boolean hasRequireGroupsType = typedGroup.hasType(requireGroupsType);
+      boolean hasRequireGroupsType = typedGroup.hasType(requireGroupsType, false);
       
       String andGroupsAttributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
       boolean hasAndGroupsAttributeName = StringUtils.isNotBlank(andGroupsAttributeName);
@@ -425,21 +425,21 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       }
       
       if (hasRequireGroupsType) {
-        Set<Field> fields = requireGroupsType.getFields();
+        Set<AttributeDefName> attrs = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(requireGroupsType.internal_getAttributeDefForAttributes().getId());
         
-        for (Field field : GrouperUtil.nonNull(fields)) {
+        for (AttributeDefName attr : GrouperUtil.nonNull(attrs)) {
           
           //see if this is not a custom require group
-          if (hasAndGroupsAttributeName && StringUtils.equals(andGroupsAttributeName, field.getName())) {
+          if (hasAndGroupsAttributeName && StringUtils.equals(andGroupsAttributeName, attr.getLegacyAttributeName(true))) {
             continue;
           }
           
-          String valueString = typedGroup.getAttributeValue(field.getName(), false, false);
+          String valueString = typedGroup.getAttributeValue(attr.getLegacyAttributeName(true), false, false);
     
           boolean valueBoolean = GrouperUtil.booleanValue(valueString, false);
           
           if (valueBoolean) {
-            String groupName = groupNameFromAndGroupAttributeName(field.getName());
+            String groupName = groupNameFromAndGroupAttributeName(attr.getLegacyAttributeName(true));
             andGroups.add(GroupFinder.findByName(grouperSession, groupName, true));
           }
           
@@ -463,7 +463,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           
           GroupType type = GroupTypeFinder.find(typeName, true);
           //if the hooked group has this type, then good to go
-          if (typedGroup.getTypes().contains(type)) {
+          if (typedGroup.getTypesDb().contains(type)) {
             Group group = GroupFinder.findByName(grouperSession, groupName, true);
             andGroups.add(group);
           }

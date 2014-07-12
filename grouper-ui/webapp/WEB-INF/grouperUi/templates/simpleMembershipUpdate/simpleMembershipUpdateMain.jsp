@@ -26,6 +26,12 @@ style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
   &nbsp; &nbsp; &nbsp; <a class="smallLink" href="../../populateGroupSummary.do?groupId=${simpleMembershipUpdateContainer.guiGroup.group.id}"
   ><grouper:message valueTooltip="${simpleMembershipUpdateContainer.text.viewInAdminUiTooltip}"  
   value="${simpleMembershipUpdateContainer.text.viewInAdminUi}"  /></a>
+  </c:if>
+  <c:if test="${mediaMap['ui-new.link-from-admin-ui']=='true'}">
+  &nbsp; &nbsp; &nbsp; <a class="smallLink" href="../../grouperUi/app/UiV2Main.index?operation=UiV2Group.viewGroup&groupId=${simpleMembershipUpdateContainer.guiGroup.group.id}"
+  ><grouper:message valueTooltip="${simpleMembershipUpdateContainer.text.viewInNewUiTooltip}"  
+  value="${simpleMembershipUpdateContainer.text.viewInNewUi}"  /></a>
+  </c:if>
   &nbsp; &nbsp; &nbsp;
   <a class="smallLink" id="menuLink" href="#"><grouper:message key="mainMenu.liteLink"/></a>
         <%-- register the menu, and attach it to the link --%>
@@ -33,7 +39,7 @@ style="${grouper:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}"
         operation="MiscMenu.miscMenu" 
         structureOperation="MiscMenu.miscMenuStructure" 
         contextZoneJqueryHandle="#menuLink" contextMenu="true" />
-  </c:if>
+  
 </td>
 </tr>
 </table>

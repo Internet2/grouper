@@ -935,7 +935,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -1125,12 +1125,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //need to check the assignment on assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
 
     //need to check the assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
 
     StringBuilder sql = new StringBuilder(sqlTables.toString());
     
@@ -1241,7 +1241,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     StringBuilder sql;
     sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -1398,11 +1398,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
       
     StringBuilder sql = sqlTables.append(" where ").append(sqlWhereClause);
     
@@ -1552,7 +1552,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
 
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -1729,7 +1729,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
 
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
 
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -1890,7 +1890,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -2005,7 +2005,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -2106,7 +2106,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
 
     attributeDefs = grouperSession.getAttributeDefResolver().postHqlFilterAttrDefs(
-        attributeDefs, grouperSession.getSubject(),AttributeDefPrivilege.READ_PRIVILEGES);
+        attributeDefs, grouperSession.getSubject(),AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     Iterator<AttributeDefName> iterator = attibuteDefNames.iterator();
     
@@ -2165,7 +2165,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     StringBuilder sql;
     sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -2286,7 +2286,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -2556,7 +2556,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -2686,7 +2686,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -2811,11 +2811,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
       
     StringBuilder sql = sqlTables.append(" where ").append(sqlWhereClause);
     
@@ -2951,7 +2951,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = false;
       
@@ -2985,7 +2985,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
           grouperSessionSubject, byHqlStatic, 
           //sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.MANAGE_PRIVILEGES); why was this manage??
-          sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+          sqlTables, sqlWhereClause, "aa.ownerAttributeDefId", AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
     }
   
     StringBuilder sql;
@@ -3127,7 +3127,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -3235,7 +3235,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -3399,7 +3399,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       StringBuilder sql;
       sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -3532,12 +3532,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //need to check the assignment on assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     //need to check the assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     StringBuilder sql;
     sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -3766,12 +3766,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //need to check the assignment on assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     //need to check the assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -3888,16 +3888,16 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //need to check the assignment on assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     //need to check the assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAa.ownerAttributeDefId", AttributeDefPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAa.ownerAttributeDefId", AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
 
     StringBuilder sql;
     sql = sqlTables.append(" where ").append(sqlWhereClause);
@@ -4014,12 +4014,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //need to check the assignment on assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     //need to check the assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -4140,12 +4140,12 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     //need to check the assignment on assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     //need to check the assignment
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "ownerAdn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
   
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
@@ -4179,6 +4179,55 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findLegacyGroupTypeAssignmentsByGroupId(java.lang.String)
+   */
+  public Map<String, AttributeAssign> findLegacyGroupTypeAssignmentsByGroupId(String groupId) {
+    
+    if (StringUtils.isBlank(groupId)) {
+      throw new RuntimeException("groupId cant be blank");
+    }
+    
+    Map<String, AttributeAssign> results = new LinkedHashMap<String, AttributeAssign>();
+              
+    String sql = "select assignmentOnGroup, name, def " +
+        "from AttributeAssign as assignmentOnGroup, " +
+        "AttributeDefName as name, " +
+        "AttributeDef as def, " +
+        "Stem as stem " +
+        "where assignmentOnGroup.ownerGroupId = :groupId and " +
+        "assignmentOnGroup.attributeDefNameId = name.id and " +
+        "name.attributeDefId = def.id and " +
+        "name.stemId = stem.uuid and " +
+        "stem.nameDb = :legacyStemName";
+    
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");          
+
+    Set<Object[]> rows = HibernateSession.byHqlStatic().createQuery(sql)
+      .setString("groupId", groupId)
+      .setString("legacyStemName", stemName)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindLegacyGroupTypeAssignmentsByGroupId")
+      .listSet(Object[].class);
+        
+    for (Object[] row : rows) {
+      AttributeAssign assignment = (AttributeAssign)row[0];
+      AttributeDefName name = (AttributeDefName)row[1];
+      AttributeDef def = (AttributeDef)row[2];
+      
+      assignment.internalSetAttributeDef(def);
+      assignment.internalSetAttributeDefName(name);
+      name.internalSetAttributeDef(def);
+      
+      if (name.getName().startsWith(stemName) && name.getExtension().startsWith(groupTypePrefix)) {
+        String groupTypeName = name.getExtension().substring(groupTypePrefix.length());
+        results.put(groupTypeName, assignment);
+      }
+    }
+    
+    return results;
+  }
 } 
 
 

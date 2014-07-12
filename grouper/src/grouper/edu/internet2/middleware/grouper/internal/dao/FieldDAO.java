@@ -69,17 +69,6 @@ public interface FieldDAO extends GrouperDAO {
     throws  GrouperException;
 
   /**
-   * @param uuid 
-   * @return set of fields
-   * @throws GrouperDAOException 
-   * @since   1.2.0
-   * @deprecated use the FieldFinder method instead
-   */
-  @Deprecated
-  Set<Field> findAllFieldsByGroupType(String uuid)
-    throws  GrouperDAOException;
-
-  /**
    * @param type 
    * @return set of fields
    * @throws GrouperDAOException 
@@ -112,25 +101,23 @@ public interface FieldDAO extends GrouperDAO {
   /**
    * @param uuid 
    * @param name 
-   * @param groupTypeUuid 
    * @param exceptionIfNull 
    * @return the field or null
    * @throws GrouperDAOException 
    * @since   1.6.0
    */
-  Field findByUuidOrName(String uuid, String name, String groupTypeUuid, boolean exceptionIfNull) throws GrouperDAOException;
+  Field findByUuidOrName(String uuid, String name, boolean exceptionIfNull) throws GrouperDAOException;
 
   /**
    * @param uuid 
    * @param name 
-   * @param groupTypeUuid 
    * @param exceptionIfNull 
    * @param queryOptions
    * @return the field or null
    * @throws GrouperDAOException 
    * @since   1.6.0
    */
-  Field findByUuidOrName(String uuid, String name, String groupTypeUuid, boolean exceptionIfNull,
+  Field findByUuidOrName(String uuid, String name, boolean exceptionIfNull,
       QueryOptions queryOptions) throws GrouperDAOException;
 
   /**
@@ -139,5 +126,17 @@ public interface FieldDAO extends GrouperDAO {
    */
   public void saveUpdateProperties(Field field);
 
+
+  /**
+   * Delete field
+   * @param field 
+   */
+  public void delete(Field field);
+
+  /**
+   * Delete fields
+   * @param fields 
+   */
+  public void delete(Set<Field> fields);
 } 
 

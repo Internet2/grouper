@@ -74,6 +74,14 @@ public enum TypeOfGroup {
     }
   };
 
+  /**
+   * name for javabeans
+   * @return the name
+   */
+  public String getName() {
+    return this.name();
+  }
+  
   /** set with group or role */
   public final static Set<TypeOfGroup> GROUP_OR_ROLE_SET = Collections.unmodifiableSet(GrouperUtil.toSet(group, role));
   

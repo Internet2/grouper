@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/subjects HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 Content-Length: 94
 Content-Type: text/xml; charset=UTF-8
@@ -37,22 +37,31 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:06:20 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:05:13 GMT
 Connection: close
 
+3fe
 <WsGetSubjectsResults>
   <wsSubjects>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>88459dab119c49939cc3ae552f0071ca</id>
+      <id>23eb824c33484bd28dbd96cca8759605</id>
       <name>test:groupTestAttrAssign2</name>
       <sourceId>g:gsa</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
       <success>T</success>
-      <id>ab8ce94dd52d493ca49fb478f5515fb9</id>
+      <id>58d9812df0954c998f6a59c91005b0ea</id>
+      <name>test:testGroup</name>
+      <sourceId>g:gsa</sourceId>
+    </WsSubject>
+    <WsSubject>
+      <resultCode>SUCCESS</resultCode>
+      <success>T</success>
+      <id>fd483f38acd249d4ae870655bf063f6c</id>
       <name>test:groupTestAttrAssign</name>
       <sourceId>g:gsa</sourceId>
     </WsSubject>
@@ -75,7 +84,9 @@ Connection: close
       <success>T</success>
       <id>test.subject.2</id>
       <name>my name is test.subject.2</name>
-      <sourceId>jdbc</sourceId>
+      <sourceId>jdbc
+3fd
+</sourceId>
     </WsSubject>
     <WsSubject>
       <resultCode>SUCCESS</resultCode>
@@ -120,7 +131,10 @@ Connection: close
       <sourceId>jdbc</sourceId>
     </WsSubject>
     <WsSubject>
-      <resultCode>SUCCESS</resultCode>
+      <resultCode>
+      </
+1a9
+resultCode>
       <success>T</success>
       <id>test.subject.9</id>
       <name>my name is test.subject.9</name>
@@ -129,15 +143,16 @@ Connection: close
   </wsSubjects>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Queried 12 subjects</resultMessage>
+    <resultMessage>Queried 13 subjects</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>27</millis>
-    <serverVersion>2.1.1</serverVersion>
+    <millis>54</millis>
+    <serverVersion>2.2.0</serverVersion>
   </responseMetadata>
 </WsGetSubjectsResults>
+0
 
 
 #########################################
@@ -303,4 +318,4 @@ public class WsSampleGetSubjectsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 12 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 13 subjects

@@ -71,6 +71,8 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
@@ -1063,7 +1065,7 @@ public class XmlImporter {
             g.addType(gt);
           }
         }
-        this._processAttributesHandleAttributes(g, e);
+        this._processAttributesHandleAttributes(g, gt, e);
       }
       catch (SchemaException eS) {
         LOG.error(eS.getMessage());
@@ -1072,24 +1074,35 @@ public class XmlImporter {
   } // privae void _processAttributesHandleType(g, e)
 
   // @since   1.1.0
-  private void _processAttributesHandleAttributes(Group g, Element e) 
+  private void _processAttributesHandleAttributes(Group g, GroupType gt, Element e) 
     throws  AttributeNotFoundException,
             GroupModifyException,
             InsufficientPrivilegeException,
             SchemaException
   {
     Element   elAttr;
-    Field     f;
     String    name, orig, val;
     Iterator  it      = this._getImmediateElements(e, "attribute").iterator();
     while (it.hasNext()) {
       elAttr  = (Element) it.next();
       name    = elAttr.getAttribute("name");
-      f       = FieldFinder.find(name, true);
-      if (!g.canWriteField(f)) {
+      AttributeDefName f = GrouperDAOFactory.getFactory().getAttributeDefName().findLegacyAttributeByName(name, true);
+      
+      AttributeAssign groupTypeAssignment = g.internal_getGroupTypeAssignments().get(gt.getName());
+      if (groupTypeAssignment == null) {
+        throw new AttributeNotFoundException("Group " + g.getName() + " is not assigned the group type: " + gt.getName());
+      }
+      
+      try {
+        groupTypeAssignment.getAttributeDelegate().assertCanUpdateAttributeDefName(f);
+      } catch (InsufficientPrivilegeException ex) {
+        LOG.debug("cannot write (" + name + ") on (" + g.getName() + ")");
+        continue;
+      } catch (AttributeNotFoundException ex) {
         LOG.debug("cannot write (" + name + ") on (" + g.getName() + ")");
         continue;
       }
+      
       orig                          = g.getAttributeValue(name, false, false); 
       try {
     	  val                           = ( (Text) elAttr.getFirstChild() ).getData();
@@ -1325,7 +1338,10 @@ public class XmlImporter {
       if (!f.getType().equals(FieldType.LIST)) {
         throw new SchemaException("field is not a list: " + f.getName());
       }
-      this._processMembershipListAddGroupType(g, f.getGroupType());
+      
+      if (!f.getUuid().equals(Group.getDefaultList().getUuid())) {
+        this._processMembershipListAddGroupType(g, f.getGroupType(true));
+      }
       if (!g.canWriteField(f)) {
         return;  // We can't write to the field so don't even bother trying
       }
@@ -1478,18 +1494,20 @@ public class XmlImporter {
       }
       
       String    fType = el.getAttribute("type");
-      Privilege read  = Privilege.getInstance( el.getAttribute("readPriv")  );
-      Privilege write = Privilege.getInstance( el.getAttribute("writePriv") );
-      try {
-        FieldFinder.find(fName, true); // already exists
-      } 
-      catch (SchemaException eS) {
-        if (fType.equals( FieldType.LIST.toString() ) )           {
+      
+      if (fType.equals(FieldType.LIST.toString())) {
+        Privilege read  = Privilege.getInstance( el.getAttribute("readPriv")  );
+        Privilege write = Privilege.getInstance( el.getAttribute("writePriv") );
+        try {
+          FieldFinder.find(fName, true); // already exists
+        } 
+        catch (SchemaException eS) {
           gt.addList(s, fName, read, write);
-        } 
-        else if (fType.equals( FieldType.ATTRIBUTE.toString() ) ) {
-          gt.addAttribute( s, fName, read, write, Boolean.valueOf( el.getAttribute("required") ).booleanValue() );
-        } 
+        }
+      } else if (fType.equals("attribute")) {
+        gt.addAttribute(s, fName, false);
+      } else {
+        // previous code was ignoring this case..
       }
     }
   } // private void _processMetadataField(gt, isNew, el)

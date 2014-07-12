@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDefNameSaveRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: attributeDefNameSave, WsSampleAttributeDe
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/attributeDefNames HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/attributeDefNames HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 323
+Content-Length: 319
 
-wsLiteObjectType=WsRestAttributeDefNameSaveLiteRequest&displayExtension=My+new+attribute+def+name+to+save+1+rest+lite+http_json&attributeDefNameName=test%3AtestAttributeAssignDefNameToSave1RestLite_http_json&attributeDefLookupName=test%3AtestAttributeAssignDefNameDef&description=This+is+a+description+1+rest+lite+http_json
+wsLiteObjectType=WsRestAttributeDefNameSaveLiteRequest&attributeDefLookupName=test:testAttributeAssignDefNameDef&attributeDefNameName=test:testAttributeAssignDefNameToSave1RestLite_http_json&description=This+is+a+description+1+rest+lite+http_json&displayExtension=My+new+attribute+def+name+to+save+1+rest+lite+http_json
 
 
 #########################################
@@ -34,30 +34,31 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 1031
-Date: Sun, 01 Jul 2012 13:31:30 GMT
+Content-Length: 1049
+Date: Wed, 28 May 2014 23:07:42 GMT
 Connection: close
 
 {
   "WsAttributeDefNameSaveLiteResult":{
     "responseMetadata":{
-      "millis":"153",
-      "serverVersion":"2.1.1"
+      "millis":"174",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_INSERTED",
-      "resultMessage":"Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[\n  wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],\n  wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[\n  wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],\n  wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T"
     },
     "wsAttributeDefName":{
-      "attributeDefId":"ecc882befdbc4cc0a44aa09830462943",
+      "attributeDefId":"16e7e0b65a434d2cb8815cd9bdfa7f3a",
       "attributeDefName":"test:testAttributeAssignDefNameDef",
       "description":"This is a description 1 rest lite http_json",
       "displayExtension":"My new attribute def name to save 1 rest lite http_json",
       "displayName":"test:My new attribute def name to save 1 rest lite http_json",
       "extension":"testAttributeAssignDefNameToSave1RestLite_http_json",
+      "idIndex":"10133",
       "name":"test:testAttributeAssignDefNameToSave1RestLite_http_json",
-      "uuid":"c726c57818ea405598feccaf2331f85e"
+      "uuid":"e161d177c8fe4077bc5b57bc24345cab"
     }
   }
 }
@@ -233,7 +234,7 @@ public class WsSampleAttributeDefNameSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.1.1, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
+Server version: 2.2.0, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: 2.2.0, wsAttributeDefNameToSaves: Array size: 1: [0]: WsAttributeDefNameToSave[
   wsAttributeDefNameLookup=WsAttributeDefNameLookup[pitAttributeDefNames=[]],
   wsAttributeDefName=WsAttributeDefName[displayExtension=My new attribute...
 , actAsSubject: null, txType: NONE, paramNames: 

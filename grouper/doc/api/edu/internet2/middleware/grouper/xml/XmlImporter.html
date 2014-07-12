@@ -1,0 +1,517 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+XmlImporter
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="XmlImporter";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlReader.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="XmlImporter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.xml</FONT>
+<BR>
+Class XmlImporter</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.xml.XmlImporter</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>XmlImporter</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Utility class for importing data in XML import into the Groups Registry.
+ <p>
+ This class reads an XML file representing all or part of a Groups Registry
+ and updates-or-creates the equivalent <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Stem</CODE></A>s, <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Group</CODE></A>s and
+ <A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper"><CODE>Membership</CODE></A>s.  This class can be used to load data exported by 
+ <A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><CODE>XmlExporter</CODE></A>.
+ <p/>
+ <p><b>The API for this class will change in future Grouper releases.</b></p>
+<P>
+
+<P>
+<DL>
+<DT><B>Since:</B></DT>
+  <DD>1.0</DD>
+<DT><B>Version:</B></DT>
+  <DD>$Id: XmlImporter.java,v 1.24.2.2 2009-12-18 21:03:44 tzeller Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>Gary Brown., blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#XmlImporter(edu.internet2.middleware.grouper.GrouperSession, java.util.Properties)">XmlImporter</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A>&nbsp;userOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Import the Groups Registry from XML.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#_handleArgs(edu.internet2.middleware.grouper.xml.XmlImporter, java.util.Properties)">_handleArgs</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml">XmlImporter</A>&nbsp;importer,
+            <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A>&nbsp;rc)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#internal_getOptions()">internal_getOptions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#load(org.w3c.dom.Document)">load</A></B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/org/w3c/dom/Document.html?view=co" title="class or interface in org.w3c.dom">Document</A>&nbsp;doc)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Populate Groups Registry.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#load(edu.internet2.middleware.grouper.Stem, org.w3c.dom.Document)">load</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+     <A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/org/w3c/dom/Document.html?view=co" title="class or interface in org.w3c.dom">Document</A>&nbsp;doc)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Populate Groups Registry using the specified <tt>Stem</tt> as the root of
+ the registry.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#main(java.lang.String[])">main</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Process an Xml file as the 'root' user.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#setIgnoreInternal(boolean)">setIgnoreInternal</A></B>(boolean&nbsp;ignoreInternal)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co#update(org.w3c.dom.Document)">update</A></B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/org/w3c/dom/Document.html?view=co" title="class or interface in org.w3c.dom">Document</A>&nbsp;doc)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update memberships and privileges but do not create missing stems or groups.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="XmlImporter(edu.internet2.middleware.grouper.GrouperSession, java.util.Properties)"><!-- --></A><H3>
+XmlImporter</H3>
+<PRE>
+public <B>XmlImporter</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A>&nbsp;userOptions)</PRE>
+<DL>
+<DD>Import the Groups Registry from XML.
+ <p>
+ The import process is configured through the following properties.
+ </p>
+ <table width="90%" border="1">
+ <tr>
+ <td>Key</td>
+ <td>Values</td>
+ <td>Default</td>
+ <td>Description</td>
+ </tr>
+ <tr>
+ <td>import.metadata.group-types</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true create custom group types when importing.</td>
+ </tr>
+ <tr>
+ <td>import.metadata.group-type-attributes</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true create custom fields when importing.</td>
+ </tr>
+ <tr>
+ <td>import.data.ignore-internal-attributes-and-uuids=false</td>
+ <td>true/false</td>
+ <td>false</td>
+ <td>If true, do not attempt to set internal attributes or Group/Stem uuids</td>
+ </tr>
+ <tr>
+ <td>import.data.apply-new-group-types</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true custom group types are applied to pre-existing groups when importing.</td>
+ </tr>
+ <tr>
+ <td>import.data.update-attributes</td>
+ <td>true/false</td>
+ <td>true</td>
+ <td>If true overwrite attributes on pre-existing groups when importing.</td>
+ </tr>
+ <tr>
+ <td>import.data.fail-on-unresolvable-subject</td>
+ <td>true/false</td>
+ <td>false</td>
+ <td>If true, and the import file references a subject which cannot be resolved 
+ abort the import, otherwise, log the problem and continue.
+ </td>
+ </tr>
+ <tr>
+ <td>import.data.lists</td>
+ <td>ignore/replace/add</td>
+ <td>replace</td>
+ <td>Determines whether membership lists are ignored, replaced or appended to pre-existing memberships when importing.</td>
+ </tr>
+ <tr>
+ <td>import.data.privileges</td>
+ <td>ignore/replace/add</td>
+ <td>add</td>
+ <td>Determines whether privileges are ignored, replaced or appended to pre-existing privileges when importing.</td>
+ </tr>
+ </table>
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - Perform import within this session.<DD><CODE>userOptions</CODE> - User-specified configuration parameters.<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="main(java.lang.String[])"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>[]&nbsp;args)</PRE>
+<DL>
+<DD>Process an Xml file as the 'root' user.
+ <p/>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - args[0] = name of Xml file to process<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="load(org.w3c.dom.Document)"><!-- --></A><H3>
+load</H3>
+<PRE>
+public void <B>load</B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/org/w3c/dom/Document.html?view=co" title="class or interface in org.w3c.dom">Document</A>&nbsp;doc)
+          throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A>,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Populate Groups Registry.
+ <pre class="eg">
+ try {
+   importer.load( XmlReader.getDocumentFromString(s) );
+ }
+ catch (GrouperException eG) {
+   // error importing
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>doc</CODE> - Import this <tt>Document</tt>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if <tt>doc</tt> is null<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="load(edu.internet2.middleware.grouper.Stem, org.w3c.dom.Document)"><!-- --></A><H3>
+load</H3>
+<PRE>
+public void <B>load</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                 <A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/org/w3c/dom/Document.html?view=co" title="class or interface in org.w3c.dom">Document</A>&nbsp;doc)
+          throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A>,
+                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Populate Groups Registry using the specified <tt>Stem</tt> as the root of
+ the registry.
+ <pre class="eg">
+ try {
+   importer.load( ns, XmlReader.getDocumentFromString(s) );
+ }
+ catch (GrouperException eG) {
+   // error importing
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ns</CODE> - Import using this <tt>Stem</tt> as the <i>root stem</i>.<DD><CODE>doc</CODE> - Import this <tt>Document</tt>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if <tt>doc</tt> is null<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="update(org.w3c.dom.Document)"><!-- --></A><H3>
+update</H3>
+<PRE>
+public void <B>update</B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/org/w3c/dom/Document.html?view=co" title="class or interface in org.w3c.dom">Document</A>&nbsp;doc)
+            throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A>,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></PRE>
+<DL>
+<DD>Update memberships and privileges but do not create missing stems or groups.
+ <pre class="eg">
+ try {
+   importer.update( XmlReader.getDocumentFromString(s) );
+ }
+ catch (GrouperException eG) {
+   // error updating
+ }
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>doc</CODE> - Import this <tt>Document</tt>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE>
+<DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/IllegalArgumentException.html?view=co" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if <tt>doc</tt> is null<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setIgnoreInternal(boolean)"><!-- --></A><H3>
+setIgnoreInternal</H3>
+<PRE>
+public void <B>setIgnoreInternal</B>(boolean&nbsp;ignoreInternal)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="internal_getOptions()"><!-- --></A><H3>
+internal_getOptions</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A> <B>internal_getOptions</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="_handleArgs(edu.internet2.middleware.grouper.xml.XmlImporter, java.util.Properties)"><!-- --></A><H3>
+_handleArgs</H3>
+<PRE>
+public static void <B>_handleArgs</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlImporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml">XmlImporter</A>&nbsp;importer,
+                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Properties.html?view=co" title="class or interface in java.util">Properties</A>&nbsp;rc)
+                        throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>importer</CODE> - <DD><CODE>rc</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/GrouperException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">GrouperException</A></CODE><DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlExporter.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/xml/XmlReader.html?view=co" title="class in edu.internet2.middleware.grouper.xml"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="XmlImporter.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

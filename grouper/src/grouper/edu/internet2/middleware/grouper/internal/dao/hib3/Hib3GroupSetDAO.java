@@ -25,9 +25,11 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -35,6 +37,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -477,21 +480,48 @@ return groupSets;
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForGroups()
    */
   public Set<Object[]> findMissingSelfGroupSetsForGroups() {
+    String sql = "select g, f from Field as f, Group as g " +
+        "where (f.name = 'members' or f.typeString = 'access') " +
+        //for entities, dont put in group sets for members, optins, optouts, updaters, readers
+        "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
+        "and not exists " +
+        "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     
-    String sql = "select g, f from GroupTypeTuple as gtt, Field as f, Group as g " +
-                 "where g.uuid = gtt.groupUuid " +
-                 "and gtt.typeUuid = f.groupTypeUuid " +
-                 "and (f.typeString = 'list' or f.typeString = 'access') " +
-                 //for entities, dont put in group sets for members, optins, optouts, updaters, readers
-                 "and (g.typeOfGroupDb != 'entity' or (f.name = 'admins' or f.name = 'viewers')) " +
+    Set<Object[]> missing = HibernateSession
+      .byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroups")
+      .listSet(Object[].class);
+    
+    return missing;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForGroupsWithCustomFields()
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForGroupsWithCustomFields() {
+    
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");  
+    
+    String sql = "select g, f from AttributeAssignValue v, Field f, AttributeAssign valueAssign, AttributeDefName groupType, AttributeAssign groupTypeAssign, Group g where " +
+    		         "v.valueString = f.uuid and " +
+    		         "v.attributeAssignId = valueAssign.id and " +
+    		         "valueAssign.ownerAttributeDefId = groupType.attributeDefId and " +
+    		         "groupType.nameDb like :groupTypePrefix and " +
+    		         "groupTypeAssign.attributeDefNameId=groupType.id and " +
+    		         "groupTypeAssign.ownerGroupId = g.id and " +
+    		         "g.typeOfGroupDb != 'entity' " +
                  "and not exists " +
                  "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
     
     Set<Object[]> missing = HibernateSession
         .byHqlStatic()
         .createQuery(sql)
+        .setString("groupTypePrefix", stemName + ":" + groupTypePrefix + "%")
         .setCacheable(false)
-        .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroups")
+        .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroupsWithCustomFields")
         .listSet(Object[].class);
     
     return missing;
@@ -733,6 +763,98 @@ return groupSets;
       .listSet(Object[].class);
     
     return results;  
+  }
+
+  /**
+   * @see GroupSetDAO#findAllByOwnerGroupAndFieldAndMembershipMember(String, String, Member)
+   */
+  @Override
+  public Set<GroupSet> findAllByOwnerGroupAndFieldAndMembershipMember(String ownerGroupId,
+      String fieldId, Member membershipMember) {
+
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("select distinct gs from GroupSet gs, " +
+        " MembershipEntry listMembership where gs.ownerGroupId = :ownerGroupId ");
+    sql.append(" and gs.fieldId = :fieldId ");
+    sql.append(" and listMembership.ownerGroupId = gs.memberGroupId ");
+    sql.append(" and listMembership.fieldId = gs.memberFieldId ");
+    sql.append(" and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setString("ownerGroupId", ownerGroupId)
+      .setString("memberId", membershipMember.getId());
+    byHqlStatic.setString("fieldId", fieldId);
+    Set<GroupSet> groupSets = byHqlStatic
+        .listSet(GroupSet.class);
+
+    return groupSets;
+  }
+
+  /**
+   * @see GroupSetDAO#findAllByOwnerStemAndFieldAndMembershipMember(String, String, Member)
+   */
+  @Override
+  public Set<GroupSet> findAllByOwnerStemAndFieldAndMembershipMember(String ownerStemId,
+      String fieldId, Member membershipMember) {
+  
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("select distinct gs from GroupSet gs, " +
+        " MembershipEntry listMembership where gs.ownerStemId = :ownerStemId ");
+    sql.append(" and gs.fieldId = :fieldId ");
+    sql.append(" and ( listMembership.ownerGroupId = gs.memberGroupId ");
+    sql.append(" or listMembership.ownerStemId = gs.memberStemId ) ");
+    sql.append(" and listMembership.fieldId = gs.memberFieldId ");
+    sql.append(" and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setString("ownerStemId", ownerStemId)
+      .setString("memberId", membershipMember.getId());
+    byHqlStatic.setString("fieldId", fieldId);
+    Set<GroupSet> groupSets = byHqlStatic
+        .listSet(GroupSet.class);
+  
+    return groupSets;
+  }
+
+  /**
+   * @see GroupSetDAO#findAllByOwnerAttributeDefAndFieldAndMembershipMember(String, String, Member)
+   */
+  @Override
+  public Set<GroupSet> findAllByOwnerAttributeDefAndFieldAndMembershipMember(String ownerAttrDefId,
+      String fieldId, Member membershipMember) {
+  
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("select distinct gs from GroupSet gs, " +
+        " MembershipEntry listMembership where gs.ownerAttrDefId = :ownerAttrDefId ");
+    sql.append(" and gs.fieldId = :fieldId ");
+    sql.append(" and (listMembership.ownerGroupId = gs.memberGroupId ");
+    sql.append(" or listMembership.ownerAttrDefId = gs.memberAttrDefId) ");
+    sql.append(" and listMembership.fieldId = gs.memberFieldId ");
+    sql.append(" and listMembership.memberUuid = :memberId  and listMembership.enabledDb = 'T' ");
+    byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setString("ownerAttrDefId", ownerAttrDefId)
+      .setString("memberId", membershipMember.getId());
+    byHqlStatic.setString("fieldId", fieldId);
+    Set<GroupSet> groupSets = byHqlStatic
+        .listSet(GroupSet.class);
+  
+    return groupSets;
   }
 }
 

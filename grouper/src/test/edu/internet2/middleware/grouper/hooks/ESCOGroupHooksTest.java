@@ -138,7 +138,7 @@ public class ESCOGroupHooksTest extends GrouperTest {
     edu   = StemHelper.addChildStem(root, "edu", "education");
     
     GroupType groupType = GroupType.createType(grouperSession, "someType");
-    groupType.addAttribute(grouperSession, "someAttr", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
+    groupType.addAttribute(grouperSession, "someAttr", false);
   }
 
   /**

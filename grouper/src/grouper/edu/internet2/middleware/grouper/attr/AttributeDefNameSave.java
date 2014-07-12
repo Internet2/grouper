@@ -22,7 +22,6 @@ package edu.internet2.middleware.grouper.attr;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -31,21 +30,14 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -225,6 +217,12 @@ public class AttributeDefNameSave {
     //help with incomplete entries
     if (StringUtils.isBlank(this.name)) {
       this.name = this.attributeDefNameNameToEdit;
+    }
+    
+    //get from uuid since could be a rename
+    if (StringUtils.isBlank(this.attributeDefNameNameToEdit) && !StringUtils.isBlank(this.id)) {
+      AttributeDefName attributeDefName = AttributeDefNameFinder.findById(this.id, true);
+      this.attributeDefNameNameToEdit = attributeDefName.getName();
     }
     
     if (StringUtils.isBlank(this.attributeDefNameNameToEdit)) {

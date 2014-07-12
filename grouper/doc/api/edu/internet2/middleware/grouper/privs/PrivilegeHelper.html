@@ -1,0 +1,1521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+PrivilegeHelper
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PrivilegeHelper";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeContainerImpl.html?view=co" title="class in edu.internet2.middleware.grouper.privs"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeSubjectContainer.html?view=co" title="interface in edu.internet2.middleware.grouper.privs"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PrivilegeHelper.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.privs</FONT>
+<BR>
+Class PrivilegeHelper</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.privs.PrivilegeHelper</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>PrivilegeHelper</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+Privilege helper class.
+ <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
+<P>
+
+<P>
+<DL>
+<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+<DT><B>Version:</B></DT>
+  <DD>$Id: PrivilegeHelper.java,v 1.12 2009-09-28 05:06:46 mchyzer Exp $</DD>
+<DT><B>Author:</B></DT>
+  <DD>blair christensen.</DD>
+</DL>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#PrivilegeHelper()">PrivilegeHelper</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAdmin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canAdmin</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+         edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrAdmin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrAdmin</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+             edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrDefAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrDefAttrRead</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                   edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrDefAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrDefAttrUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                     <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                     edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrOptin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrOptin</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+             edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrOptout(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrOptout</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+              <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+              edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrRead</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+            <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+            edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+              <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+              edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canAttrView(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)">canAttrView</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+            <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+            edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canCopyStems(edu.internet2.middleware.subject.Subject)">canCopyStems</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Is this user allowed to copy stems?</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canCreate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canCreate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+          <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+          edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canGroupAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canGroupAttrRead</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                 <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                 edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canGroupAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canGroupAttrUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                   <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                   edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canMoveStems(edu.internet2.middleware.subject.Subject)">canMoveStems</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Is this user allowed to move stems?</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canOptin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canOptin</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+         edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canOptout(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canOptout</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+          <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+          edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canRead</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+        <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+        edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canRenameStems(edu.internet2.middleware.subject.Subject)">canRenameStems</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Is this user allowed to rename stems?</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStem(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStem</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+        <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+        edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStem(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStem</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+        edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStemAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStemAttrRead</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canStemAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)">canStemAttrUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                  <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                  edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canUpdate</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+          <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+          edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canView(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)">canView</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+        <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+        edu.internet2.middleware.subject.Subject&nbsp;subj)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewAttributeAssign(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.assign.AttributeAssign, boolean)">canViewAttributeAssign</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                       <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;attributeAssign,
+                       boolean&nbsp;checkUnderlyingIfAssignmentOnAssignment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the attribute assigns are viewable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, boolean)">canViewAttributeAssigns</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                        <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;&nbsp;inputAttributeAssigns,
+                        boolean&nbsp;checkUnderlyingIfAssignmentOnAssignment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the attribute assigns are viewable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewAttributeDefs(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection)">canViewAttributeDefs</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;&nbsp;inputAttributeDefs)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set)">canViewGroups</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+              <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&nbsp;candidates)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewMembers(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Field)">canViewMembers</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+               <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+               <A HREF="../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;field)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewMembership(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Membership)">canViewMembership</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                  <A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&nbsp;membership)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewMemberships(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection)">canViewMemberships</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt;&nbsp;inputMemberships)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewPermissions(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection)">canViewPermissions</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&gt;&nbsp;inputPermissionEntries)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the attribute assigns are viewable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#canViewPITAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, boolean)">canViewPITAttributeAssigns</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>&gt;&nbsp;inputPITAttributeAssigns,
+                           boolean&nbsp;checkUnderlyingIfAssignmentOnAssignment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if the pit attribute assigns are viewable</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#dispatch(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">dispatch</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+         edu.internet2.middleware.subject.Subject&nbsp;subj,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#dispatch(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">dispatch</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+         edu.internet2.middleware.subject.Subject&nbsp;subj,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#dispatch(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">dispatch</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+         edu.internet2.middleware.subject.Subject&nbsp;subj,
+         <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#flushCache()">flushCache</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;flush all privilege caches</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#getAccessPrivileges(edu.internet2.middleware.grouper.privs.Privilege[])">getAccessPrivileges</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070824 add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#getAttributeDefPrivileges(edu.internet2.middleware.grouper.privs.Privilege[])">getAttributeDefPrivileges</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070824 add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#getNamingPrivileges(edu.internet2.middleware.grouper.privs.Privilege[])">getNamingPrivileges</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]&nbsp;privileges)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070824 add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#hasImmediatePrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">hasImmediatePrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                      edu.internet2.middleware.subject.Subject&nbsp;subject,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if an attributeDef has an immediate privilege</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#hasImmediatePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">hasImmediatePrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                      edu.internet2.middleware.subject.Subject&nbsp;subject,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a group has an immediate privilege</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#hasImmediatePrivilege(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)">hasImmediatePrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                      edu.internet2.middleware.subject.Subject&nbsp;subject,
+                      <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a stem has an immediate privilege</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#hasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, java.util.Set)">hasPrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+             edu.internet2.middleware.subject.Subject&nbsp;subj,
+             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#hasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, java.util.Set)">hasPrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+             edu.internet2.middleware.subject.Subject&nbsp;subj,
+             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#hasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set)">hasPrivilege</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+             <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+             edu.internet2.middleware.subject.Subject&nbsp;subj,
+             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#isRoot(edu.internet2.middleware.grouper.GrouperSession)">isRoot</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#isSystemSubject(edu.internet2.middleware.subject.Subject)">isSystemSubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if system subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#isWheel(edu.internet2.middleware.grouper.GrouperSession)">isWheel</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TODO 20070823 find a real home for this and/or add tests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#isWheelOrRoot(edu.internet2.middleware.subject.Subject)">isWheelOrRoot</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if a subject is wheel or root</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeHelper.html?view=co#resolveSubjects(java.util.Collection, boolean)">resolveSubjects</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/GrouperPrivilege.html?view=co" title="interface in edu.internet2.middleware.grouper.privs">GrouperPrivilege</A>&gt;&nbsp;grouperPrivileges,
+                boolean&nbsp;resolveAllAlways)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve subjects in one batch</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="PrivilegeHelper()"><!-- --></A><H3>
+PrivilegeHelper</H3>
+<PRE>
+public <B>PrivilegeHelper</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="hasImmediatePrivilege(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+hasImmediatePrivilege</H3>
+<PRE>
+public static boolean <B>hasImmediatePrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                            edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                            <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</PRE>
+<DL>
+<DD>see if a group has an immediate privilege
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>true if has immediate privilege, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="flushCache()"><!-- --></A><H3>
+flushCache</H3>
+<PRE>
+public static void <B>flushCache</B>()</PRE>
+<DL>
+<DD>flush all privilege caches
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="resolveSubjects(java.util.Collection, boolean)"><!-- --></A><H3>
+resolveSubjects</H3>
+<PRE>
+public static void <B>resolveSubjects</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/GrouperPrivilege.html?view=co" title="interface in edu.internet2.middleware.grouper.privs">GrouperPrivilege</A>&gt;&nbsp;grouperPrivileges,
+                                   boolean&nbsp;resolveAllAlways)</PRE>
+<DL>
+<DD>resolve subjects in one batch
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperPrivileges</CODE> - <DD><CODE>resolveAllAlways</CODE> - true to always resolve all no matter how many, false
+ if there are more than 2000 or however many (e.g. for UI)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAdmin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAdmin</H3>
+<PRE>
+public static boolean <B>canAdmin</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                               edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrAdmin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrAdmin</H3>
+<PRE>
+public static boolean <B>canAttrAdmin</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrRead</H3>
+<PRE>
+public static boolean <B>canAttrRead</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                  <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                  edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrView(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrView</H3>
+<PRE>
+public static boolean <B>canAttrView</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                  <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                  edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canGroupAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canGroupAttrRead</H3>
+<PRE>
+public static boolean <B>canGroupAttrRead</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                       <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                       edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>group</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canGroupAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canGroupAttrUpdate</H3>
+<PRE>
+public static boolean <B>canGroupAttrUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                         <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                         edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>group</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrDefAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrDefAttrRead</H3>
+<PRE>
+public static boolean <B>canAttrDefAttrRead</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                         <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                         edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrDefAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrDefAttrUpdate</H3>
+<PRE>
+public static boolean <B>canAttrDefAttrUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                           <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                           edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canStemAttrRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canStemAttrRead</H3>
+<PRE>
+public static boolean <B>canStemAttrRead</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                      <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                      edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canStemAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canStemAttrUpdate</H3>
+<PRE>
+public static boolean <B>canStemAttrUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                        <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                        edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>true if allowed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrUpdate</H3>
+<PRE>
+public static boolean <B>canAttrUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                    <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                    edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrOptin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrOptin</H3>
+<PRE>
+public static boolean <B>canAttrOptin</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canAttrOptout(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canAttrOptout</H3>
+<PRE>
+public static boolean <B>canAttrOptout</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                    <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                    edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>admin</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canCreate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canCreate</H3>
+<PRE>
+public static boolean <B>canCreate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                                edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>ns</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can create<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canOptin(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canOptin</H3>
+<PRE>
+public static boolean <B>canOptin</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                               <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                               edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+hasPrivilege</H3>
+<PRE>
+public static boolean <B>hasPrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>stem</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>privInSet</CODE> - 
+<DT><B>Returns:</B><DD>if has privilege</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+hasPrivilege</H3>
+<PRE>
+public static boolean <B>hasPrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>privInSet</CODE> - 
+<DT><B>Returns:</B><DD>if has privilege</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canOptout(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canOptout</H3>
+<PRE>
+public static boolean <B>canOptout</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                                edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can optout<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canRead(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canRead</H3>
+<PRE>
+public static boolean <B>canRead</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                              edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can read<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canStem(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canStem</H3>
+<PRE>
+public static boolean <B>canStem</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                              edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>ns</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can stem<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canStem(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canStem</H3>
+<PRE>
+public static boolean <B>canStem</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                              edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>ns</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can stem<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canUpdate(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canUpdate</H3>
+<PRE>
+public static boolean <B>canUpdate</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                                edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can update<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canView(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canView</H3>
+<PRE>
+public static boolean <B>canView</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                              <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                              edu.internet2.middleware.subject.Subject&nbsp;subj)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - 
+<DT><B>Returns:</B><DD>can view<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set)"><!-- --></A><H3>
+canViewGroups</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A> <B>canViewGroups</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&nbsp;candidates)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>candidates</CODE> - 
+<DT><B>Returns:</B><DD>can view<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewMembership(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Membership)"><!-- --></A><H3>
+canViewMembership</H3>
+<PRE>
+public static boolean <B>canViewMembership</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                        <A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&nbsp;membership)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>membership</CODE> - 
+<DT><B>Returns:</B><DD>true if ok, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewMemberships(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection)"><!-- --></A><H3>
+canViewMemberships</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt; <B>canViewMemberships</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/Membership.html?view=co" title="class in edu.internet2.middleware.grouper">Membership</A>&gt;&nbsp;inputMemberships)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>inputMemberships</CODE> - 
+<DT><B>Returns:</B><DD>filtered memberships</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewMembers(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Field)"><!-- --></A><H3>
+canViewMembers</H3>
+<PRE>
+public static boolean <B>canViewMembers</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                     <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;group,
+                                     <A HREF="../../../../../edu/internet2/middleware/grouper/Field.html?view=co" title="class in edu.internet2.middleware.grouper">Field</A>&nbsp;field)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>group</CODE> - <DD><CODE>field</CODE> - 
+<DT><B>Returns:</B><DD>true or false</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dispatch(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+dispatch</H3>
+<PRE>
+public static void <B>dispatch</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&nbsp;g,
+                            edu.internet2.middleware.subject.Subject&nbsp;subj,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)
+                     throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A>,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SchemaException</A></PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>g</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>priv</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SchemaException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dispatch(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+dispatch</H3>
+<PRE>
+public static void <B>dispatch</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;ns,
+                            edu.internet2.middleware.subject.Subject&nbsp;subj,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)
+                     throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A>,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SchemaException</A></PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>ns</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>priv</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SchemaException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="dispatch(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+dispatch</H3>
+<PRE>
+public static void <B>dispatch</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                            edu.internet2.middleware.subject.Subject&nbsp;subj,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;priv)
+                     throws <A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A>,
+                            <A HREF="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SchemaException</A></PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>priv</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/InsufficientPrivilegeException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">InsufficientPrivilegeException</A></CODE>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouper/exception/SchemaException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">SchemaException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAccessPrivileges(edu.internet2.middleware.grouper.privs.Privilege[])"><!-- --></A><H3>
+getAccessPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[] <B>getAccessPrivileges</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]&nbsp;privileges)</PRE>
+<DL>
+<DD>TODO 20070824 add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privileges</CODE> - 
+<DT><B>Returns:</B><DD>Given an array of privileges return an array of access privileges.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAttributeDefPrivileges(edu.internet2.middleware.grouper.privs.Privilege[])"><!-- --></A><H3>
+getAttributeDefPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[] <B>getAttributeDefPrivileges</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]&nbsp;privileges)</PRE>
+<DL>
+<DD>TODO 20070824 add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privileges</CODE> - 
+<DT><B>Returns:</B><DD>Given an array of privileges return an array of access privileges.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getNamingPrivileges(edu.internet2.middleware.grouper.privs.Privilege[])"><!-- --></A><H3>
+getNamingPrivileges</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[] <B>getNamingPrivileges</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>[]&nbsp;privileges)</PRE>
+<DL>
+<DD>TODO 20070824 add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>privileges</CODE> - 
+<DT><B>Returns:</B><DD>Given an array of privileges return an array of naming privileges.<DT><B>Since:</B></DT>
+  <DD>1.2.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isRoot(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+isRoot</H3>
+<PRE>
+public static boolean <B>isRoot</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - 
+<DT><B>Returns:</B><DD>is root</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isSystemSubject(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+isSystemSubject</H3>
+<PRE>
+public static boolean <B>isSystemSubject</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>see if system subject
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>true if grouper system</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isWheel(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
+isWheel</H3>
+<PRE>
+public static boolean <B>isWheel</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - 
+<DT><B>Returns:</B><DD>is wheel</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isWheelOrRoot(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+isWheelOrRoot</H3>
+<PRE>
+public static boolean <B>isWheelOrRoot</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>see if a subject is wheel or root
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>true or false</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canMoveStems(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canMoveStems</H3>
+<PRE>
+public static boolean <B>canMoveStems</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>Is this user allowed to move stems?
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>boolean</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canCopyStems(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canCopyStems</H3>
+<PRE>
+public static boolean <B>canCopyStems</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>Is this user allowed to copy stems?
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>boolean</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canRenameStems(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+canRenameStems</H3>
+<PRE>
+public static boolean <B>canRenameStems</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>Is this user allowed to rename stems?
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>boolean</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasPrivilege(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, java.util.Set)"><!-- --></A><H3>
+hasPrivilege</H3>
+<PRE>
+public static boolean <B>hasPrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                   <A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                   edu.internet2.middleware.subject.Subject&nbsp;subj,
+                                   <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&gt;&nbsp;privInSet)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>attributeDef</CODE> - <DD><CODE>subj</CODE> - <DD><CODE>privInSet</CODE> - 
+<DT><B>Returns:</B><DD>if has privilege</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewAttributeDefs(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection)"><!-- --></A><H3>
+canViewAttributeDefs</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt; <B>canViewAttributeDefs</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;s,
+                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&gt;&nbsp;inputAttributeDefs)</PRE>
+<DL>
+<DD>TODO 20070823 find a real home for this and/or add tests
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>s</CODE> - <DD><CODE>inputAttributeDefs</CODE> - 
+<DT><B>Returns:</B><DD>filtered attributeDefs</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewAttributeAssign(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.attr.assign.AttributeAssign, boolean)"><!-- --></A><H3>
+canViewAttributeAssign</H3>
+<PRE>
+public static boolean <B>canViewAttributeAssign</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                             <A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&nbsp;attributeAssign,
+                                             boolean&nbsp;checkUnderlyingIfAssignmentOnAssignment)</PRE>
+<DL>
+<DD>see if the attribute assigns are viewable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>attributeAssign</CODE> - <DD><CODE>checkUnderlyingIfAssignmentOnAssignment</CODE> - if deep security check should take place on underlying assignments
+<DT><B>Returns:</B><DD>filtered memberships</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, boolean)"><!-- --></A><H3>
+canViewAttributeAssigns</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt; <B>canViewAttributeAssigns</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssign</A>&gt;&nbsp;inputAttributeAssigns,
+                                                           boolean&nbsp;checkUnderlyingIfAssignmentOnAssignment)</PRE>
+<DL>
+<DD>see if the attribute assigns are viewable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>inputAttributeAssigns</CODE> - <DD><CODE>checkUnderlyingIfAssignmentOnAssignment</CODE> - if deep security check should take place on underlying assignments
+<DT><B>Returns:</B><DD>filtered memberships</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewPermissions(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection)"><!-- --></A><H3>
+canViewPermissions</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&gt; <B>canViewPermissions</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&gt;&nbsp;inputPermissionEntries)</PRE>
+<DL>
+<DD>see if the attribute assigns are viewable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>inputPermissionEntries</CODE> - 
+<DT><B>Returns:</B><DD>filtered memberships</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="canViewPITAttributeAssigns(edu.internet2.middleware.grouper.GrouperSession, java.util.Collection, boolean)"><!-- --></A><H3>
+canViewPITAttributeAssigns</H3>
+<PRE>
+public static <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>&gt; <B>canViewPITAttributeAssigns</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/GrouperSession.html?view=co" title="class in edu.internet2.middleware.grouper">GrouperSession</A>&nbsp;grouperSession,
+                                                                 <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>&gt;&nbsp;inputPITAttributeAssigns,
+                                                                 boolean&nbsp;checkUnderlyingIfAssignmentOnAssignment)</PRE>
+<DL>
+<DD>see if the pit attribute assigns are viewable
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - <DD><CODE>inputPITAttributeAssigns</CODE> - <DD><CODE>checkUnderlyingIfAssignmentOnAssignment</CODE> - if deep security check should take place on underlying assignments
+<DT><B>Returns:</B><DD>filtered pit attribute assignments</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasImmediatePrivilege(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+hasImmediatePrivilege</H3>
+<PRE>
+public static boolean <B>hasImmediatePrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;stem,
+                                            edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                            <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</PRE>
+<DL>
+<DD>see if a stem has an immediate privilege
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>stem</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>true if has immediate privilege, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasImmediatePrivilege(edu.internet2.middleware.grouper.attr.AttributeDef, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)"><!-- --></A><H3>
+hasImmediatePrivilege</H3>
+<PRE>
+public static boolean <B>hasImmediatePrivilege</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef,
+                                            edu.internet2.middleware.subject.Subject&nbsp;subject,
+                                            <A HREF="../../../../../edu/internet2/middleware/grouper/privs/Privilege.html?view=co" title="class in edu.internet2.middleware.grouper.privs">Privilege</A>&nbsp;privilege)</PRE>
+<DL>
+<DD>see if an attributeDef has an immediate privilege
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDef</CODE> - <DD><CODE>subject</CODE> - <DD><CODE>privilege</CODE> - 
+<DT><B>Returns:</B><DD>true if has immediate privilege, false if not</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeContainerImpl.html?view=co" title="class in edu.internet2.middleware.grouper.privs"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/privs/PrivilegeSubjectContainer.html?view=co" title="interface in edu.internet2.middleware.grouper.privs"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PrivilegeHelper.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

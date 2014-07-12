@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2014 Internet2
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *  
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package edu.internet2.middleware.grouper.userData;
 
 import java.util.Set;
@@ -14,9 +29,11 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -46,7 +63,7 @@ public class GrouperUserDataApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperUserDataApiTest("testRecentlyUsedMembers"));
+    TestRunner.run(new GrouperUserDataApiTest("testRecentlyUsedGroups2"));
   }
 
 
@@ -158,6 +175,28 @@ public class GrouperUserDataApiTest extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
   }
 
+  /**
+   * 
+   */
+  public void testRecentlyUsedGroups2() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group recentlyUsed0 = new GroupSave(grouperSession).assignName("test:recentlyUsed0").assignCreateParentStemsIfNotExist(true).save();
+    
+    String userDataGroupName = "test:testUserData";
+    
+    GrouperUserDataApi.recentlyUsedGroupAdd(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed0);
+    GrouperUserDataApi.recentlyUsedGroupRemove(userDataGroupName, SubjectTestHelper.SUBJ0, recentlyUsed0);
+
+    GrouperUserDataApi.recentlyUsedGroupAdd(userDataGroupName, SubjectTestHelper.SUBJ1, recentlyUsed0);
+    GrouperUserDataApi.recentlyUsedGroupRemove(userDataGroupName, SubjectTestHelper.SUBJ1, recentlyUsed0);
+
+    Set<AttributeAssignValue> missingPitValues = GrouperDAOFactory.getFactory().getPITAttributeAssignValue().findMissingActivePITAttributeAssignValues();
+    assertEquals(GrouperUtil.toStringForLog(missingPitValues), 0, GrouperUtil.length(missingPitValues));
+    
+  }
+  
   /**
    * 
    */

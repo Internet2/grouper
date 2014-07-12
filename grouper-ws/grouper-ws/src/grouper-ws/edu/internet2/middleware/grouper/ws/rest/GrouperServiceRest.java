@@ -1291,7 +1291,9 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getSourceIds(), wsRestGetMembershipsRequest.getScope(), 
             wsRestGetMembershipsRequest.getWsStemLookup(), wsRestGetMembershipsRequest.getStemScope(), 
             wsRestGetMembershipsRequest.getEnabled(), wsRestGetMembershipsRequest.getMembershipIds(),
-            wsRestGetMembershipsRequest.getServiceRole(), wsRestGetMembershipsRequest.getServiceLookup());
+            wsRestGetMembershipsRequest.getWsOwnerStemLookups(), 
+            wsRestGetMembershipsRequest.getWsOwnerAttributeDefLookups(),
+            wsRestGetMembershipsRequest.getFieldType(), wsRestGetMembershipsRequest.getServiceRole(), wsRestGetMembershipsRequest.getServiceLookup());
   
     //return result
     return wsGetMembershipsResults;
@@ -1341,6 +1343,9 @@ public class GrouperServiceRest {
             wsRestGetMembershipsLiteRequest.getSourceIds(), wsRestGetMembershipsLiteRequest.getScope(), wsRestGetMembershipsLiteRequest.getStemName(),
             wsRestGetMembershipsLiteRequest.getStemUuid(), wsRestGetMembershipsLiteRequest.getStemScope(), 
             wsRestGetMembershipsLiteRequest.getEnabled(), wsRestGetMembershipsLiteRequest.getMembershipIds(),
+            wsRestGetMembershipsLiteRequest.getOwnerStemName(),
+            wsRestGetMembershipsLiteRequest.getOwnerStemUuid(), wsRestGetMembershipsLiteRequest.getNameOfOwnerAttributeDef(), 
+            wsRestGetMembershipsLiteRequest.getOwnerAttributeDefUuid(), wsRestGetMembershipsLiteRequest.getFieldType(), 
             wsRestGetMembershipsLiteRequest.getServiceRole(), wsRestGetMembershipsLiteRequest.getServiceId(), 
             wsRestGetMembershipsLiteRequest.getServiceName());
   

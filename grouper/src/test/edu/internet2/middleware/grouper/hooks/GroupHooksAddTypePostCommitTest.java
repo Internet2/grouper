@@ -116,7 +116,7 @@ public class GroupHooksAddTypePostCommitTest extends GrouperTest {
     GroupType fubGroup = GroupType.createType(grouperSession, "fubGroup", false);
     
     //lets add an attribute
-    fubGroup.addAttribute(grouperSession, "gid", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+    fubGroup.addAttribute(grouperSession, "gid", false);
     
     //try an insert
     Group group = edu.addChildGroup("myGroup", "myGroup");

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,15 +9,15 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_1_001/groups HTTP/1.1
+POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
-Content-Length: 1529
+Content-Length: 1608
 Content-Type: application/xhtml+xml; charset=UTF-8
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -25,45 +25,49 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGroupSaveRequest">
-      <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="txType" />
+      <p class="clientVersion" />
       <p class="includeGroupDetail" />
+      <p class="txType" />
       <ul class="wsGroupToSaves">
         <li title="WsGroupToSave">
-          <div class="wsGroupLookup" title="WsGroupLookup">
-            <p class="uuid" />
-            <p class="groupName">aStem:whateverGroup</p>
-          </div>
-          <p class="saveMode" />
           <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp1</p>
-            <p class="typeOfGroup" />
-            <div class="detail" title="WsGroupDetail" />
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName" />
             <p class="description">desc1</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="displayExtension">disp1</p>
+            <p class="displayName" />
             <p class="extension">whateverGroup</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverGroup</p>
+            <p class="typeOfGroup" />
+            <p class="uuid" />
+          </div>
+          <div class="wsGroupLookup" title="WsGroupLookup">
+            <p class="groupName">aStem:whateverGroup</p>
+            <p class="idIndex" />
+            <p class="uuid" />
           </div>
         </li>
         <li title="WsGroupToSave">
-          <div class="wsGroupLookup" title="WsGroupLookup">
-            <p class="uuid" />
-            <p class="groupName">aStem:whateverGroup2</p>
-          </div>
-          <p class="saveMode" />
           <p class="createParentStemsIfNotExist" />
+          <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp2</p>
-            <p class="typeOfGroup" />
-            <div class="detail" title="WsGroupDetail" />
-            <p class="name">aStem:whateverGroup2</p>
-            <p class="displayName" />
             <p class="description">descs</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="displayExtension">disp2</p>
+            <p class="displayName" />
             <p class="extension">whateverGroup2</p>
+            <p class="idIndex" />
+            <p class="name">aStem:whateverGroup2</p>
+            <p class="typeOfGroup" />
+            <p class="uuid" />
+          </div>
+          <div class="wsGroupLookup" title="WsGroupLookup">
+            <p class="groupName">aStem:whateverGroup2</p>
+            <p class="idIndex" />
+            <p class="uuid" />
           </div>
         </li>
       </ul>
@@ -87,10 +91,12 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:10:43 GMT
+Transfer-Encoding: chunked
+Date: Wed, 18 Jun 2014 18:31:04 GMT
 Connection: close
 
-<?xml version='1.0' encoding='iso-8859-1'?>
+86e
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
@@ -98,6 +104,21 @@ Connection: close
   </head>
   <body>
     <div title="WsGroupSaveResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">704</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],
+wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: null</p>
+        <p class="success">T</p>
+      </div>
       <ul class="results">
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -107,14 +128,15 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
-            <p class="uuid">4be9a94a7d7b456c8c49fe17160fbd31</p>
             <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroup</p>
             <p class="displayExtension">disp1</p>
+            <p class="displayName">a stem:disp1</p>
+            <p class="extension">whateverGroup</p>
+            <p class="idIndex">10011</p>
+            <p class="name">aStem:whateverGroup</p>
             <p class="typeOfGroup">group</p>
+            <p class="uuid">9f47e03a287548528b210a01f5ad4eac</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
@@ -125,35 +147,22 @@ Connection: close
             <p class="success">T</p>
           </div>
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup2</p>
-            <p class="displayName">a stem:disp2</p>
             <p class="description">descs</p>
-            <p class="uuid">6d0bc71f48de4e22b5d8ce8482b214b1</p>
             <div class="detail" title="WsGroupDetail" />
-            <p class="extension">whateverGroup2</p>
             <p class="displayExtension">disp2</p>
+            <p class="displayName">a stem:disp2</p>
+            <p class="extension">whateverGroup2</p>
+            <p class="idIndex">10012</p>
+            <p class="name">aStem:whateverGroup2</p>
             <p class="typeOfGroup">group</p>
+            <p class="uuid">d765ecc954244e2b81bc3c85958b5cd3</p>
           </div>
         </li>
       </ul>
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
-wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],
-wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...
-, actAsSubject: null, txType: NONE, paramNames:
-, params: null</p>
-        <p class="success">T</p>
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">620</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -348,7 +357,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Success for: clientVersion: 2.1.1, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[pitGroups=[],groupName=aStem:whateverGroup],
   wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name...
 , actAsSubject: null, txType: NONE, paramNames: 

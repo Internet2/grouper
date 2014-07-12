@@ -1,0 +1,976 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+PermissionFinder
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PermissionFinder";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryUtils.html?view=co" title="class in edu.internet2.middleware.grouper.permissions"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html?view=co" title="class in edu.internet2.middleware.grouper.permissions"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PermissionFinder.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.permissions</FONT>
+<BR>
+Class PermissionFinder</H2>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">java.lang.Object</A>
+  <IMG SRC="../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.permissions.PermissionFinder</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>PermissionFinder</B><DT>extends <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#PermissionFinder()">PermissionFinder</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addAction(java.lang.String)">addAction</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a action to the search criteria</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addLimitEnvVar(java.lang.String, java.lang.Object)">addLimitEnvVar</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;key,
+               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;value)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limitEnvVars if processing limits with PermissionProcessor, pass in a map of limits.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addMemberId(java.lang.String)">addMemberId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;memberId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a member id to the search criteria</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addPermissionDef(edu.internet2.middleware.grouper.attr.AttributeDef)">addPermissionDef</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a attribute def to look for.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addPermissionDef(java.lang.String)">addPermissionDef</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a attribute def to look for by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addPermissionDefId(java.lang.String)">addPermissionDefId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a attribute def id to the search criteria</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addPermissionName(edu.internet2.middleware.grouper.attr.AttributeDefName)">addPermissionName</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a attribute def name to look for.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addPermissionName(java.lang.String)">addPermissionName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a attribute def name to look for by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addPermissionNameId(java.lang.String)">addPermissionNameId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add an attribute def name id to the search criteria</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addRole(edu.internet2.middleware.grouper.permissions.role.Role)">addRole</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.role">Role</A>&nbsp;role)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a role to look for.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addRole(java.lang.String)">addRole</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a role to look for by name.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addRoleId(java.lang.String)">addRoleId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;roleId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a role id to the search criteria</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#addSubject(edu.internet2.middleware.subject.Subject)">addSubject</A></B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a subject to look for.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignActions(java.util.Collection)">assignActions</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theActions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign actions to search for, return this for chaining</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignEnabled(java.lang.Boolean)">assignEnabled</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theEnabled)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;true means enabled only, false, means disabled only, and null means all</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignImmediateOnly(boolean)">assignImmediateOnly</A></B>(boolean&nbsp;theImmediate)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should filter out non immediate permissions</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignLimitEnvVars(java.util.Map)">assignLimitEnvVars</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;theEnvVars)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limitEnvVars if processing limits, pass in a map of limits.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignMemberIds(java.util.Collection)">assignMemberIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theMemberIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add a collection of member ids to look for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPermissionDefIds(java.util.Collection)">assignPermissionDefIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theAttributeDefIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign a collection of attribute def ids to look for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPermissionNameFolder(edu.internet2.middleware.grouper.Stem)">assignPermissionNameFolder</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;permissionNameFolder1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if narrowing search for permissions in a certain folder only</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPermissionNameFolderScope(edu.internet2.middleware.grouper.Stem.Scope)">assignPermissionNameFolderScope</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if searching in a folder, this is the scope: only in this folder, or also in subfolders</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPermissionNameIds(java.util.Collection)">assignPermissionNameIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theAttributeDefNameIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign a collection of attribute def name ids to look for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPermissionProcessor(edu.internet2.middleware.grouper.permissions.PermissionProcessor)">assignPermissionProcessor</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionProcessor.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionProcessor</A>&nbsp;thePermissionProcessor)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if we should find the best answer, or process limits, etc</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPermissionType(edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType)">assignPermissionType</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.PermissionType.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionEntry.PermissionType</A>&nbsp;thePermissionType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;are we looking for role permissions or subject permissions?  cant be null</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPointInTimeFrom(java.sql.Timestamp)">assignPointInTimeFrom</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To query permissions at a certain point in time or time range in the past, set this value
+ and/or the value of pointInTimeTo.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignPointInTimeTo(java.sql.Timestamp)">assignPointInTimeTo</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To query permissions at a certain point in time or time range in the past, set this value
+ and/or the value of pointInTimeFrom.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#assignRoleIds(java.util.Collection)">assignRoleIds</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theRoleIds)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign a collection of role ids to look for</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#findPermission(boolean)">findPermission</A></B>(boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a permission</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionResult.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#findPermissionResult()">findPermissionResult</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;permission result gives helper methods in processing the results</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#findPermissions()">findPermissions</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a list of permissions</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitBean</A>&gt;&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#findPermissionsAndLimits()">findPermissionsAndLimits</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the permissions, and the limits, so the caller (e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#hasPermission()">hasPermission</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;based on what you are querying for, see if has permission.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co#toString()">toString</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">equals</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">getClass</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">hashCode</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notify</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">notifyAll</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">wait</A>, <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true#wait(long, int)" title="class or interface in java.lang">wait</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="PermissionFinder()"><!-- --></A><H3>
+PermissionFinder</H3>
+<PRE>
+public <B>PermissionFinder</B>()</PRE>
+<DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="addLimitEnvVar(java.lang.String, java.lang.Object)"><!-- --></A><H3>
+addLimitEnvVar</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addLimitEnvVar</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;key,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&nbsp;value)</PRE>
+<DL>
+<DD>limitEnvVars if processing limits with PermissionProcessor, pass in a map of limits.  The name is the
+ name of the variable, and the value is the value.  Note, you can typecast the
+ values by putting a valid type in parens in front of the param name.  e.g.
+ name: (int)amount, value: 50
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>key</CODE> - <DD><CODE>value</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignLimitEnvVars(java.util.Map)"><!-- --></A><H3>
+assignLimitEnvVars</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignLimitEnvVars</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A>&gt;&nbsp;theEnvVars)</PRE>
+<DL>
+<DD>limitEnvVars if processing limits, pass in a map of limits.  The name is the
+ name of the variable, and the value is the value.  Note, you can typecast the
+ values by putting a valid type in parens in front of the param name.  e.g.
+ name: (int)amount, value: 50
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theEnvVars</CODE> - the map to replace
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addMemberId(java.lang.String)"><!-- --></A><H3>
+addMemberId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addMemberId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;memberId)</PRE>
+<DL>
+<DD>add a member id to the search criteria
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>memberId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignMemberIds(java.util.Collection)"><!-- --></A><H3>
+assignMemberIds</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignMemberIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theMemberIds)</PRE>
+<DL>
+<DD>add a collection of member ids to look for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theMemberIds</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addSubject(edu.internet2.middleware.subject.Subject)"><!-- --></A><H3>
+addSubject</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addSubject</B>(edu.internet2.middleware.subject.Subject&nbsp;subject)</PRE>
+<DL>
+<DD>add a subject to look for.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>subject</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addRoleId(java.lang.String)"><!-- --></A><H3>
+addRoleId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addRoleId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;roleId)</PRE>
+<DL>
+<DD>add a role id to the search criteria
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>roleId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignRoleIds(java.util.Collection)"><!-- --></A><H3>
+assignRoleIds</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignRoleIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theRoleIds)</PRE>
+<DL>
+<DD>assign a collection of role ids to look for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theRoleIds</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addRole(edu.internet2.middleware.grouper.permissions.role.Role)"><!-- --></A><H3>
+addRole</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addRole</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/role/Role.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions.role">Role</A>&nbsp;role)</PRE>
+<DL>
+<DD>add a role to look for.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>role</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addRole(java.lang.String)"><!-- --></A><H3>
+addRole</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addRole</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+<DL>
+<DD>add a role to look for by name.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPermissionDefId(java.lang.String)"><!-- --></A><H3>
+addPermissionDefId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addPermissionDefId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</PRE>
+<DL>
+<DD>add a attribute def id to the search criteria
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionDefIds(java.util.Collection)"><!-- --></A><H3>
+assignPermissionDefIds</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPermissionDefIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theAttributeDefIds)</PRE>
+<DL>
+<DD>assign a collection of attribute def ids to look for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeDefIds</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionNameFolder(edu.internet2.middleware.grouper.Stem)"><!-- --></A><H3>
+assignPermissionNameFolder</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPermissionNameFolder</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.html?view=co" title="class in edu.internet2.middleware.grouper">Stem</A>&nbsp;permissionNameFolder1)</PRE>
+<DL>
+<DD>if narrowing search for permissions in a certain folder only
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>permissionNameFolder1</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionNameFolderScope(edu.internet2.middleware.grouper.Stem.Scope)"><!-- --></A><H3>
+assignPermissionNameFolderScope</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPermissionNameFolderScope</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;scope)</PRE>
+<DL>
+<DD>if searching in a folder, this is the scope: only in this folder, or also in subfolders
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>scope</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPermissionDef(edu.internet2.middleware.grouper.attr.AttributeDef)"><!-- --></A><H3>
+addPermissionDef</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addPermissionDef</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDef</A>&nbsp;attributeDef)</PRE>
+<DL>
+<DD>add a attribute def to look for.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDef</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPermissionDef(java.lang.String)"><!-- --></A><H3>
+addPermissionDef</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addPermissionDef</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>add a attribute def to look for by name.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPermissionNameId(java.lang.String)"><!-- --></A><H3>
+addPermissionNameId</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addPermissionNameId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefNameId)</PRE>
+<DL>
+<DD>add an attribute def name id to the search criteria
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameId</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionNameIds(java.util.Collection)"><!-- --></A><H3>
+assignPermissionNameIds</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPermissionNameIds</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theAttributeDefNameIds)</PRE>
+<DL>
+<DD>assign a collection of attribute def name ids to look for
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theAttributeDefNameIds</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPermissionName(edu.internet2.middleware.grouper.attr.AttributeDefName)"><!-- --></A><H3>
+addPermissionName</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addPermissionName</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html?view=co" title="class in edu.internet2.middleware.grouper.attr">AttributeDefName</A>&nbsp;attributeDefName)</PRE>
+<DL>
+<DD>add a attribute def name to look for.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefName</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addPermissionName(java.lang.String)"><!-- --></A><H3>
+addPermissionName</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addPermissionName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;name)</PRE>
+<DL>
+<DD>add a attribute def name to look for by name.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>name</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAction(java.lang.String)"><!-- --></A><H3>
+addAction</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>addAction</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;action)</PRE>
+<DL>
+<DD>add a action to the search criteria
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>action</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignActions(java.util.Collection)"><!-- --></A><H3>
+assignActions</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignActions</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Collection.html?view=co" title="class or interface in java.util">Collection</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;&nbsp;theActions)</PRE>
+<DL>
+<DD>assign actions to search for, return this for chaining
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theActions</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignEnabled(java.lang.Boolean)"><!-- --></A><H3>
+assignEnabled</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignEnabled</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Boolean.html?view=co" title="class or interface in java.lang">Boolean</A>&nbsp;theEnabled)</PRE>
+<DL>
+<DD>true means enabled only, false, means disabled only, and null means all
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theEnabled</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionProcessor(edu.internet2.middleware.grouper.permissions.PermissionProcessor)"><!-- --></A><H3>
+assignPermissionProcessor</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPermissionProcessor</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionProcessor.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionProcessor</A>&nbsp;thePermissionProcessor)</PRE>
+<DL>
+<DD>if we should find the best answer, or process limits, etc
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>thePermissionProcessor</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignImmediateOnly(boolean)"><!-- --></A><H3>
+assignImmediateOnly</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignImmediateOnly</B>(boolean&nbsp;theImmediate)</PRE>
+<DL>
+<DD>if we should filter out non immediate permissions
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theImmediate</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPermissionType(edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType)"><!-- --></A><H3>
+assignPermissionType</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPermissionType</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.PermissionType.html?view=co" title="enum in edu.internet2.middleware.grouper.permissions">PermissionEntry.PermissionType</A>&nbsp;thePermissionType)</PRE>
+<DL>
+<DD>are we looking for role permissions or subject permissions?  cant be null
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>thePermissionType</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="hasPermission()"><!-- --></A><H3>
+hasPermission</H3>
+<PRE>
+public boolean <B>hasPermission</B>()</PRE>
+<DL>
+<DD>based on what you are querying for, see if has permission.
+ Note, you should be looking for one subject, 
+ one action, one resource, one role or multiple roles, etc
+ If you are looking for multiple, it will see if anyone has that permission
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if has permission, false if not</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findPermissionsAndLimits()"><!-- --></A><H3>
+findPermissionsAndLimits</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Map.html?view=co" title="class or interface in java.util">Map</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>,<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/limits/PermissionLimitBean.html?view=co" title="class in edu.internet2.middleware.grouper.permissions.limits">PermissionLimitBean</A>&gt;&gt; <B>findPermissionsAndLimits</B>()</PRE>
+<DL>
+<DD>get the permissions, and the limits, so the caller (e.g. the UI/WS) doesnt have to get them again
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the map of entry to the limits and values</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findPermissionResult()"><!-- --></A><H3>
+findPermissionResult</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionResult.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionResult</A> <B>findPermissionResult</B>()</PRE>
+<DL>
+<DD>permission result gives helper methods in processing the results
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the permission result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findPermissions()"><!-- --></A><H3>
+findPermissions</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A>&gt; <B>findPermissions</B>()</PRE>
+<DL>
+<DD>find a list of permissions
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the set of permissions never null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findPermission(boolean)"><!-- --></A><H3>
+findPermission</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntry.html?view=co" title="interface in edu.internet2.middleware.grouper.permissions">PermissionEntry</A> <B>findPermission</B>(boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD>find a permission
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>exceptionIfNotFound</CODE> - true if exception should be thrown if permission not found
+<DT><B>Returns:</B><DD>the permission or null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toString()"><!-- --></A><H3>
+toString</H3>
+<PRE>
+public <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A> <B>toString</B>()</PRE>
+<DL>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">toString</A></CODE> in class <CODE><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang">Object</A></CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?view=co" title="class or interface in java.lang"><CODE>Object.toString()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPointInTimeFrom(java.sql.Timestamp)"><!-- --></A><H3>
+assignPointInTimeFrom</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPointInTimeFrom</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom)</PRE>
+<DL>
+<DD>To query permissions at a certain point in time or time range in the past, set this value
+ and/or the value of pointInTimeTo.  This parameter specifies the start of the range
+ of the point in time query.  If this is specified but pointInTimeTo is not specified,
+ then the point in time query range will be from the time specified to now.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pointInTimeFrom</CODE> - 
+<DT><B>Returns:</B><DD>this for changing</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignPointInTimeTo(java.sql.Timestamp)"><!-- --></A><H3>
+assignPointInTimeTo</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionFinder.html?view=co" title="class in edu.internet2.middleware.grouper.permissions">PermissionFinder</A> <B>assignPointInTimeTo</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo)</PRE>
+<DL>
+<DD>To query permissions at a certain point in time or time range in the past, set this value
+ and/or the value of pointInTimeFrom.  This parameter specifies the end of the range
+ of the point in time query.  If this is the same as pointInTimeFrom, then the query
+ will be done at a single point in time rather than a range.  If this is specified but
+ pointInTimeFrom is not specified, then the point in time query range will be from the
+ minimum point in time to the time specified.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pointInTimeTo</CODE> - 
+<DT><B>Returns:</B><DD>this for changing</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionEntryUtils.html?view=co" title="class in edu.internet2.middleware.grouper.permissions"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/permissions/PermissionHeuristic.html?view=co" title="class in edu.internet2.middleware.grouper.permissions"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PermissionFinder.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

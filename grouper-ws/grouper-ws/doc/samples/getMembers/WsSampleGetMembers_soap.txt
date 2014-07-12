@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembers, code generated classes, format: soap, for version: 2.1.1
+Grouper web service sample of service: getMembers, WsSampleGetMembers, code generated classes, format: soap, for version: 2.2.0
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembers, code gene
 #########################################
 
 
-POST /grouper-ws/services/GrouperService_v2_1 HTTP/1.1
+POST /grouper-ws/services/GrouperService_v2_2 HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getMembers"
 User-Agent: Axis2
 Authorization: Basic xxxxxxxxxxxxxxxxx==
@@ -20,8 +20,8 @@ Transfer-Encoding: chunked
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns1:getMembers xmlns:ns1="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v2_1_001</ns1:clientVersion>
+    <ns1:getMembers xmlns:ns1="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v2_2_000</ns1:clientVersion>
       <ns1:wsGroupLookups>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookups>
@@ -56,24 +56,24 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getMembersResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 01 Jul 2012 13:53:07 GMT
+Date: Tue, 03 Jun 2014 22:12:47 GMT
 
-b9d
+cca
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
-    <ns:getMembersResponse xmlns:ns="http://soap_v2_1.ws.grouper.middleware.internet2.edu/xsd">
+    <ns:getMembersResponse xmlns:ns="http://soap_v2_2.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns:WsGetMembersResults">
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.1.1</ns:serverVersion>
+          <ns:serverVersion>2.2.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: 2.1.1, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
+          <ns:resultMessage>Success for: clientVersion: 2.2.0, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[pitGroups=[],groupName=aStem:aGroup]
 
 , memberFilter: All, includeSubjectDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: Array size: 2: [0]: a
 [1]: name
@@ -81,7 +81,7 @@ b9d
 , paramNames:
 , params: Empty array
 , sourceIds: Empty array
-, pointInTimeFrom: null, pointInTimeTo: null</ns:resultMessage>
+, pointInTimeFrom: null, pointInTimeTo: null, pageSize: null, pageNumber: null, sortString: null, ascending: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:results xsi:type="ns:WsGetMembersResult">
@@ -98,13 +98,15 @@ b9d
             <ns:displayExtension>a group</ns:displayExtension>
             <ns:displayName>a stem:a group</ns:displayName>
             <ns:extension>aGroup</ns:extension>
+            <ns:idIndex>10001</ns:idIndex>
             <ns:name>aStem:aGroup</ns:name>
             <ns:typeOfGroup>group</ns:typeOfGroup>
-            <ns:uuid>4436f658279e4bedafba5919d6c77b1b</ns:uuid>
+            <ns:uuid>4369da46ba724f6ab3864126933018ae</ns:uuid>
           </ns:wsGroup>
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
             <ns:attributeValues>10039438</ns:attributeValues>
+            <ns:attributeValues></ns:attributeValues>
             <ns:id>10039438</ns:id>
             <ns:identifierLookup xsi:nil="true" />
             <ns:name>10039438</ns:name>
@@ -115,6 +117,7 @@ b9d
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
             <ns:attributeValues>EveryEntity</ns:attributeValues>
+            <ns:attributeValues>GrouperSysAdmin</ns:attributeValues>
             <ns:id>GrouperSystem</ns:id>
             <ns:identifierLookup xsi:nil="true" />
             <ns:name>GrouperSysAdmin</ns:name>
@@ -125,6 +128,7 @@ b9d
           <ns:wsSubjects xsi:type="ns:WsSubject">
             <ns:attributeValues></ns:attributeValues>
             <ns:attributeValues>10021368</ns:attributeValues>
+            <ns:attributeValues></ns:attributeValues>
             <ns:id>10021368</ns:id>
             <ns:identifierLookup xsi:nil="true" />
             <ns:name>10021368</ns:name>
@@ -135,6 +139,7 @@ b9d
         </ns:results>
         <ns:subjectAttributeNames>a</ns:subjectAttributeNames>
         <ns:subjectAttributeNames>name</ns:subjectAttributeNames>
+        <ns:subjectAttributeNames>description</ns:subjectAttributeNames>
       </ns:return>
     </ns:getMembersResponse>
   </soapenv:Body>
@@ -155,17 +160,15 @@ b9d
 /*******************************************************************************
  * Copyright 2012 Internet2
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  ******************************************************************************/
 /**
  *
@@ -182,14 +185,13 @@ import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSe
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.GetMembers;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembersResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubjectLookup;
-
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetMembers;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembersResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
 
 /**
  *
@@ -197,91 +199,158 @@ import edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsSubjectLookup;
  *
  */
 public class WsSampleGetMembers implements WsSampleGenerated {
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        getMembers(WsSampleGeneratedType.soap);
-    }
 
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        getMembers(wsSampleGeneratedType);
-    }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getMembersPenn(WsSampleGeneratedType.soap);
+  }
 
-    /**
-     * @param wsSampleGeneratedType can run as soap or xml/http
-     */
-    public static void getMembers(WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    getMembers(wsSampleGeneratedType);
+  }
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void getMembers(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
+
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-            GetMembers getMembers = GetMembers.class.newInstance();
+      GetMembers getMembers = GetMembers.class.newInstance();
 
-            //version, e.g. v1_3_000
-            getMembers.setClientVersion(GeneratedClientSettings.VERSION);
+      //version, e.g. v1_3_000
+      getMembers.setClientVersion(GeneratedClientSettings.VERSION);
 
-            // set the act as id
-            WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
-            actAsSubject.setSubjectId("GrouperSystem");
-            getMembers.setActAsSubjectLookup(actAsSubject);
+      // set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+      getMembers.setActAsSubjectLookup(actAsSubject);
 
-            WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
-            wsGroupLookup.setGroupName("aStem:aGroup");
+      WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+      wsGroupLookup.setGroupName("aStem:aGroup");
 
-            WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
-            getMembers.setWsGroupLookups(wsGroupLookups);
+      WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
+      getMembers.setWsGroupLookups(wsGroupLookups);
 
-            getMembers.setFieldName("");
-            getMembers.setMemberFilter("All");
-            getMembers.setIncludeGroupDetail("F");
-            getMembers.setIncludeSubjectDetail("T");
-            getMembers.setSubjectAttributeNames(new String[]{"a", "name"});
-            WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
+      getMembers.setFieldName("");
+      getMembers.setMemberFilter("All");
+      getMembers.setIncludeGroupDetail("F");
+      getMembers.setIncludeSubjectDetail("T");
+      getMembers.setSubjectAttributeNames(new String[] { "a", "name" });
+      WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
                                                           .get_return();
 
-            System.out.println(ToStringBuilder.reflectionToString(
+      System.out.println(ToStringBuilder.reflectionToString(
                     wsGetMembersResults));
 
-            WsGetMembersResult[] wsGetMemberResults = wsGetMembersResults.getResults();
-            int i = 0;
+      WsGetMembersResult[] wsGetMemberResults = wsGetMembersResults.getResults();
+      int i = 0;
 
-            for (WsGetMembersResult wsGetMembersResult : GeneratedUtils.nonNull(
+      for (WsGetMembersResult wsGetMembersResult : GeneratedUtils.nonNull(
                     wsGetMemberResults)) {
-                WsResultMeta resultMetadata = wsGetMembersResult.getResultMetadata();
-                System.out.println("Result: " + i++ + ": code: " +
+        WsResultMeta resultMetadata = wsGetMembersResult.getResultMetadata();
+        System.out.println("Result: " + i++ + ": code: " +
                     resultMetadata.getResultCode());
 
-                WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
+        WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
 
-                for (WsSubject wsSubject : GeneratedUtils.nonNull(
+        for (WsSubject wsSubject : GeneratedUtils.nonNull(
                         wsSubjectArray)) {
-                    System.out.println(ToStringBuilder.reflectionToString(
+          System.out.println(ToStringBuilder.reflectionToString(
                             wsSubject));
-                }
-            }
-            
-            if (!StringUtils.equals("T", 
-                wsGetMembersResults.getResultMetadata().getSuccess())) {
-              throw new RuntimeException("didnt get success! ");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+      }
+
+      if (!StringUtils.equals("T",
+                wsGetMembersResults.getResultMetadata().getSuccess())) {
+        throw new RuntimeException("didnt get success! ");
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void getMembersPenn(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
+
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
+                new Integer(3600000));
+
+      GetMembers getMembers = GetMembers.class.newInstance();
+
+      //version, e.g. v1_3_000
+      getMembers.setClientVersion(GeneratedClientSettings.VERSION);
+
+      WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+      wsGroupLookup.setGroupName("test:testGroup");
+
+      WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
+      getMembers.setWsGroupLookups(wsGroupLookups);
+
+      getMembers.setMemberFilter("All");
+      getMembers.setIncludeGroupDetail("F");
+      getMembers.setIncludeSubjectDetail("T");
+      getMembers.setSubjectAttributeNames(new String[] { "a", "name" });
+      WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
+                                                          .get_return();
+
+      System.out.println(ToStringBuilder.reflectionToString(
+                    wsGetMembersResults));
+
+      WsGetMembersResult[] wsGetMemberResults = wsGetMembersResults.getResults();
+      int i = 0;
+
+      for (WsGetMembersResult wsGetMembersResult : GeneratedUtils.nonNull(
+                    wsGetMemberResults)) {
+        WsResultMeta resultMetadata = wsGetMembersResult.getResultMetadata();
+        System.out.println("Result: " + i++ + ": code: " +
+                    resultMetadata.getResultCode());
+
+        WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
+
+        for (WsSubject wsSubject : GeneratedUtils.nonNull(
+                        wsSubjectArray)) {
+          System.out.println(ToStringBuilder.reflectionToString(
+                            wsSubject));
+        }
+      }
+
+      if (!StringUtils.equals("T",
+                wsGetMembersResults.getResultMetadata().getSuccess())) {
+        throw new RuntimeException("didnt get success! ");
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
 
 
@@ -293,14 +362,14 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 
 
 WsGetMembersResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResponseMeta@1de4992,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsResultMeta@b024b0,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.WsGetMembersResult@586193},localResultsTracker=true,
-  localSubjectAttributeNames={a,name},localSubjectAttributeNamesTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResponseMeta@4d47ce48,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsResultMeta@2538009b,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetMembersResult@7052fac2},localResultsTracker=true,
+  localSubjectAttributeNames={a,name,description},localSubjectAttributeNamesTracker=true]
 Result: 0: code: SUCCESS
 WsSubject[
-  localAttributeValues={,10039438},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,10039438,},localAttributeValuesTracker=true,localId=10039438,localIdTracker=true,localIdentifierLookupTracker=false,localName=10039438,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
-  localAttributeValues={,EveryEntity},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,EveryEntity,GrouperSysAdmin},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localIdentifierLookupTracker=false,localName=GrouperSysAdmin,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
 WsSubject[
-  localAttributeValues={,10021368},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]
+  localAttributeValues={,10021368,},localAttributeValuesTracker=true,localId=10021368,localIdTracker=true,localIdentifierLookupTracker=false,localName=10021368,localNameTracker=true,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=jdbc,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true]

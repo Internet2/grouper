@@ -1,0 +1,599 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+AttributeAssignActionSetDAO
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="AttributeAssignActionSetDAO";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetViewDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeAssignActionSetDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.internal.dao</FONT>
+<BR>
+Interface AttributeAssignActionSetDAO</H2>
+<DL>
+<DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">GrouperDAO</A></DD>
+</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3AttributeAssignActionSetDAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3AttributeAssignActionSetDAO</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>AttributeAssignActionSetDAO</B><DT>extends <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">GrouperDAO</A></DL>
+</PRE>
+
+<P>
+attribute assign action set, links up actions with other actions (probably for privs)
+<P>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#attributeAssignActionsImpliedByThis(java.lang.String)">attributeAssignActionsImpliedByThis</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all the THEN rows from attributeDefNameSet about this id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#attributeAssignActionsImpliedByThisImmediate(java.lang.String)">attributeAssignActionsImpliedByThisImmediate</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all the THEN rows from attributeDefNameSet about this id (immediate).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#attributeAssignActionsThatImplyThis(java.lang.String)">attributeAssignActionsThatImplyThis</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all the IF rows from attributeAssignActionSet about this id.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#attributeAssignActionsThatImplyThisImmediate(java.lang.String)">attributeAssignActionsThatImplyThisImmediate</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get all the IF rows from attributeDefNameSet about this id (immediate only).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#delete(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)">delete</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&nbsp;attributeAssignActionSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete an attribute assign action set</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#deleteByIfHasAttributeAssignAction(edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction)">deleteByIfHasAttributeAssignAction</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&nbsp;attributeAssignAction)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete attributeAssignAction sets by owner, so the attributeAssignAction can be deleted</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findByDepthOneForAttributeDef(java.lang.String)">findByDepthOneForAttributeDef</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by depth one for attribute def</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findById(java.lang.String, boolean)">findById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+         boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findByIfHasAttributeAssignActionId(java.lang.String)">findByIfHasAttributeAssignActionId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by set owner</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findByIfThenHasAttributeAssignActionId(java.lang.String, java.lang.String)">findByIfThenHasAttributeAssignActionId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionSetForThens,
+                                       <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionSetForIfs)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ this will help with deletes.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findByIfThenImmediate(java.lang.String, java.lang.String, boolean)">findByIfThenImmediate</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionIdIf,
+                      <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionIdThen,
+                      boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by if and then (not same) with depth of 1 (immediate)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findByThenHasAttributeAssignActionId(java.lang.String)">findByThenHasAttributeAssignActionId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find by member</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, boolean)">findByUuidOrKey</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ifHasAttributeAssignActionId,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;thenHasAttributeAssignActionId,
+                <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentAttributeAssignActionSetId,
+                int&nbsp;depth,
+                boolean&nbsp;exceptionIfNull)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a record by uuid or key</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#saveOrUpdate(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)">saveOrUpdate</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&nbsp;attributeAssignActionSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insert or update an attributeAssignActionSet</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetDAO.html?view=co#saveUpdateProperties(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)">saveUpdateProperties</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&nbsp;attributeAssignActionSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save the update properties which are auto saved when business method is called</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="saveOrUpdate(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)"><!-- --></A><H3>
+saveOrUpdate</H3>
+<PRE>
+void <B>saveOrUpdate</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&nbsp;attributeAssignActionSet)</PRE>
+<DL>
+<DD>insert or update an attributeAssignActionSet
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionSet</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delete(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)"><!-- --></A><H3>
+delete</H3>
+<PRE>
+void <B>delete</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&nbsp;attributeAssignActionSet)</PRE>
+<DL>
+<DD>delete an attribute assign action set
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionSet</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findById(java.lang.String, boolean)"><!-- --></A><H3>
+findById</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A> <B>findById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                                  boolean&nbsp;exceptionIfNotFound)
+                                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeAssignActionSetNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeAssignActionSetNotFoundException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>the attribute def name set or null if not there
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeAssignActionSetNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeAssignActionSetNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByIfHasAttributeAssignActionId(java.lang.String)"><!-- --></A><H3>
+findByIfHasAttributeAssignActionId</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt; <B>findByIfHasAttributeAssignActionId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD>find by set owner
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assign action set or null if not there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByThenHasAttributeAssignActionId(java.lang.String)"><!-- --></A><H3>
+findByThenHasAttributeAssignActionId</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt; <B>findByThenHasAttributeAssignActionId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD>find by member
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assign action set or null if not there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByIfThenHasAttributeAssignActionId(java.lang.String, java.lang.String)"><!-- --></A><H3>
+findByIfThenHasAttributeAssignActionId</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt; <B>findByIfThenHasAttributeAssignActionId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionSetForThens,
+                                                                     <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionSetForIfs)</PRE>
+<DL>
+<DD><pre>
+ this will help with deletes.  It will find sets who have if's which match thens provided, and thens which 
+ match ifs provided.
+ 
+ So if there is this path: A -> B -> C -> D
+ And the inputs here are B and C (removing that path)
+ Then return A -> C, A -> D, B -> C, B -> D
+ 
+ </pre>
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionSetForThens</CODE> - <DD><CODE>attributeAssignActionSetForIfs</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assign action set or null if not there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByIfThenImmediate(java.lang.String, java.lang.String, boolean)"><!-- --></A><H3>
+findByIfThenImmediate</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A> <B>findByIfThenImmediate</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionIdIf,
+                                               <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionIdThen,
+                                               boolean&nbsp;exceptionIfNotFound)
+                                               throws <A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeAssignActionSetNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeAssignActionSetNotFoundException</A></PRE>
+<DL>
+<DD>find by if and then (not same) with depth of 1 (immediate)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionIdIf</CODE> - <DD><CODE>attributeAssignActionIdThen</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>the attributeAssignActionSet
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/exception/AttributeAssignActionSetNotFoundException.html?view=co" title="class in edu.internet2.middleware.grouper.exception">AttributeAssignActionSetNotFoundException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deleteByIfHasAttributeAssignAction(edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction)"><!-- --></A><H3>
+deleteByIfHasAttributeAssignAction</H3>
+<PRE>
+void <B>deleteByIfHasAttributeAssignAction</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&nbsp;attributeAssignAction)</PRE>
+<DL>
+<DD>delete attributeAssignAction sets by owner, so the attributeAssignAction can be deleted
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignAction</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="attributeAssignActionsThatImplyThis(java.lang.String)"><!-- --></A><H3>
+attributeAssignActionsThatImplyThis</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt; <B>attributeAssignActionsThatImplyThis</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</PRE>
+<DL>
+<DD>get all the IF rows from attributeAssignActionSet about this id.  The ones returned imply that
+ this is also assigned.  Those are the parents, this is the child.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionId</CODE> - 
+<DT><B>Returns:</B><DD>the AttributeAssignAction</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="attributeAssignActionsThatImplyThisImmediate(java.lang.String)"><!-- --></A><H3>
+attributeAssignActionsThatImplyThisImmediate</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt; <B>attributeAssignActionsThatImplyThisImmediate</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</PRE>
+<DL>
+<DD>get all the IF rows from attributeDefNameSet about this id (immediate only).  The ones returned imply that
+ this is also assigned.  Those are the parents, this is the child.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionId</CODE> - 
+<DT><B>Returns:</B><DD>the attributeAssignActionId</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="attributeAssignActionsImpliedByThis(java.lang.String)"><!-- --></A><H3>
+attributeAssignActionsImpliedByThis</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt; <B>attributeAssignActionsImpliedByThis</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</PRE>
+<DL>
+<DD>get all the THEN rows from attributeDefNameSet about this id.  The ones returned
+ are implied if this one is assigned.  Those are the children, this is the parent
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionId</CODE> - 
+<DT><B>Returns:</B><DD>the AttributeAssignAction</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="attributeAssignActionsImpliedByThisImmediate(java.lang.String)"><!-- --></A><H3>
+attributeAssignActionsImpliedByThisImmediate</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignAction.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignAction</A>&gt; <B>attributeAssignActionsImpliedByThisImmediate</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeAssignActionId)</PRE>
+<DL>
+<DD>get all the THEN rows from attributeDefNameSet about this id (immediate).  The ones returned
+ are implied if this one is assigned.  Those are the children, this is the parent
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionId</CODE> - 
+<DT><B>Returns:</B><DD>the AttributeDefName</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByUuidOrKey(java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, boolean)"><!-- --></A><H3>
+findByUuidOrKey</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A> <B>findByUuidOrKey</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;ifHasAttributeAssignActionId,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;thenHasAttributeAssignActionId,
+                                         <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;parentAttributeAssignActionSetId,
+                                         int&nbsp;depth,
+                                         boolean&nbsp;exceptionIfNull)</PRE>
+<DL>
+<DD>find a record by uuid or key
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>ifHasAttributeAssignActionId</CODE> - <DD><CODE>thenHasAttributeAssignActionId</CODE> - <DD><CODE>parentAttributeAssignActionSetId</CODE> - <DD><CODE>depth</CODE> - <DD><CODE>exceptionIfNull</CODE> - 
+<DT><B>Returns:</B><DD>the roleset or null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="saveUpdateProperties(edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet)"><!-- --></A><H3>
+saveUpdateProperties</H3>
+<PRE>
+void <B>saveUpdateProperties</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&nbsp;attributeAssignActionSet)</PRE>
+<DL>
+<DD>save the update properties which are auto saved when business method is called
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeAssignActionSet</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByDepthOneForAttributeDef(java.lang.String)"><!-- --></A><H3>
+findByDepthOneForAttributeDef</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.attr.assign">AttributeAssignActionSet</A>&gt; <B>findByDepthOneForAttributeDef</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;attributeDefId)</PRE>
+<DL>
+<DD>find by depth one for attribute def
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefId</CODE> - 
+<DT><B>Returns:</B><DD>the attribute assign action set or null if not there</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/AttributeAssignActionSetViewDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="AttributeAssignActionSetDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

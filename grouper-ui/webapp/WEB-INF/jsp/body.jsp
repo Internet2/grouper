@@ -9,6 +9,9 @@ change definition for this --%>
    		<!--ContentSpace-->
         <div id="ContentSpace">
             <div id="TitleBox">
+        <noscript>
+          <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
+        </noscript>
                <tiles:insert attribute="title" />
             </div>
 			

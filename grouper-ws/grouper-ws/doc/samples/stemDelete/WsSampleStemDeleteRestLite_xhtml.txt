@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, manually written lite/rest, format: xhtml, for version: 2.1.1
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, manually written lite/rest, format: xhtml, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, m
 #########################################
 
 
-DELETE /grouper-ws/servicesRest/xhtml/v2_1_001/stems/aStem%3AaStemToDelete HTTP/1.1
+DELETE /grouper-ws/servicesRest/xhtml/v2_2_000/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,9 +34,11 @@ X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
-Date: Sun, 01 Jul 2012 14:21:21 GMT
+Transfer-Encoding: chunked
+Date: Thu, 29 May 2014 00:31:43 GMT
 Connection: close
 
+48f
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -45,32 +47,34 @@ Connection: close
   </head>
   <body>
     <div title="WsStemDeleteLiteResult">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">49</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.2.0</p>
+      </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
         <p class="resultCode2" />
-        <p class="resultMessage">Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+        <p class="resultMessage">Success for: clientVersion: 2.2.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: null, txType: NONE, paramNames:
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,
 stemFindResult=STEM_NOT_FOUND]'.</p>
         <p class="success">T</p>
       </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">13</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">2.1.1</p>
-      </div>
       <div class="wsStem" title="WsStem">
-        <p class="name">aStem:aStemToDelete</p>
-        <p class="displayName" />
         <p class="description" />
-        <p class="uuid" />
-        <p class="extension">aStemToDelete</p>
         <p class="displayExtension" />
+        <p class="displayName" />
+        <p class="extension">aStemToDelete</p>
+        <p class="idIndex" />
+        <p class="name">aStem:aStemToDelete</p>
+        <p class="uuid" />
       </div>
     </div>
   </body>
 </html>
+0
 
 
 #########################################
@@ -218,7 +222,7 @@ public class WsSampleStemDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.1.1, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
+Server version: 2.2.0, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: 2.2.0, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]
 
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,

@@ -1,0 +1,690 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<TITLE>
+PITGroupDAO
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?view=co" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PITGroupDAO";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITFieldDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupSetDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PITGroupDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+edu.internet2.middleware.grouper.internal.dao</FONT>
+<BR>
+Interface PITGroupDAO</H2>
+<DL>
+<DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">GrouperDAO</A></DD>
+</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/hib3/Hib3PITGroupDAO.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao.hib3">Hib3PITGroupDAO</A></DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public interface <B>PITGroupDAO</B><DT>extends <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao">GrouperDAO</A></DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#delete(edu.internet2.middleware.grouper.pit.PITGroup)">delete</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&nbsp;pitGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#delete(java.lang.String)">delete</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete (won't run pre and post delete methods)</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#deleteInactiveRecords(java.sql.Timestamp)">deleteInactiveRecords</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;time)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete records that ended before the given date.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findActiveDuplicates()">findActiveDuplicates</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findById(java.lang.String, boolean)">findById</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+         boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findByName(java.lang.String, boolean)">findByName</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName,
+           boolean&nbsp;orderByStartTime)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findByPITStemId(java.lang.String)">findByPITStemId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findBySourceId(java.lang.String, boolean)">findBySourceId</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+               boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findBySourceIdActive(java.lang.String, boolean)">findBySourceIdActive</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                     boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findBySourceIdUnique(java.lang.String, boolean)">findBySourceIdUnique</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                     boolean&nbsp;exceptionIfNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findMissingActivePITGroups()">findMissingActivePITGroups</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findMissingInactivePITGroups()">findMissingInactivePITGroups</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeAssign)">findRolesWithPermissionsContainingObject</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>&nbsp;assign)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find the roles that have permissions containing the specified object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet)">findRolesWithPermissionsContainingObject</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssignActionSet</A>&nbsp;actionSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find the roles that have permissions containing the specified object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet)">findRolesWithPermissionsContainingObject</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDefNameSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeDefNameSet</A>&nbsp;attributeDefNameSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find the roles that have permissions containing the specified object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITMembership)">findRolesWithPermissionsContainingObject</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITMembership</A>&nbsp;membership)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find the roles that have permissions containing the specified object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITRoleSet)">findRolesWithPermissionsContainingObject</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITRoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITRoleSet</A>&nbsp;roleSet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find the roles that have permissions containing the specified object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#getAllGroupsMembershipSecure(java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.pit.PITStem, edu.internet2.middleware.grouper.Stem.Scope, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)">getAllGroupsMembershipSecure</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;pitMemberId,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;pitFieldId,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITStem.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITStem</A>&nbsp;pitStem,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
+                             <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo,
+                             <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get all the groups that a member is a member of.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#saveOrUpdate(edu.internet2.middleware.grouper.pit.PITGroup)">saveOrUpdate</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&nbsp;pitGroup)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insert or update</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupDAO.html?view=co#saveOrUpdate(java.util.Set)">saveOrUpdate</A></B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;&nbsp;pitGroups)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;insert or update</TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="saveOrUpdate(edu.internet2.middleware.grouper.pit.PITGroup)"><!-- --></A><H3>
+saveOrUpdate</H3>
+<PRE>
+void <B>saveOrUpdate</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&nbsp;pitGroup)</PRE>
+<DL>
+<DD>insert or update
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pitGroup</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="saveOrUpdate(java.util.Set)"><!-- --></A><H3>
+saveOrUpdate</H3>
+<PRE>
+void <B>saveOrUpdate</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt;&nbsp;pitGroups)</PRE>
+<DL>
+<DD>insert or update
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pitGroups</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delete(edu.internet2.middleware.grouper.pit.PITGroup)"><!-- --></A><H3>
+delete</H3>
+<PRE>
+void <B>delete</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&nbsp;pitGroup)</PRE>
+<DL>
+<DD>delete
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pitGroup</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySourceIdActive(java.lang.String, boolean)"><!-- --></A><H3>
+findBySourceIdActive</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A> <B>findBySourceIdActive</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                              boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>PITGroup</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findById(java.lang.String, boolean)"><!-- --></A><H3>
+findById</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A> <B>findById</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                  boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>PITGroup</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySourceIdUnique(java.lang.String, boolean)"><!-- --></A><H3>
+findBySourceIdUnique</H3>
+<PRE>
+<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A> <B>findBySourceIdUnique</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                              boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>PITGroup</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findBySourceId(java.lang.String, boolean)"><!-- --></A><H3>
+findBySourceId</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findBySourceId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id,
+                             boolean&nbsp;exceptionIfNotFound)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - <DD><CODE>exceptionIfNotFound</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByName(java.lang.String, boolean)"><!-- --></A><H3>
+findByName</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findByName</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                         boolean&nbsp;orderByStartTime)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupName</CODE> - <DD><CODE>orderByStartTime</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="deleteInactiveRecords(java.sql.Timestamp)"><!-- --></A><H3>
+deleteInactiveRecords</H3>
+<PRE>
+void <B>deleteInactiveRecords</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;time)</PRE>
+<DL>
+<DD>Delete records that ended before the given date.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>time</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findByPITStemId(java.lang.String)"><!-- --></A><H3>
+findByPITStemId</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findByPITStemId</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - 
+<DT><B>Returns:</B><DD>set of PITGroup</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getAllGroupsMembershipSecure(java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.pit.PITStem, edu.internet2.middleware.grouper.Stem.Scope, java.sql.Timestamp, java.sql.Timestamp, edu.internet2.middleware.grouper.internal.dao.QueryOptions)"><!-- --></A><H3>
+getAllGroupsMembershipSecure</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>getAllGroupsMembershipSecure</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;pitMemberId,
+                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;pitFieldId,
+                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;scope,
+                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITStem.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITStem</A>&nbsp;pitStem,
+                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/Stem.Scope.html?view=co" title="enum in edu.internet2.middleware.grouper">Stem.Scope</A>&nbsp;stemScope,
+                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeFrom,
+                                           <A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/sql/Timestamp.html?view=co" title="class or interface in java.sql">Timestamp</A>&nbsp;pointInTimeTo,
+                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html?view=co" title="class in edu.internet2.middleware.grouper.internal.dao">QueryOptions</A>&nbsp;queryOptions)</PRE>
+<DL>
+<DD>Get all the groups that a member is a member of.
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>pitMemberId</CODE> - <DD><CODE>pitFieldId</CODE> - <DD><CODE>scope</CODE> - <DD><CODE>pitStem</CODE> - <DD><CODE>stemScope</CODE> - <DD><CODE>pointInTimeFrom</CODE> - <DD><CODE>pointInTimeTo</CODE> - <DD><CODE>queryOptions</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findMissingActivePITGroups()"><!-- --></A><H3>
+findMissingActivePITGroups</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/Group.html?view=co" title="class in edu.internet2.middleware.grouper">Group</A>&gt; <B>findMissingActivePITGroups</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>active groups that are missing in point in time</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findMissingInactivePITGroups()"><!-- --></A><H3>
+findMissingInactivePITGroups</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findMissingInactivePITGroups</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>active point in time groups that should be inactive</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeAssign)"><!-- --></A><H3>
+findRolesWithPermissionsContainingObject</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findRolesWithPermissionsContainingObject</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssign.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssign</A>&nbsp;assign)</PRE>
+<DL>
+<DD>Find the roles that have permissions containing the specified object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>assign</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeAssignActionSet)"><!-- --></A><H3>
+findRolesWithPermissionsContainingObject</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findRolesWithPermissionsContainingObject</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITAttributeAssignActionSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeAssignActionSet</A>&nbsp;actionSet)</PRE>
+<DL>
+<DD>Find the roles that have permissions containing the specified object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>actionSet</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet)"><!-- --></A><H3>
+findRolesWithPermissionsContainingObject</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findRolesWithPermissionsContainingObject</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITAttributeDefNameSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITAttributeDefNameSet</A>&nbsp;attributeDefNameSet)</PRE>
+<DL>
+<DD>Find the roles that have permissions containing the specified object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeDefNameSet</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITRoleSet)"><!-- --></A><H3>
+findRolesWithPermissionsContainingObject</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findRolesWithPermissionsContainingObject</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITRoleSet.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITRoleSet</A>&nbsp;roleSet)</PRE>
+<DL>
+<DD>Find the roles that have permissions containing the specified object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>roleSet</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findRolesWithPermissionsContainingObject(edu.internet2.middleware.grouper.pit.PITMembership)"><!-- --></A><H3>
+findRolesWithPermissionsContainingObject</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITGroup.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITGroup</A>&gt; <B>findRolesWithPermissionsContainingObject</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/pit/PITMembership.html?view=co" title="class in edu.internet2.middleware.grouper.pit">PITMembership</A>&nbsp;membership)</PRE>
+<DL>
+<DD>Find the roles that have permissions containing the specified object
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>membership</CODE> - 
+<DT><B>Returns:</B><DD>set of pit groups</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="findActiveDuplicates()"><!-- --></A><H3>
+findActiveDuplicates</H3>
+<PRE>
+<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?view=co" title="class or interface in java.util">Set</A>&lt;<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&gt; <B>findActiveDuplicates</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>source ids of records that have duplicate active entries in PIT</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="delete(java.lang.String)"><!-- --></A><H3>
+delete</H3>
+<PRE>
+void <B>delete</B>(<A HREF="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?view=co" title="class or interface in java.lang">String</A>&nbsp;id)</PRE>
+<DL>
+<DD>Delete (won't run pre and post delete methods)
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>id</CODE> - </DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html?view=co"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html?view=co"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html?view=co"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html?view=co"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html?view=co"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITFieldDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/internal/dao/PITGroupSetDAO.html?view=co" title="interface in edu.internet2.middleware.grouper.internal.dao"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../../../../index.html?view=co" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PITGroupDAO.html?view=co" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../../../../allclasses-noframe.html?view=co"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

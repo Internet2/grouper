@@ -401,7 +401,7 @@
                             if (!"WsAttributeAssignLookup".equals(type)){
                                 //find namespace for the prefix
                                 java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (WsAttributeAssignLookup)edu.internet2.middleware.grouper.ws.soap_v2_1.xsd.ExtensionMapper.getTypeObject(
+                                return (WsAttributeAssignLookup)edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.ExtensionMapper.getTypeObject(
                                      nsUri,type,reader);
                               }
                         

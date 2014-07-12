@@ -119,5 +119,20 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
       Collection<String> memberIds,
       Boolean enabled);
 
-  
+  /**
+   * Returns legacy attributes (assigned to a given group) either migrated or created in the new attribute framework.
+   * The keys of the map are the legacy attribute field names.
+   * @param groupId
+   * @return the values
+   */
+  public Map<String, AttributeAssignValue> findLegacyAttributesByGroupId(String groupId);
+
+  /**
+   * Returns legacy attributes (assigned to a given group) either migrated or created in the new attribute framework.
+   * The keys of the map are the legacy attribute field names.
+   * @param groupIds
+   * @return the map of maps of values by group id
+   */
+  public Map<String, Map<String, AttributeAssignValue>> findLegacyAttributesByGroupIds(Collection<String> groupId);
+
 }

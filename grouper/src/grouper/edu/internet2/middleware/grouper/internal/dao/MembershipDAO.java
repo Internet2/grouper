@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -48,6 +49,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
 import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.subject.Source;
 
@@ -522,8 +524,49 @@ TODO update for 1.5
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity);
+  
+  /**
+   * find memberships by group owner and other options.  
+   * @param groupIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param fields if finding one field, list here, otherwise all list fields will be returned
+   * @param privilegesTheUserHas check to make sure the user has these privileges on the records
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param fieldType field type of of memberships
+   * @param serviceId 
+   * @param serviceRole 
+   * @param queryOptionsForMember query options for member.  must include paging.  if sorting then sort by member
+   * @param filterForMember if paging for member, then also filter for member 
+   * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param queryOptionsForGroup 
+   * @param scopeForGroup 
+   * @param splitScopeForGroup 
+   * @param hasFieldForGroup 
+   * @param hasMembershipTypeForGroup 
+   * @param memberHasMembershipForGroup makes sure this member has a membership in the group before returning any results
+   * @return a set of membership, group, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Collection<Field> fields,  Collection<Privilege> privilegesTheUserHas,
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
+      FieldType fieldType,
+      String serviceId, ServiceRole serviceRole, QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForGroup, 
+      String scopeForGroup, boolean splitScopeForGroup, boolean hasFieldForGroup,
+      boolean hasMembershipTypeForGroup, Member memberHasMembershipForGroup);
 
-
+  
   /**
    * find membershpis by group owner and other options.  
    * @param groupIds to limit memberships to
@@ -537,14 +580,15 @@ TODO update for 1.5
    * @param stemScope if looking only in this stem, or all substems
    * @param enabled null for all, true for enabled only, false for disabled only
    * @param shouldCheckSecurity if we should check security, default to true
+   * @param fieldType if we are checking access or list memberships
    * @return a set of membership, group, and member objects
    */
   public Set<Object[]> findAllByGroupOwnerOptions(Collection<String> groupIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType,
       Field field,  
-      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, 
-      String serviceId, ServiceRole serviceRole);
-  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity, FieldType fieldType);
+
+
   
   /**
    * find memberships by attribute def owner and other options.  
@@ -1052,5 +1096,119 @@ TODO update for 1.5
    * @return set of immediate memberships that are bad
    */
   public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup();
+  
+  /**
+   * Find cases where a membership exists where the member is a deleted group.
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadMembershipsDeletedGroupAsMember();
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param stemIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @return a set of membership, stem, and member objects
+   */
+  public Set<Object[]> findAllByStemOwnerOptions(Collection<String> stemIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity);
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param stemIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param queryOptionsForMember query options for member.  must include paging.  if sorting then sort by member
+   * @param filterForMember if paging for member, then also filter for member 
+   * @param splitScopeForMember if the scope for member has spaces in it, then split by whitespace, and find results that contain all of the scope strings
+   * @param hasFieldForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param hasMembershipTypeForMember return memberships where the member has this field, note, it will return all the memberships for those members
+   * @param queryOptionsForStem if paging by stem, then these are the query options
+   * @param scopeForStem scope to search for in stems if paging by stem
+   * @param splitScopeForStem if splitting scope when searching and paging by stem
+   * @param hasFieldForStem if has field for stem if paging by stem
+   * @param hasMembershipTypeForStem if paging for stems, this is the membership type to page on
+   * @return a set of membership, stem, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByStemOwnerOptions(Collection<String> stemIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Collection<Field> field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, Boolean shouldCheckSecurity,
+      QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForStem, 
+      String scopeForStem, boolean splitScopeForStem, boolean hasFieldForStem,
+      boolean hasMembershipTypeForStem);
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param attributeDefIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @return a set of membership, stem, and member objects
+   */
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Field field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
+      Boolean shouldCheckSecurity);
+  
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param attributeDefIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param queryOptionsForAttributeDef if paging for attribute defs, then these are the query options for the overall page
+   * @param scopeForAttributeDef if paging for attribute defs, this is the scope to search for on the attribute defs
+   * @param splitScopeForAttributeDef if scoping and paging for attribute defs, this will split the scope by whitespace
+   * @param hasFieldForAttributeDef if paging by attribute def you can look for a specific field for the attribute defs
+   * and then all fields for the resulting attribute defs
+   * @param hasMembershipTypeForAttributeDef if paging for attribute defs, this is the membership type
+   * @return a set of membership, stem, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Collection<Field> field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
+      Boolean shouldCheckSecurity, QueryOptions queryOptionsForAttributeDef, 
+      String scopeForAttributeDef, boolean splitScopeForAttributeDef, boolean hasFieldForAttributeDef,
+      boolean hasMembershipTypeForAttributeDef);
+  
 } 
 

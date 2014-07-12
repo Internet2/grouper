@@ -40,10 +40,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
@@ -353,6 +355,17 @@ public class MemberFinder {
           Member _m = internal_createMember(subj, memberUuidIfCreate);
           return _m;
         } catch (RuntimeException re) {
+          
+          //dont interrupt a hook veto
+          if (re instanceof HookVeto) {
+            throw re;
+          }
+          
+          //give an out switch
+          if (GrouperConfig.getPropertyBoolean("grouperDontTryCreateMemberTwiceOnException", false)) {
+            throw re;
+          }
+          
           //GRP-903: if the same member is created on two jvms, it throws a constrain exception
           //maybe a constraint was violated?  Try to select again?
           try {

@@ -32,7 +32,9 @@
 
 package edu.internet2.middleware.grouper.privs;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +55,128 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @version $Id: Privilege.java,v 1.9 2009-09-21 06:14:26 mchyzer Exp $
  */
 public class Privilege implements Serializable {
+
+  /**
+   * see if privilege involves group
+   * @return if involves groups
+   */
+  public boolean isAccess() {
+    return Privilege.isAccess(this);
+  }
+  
+  /**
+   * see if privilege involves stem
+   * @return if involves stems
+   */
+  public boolean isNaming() {
+    return Privilege.isNaming(this);
+  }
+  
+  /**
+   * see if privilege involves attribute def
+   * @return if involves attribute def
+   */
+  public boolean isAttributeDef() {
+    return Privilege.isAttributeDef(this);
+  }
+  
+
+  /**
+   * convert a list to a privilege for any type of privilege
+   * @param list
+   * @return the privilege
+   */
+  public static Privilege listToPriv(String list, boolean exceptionOnNotFound) {
+    
+    Privilege privilege = AccessPrivilege.listToPriv(list);
+    
+    if (privilege != null) {
+      return privilege;
+    }
+    
+    privilege = NamingPrivilege.listToPriv(list);
+    
+    if (privilege != null) {
+      return privilege;
+    }
+    
+    privilege = AttributeDefPrivilege.listToPriv(list);
+    
+    if (privilege != null) {
+      return privilege;
+    }
+    
+    if (exceptionOnNotFound) {
+      throw new RuntimeException("Cant find privilege from field: " + list);
+    }
+    
+    return null;
+    
+    
+  }
+
+  /**
+   * convert a list to a privilege for any type of privilege
+   * @param fields
+   * @return the privilege
+   */
+  public static Set<Privilege> convertFieldsToPrivileges(Collection<Field> fields) {
+    
+    if (fields == null) {
+      return null;
+    }
+    
+    Set<Privilege> privileges = new LinkedHashSet<Privilege>();
+    
+    for (Field field : fields) {
+      Privilege privilege = listToPriv(field.getName(), true);
+      privileges.add(privilege);
+    }
+    return privileges;
+    
+  }
+
+  /**
+   * convert a list of privilege names or field names to a privilege for any type of privilege
+   * @param privilegeNames
+   * @return the privilege
+   */
+  public static Set<Privilege> convertNamesToPrivileges(Collection<String> privilegeNames) {
+    
+    if (privilegeNames == null) {
+      return null;
+    }
+    
+    Set<Privilege> privileges = new LinkedHashSet<Privilege>();
+    
+    for (String privilegeName : privilegeNames) {
+      Privilege privilege = getInstance(privilegeName, true);
+      privileges.add(privilege);
+    }
+    return privileges;
+    
+  }
+
+  /**
+   * convert a collection of privileges to a collection of fields
+   * @param privileges
+   * @return the fields
+   */
+  public static Collection<Field> convertPrivilegesToFields(Collection<Privilege> privileges) {
+    
+    Set<Field> result = new HashSet<Field>();
+    
+    for (Privilege privilege : GrouperUtil.nonNull(privileges)) {
+      
+      Field field = privilege.getField();
+      result.add(field);
+      
+    }
+    
+    return result;
+    
+  }
+  
 
   /** constant */
   public static final long serialVersionUID = 931658631999330719L;
@@ -123,7 +247,7 @@ public class Privilege implements Serializable {
   private static final Privilege              GROUP_ATTR_READ    = new Privilege("groupAttrRead"  );
   /** */
   private static final Privilege              GROUP_ATTR_UPDATE    = new Privilege("groupAttrUpdate"  );
-  /** */
+  /** key is priv name to lower case */
   private static final Map<String,Privilege>  PRIVS   = new HashMap<String,Privilege>();
 
   /** */
@@ -148,50 +272,235 @@ public class Privilege implements Serializable {
   /** */
   private String name;
 
+  /**
+   * get the inherited privileges for this privilege (including this privilege
+   * for instance if the privilege is UPDATE, then return UPDATE and ADMIN
+   * @return the inherited privileges
+   *
+   */
+  public Collection<Privilege> getInheritedPrivileges() {
+    
+    if (this.equals(ADMIN)) {
+      return AccessPrivilege.ADMIN_PRIVILEGES;
+    }
+    
+    if (this.equals(VIEW)) {
+      return AccessPrivilege.VIEW_PRIVILEGES;
+    }
+    
+    if (this.equals(READ)) {
+      return AccessPrivilege.READ_PRIVILEGES;
+    }
+    
+    if (this.equals(UPDATE)) {
+      return AccessPrivilege.UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTIN)) {
+      return AccessPrivilege.OPTIN_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTOUT)) {
+      return AccessPrivilege.OPTOUT_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_READ)) {
+      return AccessPrivilege.GROUP_ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_UPDATE)) {
+      return AccessPrivilege.GROUP_ATTR_UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM)) {
+      return NamingPrivilege.STEM_PRIVILEGES;
+    }
+    
+    if (this.equals(CREATE)) {
+      return NamingPrivilege.CREATE_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_READ)) {
+      return NamingPrivilege.STEM_ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_UPDATE)) {
+      return NamingPrivilege.STEM_ATTR_UPDATE_PRIVILEGES;
+    }
+
+    if (this.equals(ATTR_ADMIN)) {
+      return AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTIN)) {
+      return AttributeDefPrivilege.ATTR_OPTIN_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTOUT)) {
+      return AttributeDefPrivilege.ATTR_OPTOUT_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_READ_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_UPDATE_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_VIEW)) {
+      return AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES;
+    }
+
+    throw new RuntimeException("Cant find privilege: " + this.getName());
+    
+  }
+
+  /**
+   * get the privilege that this privilege implied (including this privilege
+   * for instance if the privilege is UPDATE, then return UPDATE and ADMIN
+   * @return the inherited privileges
+   *
+   */
+  public Collection<Privilege> getImpliedPrivileges() {
+    
+    if (this.equals(ADMIN)) {
+      return AccessPrivilege.ADMIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(VIEW)) {
+      return AccessPrivilege.VIEW_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(READ)) {
+      return AccessPrivilege.READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(UPDATE)) {
+      return AccessPrivilege.UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTIN)) {
+      return AccessPrivilege.OPTIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(OPTOUT)) {
+      return AccessPrivilege.OPTOUT_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_READ)) {
+      return AccessPrivilege.GROUP_ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(GROUP_ATTR_UPDATE)) {
+      return AccessPrivilege.GROUP_ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM)) {
+      return NamingPrivilege.STEM_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(CREATE)) {
+      return NamingPrivilege.CREATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_READ)) {
+      return NamingPrivilege.STEM_ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ATTR_UPDATE)) {
+      return NamingPrivilege.STEM_ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+
+    if (this.equals(ATTR_ADMIN)) {
+      return AttributeDefPrivilege.ATTR_ADMIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_DEF_ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTIN)) {
+      return AttributeDefPrivilege.ATTR_OPTIN_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_OPTOUT)) {
+      return AttributeDefPrivilege.ATTR_OPTOUT_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_READ)) {
+      return AttributeDefPrivilege.ATTR_READ_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_UPDATE)) {
+      return AttributeDefPrivilege.ATTR_UPDATE_IMPLIED_PRIVILEGES;
+    }
+    
+    if (this.equals(ATTR_VIEW)) {
+      return AttributeDefPrivilege.ATTR_VIEW_IMPLIED_PRIVILEGES;
+    }
+
+    throw new RuntimeException("Cant find privilege: " + this.getName());
+    
+  }
+
+
 
   // STATIC //
   static {
-    PRIVS.put(  ADMIN.toString()  , ADMIN   );
+    PRIVS.put(  ADMIN.toString().toLowerCase()  , ADMIN   );
     ACCESS.add( ADMIN                       );
-    PRIVS.put(  CREATE.toString() , CREATE  );
+    PRIVS.put(  CREATE.toString().toLowerCase() , CREATE  );
     NAMING.add( CREATE                      );
-    PRIVS.put(  OPTIN.toString()  , OPTIN   );
+    PRIVS.put(  OPTIN.toString().toLowerCase()  , OPTIN   );
     ACCESS.add( OPTIN                       );
-    PRIVS.put(  OPTOUT.toString() , OPTOUT  );
+    PRIVS.put(  OPTOUT.toString().toLowerCase() , OPTOUT  );
     ACCESS.add( OPTOUT                      );
-    PRIVS.put(  READ.toString()   , READ    );
+    PRIVS.put(  READ.toString().toLowerCase()   , READ    );
     ACCESS.add( READ                        );
-    PRIVS.put(  STEM.toString()   , STEM    );
+    PRIVS.put(  STEM.toString().toLowerCase()   , STEM    );
     NAMING.add( STEM                        );
-    PRIVS.put(  SYSTEM.toString() , SYSTEM  );
-    PRIVS.put(  UPDATE.toString() , UPDATE  );
+    PRIVS.put(  SYSTEM.toString().toLowerCase() , SYSTEM  );
+    PRIVS.put(  UPDATE.toString().toLowerCase() , UPDATE  );
     ACCESS.add( UPDATE                      );
-    PRIVS.put(  VIEW.toString()   , VIEW    );
+    PRIVS.put(  VIEW.toString().toLowerCase()   , VIEW    );
     ACCESS.add( VIEW                        );
-    PRIVS.put(GROUP_ATTR_READ.toString(), GROUP_ATTR_READ);
+    PRIVS.put(GROUP_ATTR_READ.toString().toLowerCase(), GROUP_ATTR_READ);
     ACCESS.add(GROUP_ATTR_READ);
-    PRIVS.put(GROUP_ATTR_UPDATE.toString(), GROUP_ATTR_UPDATE);
+    PRIVS.put(GROUP_ATTR_UPDATE.toString().toLowerCase(), GROUP_ATTR_UPDATE);
     ACCESS.add(GROUP_ATTR_UPDATE);
-    PRIVS.put(STEM_ATTR_READ.toString(), STEM_ATTR_READ);
+    PRIVS.put(STEM_ATTR_READ.toString().toLowerCase(), STEM_ATTR_READ);
     NAMING.add(STEM_ATTR_READ);
-    PRIVS.put(STEM_ATTR_UPDATE.toString(), STEM_ATTR_UPDATE);
+    PRIVS.put(STEM_ATTR_UPDATE.toString().toLowerCase(), STEM_ATTR_UPDATE);
     NAMING.add(STEM_ATTR_UPDATE);
 
-    PRIVS.put(  ATTR_OPTIN.toString()   , ATTR_OPTIN    );
+    PRIVS.put(  ATTR_OPTIN.toString().toLowerCase()   , ATTR_OPTIN    );
     ATTRIBUTE_DEF.add( ATTR_OPTIN                        );
-    PRIVS.put(  ATTR_OPTOUT.toString()   , ATTR_OPTOUT    );
+    PRIVS.put(  ATTR_OPTOUT.toString().toLowerCase()   , ATTR_OPTOUT    );
     ATTRIBUTE_DEF.add( ATTR_OPTOUT                        );
-    PRIVS.put(  ATTR_READ.toString()   , ATTR_READ    );
+    PRIVS.put(  ATTR_READ.toString().toLowerCase()   , ATTR_READ    );
     ATTRIBUTE_DEF.add( ATTR_READ                        );
-    PRIVS.put(  ATTR_UPDATE.toString()   , ATTR_UPDATE    );
+    PRIVS.put(  ATTR_UPDATE.toString().toLowerCase()   , ATTR_UPDATE    );
     ATTRIBUTE_DEF.add( ATTR_UPDATE                        );
-    PRIVS.put(  ATTR_VIEW.toString()   , ATTR_VIEW    );
+    PRIVS.put(  ATTR_VIEW.toString().toLowerCase()   , ATTR_VIEW    );
     ATTRIBUTE_DEF.add( ATTR_VIEW                        );
-    PRIVS.put(  ATTR_ADMIN.toString()   , ATTR_ADMIN    );
+    PRIVS.put(  ATTR_ADMIN.toString().toLowerCase()   , ATTR_ADMIN    );
     ATTRIBUTE_DEF.add( ATTR_ADMIN                        );
-    PRIVS.put(ATTR_DEF_ATTR_READ.toString(), ATTR_DEF_ATTR_READ);
+    PRIVS.put(ATTR_DEF_ATTR_READ.toString().toLowerCase(), ATTR_DEF_ATTR_READ);
     ATTRIBUTE_DEF.add(ATTR_DEF_ATTR_READ);
-    PRIVS.put(ATTR_DEF_ATTR_UPDATE.toString(), ATTR_DEF_ATTR_UPDATE);
+    PRIVS.put(ATTR_DEF_ATTR_UPDATE.toString().toLowerCase(), ATTR_DEF_ATTR_UPDATE);
     ATTRIBUTE_DEF.add(ATTR_DEF_ATTR_UPDATE);
 
   
@@ -223,7 +532,7 @@ public class Privilege implements Serializable {
   public Field getField() throws SchemaException {
     String listName = this.getListName();
     if (!StringUtils.isBlank(listName)) {
-      return FieldFinder.find(listName, true);
+      return FieldFinder.find(listName, true, false);
     }
     throw new SchemaException("invalid privilege: " + this);
   }
@@ -241,7 +550,7 @@ public class Privilege implements Serializable {
    * 
    * @return access (group) privs
    */
-  public static Set getAccessPrivs() {
+  public static Set<Privilege> getAccessPrivs() {
     return ACCESS;
   } // public static Set getAccessPrivs()
 
@@ -277,21 +586,45 @@ public class Privilege implements Serializable {
     }
     return result.toString();
   }
-  
+
   /**
    * 
    * @param name
    * @return priv
    */
   public static Privilege getInstance(String name) {
-    return (Privilege) PRIVS.get(name);
+    return getInstance(name, false);
+  }
+  /**
+   * 
+   * @param name
+   * @param exceptionIfNotFound
+   * @return priv
+   */
+  public static Privilege getInstance(String name, boolean exceptionIfNotFound) {
+    
+    //all are upper case
+    if (name != null) {
+      name = name.toLowerCase();
+    }
+    Privilege privilege = PRIVS.get(name);
+    
+    //try list to make things more user friendly?
+    if (privilege == null) {
+      privilege = listToPriv(name, false);
+    }
+    
+    if (privilege == null && exceptionIfNotFound) {
+      throw new RuntimeException("Cant find privilege: " + name);
+    }
+    return privilege;
   } // public static Privilege getInstance(name)
 
   /**
    * get stem (naming) privs
    * @return set
    */
-  public static Set getNamingPrivs() {
+  public static Set<Privilege> getNamingPrivs() {
     return NAMING;
   }
   
@@ -299,7 +632,7 @@ public class Privilege implements Serializable {
    * get attribute def privs
    * @return attr def privs
    */
-  public static Set getAttributeDefPrivs() {
+  public static Set<Privilege> getAttributeDefPrivs() {
     return ATTRIBUTE_DEF;
   }
 

@@ -1,6 +1,0 @@
-<ldappc:calcResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc'>
-  <ldappc:pso>
-    <ldappc:alternateIdentifier xmlns:ldappc='http://grouper.internet2.edu/ldappc' ID='altID' targetID='targetID'/>
-    <psoID ID='ID' targetID='targetID' />
-  </ldappc:pso>
-</ldappc:calcResponse>

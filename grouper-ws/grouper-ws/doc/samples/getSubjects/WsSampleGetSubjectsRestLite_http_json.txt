@@ -1,4 +1,4 @@
-Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: http_json, for version: 2.1.1
+Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite, manually written lite/rest, format: http_json, for version: 2.2.0
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getSubjects, WsSampleGetSubjectsRestLite,
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v2_1_001/subjects/test.subject.0 HTTP/1.1
+GET /grouper-ws/servicesRest/json/v2_2_000/subjects/test.subject.0 HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
-User-Agent: Jakarta Commons-HttpClient/3.1
+User-Agent: Jakarta Commons-HttpClient/3.0
 Host: localhost:8092
 
 
@@ -34,15 +34,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 308
-Date: Sun, 01 Jul 2012 14:05:03 GMT
+Content-Length: 307
+Date: Thu, 29 May 2014 00:03:07 GMT
 Connection: close
 
 {
   "WsGetSubjectsResults":{
     "responseMetadata":{
-      "millis":"210",
-      "serverVersion":"2.1.1"
+      "millis":"10",
+      "serverVersion":"2.2.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -208,4 +208,4 @@ public class WsSampleGetSubjectsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.1.1, result code: SUCCESS, result message: Queried 1 subjects
+Server version: 2.2.0, result code: SUCCESS, result message: Queried 1 subjects

@@ -32,6 +32,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -44,9 +45,12 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -55,7 +59,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.AttributeDefNameHooks;
+import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeDefNameBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -82,6 +88,31 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeDefName extends GrouperAPI 
     implements GrouperHasContext, Hib3GrouperVersioned, GrouperSetElement, 
     XmlImportable<AttributeDefName>, Comparable<AttributeDefName>, GrouperObject {
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "nameOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DISPLAY_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "displayNameOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DECRIPTION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "decriptionOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "extensionOfAttributeDefNameTooLong";
+
+  /**
+   * 
+   */
+  public static final String VALIDATION_DISPLAY_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY = "displayExtensionOfAttributeDefNameTooLong";
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";
@@ -336,6 +367,14 @@ public class AttributeDefName extends GrouperAPI
    * @return id
    */
   public String getId() {
+    return this.id;
+  }
+
+  /**
+   * id of this attribute def name
+   * @return id
+   */
+  public String getUuid() {
     return this.id;
   }
 
@@ -904,6 +943,10 @@ public class AttributeDefName extends GrouperAPI
    * store this group (update) to database
    */
   public void store() {
+    
+    validate();
+
+    
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -944,6 +987,52 @@ public class AttributeDefName extends GrouperAPI
         });
   }
 
+
+
+  /**
+   * 
+   */
+  public void validate() {
+    //lets validate
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+    boolean sqlServer = GrouperDdlUtils.isSQLServer();
+    int maxNameLength = sqlServer ? 900 : 1024;
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
+    if (GrouperUtil.lengthAscii(this.getExtension()) > 255) {
+      throw new GrouperValidationException("Extension of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getExtension()), 
+          VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, 255, GrouperUtil.lengthAscii(this.getExtension()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_DISPLAY_EXTENSION, Types.VARCHAR, "128", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayExtension()) > 128) {
+      throw new GrouperValidationException("Display extension of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getDisplayExtension()), 
+          VALIDATION_DISPLAY_EXTENSION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, 128, GrouperUtil.lengthAscii(this.getDisplayExtension()));
+    }
+    
+    if (GrouperUtil.lengthAscii(this.getName()) > maxNameLength) {
+      throw new GrouperValidationException("Name of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getName()), 
+          VALIDATION_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_DISPLAY_NAME, Types.VARCHAR, ddlVersionBean.isSqlServer() ? "900" : "1024", false, true);
+    if (GrouperUtil.lengthAscii(this.getDisplayName()) > maxNameLength) {
+      throw new GrouperValidationException("Display name of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getDisplayName()), 
+          VALIDATION_DISPLAY_NAME_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, maxNameLength, GrouperUtil.lengthAscii(this.getDisplayName()));
+    }
+
+    //    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+    //        AttributeDefName.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
+    if (GrouperUtil.lengthAscii(this.getDescription()) > 1024) {
+      throw new GrouperValidationException("Description of attributeDefName too long: " + GrouperUtil.lengthAscii(this.getDescription()), 
+          VALIDATION_DECRIPTION_OF_ATTRIBUTE_DEF_NAME_TOO_LONG_KEY, 1024, GrouperUtil.lengthAscii(this.getDescription()));
+    }
+  }
+
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
@@ -959,6 +1048,18 @@ public class AttributeDefName extends GrouperAPI
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_DELETE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_POST_DELETE, false, true);
   
+    GroupType groupType = GroupType.internal_getGroupType(this, false);
+    if (groupType != null) {
+      // this is a legacy group type
+      
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_DELETE, HooksGroupTypeBean.class,
+          groupType, GroupType.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(groupType, GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_POST_DELETE, HooksGroupTypeBean.class,
+          groupType, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_DELETE, false, true);
+    }
   }
 
   /**
@@ -978,7 +1079,18 @@ public class AttributeDefName extends GrouperAPI
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_POST_COMMIT_INSERT, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class);
   
-  
+    GroupType groupType = GroupType.internal_getGroupType(this, false);
+    if (groupType != null) {
+      // this is a legacy group type
+
+      GrouperHooksUtils.callHooksIfRegistered(groupType, GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_POST_INSERT, HooksGroupTypeBean.class,
+          groupType, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_INSERT, true, false);
+
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_INSERT, HooksGroupTypeBean.class,
+          groupType, GroupType.class);
+    }
   }
 
   /**
@@ -997,6 +1109,18 @@ public class AttributeDefName extends GrouperAPI
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_POST_UPDATE, true, false);
   
   
+    GroupType groupType = GroupType.internal_getGroupType(this, false);
+    if (groupType != null) {
+      // this is a legacy group type
+      
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_UPDATE, HooksGroupTypeBean.class,
+          groupType, GroupType.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(groupType, GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_POST_UPDATE, HooksGroupTypeBean.class,
+          groupType, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_UPDATE, true, false);
+    }
   }
 
   /**
@@ -1006,6 +1130,15 @@ public class AttributeDefName extends GrouperAPI
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
   
+    GroupType groupType = GroupType.internal_getGroupType(this, false);
+    if (groupType != null) {
+      // this is a legacy group type
+      
+      GrouperHooksUtils.callHooksIfRegistered(groupType, GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_PRE_DELETE, HooksGroupTypeBean.class,
+          groupType, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_DELETE, false, false);
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_DELETE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_DELETE, false, false);
@@ -1040,6 +1173,15 @@ public class AttributeDefName extends GrouperAPI
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_INSERT, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_INSERT, false, false);
     
+    GroupType groupType = GroupType.internal_getGroupType(this, false);
+    if (groupType != null) {
+      // this is a legacy group type
+    
+      GrouperHooksUtils.callHooksIfRegistered(groupType, GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_PRE_INSERT, HooksGroupTypeBean.class,
+          groupType, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_INSERT, false, false);
+    }
+    
     //change log into temp table
     new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD, 
         ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id.name(), this.getId(), 
@@ -1066,10 +1208,35 @@ public class AttributeDefName extends GrouperAPI
       throw new RuntimeException("cannot update stemId");
     }
     
+    if (this.dbVersionDifferentFields().contains(FIELD_NAME) || this.dbVersionDifferentFields().contains(FIELD_EXTENSION)) {
+      // don't allow renames for legacy attributes
+      String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+      String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
+      String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+      String customListPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.customList.prefix");
+      
+      String oldName = this.dbVersion().getNameDb();
+      if (oldName.startsWith(stemName + ":" + groupTypePrefix) ||
+          oldName.startsWith(stemName + ":" + attributePrefix) ||
+          oldName.startsWith(stemName + ":" + customListPrefix)) {
+        throw new RuntimeException("cannot update name for legacy attributes");
+      }
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF_NAME, 
         AttributeDefNameHooks.METHOD_ATTRIBUTE_DEF_NAME_PRE_UPDATE, HooksAttributeDefNameBean.class, 
         this, AttributeDefName.class, VetoTypeGrouper.ATTRIBUTE_DEF_NAME_PRE_UPDATE, false, false);
   
+    
+    GroupType groupType = GroupType.internal_getGroupType(this, false);
+    if (groupType != null) {
+      // this is a legacy group type
+      
+      GrouperHooksUtils.callHooksIfRegistered(groupType, GrouperHookType.GROUP_TYPE,
+          GroupTypeHooks.METHOD_GROUP_TYPE_PRE_UPDATE, HooksGroupTypeBean.class,
+          groupType, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_UPDATE, false, false);
+    }
+    
     //change log into temp table
     ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE, 
         this, this.dbVersion(),
@@ -1188,6 +1355,91 @@ public class AttributeDefName extends GrouperAPI
       }      
     }
     return needsSave;
+  }
+
+  /**
+   * set this for caching
+   * @param attributeDef1
+   */
+  public void internalSetAttributeDef(AttributeDef attributeDef1) {
+    
+    if (attributeDef1 != null) {
+      if (!StringUtils.equals(this.attributeDefId, attributeDef1.getId())) {
+        throw new RuntimeException("Why does the attributeDef id " 
+            + this.attributeDefId + " not equal the param id: " + attributeDef1.getId());
+      }
+    }
+    
+    this.attributeDef = attributeDef1;
+  }
+  
+  /**
+   * @param exceptionIfNotLegacyAttribute
+   * @return legacy attribute name
+   */
+  public String getLegacyAttributeName(boolean exceptionIfNotLegacyAttribute) {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+    
+    String prefix = stemName + ":" + attributePrefix;
+    if (this.name.startsWith(prefix)) {
+      return this.name.substring(prefix.length());
+    } 
+
+    if (exceptionIfNotLegacyAttribute) {
+      throw new RuntimeException("Not legacy attribute");
+    }
+      
+    return null;
+  }
+  
+  /**
+   * @param exceptionIfNotLegacyGroupType
+   * @return legacy attribute name
+   */
+  public String getLegacyGroupTypeName(boolean exceptionIfNotLegacyGroupType) {
+    String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+    String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
+    
+    String prefix = stemName + ":" + groupTypePrefix;
+    if (this.name.startsWith(prefix)) {
+      return this.name.substring(prefix.length());
+    } 
+
+    if (exceptionIfNotLegacyGroupType) {
+      throw new RuntimeException("Not legacy group type");
+    }
+      
+    return null;
+  }
+  
+  /**
+   * @see GrouperObject#matchesLowerSearchStrings(Set)
+   */
+  @Override
+  public boolean matchesLowerSearchStrings(Set<String> filterStrings) {
+
+    if (GrouperUtil.length(filterStrings) == 0) {
+      return true;
+    }
+
+    String lowerId = this.getId().toLowerCase();
+    String lowerName = StringUtils.defaultString(this.getName()).toLowerCase();
+    String lowerDisplayName = StringUtils.defaultString(this.getDisplayName()).toLowerCase();
+    String lowerDescription = StringUtils.defaultString(this.getDescription()).toLowerCase();
+    
+    for (String filterString : GrouperUtil.nonNull(filterStrings)) {
+      
+      //if all dont match, return false
+      if (!lowerId.contains(filterString)
+          && !lowerName.contains(filterString)
+          && !lowerDisplayName.contains(filterString)
+          && !lowerDescription.contains(filterString)) {
+        return false;
+      }
+      
+    }
+    return true;
   }
 
 }

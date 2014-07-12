@@ -107,6 +107,11 @@ img {
   border-bottom-width: 1px;
 }
 
+.grouperTooltip {
+  border-bottom-color: #056496;
+  border-bottom-style: dashed;
+  border-bottom-width: 1px;
+}
 .messages {
   border-bottom-color: #056496;
   border-bottom-style: dashed;

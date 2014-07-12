@@ -8,11 +8,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -21,6 +23,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -29,6 +32,7 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -41,7 +45,26 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class GrouperUserDataApi {
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject subject = SubjectFinder.findRootSubject();
 
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:rules:ruleCheckOwnerId", true);
+    GrouperUserDataApi.favoriteAttributeDefNameAdd("etc:grouperUi:grouperUiUserData", subject, attributeDefName);
+
+    attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:permissionLimits:limitWeekday9to5", true);
+    GrouperUserDataApi.favoriteAttributeDefNameAdd("etc:grouperUi:grouperUiUserData", subject, attributeDefName);
+
+  }
+  
   /** this is the max user data objects in json to fit in a 4k field */
   public static final int MAX_USER_DATA_OBJECTS = 30;
   
@@ -123,7 +146,7 @@ public class GrouperUserDataApi {
        */
       @Override
       public AttributeDefName attributeDefName() {
-        return GrouperUserDataUtils.grouperUserDataRecentAttributeDefsAttributeDefName();
+        return GrouperUserDataUtils.grouperUserDataRecentAttributeDefNamesAttributeDefName();
       }
       
     },
@@ -205,6 +228,30 @@ public class GrouperUserDataApi {
     }
     
     /**
+     * get the list of data
+     * @param userDataGroupName
+     * @param subject
+     * @param uuid
+     */
+    public <T> T retrieve(String userDataGroupName, Subject subject, Class<T> objectClass) {
+      
+      AttributeDefName attributeDefName = this.attributeDefName();
+      
+      AttributeAssignValue attributeAssignValue = userDataAttributeAssignValue(userDataGroupName, subject, attributeDefName, true, false);
+      
+      String value = null;
+      
+      if (attributeAssignValue != null) {
+        value = attributeAssignValue.getValueString();
+      }
+      
+      if (StringUtils.isBlank(value)) {
+        return null;
+      }
+      return GrouperUtil.jsonConvertFrom(value, objectClass);
+    }
+    
+    /**
      * add a uuid to a list of user data objects
      * @param userDataGroupName
      * @param subjectToAddTo
@@ -241,7 +288,8 @@ public class GrouperUserDataApi {
           attributeAssignValue.saveOrUpdate();
         }
       }
-      
+
+
     }
     
     
@@ -291,6 +339,33 @@ public class GrouperUserDataApi {
     }
     
     /**
+     * replace attribute value with another value
+     * @param userDataGroupName
+     * @param subject
+     * @param uuids to replace
+     */
+    public void replace(String userDataGroupName, Subject subject, String newValue) {
+      
+      AttributeDefName attributeDefName = this.attributeDefName();
+      
+      AttributeAssignValue attributeAssignValue = userDataAttributeAssignValue(userDataGroupName, subject, attributeDefName, false, true);
+      
+      String value = null;
+
+      if (attributeAssignValue != null) {
+        value = attributeAssignValue.getValueString();
+      }
+
+      if (!StringUtils.equals(value, newValue)) {
+        attributeAssignValue.setValueString(newValue);
+        
+        attributeAssignValue.saveOrUpdate();
+      }
+      
+      
+    }
+    
+    /**
      * add a uuid to a list of user data objects
      * @param userDataGroupName
      * @param subject
@@ -332,20 +407,29 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param group
    */
-  public static void favoriteGroupAdd(String userDataGroupName, Subject subjectToAddTo, Group group) {
+  public static void favoriteGroupAdd(final String userDataGroupName, final Subject subjectToAddTo, final Group group) {
     
-    if (group == null) {
-      throw new NullPointerException("Why is group null?");
-    }
-    
-    //check security
-    if (!group.hasView(subjectToAddTo)) {
-      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
-          + " does not have view on group " + group.getName());
-    }
-    
-    GrouperUserDataType.favoriteGroup.add(userDataGroupName, subjectToAddTo, group.getUuid());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (group == null) {
+          throw new NullPointerException("Why is group null?");
+        }
+        
+        //check security
+        if (!group.canHavePrivilege(subjectToAddTo, AccessPrivilege.VIEW.getName(), false)) {
+          throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+              + " does not have view on group " + group.getName());
+        }
+        
+        GrouperUserDataType.favoriteGroup.add(userDataGroupName, subjectToAddTo, group.getUuid());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -353,28 +437,44 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param group
    */
-  public static void favoriteGroupRemove(String userDataGroupName, Subject subjectToAddTo, Group group) {
+  public static void favoriteGroupRemove(final String userDataGroupName, final Subject subjectToAddTo, final Group group) {
     
-    if (group == null) {
-      throw new NullPointerException("Why is group null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.favoriteGroup.remove(userDataGroupName, subjectToAddTo, group.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (group == null) {
+          throw new NullPointerException("Why is group null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.favoriteGroup.remove(userDataGroupName, subjectToAddTo, group.getUuid());
+        return null;
+      }
+    });
+
     
   }
 
   /**
    * @param subject
    * @param userDataGroupName
-   * @param group
    * @return the favorite groups for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<Group> favoriteGroups(String userDataGroupName, Subject subject) {
+  public static Set<Group> favoriteGroups(final String userDataGroupName, final Subject subject) {
 
-    return groupList(GrouperUserDataType.favoriteGroup, userDataGroupName, subject);
+    return (Set<Group>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return groupList(GrouperUserDataType.favoriteGroup, userDataGroupName, subject);
+      }
+    });
+
   }
 
   /**
@@ -388,7 +488,7 @@ public class GrouperUserDataApi {
     UserDataList userDataList = groupUserDataType.retrieve(userDataGroupName, subject);
 
     //convert to groups
-    Set<Group> groups = null;
+    Set<Group> groups = new LinkedHashSet<Group>();
 
     if (userDataList != null) {
 
@@ -402,21 +502,28 @@ public class GrouperUserDataApi {
 
       }
 
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-
-      try {
-        groups = (Set<Group>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
-            return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.GROUP_OR_ROLE_SET);
-
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      if (uuids.size() > 0) {
+      
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+  
+        try {
+          groups = (Set<Group>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+  
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+  
+              return GrouperDAOFactory.getFactory().getGroup().findByUuidsSecure(uuids, null, TypeOfGroup.GROUP_OR_ROLE_SET);
+  
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
+        
+        //reorder them to be in id order
+        groups = GrouperUtil.sortByIds(uuids, groups);
+        
       }
       
       //remove the not allowed ones?
@@ -433,6 +540,7 @@ public class GrouperUserDataApi {
       }
       
     }
+    
     return groups;
     
   }
@@ -463,7 +571,7 @@ public class GrouperUserDataApi {
         
         if (group == null) {
           
-          group = new GroupSave(grouperSession).assignName(groupName).assignDescription(
+          group = new GroupSave(grouperSession).assignName(groupName).assignCreateParentStemsIfNotExist(true).assignDescription(
               "Internal group for grouper which has user data stored in membership attributes for " + GrouperUtil.extensionFromName(groupName) ).save();
   
           //this is an internal group, other people do not need to read or view it
@@ -738,32 +846,47 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param group
    */
-  public static void recentlyUsedGroupAdd(String userDataGroupName, Subject subjectToAddTo, Group group) {
+  public static void recentlyUsedGroupAdd(final String userDataGroupName, final Subject subjectToAddTo, final Group group) {
     
-    if (group == null) {
-      throw new NullPointerException("Why is group null?");
-    }
-    
-    //check security
-    if (!group.hasView(subjectToAddTo)) {
-      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
-          + " does not have view on group " + group.getName());
-    }
-    
-    GrouperUserDataType.recentGroup.add(userDataGroupName, subjectToAddTo, group.getUuid());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (group == null) {
+          throw new NullPointerException("Why is group null?");
+        }
+        
+        //check security
+        if (!group.canHavePrivilege(subjectToAddTo, AccessPrivilege.VIEW.getName(), false)) {
+          throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+              + " does not have view on group " + group.getName());
+        }
+        
+        GrouperUserDataType.recentGroup.add(userDataGroupName, subjectToAddTo, group.getUuid());
+        return null;
+      }
+    });
   }
 
   /**
    * @param subject
    * @param userDataGroupName
-   * @param group
    * @return the recently used groups for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<Group> recentlyUsedGroups(String userDataGroupName, Subject subject) {
+  public static Set<Group> recentlyUsedGroups(final String userDataGroupName, final Subject subject) {
 
-    return groupList(GrouperUserDataType.recentGroup, userDataGroupName, subject);
+    return (Set<Group>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return groupList(GrouperUserDataType.recentGroup, userDataGroupName, subject);
+      }
+    });
+
     
   }
 
@@ -772,15 +895,25 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param group
    */
-  public static void recentlyUsedGroupRemove(String userDataGroupName, Subject subjectToAddTo, Group group) {
+  public static void recentlyUsedGroupRemove(final String userDataGroupName, final Subject subjectToAddTo, final Group group) {
     
-    if (group == null) {
-      throw new NullPointerException("Why is group null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.recentGroup.remove(userDataGroupName, subjectToAddTo, group.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (group == null) {
+          throw new NullPointerException("Why is group null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.recentGroup.remove(userDataGroupName, subjectToAddTo, group.getUuid());
+
+        return null;
+      }
+    });
     
   }
 
@@ -789,20 +922,29 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDef
    */
-  public static void favoriteAttributeDefAdd(String userDataGroupName, Subject subjectToAddTo, AttributeDef attributeDef) {
+  public static void favoriteAttributeDefAdd(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDef attributeDef) {
     
-    if (attributeDef == null) {
-      throw new NullPointerException("Why is attributeDef null?");
-    }
-    
-    //check security
-    if (!attributeDef.getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
-      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
-          + " does not have view on attributeDef " + attributeDef.getName());
-    }
-    
-    GrouperUserDataType.favoriteAttributeDef.add(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDef == null) {
+          throw new NullPointerException("Why is attributeDef null?");
+        }
+        
+        //check security
+        if (!attributeDef.getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
+          throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+              + " does not have view on attributeDef " + attributeDef.getName());
+        }
+        
+        GrouperUserDataType.favoriteAttributeDef.add(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -810,15 +952,24 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDef
    */
-  public static void favoriteAttributeDefRemove(String userDataGroupName, Subject subjectToAddTo, AttributeDef attributeDef) {
+  public static void favoriteAttributeDefRemove(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDef attributeDef) {
     
-    if (attributeDef == null) {
-      throw new NullPointerException("Why is attributeDef null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.favoriteAttributeDef.remove(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDef == null) {
+          throw new NullPointerException("Why is attributeDef null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.favoriteAttributeDef.remove(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+        return null;
+      }
+    });
+
     
   }
 
@@ -828,9 +979,17 @@ public class GrouperUserDataApi {
    * @return the favorite attributeDefs for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<AttributeDef> favoriteAttributeDefs(String userDataGroupName, Subject subject) {
+  public static Set<AttributeDef> favoriteAttributeDefs(final String userDataGroupName, final Subject subject) {
   
-    return attributeDefList(GrouperUserDataType.favoriteAttributeDef, userDataGroupName, subject);
+    return (Set<AttributeDef>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return attributeDefList(GrouperUserDataType.favoriteAttributeDef, userDataGroupName, subject);
+      }
+    });
+
     
   }
 
@@ -846,7 +1005,7 @@ public class GrouperUserDataApi {
     UserDataList userDataList = attributeDefUserDataType.retrieve(userDataGroupName, subject);
     
     //convert to groups
-    Set<AttributeDef> attributeDefs = null;
+    Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
   
     if (userDataList != null) {
   
@@ -859,22 +1018,28 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
   
       }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        attributeDefs = (Set<AttributeDef>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      
+      if (uuids.size() > 0) {
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          attributeDefs = (Set<AttributeDef>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
+        
+        //reorder them to be in id order
+        attributeDefs = GrouperUtil.sortByIds(uuids, attributeDefs);
+
       }
       
       //remove the not allowed ones?
@@ -901,20 +1066,29 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDefName
    */
-  public static void favoriteAttributeDefNameAdd(String userDataGroupName, Subject subjectToAddTo, AttributeDefName attributeDefName) {
+  public static void favoriteAttributeDefNameAdd(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDefName attributeDefName) {
     
-    if (attributeDefName == null) {
-      throw new NullPointerException("Why is attributeDefName null?");
-    }
-    
-    //check security
-    if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
-      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
-          + " does not have view on attributeDef " + attributeDefName.getAttributeDef().getName()
-          + " for attributeDefName: " + attributeDefName.getName());
-    }
-    
-    GrouperUserDataType.favoriteAttributeDefName.add(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDefName == null) {
+          throw new NullPointerException("Why is attributeDefName null?");
+        }
+        
+        //check security
+        if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
+          throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+              + " does not have view on attributeDef " + attributeDefName.getAttributeDef().getName()
+              + " for attributeDefName: " + attributeDefName.getName());
+        }
+        
+        GrouperUserDataType.favoriteAttributeDefName.add(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+        return null;
+      }
+    });
+
     
   }
 
@@ -923,16 +1097,25 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDefName
    */
-  public static void favoriteAttributeDefNameRemove(String userDataGroupName, Subject subjectToAddTo, AttributeDefName attributeDefName) {
+  public static void favoriteAttributeDefNameRemove(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDefName attributeDefName) {
     
-    if (attributeDefName == null) {
-      throw new NullPointerException("Why is attributeDefName null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.favoriteAttributeDefName.remove(userDataGroupName, subjectToAddTo, attributeDefName.getId());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDefName == null) {
+          throw new NullPointerException("Why is attributeDefName null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.favoriteAttributeDefName.remove(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -941,9 +1124,17 @@ public class GrouperUserDataApi {
    * @return the favorite attributeDefNames for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<AttributeDefName> favoriteAttributeDefNames(String userDataGroupName, Subject subject) {
+  public static Set<AttributeDefName> favoriteAttributeDefNames(final String userDataGroupName, final Subject subject) {
 
-    return attributeDefNameList(GrouperUserDataType.favoriteAttributeDefName, userDataGroupName, subject);
+    return (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return attributeDefNameList(GrouperUserDataType.favoriteAttributeDefName, userDataGroupName, subject);
+      }
+    });
+
     
   }
 
@@ -958,8 +1149,8 @@ public class GrouperUserDataApi {
     UserDataList userDataList = attributeDefNameUserDataType.retrieve(userDataGroupName, subject);
     
     //convert to groups
-    Set<AttributeDefName> attributeDefNames = null;
-  
+    Set<AttributeDefName> attributeDefNames = new LinkedHashSet<AttributeDefName>();
+
     if (userDataList != null) {
   
       final Set<String> uuids = new LinkedHashSet<String>();
@@ -971,22 +1162,28 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
   
       }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        attributeDefNames = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getAttributeDefName().findByIdsSecure(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+
+      if (uuids.size() > 0) {
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          attributeDefNames = (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getAttributeDefName().findByIdsSecure(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
+
+        //reorder them to be in id order
+        attributeDefNames = GrouperUtil.sortByIds(uuids, attributeDefNames);
+
       }
       
       //remove the not allowed ones?
@@ -1012,15 +1209,77 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param stem
    */
-  public static void favoriteStemAdd(String userDataGroupName, Subject subjectToAddTo, Stem stem) {
+  public static void favoriteStemAdd(final String userDataGroupName, final Subject subjectToAddTo, final Stem stem) {
     
-    if (stem == null) {
-      throw new NullPointerException("Why is stem null?");
-    }
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (stem == null) {
+          throw new NullPointerException("Why is stem null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.favoriteStem.add(userDataGroupName, subjectToAddTo, stem.getUuid());
+
+        return null;
+      }
+    });
     
-    //no need to check security
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param preferences
+   */
+  public static void preferencesAssign(final String userDataGroupName, final Subject subjectToAddTo, final Object preferences) {
     
-    GrouperUserDataType.favoriteStem.add(userDataGroupName, subjectToAddTo, stem.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        String preferencesString = null;
+        
+        if (preferences != null) {
+          preferencesString = GrouperUtil.jsonConvertTo(preferences, false);
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.preferences.replace(userDataGroupName, subjectToAddTo, preferencesString);
+
+        return null;
+      }
+    });
+    
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param preferences
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T preferences(final String userDataGroupName, final Subject subjectToAddTo, final Class<T> preferencesClass) {
+    
+    return (T)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        
+        //no need to check security
+        return (T)GrouperUserDataType.preferences.retrieve(userDataGroupName, subjectToAddTo, preferencesClass);
+
+      }
+    });
     
   }
 
@@ -1029,28 +1288,45 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param stem
    */
-  public static void favoriteStemRemove(String userDataGroupName, Subject subjectToAddTo, Stem stem) {
+  public static void favoriteStemRemove(final String userDataGroupName, final Subject subjectToAddTo, final Stem stem) {
     
-    if (stem == null) {
-      throw new NullPointerException("Why is stem null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.favoriteStem.remove(userDataGroupName, subjectToAddTo, stem.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (stem == null) {
+          throw new NullPointerException("Why is stem null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.favoriteStem.remove(userDataGroupName, subjectToAddTo, stem.getUuid());
+
+        return null;
+      }
+    });
     
   }
 
   /**
    * @param subject
    * @param userDataGroupName
-   * @param stem
    * @return the favorite stems for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<Stem> favoriteStems(String userDataGroupName, Subject subject) {
+  public static Set<Stem> favoriteStems(final String userDataGroupName, final Subject subject) {
   
-    return stemList(GrouperUserDataType.favoriteStem, userDataGroupName, subject);
+    return (Set<Stem>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return stemList(GrouperUserDataType.favoriteStem, userDataGroupName, subject);
+      }
+    });
+
   }
 
   /**
@@ -1060,11 +1336,12 @@ public class GrouperUserDataApi {
    * @param subject
    * @return the stems
    */
+  @SuppressWarnings("unchecked")
   private static Set<Stem> stemList(GrouperUserDataType stemDataType, String userDataGroupName, Subject subject) {
     UserDataList userDataList = stemDataType.retrieve(userDataGroupName, subject);
     
     //convert to stems
-    Set<Stem> stems = null;
+    Set<Stem> stems = new LinkedHashSet<Stem>();
   
     if (userDataList != null) {
   
@@ -1077,22 +1354,29 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
   
       }
-  
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        stems = (Set<Stem>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getStem().findByUuids(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+      
+      if (uuids.size() > 0) {
+      
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          stems = (Set<Stem>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getStem().findByUuids(uuids, null);
+    
+            }
+          });
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
+
+        //reorder them to be in id order
+        stems = GrouperUtil.sortByIds(uuids, stems);
+
       }
       
       //remove the not allowed ones?
@@ -1112,21 +1396,59 @@ public class GrouperUserDataApi {
     return stems;
 
   }
-  
+
+  /**
+   * @param subjectToRemoveFrom
+   * @param userDataGroupName
+   * @param subjectThatIsFavorite
+   */
+  public static void favoriteMemberRemove(final String userDataGroupName, final Subject subjectToRemoveFrom, 
+      final Subject subjectThatIsFavorite) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsFavorite, true);
+      }
+        });
+    favoriteMemberRemove(userDataGroupName, subjectToRemoveFrom, member);
+  }
+
+    
+    
   /**
    * @param subjectToAddTo
    * @param userDataGroupName
-   * @param member
+   * @param subjectThatIsFavorite
    */
-  public static void favoriteMemberAdd(String userDataGroupName, Subject subjectToAddTo, Member member) {
-    
-    if (member == null) {
-      throw new NullPointerException("Why is member null?");
-    }
-    
-    //no need to check security
-    GrouperUserDataType.favoriteMember.add(userDataGroupName, subjectToAddTo, member.getUuid());
-    
+  public static void favoriteMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Subject subjectThatIsFavorite) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsFavorite, true);
+      }
+        });
+    favoriteMemberAdd(userDataGroupName, subjectToAddTo, member);
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param subjectThatIsRecentlyUsed
+   */
+  public static void recentlyUsedMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Subject subjectThatIsRecentlyUsed) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsRecentlyUsed, true);
+      }
+        });
+    recentlyUsedMemberAdd(userDataGroupName, subjectToAddTo, member);
   }
 
   /**
@@ -1134,15 +1456,49 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param member
    */
-  public static void favoriteMemberRemove(String userDataGroupName, Subject subjectToAddTo, Member member) {
+  public static void favoriteMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Member member) {
     
-    if (member == null) {
-      throw new NullPointerException("Why is member null?");
-    }
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (member == null) {
+          throw new NullPointerException("Why is member null?");
+        }
+        
+        //no need to check security
+        GrouperUserDataType.favoriteMember.add(userDataGroupName, subjectToAddTo, member.getUuid());
+        
+        return null;
+      }
+    });
+
+  }
+
+  /**
+   * @param subjectToAddTo
+   * @param userDataGroupName
+   * @param member
+   */
+  public static void favoriteMemberRemove(final String userDataGroupName, final Subject subjectToAddTo, final Member member) {
     
-    //no need to check security
-    
-    GrouperUserDataType.favoriteMember.remove(userDataGroupName, subjectToAddTo, member.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (member == null) {
+          throw new NullPointerException("Why is member null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.favoriteMember.remove(userDataGroupName, subjectToAddTo, member.getUuid());
+        return null;
+      }
+    });
+
     
   }
 
@@ -1152,17 +1508,25 @@ public class GrouperUserDataApi {
    * @return the favorite members for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<Member> favoriteMembers(String userDataGroupName, Subject subject) {
+  public static Set<Member> favoriteMembers(final String userDataGroupName, final Subject subject) {
     
-    return memberList(GrouperUserDataType.favoriteMember, userDataGroupName, subject);
-    
+    return (Set<Member>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return memberList(GrouperUserDataType.favoriteMember, userDataGroupName, subject);
+        
+      }
+    });
+
   }
 
   private static Set<Member> memberList(GrouperUserDataType memberUserDataType, String userDataGroupName, Subject subject) {
     UserDataList userDataList = memberUserDataType.retrieve(userDataGroupName, subject);
     
     //convert to subjects
-    Set<Member> members = null;
+    Set<Member> members = new LinkedHashSet<Member>();
   
     if (userDataList != null) {
   
@@ -1175,22 +1539,28 @@ public class GrouperUserDataApi {
         uuids.add(uuid);
 
       }
+      
+      if (uuids.size() > 0) {
+        //these are the ones the user is allowed to see
+        GrouperSession userSession = GrouperSession.start(subject, false);
+    
+        try {
+          members = (Set<Member>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
+    
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    
+              return GrouperDAOFactory.getFactory().getMember().findByIds(uuids, null);
+    
+            }
+          });
+          
+          //reorder them to be in id order
+          members = GrouperUtil.sortByIds(uuids, members);
 
-      //these are the ones the user is allowed to see
-      GrouperSession userSession = GrouperSession.start(subject, false);
-  
-      try {
-        members = (Set<Member>)GrouperSession.callbackGrouperSession(userSession, new GrouperSessionHandler() {
-  
-          @Override
-          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
-            return GrouperDAOFactory.getFactory().getMember().findByIds(uuids, null);
-  
-          }
-        });
-      } finally {
-        GrouperSession.stopQuietly(userSession);
+        } finally {
+          GrouperSession.stopQuietly(userSession);
+        }
       }
       
       //remove the not allowed ones?
@@ -1216,15 +1586,26 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param stem
    */
-  public static void recentlyUsedStemAdd(String userDataGroupName, Subject subjectToAddTo, Stem stem) {
+  public static void recentlyUsedStemAdd(final String userDataGroupName, final Subject subjectToAddTo, final Stem stem) {
     
-    if (stem == null) {
-      throw new NullPointerException("Why is stem null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.recentStem.add(userDataGroupName, subjectToAddTo, stem.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (stem == null) {
+          throw new NullPointerException("Why is stem null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.recentStem.add(userDataGroupName, subjectToAddTo, stem.getUuid());
+        
+        return null;
+      }
+    });
+
     
   }
 
@@ -1233,29 +1614,45 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param stem
    */
-  public static void recentlyUsedStemRemove(String userDataGroupName, Subject subjectToAddTo, Stem stem) {
+  public static void recentlyUsedStemRemove(final String userDataGroupName, final Subject subjectToAddTo, final Stem stem) {
     
-    if (stem == null) {
-      throw new NullPointerException("Why is stem null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.recentStem.remove(userDataGroupName, subjectToAddTo, stem.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (stem == null) {
+          throw new NullPointerException("Why is stem null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.recentStem.remove(userDataGroupName, subjectToAddTo, stem.getUuid());
+        return null;
+      }
+    });
     
   }
 
   /**
    * @param subject
    * @param userDataGroupName
-   * @param stem
    * @return the recently used stems for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<Stem> recentlyUsedStems(String userDataGroupName, Subject subject) {
+  public static Set<Stem> recentlyUsedStems(final String userDataGroupName, final Subject subject) {
   
-    return stemList(GrouperUserDataType.recentStem, userDataGroupName, subject);
-    
+    return (Set<Stem>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return stemList(GrouperUserDataType.recentStem, userDataGroupName, subject);
+        
+      }
+    });
+
   }
 
   /**
@@ -1263,20 +1660,29 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDef
    */
-  public static void recentlyUsedAttributeDefAdd(String userDataGroupName, Subject subjectToAddTo, AttributeDef attributeDef) {
+  public static void recentlyUsedAttributeDefAdd(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDef attributeDef) {
     
-    if (attributeDef == null) {
-      throw new NullPointerException("Why is attributeDef null?");
-    }
-    
-    //check security
-    if (!attributeDef.getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
-      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
-          + " does not have view on attributeDef " + attributeDef.getName());
-    }
-    
-    GrouperUserDataType.recentAttributeDef.add(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDef == null) {
+          throw new NullPointerException("Why is attributeDef null?");
+        }
+        
+        //check security
+        if (!attributeDef.getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
+          throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+              + " does not have view on attributeDef " + attributeDef.getName());
+        }
+        
+        GrouperUserDataType.recentAttributeDef.add(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -1284,15 +1690,25 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDef
    */
-  public static void recentlyUsedAttributeDefRemove(String userDataGroupName, Subject subjectToAddTo, AttributeDef attributeDef) {
+  public static void recentlyUsedAttributeDefRemove(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDef attributeDef) {
     
-    if (attributeDef == null) {
-      throw new NullPointerException("Why is attributeDef null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.recentAttributeDef.remove(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        if (attributeDef == null) {
+          throw new NullPointerException("Why is attributeDef null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.recentAttributeDef.remove(userDataGroupName, subjectToAddTo, attributeDef.getUuid());
+
+        return null;
+      }
+    });
     
   }
 
@@ -1302,9 +1718,17 @@ public class GrouperUserDataApi {
    * @return the favorite attributeDefs for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<AttributeDef> recentlyUsedAttributeDefs(String userDataGroupName, Subject subject) {
+  public static Set<AttributeDef> recentlyUsedAttributeDefs(final String userDataGroupName, final Subject subject) {
   
-    return attributeDefList(GrouperUserDataType.recentAttributeDef, userDataGroupName, subject);
+    return (Set<AttributeDef>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        return attributeDefList(GrouperUserDataType.recentAttributeDef, userDataGroupName, subject);
+      }
+    });
     
   }
 
@@ -1313,20 +1737,29 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDefName
    */
-  public static void recentlyUsedAttributeDefNameAdd(String userDataGroupName, Subject subjectToAddTo, AttributeDefName attributeDefName) {
+  public static void recentlyUsedAttributeDefNameAdd(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDefName attributeDefName) {
     
-    if (attributeDefName == null) {
-      throw new NullPointerException("Why is attributeDefName null?");
-    }
-    
-    //check security
-    if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
-      throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
-          + " does not have view on attributeDef " + attributeDefName.getAttributeDef().getName()
-          + " for attributeDefName: " + attributeDefName.getName());
-    }
-    
-    GrouperUserDataType.recentAttributeDefName.add(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDefName == null) {
+          throw new NullPointerException("Why is attributeDefName null?");
+        }
+        
+        //check security
+        if (!attributeDefName.getAttributeDef().getPrivilegeDelegate().canAttrView(subjectToAddTo)) {
+          throw new InsufficientPrivilegeException("Subject: " + GrouperUtil.subjectToString(subjectToAddTo) 
+              + " does not have view on attributeDef " + attributeDefName.getAttributeDef().getName()
+              + " for attributeDefName: " + attributeDefName.getName());
+        }
+        
+        GrouperUserDataType.recentAttributeDefName.add(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+        return null;
+      }
+    });
+
     
   }
 
@@ -1335,16 +1768,25 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param attributeDefName
    */
-  public static void recentlyUsedAttributeDefNameRemove(String userDataGroupName, Subject subjectToAddTo, AttributeDefName attributeDefName) {
+  public static void recentlyUsedAttributeDefNameRemove(final String userDataGroupName, final Subject subjectToAddTo, final AttributeDefName attributeDefName) {
     
-    if (attributeDefName == null) {
-      throw new NullPointerException("Why is attributeDefName null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.recentAttributeDefName.remove(userDataGroupName, subjectToAddTo, attributeDefName.getId());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (attributeDefName == null) {
+          throw new NullPointerException("Why is attributeDefName null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.recentAttributeDefName.remove(userDataGroupName, subjectToAddTo, attributeDefName.getId());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -1353,10 +1795,18 @@ public class GrouperUserDataApi {
    * @return the recent attributeDefNames for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<AttributeDefName> recentlyUsedAttributeDefNames(String userDataGroupName, Subject subject) {
-  
-    return attributeDefNameList(GrouperUserDataType.recentAttributeDefName, userDataGroupName, subject);
-    
+  public static Set<AttributeDefName> recentlyUsedAttributeDefNames(final String userDataGroupName, final Subject subject) {
+
+    return (Set<AttributeDefName>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return attributeDefNameList(GrouperUserDataType.recentAttributeDefName, userDataGroupName, subject);
+        
+      }
+    });
+
   }
 
   /**
@@ -1364,15 +1814,24 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param member
    */
-  public static void recentlyUsedMemberAdd(String userDataGroupName, Subject subjectToAddTo, Member member) {
+  public static void recentlyUsedMemberAdd(final String userDataGroupName, final Subject subjectToAddTo, final Member member) {
     
-    if (member == null) {
-      throw new NullPointerException("Why is member null?");
-    }
-    
-    //no need to check security
-    GrouperUserDataType.recentMember.add(userDataGroupName, subjectToAddTo, member.getUuid());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (member == null) {
+          throw new NullPointerException("Why is member null?");
+        }
+        
+        //no need to check security
+        GrouperUserDataType.recentMember.add(userDataGroupName, subjectToAddTo, member.getUuid());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -1380,16 +1839,25 @@ public class GrouperUserDataApi {
    * @param userDataGroupName
    * @param member
    */
-  public static void recentlyUsedMemberRemove(String userDataGroupName, Subject subjectToAddTo, Member member) {
+  public static void recentlyUsedMemberRemove(final String userDataGroupName, final Subject subjectToAddTo, final Member member) {
     
-    if (member == null) {
-      throw new NullPointerException("Why is member null?");
-    }
-    
-    //no need to check security
-    
-    GrouperUserDataType.recentMember.remove(userDataGroupName, subjectToAddTo, member.getUuid());
-    
+    GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (member == null) {
+          throw new NullPointerException("Why is member null?");
+        }
+        
+        //no need to check security
+        
+        GrouperUserDataType.recentMember.remove(userDataGroupName, subjectToAddTo, member.getUuid());
+        
+        return null;
+      }
+    });
+
   }
 
   /**
@@ -1398,12 +1866,37 @@ public class GrouperUserDataApi {
    * @return the favorite members for a user
    */
   @SuppressWarnings("unchecked")
-  public static Set<Member> recentlyUsedMembers(String userDataGroupName, Subject subject) {
+  public static Set<Member> recentlyUsedMembers(final String userDataGroupName, final Subject subject) {
     
-    return memberList(GrouperUserDataType.recentMember, userDataGroupName, subject);
+    return ( Set<Member>)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return memberList(GrouperUserDataType.recentMember, userDataGroupName, subject);
+      }
+    });
+
     
   }
 
+  /**
+   * @param subjectToRemoveFrom
+   * @param userDataGroupName
+   * @param subjectThatIsRecentlyUsed
+   */
+  public static void recentlyUsedMemberRemove(final String userDataGroupName, final Subject subjectToRemoveFrom, 
+      final Subject subjectThatIsRecentlyUsed) {
+    Member member = (Member)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return MemberFinder.findBySubject(grouperSession, subjectThatIsRecentlyUsed, true);
+      }
+        });
+    recentlyUsedMemberRemove(userDataGroupName, subjectToRemoveFrom, member);
+  }
 
 }
 
