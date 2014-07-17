@@ -67,7 +67,7 @@ Please send email to the [grouper-dev][1] list or report them in the [issue trac
   * "ext"
     Top-level directory for Grouper API extensions.
 	Currently no extensions are provided. Earlier extensions, such as gsh,
-	are no provided as a core part of theGrouper API
+	are now provided as a core part of the Grouper API.
   * "lib"
     Third-party jar files included with Grouper are partitioned as described
 	below.
