@@ -188,13 +188,12 @@ This will build the javadoc(1) document.
 Grouper releases are available from Grouper's Internet2 Wiki:
   <https://wiki.internet2.edu/confluence/display/GrouperWG/Software+Download>
 
-Read-only anonymous access to the Grouper CVS repository is now
-available.  To perform a CVS checkout, run the following commands.
-When prompted for a password, hit enter.
+Grouper source code repository is hosted at Github: 
+  <https://github.com/Internet2/grouper>
 
-    % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
-    % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
-
+Grouper documentation is hosted at the Internet2 wiki:
+  <https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home>
+ 
 
 ## Notes
 
