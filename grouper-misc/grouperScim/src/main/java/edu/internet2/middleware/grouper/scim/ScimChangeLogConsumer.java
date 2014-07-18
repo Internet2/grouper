@@ -113,7 +113,7 @@ public class ScimChangeLogConsumer extends ChangeLogConsumerBase {
 		 /**
          * Process the change log entry.
          * 
-         * @param consumer the psp change log consumer
+         * @param consumer the scim change log consumer
          * @param changeLogEntry the change log entry
          * @throws Exception if any error occurs
          */
