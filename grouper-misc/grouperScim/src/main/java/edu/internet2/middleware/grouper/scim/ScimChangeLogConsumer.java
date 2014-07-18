@@ -109,6 +109,15 @@ public class ScimChangeLogConsumer extends ChangeLogConsumerBase {
 						consumer.processMembershipDelete(consumer, changeLogEntry);
 					}
 				},
+		;
+		 /**
+         * Process the change log entry.
+         * 
+         * @param consumer the psp change log consumer
+         * @param changeLogEntry the change log entry
+         * @throws Exception if any error occurs
+         */
+        public abstract void process(ScimChangeLogConsumer consumer, ChangeLogEntry changeLogEntry) throws Exception;
 
 	};
 
@@ -140,7 +149,11 @@ public class ScimChangeLogConsumer extends ChangeLogConsumerBase {
 			} else {
 				// process the change log event
 				log.info("ScimChangeLog Consumer '" + name + "' - Change log entry '" + toStringDeep(entry) + "'");
-				scimEventType.process(this, entry);
+				try{
+					scimEventType.process(this, entry);
+				}catch(Exception e){
+					log.warn("ScimChangeLog Consumer '"+ name +"' exception "+e.getMessage(),e);
+				}
 				log.info("ScimChangeLog Consumer '" + name + "' - Change log entry '" + entry + "'");
 			}
 
