@@ -197,7 +197,7 @@ Grouper documentation is hosted at the Internet2 wiki:
 
 ## Notes
 
-[0]: <https://wiki.internet2.edu/confluence/display/GrouperWG/Home>
+[0]: <https://spaces.internet2.edu/display/Grouper>
 [1]: <mailto:grouper-dev@internet2.edu>
 [2]: <https://bugs.internet2.edu/jira/browse/GRP>
 
