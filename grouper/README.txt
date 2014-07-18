@@ -94,7 +94,7 @@ Please send email to the [grouper-dev][1] list or report them in the [issue trac
     * "test"
       Grouper API test source.
 	  
-When you use Grouper it will create a "ddlScripts" directory, where any 
+When you use Grouper, it will create a "ddlScripts" directory, where any 
 schema and data SQL manipulation scripts are generated.
 
 By default Grouper will also create a "logs" directory, however, you can
