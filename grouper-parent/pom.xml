@@ -36,6 +36,26 @@
         <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
 
+        <!-- Dependency Versions -->
+        <log4j.version>1.2.16</log4j.version>
+        <junit.version>4.8.2</junit.version>
+        <ant.jakarta.oro.version>1.6.1</ant.jakarta.oro.version>
+        <antlr.version>2.7.6</antlr.version>
+        <asm.version>3.3.1</asm.version>
+        <backport.util.version>3.1</backport.util.version>
+        <c3p0.version>0.9.1.2</c3p0.version>
+        <cglib.version>2.1_3</cglib.version>
+        <jamon.version>2.7</jamon.version>
+        <xstream.version>1.3</xstream.version>
+        <commons.beanutils.version>1.7.0</commons.beanutils.version>
+        <commons.cli.version>1.2</commons.cli.version>
+        <commons.betwixt.version>0.8</commons.betwixt.version>
+        <commons.collections.version>3.2.1</commons.collections.version>
+        <commons.digester.version>1.7</commons.digester.version>
+        <commons.discovery.version>0.4</commons.discovery.version>
+        <commons.httpclient.version>3.0</commons.httpclient.version>
+        <commons.io.version>1.4</commons.io.version>
+        <commons.jexl>1.1</commons.jexl>
     </properties>
 
     <repositories>
@@ -65,7 +85,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
+            <version>${log4j.version}</version>
         </dependency>
 
         <!-- Provided Dependencies -->
@@ -76,7 +96,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -91,92 +111,92 @@
             <dependency>
                 <groupId>ant</groupId>
                 <artifactId>ant-jakarta-oro</artifactId>
-                <version>1.6.1</version>
+                <version>${ant.jakarta.oro.version}</version>
             </dependency>
             <dependency>
                 <groupId>antlr</groupId>
                 <artifactId>antlr</artifactId>
-                <version>2.7.6</version>
+                <version>${antlr.version}</version>
             </dependency>
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>3.3.1</version>
+                <version>${asm.version}</version>
             </dependency>
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm-util</artifactId>
-                <version>3.3.1</version>
+                <version>${asm.version}</version>
             </dependency>
             <dependency>
                 <groupId>backport-util-concurrent</groupId>
                 <artifactId>backport-util-concurrent</artifactId>
-                <version>3.1</version>
+                <version>${backport.util.version}</version>
             </dependency>
             <dependency>
                 <groupId>c3p0</groupId>
                 <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
+                <version>${c3p0.version}</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
-                <version>2.1_3</version>
+                <version>${cglib.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jamonapi</groupId>
                 <artifactId>jamon</artifactId>
-                <version>2.7</version>
+                <version>${jamon.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.3</version>
+                <version>${xstream.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.7.0</version>
+                <version>${commons.beanutils.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-betwixt</groupId>
                 <artifactId>commons-betwixt</artifactId>
-                <version>0.8</version>
+                <version>${commons.betwixt.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
-                <version>1.2</version>
+                <version>${commons.cli.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
+                <version>${commons.collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-digester</groupId>
                 <artifactId>commons-digester</artifactId>
-                <version>1.7</version>
+                <version>${commons.digester.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-discovery</groupId>
                 <artifactId>commons-discovery</artifactId>
-                <version>0.4</version>
+                <version>${commons.discovery.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
-                <version>3.0</version>
+                <version>${commons.httpclient.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>1.4</version>
+                <version>${commons.io.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-jexl</groupId>
                 <artifactId>commons-jexl</artifactId>
-                <version>1.1</version>
+                <version>${commons.jexl}</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
