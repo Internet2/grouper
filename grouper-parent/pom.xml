@@ -55,7 +55,53 @@
         <commons.discovery.version>0.4</commons.discovery.version>
         <commons.httpclient.version>3.0</commons.httpclient.version>
         <commons.io.version>1.4</commons.io.version>
-        <commons.jexl>1.1</commons.jexl>
+        <commons.jexl.version>1.1</commons.jexl.version>
+        <commons.lang.version>2.1</commons.lang.version>
+        <commons.logging.version>1.1.1</commons.logging.version>
+        <commons.math.version>1.1</commons.math.version>
+        <commons.pool.version>1.3</commons.pool.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <shibboleth.common.version>1.3.3</shibboleth.common.version>
+        <vt.ldap.version>3.3.5</vt.ldap.version>
+        <javassist.version>3.12.0.GA</javassist.version>
+        <smack.version>3.1.0</smack.version>
+        <joda.time.version>1.5.1</joda.time.version>
+        <jug.version>1.1.2</jug.version>
+        <ehcache.core.version>2.4.5</ehcache.core.version>
+        <ezmorph.version>1.0.6</ezmorph.version>
+        <json.lib.version>2.3</json.lib.version>
+        <jsr107cache.version>1.0</jsr107cache.version>
+        <odmg.version>3.0</odmg.version>
+        <ant.version>1.7.1</ant.version>
+        <apache.commons.jexl.version>2.0.1</apache.commons.jexl.version>
+        <ddlutils.version>1.0</ddlutils.version>
+        <apacheds.core.version>1.5.5</apacheds.core.version>
+        <apacheds.protocol.ldap.version>1.5.5</apacheds.protocol.ldap.version>
+        <shared.ldap.version>0.9.15</shared.ldap.version>
+        <bsh.version>2.0b4</bsh.version>
+        <bcprov.jdk16.version>1.46</bcprov.jdk16.version>
+        <jettison.version>1.0-RC2</jettison.version>
+        <hibernate.core.version>3.6.7.Final</hibernate.core.version>
+        <hibernate.jpa.2.0.api.version>1.0.1.Final</hibernate.jpa.2.0.api.version>
+        <jdom.version>1.1</jdom.version>
+        <jetty.version>6.1.24</jetty.version>
+        <jetty.util.version>6.1.24</jetty.util.version>
+        <opensaml.version>2.4.1</opensaml.version>
+        <openspml2.version>192-20100413</openspml2.version>
+        <quartz.version>1.6.1</quartz.version>
+        <slf4j.api.version>1.6.2</slf4j.api.version>
+        <slf4j.log4j12.version>1.6.2</slf4j.log4j12.version>
+        <xom.version>1.1</xom.version>
+        <xpp3.min.version>1.1.4c</xpp3.min.version>
+        <activation.version>1.1.1</activation.version>
+        <mail.version>1.4.1</mail.version>
+        <jta.version>1.0.1B</jta.version>
+        <servlet.api.version>2.4</servlet.api.version>
+        <xmlunit.version>1.0</xmlunit.version>
+        <p6spy.version>1.1</p6spy.version>
+        <hsqldb.version>1.8.0.10</hsqldb.version>
+        <postgresql.version>8.4-701.jdbc4</postgresql.version>
+        <mysql.connector.java.version>5.1.17</mysql.connector.java.version>
     </properties>
 
     <repositories>
@@ -196,236 +242,235 @@
             <dependency>
                 <groupId>commons-jexl</groupId>
                 <artifactId>commons-jexl</artifactId>
-                <version>${commons.jexl}</version>
+                <version>${commons.jexl.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>2.1</version>
+                <version>${commons.lang.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
-                <version>1.1.1</version>
+                <version>${commons.logging.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-math</groupId>
                 <artifactId>commons-math</artifactId>
-                <version>1.1</version>
+                <version>${commons.math.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-pool</groupId>
                 <artifactId>commons-pool</artifactId>
-                <version>1.3</version>
+                <version>${commons.pool.version}</version>
             </dependency>
             <dependency>
                 <groupId>dom4j</groupId>
                 <artifactId>dom4j</artifactId>
-                <version>1.6.1</version>
+                <version>${dom4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>edu.internet2.middleware</groupId>
                 <artifactId>shibboleth-common</artifactId>
-                <version>1.3.3</version>
+                <version>${shibboleth.common.version}</version>
                 <exclusions>
-                    <!-- Exclude logback in lieu of sl4j-log4j12 binding. -->
-                    <exclusion>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-classic</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>ch.qos.logback</groupId>
-                        <artifactId>logback-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>log4j-over-slf4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
+                  <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>logback-core</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                  </exclusion>
+                  <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                  </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>edu.vt.middleware</groupId>
                 <artifactId>vt-ldap</artifactId>
-                <version>3.3.5</version>
+                <version>${vt.ldap.version}</version>
             </dependency>
             <dependency>
                 <groupId>javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.12.0.GA</version>
+                <version>${javassist.version}</version>
             </dependency>
             <dependency>
                 <groupId>jivesoftware</groupId>
                 <artifactId>smack</artifactId>
-                <version>3.1.0</version>
+                <version>${smack.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>1.5.1</version>
+                <version>${joda.time.version}</version>
             </dependency>
             <dependency>
                 <groupId>jug</groupId>
                 <artifactId>jug</artifactId>
-                <version>1.1.2</version>
+                <version>${jug.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
-                <version>2.4.5</version>
+                <version>${ehcache.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ezmorph</groupId>
                 <artifactId>ezmorph</artifactId>
-                <version>1.0.6</version>
+                <version>${ezmorph.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.json-lib</groupId>
                 <artifactId>json-lib</artifactId>
-                <version>2.3</version>
+                <version>${json.lib.version}</version>
                 <classifier>jdk15</classifier>
             </dependency>
             <dependency>
                 <groupId>net.sf.jsr107cache</groupId>
                 <artifactId>jsr107cache</artifactId>
-                <version>1.0</version>
+                <version>${jsr107cache.version}</version>
             </dependency>
             <dependency>
                 <groupId>odmg</groupId>
                 <artifactId>odmg</artifactId>
-                <version>3.0</version>
+                <version>${odmg.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.7.1</version>
+                <version>${ant.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
-                <version>2.0.1</version>
+                <version>${apache.commons.jexl.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ddlutils</groupId>
                 <artifactId>ddlutils</artifactId>
-                <version>1.0</version>
+                <version>${ddlutils.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.directory.server</groupId>
                 <artifactId>apacheds-core</artifactId>
-                <version>1.5.5</version>
+                <version>${apacheds.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.directory.server</groupId>
                 <artifactId>apacheds-protocol-ldap</artifactId>
-                <version>1.5.5</version>
+                <version>${apacheds.protocol.ldap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.directory.shared</groupId>
                 <artifactId>shared-ldap</artifactId>
-                <version>0.9.15</version>
+                <version>${shared.ldap.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.beanshell</groupId>
                 <artifactId>bsh</artifactId>
-                <version>2.0b4</version>
+                <version>${bsh.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk16</artifactId>
-                <version>1.46</version>
+                <version>${bcprov.jdk16.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison</groupId>
                 <artifactId>jettison</artifactId>
-                <version>1.0-RC2</version>
+                <version>${jettison.version}</version>
             </dependency>
             <dependency>
 				<!-- we are now shipping our own version of hibernate -->
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>3.6.7.Final</version>
+                <version>${hibernate.core.version}</version>
 				<scope>provided</scope>
 			</dependency>
             <dependency>
                 <groupId>org.hibernate.javax.persistence</groupId>
                 <artifactId>hibernate-jpa-2.0-api</artifactId>
-                <version>1.0.1.Final</version>
+                <version>${hibernate.jpa.2.0.api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom</artifactId>
-                <version>1.1</version>
+                <version>${jdom.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty</artifactId>
-                <version>6.1.24</version>
+                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
-                <version>6.1.24</version>
+                <version>${jetty.util.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml</artifactId>
-                <version>2.4.1</version>
+                <version>${opensaml.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openspml</groupId>
                 <artifactId>openspml2</artifactId>
-                <version>192-20100413</version>
+                <version>${openspml2.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensymphony.quartz</groupId>
                 <artifactId>quartz</artifactId>
-                <version>1.6.1</version>
+                <version>${quartz.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.6.2</version>
+                <version>${slf4j.api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.6.2</version>
+                <version>${slf4j.log4j12.version}</version>
             </dependency>
             <dependency>
                 <groupId>xom</groupId>
                 <artifactId>xom</artifactId>
-                <version>1.1</version>
+                <version>${xom.version}</version>
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>
                 <artifactId>xpp3_min</artifactId>
-                <version>1.1.4c</version>
+                <version>${xpp3.min.version}</version>
             </dependency>
 
             <!-- Provided Dependencies -->
             <dependency>
                 <groupId>javax.activation</groupId>
                 <artifactId>activation</artifactId>
-                <version>1.1.1</version>
+                <version>${activation.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.mail</groupId>
                 <artifactId>mail</artifactId>
-                <version>1.4.1</version>
+                <version>${mail.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.transaction</groupId>
                 <artifactId>jta</artifactId>
-                <version>1.0.1B</version>
+                <version>${jta.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
-                <version>2.4</version>
+                <version>${servlet.api.version}</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -435,7 +480,7 @@
             <dependency>
                 <groupId>xmlunit</groupId>
                 <artifactId>xmlunit</artifactId>
-                <version>1.0</version>
+                <version>${xmlunit.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -445,7 +490,7 @@
             <dependency>
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
-                <version>1.1</version>
+                <version>${p6spy.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
@@ -453,18 +498,18 @@
             <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>1.8.0.10</version>
+                <version>${hsqldb.version}</version>
             </dependency>
             <dependency>
                 <groupId>postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>8.4-701.jdbc4</version>
+                <version>${postgresql.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>5.1.17</version>
+                <version>${mysql.connector.java.version}</version>
                 <scope>runtime</scope>
             </dependency>
 
