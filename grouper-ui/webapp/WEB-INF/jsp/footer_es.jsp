@@ -1,1 +1,0 @@
-<div id="footer" style="clear:both">Aqui se encuentra el footer</div>

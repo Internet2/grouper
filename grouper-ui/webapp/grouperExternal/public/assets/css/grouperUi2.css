@@ -1,8 +1,0 @@
-
-/* move the text next to group icons over a little bit
-   note, shouldnt there be a space here?  Myabe not used? */
-.dijitTreeIcon.fa-group {
-  
-  margin-right: 2px;
-  
-}

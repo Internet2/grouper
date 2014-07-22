@@ -1,1 +1,0 @@
-You will be removed from group: ${groupDisplayExtension}

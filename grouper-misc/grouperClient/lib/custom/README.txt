@@ -1,1 +1,0 @@
-add any compile libraries for custom code here, make sure to not commit them, just add to .cvsignore
