@@ -624,7 +624,21 @@
                     <excludes>
                         <exclude>**/bin/**</exclude>
                         <exclude>**/*.mvn</exclude>
+                        <exclude>**/doc/api/package-list</exclude>
                         <exclude>**/*.html</exclude>
+                        <exclude>**/*.launch</exclude>
+                        <exclude>**/*.schema</exclude>
+                        <exclude>**/*.epf</exclude>
+                        <exclude>**/*.log</exclude>
+                        <exclude>**/*.gsh</exclude>
+                        <exclude>**/*.schemas</exclude>
+                        <exclude>**/*.ldif</exclude>
+                        <exclude>**/*.rc</exclude>
+                        <exclude>**/*.script</exclude>
+                        <exclude>**/*.handlers</exclude>
+                        <exclude>**/*.jjt</exclude>
+                        <exclude>**/*.example</exclude>
+                        <exclude>**/etc/init.d/tomcat*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
