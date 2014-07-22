@@ -18,7 +18,8 @@ Grouper releases can be downloaded from [here](https://spaces.internet2.edu/disp
 
 ## Documentation
 
-Grouper wiki is available [here](https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home).
+* Grouper wiki is available [here](https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home).
+* API documentation is available [here](http://internet2.github.io/grouper/)
 
 ## Build [![Build Status](https://api.travis-ci.org/Internet2/grouper.png)](http://travis-ci.org/Internet2/grouper)
 
@@ -28,5 +29,15 @@ Clone the repository and execute the build via:
 git clone git@github.com:Internet2/grouper.git
 cd grouper-parent
 mvn clean package
+```
+
+### Documentation
+To build the project documentation, execute the following:
+
+```bash
+cd grouper-parent
+mvn site site:deploy
+cd /tmp/grouper-parent
+[launch] index.html
 ```
 
