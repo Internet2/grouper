@@ -1,6 +1,6 @@
 <!--
 
-    Copyright 2012 Internet2
+    Copyright 2014 Internet2
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
     limitations under the License.
 
 -->
-
 <project name="grouperClient" default="build" basedir=".">
 
   <!-- ant contrib allows conditionals in ant scripts -->

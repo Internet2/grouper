@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2012 Internet2
+    Copyright 2014 Internet2
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -614,7 +614,7 @@
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
-                    <skipExistingHeaders>true</skipExistingHeaders>
+                    <skipExistingHeaders>false</skipExistingHeaders>
                     <strictCheck>true</strictCheck>
                     <aggregate>true</aggregate>
                     <mapping>
