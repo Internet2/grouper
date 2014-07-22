@@ -614,7 +614,7 @@
                 <version>${maven-license-plugin.version}</version>
                 <configuration>
                     <header>https://raw.githubusercontent.com/Internet2/grouper/master/LICENSE.txt</header>
-                    <skipExistingHeaders>false</skipExistingHeaders>
+                    <skipExistingHeaders>true</skipExistingHeaders>
                     <strictCheck>true</strictCheck>
                     <aggregate>true</aggregate>
                     <mapping>
