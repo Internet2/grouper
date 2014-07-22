@@ -35,8 +35,13 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
+        <maven.surefire.plugin.version>2.7.2</maven.surefire.plugin.version>
+        <maven-build-helper-plugin.version>1.5</maven-build-helper-plugin.version>
 
         <!-- Dependency Versions -->
+        <charon.version>1.0.0</charon.version> 
+        <json.version>20090211</json.version>
+        <wink.client.version>1.4</wink.client.version>
         <log4j.version>1.2.16</log4j.version>
         <junit.version>4.8.2</junit.version>
         <ant.jakarta.oro.version>1.6.1</ant.jakarta.oro.version>
@@ -53,9 +58,8 @@
         <commons.collections.version>3.2.1</commons.collections.version>
         <commons.digester.version>1.7</commons.digester.version>
         <commons.discovery.version>0.4</commons.discovery.version>
-        <commons.httpclient.version>3.0</commons.httpclient.version>
-        <commons.io.version>1.4</commons.io.version>
-        <commons.jexl.version>1.1</commons.jexl.version>
+        <commons.httpclient.version>4.3.4</commons.httpclient.version>
+        <commons.io.version>2.4</commons.io.version>
         <commons.lang.version>2.1</commons.lang.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <commons.math.version>1.1</commons.math.version>
@@ -121,6 +125,11 @@
         <repository>
             <id>nexus-releases</id>
             <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>Maven Plugin Repository</name>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
     </repositories>
 
@@ -230,19 +239,14 @@
                 <version>${commons.discovery.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-httpclient</groupId>
-                <artifactId>commons-httpclient</artifactId>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
                 <version>${commons.httpclient.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-jexl</groupId>
-                <artifactId>commons-jexl</artifactId>
-                <version>${commons.jexl.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
@@ -473,6 +477,21 @@
                 <version>${servlet.api.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+              <groupId>org.wso2.charon</groupId>
+              <artifactId>org.wso2.charon.core</artifactId>
+              <version>${charon.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.wink</groupId>
+              <artifactId>wink-client</artifactId>
+              <version>${wink.client.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.wso2.charon</groupId>
+              <artifactId>org.wso2.charon.samples</artifactId>
+              <version>${charon.version}</version>
+            </dependency>
 
             <!-- Runtime Dependencies -->
 
@@ -573,12 +592,22 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.eluder.coveralls</groupId>
@@ -594,15 +623,32 @@
                         <maxmem>256m</maxmem>
                         <!-- aggregated reports for multi-module projects -->
                         <aggregate>true</aggregate>
-
-                        <excludes>
-                            <!-- Exclude generated classes -->
-                            <exclude>**/*_.class</exclude>
-                            <exclude>**/*_.java</exclude>
-                        </excludes>
-
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${maven-build-helper-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>add-source</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                            <configuration>
+                                <sources>
+                                    <source>src/custom</source>
+                                    <source>src/ext</source>
+                                    <source>src/extCustom</source>
+                                    <source>src/extMore</source>
+                                </sources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
                 <!-- for grouper project -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
@@ -674,7 +720,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

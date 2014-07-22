@@ -17,3 +17,4 @@ grouper/conf/server.properties
 grouper/conf/sources.xml
 grouper/conf/spy.properties
 grouper/conf/subject.properties
+**/*.log
