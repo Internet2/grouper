@@ -109,7 +109,7 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-math</groupId>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-math</artifactId>
         </dependency>
         <dependency>
@@ -141,8 +141,9 @@
             <artifactId>jta</artifactId>
         </dependency>
         <dependency>
-            <groupId>jug</groupId>
+            <groupId>org.safehaus.jug</groupId>
             <artifactId>jug</artifactId>
+            <classifier>asl</classifier>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>

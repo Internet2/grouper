@@ -29,30 +29,31 @@
         <!-- Plugin Versions -->
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
         <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
-        <maven-source-plugin.version>2.1.2</maven-source-plugin.version>
+        <maven-source-plugin.version>2.3</maven-source-plugin.version>
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
-        <maven.surefire.plugin.version>2.7.2</maven.surefire.plugin.version>
-        <maven-build-helper-plugin.version>1.5</maven-build-helper-plugin.version>
+        <maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
+        <maven-build-helper-plugin.version>1.9</maven-build-helper-plugin.version>
 
         <!-- Dependency Versions -->
-        <charon.version>1.0.0</charon.version> 
-        <json.version>20090211</json.version>
+        <json.version>20140107</json.version>
+        <charon.version>1.0.0</charon.version>
         <wink.client.version>1.4</wink.client.version>
-        <log4j.version>1.2.16</log4j.version>
-        <junit.version>4.8.2</junit.version>
+        <log4j.version>1.2.17</log4j.version>
+        <junit.version>4.11</junit.version>
         <ant.jakarta.oro.version>1.6.1</ant.jakarta.oro.version>
-        <antlr.version>2.7.6</antlr.version>
+        <antlr.version>2.7.7</antlr.version>
         <asm.version>3.3.1</asm.version>
         <backport.util.version>3.1</backport.util.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <cglib.version>2.1_3</cglib.version>
+        <cglib.version>3.1</cglib.version>
         <jamon.version>2.7</jamon.version>
-        <xstream.version>1.3</xstream.version>
-        <commons.beanutils.version>1.7.0</commons.beanutils.version>
+        <xstream.version>1.4.7</xstream.version>
+        <commons.jexl.version>2.1.1</commons.jexl.version>
+        <commons.beanutils.version>1.9.2</commons.beanutils.version>
         <commons.cli.version>1.2</commons.cli.version>
         <commons.betwixt.version>0.8</commons.betwixt.version>
         <commons.collections.version>3.2.1</commons.collections.version>
@@ -60,48 +61,46 @@
         <commons.discovery.version>0.4</commons.discovery.version>
         <commons.httpclient.version>4.3.4</commons.httpclient.version>
         <commons.io.version>2.4</commons.io.version>
-        <commons.lang.version>2.1</commons.lang.version>
-        <commons.logging.version>1.1.1</commons.logging.version>
-        <commons.math.version>1.1</commons.math.version>
-        <commons.pool.version>1.3</commons.pool.version>
+        <commons.lang.version>2.6</commons.lang.version>
+        <commons.logging.version>1.2</commons.logging.version>
+        <commons.math.version>2.2</commons.math.version>
+        <commons.pool.version>1.6</commons.pool.version>
         <dom4j.version>1.6.1</dom4j.version>
         <shibboleth.common.version>1.3.3</shibboleth.common.version>
         <vt.ldap.version>3.3.5</vt.ldap.version>
         <javassist.version>3.12.0.GA</javassist.version>
         <smack.version>3.1.0</smack.version>
-        <joda.time.version>1.5.1</joda.time.version>
-        <jug.version>1.1.2</jug.version>
-        <ehcache.core.version>2.4.5</ehcache.core.version>
+        <joda.time.version>2.3</joda.time.version>
+        <jug.version>2.0.0</jug.version>
+        <ehcache.core.version>2.6.9</ehcache.core.version>
         <ezmorph.version>1.0.6</ezmorph.version>
         <json.lib.version>2.3</json.lib.version>
         <jsr107cache.version>1.0</jsr107cache.version>
         <odmg.version>3.0</odmg.version>
         <ant.version>1.7.1</ant.version>
-        <apache.commons.jexl.version>2.0.1</apache.commons.jexl.version>
         <ddlutils.version>1.0</ddlutils.version>
-        <apacheds.core.version>1.5.5</apacheds.core.version>
+        <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.protocol.ldap.version>1.5.5</apacheds.protocol.ldap.version>
         <shared.ldap.version>0.9.15</shared.ldap.version>
-        <bsh.version>2.0b4</bsh.version>
+        <bsh.version>2.0b5</bsh.version>
         <bcprov.jdk16.version>1.46</bcprov.jdk16.version>
-        <jettison.version>1.0-RC2</jettison.version>
+        <jettison.version>1.3.5</jettison.version>
         <hibernate.core.version>3.6.7.Final</hibernate.core.version>
         <hibernate.jpa.2.0.api.version>1.0.1.Final</hibernate.jpa.2.0.api.version>
         <jdom.version>1.1</jdom.version>
         <jetty.version>6.1.24</jetty.version>
         <jetty.util.version>6.1.24</jetty.util.version>
-        <opensaml.version>2.4.1</opensaml.version>
+        <opensaml.version>2.6.1</opensaml.version>
         <openspml2.version>192-20100413</openspml2.version>
         <quartz.version>1.6.1</quartz.version>
-        <slf4j.api.version>1.6.2</slf4j.api.version>
-        <slf4j.log4j12.version>1.6.2</slf4j.log4j12.version>
-        <xom.version>1.1</xom.version>
+        <slf4j.version>1.7.7</slf4j.version>
+        <xom.version>1.2.5</xom.version>
         <xpp3.min.version>1.1.4c</xpp3.min.version>
         <activation.version>1.1.1</activation.version>
-        <mail.version>1.4.1</mail.version>
+        <mail.version>1.4.7</mail.version>
         <jta.version>1.0.1B</jta.version>
         <servlet.api.version>2.4</servlet.api.version>
-        <xmlunit.version>1.0</xmlunit.version>
+        <xmlunit.version>1.5</xmlunit.version>
         <p6spy.version>1.1</p6spy.version>
         <hsqldb.version>1.8.0.10</hsqldb.version>
         <postgresql.version>8.4-701.jdbc4</postgresql.version>
@@ -128,7 +127,6 @@
         </repository>
         <repository>
             <id>central</id>
-            <name>Maven Plugin Repository</name>
             <url>http://repo1.maven.org/maven2</url>
         </repository>
     </repositories>
@@ -239,6 +237,11 @@
                 <version>${commons.discovery.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${commons.httpclient.version}</version>
@@ -259,7 +262,7 @@
                 <version>${commons.logging.version}</version>
             </dependency>
             <dependency>
-                <groupId>commons-math</groupId>
+                <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math</artifactId>
                 <version>${commons.math.version}</version>
             </dependency>
@@ -317,9 +320,10 @@
                 <version>${joda.time.version}</version>
             </dependency>
             <dependency>
-                <groupId>jug</groupId>
+                <groupId>org.safehaus.jug</groupId>
                 <artifactId>jug</artifactId>
                 <version>${jug.version}</version>
+                <classifier>asl</classifier>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
@@ -355,7 +359,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl</artifactId>
-                <version>${apache.commons.jexl.version}</version>
+                <version>${commons.jexl.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ddlutils</groupId>
@@ -437,12 +441,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.api.version}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.log4j12.version}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>xom</groupId>

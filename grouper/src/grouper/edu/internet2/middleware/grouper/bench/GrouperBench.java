@@ -98,7 +98,7 @@ public class GrouperBench {
   // @since   1.1.0
   protected static void run(GrouperBenchmark bm) {
     int                   cnt   = _getRunSize();
-    DescriptiveStatistics stats = DescriptiveStatistics.newInstance();
+    DescriptiveStatistics stats = new DescriptiveStatistics();
     for (int i = 0; i < cnt; i++) {
       RegistryReset.reset();
       bm.init();

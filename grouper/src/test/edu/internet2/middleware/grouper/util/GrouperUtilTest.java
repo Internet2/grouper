@@ -19,24 +19,6 @@
  */
 package edu.internet2.middleware.grouper.util;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import junit.textui.TestRunner;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
-
-import org.apache.commons.logging.Log;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -47,6 +29,22 @@ import edu.internet2.middleware.grouper.util.versioningV1.BeanA;
 import edu.internet2.middleware.grouper.util.versioningV1.BeanB;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import junit.textui.TestRunner;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
+import org.apache.commons.logging.Log;
+
+import java.io.File;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 
 /**
@@ -144,7 +142,7 @@ public class GrouperUtilTest extends GrouperTest {
    */
   public void testTruncateAscii() {
 
-    String testString = "H13_FRA2007, Questions d’histoire de la litérature";
+    String testString = "H13_FRA2007, Questions dâ€™histoire de la litÃ©rature";
     System.out.println(GrouperUtil.truncateAscii(testString, 50));
   }
   
@@ -815,8 +813,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @param arg1
    * @param beanA
    * @param beanB
-   * @param arg4 
-   * @param arg
+   * @param arg4
    * @return theVal
    */
   public String someMethod(String arg1, BeanA beanA, BeanB[] beanB, String arg4) {
@@ -872,7 +869,6 @@ public class GrouperUtilTest extends GrouperTest {
 
   public GrouperUtilTest() {
     super();
-    // TODO Auto-generated constructor stub
   }
 
   /**

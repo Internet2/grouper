@@ -19,11 +19,10 @@
  */
 package edu.internet2.middleware.grouper.poc;
 
-import java.util.UUID;
-
-import org.doomdark.uuid.UUIDGenerator;
-
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import org.safehaus.uuid.UUIDGenerator;
+
+import java.util.UUID;
 
 /**
  *
