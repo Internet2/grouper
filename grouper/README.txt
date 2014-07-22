@@ -67,7 +67,7 @@ Please send email to the [grouper-dev][1] list or report them in the [issue trac
   * "ext"
     Top-level directory for Grouper API extensions.
 	Currently no extensions are provided. Earlier extensions, such as gsh,
-	are no provided as a core part of theGrouper API
+	are now provided as a core part of the Grouper API.
   * "lib"
     Third-party jar files included with Grouper are partitioned as described
 	below.
@@ -186,19 +186,18 @@ This will build the javadoc(1) document.
 ## 8. Getting Grouper
 
 Grouper releases are available from Grouper's Internet2 Wiki:
-  <https://wiki.internet2.edu/confluence/display/GrouperWG/Software+Download>
+  <https://spaces.internet2.edu/display/Grouper/Grouper+Downloads>
 
-Read-only anonymous access to the Grouper CVS repository is now
-available.  To perform a CVS checkout, run the following commands.
-When prompted for a password, hit enter.
+Grouper source code repository is hosted at Github: 
+  <https://github.com/Internet2/grouper>
 
-    % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
-    % cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper
-
+Grouper documentation is hosted at the Internet2 wiki:
+  <https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home>
+ 
 
 ## Notes
 
-[0]: <https://wiki.internet2.edu/confluence/display/GrouperWG/Home>
+[0]: <https://spaces.internet2.edu/display/Grouper>
 [1]: <mailto:grouper-dev@internet2.edu>
 [2]: <https://bugs.internet2.edu/jira/browse/GRP>
 
