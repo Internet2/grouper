@@ -624,6 +624,7 @@
                     <excludes>
                         <exclude>**/bin/**</exclude>
                         <exclude>**/*.mvn</exclude>
+                        <exclude>**/*.html</exclude>
                     </excludes>
                 </configuration>
                 <executions>
