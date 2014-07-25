@@ -244,6 +244,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 				try {
 					group.addAlternateName(alternateName);
 				} catch (GroupModifyException e) {
+				  setTransactionRollback(true);
 					request.setAttribute("message", new Message(
 						"groups.message.error.alternate-name-problem", true));
 					return mapping.findForward(FORWARD_EditAgain);
@@ -253,6 +254,7 @@ public class SaveGroupAction extends GrouperCapableAction {
                         try {
 			group.store();
                         } catch (GroupModifyAlreadyExistsException e) {
+                          setTransactionRollback(true);
                           request.setAttribute("message", new Message("groups.message.error.update-problem-already-exists", true));
                           return mapping.findForward(FORWARD_EditAgain);
                         }
@@ -282,12 +284,13 @@ public class SaveGroupAction extends GrouperCapableAction {
 				group = parent.addChildGroup(extension,displayExtension );
 
 			}catch(HookVeto hookVeto) {
-			  
+			  setTransactionRollback(true);
 			  //this action was vetoed, put explanation on screen, and go back
 			  Message.addVetoMessageToScreen(request, hookVeto);
 		    return mapping.findForward(FORWARD_CreateAgain);
 			  
 			}catch(GroupAddException e) {
+			  setTransactionRollback(true);
 				String name = parent.getName() + GrouperHelper.HIER_DELIM + extension;
 				request.setAttribute("message", new Message(
 							"groups.message.error.add-problem",new String[] {e.getMessage()}, true));
