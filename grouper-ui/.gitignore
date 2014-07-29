@@ -1,0 +1,5 @@
+/temp
+/dist
+/.lastbuild.properties
+/build.properties
+/tomcat-context.xml
