@@ -259,14 +259,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 								curGroup.deleteMember(member.getSubject(),mField);
 					}
 				} else if(resolver.canManagePrivileges()) {
-					try {
-						curGroup.revokePriv(member.getSubject(),Privilege.getInstance(key));
-						
-					}catch(Exception e) {
-						if(e.getMessage().indexOf("List value does not exist")>-1) {
-							failedRevocations.add(key);
-						}
-					}
+				  curGroup.revokePriv(member.getSubject(),Privilege.getInstance(key));
 				}
 			}
 		}
