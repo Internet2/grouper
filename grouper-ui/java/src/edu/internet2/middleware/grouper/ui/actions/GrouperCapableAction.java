@@ -57,6 +57,7 @@ import org.apache.struts.upload.MultipartRequestWrapper;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -67,6 +68,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Superclass for all Actions which need to do Grouper stuff. Other handy methods 
@@ -209,6 +211,8 @@ public abstract class GrouperCapableAction
 	extends LowLevelGrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(GrouperCapableAction.class);
 	
+  private static ThreadLocal<Boolean> transactionRollbackThreadLocal = new ThreadLocal<Boolean>();
+
 	public static final String HIER_DELIM = GrouperHelper.HIER_DELIM; 
 	/**
 	 * Action specific - must be implemented by all subclasses
@@ -217,6 +221,19 @@ public abstract class GrouperCapableAction
 		      HttpServletRequest request, HttpServletResponse response,
 			  HttpSession session, GrouperSession grouperSession) throws Exception;
 	
+	/**
+	 * @param transactionRollback
+	 */
+	protected void setTransactionRollback(boolean transactionRollback) {
+	  transactionRollbackThreadLocal.set(transactionRollback);
+	}
+	
+	/**
+	 * @return true if need to rollback, false if okay to commit
+	 */
+	protected boolean getTransactionRollback() {
+    return GrouperUtil.booleanValue(transactionRollbackThreadLocal.get(), false);
+	}
 	
 	/**
 	 * Transaction support implemented centrally here. the execute method calls this rather than grouperExecute
@@ -228,10 +245,22 @@ public abstract class GrouperCapableAction
 		
 			return (ActionForward)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() { 
 				public Object callback(GrouperTransaction grouperTransaction) throws GrouperDAOException {
+
+				  setTransactionRollback(false);
+          
 					try{
-						return grouperExecute(mapping,form,request,response,session,grouperSession);
-					}catch(Exception e) {
+						ActionForward forward = grouperExecute(mapping,form,request,response,session,grouperSession);
+						
+						if (getTransactionRollback()) {
+						  // rollback
+              grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+						}
+						
+						return forward;
+					} catch(Exception e) {
 						throw new GrouperDAOException(e);
+					} finally {
+					  transactionRollbackThreadLocal.remove();
 					}
 				}});
 		
