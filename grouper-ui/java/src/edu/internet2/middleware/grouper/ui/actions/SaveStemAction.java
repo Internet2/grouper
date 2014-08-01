@@ -225,6 +225,7 @@ public class SaveStemAction extends GrouperCapableAction {
 				stem = parentStem.addChildStem((String) stemForm.get("stemName"),(String) stemForm.get("stemDisplayName"));
 				stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
 			}catch(StemAddException e) {
+			  setTransactionRollback(true);
 					request.setAttribute("message", new Message(
 							"stems.message.error.add-problem",new String[] {e.getMessage()}, true));
 						return mapping.findForward(FORWARD_CreateAgain);

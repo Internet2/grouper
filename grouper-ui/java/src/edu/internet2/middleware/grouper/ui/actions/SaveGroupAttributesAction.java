@@ -159,6 +159,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       				try {
       					group.deleteAttribute(attribute.getLegacyAttributeName(true));
       				}catch(GroupModifyException e) {
+      				  setTransactionRollback(true);
       					Map fieldMap = (Map)GrouperHelper.getFieldsAsMap().get(attribute.getLegacyAttributeName(true));
       					Message message = new Message("error.group.save-attributes.delete",(String)fieldMap.get("displayName"),true);
       					request.setAttribute("message",message);
