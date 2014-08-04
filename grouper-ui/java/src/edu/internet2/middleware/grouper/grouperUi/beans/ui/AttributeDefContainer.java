@@ -20,6 +20,8 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -32,6 +34,27 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  */
 public class AttributeDefContainer {
+
+  /**
+   * gui attribute def names e.g. results for attribute def name list on attribute def tab
+   */
+  private Set<GuiAttributeDefName> guiAttributeDefNames;
+  
+  /**
+   * gui attribute def names e.g. results for attribute def name list on attribute def tab
+   * @return the guiAttributeDefNames
+   */
+  public Set<GuiAttributeDefName> getGuiAttributeDefNames() {
+    return this.guiAttributeDefNames;
+  }
+  
+  /**
+   * gui attribute def names e.g. results for attribute def name list on attribute def tab
+   * @param guiAttributeDefNames1 the guiAttributeDefNames to set
+   */
+  public void setGuiAttributeDefNames(Set<GuiAttributeDefName> guiAttributeDefNames1) {
+    this.guiAttributeDefNames = guiAttributeDefNames1;
+  }
 
   /**
    * search gui attribute def results
@@ -85,6 +108,21 @@ public class AttributeDefContainer {
    * keep track of the paging on the stem screen
    */
   private GuiPaging guiPaging = null;
+
+  /**
+   * subjects and what privs they have on this stem
+   */
+  private Set<GuiMembershipSubjectContainer> privilegeGuiMembershipSubjectContainers;
+
+  /**
+   * how many failures
+   */
+  private int failureCount;
+
+  /**
+   * how many successes
+   */
+  private int successCount;
 
   /**
    * gui attribute def from url
@@ -227,6 +265,55 @@ public class AttributeDefContainer {
    */
   public void setGuiPaging(GuiPaging guiPaging1) {
     this.guiPaging = guiPaging1;
+  }
+
+  /**
+   * subjects and what privs they have on this stem
+   * @return membership subject containers
+   */
+  public Set<GuiMembershipSubjectContainer> getPrivilegeGuiMembershipSubjectContainers() {
+    return this.privilegeGuiMembershipSubjectContainers;
+  }
+
+  /**
+   * clear this out to requery
+   * @param privilegeGuiMembershipSubjectContainers1
+   */
+  public void setPrivilegeGuiMembershipSubjectContainers(
+      Set<GuiMembershipSubjectContainer> privilegeGuiMembershipSubjectContainers1) {
+    this.privilegeGuiMembershipSubjectContainers = privilegeGuiMembershipSubjectContainers1;
+  }
+
+  /**
+   * how many failures
+   * @return failures
+   */
+  public int getFailureCount() {
+    return this.failureCount;
+  }
+
+  /**
+   * how many successes
+   * @return successes
+   */
+  public int getSuccessCount() {
+    return this.successCount;
+  }
+
+  /**
+   * how many failures
+   * @param failuresCount1
+   */
+  public void setFailureCount(int failuresCount1) {
+    this.failureCount = failuresCount1;
+  }
+
+  /**
+   * how many successes
+   * @param successCount1
+   */
+  public void setSuccessCount(int successCount1) {
+    this.successCount = successCount1;
   }
   
   

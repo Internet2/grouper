@@ -26,12 +26,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -42,6 +48,158 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class GuiAttributeDef extends GuiObjectBase implements Serializable {
 
+  /**
+   * if the logged in user has admin
+   * @return true
+   */
+  public boolean isHasAdmin() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    return (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return GuiAttributeDef.this.attributeDef.getPrivilegeDelegate().hasAttrAdmin(loggedInSubject);
+      }
+    });
+
+
+  }
+
+  /**
+   * if the attrDef has update granted to all
+   * @return true
+   */
+  public boolean isGrantAllUpdate() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrUpdate(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the attrDef has admin granted to all
+   * @return true
+   */
+  public boolean isGrantAllAdmin() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrAdmin(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the attrDef has read granted to all
+   * @return true
+   */
+  public boolean isGrantAllRead() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrRead(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the attrDef has view granted to all
+   * @return true
+   */
+  public boolean isGrantAllView() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrView(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the attrDef has optin granted to all
+   * @return true
+   */
+  public boolean isGrantAllOptin() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrOptin(SubjectFinder.findAllSubject());
+  }
+
+
+  /**
+   * if the attrDef has optout granted to all
+   * @return true
+   */
+  public boolean isGrantAllOptout() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrOptout(SubjectFinder.findAllSubject());
+  }
+
+
+  /**
+   * if the attrDef has attr read granted to all
+   * @return true
+   */
+  public boolean isGrantAllAttrRead() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * if the attrDef has attr update granted to all
+   * @return true
+   */
+  public boolean isGrantAllAttrUpdate() {
+    return this.attributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * comma separated privilege labels allowed by grouper all
+   * @return the labels
+   */
+  public String getPrivilegeLabelsAllowedByGrouperAll() {
+    StringBuilder results = new StringBuilder();
+    boolean foundOne = false;
+    
+    if (this.isGrantAllAdmin()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrAdminUpper"));
+    }
+    if (this.isGrantAllUpdate()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrUpdateUpper"));
+    }
+    if (this.isGrantAllRead()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrReadUpper"));
+    }
+    if (this.isGrantAllView()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrViewUpper"));
+    }
+    if (this.isGrantAllOptin()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrOptinUpper"));
+    }
+    if (this.isGrantAllOptout()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrOptoutUpper"));
+    }
+    if (this.isGrantAllAttrUpdate()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrDefAttrUpdateUpper"));
+    }
+    if (this.isGrantAllAttrRead()) {
+      if (foundOne) {
+        results.append(", ");
+      }
+      foundOne = true;
+      results.append(TextContainer.retrieveFromRequest().getText().get("priv.attrDefAttrReadUpper"));
+    }
+    return results.toString();
+  }
+
+  
   /**
    * 
    * @see java.lang.Object#equals(java.lang.Object)
