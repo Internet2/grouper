@@ -22,3 +22,9 @@ grouper/ddlScripts/
 **/*.log
 grouper/dist/
 grouper/hsql/
+
+grouper-misc/grouperClient/conf/grouper.client.properties
+grouper-misc/grouperClient/conf/grouper.client.usage.txt
+grouper-misc/grouperClient/dist/grouperClient.institution-2.2.0.tar.gz
+grouper-misc/grouperClient/dist/grouperClient.jar
+grouper-misc/grouperClient/misc/README.txt
