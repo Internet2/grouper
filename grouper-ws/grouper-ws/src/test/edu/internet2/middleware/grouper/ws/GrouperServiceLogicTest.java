@@ -124,6 +124,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults.WsGetMembersResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDetail;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
@@ -179,7 +180,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAddRemoveMemberUpdatePrivs"));
+    TestRunner.run(new GrouperServiceLogicTest("testGetSubjects"));
   }
 
   /**
@@ -252,7 +253,187 @@ public class GrouperServiceLogicTest extends GrouperTest {
     }
   }
 
+  /**
+   * test get subjects
+   */
+  public void testGetSubjects() {
   
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
+      .assignDescription("description").save();
+
+    // add members
+    group1.addMember(SubjectTestHelper.SUBJ0);
+    group1.addMember(SubjectTestHelper.SUBJ1);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    group1.deleteMember(SubjectTestHelper.SUBJ1);    
+    ChangeLogTempToEntity.convertRecords();
+    
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+
+    //###############################################
+    //valid query for subject
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    WsGetSubjectsResults wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, null, null, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+
+    assertTrue(GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()) + "", GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()) >= 10);
+
+    WsSubject wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+    //###############################################
+    //valid query for subject in group
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, wsGroupLookup, null, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+    WsGroup wsGroup = wsGetSubjectsResults.getWsGroup();
+    wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+    //###############################################
+    //valid query for subject in group with type
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, wsGroupLookup, WsMemberFilter.Immediate, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+    wsGroup = wsGetSubjectsResults.getWsGroup();
+    wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+
+    //###############################################
+    //valid query for subject in group with wrong type
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, wsGroupLookup, WsMemberFilter.NonImmediate, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(0, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+
+    //###############################################
+    //valid query for subject in group
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, wsGroupLookup, null, Group.getDefaultList(), false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+    wsGroup = wsGetSubjectsResults.getWsGroup();
+    wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+    //###############################################
+    //valid query for subject in group with field
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, wsGroupLookup, null, FieldFinder.find("admins", true), false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(0, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+
+    //###############################################
+    //valid query for subject in group with source
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, new String[]{SubjectTestHelper.SUBJ0.getSourceId()}, wsGroupLookup, null, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+    wsGroup = wsGetSubjectsResults.getWsGroup();
+    wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+    //###############################################
+    //valid query for subject in group with wrong source
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, new String[]{group1.toSubject().getSourceId()}, wsGroupLookup, null, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(0, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+
+    //###############################################
+    //valid query for subject in group by id
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, new WsSubjectLookup[] {new WsSubjectLookup(SubjectTestHelper.SUBJ0_ID, null, null)}, 
+        null, false, null, null, null, wsGroupLookup, null, null, false, null);
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+    wsGroup = wsGetSubjectsResults.getWsGroup();
+    wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+
+  }
+
   /**
    * test find groups with TypeOfGroup
    */

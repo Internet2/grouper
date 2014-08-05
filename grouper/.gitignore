@@ -9,4 +9,5 @@ conf/morphString.properties
 conf/sources.xml
 conf/spy.properties
 dist
+misc/server/i2midev1
 test.log
