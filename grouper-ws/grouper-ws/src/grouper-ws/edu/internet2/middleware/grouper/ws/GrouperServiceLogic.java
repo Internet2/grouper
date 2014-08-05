@@ -81,6 +81,8 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.member.SearchStringEnum;
+import edu.internet2.middleware.grouper.member.SortStringEnum;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -4380,12 +4382,12 @@ public class GrouperServiceLogic {
             resultSubjects.add(subject);
           }
         }
+
+        //if filtering by stem, and stem not found, then dont find any memberships
+        Set<Source> sources = GrouperUtil.convertSources(sourceIds);
         
-        //free form search
-        if (!StringUtils.isBlank(searchString)) {
-          
-          //if filtering by stem, and stem not found, then dont find any memberships
-          Set<Source> sources = GrouperUtil.convertSources(sourceIds);
+        //free form search not by group
+        if (!StringUtils.isBlank(searchString) && !filteringByGroup) {
           
           Set<Subject> subjects = SubjectFinder.findPage(searchString, sources).getResults();
           
@@ -4400,17 +4402,33 @@ public class GrouperServiceLogic {
           }
           
         }
+
+        int maxFilter = GrouperWsConfig.retrieveConfig().propertyValueInt("ws.get.subjects.max.filter.by.group", 1000);
+
+        Set<Member> members = null;
+        boolean calculateMembers = false;
+        //free form search yes by group
+        if (!StringUtils.isBlank(searchString) && filteringByGroup) {
+          QueryOptions queryOptions = new QueryOptions().paging(maxFilter, 1, false);
+          members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(group.getId(), 
+              fieldName == null ? Group.getDefaultList() : fieldName, membershipType == null ? null : membershipType.getTypeString(), sources, queryOptions, true, 
+              SortStringEnum.getDefaultSortString(), SearchStringEnum.SEARCH_STRING_0, searchString);
+          calculateMembers = true;
+        }
         
         int resultSubjectsLengthPreGroup = GrouperUtil.length(resultSubjects);
         if (filteringByGroup && resultSubjectsLengthPreGroup > 0) {
           //we have a list of subjects, lets see if they are too large
-          if (resultSubjectsLengthPreGroup > GrouperWsConfig.retrieveConfig().propertyValueInt("ws.get.subjects.max.filter.by.group", 1000)) {
+          if (resultSubjectsLengthPreGroup > maxFilter) {
             throw new TooManyResultsWhenFilteringByGroupException();
           }
           
           //lets filter by group
-          Set<Member> members = MemberFinder.findBySubjectsInGroup(session, resultSubjects, group, fieldName, membershipType);
-          
+          members = MemberFinder.findBySubjectsInGroup(session, resultSubjects, group, fieldName, membershipType);
+          calculateMembers = true;
+        }
+        
+        if (calculateMembers) {
           resultSubjects = null;
           
           if (GrouperUtil.length(members) > 0) {
@@ -4429,6 +4447,7 @@ public class GrouperServiceLogic {
               resultWsSubjects.add(wsSubject);
             }
           }
+
         }
         
         //calculate and return the results
