@@ -1,5 +1,6 @@
-/temp
-/dist
-/.lastbuild.properties
-/build.properties
-/tomcat-context.xml
+build.properties
+dist
+.lastbuild.properties
+temp
+tomcat-context.xml
+webapp/WEB-INF/classes
