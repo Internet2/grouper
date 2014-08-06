@@ -149,7 +149,7 @@ public class GrouperContext {
    * @return the grouper enginge
    */
   public GrouperEngineBuiltin getGrouperEngine() {
-    return GrouperEngineBuiltin.valueOfIgnoreCase(this.grouperEngine, false);
+    return GrouperEngineBuiltin.valueOfIgnoreCase(this.grouperEngine, false, false);
   }
 
   /**
