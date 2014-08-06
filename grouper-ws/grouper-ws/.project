@@ -34,15 +34,15 @@
 	<variableList>
 		<variable>
 			<name>GROUPER_V2_1_CLIENT_SOURCE</name>
-			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/src/java</value>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouperClient/src/java</value>
 		</variable>
 		<variable>
 			<name>GROUPER_V2_1_CONF</name>
-			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper/conf</value>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper/conf</value>
 		</variable>
 		<variable>
 			<name>GROUPER_V2_1_SOURCE</name>
-			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper/src/grouper</value>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper/src/grouper</value>
 		</variable>
 	</variableList>
 </projectDescription>
