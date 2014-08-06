@@ -24,7 +24,7 @@ script:
 before_install:
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh
-- chmod -R 777 ./travis/push-javadoc-to-gh-pages.sh
+- chmod -R 777 ./travis/javadocs-ghpages.sh
 - ./travis/javadocs-ghpages.sh
 after_success:
 - mvn clean test cobertura:cobertura coveralls:cobertura
