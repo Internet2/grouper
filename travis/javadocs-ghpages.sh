@@ -20,6 +20,7 @@ if [ "$invokeJavadoc" == true ]; then
   echo -e "Start to publish lastest Javadoc to gh-pages...\n"
   
   echo -e "Invoking Maven to generate the site documentation...\n"
+  pwd
   cd grouper-parent
   mvn site site:deploy -q -ff -B -DskipTests=true
   
