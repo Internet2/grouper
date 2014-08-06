@@ -29,7 +29,7 @@
     </parent>
 
     <name>MorphString</name>
-    <description>morphString</description>
+    <description>Password Encryption and Decryption</description>
     <artifactId>morphString</artifactId>
     <packaging>jar</packaging>
 
