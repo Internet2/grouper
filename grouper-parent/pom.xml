@@ -999,6 +999,28 @@
             </roles>
             <timezone>-6</timezone>
         </developer>
+        <developer>
+            <id>langedb</id>
+            <name>David Langenberg</name>
+            <organization>The University of Chicago</organization>
+            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
+            <email>davel@uchicago.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <id>mmoayyed</id>
+            <name>Misagh Moayyed</name>
+            <organization>Unicon, Inc</organization>
+            <organizationUrl>http://www.unicon.net/</organizationUrl>
+            <email>mmoayyed@unicon.net</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-7</timezone>
+        </developer>
     </developers>
 
 </project>
