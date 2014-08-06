@@ -84,11 +84,11 @@
         <commons.collections.version>3.2.1</commons.collections.version>
         <commons.digester.version>1.7</commons.digester.version>
         <commons.discovery.version>0.4</commons.discovery.version>
-        <commons.httpclient.version>4.3.4</commons.httpclient.version>
+        <commons.httpclient.version>3.0</commons.httpclient.version>
         <commons.io.version>2.4</commons.io.version>
         <commons.lang.version>2.6</commons.lang.version>
         <commons.logging.version>1.2</commons.logging.version>
-        <commons.math.version>2.2</commons.math.version>
+        <commons.math.version>1.1</commons.math.version>
         <commons.pool.version>1.6</commons.pool.version>
         <dom4j.version>1.6.1</dom4j.version>
         <shibboleth.common.version>1.3.3</shibboleth.common.version>
@@ -96,7 +96,7 @@
         <javassist.version>3.12.0.GA</javassist.version>
         <smack.version>3.1.0</smack.version>
         <joda.time.version>2.3</joda.time.version>
-        <jug.version>2.0.0</jug.version>
+        <jug.version>1.1.2</jug.version>
         <ehcache.core.version>2.6.9</ehcache.core.version>
         <ezmorph.version>1.0.6</ezmorph.version>
         <json.lib.version>2.3</json.lib.version>
@@ -267,8 +267,8 @@
                 <version>${json.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
                 <version>${commons.httpclient.version}</version>
             </dependency>
             <dependency>
@@ -287,7 +287,7 @@
                 <version>${commons.logging.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
+                <groupId>commons-math</groupId>
                 <artifactId>commons-math</artifactId>
                 <version>${commons.math.version}</version>
             </dependency>
@@ -345,10 +345,9 @@
                 <version>${joda.time.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.safehaus.jug</groupId>
+                <groupId>jug</groupId>
                 <artifactId>jug</artifactId>
                 <version>${jug.version}</version>
-                <classifier>asl</classifier>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
@@ -857,7 +856,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${maven-pmd-plugin.version}</version>
                 <configuration>
-                  <targetJdk>${project.build.targetVersion}</targetJdk>
+                  <targetJdk>${maven.compiler.target}</targetJdk>
                 </configuration>
               </plugin>
               <plugin>

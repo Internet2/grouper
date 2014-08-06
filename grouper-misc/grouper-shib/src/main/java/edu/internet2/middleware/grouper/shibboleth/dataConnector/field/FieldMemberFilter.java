@@ -438,7 +438,7 @@ public enum FieldMemberFilter {
    * get groups for subject
    * 
    * @param member
-   * @param field
+   * @param member
    *          to check with membership
    * @return the set of members (non null)
    */

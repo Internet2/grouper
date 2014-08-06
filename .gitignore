@@ -3,9 +3,11 @@
 **/.idea
 **/*.iml
 /**/bin/*
-/grouper/logs/
-/grouper/build.properties
-/grouper/build.log
+**/*.log
+
+grouper/logs/
+grouper/build.properties
+grouper/build.log
 grouper/conf/ehcache.xml
 grouper/conf/grouper.client.properties
 grouper/conf/grouper.hibernate.properties
@@ -19,7 +21,6 @@ grouper/conf/spy.properties
 grouper/conf/subject.properties
 grouper/conf/dist/
 grouper/ddlScripts/
-**/*.log
 grouper/dist/
 grouper/hsql/
 
@@ -28,3 +29,6 @@ grouper-misc/grouperClient/conf/grouper.client.usage.txt
 grouper-misc/grouperClient/dist/grouperClient.institution-2.2.0.tar.gz
 grouper-misc/grouperClient/dist/grouperClient.jar
 grouper-misc/grouperClient/misc/README.txt
+
+subject/dist/
+subject/doc/
