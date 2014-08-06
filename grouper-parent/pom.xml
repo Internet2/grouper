@@ -926,10 +926,10 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi/</connection>
-        <developerConnection>scm:svn:http://anonsvn.internet2.edu/svn/i2mi</developerConnection>
+        <connection>scm:git:git@github.com:Internet2/grouper.git</connection>
+        <developerConnection>scm:git:git@github.com:Internet2/grouper.git</developerConnection>
+        <url>https://github.com/Internet2/grouper</url>
         <tag>HEAD</tag>
-        <url>http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/</url>
     </scm>
 
     <developers>
@@ -998,6 +998,28 @@
                 <role>developer</role>
             </roles>
             <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <id>langedb</id>
+            <name>David Langenberg</name>
+            <organization>The University of Chicago</organization>
+            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
+            <email>davel@uchicago.edu</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <id>mmoayyed</id>
+            <name>Misagh Moayyed</name>
+            <organization>Unicon, Inc</organization>
+            <organizationUrl>http://www.unicon.net/</organizationUrl>
+            <email>mmoayyed@unicon.net</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>-7</timezone>
         </developer>
     </developers>
 
