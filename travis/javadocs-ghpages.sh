@@ -31,7 +31,7 @@ if [ "$invokeJavadoc" == true ]; then
   git config --global user.email "travis@travis-ci.org"
   git config --global user.name "travis-ci"
   echo -e "Cloning the gh-pages branch...\n"
-  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/Jasig/cas gh-pages > /dev/null
+  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/Internet2/grouper gh-pages > /dev/null
 
   cd gh-pages
   echo -e "Removing javadocs...\n"
