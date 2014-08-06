@@ -84,6 +84,19 @@ public enum GrouperEngineBuiltin implements GrouperEngineIdentifier {
    */
   public static GrouperEngineBuiltin valueOfIgnoreCase(String string, boolean exceptionOnNull) {
     
+    return valueOfIgnoreCase(string, exceptionOnNull, true);
+  }
+
+  /**
+   * do a case-insensitive matching
+   * 
+   * @param string
+   * @param exceptionOnNull will not allow null or blank entries
+   * @param exceptionIfNotFound if string isnt found should there be an exception
+   * @return the enum or null or exception if not found
+   */
+  public static GrouperEngineBuiltin valueOfIgnoreCase(String string, boolean exceptionOnNull, boolean exceptionIfNotFound) {
+    
     //check the string
     for (GrouperEngineBuiltin grouperEngineBuiltin : values()) {
       if (StringUtils.equalsIgnoreCase(string, grouperEngineBuiltin.grouperEngine)) {
@@ -92,9 +105,8 @@ public enum GrouperEngineBuiltin implements GrouperEngineIdentifier {
     }
     
     return GrouperUtil.enumValueOfIgnoreCase(GrouperEngineBuiltin.class, 
-        string, exceptionOnNull);
+        string, exceptionOnNull, exceptionIfNotFound);
 
   }
 
-  
 }
