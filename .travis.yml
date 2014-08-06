@@ -1,4 +1,4 @@
-# Steps to enable the this build are:
+# Steps to enable this build are:
 #
 # Generate the OAUTH-TOKEN atd at https://github.com/settings/applications
 # Install travis: gem install travis
@@ -19,11 +19,15 @@ jdk:
 - oraclejdk8
 before_script:
 - cd grouper-parent
-script: 
-- mvn clean package
+script:
+- mvn clean package -DskipTests=true
 before_install:
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh
+- chmod -R 777 ./travis/push-javadoc-to-gh-pages.sh
+- ./travis/javadocs-ghpages.sh
 after_success:
 - mvn clean test cobertura:cobertura coveralls:cobertura
-
+env:
+  global:
+    secure: XmmxnbDo/FeIE2O5M6YMSKjULOgLPDDx79mcfRTf79Fvjiqw2yJBrheLwR2sYs4+6uw7Pe0FkKUXtyRrcK31JvWTuqvwTs08MgMt42VPx7xGX+96i8hN6QTF8D1B1YYRJnnXrtOrhqSbpm+jffw3PiK4f5fcKDntSaMbPUiVRDg=
