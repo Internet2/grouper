@@ -635,7 +635,7 @@
                     <excludes>
                         <exclude>**/bin/**</exclude>
                         <exclude>**/*.mvn</exclude>
-                        <exclude>**/doc/api/package-list</exclude>
+                        <exclude>**/doc/**</exclude>
                         <exclude>**/*.html</exclude>
                         <exclude>**/*.launch</exclude>
                         <exclude>**/*.schema</exclude>
