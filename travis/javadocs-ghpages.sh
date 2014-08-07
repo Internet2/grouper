@@ -16,13 +16,11 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; th
 fi 
 
 if [ "$invokeJavadoc" == true ]; then
-
   echo -e "Start to publish lastest Javadoc to gh-pages...\n"
   
   echo -e "Invoking Maven to generate the site documentation...\n"
-  pwd
+  echo "Current working directory is $PWD"
   cd grouper-parent
-  mvn site site:deploy -q -ff -B -DskipTests=true
   
   echo -e "Copying the generated docs over from $grouperDocsDirectory...\n"
   cp -R $grouperDocsDirectory $HOME/javadoc-latest
@@ -34,15 +32,17 @@ if [ "$invokeJavadoc" == true ]; then
   git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/Internet2/grouper gh-pages > /dev/null
 
   cd gh-pages
+  echo "Current working directory is $PWD"
+
   echo -e "Removing javadocs...\n"
-  git rm -rf ./master/**
+  git rm -rf ./master/** > /dev/null
 
   echo -e "Copying new javadocs...\n"
   cp -Rf $HOME/javadoc-latest ./master
   echo -e "Adding changes to the index...\n"
-  git add -f .
+  git add -f . > /dev/null
   echo -e "Committing changes...\n"
-  git commit -m "Lastest javadoc on successful travis build $TRAVIS_BUILD_NUMBER auto-pushed to gh-pages"
+  git commit -m "Javadoc on build $TRAVIS_BUILD_NUMBER pushed to gh-pages" > /dev/null
   echo -e "Pushing upstream to origin...\n"
   git push -fq origin gh-pages > /dev/null
 
