@@ -21,6 +21,7 @@ if [ "$invokeJavadoc" == true ]; then
   echo -e "Invoking Maven to generate the site documentation...\n"
   echo "Current working directory is $PWD"
   cd grouper-parent
+  mvn site site:deploy -q -ff -B -DskipTests=true
   
   echo -e "Copying the generated docs over from $grouperDocsDirectory...\n"
   cp -R $grouperDocsDirectory $HOME/javadoc-latest
