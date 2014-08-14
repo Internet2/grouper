@@ -72,93 +72,19 @@
                   </ul>
                 </div>
               </div>
-              <button type="button" class="btn btn-block btn-grouper last">Browse Folders</button>
+              <button type="button" class="btn btn-block btn-grouper last" style="cursor: default;">Browse Folders
+              <i class="fa fa-refresh" style="cursor: pointer;"
+                onclick="dojoInitMenu()"
+              ></i></button>
               <div class="accordion-inner">
                 <script>
                   $(document).ready(function(){
-                    folderMenuStore = dojo.store.JsonRest({
-                      target:"UiV2Main.folderMenu?",
-                      mayHaveChildren: function(object){
-                        // see if it has a children property
-                        return "children" in object;
-                      },
-                      getChildren: function(object, onComplete, onError){
-                        // retrieve the full copy of the object
-                        this.get(object.id).then(function(fullObject){
-                          // copy to the original object so it has the children array as well.
-                          object.children = fullObject.children;
-                          // now that full object, we should have an array of children
-                          onComplete(fullObject.children);
-                        }, function(error){
-                          // an error occurred, log it, and indicate no children
-                          console.error(error);
-                          onComplete([]);
-                        });
-                      },
-                      getRoot: function(onItem, onError){
-                        // get the root object, we will do a get() and callback the result
-                        this.get("root").then(onItem, onError);
-                      },
-                      getLabel: function(object){
-                        // just get the name
-                        return object.name;
-                      }
-                      
-                    });
-
-                    // Custom TreeNode class (based on dijit.TreeNode) that allows rich text labels
-                    //var MyTreeNode = dojo.declare(dijit.Tree._TreeNode, {
-                    //    _setLabelAttr: {node: "labelNode", type: "innerHTML"}
-                    //});
-                    
-                    folderTree = new dijit.Tree({
-                      model: folderMenuStore,
-                      //_createTreeNode: function(args){
-                      //   return new MyTreeNode(args);
-                      //},
-                      getIconClass: function(/*dojo.store.Item*/ item, /*Boolean*/ opened){
-                        //return (!item || this.model.mayHaveChildren(item)) ? (opened ? "dijitFolderOpened" : "dijitFolderClosed") : "dijitLeaf"
-                        if (!item || this.model.mayHaveChildren(item)) {
-                          if (opened) {
-                            return "dijitFolderOpened";
-                          } 
-                          return "dijitFolderClosed";
-                        }
-                        if (item.theType == 'group') {
-                          //font-awesome icons...
-                          return "fa fa-group";
-                        }
-                        if (item.theType == 'attributeDef') {
-                          //font-awesome icons...
-                          return "fa fa-cog";
-                        }
-                        if (item.theType == 'attributeDefName') {
-                          //font-awesome icons...
-                          return "fa fa-cogs";
-                        }
-                      },
-                      onClick: function(item){
-                        // Get the URL from the item, and navigate to it
-                        if (item.theType == 'stem') {
-                          guiV2link('operation=UiV2Stem.viewStem&stemId=' + item.id);                          
-                        } else if (item.theType == 'group') {
-                          guiV2link('operation=UiV2Group.viewGroup&groupId=' + item.id);                          
-                        } else if (item.theType == 'attributeDef') {
-                          location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeUpdate.createEdit&attributeDefId=' + item.id;
-                        } else if (item.theType == 'attributeDefName') {
-                          location.href='../../grouperUi/appHtml/grouper.html?operation=SimpleAttributeNameUpdate.createEditAttributeNames&attributeDefNameId=' + item.id;
-
-                        } else {
-                          alert('ERROR: cant find theType on object with id: ' + item.id);
-                        }
-                      }
-                    }, "folderTree"); // make sure you have a target HTML element with this id
-                    folderTree.startup();
+                    dojoInitMenu();
                   });
-                
                 </script>
-              
-                <div id="folderTree"></div>
+                <div id="folderTreeContainerId">
+                  <div id="folderTree"></div>
+                </div>
               </div>
             </div>
           </div>
