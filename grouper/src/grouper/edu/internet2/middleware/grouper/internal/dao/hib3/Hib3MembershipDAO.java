@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Internet2
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -921,7 +921,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             boolean pageMembers = queryOptionsForMember != null;
             
             if (pageMembers) {
-  
+
               if (queryOptionsForMember.getQueryPaging() == null) {
                 throw new RuntimeException("If paging by member, then paging must be set in the query options");
               }
@@ -4000,6 +4000,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               
               Set<String> theStemIds = new LinkedHashSet<String>();
               
+              //MCH 20140811 this was in the group and attrDef one, adding it here
+              for (Stem theStem : stems) {
+                theStemIds.add(theStem.getUuid());
+              }
+                            
               //dont pass for people with membership type or field... we already filtered by that...
               Set<Object[]> tempResults = findAllByStemOwnerOptionsHelper(theStemIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForStem ? null : membershipType, hasFieldForStem ? null : fields,  
@@ -4085,7 +4090,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Boolean checkSecurity) {
     return findAllByAttributeDefOwnerOptionsHelper(totalAttributeDefIds, totalMemberIds,
         totalMembershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, 
-        stem, stemScope, enabled, checkSecurity, null, null, false, false, false);
+        stem, stemScope, enabled, checkSecurity, null, null, false, false, false, null, null, false, false, false);
   }
 
   /**
@@ -4096,11 +4101,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Collection<String> totalMembershipIds, MembershipType membershipType, 
       Collection<Field> fields,
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled,
-      Boolean checkSecurity, QueryOptions queryOptionsForAttributeDef,
+      Boolean checkSecurity, QueryOptions queryOptionsForMember, String filterForMember, 
+      boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForAttributeDef,
       String scopeForAttributeDef, boolean splitScopeForAttributeDef,
       boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef) {
 
     QueryOptions.initTotalCount(queryOptionsForAttributeDef);
+    QueryOptions.initTotalCount(queryOptionsForMember);
 
     if (checkSecurity == null) {
       checkSecurity = Boolean.TRUE;
@@ -4119,7 +4127,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     Subject grouperSessionSubject = grouperSession.getSubject();
 
     Set<Object[]> totalResults = new HashSet<Object[]>();
-    
+        
     int attrDefBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefIds, 100);
     
     for (int attrDefIndex = 0; attrDefIndex < attrDefBatches; attrDefIndex++) {
@@ -4149,6 +4157,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
           String selectPrefix = "select ms, a, m ";
           String countPrefix = "select count(*) ";
+          String memberPrefix = "select distinct m ";
           
           StringBuilder sqlTables = new StringBuilder(" from AttributeDef a, MembershipEntry ms, Member m ");
           
@@ -4244,6 +4253,40 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(") ");
           }
           
+          if (!StringUtils.isBlank(filterForMember)) {
+
+            filterForMember = filterForMember.toLowerCase();
+
+            String[] filtersForMember = splitScopeForMember ? GrouperUtil.splitTrim(filterForMember, " ") 
+                : new String[]{filterForMember};
+
+            if (sql.length() > 0) {
+              sql.append(" and ");
+            }
+            sql.append(" ( ");
+
+            int index = 0;
+            
+            String searchFieldName = SearchStringEnum.getDefaultSearchString().getFieldName();
+
+            for (String theFilter : filtersForMember) {
+              if (index != 0) {
+                sql.append(" and ");
+              }
+              sql.append(" ( m." + searchFieldName + " like :filterString" + index + " ) ");
+
+              if (!theFilter.endsWith("%")) {
+                theFilter += "%";
+              }
+              if (!theFilter.startsWith("%")) {
+                theFilter = "%" + theFilter;
+              }
+              byHqlStatic.setString("filterString" + index, theFilter);
+              index++;
+            }
+            sql.append(" ) ");
+          }
+
           if (!StringUtils.isBlank(scopeForAttributeDef)) {
 
             scopeForAttributeDef = scopeForAttributeDef.toLowerCase();
@@ -4283,10 +4326,106 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             .setCacheable(false)
             .setCacheRegion(KLASS);
 
-          {
-            //sort for groups
-            boolean pageAttributeDefs = queryOptionsForAttributeDef != null;
+          int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
+          
+          boolean pageMembers = queryOptionsForMember != null;
+          
+          if (pageMembers) {
+
+            if (queryOptionsForMember.getQueryPaging() == null) {
+              throw new RuntimeException("If paging by member, then paging must be set in the query options");
+            }
+
+            //cant page too much...
+            if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
+              throw new RuntimeException("Cant get a page size greater then 500! " 
+                  + queryOptionsForMember.getQueryPaging().getPageSize());
+            }
+
+            if (attrDefBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 attributeDefBatch if paging members");
+            }
             
+            if (memberBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 memberBatch if paging members");
+            }
+            
+            if (membershipBatches > 1) {
+              throw new RuntimeException("Cant have more than 1 membershipBatch if paging members");
+            }
+            
+          }
+
+          if (!StringUtils.isBlank(filterForMember) && !pageMembers) {
+            throw new RuntimeException("If you are filtering by member, then you must page members");
+          }
+
+          //sort for groups
+          boolean pageAttributeDefs = queryOptionsForAttributeDef != null;
+            
+          //if -1, lets not check
+          if (maxMemberships >= 0 && !pageMembers && !pageAttributeDefs) {
+  
+            long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
+            
+            //see if too many
+            if (size > maxMemberships) {
+              throw new RuntimeException("Too many results: " + size);
+            }
+            
+          }
+
+          //if paging by members, get the members, then do the same query using those members...
+          if (pageMembers) {
+            
+            //sort by default search string if not specified
+            if (queryOptionsForMember.getQuerySort() == null) {
+              queryOptionsForMember.sortAsc("m." + SortStringEnum.getDefaultSortString().getFieldName());
+            }
+
+            byHqlStatic.options(queryOptionsForMember);
+   
+            Set<Member> members = byHqlStatic.createQuery(memberPrefix + sql.toString()).listSet(Member.class);
+
+            //no need to do another query if no members
+            if (GrouperUtil.length(members) == 0) {
+              return totalResults;
+            }
+            
+            Set<String> theMemberIds = new LinkedHashSet<String>();
+            
+            for (Member member : members) {
+              theMemberIds.add(member.getUuid());
+            }
+            
+            //dont pass for people with membership type or field... we already filtered by that...
+            Set<Object[]> tempResults = findAllByAttributeDefOwnerOptionsHelper(totalAttributeDefIds, theMemberIds,
+                totalMembershipIds, hasMembershipTypeForMember ? null : membershipType, 
+                    hasFieldForMember ? null : fields,  
+                sources, scope, stem, stemScope, enabled, checkSecurity, null, null, false, false, false,
+                null, null, false, false, false);
+            
+            //lets sort these by member
+            Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
+            
+            for (Member member : members) {
+              Iterator<Object[]> iterator = tempResults.iterator();
+              while(iterator.hasNext()) {
+                
+                Object[] tempResult = iterator.next();
+                //if the member is the same, put it in the sortedResults, and remove
+                if (StringUtils.equals(((Member)tempResult[2]).getUuid(), member.getUuid())) {
+                  
+                  sortedResults.add(tempResult);
+                  iterator.remove();
+                  
+                }
+              }
+            }
+            return sortedResults;
+            
+          }
+          {
             if (pageAttributeDefs) {
 
               if (queryOptionsForAttributeDef.getQueryPaging() == null) {
@@ -4348,7 +4487,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               Set<Object[]> tempResults = findAllByAttributeDefOwnerOptionsHelper(theAttributeDefIds, totalMemberIds,
                   totalMembershipIds, hasMembershipTypeForAttributeDef ? null : membershipType, hasFieldForAttributeDef ? null : fields,  
                   sources, scope, stem, stemScope, enabled, checkSecurity,
-                  null, null, false, false, false);
+                  null, null, false, false, false, null, null, false, false, false);
               
               //lets sort these by member
               Set<Object[]> sortedResults = new LinkedHashSet<Object[]>();
@@ -4371,20 +4510,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               
             }
           }
-          
-          int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
-          
-          //if -1, lets not check
-          if (maxMemberships >= 0) {
 
-            long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
-            
-            //see if too many
-            if (size > maxMemberships) {
-              throw new RuntimeException("Too many results: " + size);
-            }
-            
-          }
           Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
 
           totalResults.addAll(results);
@@ -4452,12 +4578,34 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       Collection<String> attributeDefIds, Collection<String> memberIds,
       Collection<String> membershipIds, MembershipType membershipType, Collection<Field> fields,
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled,
+      Boolean shouldCheckSecurity, QueryOptions queryOptionsForMember, String filterForMember, 
+      boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForAttributeDef,
+      String scopeForAttributeDef, boolean splitScopeForAttributeDef,
+      boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef) {
+    Set<Object[]> result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
+        membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
+        enabled, shouldCheckSecurity, queryOptionsForMember, filterForMember, splitScopeForMember, hasFieldForMember, hasMembershipTypeForMember, 
+        queryOptionsForAttributeDef, scopeForAttributeDef, 
+        splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
+    return result;
+  }
+
+
+  /**
+   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Set, String, Stem, Scope, Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)
+   */
+  @Override
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(
+      Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType, Collection<Field> fields,
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled,
       Boolean shouldCheckSecurity, QueryOptions queryOptionsForAttributeDef,
       String scopeForAttributeDef, boolean splitScopeForAttributeDef,
       boolean hasFieldForAttributeDef, boolean hasMembershipTypeForAttributeDef) {
     Set<Object[]> result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
         membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
-        enabled, shouldCheckSecurity, queryOptionsForAttributeDef, scopeForAttributeDef, 
+        enabled, shouldCheckSecurity, null, null, false, false, false, queryOptionsForAttributeDef, scopeForAttributeDef, 
         splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
     return result;
   }

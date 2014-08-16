@@ -8,8 +8,11 @@
             </script>
             <c:set var="defaultMemberUnchecked" value="${true}" />
 
-            <%-- for the new group or new stem button --%>
-            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.parentUuid}" />
+            <%-- for the new group or new stem or new attributeDef button --%>
+            <input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" />
+
+            <%-- show the add member button for privileges --%>
+            <c:set target="${grouperRequestContainer.attributeDefContainer}" property="showAddMember" value="true" />
 
             <%@ include file="attributeDefHeader.jsp" %>
 
@@ -21,9 +24,9 @@
                   <li class="active"><a href="#" onclick="return false;" >${textContainer.text['attributeDefPrivilegesTab'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['attributeDefPrivilegesDecription'] }</p>
-                <form class="form-inline form-small form-filter" id="groupFilterPrivilegesFormId">
+                <form class="form-inline form-small form-filter" id="attributeDefFilterPrivilegesFormId">
 
-                  <div class="row-fluid groupPrivilegeAdvancedShow" style="display: none">
+                  <div class="row-fluid attributeDefPrivilegeAdvancedShow" style="display: none">
                     <div class="span1">
                       <label for="table-filter" style="white-space: nowrap;">${textContainer.text['attributeDefPrivilegeFilterFor'] }</label>
                     </div>
@@ -42,7 +45,7 @@
                       </select>
                     </div>
                   </div>
-                  <div class="row-fluid groupPrivilegeAdvancedShow" style="margin-top: 5px; display: none;">
+                  <div class="row-fluid attributeDefPrivilegeAdvancedShow" style="margin-top: 5px; display: none;">
                     <div class="span1">&nbsp;</div>
                     <div class="span4">
                       <select id="people-filter2" name="privilegeMembershipType">
@@ -55,7 +58,7 @@
 
                   <div class="row-fluid" style="margin-top: 5px;">
                     <div class="span1">
-                      <span class="groupPrivilegeAdvancedHide"><label for="table-filter" style="white-space: nowrap;">${textContainer.text['attributeDefPrivilegeFilterFor'] }</label></span>
+                      <span class="attributeDefPrivilegeAdvancedHide"><label for="table-filter" style="white-space: nowrap;">${textContainer.text['attributeDefPrivilegeFilterFor'] }</label></span>
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['attributeDefFilterPrivilegeFormPlaceholder']}" class="span12"

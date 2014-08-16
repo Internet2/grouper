@@ -607,7 +607,14 @@ public class UiV2Group {
         stemName = group.getParentStemName();
       } else {
         Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
-        stemName = stem == null ? null : stem.getName();
+        if (stem != null) {
+          stemName = stem.getName();
+        } else {
+          AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDef();
+          if (attributeDef != null) {
+            stemName = attributeDef.getParentStemName();
+          }
+        }
       }
       
       boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
@@ -789,7 +796,7 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoChangesSuccess")));
 
       }
-      
+
       //clear out the combo
       guiResponseJs.addAction(GuiScreenAction.newScript(
           "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
@@ -867,7 +874,7 @@ public class UiV2Group {
       
       
       filterPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -1168,7 +1175,7 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -1436,7 +1443,7 @@ public class UiV2Group {
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupDeleteSuccess")));
-
+      
       GrouperUserDataApi.recentlyUsedGroupRemove(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -2435,7 +2442,7 @@ public class UiV2Group {
                 loggedInSubject, member);
 
           }
-          
+
           successes++;
         } catch (Exception e) {
           LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
@@ -2455,7 +2462,7 @@ public class UiV2Group {
       }
       
       filterHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -2660,7 +2667,7 @@ public class UiV2Group {
       }
   
       filterThisGroupsGroupPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -2778,7 +2785,7 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsGroupPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -2984,7 +2991,7 @@ public class UiV2Group {
       }
   
       filterThisGroupsStemPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -3094,7 +3101,7 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsStemPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -3386,7 +3393,7 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
   
       filterThisGroupsAttributeDefPrivilegesHelper(request, response, group);
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
@@ -3711,7 +3718,7 @@ public class UiV2Group {
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("groupRemoveMembersSuccess")));
-
+  
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 

@@ -43,7 +43,7 @@
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-                              onclick="ajax('../app/UiV2Group.assignPrivilegeBatch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">Update selected</button>
+                              onclick="ajax('../app/UiV2Group.assignPrivilegeBatch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">${textContainer.text['groupPrivilegesUpdateSelected'] }</button>
                           </div>
                         </div>
                       </td>
@@ -86,13 +86,13 @@
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null 
                                    && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="fa fa-check fa-direct"></i><a title="Remove this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <i class="fa fa-check fa-direct"></i><a title="${textContainer.text['groupPrivilegesTitleRemoveThisPrivilege'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.assignPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="fa fa-times"></i></a>
                               </c:when>
                               <c:otherwise>
                                 <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled"></i></c:if><a  
-                                  title="Assign this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                  title="${textContainer.text['attributeDefPrivilegesTitleAssignThisPrivilege'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.assignPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="fa fa-plus"></i></a>
                               </c:otherwise>
@@ -100,7 +100,7 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupPrivilegesActions']} <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                             
                               <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>

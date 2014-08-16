@@ -6,6 +6,94 @@
                   <div class="span10">
                     <h4>${textContainer.text['attributeDefHeaderAttributeDefinition'] }</h4>
                     <h1><i class="fa fa-cog"></i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.extension)}</h1>
+
+                    <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
+                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                        <h3 id="member-search-label">${textContainer.text['attributeDefSearchForEntityButton'] }</h3>
+                      </div>
+                      <div class="modal-body">
+                        <form class="form form-inline" id="addMemberSearchFormId">
+                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <button class="btn" onclick="ajax('../app/UiV2AttributeDef.addMemberSearch?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'addMemberSearchFormId'}); return false;" >${textContainer.text['attributeDefSearchButton'] }</button>
+                          <br />
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['attributeDefLabelExactIdMatch'] }</span>
+                          <br />
+                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
+                          <select name="sourceId">
+                            <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
+                            <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
+                              <option value="${grouper:escapeHtml(source.id)}">
+                                ${grouper:escapeHtml(source.name) } (
+                                  <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
+                                    <c:if test="${typeStatus.count>1}">, </c:if>
+                                    ${grouper:escapeHtml(subjectType)}
+                                  </c:forEach>
+                                )                               
+                              </option>
+                            </c:forEach>
+                          </select></span>
+                        </form>
+                        <div id="addMemberResults">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['attributeDefSearchCloseButton']}</button>
+                      </div>
+                    </div>
+                    <div id="add-block-container" class="well hide">
+                      <div id="add-members">
+                        <form id="add-members-form" target="#" class="form-horizontal form-highlight">
+                          <div class="control-group">
+                            <label for="add-block-input" class="control-label">${textContainer.text['attributeDefSearchMemberOrId'] }</label>
+                            <div class="controls">
+                              <div id="add-members-container">
+
+                                <%-- placeholder: Enter the name of a person, group, or other entity --%>
+                                <grouper:combobox2 idBase="groupAddMemberCombo" style="width: 30em"
+                                  filterOperation="../app/UiV2AttributeDef.addMemberFilter?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}"/>
+                                ${textContainer.text['attributeDefSearchLabelPreComboLink']} <a href="#member-search" onclick="$('#addMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['attributeDefSearchForEntityLink']}</a>
+                              </div>
+                            </div>
+                          </div>
+                          <div id="add-members-privileges" class="control-group">
+                            <label class="control-label">${textContainer.text['attributeDefViewAssignThesePrivileges']}</label>
+                            <div class="controls">
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrAdmins" value="true" />${textContainer.text['priv.attrAdminUpper'] }
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrUpdaters" value="true" />${textContainer.text['priv.attrUpdateUpper'] }
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrReaders" value="true" />${textContainer.text['priv.attrReadUpper'] }
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrViewers" value="true" />${textContainer.text['priv.attrViewUpper'] }
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrOptins" value="true" />${textContainer.text['priv.attrOptinUpper'] }
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attrOptouts" value="true" />${textContainer.text['priv.attrOptoutUpper'] }
+                              </label>
+                              <label class="checkbox inline">
+                                <input type="checkbox" name="privileges_attributeDefAttrReaders" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
+                              </label>
+                              <label class="checkbox inline" id="attributeDefPrivsErrorId">
+                                <input type="checkbox" name="privileges_attributeDefAttrUpdaters" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
+                              </label>
+                            </div>
+                          </div>
+                          <div class="control-group">
+                            <div class="controls">
+                              <button onclick="ajax('../app/UiV2AttributeDef.addMemberSubmit?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'add-members-form', formIdsOptional: 'attributeDefRefreshPartFormId, attributeDefFilterFormId,attributeDefPagingFormId,attributeDefPagingPrivilegesFormId,attributeDefFilterPrivilegesFormId,attributeDefPagingAuditForm, attributeDefFilterAuditFormId, attributeDefQuerySortAscendingFormId'}); return false;" 
+                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['attributeDefViewAddMemberLink']}</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                      
+                    </div>
                     <p>${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.description)}</p>
                     <div id="attributeDefDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">

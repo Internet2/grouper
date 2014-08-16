@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Internet2
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -1096,7 +1096,7 @@ TODO update for 1.5
    * @return set of immediate memberships that are bad
    */
   public Set<Membership> findBadCompositeMembershipsOnNonCompositeGroup();
-  
+
   /**
    * Find cases where a membership exists where the member is a deleted group.
    * @return set of immediate memberships that are bad
@@ -1178,7 +1178,43 @@ TODO update for 1.5
       Field field,  
       Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
       Boolean shouldCheckSecurity);
-  
+
+  /**
+   * find memberships by stem owner and other options.  
+   * @param attributeDefIds to limit memberships to
+   * @param memberIds to limit memberships to
+   * @param membershipIds to limit memberships to
+   * @param membershipType Immediate, NonImmediate, etc
+   * @param field if finding one field, list here, otherwise all list fields will be returned
+   * @param sources if limiting memberships of members in certain sources, list here
+   * @param scope sql like string which will have a % appended to it
+   * @param stem if looking in a certain stem
+   * @param stemScope if looking only in this stem, or all substems
+   * @param enabled null for all, true for enabled only, false for disabled only
+   * @param shouldCheckSecurity if we should check security, default to true
+   * @param queryOptionsForMember if getting a list of members who have privileges, this is the paging/sorting
+   * @param filterForMember if filtering by member search string
+   * @param splitScopeForMember if splitting scope (by spaces and all terms must be in there)
+   * @param hasFieldForMember if the member has a privilege
+   * @param hasMembershipTypeForMember if the membership type is for member list
+   * @param queryOptionsForAttributeDef if paging for attribute defs, then these are the query options for the overall page
+   * @param scopeForAttributeDef if paging for attribute defs, this is the scope to search for on the attribute defs
+   * @param splitScopeForAttributeDef if scoping and paging for attribute defs, this will split the scope by whitespace
+   * @param hasFieldForAttributeDef if paging by attribute def you can look for a specific field for the attribute defs
+   * and then all fields for the resulting attribute defs
+   * @param hasMembershipTypeForAttributeDef if paging for attribute defs, this is the membership type
+   * @return a set of membership, stem, and member objects
+   * @since v2.2
+   */
+  public Set<Object[]> findAllByAttributeDefOwnerOptions(Collection<String> attributeDefIds, Collection<String> memberIds,
+      Collection<String> membershipIds, MembershipType membershipType,
+      Collection<Field> field,  
+      Set<Source> sources, String scope, Stem stem, Scope stemScope, Boolean enabled, 
+      Boolean shouldCheckSecurity, QueryOptions queryOptionsForMember, String filterForMember, 
+      boolean splitScopeForMember, 
+      boolean hasFieldForMember, boolean hasMembershipTypeForMember, QueryOptions queryOptionsForAttributeDef, 
+      String scopeForAttributeDef, boolean splitScopeForAttributeDef, boolean hasFieldForAttributeDef,
+      boolean hasMembershipTypeForAttributeDef);
 
   /**
    * find memberships by stem owner and other options.  

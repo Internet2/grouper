@@ -17,7 +17,7 @@
                           <div class="span4">
 
                             <select id="people-update" class="span12" name="attributeDefPrivilegeBatchUpdateOperation">
-                              <%-- create group should be the default, so list it first --%>
+
                               <option value="assign_attrAdmins">${textContainer.text['attributeDefPrivilegesAssignAttrAdminPrivilege'] }</option>
                               <option value="assign_attrUpdaters">${textContainer.text['attributeDefPrivilegesAssignAttrUpdatePrivilege'] }</option>
                               <option value="assign_attrReadersAttrUpdaters">${textContainer.text['attributeDefPrivilegesAssignAttrReadUpdatePrivilege'] }</option>
@@ -29,7 +29,7 @@
                               <option value="assign_attrOptouts">${textContainer.text['attributeDefPrivilegesAssignAttrOptoutPrivilege'] }</option>
                               <option value="revoke_attrAdmins">${textContainer.text['attributeDefPrivilegesRevokeAttrAdminPrivilege'] }</option>
                               <option value="revoke_attrUpdaters">${textContainer.text['attributeDefPrivilegesRevokeAttrUpdatePrivilege'] }</option>
-                              <option value="revoke_attrReadersAttrUpdaters">${textContainer.text['groupPrivilegesRevokeReadUpdatePrivilege'] }</option>
+                              <option value="revoke_attrReadersAttrUpdaters">${textContainer.text['attributeDefPrivilegesRevokeAttrReadUpdatePrivilege'] }</option>
                               <option value="revoke_attrReaders">${textContainer.text['attributeDefPrivilegesRevokeAttrReadPrivilege'] }</option>
                               <option value="revoke_attrViewers">${textContainer.text['attributeDefPrivilegesRevokeAttrViewPrivilege'] }</option>
                               <option value="revoke_attributeDefAttrReaders">${textContainer.text['attributeDefPrivilegesRevokeAttrDefAttributeReadPrivilege'] }</option>
@@ -42,7 +42,7 @@
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-                              onclick="ajax('../app/UiV2Group.assignPrivilegeBatch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId,groupPrivilegeFormId'}); return false;">Update selected</button>
+                              onclick="ajax('../app/UiV2AttributeDef.assignPrivilegeBatch?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterPrivilegesFormId,attributeDefPagingPrivilegesFormId,attributeDefPagingPrivilegesFormPageNumberId,attributeDefPrivilegeFormId'}); return false;">${textContainer.text['attributeDefPrivilegesUpdateSelected'] }</button>
                           </div>
                         </div>
                       </td>
@@ -54,20 +54,20 @@
                         </label>
                       </th>
                       <th class="sorted" style="width: 35em">Entity name</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAdmin'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colRead'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colUpdate'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colOptin'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colOptout'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttributeRead'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttributeUpdate'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colView'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrAdmin'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrRead'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrUpdate'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrOptin'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrOptout'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrDefAttributeRead'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrDefAttributeUpdate'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colAttrView'] }</th>
                       <th style="width:100px;"></th>
                     </tr>
                   </thead>
                   <tbody>
                     <c:set var="i" value="0" />
-                    <c:forEach  items="${grouperRequestContainer.groupContainer.privilegeGuiMembershipSubjectContainers}" 
+                    <c:forEach  items="${grouperRequestContainer.attributeDefContainer.privilegeGuiMembershipSubjectContainers}" 
                         var="guiMembershipSubjectContainer" >
                       <tr>
                         <td>
@@ -77,37 +77,36 @@
                         </td>
                         <td class="expand foo-clicker" style="white-space: nowrap">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}
                         </td>
-                        <%-- loop through the fields for groups --%>
-                        <c:forEach items="admins,readers,updaters,optins,optouts,groupAttrReaders,groupAttrUpdaters,viewers" var="fieldName">
+                        <%-- loop through the fields for attributeDefs --%>
+                        <c:forEach items="attrAdmins,attrReaders,attrUpdaters,attrOptins,attrOptouts,attrDefAttrReaders,attrDefAttrUpdaters,attrViewers" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null 
                                    && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="fa fa-check fa-direct"></i><a title="Remove this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
-                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.assignPrivilege?assign=false&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
+                                <i class="fa fa-check fa-direct"></i><a title="${textContainer.text['attributeDefPrivilegesTitleRemoveThisPrivilege'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['attributeDefConfirmChanges']}')) {ajax('../app/UiV2AttributeDef.assignPrivilege?assign=false&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'attributeDefFilterPrivilegesFormId,attributeDefPagingPrivilegesFormId,attributeDefPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="fa fa-times"></i></a>
                               </c:when>
                               <c:otherwise>
                                 <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled"></i></c:if><a  
-                                  title="Assign this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
-                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['groupConfirmChanges']}')) {ajax('../app/UiV2Group.assignPrivilege?assign=true&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId,groupPagingPrivilegesFormPageNumberId'});} return false;"
+                                  title="${textContainer.text['attributeDefPrivilegesTitleAssignThisPrivilege'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                   onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['attributeDefConfirmChanges']}')) {ajax('../app/UiV2AttributeDef.assignPrivilege?assign=true&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'attributeDefFilterPrivilegesFormId,attributeDefPagingPrivilegesFormId,attributeDefPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="fa fa-plus"></i></a>
                               </c:otherwise>
                             </c:choose>
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['attributeDefPrivilegesActions'] } <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                             
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['attributeDefViewEditMembershipsAndPrivilegesButton'] }</a></li>
                             
                               <c:if test="${guiMembershipSubjectContainer.membershipSubjectContainer.hasNonImmediate}">
-                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceGroupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['groupViewTracePrivilegeButton'] }</a></li>
+                                <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceAttributeDefPrivileges&groupId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['attributeDefViewTracePrivilegeButton'] }</a></li>
                               </c:if>
-                              </li>
                             </ul>
                           </div>
                         </td>
@@ -118,8 +117,8 @@
                 </table>
               </form>
               <div class="data-table-bottom gradient-background">
-                <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.privilegeGuiPaging}" formName="groupPagingPrivilegesForm" ajaxFormIds="groupFilterPrivilegesFormId"
-                    refreshOperation="../app/UiV2Group.filterPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+                <grouper:paging2 guiPaging="${grouperRequestContainer.attributeDefContainer.privilegeGuiPaging}" formName="attributeDefPagingPrivilegesForm" ajaxFormIds="attributeDefFilterPrivilegesFormId"
+                    refreshOperation="../app/UiV2AttributeDef.filterPrivileges?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}" />
               </div>     
  
  

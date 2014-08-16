@@ -20,12 +20,12 @@
                           <c:when test="${grouperRequestContainer.stemContainer.favorite}">
                             <li><a href="#" 
                             onclick="ajax('../app/UiV2Stem.removeFromMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" 
-                            >Remove from my favorites</a></li>
+                            >${textContainer.text['stemViewMoreActionsRemoveFromMyFavorites'] }</a></li>
                           </c:when>
                           <c:otherwise>
                             <li><a href="#" 
                             onclick="ajax('../app/UiV2Stem.addToMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" 
-                            >Add to my favorites</a></li>
+                            >${textContainer.text['stemViewMoreActionsAddToMyFavorites'] }</a></li>
                           </c:otherwise>
                         </c:choose>
 

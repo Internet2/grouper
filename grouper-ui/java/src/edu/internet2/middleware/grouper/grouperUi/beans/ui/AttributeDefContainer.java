@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
@@ -26,6 +27,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -123,6 +127,16 @@ public class AttributeDefContainer {
    * how many successes
    */
   private int successCount;
+
+  /**
+   * gui paging for privileges
+   */
+  private GuiPaging privilegeGuiPaging;
+
+  /**
+   * if the stem is a favorite for the logged in user
+   */
+  private Boolean favorite;
 
   /**
    * gui attribute def from url
@@ -314,6 +328,52 @@ public class AttributeDefContainer {
    */
   public void setSuccessCount(int successCount1) {
     this.successCount = successCount1;
+  }
+
+  /**
+   * gui paging for privileges, lazy load if null
+   * @return gui paging for privs
+   */
+  public GuiPaging getPrivilegeGuiPaging() {
+    if (this.privilegeGuiPaging == null) {
+      this.privilegeGuiPaging = new GuiPaging();
+    }
+    return this.privilegeGuiPaging;
+  }
+
+  /**
+   * gui paging for privileges
+   * @param privilegeGuiPaging1
+   */
+  public void setPrivilegeGuiPaging(GuiPaging privilegeGuiPaging1) {
+    this.privilegeGuiPaging = privilegeGuiPaging1;
+  }
+
+  /**
+   * if the stem is a favorite for the logged in user
+   * @return if favorite
+   */
+  public boolean isFavorite() {
+    
+    if (this.favorite == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+      this.favorite = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              
+              Set<AttributeDef> favorites = GrouperUtil.nonNull(
+                  GrouperUserDataApi.favoriteAttributeDefs(GrouperUiUserData.grouperUiGroupNameForUserData(), loggedInSubject));
+              return favorites.contains(AttributeDefContainer.this.getGuiAttributeDef().getAttributeDef());
+                  
+            }
+          });
+    }
+    
+    return this.favorite;
   }
   
   

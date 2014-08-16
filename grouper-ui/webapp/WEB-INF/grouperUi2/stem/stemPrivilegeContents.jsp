@@ -26,7 +26,7 @@
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-                              onclick="ajax('../app/UiV2Stem.assignPrivilegeBatch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId,stemPrivilegeFormId'}); return false;">Update selected</button>
+                              onclick="ajax('../app/UiV2Stem.assignPrivilegeBatch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId,stemPrivilegeFormId'}); return false;">${textContainer.text['stemPrivilegesUpdateSelected'] }</button>
                           </div>
                         </div>
                       </td>
@@ -65,13 +65,13 @@
                             <%-- if there is a container, then there is an assignment of some sort... --%>
                             <c:choose>
                               <c:when test="${guiMembershipContainer != null && guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                <i class="fa fa-check fa-direct"></i><a title="Remove this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                <i class="fa fa-check fa-direct"></i><a title="${textContainer.text['stemPrivilegesTitleRemoveThisPrivilege'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['stemConfirmChanges']}')) {ajax('../app/UiV2Stem.assignPrivilege?assign=false&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="fa fa-times"></i></a>
                               </c:when>
                               <c:otherwise>
                                 <c:if test="${guiMembershipContainer != null}"><i class="fa fa-check fa-disabled"></i></c:if><a  
-                                  title="Assign this privilege" class="btn btn-inverse btn-super-mini remove" href="#" 
+                                  title="${textContainer.text['attributeDefPrivilegesTitleAssignThisPrivilege'] }" class="btn btn-inverse btn-super-mini remove" href="#" 
                                    onclick="if (confirmChange('${textContainer.textEscapeSingleDouble['stemConfirmChanges']}')) {ajax('../app/UiV2Stem.assignPrivilege?assign=true&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&fieldName=${fieldName}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId'});} return false;"
                                   ><i class="fa fa-plus"></i></a>
                               </c:otherwise>
@@ -79,7 +79,7 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['stemPrivilegesActions'] } <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
                                 <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceStemPrivileges&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>

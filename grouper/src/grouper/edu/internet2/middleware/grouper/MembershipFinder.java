@@ -1,12 +1,12 @@
 /**
  * Copyright 2014 Internet2
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -177,7 +177,7 @@ public class MembershipFinder {
   public MembershipFinder assignField(Field theField) {
     this.fields.clear();
     if (theField != null) {
-      this.fields.add(theField);
+    this.fields.add(theField);
     }
     return this;
   }
@@ -952,7 +952,8 @@ public class MembershipFinder {
 
     Set<Object[]> result = GrouperDAOFactory.getFactory().getMembership().findAllByAttributeDefOwnerOptions(this.attributeDefIds, this.memberIds,
         this.membershipIds, this.membershipType, inheritedFields, this.sources, this.scope, this.stem, this.stemScope, 
-        this.enabled, this.checkSecurity, 
+        this.enabled, this.checkSecurity, this.queryOptionsForMember, this.scopeForMember, this.splitScopeForMember, 
+        this.hasFieldForMember, this.hasMembershipTypeForMember,
         this.queryOptionsForAttributeDef, this.scopeForAttributeDef, this.splitScopeForAttributeDef, this.hasFieldForAttributeDef, 
         this.hasMembershipTypeForAttributeDef);  
     return result;
