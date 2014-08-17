@@ -8,13 +8,13 @@
 <div id="overview"><a href="../../../../../../../../apidocs/edu/internet2/middleware/grouper/internal/dao/hib3/Hib3MembershipDAO.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Copyright 2014 Internet2</em>
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Licensed under the Apache License, Version 2.0 (the "License");</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
@@ -929,7 +929,7 @@
 <a class="jxr_linenumber" name="L921" href="#L921">921</a>             <strong class="jxr_keyword">boolean</strong> pageMembers = queryOptionsForMember != <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L922" href="#L922">922</a>             
 <a class="jxr_linenumber" name="L923" href="#L923">923</a>             <strong class="jxr_keyword">if</strong> (pageMembers) {
-<a class="jxr_linenumber" name="L924" href="#L924">924</a>   
+<a class="jxr_linenumber" name="L924" href="#L924">924</a> 
 <a class="jxr_linenumber" name="L925" href="#L925">925</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForMember.getQueryPaging() == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L926" href="#L926">926</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If paging by member, then paging must be set in the query options"</span>);
 <a class="jxr_linenumber" name="L927" href="#L927">927</a>               }
@@ -4008,469 +4008,617 @@
 <a class="jxr_linenumber" name="L4000" href="#L4000">4000</a>               
 <a class="jxr_linenumber" name="L4001" href="#L4001">4001</a>               Set&lt;String&gt; theStemIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
 <a class="jxr_linenumber" name="L4002" href="#L4002">4002</a>               
-<a class="jxr_linenumber" name="L4003" href="#L4003">4003</a>               <em class="jxr_comment">//dont pass for people with membership type or field... we already filtered by that...</em>
-<a class="jxr_linenumber" name="L4004" href="#L4004">4004</a>               Set&lt;Object[]&gt; tempResults = findAllByStemOwnerOptionsHelper(theStemIds, totalMemberIds,
-<a class="jxr_linenumber" name="L4005" href="#L4005">4005</a>                   totalMembershipIds, hasMembershipTypeForStem ? <strong class="jxr_keyword">null</strong> : membershipType, hasFieldForStem ? <strong class="jxr_keyword">null</strong> : fields,  
-<a class="jxr_linenumber" name="L4006" href="#L4006">4006</a>                   sources, scope, stem, stemScope, enabled, checkSecurity, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false, 
-<a class="jxr_linenumber" name="L4007" href="#L4007">4007</a>                   <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
-<a class="jxr_linenumber" name="L4008" href="#L4008">4008</a>               
-<a class="jxr_linenumber" name="L4009" href="#L4009">4009</a>               <em class="jxr_comment">//lets sort these by member</em>
-<a class="jxr_linenumber" name="L4010" href="#L4010">4010</a>               Set&lt;Object[]&gt; sortedResults = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Object[]&gt;();
-<a class="jxr_linenumber" name="L4011" href="#L4011">4011</a>               
-<a class="jxr_linenumber" name="L4012" href="#L4012">4012</a>               <strong class="jxr_keyword">for</strong> (Stem theStem : stems) {
-<a class="jxr_linenumber" name="L4013" href="#L4013">4013</a>                 Iterator&lt;Object[]&gt; iterator = tempResults.iterator();
-<a class="jxr_linenumber" name="L4014" href="#L4014">4014</a>                 <strong class="jxr_keyword">while</strong>(iterator.hasNext()) {
-<a class="jxr_linenumber" name="L4015" href="#L4015">4015</a>                   
-<a class="jxr_linenumber" name="L4016" href="#L4016">4016</a>                   Object[] tempResult = iterator.next();
-<a class="jxr_linenumber" name="L4017" href="#L4017">4017</a>                   <em class="jxr_comment">//if the member is the same, put it in the sortedResults, and remove</em>
-<a class="jxr_linenumber" name="L4018" href="#L4018">4018</a>                   <strong class="jxr_keyword">if</strong> (StringUtils.equals(((Stem)tempResult[1]).getUuid(), theStem.getUuid())) {
-<a class="jxr_linenumber" name="L4019" href="#L4019">4019</a>                     
-<a class="jxr_linenumber" name="L4020" href="#L4020">4020</a>                     sortedResults.add(tempResult);
-<a class="jxr_linenumber" name="L4021" href="#L4021">4021</a>                     iterator.remove();
-<a class="jxr_linenumber" name="L4022" href="#L4022">4022</a>                     
-<a class="jxr_linenumber" name="L4023" href="#L4023">4023</a>                   }
-<a class="jxr_linenumber" name="L4024" href="#L4024">4024</a>                 }
-<a class="jxr_linenumber" name="L4025" href="#L4025">4025</a>               }
-<a class="jxr_linenumber" name="L4026" href="#L4026">4026</a> 
-<a class="jxr_linenumber" name="L4027" href="#L4027">4027</a>               <strong class="jxr_keyword">return</strong> sortedResults;
-<a class="jxr_linenumber" name="L4028" href="#L4028">4028</a>               
-<a class="jxr_linenumber" name="L4029" href="#L4029">4029</a>             }
-<a class="jxr_linenumber" name="L4030" href="#L4030">4030</a> 
-<a class="jxr_linenumber" name="L4031" href="#L4031">4031</a>             
-<a class="jxr_linenumber" name="L4032" href="#L4032">4032</a>           }
-<a class="jxr_linenumber" name="L4033" href="#L4033">4033</a>           
-<a class="jxr_linenumber" name="L4034" href="#L4034">4034</a>           Set&lt;Object[]&gt; results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L4035" href="#L4035">4035</a>   
-<a class="jxr_linenumber" name="L4036" href="#L4036">4036</a>           totalResults.addAll(results);
-<a class="jxr_linenumber" name="L4037" href="#L4037">4037</a>           
-<a class="jxr_linenumber" name="L4038" href="#L4038">4038</a>         }
-<a class="jxr_linenumber" name="L4039" href="#L4039">4039</a>       }
-<a class="jxr_linenumber" name="L4040" href="#L4040">4040</a>     }
-<a class="jxr_linenumber" name="L4041" href="#L4041">4041</a>     
-<a class="jxr_linenumber" name="L4042" href="#L4042">4042</a>     
-<a class="jxr_linenumber" name="L4043" href="#L4043">4043</a>     <em class="jxr_comment">//nothing to filter</em>
-<a class="jxr_linenumber" name="L4044" href="#L4044">4044</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(totalResults) == 0) {
-<a class="jxr_linenumber" name="L4045" href="#L4045">4045</a>       <strong class="jxr_keyword">return</strong> totalResults;
-<a class="jxr_linenumber" name="L4046" href="#L4046">4046</a>     }
+<a class="jxr_linenumber" name="L4003" href="#L4003">4003</a>               <em class="jxr_comment">//MCH 20140811 this was in the group and attrDef one, adding it here</em>
+<a class="jxr_linenumber" name="L4004" href="#L4004">4004</a>               <strong class="jxr_keyword">for</strong> (Stem theStem : stems) {
+<a class="jxr_linenumber" name="L4005" href="#L4005">4005</a>                 theStemIds.add(theStem.getUuid());
+<a class="jxr_linenumber" name="L4006" href="#L4006">4006</a>               }
+<a class="jxr_linenumber" name="L4007" href="#L4007">4007</a>                             
+<a class="jxr_linenumber" name="L4008" href="#L4008">4008</a>               <em class="jxr_comment">//dont pass for people with membership type or field... we already filtered by that...</em>
+<a class="jxr_linenumber" name="L4009" href="#L4009">4009</a>               Set&lt;Object[]&gt; tempResults = findAllByStemOwnerOptionsHelper(theStemIds, totalMemberIds,
+<a class="jxr_linenumber" name="L4010" href="#L4010">4010</a>                   totalMembershipIds, hasMembershipTypeForStem ? <strong class="jxr_keyword">null</strong> : membershipType, hasFieldForStem ? <strong class="jxr_keyword">null</strong> : fields,  
+<a class="jxr_linenumber" name="L4011" href="#L4011">4011</a>                   sources, scope, stem, stemScope, enabled, checkSecurity, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false, 
+<a class="jxr_linenumber" name="L4012" href="#L4012">4012</a>                   <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
+<a class="jxr_linenumber" name="L4013" href="#L4013">4013</a>               
+<a class="jxr_linenumber" name="L4014" href="#L4014">4014</a>               <em class="jxr_comment">//lets sort these by member</em>
+<a class="jxr_linenumber" name="L4015" href="#L4015">4015</a>               Set&lt;Object[]&gt; sortedResults = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Object[]&gt;();
+<a class="jxr_linenumber" name="L4016" href="#L4016">4016</a>               
+<a class="jxr_linenumber" name="L4017" href="#L4017">4017</a>               <strong class="jxr_keyword">for</strong> (Stem theStem : stems) {
+<a class="jxr_linenumber" name="L4018" href="#L4018">4018</a>                 Iterator&lt;Object[]&gt; iterator = tempResults.iterator();
+<a class="jxr_linenumber" name="L4019" href="#L4019">4019</a>                 <strong class="jxr_keyword">while</strong>(iterator.hasNext()) {
+<a class="jxr_linenumber" name="L4020" href="#L4020">4020</a>                   
+<a class="jxr_linenumber" name="L4021" href="#L4021">4021</a>                   Object[] tempResult = iterator.next();
+<a class="jxr_linenumber" name="L4022" href="#L4022">4022</a>                   <em class="jxr_comment">//if the member is the same, put it in the sortedResults, and remove</em>
+<a class="jxr_linenumber" name="L4023" href="#L4023">4023</a>                   <strong class="jxr_keyword">if</strong> (StringUtils.equals(((Stem)tempResult[1]).getUuid(), theStem.getUuid())) {
+<a class="jxr_linenumber" name="L4024" href="#L4024">4024</a>                     
+<a class="jxr_linenumber" name="L4025" href="#L4025">4025</a>                     sortedResults.add(tempResult);
+<a class="jxr_linenumber" name="L4026" href="#L4026">4026</a>                     iterator.remove();
+<a class="jxr_linenumber" name="L4027" href="#L4027">4027</a>                     
+<a class="jxr_linenumber" name="L4028" href="#L4028">4028</a>                   }
+<a class="jxr_linenumber" name="L4029" href="#L4029">4029</a>                 }
+<a class="jxr_linenumber" name="L4030" href="#L4030">4030</a>               }
+<a class="jxr_linenumber" name="L4031" href="#L4031">4031</a> 
+<a class="jxr_linenumber" name="L4032" href="#L4032">4032</a>               <strong class="jxr_keyword">return</strong> sortedResults;
+<a class="jxr_linenumber" name="L4033" href="#L4033">4033</a>               
+<a class="jxr_linenumber" name="L4034" href="#L4034">4034</a>             }
+<a class="jxr_linenumber" name="L4035" href="#L4035">4035</a> 
+<a class="jxr_linenumber" name="L4036" href="#L4036">4036</a>             
+<a class="jxr_linenumber" name="L4037" href="#L4037">4037</a>           }
+<a class="jxr_linenumber" name="L4038" href="#L4038">4038</a>           
+<a class="jxr_linenumber" name="L4039" href="#L4039">4039</a>           Set&lt;Object[]&gt; results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L4040" href="#L4040">4040</a>   
+<a class="jxr_linenumber" name="L4041" href="#L4041">4041</a>           totalResults.addAll(results);
+<a class="jxr_linenumber" name="L4042" href="#L4042">4042</a>           
+<a class="jxr_linenumber" name="L4043" href="#L4043">4043</a>         }
+<a class="jxr_linenumber" name="L4044" href="#L4044">4044</a>       }
+<a class="jxr_linenumber" name="L4045" href="#L4045">4045</a>     }
+<a class="jxr_linenumber" name="L4046" href="#L4046">4046</a>     
 <a class="jxr_linenumber" name="L4047" href="#L4047">4047</a>     
-<a class="jxr_linenumber" name="L4048" href="#L4048">4048</a>     <em class="jxr_comment">//if the hql didnt filter, we need to do that here</em>
-<a class="jxr_linenumber" name="L4049" href="#L4049">4049</a>     Set&lt;Membership&gt; memberships = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Membership&gt;();
-<a class="jxr_linenumber" name="L4050" href="#L4050">4050</a>     <strong class="jxr_keyword">for</strong> (Object[] objects : totalResults) {
-<a class="jxr_linenumber" name="L4051" href="#L4051">4051</a>       memberships.add((Membership)objects[0]);
-<a class="jxr_linenumber" name="L4052" href="#L4052">4052</a>     }
-<a class="jxr_linenumber" name="L4053" href="#L4053">4053</a>     <strong class="jxr_keyword">int</strong> origMembershipsSize = memberships.size();
-<a class="jxr_linenumber" name="L4054" href="#L4054">4054</a>     Set&lt;Membership&gt; filteredMemberships = grouperSession.getAccessResolver().postHqlFilterMemberships(grouperSessionSubject, memberships);
-<a class="jxr_linenumber" name="L4055" href="#L4055">4055</a>     <strong class="jxr_keyword">if</strong> (origMembershipsSize != filteredMemberships.size()) {
-<a class="jxr_linenumber" name="L4056" href="#L4056">4056</a>       
-<a class="jxr_linenumber" name="L4057" href="#L4057">4057</a>       <em class="jxr_comment">//we have work to do</em>
-<a class="jxr_linenumber" name="L4058" href="#L4058">4058</a>       Iterator&lt;Object[]&gt; iterator = totalResults.iterator();
-<a class="jxr_linenumber" name="L4059" href="#L4059">4059</a>       <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
-<a class="jxr_linenumber" name="L4060" href="#L4060">4060</a>         Object[] row = iterator.next();
-<a class="jxr_linenumber" name="L4061" href="#L4061">4061</a>         <a href="../../../../../../../edu/internet2/middleware/grouper/Membership.html">Membership</a> currentMembership = (Membership)row[0];
-<a class="jxr_linenumber" name="L4062" href="#L4062">4062</a>         <em class="jxr_comment">//if not in the allowed list</em>
-<a class="jxr_linenumber" name="L4063" href="#L4063">4063</a>         <strong class="jxr_keyword">if</strong> (!filteredMemberships.contains(currentMembership)) {
-<a class="jxr_linenumber" name="L4064" href="#L4064">4064</a>           <em class="jxr_comment">//remove the object row</em>
-<a class="jxr_linenumber" name="L4065" href="#L4065">4065</a>           iterator.remove();
-<a class="jxr_linenumber" name="L4066" href="#L4066">4066</a>         }
-<a class="jxr_linenumber" name="L4067" href="#L4067">4067</a>       }
-<a class="jxr_linenumber" name="L4068" href="#L4068">4068</a>     }
-<a class="jxr_linenumber" name="L4069" href="#L4069">4069</a> 
-<a class="jxr_linenumber" name="L4070" href="#L4070">4070</a>     assignMembersOwnersToMemberships(totalResults);
-<a class="jxr_linenumber" name="L4071" href="#L4071">4071</a> 
-<a class="jxr_linenumber" name="L4072" href="#L4072">4072</a>     <em class="jxr_comment">//we should be down to the cesure list</em>
-<a class="jxr_linenumber" name="L4073" href="#L4073">4073</a>     <strong class="jxr_keyword">return</strong> totalResults;
-<a class="jxr_linenumber" name="L4074" href="#L4074">4074</a>     
-<a class="jxr_linenumber" name="L4075" href="#L4075">4075</a>   }
+<a class="jxr_linenumber" name="L4048" href="#L4048">4048</a>     <em class="jxr_comment">//nothing to filter</em>
+<a class="jxr_linenumber" name="L4049" href="#L4049">4049</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(totalResults) == 0) {
+<a class="jxr_linenumber" name="L4050" href="#L4050">4050</a>       <strong class="jxr_keyword">return</strong> totalResults;
+<a class="jxr_linenumber" name="L4051" href="#L4051">4051</a>     }
+<a class="jxr_linenumber" name="L4052" href="#L4052">4052</a>     
+<a class="jxr_linenumber" name="L4053" href="#L4053">4053</a>     <em class="jxr_comment">//if the hql didnt filter, we need to do that here</em>
+<a class="jxr_linenumber" name="L4054" href="#L4054">4054</a>     Set&lt;Membership&gt; memberships = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Membership&gt;();
+<a class="jxr_linenumber" name="L4055" href="#L4055">4055</a>     <strong class="jxr_keyword">for</strong> (Object[] objects : totalResults) {
+<a class="jxr_linenumber" name="L4056" href="#L4056">4056</a>       memberships.add((Membership)objects[0]);
+<a class="jxr_linenumber" name="L4057" href="#L4057">4057</a>     }
+<a class="jxr_linenumber" name="L4058" href="#L4058">4058</a>     <strong class="jxr_keyword">int</strong> origMembershipsSize = memberships.size();
+<a class="jxr_linenumber" name="L4059" href="#L4059">4059</a>     Set&lt;Membership&gt; filteredMemberships = grouperSession.getAccessResolver().postHqlFilterMemberships(grouperSessionSubject, memberships);
+<a class="jxr_linenumber" name="L4060" href="#L4060">4060</a>     <strong class="jxr_keyword">if</strong> (origMembershipsSize != filteredMemberships.size()) {
+<a class="jxr_linenumber" name="L4061" href="#L4061">4061</a>       
+<a class="jxr_linenumber" name="L4062" href="#L4062">4062</a>       <em class="jxr_comment">//we have work to do</em>
+<a class="jxr_linenumber" name="L4063" href="#L4063">4063</a>       Iterator&lt;Object[]&gt; iterator = totalResults.iterator();
+<a class="jxr_linenumber" name="L4064" href="#L4064">4064</a>       <strong class="jxr_keyword">while</strong> (iterator.hasNext()) {
+<a class="jxr_linenumber" name="L4065" href="#L4065">4065</a>         Object[] row = iterator.next();
+<a class="jxr_linenumber" name="L4066" href="#L4066">4066</a>         <a href="../../../../../../../edu/internet2/middleware/grouper/Membership.html">Membership</a> currentMembership = (Membership)row[0];
+<a class="jxr_linenumber" name="L4067" href="#L4067">4067</a>         <em class="jxr_comment">//if not in the allowed list</em>
+<a class="jxr_linenumber" name="L4068" href="#L4068">4068</a>         <strong class="jxr_keyword">if</strong> (!filteredMemberships.contains(currentMembership)) {
+<a class="jxr_linenumber" name="L4069" href="#L4069">4069</a>           <em class="jxr_comment">//remove the object row</em>
+<a class="jxr_linenumber" name="L4070" href="#L4070">4070</a>           iterator.remove();
+<a class="jxr_linenumber" name="L4071" href="#L4071">4071</a>         }
+<a class="jxr_linenumber" name="L4072" href="#L4072">4072</a>       }
+<a class="jxr_linenumber" name="L4073" href="#L4073">4073</a>     }
+<a class="jxr_linenumber" name="L4074" href="#L4074">4074</a> 
+<a class="jxr_linenumber" name="L4075" href="#L4075">4075</a>     assignMembersOwnersToMemberships(totalResults);
 <a class="jxr_linenumber" name="L4076" href="#L4076">4076</a> 
-<a class="jxr_linenumber" name="L4077" href="#L4077">4077</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4078" href="#L4078">4078</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Field, Set, String, Stem, Scope, Boolean, Boolean)</em>
-<a class="jxr_linenumber" name="L4079" href="#L4079">4079</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L4080" href="#L4080">4080</a>   @Override
-<a class="jxr_linenumber" name="L4081" href="#L4081">4081</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(
-<a class="jxr_linenumber" name="L4082" href="#L4082">4082</a>       Collection&lt;String&gt; totalAttributeDefIds, Collection&lt;String&gt; totalMemberIds,
-<a class="jxr_linenumber" name="L4083" href="#L4083">4083</a>       Collection&lt;String&gt; totalMembershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, <a href="../../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field,
-<a class="jxr_linenumber" name="L4084" href="#L4084">4084</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
-<a class="jxr_linenumber" name="L4085" href="#L4085">4085</a>       Boolean checkSecurity) {
-<a class="jxr_linenumber" name="L4086" href="#L4086">4086</a>     <strong class="jxr_keyword">return</strong> findAllByAttributeDefOwnerOptionsHelper(totalAttributeDefIds, totalMemberIds,
-<a class="jxr_linenumber" name="L4087" href="#L4087">4087</a>         totalMembershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, 
-<a class="jxr_linenumber" name="L4088" href="#L4088">4088</a>         stem, stemScope, enabled, checkSecurity, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
-<a class="jxr_linenumber" name="L4089" href="#L4089">4089</a>   }
-<a class="jxr_linenumber" name="L4090" href="#L4090">4090</a> 
-<a class="jxr_linenumber" name="L4091" href="#L4091">4091</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4092" href="#L4092">4092</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Field, Set, String, Stem, Scope, Boolean, Boolean)</em>
-<a class="jxr_linenumber" name="L4093" href="#L4093">4093</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L4094" href="#L4094">4094</a>   <strong class="jxr_keyword">private</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptionsHelper(
-<a class="jxr_linenumber" name="L4095" href="#L4095">4095</a>       Collection&lt;String&gt; totalAttributeDefIds, Collection&lt;String&gt; totalMemberIds,
-<a class="jxr_linenumber" name="L4096" href="#L4096">4096</a>       Collection&lt;String&gt; totalMembershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, 
-<a class="jxr_linenumber" name="L4097" href="#L4097">4097</a>       Collection&lt;Field&gt; fields,
-<a class="jxr_linenumber" name="L4098" href="#L4098">4098</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
-<a class="jxr_linenumber" name="L4099" href="#L4099">4099</a>       Boolean checkSecurity, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef,
-<a class="jxr_linenumber" name="L4100" href="#L4100">4100</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef,
-<a class="jxr_linenumber" name="L4101" href="#L4101">4101</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef) {
-<a class="jxr_linenumber" name="L4102" href="#L4102">4102</a> 
-<a class="jxr_linenumber" name="L4103" href="#L4103">4103</a>     QueryOptions.initTotalCount(queryOptionsForAttributeDef);
-<a class="jxr_linenumber" name="L4104" href="#L4104">4104</a> 
-<a class="jxr_linenumber" name="L4105" href="#L4105">4105</a>     <strong class="jxr_keyword">if</strong> (checkSecurity == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L4106" href="#L4106">4106</a>       checkSecurity = Boolean.TRUE;
-<a class="jxr_linenumber" name="L4107" href="#L4107">4107</a>     }
-<a class="jxr_linenumber" name="L4108" href="#L4108">4108</a>     
-<a class="jxr_linenumber" name="L4109" href="#L4109">4109</a>     <strong class="jxr_keyword">if</strong> ((stem == <strong class="jxr_keyword">null</strong>) != (stemScope == <strong class="jxr_keyword">null</strong>)) {
-<a class="jxr_linenumber" name="L4110" href="#L4110">4110</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: "</span> + stem + <span class="jxr_string">", "</span> + stemScope);
-<a class="jxr_linenumber" name="L4111" href="#L4111">4111</a>     }
+<a class="jxr_linenumber" name="L4077" href="#L4077">4077</a>     <em class="jxr_comment">//we should be down to the cesure list</em>
+<a class="jxr_linenumber" name="L4078" href="#L4078">4078</a>     <strong class="jxr_keyword">return</strong> totalResults;
+<a class="jxr_linenumber" name="L4079" href="#L4079">4079</a>     
+<a class="jxr_linenumber" name="L4080" href="#L4080">4080</a>   }
+<a class="jxr_linenumber" name="L4081" href="#L4081">4081</a> 
+<a class="jxr_linenumber" name="L4082" href="#L4082">4082</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4083" href="#L4083">4083</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Field, Set, String, Stem, Scope, Boolean, Boolean)</em>
+<a class="jxr_linenumber" name="L4084" href="#L4084">4084</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4085" href="#L4085">4085</a>   @Override
+<a class="jxr_linenumber" name="L4086" href="#L4086">4086</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(
+<a class="jxr_linenumber" name="L4087" href="#L4087">4087</a>       Collection&lt;String&gt; totalAttributeDefIds, Collection&lt;String&gt; totalMemberIds,
+<a class="jxr_linenumber" name="L4088" href="#L4088">4088</a>       Collection&lt;String&gt; totalMembershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, <a href="../../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field,
+<a class="jxr_linenumber" name="L4089" href="#L4089">4089</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
+<a class="jxr_linenumber" name="L4090" href="#L4090">4090</a>       Boolean checkSecurity) {
+<a class="jxr_linenumber" name="L4091" href="#L4091">4091</a>     <strong class="jxr_keyword">return</strong> findAllByAttributeDefOwnerOptionsHelper(totalAttributeDefIds, totalMemberIds,
+<a class="jxr_linenumber" name="L4092" href="#L4092">4092</a>         totalMembershipIds, membershipType, GrouperUtil.toSet(field), sources, scope, 
+<a class="jxr_linenumber" name="L4093" href="#L4093">4093</a>         stem, stemScope, enabled, checkSecurity, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
+<a class="jxr_linenumber" name="L4094" href="#L4094">4094</a>   }
+<a class="jxr_linenumber" name="L4095" href="#L4095">4095</a> 
+<a class="jxr_linenumber" name="L4096" href="#L4096">4096</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4097" href="#L4097">4097</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Field, Set, String, Stem, Scope, Boolean, Boolean)</em>
+<a class="jxr_linenumber" name="L4098" href="#L4098">4098</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4099" href="#L4099">4099</a>   <strong class="jxr_keyword">private</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptionsHelper(
+<a class="jxr_linenumber" name="L4100" href="#L4100">4100</a>       Collection&lt;String&gt; totalAttributeDefIds, Collection&lt;String&gt; totalMemberIds,
+<a class="jxr_linenumber" name="L4101" href="#L4101">4101</a>       Collection&lt;String&gt; totalMembershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, 
+<a class="jxr_linenumber" name="L4102" href="#L4102">4102</a>       Collection&lt;Field&gt; fields,
+<a class="jxr_linenumber" name="L4103" href="#L4103">4103</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
+<a class="jxr_linenumber" name="L4104" href="#L4104">4104</a>       Boolean checkSecurity, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForMember, String filterForMember, 
+<a class="jxr_linenumber" name="L4105" href="#L4105">4105</a>       <strong class="jxr_keyword">boolean</strong> splitScopeForMember, 
+<a class="jxr_linenumber" name="L4106" href="#L4106">4106</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForMember, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForMember, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef,
+<a class="jxr_linenumber" name="L4107" href="#L4107">4107</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef,
+<a class="jxr_linenumber" name="L4108" href="#L4108">4108</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef) {
+<a class="jxr_linenumber" name="L4109" href="#L4109">4109</a> 
+<a class="jxr_linenumber" name="L4110" href="#L4110">4110</a>     QueryOptions.initTotalCount(queryOptionsForAttributeDef);
+<a class="jxr_linenumber" name="L4111" href="#L4111">4111</a>     QueryOptions.initTotalCount(queryOptionsForMember);
 <a class="jxr_linenumber" name="L4112" href="#L4112">4112</a> 
-<a class="jxr_linenumber" name="L4113" href="#L4113">4113</a>     List&lt;String&gt; totalAttributeDefIdsList = GrouperUtil.listFromCollection(totalAttributeDefIds);
-<a class="jxr_linenumber" name="L4114" href="#L4114">4114</a>     List&lt;String&gt; totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
-<a class="jxr_linenumber" name="L4115" href="#L4115">4115</a>     List&lt;String&gt; totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
+<a class="jxr_linenumber" name="L4113" href="#L4113">4113</a>     <strong class="jxr_keyword">if</strong> (checkSecurity == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4114" href="#L4114">4114</a>       checkSecurity = Boolean.TRUE;
+<a class="jxr_linenumber" name="L4115" href="#L4115">4115</a>     }
 <a class="jxr_linenumber" name="L4116" href="#L4116">4116</a>     
-<a class="jxr_linenumber" name="L4117" href="#L4117">4117</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = GrouperSession.staticGrouperSession();
-<a class="jxr_linenumber" name="L4118" href="#L4118">4118</a>     
-<a class="jxr_linenumber" name="L4119" href="#L4119">4119</a>     <a href="../../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> grouperSessionSubject = grouperSession.getSubject();
+<a class="jxr_linenumber" name="L4117" href="#L4117">4117</a>     <strong class="jxr_keyword">if</strong> ((stem == <strong class="jxr_keyword">null</strong>) != (stemScope == <strong class="jxr_keyword">null</strong>)) {
+<a class="jxr_linenumber" name="L4118" href="#L4118">4118</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: "</span> + stem + <span class="jxr_string">", "</span> + stemScope);
+<a class="jxr_linenumber" name="L4119" href="#L4119">4119</a>     }
 <a class="jxr_linenumber" name="L4120" href="#L4120">4120</a> 
-<a class="jxr_linenumber" name="L4121" href="#L4121">4121</a>     Set&lt;Object[]&gt; totalResults = <strong class="jxr_keyword">new</strong> HashSet&lt;Object[]&gt;();
-<a class="jxr_linenumber" name="L4122" href="#L4122">4122</a>     
-<a class="jxr_linenumber" name="L4123" href="#L4123">4123</a>     <strong class="jxr_keyword">int</strong> attrDefBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefIds, 100);
+<a class="jxr_linenumber" name="L4121" href="#L4121">4121</a>     List&lt;String&gt; totalAttributeDefIdsList = GrouperUtil.listFromCollection(totalAttributeDefIds);
+<a class="jxr_linenumber" name="L4122" href="#L4122">4122</a>     List&lt;String&gt; totalMemberIdsList = GrouperUtil.listFromCollection(totalMemberIds);
+<a class="jxr_linenumber" name="L4123" href="#L4123">4123</a>     List&lt;String&gt; totalMembershipIdsList = GrouperUtil.listFromCollection(totalMembershipIds);
 <a class="jxr_linenumber" name="L4124" href="#L4124">4124</a>     
-<a class="jxr_linenumber" name="L4125" href="#L4125">4125</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> attrDefIndex = 0; attrDefIndex &lt; attrDefBatches; attrDefIndex++) {
-<a class="jxr_linenumber" name="L4126" href="#L4126">4126</a>       
-<a class="jxr_linenumber" name="L4127" href="#L4127">4127</a>       List&lt;String&gt; attributeDefIds = GrouperUtil.batchList(totalAttributeDefIdsList, 100, attrDefIndex);
-<a class="jxr_linenumber" name="L4128" href="#L4128">4128</a>       
-<a class="jxr_linenumber" name="L4129" href="#L4129">4129</a>       <strong class="jxr_keyword">int</strong> memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
-<a class="jxr_linenumber" name="L4130" href="#L4130">4130</a> 
-<a class="jxr_linenumber" name="L4131" href="#L4131">4131</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> memberIndex = 0; memberIndex &lt; memberBatches; memberIndex++) {
-<a class="jxr_linenumber" name="L4132" href="#L4132">4132</a>         
-<a class="jxr_linenumber" name="L4133" href="#L4133">4133</a>         List&lt;String&gt; memberIds = GrouperUtil.batchList(totalMemberIdsList, 100, memberIndex);
-<a class="jxr_linenumber" name="L4134" href="#L4134">4134</a>         <strong class="jxr_keyword">int</strong> membershipBatches = GrouperUtil.batchNumberOfBatches(totalMembershipIds, 100);
-<a class="jxr_linenumber" name="L4135" href="#L4135">4135</a>         
-<a class="jxr_linenumber" name="L4136" href="#L4136">4136</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> membershipIndex = 0; membershipIndex &lt; membershipBatches; membershipIndex++) {
-<a class="jxr_linenumber" name="L4137" href="#L4137">4137</a>           
-<a class="jxr_linenumber" name="L4138" href="#L4138">4138</a>           List&lt;String&gt; membershipIds = GrouperUtil.batchList(totalMembershipIdsList, 100, membershipIndex);
-<a class="jxr_linenumber" name="L4139" href="#L4139">4139</a>           
-<a class="jxr_linenumber" name="L4140" href="#L4140">4140</a>           <strong class="jxr_keyword">int</strong> attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
-<a class="jxr_linenumber" name="L4141" href="#L4141">4141</a>           <strong class="jxr_keyword">int</strong> memberIdsSize = GrouperUtil.length(memberIds);
-<a class="jxr_linenumber" name="L4142" href="#L4142">4142</a>           <strong class="jxr_keyword">int</strong> membershipIdsSize = GrouperUtil.length(membershipIds);
-<a class="jxr_linenumber" name="L4143" href="#L4143">4143</a>           
-<a class="jxr_linenumber" name="L4144" href="#L4144">4144</a>           <strong class="jxr_keyword">if</strong> (attributeDefIdsSize == 0 &amp;&amp; memberIdsSize == 0 &amp;&amp; membershipIdsSize == 0 &amp;&amp; stem == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L4145" href="#L4145">4145</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Must pass in attributeDef(s), member(s), stem, and/or membership(s)"</span>);
-<a class="jxr_linenumber" name="L4146" href="#L4146">4146</a>           }
-<a class="jxr_linenumber" name="L4147" href="#L4147">4147</a> 
-<a class="jxr_linenumber" name="L4148" href="#L4148">4148</a>           <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
-<a class="jxr_linenumber" name="L4149" href="#L4149">4149</a> 
-<a class="jxr_linenumber" name="L4150" href="#L4150">4150</a>           String selectPrefix = <span class="jxr_string">"select ms, a, m "</span>;
-<a class="jxr_linenumber" name="L4151" href="#L4151">4151</a>           String countPrefix = <span class="jxr_string">"select count(*) "</span>;
-<a class="jxr_linenumber" name="L4152" href="#L4152">4152</a>           
-<a class="jxr_linenumber" name="L4153" href="#L4153">4153</a>           StringBuilder sqlTables = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">" from AttributeDef a, MembershipEntry ms, Member m "</span>);
-<a class="jxr_linenumber" name="L4154" href="#L4154">4154</a>           
-<a class="jxr_linenumber" name="L4155" href="#L4155">4155</a>           <em class="jxr_comment">//we need to make sure it is a list type field</em>
-<a class="jxr_linenumber" name="L4156" href="#L4156">4156</a>           <strong class="jxr_keyword">boolean</strong> hasFieldTable = false;
-<a class="jxr_linenumber" name="L4157" href="#L4157">4157</a>           
-<a class="jxr_linenumber" name="L4158" href="#L4158">4158</a>           <em class="jxr_comment">//we need to make sure it is a list type field if the field ID is not sent in</em>
-<a class="jxr_linenumber" name="L4159" href="#L4159">4159</a>           <strong class="jxr_keyword">if</strong> (GrouperUtil.length(fields) == 0) {
-<a class="jxr_linenumber" name="L4160" href="#L4160">4160</a>             sqlTables.append(<span class="jxr_string">", Field f "</span>);
-<a class="jxr_linenumber" name="L4161" href="#L4161">4161</a>             hasFieldTable = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L4162" href="#L4162">4162</a>           }
+<a class="jxr_linenumber" name="L4125" href="#L4125">4125</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = GrouperSession.staticGrouperSession();
+<a class="jxr_linenumber" name="L4126" href="#L4126">4126</a>     
+<a class="jxr_linenumber" name="L4127" href="#L4127">4127</a>     <a href="../../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> grouperSessionSubject = grouperSession.getSubject();
+<a class="jxr_linenumber" name="L4128" href="#L4128">4128</a> 
+<a class="jxr_linenumber" name="L4129" href="#L4129">4129</a>     Set&lt;Object[]&gt; totalResults = <strong class="jxr_keyword">new</strong> HashSet&lt;Object[]&gt;();
+<a class="jxr_linenumber" name="L4130" href="#L4130">4130</a>         
+<a class="jxr_linenumber" name="L4131" href="#L4131">4131</a>     <strong class="jxr_keyword">int</strong> attrDefBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefIds, 100);
+<a class="jxr_linenumber" name="L4132" href="#L4132">4132</a>     
+<a class="jxr_linenumber" name="L4133" href="#L4133">4133</a>     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> attrDefIndex = 0; attrDefIndex &lt; attrDefBatches; attrDefIndex++) {
+<a class="jxr_linenumber" name="L4134" href="#L4134">4134</a>       
+<a class="jxr_linenumber" name="L4135" href="#L4135">4135</a>       List&lt;String&gt; attributeDefIds = GrouperUtil.batchList(totalAttributeDefIdsList, 100, attrDefIndex);
+<a class="jxr_linenumber" name="L4136" href="#L4136">4136</a>       
+<a class="jxr_linenumber" name="L4137" href="#L4137">4137</a>       <strong class="jxr_keyword">int</strong> memberBatches = GrouperUtil.batchNumberOfBatches(totalMemberIds, 100);
+<a class="jxr_linenumber" name="L4138" href="#L4138">4138</a> 
+<a class="jxr_linenumber" name="L4139" href="#L4139">4139</a>       <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> memberIndex = 0; memberIndex &lt; memberBatches; memberIndex++) {
+<a class="jxr_linenumber" name="L4140" href="#L4140">4140</a>         
+<a class="jxr_linenumber" name="L4141" href="#L4141">4141</a>         List&lt;String&gt; memberIds = GrouperUtil.batchList(totalMemberIdsList, 100, memberIndex);
+<a class="jxr_linenumber" name="L4142" href="#L4142">4142</a>         <strong class="jxr_keyword">int</strong> membershipBatches = GrouperUtil.batchNumberOfBatches(totalMembershipIds, 100);
+<a class="jxr_linenumber" name="L4143" href="#L4143">4143</a>         
+<a class="jxr_linenumber" name="L4144" href="#L4144">4144</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> membershipIndex = 0; membershipIndex &lt; membershipBatches; membershipIndex++) {
+<a class="jxr_linenumber" name="L4145" href="#L4145">4145</a>           
+<a class="jxr_linenumber" name="L4146" href="#L4146">4146</a>           List&lt;String&gt; membershipIds = GrouperUtil.batchList(totalMembershipIdsList, 100, membershipIndex);
+<a class="jxr_linenumber" name="L4147" href="#L4147">4147</a>           
+<a class="jxr_linenumber" name="L4148" href="#L4148">4148</a>           <strong class="jxr_keyword">int</strong> attributeDefIdsSize = GrouperUtil.length(attributeDefIds);
+<a class="jxr_linenumber" name="L4149" href="#L4149">4149</a>           <strong class="jxr_keyword">int</strong> memberIdsSize = GrouperUtil.length(memberIds);
+<a class="jxr_linenumber" name="L4150" href="#L4150">4150</a>           <strong class="jxr_keyword">int</strong> membershipIdsSize = GrouperUtil.length(membershipIds);
+<a class="jxr_linenumber" name="L4151" href="#L4151">4151</a>           
+<a class="jxr_linenumber" name="L4152" href="#L4152">4152</a>           <strong class="jxr_keyword">if</strong> (attributeDefIdsSize == 0 &amp;&amp; memberIdsSize == 0 &amp;&amp; membershipIdsSize == 0 &amp;&amp; stem == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4153" href="#L4153">4153</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Must pass in attributeDef(s), member(s), stem, and/or membership(s)"</span>);
+<a class="jxr_linenumber" name="L4154" href="#L4154">4154</a>           }
+<a class="jxr_linenumber" name="L4155" href="#L4155">4155</a> 
+<a class="jxr_linenumber" name="L4156" href="#L4156">4156</a>           <a href="../../../../../../../edu/internet2/middleware/grouper/hibernate/ByHqlStatic.html">ByHqlStatic</a> byHqlStatic = HibernateSession.byHqlStatic();
+<a class="jxr_linenumber" name="L4157" href="#L4157">4157</a> 
+<a class="jxr_linenumber" name="L4158" href="#L4158">4158</a>           String selectPrefix = <span class="jxr_string">"select ms, a, m "</span>;
+<a class="jxr_linenumber" name="L4159" href="#L4159">4159</a>           String countPrefix = <span class="jxr_string">"select count(*) "</span>;
+<a class="jxr_linenumber" name="L4160" href="#L4160">4160</a>           String memberPrefix = <span class="jxr_string">"select distinct m "</span>;
+<a class="jxr_linenumber" name="L4161" href="#L4161">4161</a>           
+<a class="jxr_linenumber" name="L4162" href="#L4162">4162</a>           StringBuilder sqlTables = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">" from AttributeDef a, MembershipEntry ms, Member m "</span>);
 <a class="jxr_linenumber" name="L4163" href="#L4163">4163</a>           
-<a class="jxr_linenumber" name="L4164" href="#L4164">4164</a>           <em class="jxr_comment">//maybe we are checking security, maybe not</em>
-<a class="jxr_linenumber" name="L4165" href="#L4165">4165</a>           StringBuilder sqlWhereClause = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">" ms.ownerAttrDefId = a.id "</span>
-<a class="jxr_linenumber" name="L4166" href="#L4166">4166</a>               + <span class="jxr_string">" and ms.memberUuid = m.uuid "</span>);
-<a class="jxr_linenumber" name="L4167" href="#L4167">4167</a>           
-<a class="jxr_linenumber" name="L4168" href="#L4168">4168</a>           <strong class="jxr_keyword">if</strong> (checkSecurity) { 
-<a class="jxr_linenumber" name="L4169" href="#L4169">4169</a>             
-<a class="jxr_linenumber" name="L4170" href="#L4170">4170</a>             grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
-<a class="jxr_linenumber" name="L4171" href="#L4171">4171</a>                 grouperSessionSubject, byHqlStatic, 
-<a class="jxr_linenumber" name="L4172" href="#L4172">4172</a>                 sqlTables, sqlWhereClause, <span class="jxr_string">"ms.ownerAttrDefId"</span>, AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES);
-<a class="jxr_linenumber" name="L4173" href="#L4173">4173</a>             
-<a class="jxr_linenumber" name="L4174" href="#L4174">4174</a>           }
-<a class="jxr_linenumber" name="L4175" href="#L4175">4175</a>           
-<a class="jxr_linenumber" name="L4176" href="#L4176">4176</a>           StringBuilder sql;
-<a class="jxr_linenumber" name="L4177" href="#L4177">4177</a>           sql = sqlTables.append(<span class="jxr_string">" where "</span>).append(sqlWhereClause);
-<a class="jxr_linenumber" name="L4178" href="#L4178">4178</a>           
-<a class="jxr_linenumber" name="L4179" href="#L4179">4179</a>           <strong class="jxr_keyword">if</strong> (enabled != <strong class="jxr_keyword">null</strong> &amp;&amp; enabled) {
-<a class="jxr_linenumber" name="L4180" href="#L4180">4180</a>             sql.append(<span class="jxr_string">" and ms.enabledDb = 'T' "</span>);
-<a class="jxr_linenumber" name="L4181" href="#L4181">4181</a>           }
-<a class="jxr_linenumber" name="L4182" href="#L4182">4182</a>           <strong class="jxr_keyword">if</strong> (enabled != <strong class="jxr_keyword">null</strong> &amp;&amp; !enabled) {
-<a class="jxr_linenumber" name="L4183" href="#L4183">4183</a>             sql.append(<span class="jxr_string">" and ms.enabledDb = 'F' "</span>);
-<a class="jxr_linenumber" name="L4184" href="#L4184">4184</a>           }
-<a class="jxr_linenumber" name="L4185" href="#L4185">4185</a>           <strong class="jxr_keyword">if</strong> (sources != <strong class="jxr_keyword">null</strong> &amp;&amp; sources.size() &gt; 0) {
-<a class="jxr_linenumber" name="L4186" href="#L4186">4186</a>             sql.append(<span class="jxr_string">" and m.subjectSourceIdDb in "</span>).append(HibUtils.convertSourcesToSqlInString(sources));
-<a class="jxr_linenumber" name="L4187" href="#L4187">4187</a>           }
-<a class="jxr_linenumber" name="L4188" href="#L4188">4188</a>           <strong class="jxr_keyword">boolean</strong> hasScope = StringUtils.isNotBlank(scope);
-<a class="jxr_linenumber" name="L4189" href="#L4189">4189</a>           <strong class="jxr_keyword">if</strong> (hasScope) {
-<a class="jxr_linenumber" name="L4190" href="#L4190">4190</a>             sql.append(<span class="jxr_string">" and a.nameDb like :scope "</span>);
-<a class="jxr_linenumber" name="L4191" href="#L4191">4191</a>             byHqlStatic.setString(<span class="jxr_string">"scope"</span>, scope + <span class="jxr_string">"%"</span>);
-<a class="jxr_linenumber" name="L4192" href="#L4192">4192</a>           }
-<a class="jxr_linenumber" name="L4193" href="#L4193">4193</a>           <strong class="jxr_keyword">if</strong> (stem != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L4194" href="#L4194">4194</a>             <strong class="jxr_keyword">switch</strong> (stemScope) {
-<a class="jxr_linenumber" name="L4195" href="#L4195">4195</a>               <strong class="jxr_keyword">case</strong> ONE:
-<a class="jxr_linenumber" name="L4196" href="#L4196">4196</a>                 
-<a class="jxr_linenumber" name="L4197" href="#L4197">4197</a>                 sql.append(<span class="jxr_string">" and a.stemId = :stemId "</span>);
-<a class="jxr_linenumber" name="L4198" href="#L4198">4198</a>                 byHqlStatic.setString(<span class="jxr_string">"stemId"</span>, stem.getUuid());
-<a class="jxr_linenumber" name="L4199" href="#L4199">4199</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L4200" href="#L4200">4200</a>               <strong class="jxr_keyword">case</strong> SUB:
-<a class="jxr_linenumber" name="L4201" href="#L4201">4201</a>                 
-<a class="jxr_linenumber" name="L4202" href="#L4202">4202</a>                 sql.append(<span class="jxr_string">" and a.nameDb like :stemSub "</span>);
-<a class="jxr_linenumber" name="L4203" href="#L4203">4203</a>                 byHqlStatic.setString(<span class="jxr_string">"stemSub"</span>, stem.getName() + <span class="jxr_string">":%"</span>);
-<a class="jxr_linenumber" name="L4204" href="#L4204">4204</a>                 
-<a class="jxr_linenumber" name="L4205" href="#L4205">4205</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L4206" href="#L4206">4206</a>               <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L4207" href="#L4207">4207</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Not expecting scope: "</span> + stemScope);
-<a class="jxr_linenumber" name="L4208" href="#L4208">4208</a>             }
-<a class="jxr_linenumber" name="L4209" href="#L4209">4209</a>           }
-<a class="jxr_linenumber" name="L4210" href="#L4210">4210</a>           <em class="jxr_comment">//immediate or effective, etc</em>
-<a class="jxr_linenumber" name="L4211" href="#L4211">4211</a>           <strong class="jxr_keyword">if</strong> (membershipType != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L4212" href="#L4212">4212</a>             sql.append(<span class="jxr_string">" and ms.type "</span>).append(membershipType.queryClause()).append(<span class="jxr_string">" "</span>);
-<a class="jxr_linenumber" name="L4213" href="#L4213">4213</a>           }
-<a class="jxr_linenumber" name="L4214" href="#L4214">4214</a>           <strong class="jxr_keyword">if</strong> (!hasFieldTable) {
-<a class="jxr_linenumber" name="L4215" href="#L4215">4215</a>             <em class="jxr_comment">//needs to be a members field</em>
-<a class="jxr_linenumber" name="L4216" href="#L4216">4216</a>             <em class="jxr_comment">//if (!StringUtils.equals("list",field.getTypeString())) {</em>
-<a class="jxr_linenumber" name="L4217" href="#L4217">4217</a>             <em class="jxr_comment">//  throw new RuntimeException("This method only works with members fields: " + field);</em>
-<a class="jxr_linenumber" name="L4218" href="#L4218">4218</a>             <em class="jxr_comment">//}</em>
-<a class="jxr_linenumber" name="L4219" href="#L4219">4219</a>             sql.append(<span class="jxr_string">" and ms.fieldId in ( "</span>);
-<a class="jxr_linenumber" name="L4220" href="#L4220">4220</a>             Set&lt;String&gt; fieldStrings = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L4221" href="#L4221">4221</a>             <strong class="jxr_keyword">for</strong> (Field field : fields) {
-<a class="jxr_linenumber" name="L4222" href="#L4222">4222</a>               fieldStrings.add(field.getUuid());
-<a class="jxr_linenumber" name="L4223" href="#L4223">4223</a>             }
-<a class="jxr_linenumber" name="L4224" href="#L4224">4224</a>             sql.append(HibUtils.convertToInClause(fieldStrings, byHqlStatic));
-<a class="jxr_linenumber" name="L4225" href="#L4225">4225</a>             sql.append(<span class="jxr_string">" ) "</span>);
-<a class="jxr_linenumber" name="L4226" href="#L4226">4226</a>             
-<a class="jxr_linenumber" name="L4227" href="#L4227">4227</a>           } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L4228" href="#L4228">4228</a>             <em class="jxr_comment">//add on the column</em>
-<a class="jxr_linenumber" name="L4229" href="#L4229">4229</a>             sql.append(<span class="jxr_string">" and ms.fieldId = f.uuid and f.typeString = 'attributeDef' "</span>);
-<a class="jxr_linenumber" name="L4230" href="#L4230">4230</a>           }
-<a class="jxr_linenumber" name="L4231" href="#L4231">4231</a>           <strong class="jxr_keyword">if</strong> (attributeDefIdsSize &gt; 0) {
-<a class="jxr_linenumber" name="L4232" href="#L4232">4232</a>             sql.append(<span class="jxr_string">" and ms.ownerAttrDefId in ("</span>);
-<a class="jxr_linenumber" name="L4233" href="#L4233">4233</a>             sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
-<a class="jxr_linenumber" name="L4234" href="#L4234">4234</a>             sql.append(<span class="jxr_string">") "</span>);
-<a class="jxr_linenumber" name="L4235" href="#L4235">4235</a>           }
-<a class="jxr_linenumber" name="L4236" href="#L4236">4236</a>           <strong class="jxr_keyword">if</strong> (memberIdsSize &gt; 0) {
-<a class="jxr_linenumber" name="L4237" href="#L4237">4237</a>             sql.append(<span class="jxr_string">" and ms.memberUuid in ("</span>);
-<a class="jxr_linenumber" name="L4238" href="#L4238">4238</a>             sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
-<a class="jxr_linenumber" name="L4239" href="#L4239">4239</a>             sql.append(<span class="jxr_string">") "</span>);
-<a class="jxr_linenumber" name="L4240" href="#L4240">4240</a>           }
-<a class="jxr_linenumber" name="L4241" href="#L4241">4241</a>           <strong class="jxr_keyword">if</strong> (membershipIdsSize &gt; 0) {
-<a class="jxr_linenumber" name="L4242" href="#L4242">4242</a>             sql.append(<span class="jxr_string">" and ms.uuid in ("</span>);
-<a class="jxr_linenumber" name="L4243" href="#L4243">4243</a>             sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
-<a class="jxr_linenumber" name="L4244" href="#L4244">4244</a>             sql.append(<span class="jxr_string">") "</span>);
-<a class="jxr_linenumber" name="L4245" href="#L4245">4245</a>           }
-<a class="jxr_linenumber" name="L4246" href="#L4246">4246</a>           
-<a class="jxr_linenumber" name="L4247" href="#L4247">4247</a>           <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(scopeForAttributeDef)) {
-<a class="jxr_linenumber" name="L4248" href="#L4248">4248</a> 
-<a class="jxr_linenumber" name="L4249" href="#L4249">4249</a>             scopeForAttributeDef = scopeForAttributeDef.toLowerCase();
-<a class="jxr_linenumber" name="L4250" href="#L4250">4250</a> 
-<a class="jxr_linenumber" name="L4251" href="#L4251">4251</a>             String[] scopesForAttributeDef = splitScopeForAttributeDef ? GrouperUtil.splitTrim(scopeForAttributeDef, <span class="jxr_string">" "</span>) 
-<a class="jxr_linenumber" name="L4252" href="#L4252">4252</a>                 : <strong class="jxr_keyword">new</strong> String[]{scopeForAttributeDef};
-<a class="jxr_linenumber" name="L4253" href="#L4253">4253</a> 
-<a class="jxr_linenumber" name="L4254" href="#L4254">4254</a>             <strong class="jxr_keyword">if</strong> (sql.length() &gt; 0) {
-<a class="jxr_linenumber" name="L4255" href="#L4255">4255</a>               sql.append(<span class="jxr_string">" and "</span>);
-<a class="jxr_linenumber" name="L4256" href="#L4256">4256</a>             }
-<a class="jxr_linenumber" name="L4257" href="#L4257">4257</a>             sql.append(<span class="jxr_string">" ( "</span>);
-<a class="jxr_linenumber" name="L4258" href="#L4258">4258</a> 
-<a class="jxr_linenumber" name="L4259" href="#L4259">4259</a>             <strong class="jxr_keyword">int</strong> index = 0;
-<a class="jxr_linenumber" name="L4260" href="#L4260">4260</a>             
-<a class="jxr_linenumber" name="L4261" href="#L4261">4261</a>             <strong class="jxr_keyword">for</strong> (String theScopeForAttributeDef : scopesForAttributeDef) {
-<a class="jxr_linenumber" name="L4262" href="#L4262">4262</a>               <strong class="jxr_keyword">if</strong> (index != 0) {
-<a class="jxr_linenumber" name="L4263" href="#L4263">4263</a>                 sql.append(<span class="jxr_string">" and "</span>);
-<a class="jxr_linenumber" name="L4264" href="#L4264">4264</a>               }
-<a class="jxr_linenumber" name="L4265" href="#L4265">4265</a>               
-<a class="jxr_linenumber" name="L4266" href="#L4266">4266</a>               sql.append(<span class="jxr_string">" ( lower(a.nameDb) like :scopeForAttributeDef"</span> + index 
-<a class="jxr_linenumber" name="L4267" href="#L4267">4267</a>                   + <span class="jxr_string">" or lower(a.description) like :scopeForAttributeDef"</span> + index + <span class="jxr_string">" ) "</span>);
-<a class="jxr_linenumber" name="L4268" href="#L4268">4268</a>               
-<a class="jxr_linenumber" name="L4269" href="#L4269">4269</a>               <strong class="jxr_keyword">if</strong> (!theScopeForAttributeDef.endsWith(<span class="jxr_string">"%"</span>)) {
-<a class="jxr_linenumber" name="L4270" href="#L4270">4270</a>                 theScopeForAttributeDef += <span class="jxr_string">"%"</span>;
-<a class="jxr_linenumber" name="L4271" href="#L4271">4271</a>               }
-<a class="jxr_linenumber" name="L4272" href="#L4272">4272</a>               <strong class="jxr_keyword">if</strong> (!theScopeForAttributeDef.startsWith(<span class="jxr_string">"%"</span>)) {
-<a class="jxr_linenumber" name="L4273" href="#L4273">4273</a>                 theScopeForAttributeDef = <span class="jxr_string">"%"</span> + theScopeForAttributeDef;
-<a class="jxr_linenumber" name="L4274" href="#L4274">4274</a>               }
-<a class="jxr_linenumber" name="L4275" href="#L4275">4275</a>               byHqlStatic.setString(<span class="jxr_string">"scopeForAttributeDef"</span> + index, theScopeForAttributeDef);
-<a class="jxr_linenumber" name="L4276" href="#L4276">4276</a>               index++;
-<a class="jxr_linenumber" name="L4277" href="#L4277">4277</a>             }
-<a class="jxr_linenumber" name="L4278" href="#L4278">4278</a>             sql.append(<span class="jxr_string">" ) "</span>);
-<a class="jxr_linenumber" name="L4279" href="#L4279">4279</a>           }
-<a class="jxr_linenumber" name="L4280" href="#L4280">4280</a> 
-<a class="jxr_linenumber" name="L4281" href="#L4281">4281</a>           
-<a class="jxr_linenumber" name="L4282" href="#L4282">4282</a>           byHqlStatic
-<a class="jxr_linenumber" name="L4283" href="#L4283">4283</a>             .setCacheable(false)
-<a class="jxr_linenumber" name="L4284" href="#L4284">4284</a>             .setCacheRegion(KLASS);
-<a class="jxr_linenumber" name="L4285" href="#L4285">4285</a> 
-<a class="jxr_linenumber" name="L4286" href="#L4286">4286</a>           {
-<a class="jxr_linenumber" name="L4287" href="#L4287">4287</a>             <em class="jxr_comment">//sort for groups</em>
-<a class="jxr_linenumber" name="L4288" href="#L4288">4288</a>             <strong class="jxr_keyword">boolean</strong> pageAttributeDefs = queryOptionsForAttributeDef != <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L4289" href="#L4289">4289</a>             
-<a class="jxr_linenumber" name="L4290" href="#L4290">4290</a>             <strong class="jxr_keyword">if</strong> (pageAttributeDefs) {
+<a class="jxr_linenumber" name="L4164" href="#L4164">4164</a>           <em class="jxr_comment">//we need to make sure it is a list type field</em>
+<a class="jxr_linenumber" name="L4165" href="#L4165">4165</a>           <strong class="jxr_keyword">boolean</strong> hasFieldTable = false;
+<a class="jxr_linenumber" name="L4166" href="#L4166">4166</a>           
+<a class="jxr_linenumber" name="L4167" href="#L4167">4167</a>           <em class="jxr_comment">//we need to make sure it is a list type field if the field ID is not sent in</em>
+<a class="jxr_linenumber" name="L4168" href="#L4168">4168</a>           <strong class="jxr_keyword">if</strong> (GrouperUtil.length(fields) == 0) {
+<a class="jxr_linenumber" name="L4169" href="#L4169">4169</a>             sqlTables.append(<span class="jxr_string">", Field f "</span>);
+<a class="jxr_linenumber" name="L4170" href="#L4170">4170</a>             hasFieldTable = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L4171" href="#L4171">4171</a>           }
+<a class="jxr_linenumber" name="L4172" href="#L4172">4172</a>           
+<a class="jxr_linenumber" name="L4173" href="#L4173">4173</a>           <em class="jxr_comment">//maybe we are checking security, maybe not</em>
+<a class="jxr_linenumber" name="L4174" href="#L4174">4174</a>           StringBuilder sqlWhereClause = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">" ms.ownerAttrDefId = a.id "</span>
+<a class="jxr_linenumber" name="L4175" href="#L4175">4175</a>               + <span class="jxr_string">" and ms.memberUuid = m.uuid "</span>);
+<a class="jxr_linenumber" name="L4176" href="#L4176">4176</a>           
+<a class="jxr_linenumber" name="L4177" href="#L4177">4177</a>           <strong class="jxr_keyword">if</strong> (checkSecurity) { 
+<a class="jxr_linenumber" name="L4178" href="#L4178">4178</a>             
+<a class="jxr_linenumber" name="L4179" href="#L4179">4179</a>             grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+<a class="jxr_linenumber" name="L4180" href="#L4180">4180</a>                 grouperSessionSubject, byHqlStatic, 
+<a class="jxr_linenumber" name="L4181" href="#L4181">4181</a>                 sqlTables, sqlWhereClause, <span class="jxr_string">"ms.ownerAttrDefId"</span>, AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES);
+<a class="jxr_linenumber" name="L4182" href="#L4182">4182</a>             
+<a class="jxr_linenumber" name="L4183" href="#L4183">4183</a>           }
+<a class="jxr_linenumber" name="L4184" href="#L4184">4184</a>           
+<a class="jxr_linenumber" name="L4185" href="#L4185">4185</a>           StringBuilder sql;
+<a class="jxr_linenumber" name="L4186" href="#L4186">4186</a>           sql = sqlTables.append(<span class="jxr_string">" where "</span>).append(sqlWhereClause);
+<a class="jxr_linenumber" name="L4187" href="#L4187">4187</a>           
+<a class="jxr_linenumber" name="L4188" href="#L4188">4188</a>           <strong class="jxr_keyword">if</strong> (enabled != <strong class="jxr_keyword">null</strong> &amp;&amp; enabled) {
+<a class="jxr_linenumber" name="L4189" href="#L4189">4189</a>             sql.append(<span class="jxr_string">" and ms.enabledDb = 'T' "</span>);
+<a class="jxr_linenumber" name="L4190" href="#L4190">4190</a>           }
+<a class="jxr_linenumber" name="L4191" href="#L4191">4191</a>           <strong class="jxr_keyword">if</strong> (enabled != <strong class="jxr_keyword">null</strong> &amp;&amp; !enabled) {
+<a class="jxr_linenumber" name="L4192" href="#L4192">4192</a>             sql.append(<span class="jxr_string">" and ms.enabledDb = 'F' "</span>);
+<a class="jxr_linenumber" name="L4193" href="#L4193">4193</a>           }
+<a class="jxr_linenumber" name="L4194" href="#L4194">4194</a>           <strong class="jxr_keyword">if</strong> (sources != <strong class="jxr_keyword">null</strong> &amp;&amp; sources.size() &gt; 0) {
+<a class="jxr_linenumber" name="L4195" href="#L4195">4195</a>             sql.append(<span class="jxr_string">" and m.subjectSourceIdDb in "</span>).append(HibUtils.convertSourcesToSqlInString(sources));
+<a class="jxr_linenumber" name="L4196" href="#L4196">4196</a>           }
+<a class="jxr_linenumber" name="L4197" href="#L4197">4197</a>           <strong class="jxr_keyword">boolean</strong> hasScope = StringUtils.isNotBlank(scope);
+<a class="jxr_linenumber" name="L4198" href="#L4198">4198</a>           <strong class="jxr_keyword">if</strong> (hasScope) {
+<a class="jxr_linenumber" name="L4199" href="#L4199">4199</a>             sql.append(<span class="jxr_string">" and a.nameDb like :scope "</span>);
+<a class="jxr_linenumber" name="L4200" href="#L4200">4200</a>             byHqlStatic.setString(<span class="jxr_string">"scope"</span>, scope + <span class="jxr_string">"%"</span>);
+<a class="jxr_linenumber" name="L4201" href="#L4201">4201</a>           }
+<a class="jxr_linenumber" name="L4202" href="#L4202">4202</a>           <strong class="jxr_keyword">if</strong> (stem != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4203" href="#L4203">4203</a>             <strong class="jxr_keyword">switch</strong> (stemScope) {
+<a class="jxr_linenumber" name="L4204" href="#L4204">4204</a>               <strong class="jxr_keyword">case</strong> ONE:
+<a class="jxr_linenumber" name="L4205" href="#L4205">4205</a>                 
+<a class="jxr_linenumber" name="L4206" href="#L4206">4206</a>                 sql.append(<span class="jxr_string">" and a.stemId = :stemId "</span>);
+<a class="jxr_linenumber" name="L4207" href="#L4207">4207</a>                 byHqlStatic.setString(<span class="jxr_string">"stemId"</span>, stem.getUuid());
+<a class="jxr_linenumber" name="L4208" href="#L4208">4208</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L4209" href="#L4209">4209</a>               <strong class="jxr_keyword">case</strong> SUB:
+<a class="jxr_linenumber" name="L4210" href="#L4210">4210</a>                 
+<a class="jxr_linenumber" name="L4211" href="#L4211">4211</a>                 sql.append(<span class="jxr_string">" and a.nameDb like :stemSub "</span>);
+<a class="jxr_linenumber" name="L4212" href="#L4212">4212</a>                 byHqlStatic.setString(<span class="jxr_string">"stemSub"</span>, stem.getName() + <span class="jxr_string">":%"</span>);
+<a class="jxr_linenumber" name="L4213" href="#L4213">4213</a>                 
+<a class="jxr_linenumber" name="L4214" href="#L4214">4214</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L4215" href="#L4215">4215</a>               <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L4216" href="#L4216">4216</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Not expecting scope: "</span> + stemScope);
+<a class="jxr_linenumber" name="L4217" href="#L4217">4217</a>             }
+<a class="jxr_linenumber" name="L4218" href="#L4218">4218</a>           }
+<a class="jxr_linenumber" name="L4219" href="#L4219">4219</a>           <em class="jxr_comment">//immediate or effective, etc</em>
+<a class="jxr_linenumber" name="L4220" href="#L4220">4220</a>           <strong class="jxr_keyword">if</strong> (membershipType != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4221" href="#L4221">4221</a>             sql.append(<span class="jxr_string">" and ms.type "</span>).append(membershipType.queryClause()).append(<span class="jxr_string">" "</span>);
+<a class="jxr_linenumber" name="L4222" href="#L4222">4222</a>           }
+<a class="jxr_linenumber" name="L4223" href="#L4223">4223</a>           <strong class="jxr_keyword">if</strong> (!hasFieldTable) {
+<a class="jxr_linenumber" name="L4224" href="#L4224">4224</a>             <em class="jxr_comment">//needs to be a members field</em>
+<a class="jxr_linenumber" name="L4225" href="#L4225">4225</a>             <em class="jxr_comment">//if (!StringUtils.equals("list",field.getTypeString())) {</em>
+<a class="jxr_linenumber" name="L4226" href="#L4226">4226</a>             <em class="jxr_comment">//  throw new RuntimeException("This method only works with members fields: " + field);</em>
+<a class="jxr_linenumber" name="L4227" href="#L4227">4227</a>             <em class="jxr_comment">//}</em>
+<a class="jxr_linenumber" name="L4228" href="#L4228">4228</a>             sql.append(<span class="jxr_string">" and ms.fieldId in ( "</span>);
+<a class="jxr_linenumber" name="L4229" href="#L4229">4229</a>             Set&lt;String&gt; fieldStrings = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L4230" href="#L4230">4230</a>             <strong class="jxr_keyword">for</strong> (Field field : fields) {
+<a class="jxr_linenumber" name="L4231" href="#L4231">4231</a>               fieldStrings.add(field.getUuid());
+<a class="jxr_linenumber" name="L4232" href="#L4232">4232</a>             }
+<a class="jxr_linenumber" name="L4233" href="#L4233">4233</a>             sql.append(HibUtils.convertToInClause(fieldStrings, byHqlStatic));
+<a class="jxr_linenumber" name="L4234" href="#L4234">4234</a>             sql.append(<span class="jxr_string">" ) "</span>);
+<a class="jxr_linenumber" name="L4235" href="#L4235">4235</a>             
+<a class="jxr_linenumber" name="L4236" href="#L4236">4236</a>           } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L4237" href="#L4237">4237</a>             <em class="jxr_comment">//add on the column</em>
+<a class="jxr_linenumber" name="L4238" href="#L4238">4238</a>             sql.append(<span class="jxr_string">" and ms.fieldId = f.uuid and f.typeString = 'attributeDef' "</span>);
+<a class="jxr_linenumber" name="L4239" href="#L4239">4239</a>           }
+<a class="jxr_linenumber" name="L4240" href="#L4240">4240</a>           <strong class="jxr_keyword">if</strong> (attributeDefIdsSize &gt; 0) {
+<a class="jxr_linenumber" name="L4241" href="#L4241">4241</a>             sql.append(<span class="jxr_string">" and ms.ownerAttrDefId in ("</span>);
+<a class="jxr_linenumber" name="L4242" href="#L4242">4242</a>             sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
+<a class="jxr_linenumber" name="L4243" href="#L4243">4243</a>             sql.append(<span class="jxr_string">") "</span>);
+<a class="jxr_linenumber" name="L4244" href="#L4244">4244</a>           }
+<a class="jxr_linenumber" name="L4245" href="#L4245">4245</a>           <strong class="jxr_keyword">if</strong> (memberIdsSize &gt; 0) {
+<a class="jxr_linenumber" name="L4246" href="#L4246">4246</a>             sql.append(<span class="jxr_string">" and ms.memberUuid in ("</span>);
+<a class="jxr_linenumber" name="L4247" href="#L4247">4247</a>             sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
+<a class="jxr_linenumber" name="L4248" href="#L4248">4248</a>             sql.append(<span class="jxr_string">") "</span>);
+<a class="jxr_linenumber" name="L4249" href="#L4249">4249</a>           }
+<a class="jxr_linenumber" name="L4250" href="#L4250">4250</a>           <strong class="jxr_keyword">if</strong> (membershipIdsSize &gt; 0) {
+<a class="jxr_linenumber" name="L4251" href="#L4251">4251</a>             sql.append(<span class="jxr_string">" and ms.uuid in ("</span>);
+<a class="jxr_linenumber" name="L4252" href="#L4252">4252</a>             sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
+<a class="jxr_linenumber" name="L4253" href="#L4253">4253</a>             sql.append(<span class="jxr_string">") "</span>);
+<a class="jxr_linenumber" name="L4254" href="#L4254">4254</a>           }
+<a class="jxr_linenumber" name="L4255" href="#L4255">4255</a>           
+<a class="jxr_linenumber" name="L4256" href="#L4256">4256</a>           <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(filterForMember)) {
+<a class="jxr_linenumber" name="L4257" href="#L4257">4257</a> 
+<a class="jxr_linenumber" name="L4258" href="#L4258">4258</a>             filterForMember = filterForMember.toLowerCase();
+<a class="jxr_linenumber" name="L4259" href="#L4259">4259</a> 
+<a class="jxr_linenumber" name="L4260" href="#L4260">4260</a>             String[] filtersForMember = splitScopeForMember ? GrouperUtil.splitTrim(filterForMember, <span class="jxr_string">" "</span>) 
+<a class="jxr_linenumber" name="L4261" href="#L4261">4261</a>                 : <strong class="jxr_keyword">new</strong> String[]{filterForMember};
+<a class="jxr_linenumber" name="L4262" href="#L4262">4262</a> 
+<a class="jxr_linenumber" name="L4263" href="#L4263">4263</a>             <strong class="jxr_keyword">if</strong> (sql.length() &gt; 0) {
+<a class="jxr_linenumber" name="L4264" href="#L4264">4264</a>               sql.append(<span class="jxr_string">" and "</span>);
+<a class="jxr_linenumber" name="L4265" href="#L4265">4265</a>             }
+<a class="jxr_linenumber" name="L4266" href="#L4266">4266</a>             sql.append(<span class="jxr_string">" ( "</span>);
+<a class="jxr_linenumber" name="L4267" href="#L4267">4267</a> 
+<a class="jxr_linenumber" name="L4268" href="#L4268">4268</a>             <strong class="jxr_keyword">int</strong> index = 0;
+<a class="jxr_linenumber" name="L4269" href="#L4269">4269</a>             
+<a class="jxr_linenumber" name="L4270" href="#L4270">4270</a>             String searchFieldName = SearchStringEnum.getDefaultSearchString().getFieldName();
+<a class="jxr_linenumber" name="L4271" href="#L4271">4271</a> 
+<a class="jxr_linenumber" name="L4272" href="#L4272">4272</a>             <strong class="jxr_keyword">for</strong> (String theFilter : filtersForMember) {
+<a class="jxr_linenumber" name="L4273" href="#L4273">4273</a>               <strong class="jxr_keyword">if</strong> (index != 0) {
+<a class="jxr_linenumber" name="L4274" href="#L4274">4274</a>                 sql.append(<span class="jxr_string">" and "</span>);
+<a class="jxr_linenumber" name="L4275" href="#L4275">4275</a>               }
+<a class="jxr_linenumber" name="L4276" href="#L4276">4276</a>               sql.append(<span class="jxr_string">" ( m."</span> + searchFieldName + <span class="jxr_string">" like :filterString"</span> + index + <span class="jxr_string">" ) "</span>);
+<a class="jxr_linenumber" name="L4277" href="#L4277">4277</a> 
+<a class="jxr_linenumber" name="L4278" href="#L4278">4278</a>               <strong class="jxr_keyword">if</strong> (!theFilter.endsWith(<span class="jxr_string">"%"</span>)) {
+<a class="jxr_linenumber" name="L4279" href="#L4279">4279</a>                 theFilter += <span class="jxr_string">"%"</span>;
+<a class="jxr_linenumber" name="L4280" href="#L4280">4280</a>               }
+<a class="jxr_linenumber" name="L4281" href="#L4281">4281</a>               <strong class="jxr_keyword">if</strong> (!theFilter.startsWith(<span class="jxr_string">"%"</span>)) {
+<a class="jxr_linenumber" name="L4282" href="#L4282">4282</a>                 theFilter = <span class="jxr_string">"%"</span> + theFilter;
+<a class="jxr_linenumber" name="L4283" href="#L4283">4283</a>               }
+<a class="jxr_linenumber" name="L4284" href="#L4284">4284</a>               byHqlStatic.setString(<span class="jxr_string">"filterString"</span> + index, theFilter);
+<a class="jxr_linenumber" name="L4285" href="#L4285">4285</a>               index++;
+<a class="jxr_linenumber" name="L4286" href="#L4286">4286</a>             }
+<a class="jxr_linenumber" name="L4287" href="#L4287">4287</a>             sql.append(<span class="jxr_string">" ) "</span>);
+<a class="jxr_linenumber" name="L4288" href="#L4288">4288</a>           }
+<a class="jxr_linenumber" name="L4289" href="#L4289">4289</a> 
+<a class="jxr_linenumber" name="L4290" href="#L4290">4290</a>           <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(scopeForAttributeDef)) {
 <a class="jxr_linenumber" name="L4291" href="#L4291">4291</a> 
-<a class="jxr_linenumber" name="L4292" href="#L4292">4292</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForAttributeDef.getQueryPaging() == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L4293" href="#L4293">4293</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If paging by attributeDef, then paging must be set in the query options"</span>);
-<a class="jxr_linenumber" name="L4294" href="#L4294">4294</a>               }
-<a class="jxr_linenumber" name="L4295" href="#L4295">4295</a> 
-<a class="jxr_linenumber" name="L4296" href="#L4296">4296</a>               <em class="jxr_comment">//cant page too much...</em>
-<a class="jxr_linenumber" name="L4297" href="#L4297">4297</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForAttributeDef.getQueryPaging().getPageSize() &gt; 500) {
-<a class="jxr_linenumber" name="L4298" href="#L4298">4298</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant get a page size greater then 500! "</span> 
-<a class="jxr_linenumber" name="L4299" href="#L4299">4299</a>                     + queryOptionsForAttributeDef.getQueryPaging().getPageSize());
-<a class="jxr_linenumber" name="L4300" href="#L4300">4300</a>               }
+<a class="jxr_linenumber" name="L4292" href="#L4292">4292</a>             scopeForAttributeDef = scopeForAttributeDef.toLowerCase();
+<a class="jxr_linenumber" name="L4293" href="#L4293">4293</a> 
+<a class="jxr_linenumber" name="L4294" href="#L4294">4294</a>             String[] scopesForAttributeDef = splitScopeForAttributeDef ? GrouperUtil.splitTrim(scopeForAttributeDef, <span class="jxr_string">" "</span>) 
+<a class="jxr_linenumber" name="L4295" href="#L4295">4295</a>                 : <strong class="jxr_keyword">new</strong> String[]{scopeForAttributeDef};
+<a class="jxr_linenumber" name="L4296" href="#L4296">4296</a> 
+<a class="jxr_linenumber" name="L4297" href="#L4297">4297</a>             <strong class="jxr_keyword">if</strong> (sql.length() &gt; 0) {
+<a class="jxr_linenumber" name="L4298" href="#L4298">4298</a>               sql.append(<span class="jxr_string">" and "</span>);
+<a class="jxr_linenumber" name="L4299" href="#L4299">4299</a>             }
+<a class="jxr_linenumber" name="L4300" href="#L4300">4300</a>             sql.append(<span class="jxr_string">" ( "</span>);
 <a class="jxr_linenumber" name="L4301" href="#L4301">4301</a> 
-<a class="jxr_linenumber" name="L4302" href="#L4302">4302</a>               <strong class="jxr_keyword">if</strong> (attrDefBatches &gt; 1) {
-<a class="jxr_linenumber" name="L4303" href="#L4303">4303</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 groupBatch if paging attributeDefs"</span>);
-<a class="jxr_linenumber" name="L4304" href="#L4304">4304</a>               }
-<a class="jxr_linenumber" name="L4305" href="#L4305">4305</a>               
-<a class="jxr_linenumber" name="L4306" href="#L4306">4306</a>               <strong class="jxr_keyword">if</strong> (memberBatches &gt; 1) {
-<a class="jxr_linenumber" name="L4307" href="#L4307">4307</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 memberBatch if paging attributeDefs"</span>);
-<a class="jxr_linenumber" name="L4308" href="#L4308">4308</a>               }
-<a class="jxr_linenumber" name="L4309" href="#L4309">4309</a>               
-<a class="jxr_linenumber" name="L4310" href="#L4310">4310</a>               <strong class="jxr_keyword">if</strong> (membershipBatches &gt; 1) {
-<a class="jxr_linenumber" name="L4311" href="#L4311">4311</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 membershipBatch if paging attributeDefs"</span>);
-<a class="jxr_linenumber" name="L4312" href="#L4312">4312</a>               }
-<a class="jxr_linenumber" name="L4313" href="#L4313">4313</a>               
-<a class="jxr_linenumber" name="L4314" href="#L4314">4314</a>             }
-<a class="jxr_linenumber" name="L4315" href="#L4315">4315</a> 
-<a class="jxr_linenumber" name="L4316" href="#L4316">4316</a>             <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(scopeForAttributeDef) &amp;&amp; !pageAttributeDefs) {
-<a class="jxr_linenumber" name="L4317" href="#L4317">4317</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If you are filtering by attributeDef, then you must page attributeDefs"</span>);
-<a class="jxr_linenumber" name="L4318" href="#L4318">4318</a>             }
-<a class="jxr_linenumber" name="L4319" href="#L4319">4319</a>             
-<a class="jxr_linenumber" name="L4320" href="#L4320">4320</a>             <em class="jxr_comment">//note, put in the size query conditional above</em>
-<a class="jxr_linenumber" name="L4321" href="#L4321">4321</a> 
-<a class="jxr_linenumber" name="L4322" href="#L4322">4322</a>             <em class="jxr_comment">//if paging by attributeDefs, get the attributeDefs, then do the same query using those members...</em>
-<a class="jxr_linenumber" name="L4323" href="#L4323">4323</a>             <strong class="jxr_keyword">if</strong> (pageAttributeDefs) {
-<a class="jxr_linenumber" name="L4324" href="#L4324">4324</a>               
-<a class="jxr_linenumber" name="L4325" href="#L4325">4325</a>               <em class="jxr_comment">//sort by default search string if not specified</em>
-<a class="jxr_linenumber" name="L4326" href="#L4326">4326</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForAttributeDef.getQuerySort() == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L4327" href="#L4327">4327</a>                 queryOptionsForAttributeDef.sortAsc(<span class="jxr_string">"a.nameDb"</span>);
-<a class="jxr_linenumber" name="L4328" href="#L4328">4328</a>               }
-<a class="jxr_linenumber" name="L4329" href="#L4329">4329</a> 
-<a class="jxr_linenumber" name="L4330" href="#L4330">4330</a>               byHqlStatic.options(queryOptionsForAttributeDef);
-<a class="jxr_linenumber" name="L4331" href="#L4331">4331</a>               
-<a class="jxr_linenumber" name="L4332" href="#L4332">4332</a>               String attributeDefPrefix = <span class="jxr_string">"select distinct a "</span>;
-<a class="jxr_linenumber" name="L4333" href="#L4333">4333</a> 
-<a class="jxr_linenumber" name="L4334" href="#L4334">4334</a>               Set&lt;AttributeDef&gt; attributeDefs = byHqlStatic.createQuery(attributeDefPrefix + sql.toString()).listSet(AttributeDef.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L4335" href="#L4335">4335</a> 
-<a class="jxr_linenumber" name="L4336" href="#L4336">4336</a>               <em class="jxr_comment">//no need to do another query if no attributeDefs</em>
-<a class="jxr_linenumber" name="L4337" href="#L4337">4337</a>               <strong class="jxr_keyword">if</strong> (GrouperUtil.length(attributeDefs) == 0) {
-<a class="jxr_linenumber" name="L4338" href="#L4338">4338</a>                 <strong class="jxr_keyword">return</strong> totalResults;
-<a class="jxr_linenumber" name="L4339" href="#L4339">4339</a>               }
-<a class="jxr_linenumber" name="L4340" href="#L4340">4340</a>               
-<a class="jxr_linenumber" name="L4341" href="#L4341">4341</a>               Set&lt;String&gt; theAttributeDefIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L4342" href="#L4342">4342</a>               
-<a class="jxr_linenumber" name="L4343" href="#L4343">4343</a>               <strong class="jxr_keyword">for</strong> (AttributeDef attributeDef : attributeDefs) {
-<a class="jxr_linenumber" name="L4344" href="#L4344">4344</a>                 theAttributeDefIds.add(attributeDef.getUuid());
-<a class="jxr_linenumber" name="L4345" href="#L4345">4345</a>               }
-<a class="jxr_linenumber" name="L4346" href="#L4346">4346</a>               
-<a class="jxr_linenumber" name="L4347" href="#L4347">4347</a>               <em class="jxr_comment">//dont pass for people with membership type or field... we already filtered by that...</em>
-<a class="jxr_linenumber" name="L4348" href="#L4348">4348</a>               Set&lt;Object[]&gt; tempResults = findAllByAttributeDefOwnerOptionsHelper(theAttributeDefIds, totalMemberIds,
-<a class="jxr_linenumber" name="L4349" href="#L4349">4349</a>                   totalMembershipIds, hasMembershipTypeForAttributeDef ? <strong class="jxr_keyword">null</strong> : membershipType, hasFieldForAttributeDef ? <strong class="jxr_keyword">null</strong> : fields,  
-<a class="jxr_linenumber" name="L4350" href="#L4350">4350</a>                   sources, scope, stem, stemScope, enabled, checkSecurity,
-<a class="jxr_linenumber" name="L4351" href="#L4351">4351</a>                   <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
-<a class="jxr_linenumber" name="L4352" href="#L4352">4352</a>               
-<a class="jxr_linenumber" name="L4353" href="#L4353">4353</a>               <em class="jxr_comment">//lets sort these by member</em>
-<a class="jxr_linenumber" name="L4354" href="#L4354">4354</a>               Set&lt;Object[]&gt; sortedResults = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Object[]&gt;();
-<a class="jxr_linenumber" name="L4355" href="#L4355">4355</a>               
-<a class="jxr_linenumber" name="L4356" href="#L4356">4356</a>               <strong class="jxr_keyword">for</strong> (AttributeDef attributeDef : attributeDefs) {
-<a class="jxr_linenumber" name="L4357" href="#L4357">4357</a>                 Iterator&lt;Object[]&gt; iterator = tempResults.iterator();
-<a class="jxr_linenumber" name="L4358" href="#L4358">4358</a>                 <strong class="jxr_keyword">while</strong>(iterator.hasNext()) {
-<a class="jxr_linenumber" name="L4359" href="#L4359">4359</a>                   
-<a class="jxr_linenumber" name="L4360" href="#L4360">4360</a>                   Object[] tempResult = iterator.next();
-<a class="jxr_linenumber" name="L4361" href="#L4361">4361</a>                   <em class="jxr_comment">//if the member is the same, put it in the sortedResults, and remove</em>
-<a class="jxr_linenumber" name="L4362" href="#L4362">4362</a>                   <strong class="jxr_keyword">if</strong> (StringUtils.equals(((AttributeDef)tempResult[1]).getUuid(), attributeDef.getUuid())) {
-<a class="jxr_linenumber" name="L4363" href="#L4363">4363</a>                     
-<a class="jxr_linenumber" name="L4364" href="#L4364">4364</a>                     sortedResults.add(tempResult);
-<a class="jxr_linenumber" name="L4365" href="#L4365">4365</a>                     iterator.remove();
-<a class="jxr_linenumber" name="L4366" href="#L4366">4366</a>                     
-<a class="jxr_linenumber" name="L4367" href="#L4367">4367</a>                   }
-<a class="jxr_linenumber" name="L4368" href="#L4368">4368</a>                 }
-<a class="jxr_linenumber" name="L4369" href="#L4369">4369</a>               }
-<a class="jxr_linenumber" name="L4370" href="#L4370">4370</a>               <strong class="jxr_keyword">return</strong> sortedResults;
-<a class="jxr_linenumber" name="L4371" href="#L4371">4371</a>               
-<a class="jxr_linenumber" name="L4372" href="#L4372">4372</a>             }
-<a class="jxr_linenumber" name="L4373" href="#L4373">4373</a>           }
-<a class="jxr_linenumber" name="L4374" href="#L4374">4374</a>           
-<a class="jxr_linenumber" name="L4375" href="#L4375">4375</a>           <strong class="jxr_keyword">int</strong> maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt(<span class="jxr_string">"ws.getMemberships.maxResultSize"</span>, 30000);
-<a class="jxr_linenumber" name="L4376" href="#L4376">4376</a>           
-<a class="jxr_linenumber" name="L4377" href="#L4377">4377</a>           <em class="jxr_comment">//if -1, lets not check</em>
-<a class="jxr_linenumber" name="L4378" href="#L4378">4378</a>           <strong class="jxr_keyword">if</strong> (maxMemberships &gt;= 0) {
-<a class="jxr_linenumber" name="L4379" href="#L4379">4379</a> 
-<a class="jxr_linenumber" name="L4380" href="#L4380">4380</a>             <strong class="jxr_keyword">long</strong> size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>);    
-<a class="jxr_linenumber" name="L4381" href="#L4381">4381</a>             
-<a class="jxr_linenumber" name="L4382" href="#L4382">4382</a>             <em class="jxr_comment">//see if too many</em>
-<a class="jxr_linenumber" name="L4383" href="#L4383">4383</a>             <strong class="jxr_keyword">if</strong> (size &gt; maxMemberships) {
-<a class="jxr_linenumber" name="L4384" href="#L4384">4384</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Too many results: "</span> + size);
-<a class="jxr_linenumber" name="L4385" href="#L4385">4385</a>             }
-<a class="jxr_linenumber" name="L4386" href="#L4386">4386</a>             
-<a class="jxr_linenumber" name="L4387" href="#L4387">4387</a>           }
-<a class="jxr_linenumber" name="L4388" href="#L4388">4388</a>           Set&lt;Object[]&gt; results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L4302" href="#L4302">4302</a>             <strong class="jxr_keyword">int</strong> index = 0;
+<a class="jxr_linenumber" name="L4303" href="#L4303">4303</a>             
+<a class="jxr_linenumber" name="L4304" href="#L4304">4304</a>             <strong class="jxr_keyword">for</strong> (String theScopeForAttributeDef : scopesForAttributeDef) {
+<a class="jxr_linenumber" name="L4305" href="#L4305">4305</a>               <strong class="jxr_keyword">if</strong> (index != 0) {
+<a class="jxr_linenumber" name="L4306" href="#L4306">4306</a>                 sql.append(<span class="jxr_string">" and "</span>);
+<a class="jxr_linenumber" name="L4307" href="#L4307">4307</a>               }
+<a class="jxr_linenumber" name="L4308" href="#L4308">4308</a>               
+<a class="jxr_linenumber" name="L4309" href="#L4309">4309</a>               sql.append(<span class="jxr_string">" ( lower(a.nameDb) like :scopeForAttributeDef"</span> + index 
+<a class="jxr_linenumber" name="L4310" href="#L4310">4310</a>                   + <span class="jxr_string">" or lower(a.description) like :scopeForAttributeDef"</span> + index + <span class="jxr_string">" ) "</span>);
+<a class="jxr_linenumber" name="L4311" href="#L4311">4311</a>               
+<a class="jxr_linenumber" name="L4312" href="#L4312">4312</a>               <strong class="jxr_keyword">if</strong> (!theScopeForAttributeDef.endsWith(<span class="jxr_string">"%"</span>)) {
+<a class="jxr_linenumber" name="L4313" href="#L4313">4313</a>                 theScopeForAttributeDef += <span class="jxr_string">"%"</span>;
+<a class="jxr_linenumber" name="L4314" href="#L4314">4314</a>               }
+<a class="jxr_linenumber" name="L4315" href="#L4315">4315</a>               <strong class="jxr_keyword">if</strong> (!theScopeForAttributeDef.startsWith(<span class="jxr_string">"%"</span>)) {
+<a class="jxr_linenumber" name="L4316" href="#L4316">4316</a>                 theScopeForAttributeDef = <span class="jxr_string">"%"</span> + theScopeForAttributeDef;
+<a class="jxr_linenumber" name="L4317" href="#L4317">4317</a>               }
+<a class="jxr_linenumber" name="L4318" href="#L4318">4318</a>               byHqlStatic.setString(<span class="jxr_string">"scopeForAttributeDef"</span> + index, theScopeForAttributeDef);
+<a class="jxr_linenumber" name="L4319" href="#L4319">4319</a>               index++;
+<a class="jxr_linenumber" name="L4320" href="#L4320">4320</a>             }
+<a class="jxr_linenumber" name="L4321" href="#L4321">4321</a>             sql.append(<span class="jxr_string">" ) "</span>);
+<a class="jxr_linenumber" name="L4322" href="#L4322">4322</a>           }
+<a class="jxr_linenumber" name="L4323" href="#L4323">4323</a> 
+<a class="jxr_linenumber" name="L4324" href="#L4324">4324</a>           
+<a class="jxr_linenumber" name="L4325" href="#L4325">4325</a>           byHqlStatic
+<a class="jxr_linenumber" name="L4326" href="#L4326">4326</a>             .setCacheable(false)
+<a class="jxr_linenumber" name="L4327" href="#L4327">4327</a>             .setCacheRegion(KLASS);
+<a class="jxr_linenumber" name="L4328" href="#L4328">4328</a> 
+<a class="jxr_linenumber" name="L4329" href="#L4329">4329</a>           <strong class="jxr_keyword">int</strong> maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt(<span class="jxr_string">"ws.getMemberships.maxResultSize"</span>, 30000);
+<a class="jxr_linenumber" name="L4330" href="#L4330">4330</a>           
+<a class="jxr_linenumber" name="L4331" href="#L4331">4331</a>           <strong class="jxr_keyword">boolean</strong> pageMembers = queryOptionsForMember != <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L4332" href="#L4332">4332</a>           
+<a class="jxr_linenumber" name="L4333" href="#L4333">4333</a>           <strong class="jxr_keyword">if</strong> (pageMembers) {
+<a class="jxr_linenumber" name="L4334" href="#L4334">4334</a> 
+<a class="jxr_linenumber" name="L4335" href="#L4335">4335</a>             <strong class="jxr_keyword">if</strong> (queryOptionsForMember.getQueryPaging() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4336" href="#L4336">4336</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If paging by member, then paging must be set in the query options"</span>);
+<a class="jxr_linenumber" name="L4337" href="#L4337">4337</a>             }
+<a class="jxr_linenumber" name="L4338" href="#L4338">4338</a> 
+<a class="jxr_linenumber" name="L4339" href="#L4339">4339</a>             <em class="jxr_comment">//cant page too much...</em>
+<a class="jxr_linenumber" name="L4340" href="#L4340">4340</a>             <strong class="jxr_keyword">if</strong> (queryOptionsForMember.getQueryPaging().getPageSize() &gt; 500) {
+<a class="jxr_linenumber" name="L4341" href="#L4341">4341</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant get a page size greater then 500! "</span> 
+<a class="jxr_linenumber" name="L4342" href="#L4342">4342</a>                   + queryOptionsForMember.getQueryPaging().getPageSize());
+<a class="jxr_linenumber" name="L4343" href="#L4343">4343</a>             }
+<a class="jxr_linenumber" name="L4344" href="#L4344">4344</a> 
+<a class="jxr_linenumber" name="L4345" href="#L4345">4345</a>             <strong class="jxr_keyword">if</strong> (attrDefBatches &gt; 1) {
+<a class="jxr_linenumber" name="L4346" href="#L4346">4346</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 attributeDefBatch if paging members"</span>);
+<a class="jxr_linenumber" name="L4347" href="#L4347">4347</a>             }
+<a class="jxr_linenumber" name="L4348" href="#L4348">4348</a>             
+<a class="jxr_linenumber" name="L4349" href="#L4349">4349</a>             <strong class="jxr_keyword">if</strong> (memberBatches &gt; 1) {
+<a class="jxr_linenumber" name="L4350" href="#L4350">4350</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 memberBatch if paging members"</span>);
+<a class="jxr_linenumber" name="L4351" href="#L4351">4351</a>             }
+<a class="jxr_linenumber" name="L4352" href="#L4352">4352</a>             
+<a class="jxr_linenumber" name="L4353" href="#L4353">4353</a>             <strong class="jxr_keyword">if</strong> (membershipBatches &gt; 1) {
+<a class="jxr_linenumber" name="L4354" href="#L4354">4354</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 membershipBatch if paging members"</span>);
+<a class="jxr_linenumber" name="L4355" href="#L4355">4355</a>             }
+<a class="jxr_linenumber" name="L4356" href="#L4356">4356</a>             
+<a class="jxr_linenumber" name="L4357" href="#L4357">4357</a>           }
+<a class="jxr_linenumber" name="L4358" href="#L4358">4358</a> 
+<a class="jxr_linenumber" name="L4359" href="#L4359">4359</a>           <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(filterForMember) &amp;&amp; !pageMembers) {
+<a class="jxr_linenumber" name="L4360" href="#L4360">4360</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If you are filtering by member, then you must page members"</span>);
+<a class="jxr_linenumber" name="L4361" href="#L4361">4361</a>           }
+<a class="jxr_linenumber" name="L4362" href="#L4362">4362</a> 
+<a class="jxr_linenumber" name="L4363" href="#L4363">4363</a>           <em class="jxr_comment">//sort for groups</em>
+<a class="jxr_linenumber" name="L4364" href="#L4364">4364</a>           <strong class="jxr_keyword">boolean</strong> pageAttributeDefs = queryOptionsForAttributeDef != <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L4365" href="#L4365">4365</a>             
+<a class="jxr_linenumber" name="L4366" href="#L4366">4366</a>           <em class="jxr_comment">//if -1, lets not check</em>
+<a class="jxr_linenumber" name="L4367" href="#L4367">4367</a>           <strong class="jxr_keyword">if</strong> (maxMemberships &gt;= 0 &amp;&amp; !pageMembers &amp;&amp; !pageAttributeDefs) {
+<a class="jxr_linenumber" name="L4368" href="#L4368">4368</a>   
+<a class="jxr_linenumber" name="L4369" href="#L4369">4369</a>             <strong class="jxr_keyword">long</strong> size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>);    
+<a class="jxr_linenumber" name="L4370" href="#L4370">4370</a>             
+<a class="jxr_linenumber" name="L4371" href="#L4371">4371</a>             <em class="jxr_comment">//see if too many</em>
+<a class="jxr_linenumber" name="L4372" href="#L4372">4372</a>             <strong class="jxr_keyword">if</strong> (size &gt; maxMemberships) {
+<a class="jxr_linenumber" name="L4373" href="#L4373">4373</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Too many results: "</span> + size);
+<a class="jxr_linenumber" name="L4374" href="#L4374">4374</a>             }
+<a class="jxr_linenumber" name="L4375" href="#L4375">4375</a>             
+<a class="jxr_linenumber" name="L4376" href="#L4376">4376</a>           }
+<a class="jxr_linenumber" name="L4377" href="#L4377">4377</a> 
+<a class="jxr_linenumber" name="L4378" href="#L4378">4378</a>           <em class="jxr_comment">//if paging by members, get the members, then do the same query using those members...</em>
+<a class="jxr_linenumber" name="L4379" href="#L4379">4379</a>           <strong class="jxr_keyword">if</strong> (pageMembers) {
+<a class="jxr_linenumber" name="L4380" href="#L4380">4380</a>             
+<a class="jxr_linenumber" name="L4381" href="#L4381">4381</a>             <em class="jxr_comment">//sort by default search string if not specified</em>
+<a class="jxr_linenumber" name="L4382" href="#L4382">4382</a>             <strong class="jxr_keyword">if</strong> (queryOptionsForMember.getQuerySort() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4383" href="#L4383">4383</a>               queryOptionsForMember.sortAsc(<span class="jxr_string">"m."</span> + SortStringEnum.getDefaultSortString().getFieldName());
+<a class="jxr_linenumber" name="L4384" href="#L4384">4384</a>             }
+<a class="jxr_linenumber" name="L4385" href="#L4385">4385</a> 
+<a class="jxr_linenumber" name="L4386" href="#L4386">4386</a>             byHqlStatic.options(queryOptionsForMember);
+<a class="jxr_linenumber" name="L4387" href="#L4387">4387</a>    
+<a class="jxr_linenumber" name="L4388" href="#L4388">4388</a>             Set&lt;Member&gt; members = byHqlStatic.createQuery(memberPrefix + sql.toString()).listSet(Member.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L4389" href="#L4389">4389</a> 
-<a class="jxr_linenumber" name="L4390" href="#L4390">4390</a>           totalResults.addAll(results);
-<a class="jxr_linenumber" name="L4391" href="#L4391">4391</a>           
-<a class="jxr_linenumber" name="L4392" href="#L4392">4392</a>         }
-<a class="jxr_linenumber" name="L4393" href="#L4393">4393</a>       }
-<a class="jxr_linenumber" name="L4394" href="#L4394">4394</a>     }
-<a class="jxr_linenumber" name="L4395" href="#L4395">4395</a>     
-<a class="jxr_linenumber" name="L4396" href="#L4396">4396</a>     
-<a class="jxr_linenumber" name="L4397" href="#L4397">4397</a>     <em class="jxr_comment">//nothing to filter</em>
-<a class="jxr_linenumber" name="L4398" href="#L4398">4398</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(totalResults) == 0) {
-<a class="jxr_linenumber" name="L4399" href="#L4399">4399</a>       <strong class="jxr_keyword">return</strong> totalResults;
-<a class="jxr_linenumber" name="L4400" href="#L4400">4400</a>     }
-<a class="jxr_linenumber" name="L4401" href="#L4401">4401</a> 
-<a class="jxr_linenumber" name="L4402" href="#L4402">4402</a>     <em class="jxr_comment">//lets assign the members to the memberships so they dont have to be queried later</em>
-<a class="jxr_linenumber" name="L4403" href="#L4403">4403</a>     assignMembersOwnersToMemberships(totalResults);
-<a class="jxr_linenumber" name="L4404" href="#L4404">4404</a>     
-<a class="jxr_linenumber" name="L4405" href="#L4405">4405</a>     <em class="jxr_comment">//we should be down to the cesure list</em>
-<a class="jxr_linenumber" name="L4406" href="#L4406">4406</a>     <strong class="jxr_keyword">return</strong> totalResults;
-<a class="jxr_linenumber" name="L4407" href="#L4407">4407</a>   }
-<a class="jxr_linenumber" name="L4408" href="#L4408">4408</a> 
-<a class="jxr_linenumber" name="L4409" href="#L4409">4409</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4410" href="#L4410">4410</a> <em class="jxr_javadoccomment">   * assign objects to memberships to reduce further querying</em>
-<a class="jxr_linenumber" name="L4411" href="#L4411">4411</a> <em class="jxr_javadoccomment">   * @param membershipArrays</em>
-<a class="jxr_linenumber" name="L4412" href="#L4412">4412</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L4413" href="#L4413">4413</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assignMembersOwnersToMemberships(Collection&lt;Object[]&gt; membershipArrays) {
-<a class="jxr_linenumber" name="L4414" href="#L4414">4414</a>     <strong class="jxr_keyword">for</strong> (Object[] membershipArray : GrouperUtil.nonNull(membershipArrays)) {
-<a class="jxr_linenumber" name="L4415" href="#L4415">4415</a>       assignMemberOwnerToMembership(membershipArray);
-<a class="jxr_linenumber" name="L4416" href="#L4416">4416</a>     }    
-<a class="jxr_linenumber" name="L4417" href="#L4417">4417</a>   }
-<a class="jxr_linenumber" name="L4418" href="#L4418">4418</a> 
-<a class="jxr_linenumber" name="L4419" href="#L4419">4419</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4420" href="#L4420">4420</a> <em class="jxr_javadoccomment">   * assign member and owner to membership</em>
-<a class="jxr_linenumber" name="L4421" href="#L4421">4421</a> <em class="jxr_javadoccomment">   * @param membershipArray</em>
-<a class="jxr_linenumber" name="L4422" href="#L4422">4422</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L4423" href="#L4423">4423</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assignMemberOwnerToMembership(Object[] membershipArray) {
-<a class="jxr_linenumber" name="L4424" href="#L4424">4424</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/Membership.html">Membership</a> membership = (Membership)membershipArray[0];
-<a class="jxr_linenumber" name="L4425" href="#L4425">4425</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof Member) {
-<a class="jxr_linenumber" name="L4426" href="#L4426">4426</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = (Member)membershipArray[1];
-<a class="jxr_linenumber" name="L4427" href="#L4427">4427</a>       membership.setMember(member);
-<a class="jxr_linenumber" name="L4428" href="#L4428">4428</a>     }
-<a class="jxr_linenumber" name="L4429" href="#L4429">4429</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof AttributeDef) {
-<a class="jxr_linenumber" name="L4430" href="#L4430">4430</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef = (AttributeDef)membershipArray[1];
-<a class="jxr_linenumber" name="L4431" href="#L4431">4431</a>       membership.setOwnerAttributeDef(attributeDef);
-<a class="jxr_linenumber" name="L4432" href="#L4432">4432</a>     }
-<a class="jxr_linenumber" name="L4433" href="#L4433">4433</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof Stem) {
-<a class="jxr_linenumber" name="L4434" href="#L4434">4434</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem = (Stem)membershipArray[1];
-<a class="jxr_linenumber" name="L4435" href="#L4435">4435</a>       membership.setOwnerStem(stem);
-<a class="jxr_linenumber" name="L4436" href="#L4436">4436</a>     }
-<a class="jxr_linenumber" name="L4437" href="#L4437">4437</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof Group) {
-<a class="jxr_linenumber" name="L4438" href="#L4438">4438</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> theGroup = (Group)membershipArray[1];
-<a class="jxr_linenumber" name="L4439" href="#L4439">4439</a>       membership.setOwnerGroup(theGroup);
-<a class="jxr_linenumber" name="L4440" href="#L4440">4440</a>     }
-<a class="jxr_linenumber" name="L4441" href="#L4441">4441</a>     <strong class="jxr_keyword">if</strong> (membershipArray.length &gt;= 3 &amp;&amp; membershipArray[2] instanceof Member) {
-<a class="jxr_linenumber" name="L4442" href="#L4442">4442</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = (Member)membershipArray[2];
-<a class="jxr_linenumber" name="L4443" href="#L4443">4443</a>       membership.setMember(member);
-<a class="jxr_linenumber" name="L4444" href="#L4444">4444</a>     }
-<a class="jxr_linenumber" name="L4445" href="#L4445">4445</a>   }
-<a class="jxr_linenumber" name="L4446" href="#L4446">4446</a>   
-<a class="jxr_linenumber" name="L4447" href="#L4447">4447</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4448" href="#L4448">4448</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Set, String, Stem, Scope, Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)</em>
-<a class="jxr_linenumber" name="L4449" href="#L4449">4449</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L4450" href="#L4450">4450</a>   @Override
-<a class="jxr_linenumber" name="L4451" href="#L4451">4451</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(
-<a class="jxr_linenumber" name="L4452" href="#L4452">4452</a>       Collection&lt;String&gt; attributeDefIds, Collection&lt;String&gt; memberIds,
-<a class="jxr_linenumber" name="L4453" href="#L4453">4453</a>       Collection&lt;String&gt; membershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, Collection&lt;Field&gt; fields,
-<a class="jxr_linenumber" name="L4454" href="#L4454">4454</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
-<a class="jxr_linenumber" name="L4455" href="#L4455">4455</a>       Boolean shouldCheckSecurity, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef,
-<a class="jxr_linenumber" name="L4456" href="#L4456">4456</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef,
-<a class="jxr_linenumber" name="L4457" href="#L4457">4457</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef) {
-<a class="jxr_linenumber" name="L4458" href="#L4458">4458</a>     Set&lt;Object[]&gt; result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
-<a class="jxr_linenumber" name="L4459" href="#L4459">4459</a>         membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
-<a class="jxr_linenumber" name="L4460" href="#L4460">4460</a>         enabled, shouldCheckSecurity, queryOptionsForAttributeDef, scopeForAttributeDef, 
-<a class="jxr_linenumber" name="L4461" href="#L4461">4461</a>         splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
-<a class="jxr_linenumber" name="L4462" href="#L4462">4462</a>     <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L4463" href="#L4463">4463</a>   }
-<a class="jxr_linenumber" name="L4464" href="#L4464">4464</a> 
-<a class="jxr_linenumber" name="L4465" href="#L4465">4465</a> }
+<a class="jxr_linenumber" name="L4390" href="#L4390">4390</a>             <em class="jxr_comment">//no need to do another query if no members</em>
+<a class="jxr_linenumber" name="L4391" href="#L4391">4391</a>             <strong class="jxr_keyword">if</strong> (GrouperUtil.length(members) == 0) {
+<a class="jxr_linenumber" name="L4392" href="#L4392">4392</a>               <strong class="jxr_keyword">return</strong> totalResults;
+<a class="jxr_linenumber" name="L4393" href="#L4393">4393</a>             }
+<a class="jxr_linenumber" name="L4394" href="#L4394">4394</a>             
+<a class="jxr_linenumber" name="L4395" href="#L4395">4395</a>             Set&lt;String&gt; theMemberIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L4396" href="#L4396">4396</a>             
+<a class="jxr_linenumber" name="L4397" href="#L4397">4397</a>             <strong class="jxr_keyword">for</strong> (Member member : members) {
+<a class="jxr_linenumber" name="L4398" href="#L4398">4398</a>               theMemberIds.add(member.getUuid());
+<a class="jxr_linenumber" name="L4399" href="#L4399">4399</a>             }
+<a class="jxr_linenumber" name="L4400" href="#L4400">4400</a>             
+<a class="jxr_linenumber" name="L4401" href="#L4401">4401</a>             <em class="jxr_comment">//dont pass for people with membership type or field... we already filtered by that...</em>
+<a class="jxr_linenumber" name="L4402" href="#L4402">4402</a>             Set&lt;Object[]&gt; tempResults = findAllByAttributeDefOwnerOptionsHelper(totalAttributeDefIds, theMemberIds,
+<a class="jxr_linenumber" name="L4403" href="#L4403">4403</a>                 totalMembershipIds, hasMembershipTypeForMember ? <strong class="jxr_keyword">null</strong> : membershipType, 
+<a class="jxr_linenumber" name="L4404" href="#L4404">4404</a>                     hasFieldForMember ? <strong class="jxr_keyword">null</strong> : fields,  
+<a class="jxr_linenumber" name="L4405" href="#L4405">4405</a>                 sources, scope, stem, stemScope, enabled, checkSecurity, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false,
+<a class="jxr_linenumber" name="L4406" href="#L4406">4406</a>                 <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
+<a class="jxr_linenumber" name="L4407" href="#L4407">4407</a>             
+<a class="jxr_linenumber" name="L4408" href="#L4408">4408</a>             <em class="jxr_comment">//lets sort these by member</em>
+<a class="jxr_linenumber" name="L4409" href="#L4409">4409</a>             Set&lt;Object[]&gt; sortedResults = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Object[]&gt;();
+<a class="jxr_linenumber" name="L4410" href="#L4410">4410</a>             
+<a class="jxr_linenumber" name="L4411" href="#L4411">4411</a>             <strong class="jxr_keyword">for</strong> (Member member : members) {
+<a class="jxr_linenumber" name="L4412" href="#L4412">4412</a>               Iterator&lt;Object[]&gt; iterator = tempResults.iterator();
+<a class="jxr_linenumber" name="L4413" href="#L4413">4413</a>               <strong class="jxr_keyword">while</strong>(iterator.hasNext()) {
+<a class="jxr_linenumber" name="L4414" href="#L4414">4414</a>                 
+<a class="jxr_linenumber" name="L4415" href="#L4415">4415</a>                 Object[] tempResult = iterator.next();
+<a class="jxr_linenumber" name="L4416" href="#L4416">4416</a>                 <em class="jxr_comment">//if the member is the same, put it in the sortedResults, and remove</em>
+<a class="jxr_linenumber" name="L4417" href="#L4417">4417</a>                 <strong class="jxr_keyword">if</strong> (StringUtils.equals(((Member)tempResult[2]).getUuid(), member.getUuid())) {
+<a class="jxr_linenumber" name="L4418" href="#L4418">4418</a>                   
+<a class="jxr_linenumber" name="L4419" href="#L4419">4419</a>                   sortedResults.add(tempResult);
+<a class="jxr_linenumber" name="L4420" href="#L4420">4420</a>                   iterator.remove();
+<a class="jxr_linenumber" name="L4421" href="#L4421">4421</a>                   
+<a class="jxr_linenumber" name="L4422" href="#L4422">4422</a>                 }
+<a class="jxr_linenumber" name="L4423" href="#L4423">4423</a>               }
+<a class="jxr_linenumber" name="L4424" href="#L4424">4424</a>             }
+<a class="jxr_linenumber" name="L4425" href="#L4425">4425</a>             <strong class="jxr_keyword">return</strong> sortedResults;
+<a class="jxr_linenumber" name="L4426" href="#L4426">4426</a>             
+<a class="jxr_linenumber" name="L4427" href="#L4427">4427</a>           }
+<a class="jxr_linenumber" name="L4428" href="#L4428">4428</a>           {
+<a class="jxr_linenumber" name="L4429" href="#L4429">4429</a>             <strong class="jxr_keyword">if</strong> (pageAttributeDefs) {
+<a class="jxr_linenumber" name="L4430" href="#L4430">4430</a> 
+<a class="jxr_linenumber" name="L4431" href="#L4431">4431</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForAttributeDef.getQueryPaging() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4432" href="#L4432">4432</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If paging by attributeDef, then paging must be set in the query options"</span>);
+<a class="jxr_linenumber" name="L4433" href="#L4433">4433</a>               }
+<a class="jxr_linenumber" name="L4434" href="#L4434">4434</a> 
+<a class="jxr_linenumber" name="L4435" href="#L4435">4435</a>               <em class="jxr_comment">//cant page too much...</em>
+<a class="jxr_linenumber" name="L4436" href="#L4436">4436</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForAttributeDef.getQueryPaging().getPageSize() &gt; 500) {
+<a class="jxr_linenumber" name="L4437" href="#L4437">4437</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant get a page size greater then 500! "</span> 
+<a class="jxr_linenumber" name="L4438" href="#L4438">4438</a>                     + queryOptionsForAttributeDef.getQueryPaging().getPageSize());
+<a class="jxr_linenumber" name="L4439" href="#L4439">4439</a>               }
+<a class="jxr_linenumber" name="L4440" href="#L4440">4440</a> 
+<a class="jxr_linenumber" name="L4441" href="#L4441">4441</a>               <strong class="jxr_keyword">if</strong> (attrDefBatches &gt; 1) {
+<a class="jxr_linenumber" name="L4442" href="#L4442">4442</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 groupBatch if paging attributeDefs"</span>);
+<a class="jxr_linenumber" name="L4443" href="#L4443">4443</a>               }
+<a class="jxr_linenumber" name="L4444" href="#L4444">4444</a>               
+<a class="jxr_linenumber" name="L4445" href="#L4445">4445</a>               <strong class="jxr_keyword">if</strong> (memberBatches &gt; 1) {
+<a class="jxr_linenumber" name="L4446" href="#L4446">4446</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 memberBatch if paging attributeDefs"</span>);
+<a class="jxr_linenumber" name="L4447" href="#L4447">4447</a>               }
+<a class="jxr_linenumber" name="L4448" href="#L4448">4448</a>               
+<a class="jxr_linenumber" name="L4449" href="#L4449">4449</a>               <strong class="jxr_keyword">if</strong> (membershipBatches &gt; 1) {
+<a class="jxr_linenumber" name="L4450" href="#L4450">4450</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant have more than 1 membershipBatch if paging attributeDefs"</span>);
+<a class="jxr_linenumber" name="L4451" href="#L4451">4451</a>               }
+<a class="jxr_linenumber" name="L4452" href="#L4452">4452</a>               
+<a class="jxr_linenumber" name="L4453" href="#L4453">4453</a>             }
+<a class="jxr_linenumber" name="L4454" href="#L4454">4454</a> 
+<a class="jxr_linenumber" name="L4455" href="#L4455">4455</a>             <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(scopeForAttributeDef) &amp;&amp; !pageAttributeDefs) {
+<a class="jxr_linenumber" name="L4456" href="#L4456">4456</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"If you are filtering by attributeDef, then you must page attributeDefs"</span>);
+<a class="jxr_linenumber" name="L4457" href="#L4457">4457</a>             }
+<a class="jxr_linenumber" name="L4458" href="#L4458">4458</a>             
+<a class="jxr_linenumber" name="L4459" href="#L4459">4459</a>             <em class="jxr_comment">//note, put in the size query conditional above</em>
+<a class="jxr_linenumber" name="L4460" href="#L4460">4460</a> 
+<a class="jxr_linenumber" name="L4461" href="#L4461">4461</a>             <em class="jxr_comment">//if paging by attributeDefs, get the attributeDefs, then do the same query using those members...</em>
+<a class="jxr_linenumber" name="L4462" href="#L4462">4462</a>             <strong class="jxr_keyword">if</strong> (pageAttributeDefs) {
+<a class="jxr_linenumber" name="L4463" href="#L4463">4463</a>               
+<a class="jxr_linenumber" name="L4464" href="#L4464">4464</a>               <em class="jxr_comment">//sort by default search string if not specified</em>
+<a class="jxr_linenumber" name="L4465" href="#L4465">4465</a>               <strong class="jxr_keyword">if</strong> (queryOptionsForAttributeDef.getQuerySort() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L4466" href="#L4466">4466</a>                 queryOptionsForAttributeDef.sortAsc(<span class="jxr_string">"a.nameDb"</span>);
+<a class="jxr_linenumber" name="L4467" href="#L4467">4467</a>               }
+<a class="jxr_linenumber" name="L4468" href="#L4468">4468</a> 
+<a class="jxr_linenumber" name="L4469" href="#L4469">4469</a>               byHqlStatic.options(queryOptionsForAttributeDef);
+<a class="jxr_linenumber" name="L4470" href="#L4470">4470</a>               
+<a class="jxr_linenumber" name="L4471" href="#L4471">4471</a>               String attributeDefPrefix = <span class="jxr_string">"select distinct a "</span>;
+<a class="jxr_linenumber" name="L4472" href="#L4472">4472</a> 
+<a class="jxr_linenumber" name="L4473" href="#L4473">4473</a>               Set&lt;AttributeDef&gt; attributeDefs = byHqlStatic.createQuery(attributeDefPrefix + sql.toString()).listSet(AttributeDef.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L4474" href="#L4474">4474</a> 
+<a class="jxr_linenumber" name="L4475" href="#L4475">4475</a>               <em class="jxr_comment">//no need to do another query if no attributeDefs</em>
+<a class="jxr_linenumber" name="L4476" href="#L4476">4476</a>               <strong class="jxr_keyword">if</strong> (GrouperUtil.length(attributeDefs) == 0) {
+<a class="jxr_linenumber" name="L4477" href="#L4477">4477</a>                 <strong class="jxr_keyword">return</strong> totalResults;
+<a class="jxr_linenumber" name="L4478" href="#L4478">4478</a>               }
+<a class="jxr_linenumber" name="L4479" href="#L4479">4479</a>               
+<a class="jxr_linenumber" name="L4480" href="#L4480">4480</a>               Set&lt;String&gt; theAttributeDefIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L4481" href="#L4481">4481</a>               
+<a class="jxr_linenumber" name="L4482" href="#L4482">4482</a>               <strong class="jxr_keyword">for</strong> (AttributeDef attributeDef : attributeDefs) {
+<a class="jxr_linenumber" name="L4483" href="#L4483">4483</a>                 theAttributeDefIds.add(attributeDef.getUuid());
+<a class="jxr_linenumber" name="L4484" href="#L4484">4484</a>               }
+<a class="jxr_linenumber" name="L4485" href="#L4485">4485</a>               
+<a class="jxr_linenumber" name="L4486" href="#L4486">4486</a>               <em class="jxr_comment">//dont pass for people with membership type or field... we already filtered by that...</em>
+<a class="jxr_linenumber" name="L4487" href="#L4487">4487</a>               Set&lt;Object[]&gt; tempResults = findAllByAttributeDefOwnerOptionsHelper(theAttributeDefIds, totalMemberIds,
+<a class="jxr_linenumber" name="L4488" href="#L4488">4488</a>                   totalMembershipIds, hasMembershipTypeForAttributeDef ? <strong class="jxr_keyword">null</strong> : membershipType, hasFieldForAttributeDef ? <strong class="jxr_keyword">null</strong> : fields,  
+<a class="jxr_linenumber" name="L4489" href="#L4489">4489</a>                   sources, scope, stem, stemScope, enabled, checkSecurity,
+<a class="jxr_linenumber" name="L4490" href="#L4490">4490</a>                   <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false);
+<a class="jxr_linenumber" name="L4491" href="#L4491">4491</a>               
+<a class="jxr_linenumber" name="L4492" href="#L4492">4492</a>               <em class="jxr_comment">//lets sort these by member</em>
+<a class="jxr_linenumber" name="L4493" href="#L4493">4493</a>               Set&lt;Object[]&gt; sortedResults = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;Object[]&gt;();
+<a class="jxr_linenumber" name="L4494" href="#L4494">4494</a>               
+<a class="jxr_linenumber" name="L4495" href="#L4495">4495</a>               <strong class="jxr_keyword">for</strong> (AttributeDef attributeDef : attributeDefs) {
+<a class="jxr_linenumber" name="L4496" href="#L4496">4496</a>                 Iterator&lt;Object[]&gt; iterator = tempResults.iterator();
+<a class="jxr_linenumber" name="L4497" href="#L4497">4497</a>                 <strong class="jxr_keyword">while</strong>(iterator.hasNext()) {
+<a class="jxr_linenumber" name="L4498" href="#L4498">4498</a>                   
+<a class="jxr_linenumber" name="L4499" href="#L4499">4499</a>                   Object[] tempResult = iterator.next();
+<a class="jxr_linenumber" name="L4500" href="#L4500">4500</a>                   <em class="jxr_comment">//if the member is the same, put it in the sortedResults, and remove</em>
+<a class="jxr_linenumber" name="L4501" href="#L4501">4501</a>                   <strong class="jxr_keyword">if</strong> (StringUtils.equals(((AttributeDef)tempResult[1]).getUuid(), attributeDef.getUuid())) {
+<a class="jxr_linenumber" name="L4502" href="#L4502">4502</a>                     
+<a class="jxr_linenumber" name="L4503" href="#L4503">4503</a>                     sortedResults.add(tempResult);
+<a class="jxr_linenumber" name="L4504" href="#L4504">4504</a>                     iterator.remove();
+<a class="jxr_linenumber" name="L4505" href="#L4505">4505</a>                     
+<a class="jxr_linenumber" name="L4506" href="#L4506">4506</a>                   }
+<a class="jxr_linenumber" name="L4507" href="#L4507">4507</a>                 }
+<a class="jxr_linenumber" name="L4508" href="#L4508">4508</a>               }
+<a class="jxr_linenumber" name="L4509" href="#L4509">4509</a>               <strong class="jxr_keyword">return</strong> sortedResults;
+<a class="jxr_linenumber" name="L4510" href="#L4510">4510</a>               
+<a class="jxr_linenumber" name="L4511" href="#L4511">4511</a>             }
+<a class="jxr_linenumber" name="L4512" href="#L4512">4512</a>           }
+<a class="jxr_linenumber" name="L4513" href="#L4513">4513</a> 
+<a class="jxr_linenumber" name="L4514" href="#L4514">4514</a>           Set&lt;Object[]&gt; results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L4515" href="#L4515">4515</a> 
+<a class="jxr_linenumber" name="L4516" href="#L4516">4516</a>           totalResults.addAll(results);
+<a class="jxr_linenumber" name="L4517" href="#L4517">4517</a>           
+<a class="jxr_linenumber" name="L4518" href="#L4518">4518</a>         }
+<a class="jxr_linenumber" name="L4519" href="#L4519">4519</a>       }
+<a class="jxr_linenumber" name="L4520" href="#L4520">4520</a>     }
+<a class="jxr_linenumber" name="L4521" href="#L4521">4521</a>     
+<a class="jxr_linenumber" name="L4522" href="#L4522">4522</a>     
+<a class="jxr_linenumber" name="L4523" href="#L4523">4523</a>     <em class="jxr_comment">//nothing to filter</em>
+<a class="jxr_linenumber" name="L4524" href="#L4524">4524</a>     <strong class="jxr_keyword">if</strong> (GrouperUtil.length(totalResults) == 0) {
+<a class="jxr_linenumber" name="L4525" href="#L4525">4525</a>       <strong class="jxr_keyword">return</strong> totalResults;
+<a class="jxr_linenumber" name="L4526" href="#L4526">4526</a>     }
+<a class="jxr_linenumber" name="L4527" href="#L4527">4527</a> 
+<a class="jxr_linenumber" name="L4528" href="#L4528">4528</a>     <em class="jxr_comment">//lets assign the members to the memberships so they dont have to be queried later</em>
+<a class="jxr_linenumber" name="L4529" href="#L4529">4529</a>     assignMembersOwnersToMemberships(totalResults);
+<a class="jxr_linenumber" name="L4530" href="#L4530">4530</a>     
+<a class="jxr_linenumber" name="L4531" href="#L4531">4531</a>     <em class="jxr_comment">//we should be down to the cesure list</em>
+<a class="jxr_linenumber" name="L4532" href="#L4532">4532</a>     <strong class="jxr_keyword">return</strong> totalResults;
+<a class="jxr_linenumber" name="L4533" href="#L4533">4533</a>   }
+<a class="jxr_linenumber" name="L4534" href="#L4534">4534</a> 
+<a class="jxr_linenumber" name="L4535" href="#L4535">4535</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4536" href="#L4536">4536</a> <em class="jxr_javadoccomment">   * assign objects to memberships to reduce further querying</em>
+<a class="jxr_linenumber" name="L4537" href="#L4537">4537</a> <em class="jxr_javadoccomment">   * @param membershipArrays</em>
+<a class="jxr_linenumber" name="L4538" href="#L4538">4538</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4539" href="#L4539">4539</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assignMembersOwnersToMemberships(Collection&lt;Object[]&gt; membershipArrays) {
+<a class="jxr_linenumber" name="L4540" href="#L4540">4540</a>     <strong class="jxr_keyword">for</strong> (Object[] membershipArray : GrouperUtil.nonNull(membershipArrays)) {
+<a class="jxr_linenumber" name="L4541" href="#L4541">4541</a>       assignMemberOwnerToMembership(membershipArray);
+<a class="jxr_linenumber" name="L4542" href="#L4542">4542</a>     }    
+<a class="jxr_linenumber" name="L4543" href="#L4543">4543</a>   }
+<a class="jxr_linenumber" name="L4544" href="#L4544">4544</a> 
+<a class="jxr_linenumber" name="L4545" href="#L4545">4545</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4546" href="#L4546">4546</a> <em class="jxr_javadoccomment">   * assign member and owner to membership</em>
+<a class="jxr_linenumber" name="L4547" href="#L4547">4547</a> <em class="jxr_javadoccomment">   * @param membershipArray</em>
+<a class="jxr_linenumber" name="L4548" href="#L4548">4548</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4549" href="#L4549">4549</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assignMemberOwnerToMembership(Object[] membershipArray) {
+<a class="jxr_linenumber" name="L4550" href="#L4550">4550</a>     <a href="../../../../../../../edu/internet2/middleware/grouper/Membership.html">Membership</a> membership = (Membership)membershipArray[0];
+<a class="jxr_linenumber" name="L4551" href="#L4551">4551</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof Member) {
+<a class="jxr_linenumber" name="L4552" href="#L4552">4552</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = (Member)membershipArray[1];
+<a class="jxr_linenumber" name="L4553" href="#L4553">4553</a>       membership.setMember(member);
+<a class="jxr_linenumber" name="L4554" href="#L4554">4554</a>     }
+<a class="jxr_linenumber" name="L4555" href="#L4555">4555</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof AttributeDef) {
+<a class="jxr_linenumber" name="L4556" href="#L4556">4556</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/attr/AttributeDef.html">AttributeDef</a> attributeDef = (AttributeDef)membershipArray[1];
+<a class="jxr_linenumber" name="L4557" href="#L4557">4557</a>       membership.setOwnerAttributeDef(attributeDef);
+<a class="jxr_linenumber" name="L4558" href="#L4558">4558</a>     }
+<a class="jxr_linenumber" name="L4559" href="#L4559">4559</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof Stem) {
+<a class="jxr_linenumber" name="L4560" href="#L4560">4560</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem = (Stem)membershipArray[1];
+<a class="jxr_linenumber" name="L4561" href="#L4561">4561</a>       membership.setOwnerStem(stem);
+<a class="jxr_linenumber" name="L4562" href="#L4562">4562</a>     }
+<a class="jxr_linenumber" name="L4563" href="#L4563">4563</a>     <strong class="jxr_keyword">if</strong> (membershipArray[1] instanceof Group) {
+<a class="jxr_linenumber" name="L4564" href="#L4564">4564</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> theGroup = (Group)membershipArray[1];
+<a class="jxr_linenumber" name="L4565" href="#L4565">4565</a>       membership.setOwnerGroup(theGroup);
+<a class="jxr_linenumber" name="L4566" href="#L4566">4566</a>     }
+<a class="jxr_linenumber" name="L4567" href="#L4567">4567</a>     <strong class="jxr_keyword">if</strong> (membershipArray.length &gt;= 3 &amp;&amp; membershipArray[2] instanceof Member) {
+<a class="jxr_linenumber" name="L4568" href="#L4568">4568</a>       <a href="../../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = (Member)membershipArray[2];
+<a class="jxr_linenumber" name="L4569" href="#L4569">4569</a>       membership.setMember(member);
+<a class="jxr_linenumber" name="L4570" href="#L4570">4570</a>     }
+<a class="jxr_linenumber" name="L4571" href="#L4571">4571</a>   }
+<a class="jxr_linenumber" name="L4572" href="#L4572">4572</a>   
+<a class="jxr_linenumber" name="L4573" href="#L4573">4573</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4574" href="#L4574">4574</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Set, String, Stem, Scope, Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)</em>
+<a class="jxr_linenumber" name="L4575" href="#L4575">4575</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4576" href="#L4576">4576</a>   @Override
+<a class="jxr_linenumber" name="L4577" href="#L4577">4577</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(
+<a class="jxr_linenumber" name="L4578" href="#L4578">4578</a>       Collection&lt;String&gt; attributeDefIds, Collection&lt;String&gt; memberIds,
+<a class="jxr_linenumber" name="L4579" href="#L4579">4579</a>       Collection&lt;String&gt; membershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, Collection&lt;Field&gt; fields,
+<a class="jxr_linenumber" name="L4580" href="#L4580">4580</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
+<a class="jxr_linenumber" name="L4581" href="#L4581">4581</a>       Boolean shouldCheckSecurity, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForMember, String filterForMember, 
+<a class="jxr_linenumber" name="L4582" href="#L4582">4582</a>       <strong class="jxr_keyword">boolean</strong> splitScopeForMember, 
+<a class="jxr_linenumber" name="L4583" href="#L4583">4583</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForMember, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForMember, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef,
+<a class="jxr_linenumber" name="L4584" href="#L4584">4584</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef,
+<a class="jxr_linenumber" name="L4585" href="#L4585">4585</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef) {
+<a class="jxr_linenumber" name="L4586" href="#L4586">4586</a>     Set&lt;Object[]&gt; result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
+<a class="jxr_linenumber" name="L4587" href="#L4587">4587</a>         membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
+<a class="jxr_linenumber" name="L4588" href="#L4588">4588</a>         enabled, shouldCheckSecurity, queryOptionsForMember, filterForMember, splitScopeForMember, hasFieldForMember, hasMembershipTypeForMember, 
+<a class="jxr_linenumber" name="L4589" href="#L4589">4589</a>         queryOptionsForAttributeDef, scopeForAttributeDef, 
+<a class="jxr_linenumber" name="L4590" href="#L4590">4590</a>         splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
+<a class="jxr_linenumber" name="L4591" href="#L4591">4591</a>     <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L4592" href="#L4592">4592</a>   }
+<a class="jxr_linenumber" name="L4593" href="#L4593">4593</a> 
+<a class="jxr_linenumber" name="L4594" href="#L4594">4594</a> 
+<a class="jxr_linenumber" name="L4595" href="#L4595">4595</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4596" href="#L4596">4596</a> <em class="jxr_javadoccomment">   * @see MembershipDAO#findAllByAttributeDefOwnerOptions(Collection, Collection, Collection, MembershipType, Collection, Set, String, Stem, Scope, Boolean, Boolean, QueryOptions, String, boolean, boolean, boolean)</em>
+<a class="jxr_linenumber" name="L4597" href="#L4597">4597</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4598" href="#L4598">4598</a>   @Override
+<a class="jxr_linenumber" name="L4599" href="#L4599">4599</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(
+<a class="jxr_linenumber" name="L4600" href="#L4600">4600</a>       Collection&lt;String&gt; attributeDefIds, Collection&lt;String&gt; memberIds,
+<a class="jxr_linenumber" name="L4601" href="#L4601">4601</a>       Collection&lt;String&gt; membershipIds, <a href="../../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType, Collection&lt;Field&gt; fields,
+<a class="jxr_linenumber" name="L4602" href="#L4602">4602</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled,
+<a class="jxr_linenumber" name="L4603" href="#L4603">4603</a>       Boolean shouldCheckSecurity, <a href="../../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef,
+<a class="jxr_linenumber" name="L4604" href="#L4604">4604</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef,
+<a class="jxr_linenumber" name="L4605" href="#L4605">4605</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef) {
+<a class="jxr_linenumber" name="L4606" href="#L4606">4606</a>     Set&lt;Object[]&gt; result = findAllByAttributeDefOwnerOptionsHelper(attributeDefIds, memberIds,
+<a class="jxr_linenumber" name="L4607" href="#L4607">4607</a>         membershipIds, membershipType, fields, sources, scope, stem, stemScope, 
+<a class="jxr_linenumber" name="L4608" href="#L4608">4608</a>         enabled, shouldCheckSecurity, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, false, false, false, queryOptionsForAttributeDef, scopeForAttributeDef, 
+<a class="jxr_linenumber" name="L4609" href="#L4609">4609</a>         splitScopeForAttributeDef, hasFieldForAttributeDef, hasMembershipTypeForAttributeDef);
+<a class="jxr_linenumber" name="L4610" href="#L4610">4610</a>     <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L4611" href="#L4611">4611</a>   }
+<a class="jxr_linenumber" name="L4612" href="#L4612">4612</a> 
+<a class="jxr_linenumber" name="L4613" href="#L4613">4613</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2014 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>

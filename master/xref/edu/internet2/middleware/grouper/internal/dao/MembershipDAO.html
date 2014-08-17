@@ -8,13 +8,13 @@
 <div id="overview"><a href="../../../../../../../apidocs/edu/internet2/middleware/grouper/internal/dao/MembershipDAO.html">View Javadoc</a></div><pre>
 <a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Copyright 2014 Internet2</em>
-<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Licensed under the Apache License, Version 2.0 (the "License");</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * </em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
@@ -1104,7 +1104,7 @@
 <a class="jxr_linenumber" name="L1096" href="#L1096">1096</a> <em class="jxr_javadoccomment">   * @return set of immediate memberships that are bad</em>
 <a class="jxr_linenumber" name="L1097" href="#L1097">1097</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>   <strong class="jxr_keyword">public</strong> Set&lt;Membership&gt; findBadCompositeMembershipsOnNonCompositeGroup();
-<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>   
+<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a> 
 <a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1101" href="#L1101">1101</a> <em class="jxr_javadoccomment">   * Find cases where a membership exists where the member is a deleted group.</em>
 <a class="jxr_linenumber" name="L1102" href="#L1102">1102</a> <em class="jxr_javadoccomment">   * @return set of immediate memberships that are bad</em>
@@ -1186,40 +1186,76 @@
 <a class="jxr_linenumber" name="L1178" href="#L1178">1178</a>       <a href="../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field,  
 <a class="jxr_linenumber" name="L1179" href="#L1179">1179</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled, 
 <a class="jxr_linenumber" name="L1180" href="#L1180">1180</a>       Boolean shouldCheckSecurity);
-<a class="jxr_linenumber" name="L1181" href="#L1181">1181</a>   
-<a class="jxr_linenumber" name="L1182" href="#L1182">1182</a> 
-<a class="jxr_linenumber" name="L1183" href="#L1183">1183</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1184" href="#L1184">1184</a> <em class="jxr_javadoccomment">   * find memberships by stem owner and other options.  </em>
-<a class="jxr_linenumber" name="L1185" href="#L1185">1185</a> <em class="jxr_javadoccomment">   * @param attributeDefIds to limit memberships to</em>
-<a class="jxr_linenumber" name="L1186" href="#L1186">1186</a> <em class="jxr_javadoccomment">   * @param memberIds to limit memberships to</em>
-<a class="jxr_linenumber" name="L1187" href="#L1187">1187</a> <em class="jxr_javadoccomment">   * @param membershipIds to limit memberships to</em>
-<a class="jxr_linenumber" name="L1188" href="#L1188">1188</a> <em class="jxr_javadoccomment">   * @param membershipType Immediate, NonImmediate, etc</em>
-<a class="jxr_linenumber" name="L1189" href="#L1189">1189</a> <em class="jxr_javadoccomment">   * @param field if finding one field, list here, otherwise all list fields will be returned</em>
-<a class="jxr_linenumber" name="L1190" href="#L1190">1190</a> <em class="jxr_javadoccomment">   * @param sources if limiting memberships of members in certain sources, list here</em>
-<a class="jxr_linenumber" name="L1191" href="#L1191">1191</a> <em class="jxr_javadoccomment">   * @param scope sql like string which will have a % appended to it</em>
-<a class="jxr_linenumber" name="L1192" href="#L1192">1192</a> <em class="jxr_javadoccomment">   * @param stem if looking in a certain stem</em>
-<a class="jxr_linenumber" name="L1193" href="#L1193">1193</a> <em class="jxr_javadoccomment">   * @param stemScope if looking only in this stem, or all substems</em>
-<a class="jxr_linenumber" name="L1194" href="#L1194">1194</a> <em class="jxr_javadoccomment">   * @param enabled null for all, true for enabled only, false for disabled only</em>
-<a class="jxr_linenumber" name="L1195" href="#L1195">1195</a> <em class="jxr_javadoccomment">   * @param shouldCheckSecurity if we should check security, default to true</em>
-<a class="jxr_linenumber" name="L1196" href="#L1196">1196</a> <em class="jxr_javadoccomment">   * @param queryOptionsForAttributeDef if paging for attribute defs, then these are the query options for the overall page</em>
-<a class="jxr_linenumber" name="L1197" href="#L1197">1197</a> <em class="jxr_javadoccomment">   * @param scopeForAttributeDef if paging for attribute defs, this is the scope to search for on the attribute defs</em>
-<a class="jxr_linenumber" name="L1198" href="#L1198">1198</a> <em class="jxr_javadoccomment">   * @param splitScopeForAttributeDef if scoping and paging for attribute defs, this will split the scope by whitespace</em>
-<a class="jxr_linenumber" name="L1199" href="#L1199">1199</a> <em class="jxr_javadoccomment">   * @param hasFieldForAttributeDef if paging by attribute def you can look for a specific field for the attribute defs</em>
-<a class="jxr_linenumber" name="L1200" href="#L1200">1200</a> <em class="jxr_javadoccomment">   * and then all fields for the resulting attribute defs</em>
-<a class="jxr_linenumber" name="L1201" href="#L1201">1201</a> <em class="jxr_javadoccomment">   * @param hasMembershipTypeForAttributeDef if paging for attribute defs, this is the membership type</em>
-<a class="jxr_linenumber" name="L1202" href="#L1202">1202</a> <em class="jxr_javadoccomment">   * @return a set of membership, stem, and member objects</em>
-<a class="jxr_linenumber" name="L1203" href="#L1203">1203</a> <em class="jxr_javadoccomment">   * @since v2.2</em>
-<a class="jxr_linenumber" name="L1204" href="#L1204">1204</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1205" href="#L1205">1205</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(Collection&lt;String&gt; attributeDefIds, Collection&lt;String&gt; memberIds,
-<a class="jxr_linenumber" name="L1206" href="#L1206">1206</a>       Collection&lt;String&gt; membershipIds, <a href="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType,
-<a class="jxr_linenumber" name="L1207" href="#L1207">1207</a>       Collection&lt;Field&gt; field,  
-<a class="jxr_linenumber" name="L1208" href="#L1208">1208</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled, 
-<a class="jxr_linenumber" name="L1209" href="#L1209">1209</a>       Boolean shouldCheckSecurity, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef, 
-<a class="jxr_linenumber" name="L1210" href="#L1210">1210</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef,
-<a class="jxr_linenumber" name="L1211" href="#L1211">1211</a>       <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef);
-<a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>   
-<a class="jxr_linenumber" name="L1213" href="#L1213">1213</a> } 
-<a class="jxr_linenumber" name="L1214" href="#L1214">1214</a> 
+<a class="jxr_linenumber" name="L1181" href="#L1181">1181</a> 
+<a class="jxr_linenumber" name="L1182" href="#L1182">1182</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1183" href="#L1183">1183</a> <em class="jxr_javadoccomment">   * find memberships by stem owner and other options.  </em>
+<a class="jxr_linenumber" name="L1184" href="#L1184">1184</a> <em class="jxr_javadoccomment">   * @param attributeDefIds to limit memberships to</em>
+<a class="jxr_linenumber" name="L1185" href="#L1185">1185</a> <em class="jxr_javadoccomment">   * @param memberIds to limit memberships to</em>
+<a class="jxr_linenumber" name="L1186" href="#L1186">1186</a> <em class="jxr_javadoccomment">   * @param membershipIds to limit memberships to</em>
+<a class="jxr_linenumber" name="L1187" href="#L1187">1187</a> <em class="jxr_javadoccomment">   * @param membershipType Immediate, NonImmediate, etc</em>
+<a class="jxr_linenumber" name="L1188" href="#L1188">1188</a> <em class="jxr_javadoccomment">   * @param field if finding one field, list here, otherwise all list fields will be returned</em>
+<a class="jxr_linenumber" name="L1189" href="#L1189">1189</a> <em class="jxr_javadoccomment">   * @param sources if limiting memberships of members in certain sources, list here</em>
+<a class="jxr_linenumber" name="L1190" href="#L1190">1190</a> <em class="jxr_javadoccomment">   * @param scope sql like string which will have a % appended to it</em>
+<a class="jxr_linenumber" name="L1191" href="#L1191">1191</a> <em class="jxr_javadoccomment">   * @param stem if looking in a certain stem</em>
+<a class="jxr_linenumber" name="L1192" href="#L1192">1192</a> <em class="jxr_javadoccomment">   * @param stemScope if looking only in this stem, or all substems</em>
+<a class="jxr_linenumber" name="L1193" href="#L1193">1193</a> <em class="jxr_javadoccomment">   * @param enabled null for all, true for enabled only, false for disabled only</em>
+<a class="jxr_linenumber" name="L1194" href="#L1194">1194</a> <em class="jxr_javadoccomment">   * @param shouldCheckSecurity if we should check security, default to true</em>
+<a class="jxr_linenumber" name="L1195" href="#L1195">1195</a> <em class="jxr_javadoccomment">   * @param queryOptionsForMember if getting a list of members who have privileges, this is the paging/sorting</em>
+<a class="jxr_linenumber" name="L1196" href="#L1196">1196</a> <em class="jxr_javadoccomment">   * @param filterForMember if filtering by member search string</em>
+<a class="jxr_linenumber" name="L1197" href="#L1197">1197</a> <em class="jxr_javadoccomment">   * @param splitScopeForMember if splitting scope (by spaces and all terms must be in there)</em>
+<a class="jxr_linenumber" name="L1198" href="#L1198">1198</a> <em class="jxr_javadoccomment">   * @param hasFieldForMember if the member has a privilege</em>
+<a class="jxr_linenumber" name="L1199" href="#L1199">1199</a> <em class="jxr_javadoccomment">   * @param hasMembershipTypeForMember if the membership type is for member list</em>
+<a class="jxr_linenumber" name="L1200" href="#L1200">1200</a> <em class="jxr_javadoccomment">   * @param queryOptionsForAttributeDef if paging for attribute defs, then these are the query options for the overall page</em>
+<a class="jxr_linenumber" name="L1201" href="#L1201">1201</a> <em class="jxr_javadoccomment">   * @param scopeForAttributeDef if paging for attribute defs, this is the scope to search for on the attribute defs</em>
+<a class="jxr_linenumber" name="L1202" href="#L1202">1202</a> <em class="jxr_javadoccomment">   * @param splitScopeForAttributeDef if scoping and paging for attribute defs, this will split the scope by whitespace</em>
+<a class="jxr_linenumber" name="L1203" href="#L1203">1203</a> <em class="jxr_javadoccomment">   * @param hasFieldForAttributeDef if paging by attribute def you can look for a specific field for the attribute defs</em>
+<a class="jxr_linenumber" name="L1204" href="#L1204">1204</a> <em class="jxr_javadoccomment">   * and then all fields for the resulting attribute defs</em>
+<a class="jxr_linenumber" name="L1205" href="#L1205">1205</a> <em class="jxr_javadoccomment">   * @param hasMembershipTypeForAttributeDef if paging for attribute defs, this is the membership type</em>
+<a class="jxr_linenumber" name="L1206" href="#L1206">1206</a> <em class="jxr_javadoccomment">   * @return a set of membership, stem, and member objects</em>
+<a class="jxr_linenumber" name="L1207" href="#L1207">1207</a> <em class="jxr_javadoccomment">   * @since v2.2</em>
+<a class="jxr_linenumber" name="L1208" href="#L1208">1208</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1209" href="#L1209">1209</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(Collection&lt;String&gt; attributeDefIds, Collection&lt;String&gt; memberIds,
+<a class="jxr_linenumber" name="L1210" href="#L1210">1210</a>       Collection&lt;String&gt; membershipIds, <a href="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType,
+<a class="jxr_linenumber" name="L1211" href="#L1211">1211</a>       Collection&lt;Field&gt; field,  
+<a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled, 
+<a class="jxr_linenumber" name="L1213" href="#L1213">1213</a>       Boolean shouldCheckSecurity, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForMember, String filterForMember, 
+<a class="jxr_linenumber" name="L1214" href="#L1214">1214</a>       <strong class="jxr_keyword">boolean</strong> splitScopeForMember, 
+<a class="jxr_linenumber" name="L1215" href="#L1215">1215</a>       <strong class="jxr_keyword">boolean</strong> hasFieldForMember, <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForMember, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef, 
+<a class="jxr_linenumber" name="L1216" href="#L1216">1216</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef,
+<a class="jxr_linenumber" name="L1217" href="#L1217">1217</a>       <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef);
+<a class="jxr_linenumber" name="L1218" href="#L1218">1218</a> 
+<a class="jxr_linenumber" name="L1219" href="#L1219">1219</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1220" href="#L1220">1220</a> <em class="jxr_javadoccomment">   * find memberships by stem owner and other options.  </em>
+<a class="jxr_linenumber" name="L1221" href="#L1221">1221</a> <em class="jxr_javadoccomment">   * @param attributeDefIds to limit memberships to</em>
+<a class="jxr_linenumber" name="L1222" href="#L1222">1222</a> <em class="jxr_javadoccomment">   * @param memberIds to limit memberships to</em>
+<a class="jxr_linenumber" name="L1223" href="#L1223">1223</a> <em class="jxr_javadoccomment">   * @param membershipIds to limit memberships to</em>
+<a class="jxr_linenumber" name="L1224" href="#L1224">1224</a> <em class="jxr_javadoccomment">   * @param membershipType Immediate, NonImmediate, etc</em>
+<a class="jxr_linenumber" name="L1225" href="#L1225">1225</a> <em class="jxr_javadoccomment">   * @param field if finding one field, list here, otherwise all list fields will be returned</em>
+<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a> <em class="jxr_javadoccomment">   * @param sources if limiting memberships of members in certain sources, list here</em>
+<a class="jxr_linenumber" name="L1227" href="#L1227">1227</a> <em class="jxr_javadoccomment">   * @param scope sql like string which will have a % appended to it</em>
+<a class="jxr_linenumber" name="L1228" href="#L1228">1228</a> <em class="jxr_javadoccomment">   * @param stem if looking in a certain stem</em>
+<a class="jxr_linenumber" name="L1229" href="#L1229">1229</a> <em class="jxr_javadoccomment">   * @param stemScope if looking only in this stem, or all substems</em>
+<a class="jxr_linenumber" name="L1230" href="#L1230">1230</a> <em class="jxr_javadoccomment">   * @param enabled null for all, true for enabled only, false for disabled only</em>
+<a class="jxr_linenumber" name="L1231" href="#L1231">1231</a> <em class="jxr_javadoccomment">   * @param shouldCheckSecurity if we should check security, default to true</em>
+<a class="jxr_linenumber" name="L1232" href="#L1232">1232</a> <em class="jxr_javadoccomment">   * @param queryOptionsForAttributeDef if paging for attribute defs, then these are the query options for the overall page</em>
+<a class="jxr_linenumber" name="L1233" href="#L1233">1233</a> <em class="jxr_javadoccomment">   * @param scopeForAttributeDef if paging for attribute defs, this is the scope to search for on the attribute defs</em>
+<a class="jxr_linenumber" name="L1234" href="#L1234">1234</a> <em class="jxr_javadoccomment">   * @param splitScopeForAttributeDef if scoping and paging for attribute defs, this will split the scope by whitespace</em>
+<a class="jxr_linenumber" name="L1235" href="#L1235">1235</a> <em class="jxr_javadoccomment">   * @param hasFieldForAttributeDef if paging by attribute def you can look for a specific field for the attribute defs</em>
+<a class="jxr_linenumber" name="L1236" href="#L1236">1236</a> <em class="jxr_javadoccomment">   * and then all fields for the resulting attribute defs</em>
+<a class="jxr_linenumber" name="L1237" href="#L1237">1237</a> <em class="jxr_javadoccomment">   * @param hasMembershipTypeForAttributeDef if paging for attribute defs, this is the membership type</em>
+<a class="jxr_linenumber" name="L1238" href="#L1238">1238</a> <em class="jxr_javadoccomment">   * @return a set of membership, stem, and member objects</em>
+<a class="jxr_linenumber" name="L1239" href="#L1239">1239</a> <em class="jxr_javadoccomment">   * @since v2.2</em>
+<a class="jxr_linenumber" name="L1240" href="#L1240">1240</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>   <strong class="jxr_keyword">public</strong> Set&lt;Object[]&gt; findAllByAttributeDefOwnerOptions(Collection&lt;String&gt; attributeDefIds, Collection&lt;String&gt; memberIds,
+<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>       Collection&lt;String&gt; membershipIds, <a href="../../../../../../edu/internet2/middleware/grouper/membership/MembershipType.html">MembershipType</a> membershipType,
+<a class="jxr_linenumber" name="L1243" href="#L1243">1243</a>       Collection&lt;Field&gt; field,  
+<a class="jxr_linenumber" name="L1244" href="#L1244">1244</a>       Set&lt;Source&gt; sources, String scope, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> stem, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, Boolean enabled, 
+<a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>       Boolean shouldCheckSecurity, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptionsForAttributeDef, 
+<a class="jxr_linenumber" name="L1246" href="#L1246">1246</a>       String scopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> splitScopeForAttributeDef, <strong class="jxr_keyword">boolean</strong> hasFieldForAttributeDef,
+<a class="jxr_linenumber" name="L1247" href="#L1247">1247</a>       <strong class="jxr_keyword">boolean</strong> hasMembershipTypeForAttributeDef);
+<a class="jxr_linenumber" name="L1248" href="#L1248">1248</a>   
+<a class="jxr_linenumber" name="L1249" href="#L1249">1249</a> } 
+<a class="jxr_linenumber" name="L1250" href="#L1250">1250</a> 
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2014 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
