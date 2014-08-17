@@ -483,7 +483,12 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
     QueryPaging queryPaging = this.queryOptions == null ? 
         null : this.queryOptions.getQueryPaging();
     if (queryPaging != null) {
-      query.setFirstResult(queryPaging.getFirstIndexOnPage());
+      //GRP-1024: sql server problems with paging page number when not initted
+      if(queryPaging.getFirstIndexOnPage() < 0) {
+        query.setFirstResult(0);
+      } else {
+        query.setFirstResult(queryPaging.getFirstIndexOnPage());
+      }
       query.setMaxResults(queryPaging.getPageSize());
     }
 
