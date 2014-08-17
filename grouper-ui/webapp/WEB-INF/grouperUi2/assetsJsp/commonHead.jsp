@@ -24,6 +24,9 @@
         parseOnLoad: false,
         async: false
     };
+    
+    grouperCsrfText="${textContainer.textEscapeSingle['guiErrorCsrfAlert']}";
+    
 </script>
 <%-- dojo is up in commonHead, everything else is in commonBottom.jsp --%>
 <script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js"></script>
