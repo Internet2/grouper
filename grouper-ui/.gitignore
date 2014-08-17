@@ -1,6 +1,7 @@
 .lastbuild.properties
 build.properties
 dist
+spy.log
 temp
 tomcat-context.xml
 webapp/WEB-INF/classes
