@@ -447,32 +447,39 @@
 <a class="jxr_linenumber" name="L439" href="#L439">439</a>     }
 <a class="jxr_linenumber" name="L440" href="#L440">440</a>     <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryPaging.html">QueryPaging</a> queryPaging = <strong class="jxr_keyword">this</strong>.queryOptions == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">this</strong>.queryOptions.getQueryPaging();
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>     <strong class="jxr_keyword">if</strong> (queryPaging != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>       query.setFirstResult(queryPaging.getFirstIndexOnPage());
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>       query.setMaxResults(queryPaging.getPageSize());
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a> 
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>     <strong class="jxr_keyword">return</strong> query;
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>   }
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>   
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">   * entity name if the object is mapped to more than one table</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">   * @param theEntityName the entity name of the object</em>
-<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">   * @return this object for chaining</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/ByCriteriaStatic.html">ByCriteriaStatic</a> setEntityName(String theEntityName) {
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">this</strong>.entityName = theEntityName;
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>   }
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> 
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L462" href="#L462">462</a> <em class="jxr_javadoccomment">   * constructor</em>
-<a class="jxr_linenumber" name="L463" href="#L463">463</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>   <a href="../../../../../edu/internet2/middleware/grouper/hibernate/ByCriteriaStatic.html">ByCriteriaStatic</a>() {}  
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>   
-<a class="jxr_linenumber" name="L467" href="#L467">467</a> }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>       
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>       <em class="jxr_comment">//GRP-1024: sql server problems with paging page number when not initted</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>       <strong class="jxr_keyword">if</strong>(queryPaging.getFirstIndexOnPage() &lt; 0) {
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>         query.setFirstResult(0);
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>         query.setFirstResult(queryPaging.getFirstIndexOnPage());
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>       }
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> 
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>       query.setMaxResults(queryPaging.getPageSize());
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">return</strong> query;
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>   }
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>   
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">   * entity name if the object is mapped to more than one table</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">   * @param theEntityName the entity name of the object</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">   * @return this object for chaining</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/ByCriteriaStatic.html">ByCriteriaStatic</a> setEntityName(String theEntityName) {
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     <strong class="jxr_keyword">this</strong>.entityName = theEntityName;
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>   }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> 
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> 
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_javadoccomment">   * constructor</em>
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>   <a href="../../../../../edu/internet2/middleware/grouper/hibernate/ByCriteriaStatic.html">ByCriteriaStatic</a>() {}  
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>   
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2014 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
