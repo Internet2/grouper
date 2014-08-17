@@ -788,6 +788,9 @@ function ajax(theUrl, options) {
   //if modal up, it wont block, so close modal before ajax
   //$.modal.close(); 
   $.blockUI();  
+  
+  grouperOriginalAjaxUrl = theUrl;  
+  
   $.ajax({
     url: theUrl,
     headers: owaspCsrfTokenHeader,
@@ -802,9 +805,40 @@ function ajax(theUrl, options) {
         
       $.unblockUI();
       
+      //what happens is there is an XSRF problem, and ajax will auto-redirect
+      //the result of that redirect, to: https://server/grouperAppName/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=csrf&OWASP_CSRFTOKEN=abc123
+      //that redirect will have an HTTP header of X-Grouper-path, and we should redirect the browser to it
       var grouperPath = jqXHR.getResponseHeader("X-Grouper-path");
       if (!guiIsEmpty(grouperPath)) {
         grouperPath = decodeURIComponent(grouperPath);
+        
+        //if this path is for XSRF, then lets just refresh the browser and alert an error message
+        //../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=csrf&OWASP_CSRFTOKEN=OOEE-4GAC-VUIS-YI7V-9BTD-X7MD-NO7E-AM8F
+        //TODO in Grouper 2.3+ the indexOf UiV2 can be taken out
+        if (grouperPath.indexOf('code=csrf') >= 0 && location.href.indexOf('UiV2') >= 0) {
+          
+          //there are two cases, if it was a get, or if it is a post...
+          //well both are posts, but the "gets" are the ones that go into the URL for the back button, thats how we can tell
+          //so look in the ajax url, and see what the operation is, and compare to the browser url
+          var grouperOriginalAjaxOperation = guiGetOperationFromUrl(grouperOriginalAjaxUrl);
+          var locationOperation = guiGetOperationFromUrl(location.href);
+
+          //lets add something bogus to the request so the request is actually sent and not retrieved from cache
+          var newLocation=location.href;
+          if (newLocation.indexOf('?') == -1) {
+            newLocation += '?csrfExtraParam=xyz';
+          } else {
+            newLocation += '&csrfExtraParam=xyz';
+          }
+
+          //this means its a post
+          if (grouperOriginalAjaxOperation != null && grouperOriginalAjaxOperation != locationOperation) {
+            alert(grouperCsrfText);            
+          }
+          
+          location.href=newLocation;
+          return;
+        }      
         location.href=grouperPath;
         return;
       }
@@ -818,6 +852,40 @@ function ajax(theUrl, options) {
       $.unblockUI();  
     }
   });
+}
+
+/**
+ * based on a url, get the operation param out of there
+ * @param url
+ */
+function guiGetOperationFromUrl(url) {
+  if (guiIsEmpty(url)) {
+    return null;
+  }
+  //../app/UiV2MyGroups.myGroupsJoin
+  if (url.indexOf('../app/') == 0) {
+    //is there a question mark?
+    var questionIndex = url.indexOf('?');
+    if (questionIndex == -1) {
+      //strip off the front
+      return url.substring(7, url.length);
+    }
+    //substring until question mark
+    return url.substring(7,questionIndex);
+  }
+  
+  //in url param
+  var operationEqualsIndex = url.indexOf('operation=');
+  if (operationEqualsIndex == -1) {
+    return null;
+  }
+  operationEqualsIndex += 10;
+  var andIndex = url.indexOf('&', operationEqualsIndex);
+  if (andIndex == -1) {
+    return url.substring(operationEqualsIndex, url.length);
+  }
+  //there is an &, go to that
+  return url.substring(operationEqualsIndex, andIndex);
 }
 
 /**
