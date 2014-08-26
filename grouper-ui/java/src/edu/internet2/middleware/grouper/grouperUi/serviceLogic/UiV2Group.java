@@ -1556,7 +1556,8 @@ public class UiV2Group {
       });
 
       if (group != null) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            editIdChecked ? "#groupId" : "#groupName",
             TextContainer.retrieveFromRequest().getText().get("groupCreateCantCreateAlreadyExists")));
         return;
       }
