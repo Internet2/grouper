@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
@@ -69,6 +70,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -1624,7 +1626,27 @@ public class UiV2Stem {
         return;
         
       }
-  
+
+      //take into account the root stem
+      final String stemName = StringUtils.isBlank(parentFolder.getName()) ? extension : (parentFolder.getName() + ":" + extension);
+      
+      //search as an admin to see if the group exists
+      stem = (Stem)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return StemFinder.findByName(theGrouperSession, stemName, false);
+        }
+      });
+
+      if (stem != null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            editIdChecked ? "#stemId" : "#stemName",
+            TextContainer.retrieveFromRequest().getText().get("stemCreateCantCreateAlreadyExists")));
+        return;
+      }
+
+      
       try {
   
         //create the folder
