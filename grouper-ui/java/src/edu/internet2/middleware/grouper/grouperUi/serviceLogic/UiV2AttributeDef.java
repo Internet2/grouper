@@ -35,11 +35,19 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.GrouperValidationException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -53,8 +61,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -1018,6 +1030,556 @@ public class UiV2AttributeDef {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+
+  /**
+   * new attributeDef (show create screen)
+   * @param request
+   * @param response
+   */
+  public void newAttributeDef(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      //see if there is a stem id for this
+      String objectStemId = request.getParameter("objectStemId");
+      
+      Pattern pattern = Pattern.compile("^[a-zA-Z0-9-_]+$");
+      
+      if (!StringUtils.isBlank(objectStemId) && pattern.matcher(objectStemId).matches()) {
+        
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setObjectStemId(objectStemId);
+        
+      }
+      
+      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/attributeDef/newAttributeDef.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * @param guiResponseJs
+   * @param gve
+   */
+  private void handleGrouperValidationException(GuiResponseJs guiResponseJs,
+      GrouperValidationException gve) {
+    //# attribute definition validations fields too long
+    //attributeDefValidation_attributeDefDescriptionTooLong = Error: attribute definition description is too long
+    //attributeDefValidation_attributeDefExtensionTooLong = Error: attribute definition ID is too long
+    //attributeDefValidation_attributeDefNameTooLong = Error: the attribute definition ID causes the ID path to be too long, please shorten it
+    
+    if (StringUtils.equals(AttributeDef.VALIDATION_DESCRIPTION_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#attributeDefDescription",
+          TextContainer.retrieveFromRequest().getText().get("attributeDefValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else if (StringUtils.equals(AttributeDef.VALIDATION_EXTENSION_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, gve.getGrouperValidationKey())
+        || StringUtils.equals(AttributeDef.VALIDATION_NAME_OF_ATTRIBUTE_DEF_TOO_LONG_KEY, gve.getGrouperValidationKey())) {
+
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#attributeDefId",
+          TextContainer.retrieveFromRequest().getText().get("attributeDefValidation_" + gve.getGrouperValidationKey())));
+      return;
+      
+    } else {
+      LOG.error("Non-fatal error, not expecting GrouperValidationException: " + gve.getGrouperValidationKey(), gve);
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gve.getMessage()));
+      return;
+    }
+  }
+
+  /**
+   * when the attribute def type changes, make sure the assign to shows the right stuff
+   * @param request
+   * @param response
+   */
+  public void attributeDefTypeChanged(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final String attributeDefTypeString = request.getParameter("attributeDefType");
+      
+      AttributeDefType attributeDefType = AttributeDefType.valueOfIgnoreCase(attributeDefTypeString, false);
+      
+      if (attributeDefType == null) {
+        
+        //lets show all
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+        
+      } else {
+
+        switch(attributeDefType) {
+          case attr:
+
+            //lets show all
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+
+            break;
+            
+          case type:
+
+            //lets show all
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToTypeHideCheckbox').hide('slow')"));
+
+            break;
+            
+          case limit:
+
+            //lets show all, hide the non limit ones
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToLimitHideCheckbox').hide('slow')"));
+
+            break;
+            
+          case perm:
+            
+            //lets show all, hide the non perm ones
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToPermHideCheckbox').hide('slow')"));
+
+            break;
+            
+          case service:
+
+            //lets show all, hide the non service ones
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToCheckbox').show('slow')"));
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.assignToServiceHideCheckbox').hide('slow')"));
+
+            break;
+          
+        }
+        
+      }
+
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * when the attribute def value type changes, make sure the multi-valued gets updated
+   * @param request
+   * @param response
+   */
+  public void attributeDefValueTypeChanged(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final String attributeDefValueTypeString = request.getParameter("attributeDefValueType");
+      
+      AttributeDefValueType attributeDefValueType = AttributeDefValueType.valueOfIgnoreCase(attributeDefValueTypeString, false);
+      
+      if (attributeDefValueType == null) {
+        
+        //lets show it
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
+        
+      } else {
+
+        switch(attributeDefValueType) {
+          case marker:
+            //lets show all
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').hide('slow')"));
+            
+            
+            break;
+          case floating:
+          case integer:
+          case memberId:
+          case string:
+          case timestamp:
+
+            //lets show it
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('.multiAssignFieldClass').show('slow')"));
+
+
+            break;
+          
+        }
+        
+      }
+
+      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * new attributeDef submit
+   * @param request
+   * @param response
+   */
+  public void newAttributeDefSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+  
+    AttributeDef attributeDef = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final String extension = request.getParameter("extension");
+      final String description = request.getParameter("description");
+      final boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrAdmins[]"), false);
+      final boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrUpdaters[]"), false);
+      final boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrReaders[]"), false);
+      final boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrViewers[]"), false);
+      final boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrOptins[]"), false);
+      final boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrOptouts[]"), false);
+      final boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrDefAttrReaders[]"), false);
+      final boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrDefAttrUpdaters[]"), false);
+      final String attributeDefTypeString = request.getParameter("attributeDefType");
+      final String attributeDefValueTypeString = request.getParameter("attributeDefValueType");
+      String attributeDefToEditMultiAssignable = request.getParameter("attributeDefMultiAssignable");
+      String attributeDefToEditMultiValued = request.getParameter("attributeDefMultiValued");
+      
+      boolean multiAssignable = GrouperUtil.booleanValue(attributeDefToEditMultiAssignable, false);
+      boolean multiValued = GrouperUtil.booleanValue(attributeDefToEditMultiValued, false);
+      
+      String attributeDefToEditAssignToAttributeDef = request.getParameter("attributeDefToEditAssignToAttributeDef");
+      boolean attributeDefToEditAssignToAttributeDefBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToAttributeDef, false);
+
+      String attributeDefToEditAssignToAttributeDefAssign = request.getParameter("attributeDefToEditAssignToAttributeDefAssign");
+      boolean attributeDefToEditAssignToAttributeDefAssignBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToAttributeDefAssign, false);
+
+      String attributeDefToEditAssignToStem = request.getParameter("attributeDefToEditAssignToStem");
+      boolean attributeDefToEditAssignToStemBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToStem, false);
+
+      String attributeDefToEditAssignToStemAssign = request.getParameter("attributeDefToEditAssignToStemAssign");
+      boolean attributeDefToEditAssignToStemAssignBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToStemAssign, false);
+
+      String attributeDefToEditAssignToGroup = request.getParameter("attributeDefToEditAssignToGroup");
+      boolean attributeDefToEditAssignToGroupBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToGroup, false);
+
+      String attributeDefToEditAssignToGroupAssign = request.getParameter("attributeDefToEditAssignToGroupAssign");
+      boolean attributeDefToEditAssignToGroupAssignBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToGroupAssign, false);
+
+      String attributeDefToEditAssignToMember = request.getParameter("attributeDefToEditAssignToMember");
+      boolean attributeDefToEditAssignToMemberBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToMember, false);
+
+      String attributeDefToEditAssignToMemberAssign = request.getParameter("attributeDefToEditAssignToMemberAssign");
+      boolean attributeDefToEditAssignToMemberAssignBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToMemberAssign, false);
+
+      String attributeDefToEditAssignToMembership = request.getParameter("attributeDefToEditAssignToMembership");
+      boolean attributeDefToEditAssignToMembershipBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToMembership, false);
+
+      String attributeDefToEditAssignToMembershipAssign = request.getParameter("attributeDefToEditAssignToMembershipAssign");
+      boolean attributeDefToEditAssignToMembershipAssignBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToMembershipAssign, false);
+
+      String attributeDefToEditAssignToImmediateMembership = request.getParameter("attributeDefToEditAssignToImmediateMembership");
+      boolean attributeDefToEditAssignToImmediateMembershipBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToImmediateMembership, false);
+
+      String attributeDefToEditAssignToImmediateMembershipAssign = request.getParameter("attributeDefToEditAssignToImmediateMembershipAssign");
+      boolean attributeDefToEditAssignToImmediateMembershipAssignBoolean = GrouperUtil.booleanValue(attributeDefToEditAssignToImmediateMembershipAssign, false);
+            
+      String parentFolderId = request.getParameter("parentFolderComboName");
+      
+      //just get what they typed in
+      if (StringUtils.isBlank(parentFolderId)) {
+        parentFolderId = request.getParameter("parentFolderComboNameDisplay");
+      }
+      
+      if (StringUtils.isBlank(parentFolderId)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#parentFolderComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateRequiredParentStemId")));
+        return;
+      }
+      
+      final Stem parentFolder = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
+          .assignSubject(loggedInSubject)
+          .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
+  
+      if (parentFolder == null) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#parentFolderComboErrorId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateCantFindParentStemId")));
+        return;
+        
+      }
+      
+      if (StringUtils.isBlank(extension)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#attributeDefId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorExtensionRequired")));
+        return;
+        
+      }
+  
+      if (parentFolder.isRootStem()) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateCantCreateInRoot")));
+        return;
+        
+      }
+  
+      final String nameOfAttributeDef = parentFolder.getName() + ":" + extension;
+      
+      //search as an admin to see if the group exists
+      attributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return AttributeDefFinder.findByName(nameOfAttributeDef, false);
+        }
+      });
+  
+      if (attributeDef != null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#attributeDefId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateCantCreateAlreadyExists")));
+        return;
+      }
+      
+      if (StringUtils.isBlank(attributeDefTypeString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#attributeDefTypeId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorAttributeTypeRequired")));
+
+        return;
+      }
+
+      AttributeDefType attributeDefType = AttributeDefType.valueOfIgnoreCase(attributeDefTypeString, true);
+
+      //make sure the type and assign to's match
+      switch(attributeDefType) {
+        case attr:
+          //allow all
+          break;
+        case type:
+          //type can only be non assignments
+          //attributeDefToEditAssignToAttributeDefBoolean = false;
+          attributeDefToEditAssignToAttributeDefAssignBoolean = false;
+          //attributeDefToEditAssignToStemBoolean = false;
+          attributeDefToEditAssignToStemAssignBoolean = false;
+          //attributeDefToEditAssignToGroupBoolean = false;
+          attributeDefToEditAssignToGroupAssignBoolean = false;
+          //attributeDefToEditAssignToMemberBoolean = false;
+          attributeDefToEditAssignToMemberAssignBoolean = false;
+          //attributeDefToEditAssignToMembershipBoolean = false;
+          attributeDefToEditAssignToMembershipAssignBoolean = false;
+          //attributeDefToEditAssignToImmediateMembershipBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipAssignBoolean = false;
+          break;
+        case perm:
+          //perm can only be group and effective membership
+          attributeDefToEditAssignToAttributeDefBoolean = false;
+          attributeDefToEditAssignToAttributeDefAssignBoolean = false;
+          attributeDefToEditAssignToStemBoolean = false;
+          attributeDefToEditAssignToStemAssignBoolean = false;
+          //attributeDefToEditAssignToGroupBoolean
+          attributeDefToEditAssignToGroupAssignBoolean = false;
+          attributeDefToEditAssignToMemberBoolean = false;
+          attributeDefToEditAssignToMemberAssignBoolean = false;
+          //attributeDefToEditAssignToMembershipBoolean
+          attributeDefToEditAssignToMembershipAssignBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipAssignBoolean = false;
+          break;
+        case limit:
+          //limit can only be group assign and membership assign
+          attributeDefToEditAssignToAttributeDefBoolean = false;
+          attributeDefToEditAssignToAttributeDefAssignBoolean = false;
+          attributeDefToEditAssignToStemBoolean = false;
+          attributeDefToEditAssignToStemAssignBoolean = false;
+          attributeDefToEditAssignToGroupBoolean = false;
+          //attributeDefToEditAssignToGroupAssignBoolean = false;
+          attributeDefToEditAssignToMemberBoolean = false;
+          attributeDefToEditAssignToMemberAssignBoolean = false;
+          attributeDefToEditAssignToMembershipBoolean = false;
+          //attributeDefToEditAssignToMembershipAssignBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipAssignBoolean = false;
+          break;
+        case service:
+          //service can only be  stem
+          attributeDefToEditAssignToAttributeDefBoolean = false;
+          attributeDefToEditAssignToAttributeDefAssignBoolean = false;
+          //attributeDefToEditAssignToStemBoolean = false;
+          attributeDefToEditAssignToStemAssignBoolean = false;
+          attributeDefToEditAssignToGroupBoolean = false;
+          attributeDefToEditAssignToGroupAssignBoolean = false;
+          attributeDefToEditAssignToMemberBoolean = false;
+          attributeDefToEditAssignToMemberAssignBoolean = false;
+          attributeDefToEditAssignToMembershipBoolean = false;
+          attributeDefToEditAssignToMembershipAssignBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipBoolean = false;
+          attributeDefToEditAssignToImmediateMembershipAssignBoolean = false;
+          break;
+          
+      }
+      
+
+      
+      if (StringUtils.isBlank(attributeDefValueTypeString)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#attributeDefValueTypeId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorAttributeValueTypeRequired")));
+
+        return;
+      }
+
+      AttributeDefValueType attributeDefValueType = AttributeDefValueType.valueOfIgnoreCase(attributeDefValueTypeString, true);
+
+      
+      //validate that at least one assign to is selected
+      if (!attributeDefToEditAssignToAttributeDefBoolean && !attributeDefToEditAssignToAttributeDefAssignBoolean
+          && !attributeDefToEditAssignToStemBoolean && !attributeDefToEditAssignToStemAssignBoolean
+          && !attributeDefToEditAssignToGroupBoolean && !attributeDefToEditAssignToGroupAssignBoolean
+          && !attributeDefToEditAssignToMemberBoolean && !attributeDefToEditAssignToMemberAssignBoolean
+          && !attributeDefToEditAssignToMembershipBoolean && !attributeDefToEditAssignToMembershipAssignBoolean
+          && !attributeDefToEditAssignToImmediateMembershipBoolean && !attributeDefToEditAssignToImmediateMembershipAssignBoolean) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#assignToLabelId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorAssignToRequired")));
+        return;
+      }
+
+      switch (attributeDefValueType) {
+        case marker:
+          //cant be multi valued
+          multiValued = false;
+          break;
+          
+        case floating:
+        case integer:
+        case memberId:
+        case string:
+        case timestamp:
+          //do nothing
+          break;
+      }
+
+      final String attributeDefName = parentFolder.getName() + ":" + extension;
+
+      //search as an admin to see if the group exists
+      attributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return AttributeDefFinder.findByName(attributeDefName, false);
+        }
+      });
+
+      if (attributeDef != null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#attributeDefId",
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateCantCreateAlreadyExists")));
+        return;
+      }
+
+      try {
+  
+        //create the attribute def
+        attributeDef = new AttributeDefSave(grouperSession).assignName(nameOfAttributeDef).assignSaveMode(SaveMode.INSERT)
+            .assignDescription(description).assignAttributeDefType(attributeDefType)
+            .assignValueType(attributeDefValueType)
+            .assignMultiAssignable(multiAssignable)
+            .assignMultiValued(multiValued)
+            .assignPrivAllAdmin(adminChecked).assignPrivAllAttrRead(attrReadChecked)
+            .assignPrivAllAttrUpdate(attrUpdateChecked).assignPrivAllOptin(optinChecked)
+            .assignPrivAllOptout(optoutChecked).assignPrivAllRead(readChecked)
+            .assignPrivAllUpdate(updateChecked).assignPrivAllView(viewChecked)
+            .assignToAttributeDef(attributeDefToEditAssignToAttributeDefBoolean)
+            .assignToAttributeDefAssn(attributeDefToEditAssignToAttributeDefAssignBoolean)
+            .assignToStem(attributeDefToEditAssignToStemBoolean)
+            .assignToStemAssn(attributeDefToEditAssignToStemAssignBoolean)
+            .assignToGroup(attributeDefToEditAssignToGroupBoolean)
+            .assignToGroupAssn(attributeDefToEditAssignToGroupAssignBoolean)
+            .assignToMember(attributeDefToEditAssignToMemberBoolean)
+            .assignToMemberAssn(attributeDefToEditAssignToMemberAssignBoolean)
+            .assignToEffMembership(attributeDefToEditAssignToMembershipBoolean)
+            .assignToEffMembershipAssn(attributeDefToEditAssignToMembershipAssignBoolean)
+            .assignToImmMembership(attributeDefToEditAssignToImmediateMembershipBoolean)
+            .assignToImmMembershipAssn(attributeDefToEditAssignToImmediateMembershipAssignBoolean)
+            .save();
+  
+      } catch (GrouperValidationException gve) {
+        handleGrouperValidationException(guiResponseJs, gve);
+        return;
+  
+        
+      } catch (InsufficientPrivilegeException ipe) {
+        
+        LOG.warn("Insufficient privilege exception for attribute def create: " + SubjectHelper.getPretty(loggedInSubject), ipe);
+        
+        //dont change screens
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateInsufficientPrivileges")));
+        return;
+  
+      } catch (Exception sde) {
+        
+        LOG.warn("Error creating attributeDef: " + SubjectHelper.getPretty(loggedInSubject) + ", " + attributeDef, sde);
+        
+        //dont change screens
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("attributeDefCreateError") 
+            + ": " + GrouperUtil.xmlEscape(sde.getMessage(), true)));
+  
+        return;
+  
+      }
+  
+      //go to the view group screen
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=" + attributeDef.getId() + "')"));
+  
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("attributeDefCreateSuccess")));
+  
+      GrouperUserDataApi.recentlyUsedAttributeDefAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, attributeDef);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   

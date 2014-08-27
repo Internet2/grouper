@@ -1474,7 +1474,6 @@ public class UiV2Group {
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
-      
 
       final boolean editIdChecked = GrouperUtil.booleanValue(request.getParameter("nameDifferentThanId[]"), false);
       final String displayExtension = request.getParameter("displayExtension");
@@ -1545,7 +1544,8 @@ public class UiV2Group {
 
       if (parentFolder.isRootStem()) {
         
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#parentFolderComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("groupCreateCantCreateInRoot")));
         return;
         
@@ -1563,7 +1563,8 @@ public class UiV2Group {
       });
 
       if (group != null) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            editIdChecked ? "#groupId" : "#groupName",
             TextContainer.retrieveFromRequest().getText().get("groupCreateCantCreateAlreadyExists")));
         return;
       }

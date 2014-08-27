@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -45,6 +47,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
@@ -68,6 +71,7 @@ import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -1624,7 +1628,26 @@ public class UiV2Stem {
         return;
         
       }
-  
+
+      //take into account the root stem
+      final String stemName = StringUtils.isBlank(parentFolder.getName()) ? extension : (parentFolder.getName() + ":" + extension);
+      
+      //search as an admin to see if the group exists
+      stem = (Stem)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return StemFinder.findByName(theGrouperSession, stemName, false);
+        }
+      });
+
+      if (stem != null) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            editIdChecked ? "#stemId" : "#stemName",
+            TextContainer.retrieveFromRequest().getText().get("stemCreateCantCreateAlreadyExists")));
+        return;
+      }
+
       try {
   
         //create the folder
@@ -2141,6 +2164,38 @@ public class UiV2Stem {
       GrouperSession.stopQuietly(grouperSession);
     }
   
+  }
+
+  /**
+   * submit button on parent folder search model dialog for create attribute defs
+   * @param request
+   * @param response
+   */
+  public void stemSearchAttributeDefFormSubmit(final HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      stemSearchFormSubmitHelper(request, response, StemSearchType.createGroup);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * combo filter create attributeDef folder
+   * @param request
+   * @param response
+   */
+  public void createAttributeDefParentFolderFilter(final HttpServletRequest request, HttpServletResponse response) {
+  
+    createGroupParentFolderFilter(request, response);
   }
 
 }

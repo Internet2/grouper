@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
@@ -374,6 +375,78 @@ public class AttributeDefContainer {
     }
     
     return this.favorite;
+  }
+
+  /**
+   * if entities get admin when added to a group
+   * @return true if entities get admin when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllAdmin() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrAdmin", false);
+  }
+
+  /**
+   * if entities get attrRead when added to a group
+   * @return true if entities get attrRead when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllAttrRead() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrDefAttrRead", false);
+  }
+
+  /**
+   * if entities get attrUpdate when added to a group
+   * @return true if entities get attrUpdate when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllAttrUpdate() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrDefAttrUpdate", false);
+  }
+
+  /**
+   * if entities get optin when added to a group
+   * @return true if entities get optin when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllOptin() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrOptin", false);
+  }
+
+  /**
+   * if entities get optout when added to a group
+   * @return true if entities get optout when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllOptout() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrOptout", false);
+  }
+
+  /**
+   * if entities get read when added to a group
+   * @return true if entities get read when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllRead() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrRead", false);
+  }
+
+  /**
+   * if entities get update when added to a group
+   * @return true if entities get update when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllUpdate() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrUpdate", false);
+  }
+
+  /**
+   * if entities get view when added to a group
+   * @return true if entities get view when added to a group
+   */
+  public boolean isConfigDefaultAttributeDefsCreateGrantAllView() {
+    return GrouperConfig.retrieveConfig()
+        .propertyValueBoolean("attributeDefs.create.grant.all.attrView", false);
   }
   
   

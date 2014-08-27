@@ -15,7 +15,7 @@
  */
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.10 2009-11-17 02:52:29 mchyzer Exp $
+ * $Id: AttributeDefSave.java,v 1.10 2009-11-17 02:52:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.attr;
 
@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -38,6 +39,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -372,6 +374,46 @@ public class AttributeDefSave {
    * type of the value,  int, double, string, marker
    */
   private AttributeDefValueType valueType = AttributeDefValueType.marker;
+
+  /**
+   * if the priv admin should be different from the defaults
+   */
+  private Boolean privAllAdmin;
+
+  /**
+   * if the priv attr update should be different from the defaults
+   */
+  private Boolean privAllAttrRead;
+
+  /**
+   * if the priv attr update should be different from the defaults
+   */
+  private Boolean privAllAttrUpdate;
+
+  /**
+   * if the priv optin should be different from the defaults
+   */
+  private Boolean privAllOptin;
+
+  /**
+   * if the priv optout should be different from the defaults
+   */
+  private Boolean privAllOptout;
+
+  /**
+   * if the priv read should be different from the defaults
+   */
+  private Boolean privAllRead;
+
+  /**
+   * if the priv update should be different from the defaults
+   */
+  private Boolean privAllUpdate;
+
+  /**
+   * if the priv view should be different from the defaults
+   */
+  private Boolean privAllView;
   
   /**
    * if assign
@@ -688,6 +730,90 @@ public class AttributeDefSave {
                 if (needsSave) {
                   theAttributeDef.store();
                 }
+
+                boolean changedPrivs = false;
+                
+                boolean adminDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrAdmin(SubjectFinder.findAllSubject());
+                
+                boolean updateDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrUpdate(SubjectFinder.findAllSubject());
+                
+                boolean readDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrRead(SubjectFinder.findAllSubject());
+      
+                boolean viewDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrView(SubjectFinder.findAllSubject());
+      
+                boolean optinDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrOptin(SubjectFinder.findAllSubject());
+      
+                boolean optoutDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrOptout(SubjectFinder.findAllSubject());
+      
+                boolean attrReadDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrDefAttrRead(SubjectFinder.findAllSubject());
+      
+                boolean attrUpdateDefaultChecked = theAttributeDef.getPrivilegeDelegate().hasAttrDefAttrUpdate(SubjectFinder.findAllSubject());
+      
+                if (AttributeDefSave.this.privAllAdmin != null && AttributeDefSave.this.privAllAdmin != adminDefaultChecked) {
+                  if (AttributeDefSave.this.privAllAdmin) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_ADMIN, false);
+                  }
+                }
+
+                if (AttributeDefSave.this.privAllView != null && AttributeDefSave.this.privAllView != viewDefaultChecked) {
+                  if (AttributeDefSave.this.privAllView) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_VIEW, false);
+                  }
+                }
+      
+                if (AttributeDefSave.this.privAllRead != null && AttributeDefSave.this.privAllRead != readDefaultChecked) {
+                  if (AttributeDefSave.this.privAllRead) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                  }
+                }
+                if (AttributeDefSave.this.privAllUpdate != null && AttributeDefSave.this.privAllUpdate != updateDefaultChecked) {
+                  if (AttributeDefSave.this.privAllUpdate) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+                  }
+                }
+                if (AttributeDefSave.this.privAllOptin != null && AttributeDefSave.this.privAllOptin != optinDefaultChecked) {
+                  if (AttributeDefSave.this.privAllOptin) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+                  }
+                }
+                if (AttributeDefSave.this.privAllOptout != null && AttributeDefSave.this.privAllOptout != optoutDefaultChecked) {
+                  if (AttributeDefSave.this.privAllOptout) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTOUT, false);
+                  }
+                }
+                if (AttributeDefSave.this.privAllAttrRead != null && AttributeDefSave.this.privAllAttrRead != attrReadDefaultChecked) {
+                  if (AttributeDefSave.this.privAllAttrRead) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+                  }
+                }
+                if (AttributeDefSave.this.privAllAttrUpdate != null && AttributeDefSave.this.privAllAttrUpdate != attrUpdateDefaultChecked) {
+                  if (AttributeDefSave.this.privAllAttrUpdate) {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+                  } else {
+                    changedPrivs = changedPrivs | theAttributeDef.getPrivilegeDelegate().revokePriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE, false);
+                  }
+                }
+                
+                if (changedPrivs) {
+                  if (AttributeDefSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    AttributeDefSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                }
+
                 
                 return theAttributeDef;
               }
@@ -713,5 +839,93 @@ public class AttributeDefSave {
       throw re;
     }
 
+  }
+
+
+  /**
+   * assign priv admin to be different than the defaults for grouperAll
+   * @param thePrivAllAdmin
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllAdmin(boolean thePrivAllAdmin) {
+    this.privAllAdmin = thePrivAllAdmin;
+    return this;
+  }
+
+
+  /**
+   * assign priv attr read to be different than the defaults for grouperAll
+   * @param thePrivAllAttrRead
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllAttrRead(boolean thePrivAllAttrRead) {
+    this.privAllAttrRead = thePrivAllAttrRead;
+    return this;
+  }
+
+
+  /**
+   * assign priv attr update to be different than the defaults for grouperAll
+   * @param thePrivAllAttrUpdate
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllAttrUpdate(boolean thePrivAllAttrUpdate) {
+    this.privAllAttrUpdate = thePrivAllAttrUpdate;
+    return this;
+  }
+
+
+  /**
+   * assign priv optin to be different than the defaults for grouperAll
+   * @param thePrivAllOptin
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllOptin(boolean thePrivAllOptin) {
+    this.privAllOptin = thePrivAllOptin;
+    return this;
+  }
+
+
+  /**
+   * assign priv optout to be different than the defaults for grouperAll
+   * @param thePrivAllOptout
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllOptout(boolean thePrivAllOptout) {
+    this.privAllOptout = thePrivAllOptout;
+    return this;
+  }
+
+
+  /**
+   * assign priv read to be different than the defaults for grouperAll
+   * @param thePrivAllRead
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllRead(boolean thePrivAllRead) {
+    this.privAllRead = thePrivAllRead;
+    return this;
+  }
+
+
+  /**
+   * assign priv update to be different than the defaults for grouperAll
+   * @param thePrivAllUpdate
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllUpdate(boolean thePrivAllUpdate) {
+    this.privAllUpdate = thePrivAllUpdate;
+    return this;
+  }
+
+
+  /**
+   * assign priv view to be different than the defaults for grouperAll
+   * @param thePrivAllView
+   * @return this for chaining
+   */
+  public AttributeDefSave assignPrivAllView(boolean thePrivAllView) {
+    this.privAllView = thePrivAllView;
+    return this;
   }
 }
