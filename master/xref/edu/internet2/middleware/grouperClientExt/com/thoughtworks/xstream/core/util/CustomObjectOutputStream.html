@@ -49,7 +49,7 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DATA_HOLDER_KEY = CustomObjectOutputStream.<strong class="jxr_keyword">class</strong>.getName();
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">synchronized</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">CustomObjectOutputStream</a> getInstance(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/DataHolder.html">DataHolder</a> whereFrom, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectInputStream.html">StreamCallback</a> callback) {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">synchronized</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">CustomObjectOutputStream</a> getInstance(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/DataHolder.html">DataHolder</a> whereFrom, <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">StreamCallback</a> callback) {
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">CustomObjectOutputStream</a> result = (CustomObjectOutputStream) whereFrom.get(DATA_HOLDER_KEY);
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">if</strong> (result == <strong class="jxr_keyword">null</strong>) {
@@ -64,7 +64,7 @@
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectInputStream.html">StreamCallback</a> {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">StreamCallback</a> {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">void</strong> writeToStream(Object object) <strong class="jxr_keyword">throws</strong> IOException;
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">void</strong> writeFieldsToStream(Map fields) <strong class="jxr_keyword">throws</strong> IOException;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">void</strong> defaultWriteObject() <strong class="jxr_keyword">throws</strong> IOException;
@@ -78,22 +78,22 @@
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * @see #getInstance(edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.DataHolder, com.thoughtworks.xstream.core.util.CustomObjectOutputStream.StreamCallback)</em>
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">CustomObjectOutputStream</a>(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectInputStream.html">StreamCallback</a> callback) <strong class="jxr_keyword">throws</strong> IOException, SecurityException {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">CustomObjectOutputStream</a>(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">StreamCallback</a> callback) <strong class="jxr_keyword">throws</strong> IOException, SecurityException {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.callbacks.push(callback);
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>  
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * Allows the CustomObjectOutputStream (which is expensive to create) to be reused.</em>
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> pushCallback(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectInputStream.html">StreamCallback</a> callback) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> pushCallback(<a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">StreamCallback</a> callback) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">this</strong>.callbacks.push(callback);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectInputStream.html">StreamCallback</a> popCallback(){
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">StreamCallback</a> popCallback(){
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> (StreamCallback) <strong class="jxr_keyword">this</strong>.callbacks.pop();
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectInputStream.html">StreamCallback</a> peekCallback(){
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/core/util/CustomObjectOutputStream.html">StreamCallback</a> peekCallback(){
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">return</strong> (StreamCallback) <strong class="jxr_keyword">this</strong>.callbacks.peek();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      

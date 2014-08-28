@@ -200,7 +200,7 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>                 <strong class="jxr_keyword">case</strong> Token.TYPE_MAP_ID_TO_VALUE:
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">MapIdToValue</a>();
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>                 <strong class="jxr_keyword">case</strong> Token.TYPE_ATTRIBUTE:
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">Attribute</a>();
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a>();
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>                 <strong class="jxr_keyword">case</strong> Token.TYPE_END_NODE:
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">EndNode</a>();
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>                 <strong class="jxr_keyword">case</strong> Token.TYPE_VALUE:
@@ -270,15 +270,15 @@
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> 
 <a class="jxr_linenumber" name="L263" href="#L263">263</a>     }
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> 
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">Attribute</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Token</a> {
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Token</a> {
 <a class="jxr_linenumber" name="L266" href="#L266">266</a> 
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">Attribute</a>(<strong class="jxr_keyword">long</strong> id, String value) {
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a>(<strong class="jxr_keyword">long</strong> id, String value) {
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>             <strong class="jxr_keyword">super</strong>(TYPE_ATTRIBUTE);
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>             <strong class="jxr_keyword">this</strong>.id = id;
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">this</strong>.value = value;
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>         }
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> 
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/ReaderDepthState.html">Attribute</a>() {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/io/binary/Token.html">Attribute</a>() {
 <a class="jxr_linenumber" name="L274" href="#L274">274</a>             <strong class="jxr_keyword">super</strong>(TYPE_ATTRIBUTE);
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
 <a class="jxr_linenumber" name="L276" href="#L276">276</a> 

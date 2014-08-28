@@ -295,7 +295,7 @@
 <a class="jxr_linenumber" name="L287" href="#L287">287</a>                     <strong class="jxr_keyword">if</strong> (converter != converterAnnotation || converter.canConvert(type)) {
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>                         converterRegistry.registerConverter(converter, XStream.PRIORITY_NORMAL);
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>                     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"Converter "</span>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"Converter "</span>
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>                             + converterType.getName()
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>                             + <span class="jxr_string">" cannot handle annotated class "</span>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>                             + type.getName());
@@ -309,7 +309,7 @@
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/annotations/XStreamAlias.html">XStreamAlias</a> aliasAnnotation = type.getAnnotation(XStreamAlias.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">if</strong> (aliasAnnotation != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>             <strong class="jxr_keyword">if</strong> (classAliasingMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>                     + ClassAliasingMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>                     + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>             }
@@ -333,7 +333,7 @@
 <a class="jxr_linenumber" name="L325" href="#L325">325</a>             .getAnnotation(XStreamImplicitCollection.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">if</strong> (implicitColAnnotation != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>             <strong class="jxr_keyword">if</strong> (implicitCollectionMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L329" href="#L329">329</a>                     + ImplicitCollectionMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L330" href="#L330">330</a>                     + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L331" href="#L331">331</a>             }
@@ -343,7 +343,7 @@
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L336" href="#L336">336</a>                 field = type.getDeclaredField(fieldName);
 <a class="jxr_linenumber" name="L337" href="#L337">337</a>             } <strong class="jxr_keyword">catch</strong> (<strong class="jxr_keyword">final</strong> NoSuchFieldException e) {
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(type.getName()
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(type.getName()
 <a class="jxr_linenumber" name="L339" href="#L339">339</a>                     + <span class="jxr_string">" does not have a field named '"</span>
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>                     + fieldName
 <a class="jxr_linenumber" name="L341" href="#L341">341</a>                     + <span class="jxr_string">"' as required by "</span>
@@ -372,7 +372,7 @@
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/annotations/XStreamAlias.html">XStreamAlias</a> aliasAnnotation = field.getAnnotation(XStreamAlias.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">if</strong> (aliasAnnotation != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L366" href="#L366">366</a>             <strong class="jxr_keyword">if</strong> (fieldAliasingMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L368" href="#L368">368</a>                     + FieldAliasingMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>                     + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>             }
@@ -386,7 +386,7 @@
 <a class="jxr_linenumber" name="L378" href="#L378">378</a>             .getAnnotation(XStreamAsAttribute.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">if</strong> (asAttributeAnnotation != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>             <strong class="jxr_keyword">if</strong> (attributeMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>                     + AttributeMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>                     + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>             }
@@ -398,7 +398,7 @@
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/annotations/XStreamImplicit.html">XStreamImplicit</a> implicitAnnotation = field.getAnnotation(XStreamImplicit.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>         <strong class="jxr_keyword">if</strong> (implicitAnnotation != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>             <strong class="jxr_keyword">if</strong> (implicitCollectionMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>                     + ImplicitCollectionMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>                     + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L396" href="#L396">396</a>             }
@@ -425,7 +425,7 @@
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>             .getAnnotation(XStreamOmitField.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L418" href="#L418">418</a>         <strong class="jxr_keyword">if</strong> (omitFieldAnnotation != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>             <strong class="jxr_keyword">if</strong> (fieldAliasingMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>                     + FieldAliasingMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>                     + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L423" href="#L423">423</a>             }
@@ -440,7 +440,7 @@
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>             <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/converters/Converter.html">Converter</a> converter = cacheConverter(converterType);
 <a class="jxr_linenumber" name="L433" href="#L433">433</a>             <strong class="jxr_keyword">if</strong> (converter != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L434" href="#L434">434</a>                 <strong class="jxr_keyword">if</strong> (localConversionMapper == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"No "</span>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"No "</span>
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>                         + LocalConversionMapper.<strong class="jxr_keyword">class</strong>.getName()
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>                         + <span class="jxr_string">" available"</span>);
 <a class="jxr_linenumber" name="L438" href="#L438">438</a>                 }
@@ -458,7 +458,7 @@
 <a class="jxr_linenumber" name="L450" href="#L450">450</a>                     converterType, arguments);
 <a class="jxr_linenumber" name="L451" href="#L451">451</a>                 converterCache.put(converterType, converter);
 <a class="jxr_linenumber" name="L452" href="#L452">452</a>             } <strong class="jxr_keyword">catch</strong> (<strong class="jxr_keyword">final</strong> Exception e) {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/InitializationException.html">InitializationException</a>(<span class="jxr_string">"Cannot instantiate converter "</span>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/com/thoughtworks/xstream/XStream.html">InitializationException</a>(<span class="jxr_string">"Cannot instantiate converter "</span>
 <a class="jxr_linenumber" name="L454" href="#L454">454</a>                     + converterType.getName(), e);
 <a class="jxr_linenumber" name="L455" href="#L455">455</a>             }
 <a class="jxr_linenumber" name="L456" href="#L456">456</a>         }
