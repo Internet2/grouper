@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright 2014 Internet2
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!--
+Grouper's subject resolver configuration
+$Id: sources.xml,v 1.7 2007-03-16 22:22:16 khuxtable Exp $
+-->
+
+<sources>
+
+
+
+  <source adapterClass="edu.internet2.middleware.grouperWsSourceAdapter.WsSourceAdapter">
+    <id>ws</id>
+    <name>WS Source Adapter</name>
+    <type>person</type>
+    
+    <init-param>
+      <param-name>baseUrl</param-name>
+      <param-value>http://somehost.whatever.org/bsp/</param-value>
+    </init-param>
+    
+    <!--  http://somehost.whatever.org/bsp/contacts/urn:uuid:61c8922b-2d23-4fba-9bce-5f1dde6decf7 -->
+    <!--  you can substitute $baseUrl$ for the base url, and $id$ for the id to search for -->
+    <init-param>
+      <param-name>searchByIdUrl</param-name>
+      <param-value>$baseUrl$/contacts/$id$</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>subjectIdXpath</param-name>
+      <param-value>contacts:bambooContact/contacts:contactId/text()</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>nameXpath</param-name>
+      <param-value>contacts:bambooContact/contacts:displayName/text()</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>descriptionXpath</param-name>
+      <param-value>contacts:bambooContact/contacts:displayName/text()</param-value>
+    </init-param>
+    
+    <!-- add subject attributes in pairs with index from 0 to 99 sequential -->    
+    <init-param>
+      <param-name>attribute_0_name</param-name>
+      <param-value>email</param-value>
+    </init-param>
+
+    <init-param>
+      <param-name>attribute_0_xpath</param-name>
+      <param-value>contacts:bambooContact/contacts:emails[1]/email/text()</param-value>
+    </init-param>
+    
+
+    <!-- add namespaces of xml for xpath to work, these are name value pairs and must go from index 0 to X sequential, max 99 -->    
+    <init-param>
+      <param-name>namespace_0_name</param-name>
+      <param-value>contacts</param-value>
+    </init-param>
+    <init-param>
+      <param-name>namespace_0_value</param-name>
+      <param-value>http://projectbamboo.org/bsp/services/core/contact</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>namespace_1_name</param-name>
+      <param-value>dc</param-value>
+    </init-param>
+    <init-param>
+      <param-name>namespace_1_value</param-name>
+      <param-value>http://purl.org/dc/elements/1.1/</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>namespace_2_name</param-name>
+      <param-value>rdf</param-value>
+    </init-param>
+    <init-param>
+      <param-name>namespace_2_value</param-name>
+      <param-value>http://www.w3.org/1999/02/22-rdf-syntax-ns#</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>namespace_3_name</param-name>
+      <param-value>dcterms</param-value>
+    </init-param>
+    <init-param>
+      <param-name>namespace_3_value</param-name>
+      <param-value>http://purl.org/dc/terms/</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>namespace_4_name</param-name>
+      <param-value>foaf</param-value>
+    </init-param>
+    <init-param>
+      <param-name>namespace_4_value</param-name>
+      <param-value>http://xmlns.com/foaf/0.1/</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>namespace_5_name</param-name>
+      <param-value>bsp</param-value>
+    </init-param>
+    <init-param>
+      <param-name>namespace_5_value</param-name>
+      <param-value>http://projectbamboo.org/bsp/resource</param-value>
+    </init-param>
+    
+  </source>
+
+</sources>
+
