@@ -1,3 +1,14 @@
+to use this, checkout the project and adjust the sources.xml for your env.
+
+specifically change this to the real url:
+
+    <init-param>
+      <param-name>baseUrl</param-name>
+      <param-value>http://somehost.whatever.org/bsp/</param-value>
+    </init-param>
+
+Note, the initial implementation only as get subejct by id, not identifier or search
+
 Chris,
 
 Checking in on this thread.  Do you have what you need from me to do some experiments?  Do you still have time for it?
