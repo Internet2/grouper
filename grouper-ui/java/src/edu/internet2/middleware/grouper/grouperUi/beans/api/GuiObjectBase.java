@@ -22,16 +22,20 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 public abstract class GuiObjectBase {
@@ -136,14 +140,18 @@ public abstract class GuiObjectBase {
    */
   public GuiSubject getCreatorGuiSubject() {
     Subject creator = null;
-    if (this instanceof GuiGroup) {
-      creator = ((GuiGroup)this).getGroup().getCreateSubject();
-    } else if (this instanceof GuiStem) {
-      creator = ((GuiStem)this).getStem().getCreateSubject();
-    } else if (this instanceof GuiAttributeDef) {
-      creator = ((GuiAttributeDef)this).getAttributeDef().getCreateSubject();
-    } else if (this instanceof GuiAttributeDefName) {
-      creator = ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getCreateSubject();
+    try {
+      if (this instanceof GuiGroup) {
+        creator = ((GuiGroup)this).getGroup().getCreateSubject();
+      } else if (this instanceof GuiStem) {
+        creator = ((GuiStem)this).getStem().getCreateSubject();
+      } else if (this instanceof GuiAttributeDef) {
+        creator = ((GuiAttributeDef)this).getAttributeDef().getCreateSubject();
+      } else if (this instanceof GuiAttributeDefName) {
+        creator = ((GuiAttributeDefName)this).getAttributeDefName().getAttributeDef().getCreateSubject();
+      }
+    } catch (SubjectNotFoundException snfe) {
+      LOG.warn("Cant find creator of:" + this.getNameColonSpaceSeparated(), snfe );
     }
     return creator == null ? null : new GuiSubject(creator);
   }
@@ -173,11 +181,16 @@ public abstract class GuiObjectBase {
    */
   public GuiSubject getLastUpdatedByGuiSubject() {
     Subject lastUpdater = null;
-    if (this instanceof GuiGroup) {
-      lastUpdater = ((GuiGroup)this).getGroup().getModifySubject();
-    } else if (this instanceof GuiStem) {
-      lastUpdater = ((GuiStem)this).getStem().getModifySubject();
+    try {
+      if (this instanceof GuiGroup) {
+        lastUpdater = ((GuiGroup)this).getGroup().getModifySubject();
+      } else if (this instanceof GuiStem) {
+        lastUpdater = ((GuiStem)this).getStem().getModifySubject();
+      }
+    } catch (SubjectNotFoundException snfe) {
+      LOG.warn("Cant find creator of:" + this.getNameColonSpaceSeparated(), snfe );
     }
+
     //note: attributes dont have this attribute
     return lastUpdater == null ? null : new GuiSubject(lastUpdater);
   }
@@ -251,6 +264,9 @@ public abstract class GuiObjectBase {
    * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
    */
   private boolean showBreadcrumbLinkSeparator = true;
+
+  /** logger */
+  protected static final Log LOG = LogFactory.getLog(GuiObjectBase.class);
   
   /**
    * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
