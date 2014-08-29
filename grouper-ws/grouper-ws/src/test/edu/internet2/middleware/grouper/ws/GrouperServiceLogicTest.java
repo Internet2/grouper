@@ -133,6 +133,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemb
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembership;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionAssign;
 import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
@@ -288,6 +289,28 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
     
     WsGroup wsGroup = wsGetSubjectsResults.getWsGroup();
+    wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    
+    assertEquals(group1.getUuid(), wsGroup.getUuid());
+    assertEquals(group1.getName(), wsGroup.getName());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject.getId());
+    assertEquals(SubjectTestHelper.SUBJ0.getSourceId(), wsSubject.getSourceId());
+
+    //###############################################
+    //valid query for subject in group with search field
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    
+    wsGetSubjectsResults = GrouperServiceLogic.getSubjects(
+        GROUPER_VERSION, null, "test.", false, null, null, null, wsGroupLookup, null, null, false, 
+        new WsParam[]{new WsParam("SearchStringEnumZeroIndexed", "0")});
+
+    assertEquals(wsGetSubjectsResults.getResultMetadata().getResultMessage(),
+        WsGetMembersResultsCode.SUCCESS.name(), 
+        wsGetSubjectsResults.getResultMetadata().getResultCode());
+    
+    assertEquals(1, GrouperUtil.length(wsGetSubjectsResults.getWsSubjects()));
+    
+    wsGroup = wsGetSubjectsResults.getWsGroup();
     wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
     
     assertEquals(group1.getUuid(), wsGroup.getUuid());
