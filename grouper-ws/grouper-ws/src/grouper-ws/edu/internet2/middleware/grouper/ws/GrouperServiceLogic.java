@@ -4410,9 +4410,19 @@ public class GrouperServiceLogic {
         //free form search yes by group
         if (!StringUtils.isBlank(searchString) && filteringByGroup) {
           QueryOptions queryOptions = new QueryOptions().paging(maxFilter, 1, false);
+          
+          SearchStringEnum searchStringEnum = SearchStringEnum.getDefaultSearchString();
+          
+          //if specified, use that one
+          String searchStringEnumZeroIndexed = paramMap.get("SearchStringEnumZeroIndexed");
+          if (!StringUtils.isBlank(searchStringEnumZeroIndexed)) {
+            int searchStringEnumZeroIndexedInt = GrouperUtil.intValue(searchStringEnumZeroIndexed);
+            searchStringEnum = SearchStringEnum.newInstance(searchStringEnumZeroIndexedInt);
+          }
+          
           members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndFieldAndType(group.getId(), 
               fieldName == null ? Group.getDefaultList() : fieldName, membershipType == null ? null : membershipType.getTypeString(), sources, queryOptions, true, 
-              SortStringEnum.getDefaultSortString(), SearchStringEnum.SEARCH_STRING_0, searchString);
+              SortStringEnum.getDefaultSortString(), searchStringEnum, searchString);
           calculateMembers = true;
         }
         
