@@ -1790,7 +1790,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               GrouperDAOFactory.getFactory().getStem().update( Stem.this );
             }
             catch (GrouperDAOException e) {
-              String error = "Problem with hib update: " + GrouperUtil.toStringSafe(this)
+              String error = "Problem with hib update: " + GrouperUtil.toStringSafe(Stem.this)
                + ",\n" + e.getMessage();
               GrouperUtil.injectInException(e, error);
               throw e;
@@ -2616,12 +2616,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
               return _ns;
             } catch (StemAddException e) {
-              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
+              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(Stem.this)
                 + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
               GrouperUtil.injectInException(e, error);
               throw e;
             } catch (GrouperDAOException e) {
-              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
+              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(Stem.this)
                 + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
               GrouperUtil.injectInException(e, error);
               throw new StemAddException(E.CANNOT_CREATE_STEM + e.getMessage(), e);
