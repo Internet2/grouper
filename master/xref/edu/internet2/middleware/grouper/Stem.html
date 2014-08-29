@@ -1798,7 +1798,7 @@
 <a class="jxr_linenumber" name="L1790" href="#L1790">1790</a>               GrouperDAOFactory.getFactory().getStem().update( Stem.<strong class="jxr_keyword">this</strong> );
 <a class="jxr_linenumber" name="L1791" href="#L1791">1791</a>             }
 <a class="jxr_linenumber" name="L1792" href="#L1792">1792</a>             <strong class="jxr_keyword">catch</strong> (GrouperDAOException e) {
-<a class="jxr_linenumber" name="L1793" href="#L1793">1793</a>               String error = <span class="jxr_string">"Problem with hib update: "</span> + GrouperUtil.toStringSafe(<strong class="jxr_keyword">this</strong>)
+<a class="jxr_linenumber" name="L1793" href="#L1793">1793</a>               String error = <span class="jxr_string">"Problem with hib update: "</span> + GrouperUtil.toStringSafe(Stem.<strong class="jxr_keyword">this</strong>)
 <a class="jxr_linenumber" name="L1794" href="#L1794">1794</a>                + <span class="jxr_string">",\n"</span> + e.getMessage();
 <a class="jxr_linenumber" name="L1795" href="#L1795">1795</a>               GrouperUtil.injectInException(e, error);
 <a class="jxr_linenumber" name="L1796" href="#L1796">1796</a>               <strong class="jxr_keyword">throw</strong> e;
@@ -2624,12 +2624,12 @@
 <a class="jxr_linenumber" name="L2616" href="#L2616">2616</a> 
 <a class="jxr_linenumber" name="L2617" href="#L2617">2617</a>               <strong class="jxr_keyword">return</strong> _ns;
 <a class="jxr_linenumber" name="L2618" href="#L2618">2618</a>             } <strong class="jxr_keyword">catch</strong> (StemAddException e) {
-<a class="jxr_linenumber" name="L2619" href="#L2619">2619</a>               String error = <span class="jxr_string">"Problem creating child stem: "</span> + GrouperUtil.toStringSafe(<strong class="jxr_keyword">this</strong>)
+<a class="jxr_linenumber" name="L2619" href="#L2619">2619</a>               String error = <span class="jxr_string">"Problem creating child stem: "</span> + GrouperUtil.toStringSafe(Stem.<strong class="jxr_keyword">this</strong>)
 <a class="jxr_linenumber" name="L2620" href="#L2620">2620</a>                 + <span class="jxr_string">", extn: "</span> + extn + <span class="jxr_string">", dExtn: "</span> + dExtn + <span class="jxr_string">", uuid: "</span> + uuid + <span class="jxr_string">", "</span> + e.getMessage();
 <a class="jxr_linenumber" name="L2621" href="#L2621">2621</a>               GrouperUtil.injectInException(e, error);
 <a class="jxr_linenumber" name="L2622" href="#L2622">2622</a>               <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L2623" href="#L2623">2623</a>             } <strong class="jxr_keyword">catch</strong> (GrouperDAOException e) {
-<a class="jxr_linenumber" name="L2624" href="#L2624">2624</a>               String error = <span class="jxr_string">"Problem creating child stem: "</span> + GrouperUtil.toStringSafe(<strong class="jxr_keyword">this</strong>)
+<a class="jxr_linenumber" name="L2624" href="#L2624">2624</a>               String error = <span class="jxr_string">"Problem creating child stem: "</span> + GrouperUtil.toStringSafe(Stem.<strong class="jxr_keyword">this</strong>)
 <a class="jxr_linenumber" name="L2625" href="#L2625">2625</a>                 + <span class="jxr_string">", extn: "</span> + extn + <span class="jxr_string">", dExtn: "</span> + dExtn + <span class="jxr_string">", uuid: "</span> + uuid + <span class="jxr_string">", "</span> + e.getMessage();
 <a class="jxr_linenumber" name="L2626" href="#L2626">2626</a>               GrouperUtil.injectInException(e, error);
 <a class="jxr_linenumber" name="L2627" href="#L2627">2627</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../edu/internet2/middleware/grouper/exception/StemAddException.html">StemAddException</a>(E.CANNOT_CREATE_STEM + e.getMessage(), e);
