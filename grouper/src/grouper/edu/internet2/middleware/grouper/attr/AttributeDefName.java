@@ -331,6 +331,14 @@ public class AttributeDefName extends GrouperAPI
   private Long lastUpdatedDb;
 
   /**
+   * this method makes this class more compatible with Group and Stem
+   * @return the parent stem id
+   */
+  public String getParentUuid() {
+    return this.stemId;
+  }
+
+  /**
    * stem that this attribute is in
    * @return the stem id
    */

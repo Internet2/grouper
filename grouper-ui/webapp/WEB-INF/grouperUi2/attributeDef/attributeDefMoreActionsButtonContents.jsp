@@ -29,6 +29,15 @@
                           </c:otherwise>
                         </c:choose>
 
+
+                        <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin }">
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefDelete&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                            >${textContainer.text['attributeDefViewDeleteAttributeDefButton'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefEdit&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}'); return false;"
+                            >${textContainer.text['attributeDefViewEditAttributeDefButton'] }</a></li>
+                        </c:if>
+
+
 <%--
                         <c:if test="${grouperRequestContainer.attributeDefContainer.canAdminPrivileges || grouperRequestContainer.attributeDefContainer.canCreateGroups }">
 

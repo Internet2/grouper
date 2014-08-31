@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Subject;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -377,6 +376,16 @@ public abstract class GuiObjectBase {
               if (this instanceof GuiGroup) {
                 
                 result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2Group.viewGroup&groupName=")
+                  .append(GrouperUtil.escapeUrlEncode(stemName))
+                  .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append(" </a>");
+                if (this.showBreadcrumbLinkSeparator) {
+                  result.append("<span class=\"divider\"><i class='fa fa-angle-right'></i></span>");
+                }
+                result.append("</li>");
+
+              } else if (this instanceof GuiAttributeDef) {
+                
+                result.append("<li><a href=\"#\" onclick=\"return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&nameOfAttributeDef=")
                   .append(GrouperUtil.escapeUrlEncode(stemName))
                   .append("');\" >").append(GrouperUtil.xmlEscape(displayExtenstionsList.get(i))).append(" </a>");
                 if (this.showBreadcrumbLinkSeparator) {

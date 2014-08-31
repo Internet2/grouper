@@ -69,6 +69,14 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_ADD, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_UPDATE, "stemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_ADD, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_DELETE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_UPDATE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_UPDATE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_DELETE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_UPDATE, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_ADD, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_DELETE, "parentStemId");
     addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_UPDATE, "parentStemId");
