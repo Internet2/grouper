@@ -942,6 +942,19 @@ public class GrouperInstallerUtils  {
   }
   
   /**
+   * trim the end of a string
+   * @param text
+   * @return the string
+   */
+  public static String trimEnd(String text) {
+    if (text == null) {
+      return null;
+    }
+    //replace any whitespace at the end of the string
+    return text.replaceFirst("\\s+$", "");
+  }
+  
+  /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util trim() for more details)
    * 

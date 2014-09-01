@@ -187,9 +187,14 @@ public class GrouperInstaller {
    */
   public static void main(String[] args) {
 
-    GrouperInstaller grouperInstaller = new GrouperInstaller();
-    grouperInstaller.mainLogic(args);
+//    GrouperInstaller grouperInstaller = new GrouperInstaller();
+//    grouperInstaller.mainLogic(args);
 
+    File serverXmlFile = new File("C:\\temp\\server.xml");
+    editFile(serverXmlFile, "URIEncoding=\"([^\"]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, 
+        new String[]{"SSLEnabled=\"true\""}, "UTF-8", "tomcat URIEncoding attribute for element <Connector AJP", true, "URIEncoding");
+    
+    
 //    
 //    
 //    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
@@ -1354,6 +1359,38 @@ public class GrouperInstaller {
       editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Server", "shutdown=\"SHUTDOWN\""}, null, Integer.toString(shutdownPort), "tomcat shutdown port");
       break;
     }
+
+    //set encoding for connectors
+    //  /Server/Service/Connector <Connector port="8080" protocol="HTTP/1.1" 
+    String uriEncodingHttp = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "/Server/Service/Connector[@protocol='HTTP/1.1']", "URIEncoding");
+    
+    // <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+    String uriEncodingAjp = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "/Server/Service/Connector[@protocol='AJP/1.3']", "URIEncoding");
+
+    if (!GrouperInstallerUtils.equals(uriEncodingAjp, "UTF-8") || !GrouperInstallerUtils.equals(uriEncodingHttp, "UTF-8")) {
+
+      System.out.print("Do you want to set URIEncoding to UTF-8 in tomcat server.xml <Connector> elements (t|f)? [t]: ");
+      boolean assignUriEncoding = readFromStdInBoolean(true);
+      
+      if (assignUriEncoding) {
+        
+        if (!GrouperInstallerUtils.equals(uriEncodingAjp, "UTF-8")) {
+          editFile(serverXmlFile, "URIEncoding=\"([^\"]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, 
+              new String[]{"SSLEnabled=\"true\""}, "UTF-8", "tomcat URIEncoding attribute for element <Connector AJP", true, "URIEncoding");
+          
+        }
+        
+        if (!GrouperInstallerUtils.equals(uriEncodingHttp, "UTF-8")) {
+          editFile(serverXmlFile, "URIEncoding=\"([^\"]+)\"", new String[]{"<Connector", "protocol=\"HTTP/1.1\""}, 
+              new String[]{"SSLEnabled=\"true\""}, "UTF-8", "tomcat URIEncoding attribute for element <Connector HTTP", true, "URIEncoding");
+          
+        }
+      }
+
+    }
+    
   }
   
   /**
@@ -2145,7 +2182,30 @@ public class GrouperInstaller {
    * @param description of change for sys out print
    * @return true if edited file, or false if not but didnt need to, null if not found
    */
-  public static Boolean editFile(File file, String valueRegex, String[] lineMustHaveRegexes, String[] lineCantHaveRegexes, String newValue, String description) {
+  public static Boolean editFile(File file, String valueRegex, String[] lineMustHaveRegexes, 
+      String[] lineCantHaveRegexes, String newValue, String description) {
+    return editFile(file, valueRegex, lineMustHaveRegexes, lineCantHaveRegexes, newValue, description, false, null);
+  }
+
+  /**
+   * edit a property in a property file
+   * @param file
+   * @param valueRegex 
+   * @param lineMustHaveRegexes 
+   * @param lineCantHaveRegexes 
+   * @param newValue 
+   * @param description of change for sys out print
+   * @param addAttributeIfNotExists if attribute isnt there, then if true, then add the attribute
+   * @param newAttributeName if adding new attribute, this is the name
+   * @return true if edited file, or false if not but didnt need to, null if not found
+   */
+  public static Boolean editFile(File file, String valueRegex, String[] lineMustHaveRegexes, 
+      String[] lineCantHaveRegexes, String newValue, String description, boolean addAttributeIfNotExists, String newAttributeName) {
+    
+    if (!GrouperInstallerUtils.isBlank(newAttributeName) != addAttributeIfNotExists) {
+      throw new RuntimeException("newAttributeName cant be null if addAttributeIfNotExists, and must be null if not addAttributeIfNotExists");
+    }
+    
     if (!file.exists() || file.length() == 0) {
       throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
           + file.getAbsolutePath());
@@ -2219,7 +2279,41 @@ public class GrouperInstaller {
       //see if satisfies current
       Matcher matcher = pattern.matcher(line);
       if (!matcher.find()) {
-        newfile.append(line).append(newline);
+        
+        if (addAttributeIfNotExists) {
+          
+          System.out.println(" - adding " + description + " with value: '" + newValue + "'");
+          
+          line = GrouperInstallerUtils.trimEnd(line);
+          
+          boolean endsWithCloseTag = false;
+          boolean endElement = false;
+          
+          if (line.endsWith("/>")) {
+            line = line.substring(0, line.length()-2);
+            line = GrouperInstallerUtils.trimEnd(line);
+            endsWithCloseTag = true;
+          } else if (line.endsWith(">")) {
+            line = line.substring(0, line.length()-1);
+            line = GrouperInstallerUtils.trimEnd(line);
+            endElement = true;
+          }
+          
+          newfile.append(line).append(" ").append(newAttributeName).append("=\"").append(newValue).append("\"");
+          
+          if (endsWithCloseTag) {
+            newfile.append(" />");
+          } else if (endElement) {
+            newfile.append(" >");
+          }
+          
+          newfile.append(newline);
+          madeChange = true;
+          
+        } else {
+        
+          newfile.append(line).append(newline);
+        }
         continue;
       }
       
