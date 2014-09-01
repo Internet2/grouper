@@ -187,14 +187,9 @@ public class GrouperInstaller {
    */
   public static void main(String[] args) {
 
-//    GrouperInstaller grouperInstaller = new GrouperInstaller();
-//    grouperInstaller.mainLogic(args);
+    GrouperInstaller grouperInstaller = new GrouperInstaller();
+    grouperInstaller.mainLogic(args);
 
-    File serverXmlFile = new File("C:\\temp\\server.xml");
-    editFile(serverXmlFile, "URIEncoding=\"([^\"]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, 
-        new String[]{"SSLEnabled=\"true\""}, "UTF-8", "tomcat URIEncoding attribute for element <Connector AJP", true, "URIEncoding");
-    
-    
 //    
 //    
 //    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
