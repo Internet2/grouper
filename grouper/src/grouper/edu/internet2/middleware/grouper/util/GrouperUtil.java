@@ -138,6 +138,55 @@ import edu.internet2.middleware.subject.util.ExpirableCache;
  */
 public class GrouperUtil {
 
+
+  /**
+   * create one set of jexlEngine instances (one per type of setting) so we can cache expressions
+   */
+  private final static Map<MultiKey, JexlEngine> jexlEngines = new HashMap<MultiKey, JexlEngine>();
+  
+  /**
+   * if the jexl engine instances are all initialized completely
+   */
+  private static boolean jexlEnginesInitialized = false;
+  
+  /**
+   * initialize the instances
+   */
+  static {
+    {
+      Boolean silent = true;
+      Boolean lenient = true;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+    {
+      Boolean silent = false;
+      Boolean lenient = true;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+    {
+      Boolean silent = true;
+      Boolean lenient = false;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+    {
+      Boolean silent = false;
+      Boolean lenient = false;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+  }
+  
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
@@ -8990,6 +9039,21 @@ public class GrouperUtil {
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse,
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient) {
+    
+    if (!jexlEnginesInitialized) {
+      synchronized (GrouperUtil.class) {
+        if (!jexlEnginesInitialized) {
+          
+          int cacheSize = GrouperConfig.retrieveConfig().propertyValueInt("jexl.cacheSize");
+          for (JexlEngine jexlEngine : jexlEngines.values()) {
+            jexlEngine.setCache(cacheSize);
+          }
+          
+          jexlEnginesInitialized = true;
+        }
+      }
+    }
+    
     if (isBlank(stringToParse)) {
       return stringToParse;
     }
@@ -9046,12 +9110,7 @@ public class GrouperUtil {
           }
         }
 
-
-        JexlEngine jexlEngine = new JexlEngine();
-        jexlEngine.setSilent(silent);
-        jexlEngine.setLenient(lenient);
-
-        Expression e = jexlEngine.createExpression(script);
+        Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
 
         //this is the result of the evaluation
         Object o = null;
