@@ -174,8 +174,12 @@ public class GrouperUiRestServlet extends HttpServlet {
 
     GrouperUiFilter.assignHttpServlet(this);
     
-    RequestContainer.retrieveFromRequest().setAjaxRequest(true);
+    String uri = request.getRequestURI();
     
+    if (!uri.endsWith("/UiV2Main.index")
+        && !uri.endsWith("/UiV2Public.index")) {
+      RequestContainer.retrieveFromRequest().setAjaxRequest(true);
+    }
     //initialize the bean
     GrouperRequestContainer.retrieveFromRequestOrCreate();
 
@@ -229,7 +233,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
 
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, response);
     if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
         && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".postIndex", urlStrings.get(1))
         && !StringUtils.defaultString(urlStrings.get(1)).startsWith("ExternalSubjectSelfRegister.")) {
@@ -366,7 +370,7 @@ public class GrouperUiRestServlet extends HttpServlet {
 
     Subject loggedInSubject = null;
     
-    loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true);
+    loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, null);
     if (loggedInSubject != null) {
       guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
     }

@@ -278,20 +278,21 @@ public class GrouperUiFilter implements Filter {
    * @return the subject
    */
   public static Subject retrieveSubjectLoggedIn() {
-    return retrieveSubjectLoggedIn(false);
+    return retrieveSubjectLoggedIn(false, null);
   }
 
   /**
    * retrieve the subject logged in
    * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
+   * @param httpServletResponse 
    * @return the subject
    */
-  public static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn) {
+  public static Subject retrieveSubjectLoggedIn(boolean allowNoUserLoggedIn, HttpServletResponse httpServletResponse) {
     Subject subject = retrieveSubjectLoggedInHelper(allowNoUserLoggedIn);
 
     UiSection uiSectionForRequest = uiSectionForRequest();
 
-    ensureUserAllowedInSection(uiSectionForRequest, subject);
+    ensureUserAllowedInSection(uiSectionForRequest, subject, httpServletResponse);
 
     if (subject != null) {
       SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
@@ -357,8 +358,9 @@ public class GrouperUiFilter implements Filter {
    * make sure user is allowed in this section
    * @param uiSection
    * @param subjectLoggedIn
+   * @param response
    */
-  private static void ensureUserAllowedInSection(UiSection uiSection, Subject subjectLoggedIn) {
+  private static void ensureUserAllowedInSection(UiSection uiSection, Subject subjectLoggedIn, HttpServletResponse response) {
 
     if (subjectLoggedIn == null && uiSection.isAnonymous()) {
       return;
@@ -375,6 +377,16 @@ public class GrouperUiFilter implements Filter {
     for (UiSection currentSection : uiSectionsThatAllowThisSection) {
       String mediaKey = currentSection.getMediaKey();
       if (!StringUtils.isBlank(mediaKey)) {
+        
+        if (subjectLoggedIn == null) {
+          try {
+            response.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=anonymousSessionNotAllowed");
+          } catch (IOException ioe) {
+            throw new RuntimeException("Error", ioe);
+          }
+          throw new ControllerDone();
+        }
+        
         String thisError = requireUiGroup(mediaKey, subjectLoggedIn);
         if (!StringUtils.isBlank(thisError)) {
           groups.append(thisError).append(", ");
@@ -440,7 +452,7 @@ public class GrouperUiFilter implements Filter {
           grouperSession = grouperSession.internal_getRootSession();
         }
         Group group = GroupFinder.findByName(grouperSession, groupToRequire, true);
-        if (!group.hasMember(subjectLoggedIn)) {
+        if (subjectLoggedIn == null || !group.hasMember(subjectLoggedIn)) {
           
           String error = groupToRequire;
           return error;
@@ -793,7 +805,10 @@ public class GrouperUiFilter implements Filter {
   
       String uri = httpServletRequest.getRequestURI();
       
-      if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")) {
+      if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")
+          && !uri.endsWith("/UiV2Main.index")
+          && !uri.endsWith("/UiV2Public.index")) {
+        
         RequestContainer.retrieveFromRequest().setAjaxRequest(true);
       }
   
@@ -911,7 +926,7 @@ public class GrouperUiFilter implements Filter {
       FilterChain filterChain) throws IOException, ServletException {
 
     GrouperRequestWrapper httpServletRequest = null;
-    
+    HttpServletResponse httpServletResponse = (HttpServletResponse)response;
     try {
       
       servletRequest.setCharacterEncoding("UTF-8");
@@ -974,10 +989,10 @@ public class GrouperUiFilter implements Filter {
       }
       
       //this makes sure allowed in section
-      Subject subjectLoggedIn = retrieveSubjectLoggedIn(true);
+      Subject subjectLoggedIn = retrieveSubjectLoggedIn(true, httpServletResponse);
       if (subjectLoggedIn != null) {
         UiSection uiSection = uiSectionForRequest();
-        ensureUserAllowedInSection(uiSection, subjectLoggedIn);
+        ensureUserAllowedInSection(uiSection, subjectLoggedIn, httpServletResponse);
       }
 
       TextContainer.retrieveFromRequest();
