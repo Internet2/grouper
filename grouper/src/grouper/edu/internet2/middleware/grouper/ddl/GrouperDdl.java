@@ -2145,17 +2145,6 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
-          "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
-      
-      if (GrouperDdlUtils.assertTablesThere(false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true)) {
-        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_audit_entry where act_as_member_id is null and logged_in_member_id is not null");
-        if (count > 0) {
-          ddlVersionBean.getAdditionalScripts().append(
-            "update grouper_audit_entry set act_as_member_id=logged_in_member_id where act_as_member_id is null and logged_in_member_id is not null;\ncommit;\n");
-        }
-      }
-      
       //create index GROUPER_FIELDS_TYPE_IDX on GROUPER_FIELDS (TYPE)
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Field.TABLE_GROUPER_FIELDS,
           "grouper_fields_type_idx", false, Field.COLUMN_TYPE);
@@ -2189,6 +2178,34 @@ public enum GrouperDdl implements DdlVersionable {
       }
     }
   
+  },
+  
+  /**
+   * <pre>
+   * Grouper 2.3
+   * </pre>
+   */
+  V29 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
+          "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true)) {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_audit_entry where act_as_member_id is null and logged_in_member_id is not null");
+        if (count > 0) {
+          ddlVersionBean.getAdditionalScripts().append(
+            "update grouper_audit_entry set act_as_member_id=logged_in_member_id where act_as_member_id is null and logged_in_member_id is not null;\ncommit;\n");
+        }
+      }
+    }
   };
 
   /**
