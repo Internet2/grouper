@@ -244,6 +244,7 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param queryOptions
    * @param attributeAssignType
    * @param attributeDefType
+   * @param serviceRole 
    * @param anyServiceRole will see if the user has any role in a service, and return those services
    * @param parentStemId is the id of the parent or ancestor of the object returned
    * @param stemScope is if the stem scope is ONE or SUB
@@ -256,5 +257,31 @@ public interface AttributeDefNameDAO extends GrouperDAO {
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, 
       String parentStemId, Scope stemScope, boolean findByUuidOrName);
+
+  /**
+   * get all attribute names secure, split the scope by whitespace
+   * @param scope
+   * @param splitScope 
+   * @param attributeDefId optional if filtering by names in a certain attribute definition
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param attributeAssignType
+   * @param attributeDefType
+   * @param serviceRole 
+   * @param anyServiceRole will see if the user has any role in a service, and return those services
+   * @param parentStemId is the id of the parent or ancestor of the object returned
+   * @param stemScope is if the stem scope is ONE or SUB
+   * @param findByUuidOrName if looking for attribute def names by uuid or name
+   * @param idsOfAttributeDefNames ids of attribute def names to lookup
+   * @return set of attribute defs
+   * @since v2.2.1
+   */
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope, boolean splitScope,
+      GrouperSession grouperSession, String attributeDefId, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
+      AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, 
+      String parentStemId, Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames);
 
 }

@@ -10,4 +10,5 @@ conf/sources.xml
 conf/spy.properties
 dist
 misc/server/i2midev1
+spy.log
 test.log

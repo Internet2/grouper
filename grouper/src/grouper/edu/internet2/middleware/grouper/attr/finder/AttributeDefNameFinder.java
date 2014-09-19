@@ -22,6 +22,8 @@ package edu.internet2.middleware.grouper.attr.finder;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -42,6 +44,29 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AttributeDefNameFinder {
 
+  /**
+   * id of attribute def name
+   */
+  private Set<String> idsOfAttributeDefName;
+  
+  /**
+   * id of attribute def name
+   * @param theIdsOfAttributeDefName
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder addIdOfAttributeDefName(String theIdsOfAttributeDefName) {
+    if (GrouperUtil.length(theIdsOfAttributeDefName) > 1) {
+      throw new RuntimeException("Currently only supports one ID");
+    }
+    
+    if (this.idsOfAttributeDefName == null) {
+      this.idsOfAttributeDefName = new HashSet<String>();
+    }
+    
+    this.idsOfAttributeDefName.add(theIdsOfAttributeDefName);
+    return this;
+  }
+  
   /**
    * parent or ancestor stem of the attribute def name
    */
@@ -238,7 +263,7 @@ public class AttributeDefNameFinder {
           this.queryOptions, this.attributeAssignType, 
           this.attributeDefType, 
           this.serviceRole, this.anyServiceRole, this.parentStemId, 
-          this.stemScope, this.findByUuidOrName);
+          this.stemScope, this.findByUuidOrName, this.idsOfAttributeDefName);
   }
   
   /**

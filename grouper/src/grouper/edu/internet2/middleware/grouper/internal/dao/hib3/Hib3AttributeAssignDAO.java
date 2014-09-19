@@ -820,7 +820,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
    * @param attributeDefValueType
    * @param theValue
    */
-  private static void queryByValueAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
+  public static void queryByValueAddTablesWhereClause(ByHqlStatic byHqlStatic, StringBuilder sqlTables, StringBuilder sqlWhereClause, 
       AttributeDefValueType attributeDefValueType, Object theValue) {
 
     if (theValue != null && attributeDefValueType == null) {
@@ -828,7 +828,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
 
     if (attributeDefValueType != null) {
-      sqlTables.append(", AttributeAssignValue aav ");
+      
+      if (sqlTables != null) {
+        sqlTables.append(", AttributeAssignValue aav ");
+      }
       
       if (sqlWhereClause.length() > 0) {
         sqlWhereClause.append(" and ");
@@ -848,7 +851,6 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
           
         case marker:
           //this should throw exception
-          attributeDefValueType.convertToObject(theValue);
           throw new RuntimeException("Why are you querying by value on a marker attribute???");
         case memberId:
           theValue = attributeDefValueType.convertToObject(theValue);
