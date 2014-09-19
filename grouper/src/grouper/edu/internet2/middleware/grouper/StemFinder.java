@@ -41,6 +41,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -542,6 +544,52 @@ public class StemFinder {
   private Collection<String> stemIds;
 
   /**
+   * find stems that have this attribute def name id
+   */
+  private String attributeDefNameId;
+  
+  /**
+   * find stems with this value
+   */
+  private Object attributeValue;
+  
+  /**
+   * find objects with this value
+   * @param theValue
+   * @return this for chaining
+   */
+  public StemFinder assignAttributeValue(Object theValue) {
+    if (theValue == null) {
+      throw new RuntimeException("Cant look for a null value");
+    }
+    this.attributeValue = theValue;
+    return this;
+  }
+  
+  /**
+   * find stems that have this attribute assigned
+   * @param theAttributeDefNameId
+   * @return this for chaining
+   */
+  public StemFinder assignIdOfAttributeDefName(String theAttributeDefNameId) {
+    this.attributeDefNameId = theAttributeDefNameId;
+    return this;
+  }
+  
+  /**
+   * find stems that have this attribute assigned
+   * @param theNameOfAttributeDefName
+   * @return this for chaining
+   */
+  public StemFinder assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(theNameOfAttributeDefName, true);
+    
+    this.attributeDefNameId = attributeDefName.getId();
+    return this;
+  }
+  
+  /**
    * add a privilege to filter by that the subject has on the stem
    * @param privilege should be AccessPrivilege
    * @return this for chaining
@@ -628,7 +676,8 @@ public class StemFinder {
         .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
             this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
             this.findByUuidOrName, this.userHasInGroupFields,
-            this.userHasInAttributeFields, this.stemIds);
+            this.userHasInAttributeFields, this.stemIds, 
+            this.attributeDefNameId, this.attributeValue);
     
   }
 

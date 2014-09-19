@@ -31,17 +31,30 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -58,7 +71,7 @@ public class TestStemFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemFinder("testFindByIdIndex"));
+    TestRunner.run(new TestStemFinder("testFindByAttributeDefName"));
   }
   
   // Private Class Constants
@@ -250,6 +263,116 @@ public class TestStemFinder extends GrouperTest {
     }
   } // public void testFindAllByApproximateExtension_whenUpperCaseInRegistry
 
+  /**
+   * 
+   */
+  public void testFindByAttributeDefName() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignAttributeDefNameToEdit("test:attrDef")
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true)
+        .assignToStem(true)
+        .assignValueType(AttributeDefValueType.string).save();
+
+    AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef)
+      .assignAttributeDefNameNameToEdit("test:attrDefName").assignCreateParentStemsIfNotExist(true).save();
+
+    Stem stem0 = new StemSave(grouperSession).assignName("test:stem0").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem1 = new StemSave(grouperSession).assignName("test:stem1").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem2 = new StemSave(grouperSession).assignName("test:stem2").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem3 = new StemSave(grouperSession).assignName("test:stem3").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem4 = new StemSave(grouperSession).assignName("test:stem4").assignCreateParentStemsIfNotExist(true).save();
+
+    stem0.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    stem1.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "xyz");
+    stem3.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    stem4.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    
+    stem0.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+    stem1.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+    stem2.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+    stem3.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+    
+    stem0.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_READ);
+    stem1.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_READ);
+    stem2.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_READ);
+    stem3.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_READ);
+    stem4.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.STEM_ATTR_READ);
+    
+    //subj0 can read most of both
+    //subj1 can read the attr
+    //subj2 can read the group attrs
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    List<Stem> stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
+    
+    assertEquals(3, GrouperUtil.length(stems));
+    assertEquals("test:stem0", stems.get(0).getName());
+    assertEquals("test:stem1", stems.get(1).getName());
+    assertEquals("test:stem3", stems.get(2).getName());
+    
+    stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findStems());
+    
+    assertEquals(2, GrouperUtil.length(stems));
+    assertEquals("test:stem0", stems.get(0).getName());
+    assertEquals("test:stem3", stems.get(1).getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+
+    // #####################
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
+    
+    assertEquals(0, GrouperUtil.length(stems));
+    
+    stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findStems());
+    
+    assertEquals(0, GrouperUtil.length(stems));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    // #####################
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+
+    try {
+      stems = new ArrayList<Stem>(new StemFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+          .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
+      fail("Cant find attribute");
+    } catch (Exception e) {
+      //good
+    }
+    
+    stems = new ArrayList<Stem>(new StemFinder().assignIdOfAttributeDefName(attributeDefName.getId())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findStems());
+    
+    assertEquals(0, GrouperUtil.length(stems));
+    
+    stems = new ArrayList<Stem>(new StemFinder().assignIdOfAttributeDefName(attributeDefName.getId())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findStems());
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
+  }
+  
   // TESTS //  
   
   public void testFindAllByApproximateName_whenUpperCaseInRegistry() {
