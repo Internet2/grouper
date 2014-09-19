@@ -252,20 +252,47 @@
 <a class="jxr_linenumber" name="L244" href="#L244">244</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">   * @param attributeAssignType</em>
 <a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">   * @param attributeDefType</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">   * @param anyServiceRole will see if the user has any role in a service, and return those services</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">   * @param parentStemId is the id of the parent or ancestor of the object returned</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   * @param stemScope is if the stem scope is ONE or SUB</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">   * @param findByUuidOrName if looking for attribute def names by uuid or name</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">   * @return set of attribute defs</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">   * @since v2.2.0</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>   <strong class="jxr_keyword">public</strong> Set&lt;AttributeDefName&gt; findAllAttributeNamesSecure(String scope, <strong class="jxr_keyword">boolean</strong> splitScope,
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>       <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, String attributeDefId, 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html">AttributeAssignType</a> attributeAssignType,
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>       <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html">AttributeDefType</a> attributeDefType, <a href="../../../../../../edu/internet2/middleware/grouper/service/ServiceRole.html">ServiceRole</a> serviceRole, <strong class="jxr_keyword">boolean</strong> anyServiceRole, 
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>       String parentStemId, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, <strong class="jxr_keyword">boolean</strong> findByUuidOrName);
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> }
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">   * @param serviceRole </em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">   * @param anyServiceRole will see if the user has any role in a service, and return those services</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">   * @param parentStemId is the id of the parent or ancestor of the object returned</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">   * @param stemScope is if the stem scope is ONE or SUB</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">   * @param findByUuidOrName if looking for attribute def names by uuid or name</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">   * @return set of attribute defs</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">   * @since v2.2.0</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>   <strong class="jxr_keyword">public</strong> Set&lt;AttributeDefName&gt; findAllAttributeNamesSecure(String scope, <strong class="jxr_keyword">boolean</strong> splitScope,
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>       <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, String attributeDefId, 
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html">AttributeAssignType</a> attributeAssignType,
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>       <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html">AttributeDefType</a> attributeDefType, <a href="../../../../../../edu/internet2/middleware/grouper/service/ServiceRole.html">ServiceRole</a> serviceRole, <strong class="jxr_keyword">boolean</strong> anyServiceRole, 
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>       String parentStemId, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, <strong class="jxr_keyword">boolean</strong> findByUuidOrName);
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> 
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">   * get all attribute names secure, split the scope by whitespace</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">   * @param scope</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">   * @param splitScope </em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">   * @param attributeDefId optional if filtering by names in a certain attribute definition</em>
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">   * @param grouperSession</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">   * @param subject</em>
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">   * @param privileges</em>
+<a class="jxr_linenumber" name="L269" href="#L269">269</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> <em class="jxr_javadoccomment">   * @param attributeAssignType</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> <em class="jxr_javadoccomment">   * @param attributeDefType</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">   * @param serviceRole </em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">   * @param anyServiceRole will see if the user has any role in a service, and return those services</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">   * @param parentStemId is the id of the parent or ancestor of the object returned</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">   * @param stemScope is if the stem scope is ONE or SUB</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">   * @param findByUuidOrName if looking for attribute def names by uuid or name</em>
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">   * @param idsOfAttributeDefNames ids of attribute def names to lookup</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">   * @return set of attribute defs</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">   * @since v2.2.1</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>   <strong class="jxr_keyword">public</strong> Set&lt;AttributeDefName&gt; findAllAttributeNamesSecure(String scope, <strong class="jxr_keyword">boolean</strong> splitScope,
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>       <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, String attributeDefId, 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, <a href="../../../../../../edu/internet2/middleware/grouper/attr/assign/AttributeAssignType.html">AttributeAssignType</a> attributeAssignType,
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>       <a href="../../../../../../edu/internet2/middleware/grouper/attr/AttributeDefType.html">AttributeDefType</a> attributeDefType, <a href="../../../../../../edu/internet2/middleware/grouper/service/ServiceRole.html">ServiceRole</a> serviceRole, <strong class="jxr_keyword">boolean</strong> anyServiceRole, 
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>       String parentStemId, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope, <strong class="jxr_keyword">boolean</strong> findByUuidOrName, Set&lt;String&gt; idsOfAttributeDefNames);
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2014 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>

@@ -809,80 +809,111 @@
 <a class="jxr_linenumber" name="L801" href="#L801">801</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
 <a class="jxr_linenumber" name="L802" href="#L802">802</a> <em class="jxr_javadoccomment">   * @param typeOfGroup or null for all</em>
 <a class="jxr_linenumber" name="L803" href="#L803">803</a> <em class="jxr_javadoccomment">   * @param splitScope</em>
-<a class="jxr_linenumber" name="L804" href="#L804">804</a> <em class="jxr_javadoccomment">   * @param field</em>
-<a class="jxr_linenumber" name="L805" href="#L805">805</a> <em class="jxr_javadoccomment">   * @param parentStemId</em>
-<a class="jxr_linenumber" name="L806" href="#L806">806</a> <em class="jxr_javadoccomment">   * @param stemScope</em>
-<a class="jxr_linenumber" name="L807" href="#L807">807</a> <em class="jxr_javadoccomment">   * @param findByUuidOrName</em>
-<a class="jxr_linenumber" name="L808" href="#L808">808</a> <em class="jxr_javadoccomment">   * @param subjectNotInGroup is a subject which does not have a membership in the group</em>
-<a class="jxr_linenumber" name="L809" href="#L809">809</a> <em class="jxr_javadoccomment">   * @param groupIds are the group ids to search for</em>
-<a class="jxr_linenumber" name="L810" href="#L810">810</a> <em class="jxr_javadoccomment">   * @param groupNames are the group names to search for</em>
-<a class="jxr_linenumber" name="L811" href="#L811">811</a> <em class="jxr_javadoccomment">   * @param compositeOwner if we are filtering for groups which are or are not composite owners</em>
-<a class="jxr_linenumber" name="L812" href="#L812">812</a> <em class="jxr_javadoccomment">   * @return set of group</em>
-<a class="jxr_linenumber" name="L813" href="#L813">813</a> <em class="jxr_javadoccomment">   * @since v2.2</em>
-<a class="jxr_linenumber" name="L814" href="#L814">814</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L815" href="#L815">815</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getAllGroupsSecure(String scope, <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, 
-<a class="jxr_linenumber" name="L816" href="#L816">816</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, 
-<a class="jxr_linenumber" name="L817" href="#L817">817</a>       Set&lt;TypeOfGroup&gt; typeOfGroup, <strong class="jxr_keyword">boolean</strong> splitScope, 
-<a class="jxr_linenumber" name="L818" href="#L818">818</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> membershipSubject, <a href="../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, String parentStemId, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope,
-<a class="jxr_linenumber" name="L819" href="#L819">819</a>       <strong class="jxr_keyword">boolean</strong> findByUuidOrName, <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subjectNotInGroup, Collection&lt;String&gt; groupIds,
-<a class="jxr_linenumber" name="L820" href="#L820">820</a>       Collection&lt;String&gt; groupNames, Boolean compositeOwner);  
-<a class="jxr_linenumber" name="L821" href="#L821">821</a>   
-<a class="jxr_linenumber" name="L822" href="#L822">822</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L823" href="#L823">823</a> <em class="jxr_javadoccomment">   * find by uuid secure</em>
-<a class="jxr_linenumber" name="L824" href="#L824">824</a> <em class="jxr_javadoccomment">   * @param uuids</em>
-<a class="jxr_linenumber" name="L825" href="#L825">825</a> <em class="jxr_javadoccomment">   * @param exceptionIfNotFound</em>
-<a class="jxr_linenumber" name="L826" href="#L826">826</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
-<a class="jxr_linenumber" name="L827" href="#L827">827</a> <em class="jxr_javadoccomment">   * @return the group or null or exception</em>
-<a class="jxr_linenumber" name="L828" href="#L828">828</a> <em class="jxr_javadoccomment">   * @throws GrouperDAOException</em>
-<a class="jxr_linenumber" name="L829" href="#L829">829</a> <em class="jxr_javadoccomment">   * @throws GroupNotFoundException</em>
-<a class="jxr_linenumber" name="L830" href="#L830">830</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L831" href="#L831">831</a>   Set&lt;Group&gt; findByUuidsSecure(Collection&lt;String&gt; uuids, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions);
-<a class="jxr_linenumber" name="L832" href="#L832">832</a> 
-<a class="jxr_linenumber" name="L833" href="#L833">833</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L834" href="#L834">834</a> <em class="jxr_javadoccomment">   * find by uuid secure</em>
-<a class="jxr_linenumber" name="L835" href="#L835">835</a> <em class="jxr_javadoccomment">   * @param uuids</em>
-<a class="jxr_linenumber" name="L836" href="#L836">836</a> <em class="jxr_javadoccomment">   * @param exceptionIfNotFound</em>
-<a class="jxr_linenumber" name="L837" href="#L837">837</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
-<a class="jxr_linenumber" name="L838" href="#L838">838</a> <em class="jxr_javadoccomment">   * @param typeOfGroups</em>
-<a class="jxr_linenumber" name="L839" href="#L839">839</a> <em class="jxr_javadoccomment">   * @return the group or null or exception</em>
-<a class="jxr_linenumber" name="L840" href="#L840">840</a> <em class="jxr_javadoccomment">   * @throws GrouperDAOException</em>
-<a class="jxr_linenumber" name="L841" href="#L841">841</a> <em class="jxr_javadoccomment">   * @throws GroupNotFoundException</em>
-<a class="jxr_linenumber" name="L842" href="#L842">842</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L843" href="#L843">843</a>   Set&lt;Group&gt; findByUuidsSecure(Collection&lt;String&gt; uuids, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, Set&lt;TypeOfGroup&gt; typeOfGroups);
-<a class="jxr_linenumber" name="L844" href="#L844">844</a> 
-<a class="jxr_linenumber" name="L845" href="#L845">845</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L846" href="#L846">846</a> <em class="jxr_javadoccomment">   * @since   2.0.2</em>
-<a class="jxr_linenumber" name="L847" href="#L847">847</a> <em class="jxr_javadoccomment">   * @param names</em>
-<a class="jxr_linenumber" name="L848" href="#L848">848</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
-<a class="jxr_linenumber" name="L849" href="#L849">849</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L850" href="#L850">850</a>   Set&lt;Group&gt; findByNamesSecure(Collection&lt;String&gt; names, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions);
-<a class="jxr_linenumber" name="L851" href="#L851">851</a>   
-<a class="jxr_linenumber" name="L852" href="#L852">852</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L853" href="#L853">853</a> <em class="jxr_javadoccomment">   * @since   2.1.0</em>
-<a class="jxr_linenumber" name="L854" href="#L854">854</a> <em class="jxr_javadoccomment">   * @param names</em>
-<a class="jxr_linenumber" name="L855" href="#L855">855</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
-<a class="jxr_linenumber" name="L856" href="#L856">856</a> <em class="jxr_javadoccomment">   * @param typeOfGroups</em>
-<a class="jxr_linenumber" name="L857" href="#L857">857</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L858" href="#L858">858</a>   Set&lt;Group&gt; findByNamesSecure(Collection&lt;String&gt; names, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, Set&lt;TypeOfGroup&gt; typeOfGroups);
-<a class="jxr_linenumber" name="L859" href="#L859">859</a>   
-<a class="jxr_linenumber" name="L860" href="#L860">860</a>   
-<a class="jxr_linenumber" name="L861" href="#L861">861</a> 
-<a class="jxr_linenumber" name="L862" href="#L862">862</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L863" href="#L863">863</a> <em class="jxr_javadoccomment">   * get all groups secure, split the scope by whitespace</em>
-<a class="jxr_linenumber" name="L864" href="#L864">864</a> <em class="jxr_javadoccomment">   * @param scope</em>
-<a class="jxr_linenumber" name="L865" href="#L865">865</a> <em class="jxr_javadoccomment">   * @param grouperSession</em>
-<a class="jxr_linenumber" name="L866" href="#L866">866</a> <em class="jxr_javadoccomment">   * @param subject</em>
-<a class="jxr_linenumber" name="L867" href="#L867">867</a> <em class="jxr_javadoccomment">   * @param privileges</em>
+<a class="jxr_linenumber" name="L804" href="#L804">804</a> <em class="jxr_javadoccomment">   * @param membershipSubject </em>
+<a class="jxr_linenumber" name="L805" href="#L805">805</a> <em class="jxr_javadoccomment">   * @param field</em>
+<a class="jxr_linenumber" name="L806" href="#L806">806</a> <em class="jxr_javadoccomment">   * @param parentStemId</em>
+<a class="jxr_linenumber" name="L807" href="#L807">807</a> <em class="jxr_javadoccomment">   * @param stemScope</em>
+<a class="jxr_linenumber" name="L808" href="#L808">808</a> <em class="jxr_javadoccomment">   * @param findByUuidOrName</em>
+<a class="jxr_linenumber" name="L809" href="#L809">809</a> <em class="jxr_javadoccomment">   * @param subjectNotInGroup is a subject which does not have a membership in the group</em>
+<a class="jxr_linenumber" name="L810" href="#L810">810</a> <em class="jxr_javadoccomment">   * @param groupIds are the group ids to search for</em>
+<a class="jxr_linenumber" name="L811" href="#L811">811</a> <em class="jxr_javadoccomment">   * @param groupNames are the group names to search for</em>
+<a class="jxr_linenumber" name="L812" href="#L812">812</a> <em class="jxr_javadoccomment">   * @param compositeOwner if we are filtering for groups which are or are not composite owners</em>
+<a class="jxr_linenumber" name="L813" href="#L813">813</a> <em class="jxr_javadoccomment">   * @return set of group</em>
+<a class="jxr_linenumber" name="L814" href="#L814">814</a> <em class="jxr_javadoccomment">   * @since v2.2</em>
+<a class="jxr_linenumber" name="L815" href="#L815">815</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L816" href="#L816">816</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getAllGroupsSecure(String scope, <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, 
+<a class="jxr_linenumber" name="L817" href="#L817">817</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, 
+<a class="jxr_linenumber" name="L818" href="#L818">818</a>       Set&lt;TypeOfGroup&gt; typeOfGroup, <strong class="jxr_keyword">boolean</strong> splitScope, 
+<a class="jxr_linenumber" name="L819" href="#L819">819</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> membershipSubject, <a href="../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, String parentStemId, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope,
+<a class="jxr_linenumber" name="L820" href="#L820">820</a>       <strong class="jxr_keyword">boolean</strong> findByUuidOrName, <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subjectNotInGroup, Collection&lt;String&gt; groupIds,
+<a class="jxr_linenumber" name="L821" href="#L821">821</a>       Collection&lt;String&gt; groupNames, Boolean compositeOwner);  
+<a class="jxr_linenumber" name="L822" href="#L822">822</a>   
+<a class="jxr_linenumber" name="L823" href="#L823">823</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L824" href="#L824">824</a> <em class="jxr_javadoccomment">   * get all groups secure, split the scope by whitespace</em>
+<a class="jxr_linenumber" name="L825" href="#L825">825</a> <em class="jxr_javadoccomment">   * @param scope</em>
+<a class="jxr_linenumber" name="L826" href="#L826">826</a> <em class="jxr_javadoccomment">   * @param grouperSession</em>
+<a class="jxr_linenumber" name="L827" href="#L827">827</a> <em class="jxr_javadoccomment">   * @param subject</em>
+<a class="jxr_linenumber" name="L828" href="#L828">828</a> <em class="jxr_javadoccomment">   * @param privileges</em>
+<a class="jxr_linenumber" name="L829" href="#L829">829</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
+<a class="jxr_linenumber" name="L830" href="#L830">830</a> <em class="jxr_javadoccomment">   * @param typeOfGroup or null for all</em>
+<a class="jxr_linenumber" name="L831" href="#L831">831</a> <em class="jxr_javadoccomment">   * @param splitScope</em>
+<a class="jxr_linenumber" name="L832" href="#L832">832</a> <em class="jxr_javadoccomment">   * @param membershipSubject </em>
+<a class="jxr_linenumber" name="L833" href="#L833">833</a> <em class="jxr_javadoccomment">   * @param field</em>
+<a class="jxr_linenumber" name="L834" href="#L834">834</a> <em class="jxr_javadoccomment">   * @param parentStemId</em>
+<a class="jxr_linenumber" name="L835" href="#L835">835</a> <em class="jxr_javadoccomment">   * @param stemScope</em>
+<a class="jxr_linenumber" name="L836" href="#L836">836</a> <em class="jxr_javadoccomment">   * @param findByUuidOrName</em>
+<a class="jxr_linenumber" name="L837" href="#L837">837</a> <em class="jxr_javadoccomment">   * @param subjectNotInGroup is a subject which does not have a membership in the group</em>
+<a class="jxr_linenumber" name="L838" href="#L838">838</a> <em class="jxr_javadoccomment">   * @param groupIds are the group ids to search for</em>
+<a class="jxr_linenumber" name="L839" href="#L839">839</a> <em class="jxr_javadoccomment">   * @param groupNames are the group names to search for</em>
+<a class="jxr_linenumber" name="L840" href="#L840">840</a> <em class="jxr_javadoccomment">   * @param compositeOwner if we are filtering for groups which are or are not composite owners</em>
+<a class="jxr_linenumber" name="L841" href="#L841">841</a> <em class="jxr_javadoccomment">   * @param idOfAttributeDefName if looking for groups that have this attribute def name</em>
+<a class="jxr_linenumber" name="L842" href="#L842">842</a> <em class="jxr_javadoccomment">   * @param attributeValue if looking for groups that have this attribute value on the attribute def name</em>
+<a class="jxr_linenumber" name="L843" href="#L843">843</a> <em class="jxr_javadoccomment">   * @return set of group</em>
+<a class="jxr_linenumber" name="L844" href="#L844">844</a> <em class="jxr_javadoccomment">   * @since v2.2.1</em>
+<a class="jxr_linenumber" name="L845" href="#L845">845</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L846" href="#L846">846</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getAllGroupsSecure(String scope, <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, 
+<a class="jxr_linenumber" name="L847" href="#L847">847</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, 
+<a class="jxr_linenumber" name="L848" href="#L848">848</a>       Set&lt;TypeOfGroup&gt; typeOfGroup, <strong class="jxr_keyword">boolean</strong> splitScope, 
+<a class="jxr_linenumber" name="L849" href="#L849">849</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> membershipSubject, <a href="../../../../../../edu/internet2/middleware/grouper/Field.html">Field</a> field, String parentStemId, <a href="../../../../../../edu/internet2/middleware/grouper/Stem.html">Scope</a> stemScope,
+<a class="jxr_linenumber" name="L850" href="#L850">850</a>       <strong class="jxr_keyword">boolean</strong> findByUuidOrName, <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subjectNotInGroup, Collection&lt;String&gt; groupIds,
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>       Collection&lt;String&gt; groupNames, Boolean compositeOwner, String idOfAttributeDefName, Object attributeValue);  
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>   
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L854" href="#L854">854</a> <em class="jxr_javadoccomment">   * find by uuid secure</em>
+<a class="jxr_linenumber" name="L855" href="#L855">855</a> <em class="jxr_javadoccomment">   * @param uuids</em>
+<a class="jxr_linenumber" name="L856" href="#L856">856</a> <em class="jxr_javadoccomment">   * @param exceptionIfNotFound</em>
+<a class="jxr_linenumber" name="L857" href="#L857">857</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
+<a class="jxr_linenumber" name="L858" href="#L858">858</a> <em class="jxr_javadoccomment">   * @return the group or null or exception</em>
+<a class="jxr_linenumber" name="L859" href="#L859">859</a> <em class="jxr_javadoccomment">   * @throws GrouperDAOException</em>
+<a class="jxr_linenumber" name="L860" href="#L860">860</a> <em class="jxr_javadoccomment">   * @throws GroupNotFoundException</em>
+<a class="jxr_linenumber" name="L861" href="#L861">861</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L862" href="#L862">862</a>   Set&lt;Group&gt; findByUuidsSecure(Collection&lt;String&gt; uuids, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions);
+<a class="jxr_linenumber" name="L863" href="#L863">863</a> 
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L865" href="#L865">865</a> <em class="jxr_javadoccomment">   * find by uuid secure</em>
+<a class="jxr_linenumber" name="L866" href="#L866">866</a> <em class="jxr_javadoccomment">   * @param uuids</em>
+<a class="jxr_linenumber" name="L867" href="#L867">867</a> <em class="jxr_javadoccomment">   * @param exceptionIfNotFound</em>
 <a class="jxr_linenumber" name="L868" href="#L868">868</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
-<a class="jxr_linenumber" name="L869" href="#L869">869</a> <em class="jxr_javadoccomment">   * @param typeOfGroups or null for all</em>
-<a class="jxr_linenumber" name="L870" href="#L870">870</a> <em class="jxr_javadoccomment">   * @return set of group</em>
-<a class="jxr_linenumber" name="L871" href="#L871">871</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L872" href="#L872">872</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getAllGroupsSplitScopeSecure(String scope, <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, 
-<a class="jxr_linenumber" name="L873" href="#L873">873</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, Set&lt;TypeOfGroup&gt; typeOfGroups);
-<a class="jxr_linenumber" name="L874" href="#L874">874</a>   
+<a class="jxr_linenumber" name="L869" href="#L869">869</a> <em class="jxr_javadoccomment">   * @param typeOfGroups</em>
+<a class="jxr_linenumber" name="L870" href="#L870">870</a> <em class="jxr_javadoccomment">   * @return the group or null or exception</em>
+<a class="jxr_linenumber" name="L871" href="#L871">871</a> <em class="jxr_javadoccomment">   * @throws GrouperDAOException</em>
+<a class="jxr_linenumber" name="L872" href="#L872">872</a> <em class="jxr_javadoccomment">   * @throws GroupNotFoundException</em>
+<a class="jxr_linenumber" name="L873" href="#L873">873</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L874" href="#L874">874</a>   Set&lt;Group&gt; findByUuidsSecure(Collection&lt;String&gt; uuids, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, Set&lt;TypeOfGroup&gt; typeOfGroups);
 <a class="jxr_linenumber" name="L875" href="#L875">875</a> 
-<a class="jxr_linenumber" name="L876" href="#L876">876</a> } 
-<a class="jxr_linenumber" name="L877" href="#L877">877</a> 
+<a class="jxr_linenumber" name="L876" href="#L876">876</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L877" href="#L877">877</a> <em class="jxr_javadoccomment">   * @since   2.0.2</em>
+<a class="jxr_linenumber" name="L878" href="#L878">878</a> <em class="jxr_javadoccomment">   * @param names</em>
+<a class="jxr_linenumber" name="L879" href="#L879">879</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
+<a class="jxr_linenumber" name="L880" href="#L880">880</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L881" href="#L881">881</a>   Set&lt;Group&gt; findByNamesSecure(Collection&lt;String&gt; names, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions);
+<a class="jxr_linenumber" name="L882" href="#L882">882</a>   
+<a class="jxr_linenumber" name="L883" href="#L883">883</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L884" href="#L884">884</a> <em class="jxr_javadoccomment">   * @since   2.1.0</em>
+<a class="jxr_linenumber" name="L885" href="#L885">885</a> <em class="jxr_javadoccomment">   * @param names</em>
+<a class="jxr_linenumber" name="L886" href="#L886">886</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
+<a class="jxr_linenumber" name="L887" href="#L887">887</a> <em class="jxr_javadoccomment">   * @param typeOfGroups</em>
+<a class="jxr_linenumber" name="L888" href="#L888">888</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L889" href="#L889">889</a>   Set&lt;Group&gt; findByNamesSecure(Collection&lt;String&gt; names, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, Set&lt;TypeOfGroup&gt; typeOfGroups);
+<a class="jxr_linenumber" name="L890" href="#L890">890</a>   
+<a class="jxr_linenumber" name="L891" href="#L891">891</a>   
+<a class="jxr_linenumber" name="L892" href="#L892">892</a> 
+<a class="jxr_linenumber" name="L893" href="#L893">893</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L894" href="#L894">894</a> <em class="jxr_javadoccomment">   * get all groups secure, split the scope by whitespace</em>
+<a class="jxr_linenumber" name="L895" href="#L895">895</a> <em class="jxr_javadoccomment">   * @param scope</em>
+<a class="jxr_linenumber" name="L896" href="#L896">896</a> <em class="jxr_javadoccomment">   * @param grouperSession</em>
+<a class="jxr_linenumber" name="L897" href="#L897">897</a> <em class="jxr_javadoccomment">   * @param subject</em>
+<a class="jxr_linenumber" name="L898" href="#L898">898</a> <em class="jxr_javadoccomment">   * @param privileges</em>
+<a class="jxr_linenumber" name="L899" href="#L899">899</a> <em class="jxr_javadoccomment">   * @param queryOptions</em>
+<a class="jxr_linenumber" name="L900" href="#L900">900</a> <em class="jxr_javadoccomment">   * @param typeOfGroups or null for all</em>
+<a class="jxr_linenumber" name="L901" href="#L901">901</a> <em class="jxr_javadoccomment">   * @return set of group</em>
+<a class="jxr_linenumber" name="L902" href="#L902">902</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L903" href="#L903">903</a>   <strong class="jxr_keyword">public</strong> Set&lt;Group&gt; getAllGroupsSplitScopeSecure(String scope, <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession, 
+<a class="jxr_linenumber" name="L904" href="#L904">904</a>       <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject, Set&lt;Privilege&gt; privileges, <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a> queryOptions, Set&lt;TypeOfGroup&gt; typeOfGroups);
+<a class="jxr_linenumber" name="L905" href="#L905">905</a>   
+<a class="jxr_linenumber" name="L906" href="#L906">906</a> 
+<a class="jxr_linenumber" name="L907" href="#L907">907</a> } 
+<a class="jxr_linenumber" name="L908" href="#L908">908</a> 
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2014 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
