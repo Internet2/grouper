@@ -55,12 +55,14 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -81,6 +83,7 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.stem.StemHierarchyType;
@@ -1043,7 +1046,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @param _ns 
    * @param children 
    * @throws GrouperDAOException 
    * @since   @HEAD@
@@ -1316,7 +1318,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, 
-        queryOptions, false, null, null, false, null, null, null);
+        queryOptions, false, null, null, false, null, null, null, null, null);
   }
 
   /**
@@ -1330,8 +1332,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param stemScope
    * @param findByUuidOrName if we are looking by uuid or name
    * @param userHasInGroupFields find stems where the user has these fields in a group
-   * @param userHasInGroupFields find stems where the user has these fields in an attribute
+   * @param userHasInAttributeFields find stems where the user has these fields in an attribute
    * @param totalStemIds
+   * @param idOfAttributeDefName 
+   * @param attributeValue 
    * @return the matching stems
    * @throws GrouperDAOException
    */
@@ -1340,8 +1344,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       QueryOptions queryOptions, boolean splitScope,
       String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
-      Collection<String> totalStemIds) 
+      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue) 
           throws GrouperDAOException {
+
+    if (attributeValue != null && StringUtils.isBlank(idOfAttributeDefName)) {
+      throw new RuntimeException("If you are searching by attributeValue then you must specify an attribute definition name");
+    }
 
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1355,6 +1363,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     int stemBatches = GrouperUtil.batchNumberOfBatches(totalStemIds, 100);
 
     List<String> totalStemIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalStemIds));
+    
+    if (subject == null && GrouperUtil.length(inPrivSet) > 0) {
+      subject = GrouperSession.staticGrouperSession().getSubject();
+    }
     
     for (int stemIndex = 0; stemIndex < stemBatches; stemIndex++) {
       
@@ -1438,6 +1450,55 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         changedQuery = true;
       }
 
+      if (!StringUtils.isBlank(idOfAttributeDefName)) {
+
+        if (changedQuery) {
+          sql.append(" and ");
+        }  else {
+          sql.append(" where ");
+        }
+        changedQuery = true;
+
+        //make sure user can READ the attribute
+        AttributeDefName attributeDefName = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
+          .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
+
+        //cant read the attribute????
+        if (attributeDefName == null) {
+          return new HashSet<Stem>();
+        }
+        
+          
+        sql.append(" exists ( select ");
+        
+        sql.append(attributeValue == null ? "aa" : "aav");
+        
+        sql.append(" from AttributeAssign aa ");
+
+        if (attributeValue != null) {
+          sql.append(", AttributeAssignValue aav ");
+        }
+        
+        sql.append(" where ns.uuid = aa.ownerStemId ");
+        sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName ");
+        byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+        sql.append(" and aa.enabledDb = 'T' ");
+
+        if (attributeValue != null) {
+
+          AttributeDef attributeDef = attributeDefName.getAttributeDef();
+          AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+
+          Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValue);
+          
+        }
+        
+        sql.append(" ) ");
+        
+      }
+      
+      
+      
       if (GrouperUtil.length(stemIds) > 0) {
 
         if (changedQuery) {
@@ -2054,7 +2115,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
     return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, null, null, false, null, null, null);
+        queryOptions, true, null, null, false, null, null, null, null, null);
   }
 
   /**
@@ -2120,7 +2181,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   }
 
   /**
-   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, boolean, Collection, Collection)
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, Collection, Collection, Collection)
    */
   @Override
   public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
@@ -2131,7 +2192,22 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
         splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-        totalStemIds);
+        totalStemIds, null, null);
+  }
+
+  /**
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, Collection, Collection, Collection, String, Object)
+   */
+  @Override
+  public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
+      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue)
+      throws GrouperDAOException {
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
+        splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
+        totalStemIds, idOfAttributeDefName, attributeValue);
   }
 
 } 
