@@ -11,4 +11,5 @@ conf/spy.properties
 conf/penn*
 dist
 misc/server/i2midev1
+spy.log
 test.log

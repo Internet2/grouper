@@ -31,6 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.group;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -47,7 +49,12 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -539,7 +546,118 @@ public class TestGroupFinder extends GrouperTest {
       Assert.fail("failed to find group");
     }
   } // public void testFindByUuid()
+  
+  /**
+   * 
+   */
+  public void testFindByAttributeDefName() {
 
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignAttributeDefNameToEdit("test:attrDef")
+        .assignAttributeDefType(AttributeDefType.attr).assignCreateParentStemsIfNotExist(true)
+        .assignToGroup(true)
+        .assignValueType(AttributeDefValueType.string).save();
+    
+    AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef)
+      .assignAttributeDefNameNameToEdit("test:attrDefName").assignCreateParentStemsIfNotExist(true).save();
+
+    Group group0 = new GroupSave(grouperSession).assignName("test:group0").assignCreateParentStemsIfNotExist(true).save();
+    Group group1 = new GroupSave(grouperSession).assignName("test:group1").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave(grouperSession).assignName("test:group2").assignCreateParentStemsIfNotExist(true).save();
+    Group group3 = new GroupSave(grouperSession).assignName("test:group3").assignCreateParentStemsIfNotExist(true).save();
+    Group group4 = new GroupSave(grouperSession).assignName("test:group4").assignCreateParentStemsIfNotExist(true).save();
+
+    group0.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    group1.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "xyz");
+    group3.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    group4.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "abc");
+    
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_READ, false);
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_READ, false);
+    
+    group0.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    group2.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    group3.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.GROUP_ATTR_READ);
+    
+    group0.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_READ);
+    group1.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_READ);
+    group2.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_READ);
+    group3.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_READ);
+    group4.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.GROUP_ATTR_READ);
+    
+    //subj0 can read most of both
+    //subj1 can read the attr
+    //subj2 can read the group attrs
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    List<Group> groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());
+    
+    assertEquals(3, GrouperUtil.length(groups));
+    assertEquals("test:group0", groups.get(0).getName());
+    assertEquals("test:group1", groups.get(1).getName());
+    assertEquals("test:group3", groups.get(2).getName());
+    
+    groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findGroups());
+    
+    assertEquals(2, GrouperUtil.length(groups));
+    assertEquals("test:group0", groups.get(0).getName());
+    assertEquals("test:group3", groups.get(1).getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+
+    // #####################
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+    groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());
+    
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findGroups());
+    
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    // #####################
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+
+    try {
+      groups = new ArrayList<Group>(new GroupFinder().assignNameOfAttributeDefName(attributeDefName.getName())
+          .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());
+      fail("Cant find attribute");
+    } catch (Exception e) {
+      //good
+    }
+    
+    groups = new ArrayList<Group>(new GroupFinder().assignIdOfAttributeDefName(attributeDefName.getId())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).findGroups());
+    
+    assertEquals(0, GrouperUtil.length(groups));
+    
+    groups = new ArrayList<Group>(new GroupFinder().assignIdOfAttributeDefName(attributeDefName.getId())
+        .assignPrivileges(AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES).assignAttributeValue("abc").findGroups());
+    
+    assertEquals(0, GrouperUtil.length(groups));
+
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
+  }
+  
+  
   /**
    * 
    */
@@ -635,7 +753,7 @@ public class TestGroupFinder extends GrouperTest {
   protected void setupConfigs() {
     super.setupConfigs();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "false");
-  
+
   }
 
   /**
@@ -644,7 +762,7 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testFindByAttribute"));
+    TestRunner.run(new TestGroupFinder("testFindByAttributeDefName"));
   }
 
 } // public class TestGroupFinder_FindByAttribute

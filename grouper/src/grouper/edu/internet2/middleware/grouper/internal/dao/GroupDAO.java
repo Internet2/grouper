@@ -801,6 +801,7 @@ public interface GroupDAO extends GrouperDAO {
    * @param queryOptions
    * @param typeOfGroup or null for all
    * @param splitScope
+   * @param membershipSubject 
    * @param field
    * @param parentStemId
    * @param stemScope
@@ -818,6 +819,36 @@ public interface GroupDAO extends GrouperDAO {
       Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
       boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
       Collection<String> groupNames, Boolean compositeOwner);  
+  
+  /**
+   * get all groups secure, split the scope by whitespace
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param privileges
+   * @param queryOptions
+   * @param typeOfGroup or null for all
+   * @param splitScope
+   * @param membershipSubject 
+   * @param field
+   * @param parentStemId
+   * @param stemScope
+   * @param findByUuidOrName
+   * @param subjectNotInGroup is a subject which does not have a membership in the group
+   * @param groupIds are the group ids to search for
+   * @param groupNames are the group names to search for
+   * @param compositeOwner if we are filtering for groups which are or are not composite owners
+   * @param idOfAttributeDefName if looking for groups that have this attribute def name
+   * @param attributeValue if looking for groups that have this attribute value on the attribute def name
+   * @return set of group
+   * @since v2.2.1
+   */
+  public Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroup, boolean splitScope, 
+      Subject membershipSubject, Field field, String parentStemId, Scope stemScope,
+      boolean findByUuidOrName, Subject subjectNotInGroup, Collection<String> groupIds,
+      Collection<String> groupNames, Boolean compositeOwner, String idOfAttributeDefName, Object attributeValue);  
   
   /**
    * find by uuid secure

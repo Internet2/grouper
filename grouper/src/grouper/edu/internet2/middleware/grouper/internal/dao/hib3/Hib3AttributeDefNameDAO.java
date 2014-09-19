@@ -413,14 +413,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
    * @param splitScope 
    * @param attributeAssignType
    * @param attributeDefType 
-   * @param filterByServicesCanView if true then only return services the user can view based on memberships which have the 
-   * service, or folders which have the service, or attribute definitions which have the service,
-   * or the view privilege set
    * @param serviceRole if filtering by services the user has in a certain role
    * @param anyServiceRole true if services should be returned where the user has any role
    * @param parentStemId stem id of the parent of ancestor of this object
    * @param stemScope is SUB or ONE
    * @param findByUuidOrName 
+   * @param idsOfAttributeDefNames 
    * @return  attribute def names
    * 
    */
@@ -428,7 +426,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
-      Scope stemScope, boolean findByUuidOrName) {
+      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames) {
     
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -510,6 +508,18 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       }
     }
 
+    if (GrouperUtil.length(idsOfAttributeDefNames) > 0) {
+      
+      if (GrouperUtil.length(idsOfAttributeDefNames) > 1) {
+        throw new RuntimeException("Cant handle more than one attribute def name id yet: " + GrouperUtil.length(idsOfAttributeDefNames));
+      }
+      whereClause.append(" and ");
+      whereClause.append(" theAttributeDefName.id = :theAttributeDefNameId ");
+      byHqlStatic.setString("theAttributeDefNameId", idsOfAttributeDefNames.iterator().next());
+      
+    }
+
+    
     if (!StringUtils.isBlank(attributeDefId)) {
       
       whereClause.append(" and ");
@@ -698,7 +708,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        null, false, null, null, false);
+        null, false, null, null, false, null);
   }
 
   /**
@@ -754,7 +764,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
       ServiceRole serviceRole, boolean anyServiceRole) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, serviceRole, anyServiceRole, null, null, false);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, serviceRole, anyServiceRole, null, null, false, null);
   }
 
   /**
@@ -766,7 +776,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Set<Privilege> privileges, QueryOptions queryOptions,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, false, null, null, false);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, false, null, null, false, null);
   }
 
 
@@ -883,7 +893,23 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Scope stemScope, boolean findByUuidOrName) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName);
+        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName, null);
+  
+  }
+
+  /**
+   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType, ServiceRole, boolean, String, Scope, boolean, Set)
+   */
+  @Override
+  public Set<AttributeDefName> findAllAttributeNamesSecure(String scope,
+      boolean splitScope, GrouperSession grouperSession, String attributeDefId,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
+      ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
+      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames) {
+    return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
+        subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
+        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName, idsOfAttributeDefNames);
   
   }
 

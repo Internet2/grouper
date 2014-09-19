@@ -39,6 +39,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -580,6 +582,52 @@ public class GroupFinder {
   private Collection<String> groupIds;
 
   /**
+   * find groups that have this attribute def name id
+   */
+  private String attributeDefNameId;
+  
+  /**
+   * find groups with this value
+   */
+  private Object attributeValue;
+  
+  /**
+   * find objects with this value
+   * @param theValue
+   * @return this for chaining
+   */
+  public GroupFinder assignAttributeValue(Object theValue) {
+    if (theValue == null) {
+      throw new RuntimeException("Cant look for a null value");
+    }
+    this.attributeValue = theValue;
+    return this;
+  }
+  
+  /**
+   * find groups that have this attribute assigned
+   * @param theAttributeDefNameId
+   * @return this for chaining
+   */
+  public GroupFinder assignIdOfAttributeDefName(String theAttributeDefNameId) {
+    this.attributeDefNameId = theAttributeDefNameId;
+    return this;
+  }
+  
+  /**
+   * find groups that have this attribute assigned
+   * @param theNameOfAttributeDefName
+   * @return this for chaining
+   */
+  public GroupFinder assignNameOfAttributeDefName(String theNameOfAttributeDefName) {
+    
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(theNameOfAttributeDefName, true);
+    
+    this.attributeDefNameId = attributeDefName.getId();
+    return this;
+  }
+  
+  /**
    * add a group id to search for
    * @param groupId
    * @return this for chaining
@@ -684,7 +732,8 @@ public class GroupFinder {
         .getAllGroupsSecure(this.scope, grouperSession, privSubject, this.privileges, 
             this.queryOptions, this.typeOfGroups, this.splitScope, this.subject, 
             this.field, this.parentStemId, this.stemScope, this.findByUuidOrName, 
-            this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner);
+            this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
+            this.attributeDefNameId, this.attributeValue);
     
   }
 
