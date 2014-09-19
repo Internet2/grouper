@@ -1050,6 +1050,9 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
     if (this.createdOnDb == null) {
       this.createdOnDb = System.currentTimeMillis();
     }
+    if (this.actAsMemberId == null && this.loggedInMemberId != null) {
+      this.actAsMemberId = this.loggedInMemberId;
+    }
   }
 
   /**
