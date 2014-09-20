@@ -189,7 +189,7 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">         * Adds an expression to the list of expressions, maintain per-type counts.</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">         * @param expr the expression to add</em>
 <a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">void</strong> add(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> expr) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">void</strong> add(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> expr) {
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>             counts[expr.getType().index] += 1;
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>             expressions.add(expr);
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>         }
@@ -200,7 +200,7 @@
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">         * @param source the source expression</em>
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">         * @return an expression</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> build(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">UnifiedJEXL</a> el, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> source) {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> build(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">UnifiedJEXL</a> el, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> source) {
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>             <strong class="jxr_keyword">int</strong> sum = 0;
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> count : counts) {
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>                 sum += count;
@@ -263,15 +263,15 @@
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * The abstract base class for all expressions, immediate '${...}' and deferred '#{...}'.</em>
 <a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> {
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>         <em class="jxr_javadoccomment">/** The source of this expression (see {@link UnifiedJEXL.Expression#prepare}). */</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> source;
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> source;
 <a class="jxr_linenumber" name="L261" href="#L261">261</a> 
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">         * Creates an expression.</em>
 <a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">         * @param src the source expression if any</em>
 <a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> src) {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> src) {
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>             <strong class="jxr_keyword">this</strong>.source = src != <strong class="jxr_keyword">null</strong> ? src : <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>         }
 <a class="jxr_linenumber" name="L269" href="#L269">269</a> 
@@ -373,7 +373,7 @@
 <a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">         * @return an expression or null if an error occurs and the {@link JexlEngine} is running in silent mode</em>
 <a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">         * @throws UnifiedJEXL.Exception if an error occurs and the {@link JexlEngine} is not in silent mode</em>
 <a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/JexlContext.html">JexlContext</a> context) {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/JexlContext.html">JexlContext</a> context) {
 <a class="jxr_linenumber" name="L369" href="#L369">369</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L370" href="#L370">370</a>                 <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a>(jexl, context, !jexl.isLenient(), jexl.isSilent());
 <a class="jxr_linenumber" name="L371" href="#L371">371</a>                 <strong class="jxr_keyword">if</strong> (context instanceof TemplateContext) {
@@ -425,7 +425,7 @@
 <a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">         * Other expressions return themselves.</em>
 <a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">         * @return the source expression</em>
 <a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> getSource() {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> getSource() {
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>             <strong class="jxr_keyword">return</strong> source;
 <a class="jxr_linenumber" name="L422" href="#L422">422</a>         }
 <a class="jxr_linenumber" name="L423" href="#L423">423</a> 
@@ -435,7 +435,7 @@
 <a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">         * @return a prepared expression</em>
 <a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">         * @throws JexlException (only for nested &amp; composite)</em>
 <a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
 <a class="jxr_linenumber" name="L431" href="#L431">431</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>         }
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> 
@@ -449,7 +449,7 @@
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>     }
 <a class="jxr_linenumber" name="L442" href="#L442">442</a> 
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>     <em class="jxr_javadoccomment">/** A constant expression. */</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> {
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>         <em class="jxr_javadoccomment">/** The constant held by this expression. */</em>
 <a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Object value;
 <a class="jxr_linenumber" name="L447" href="#L447">447</a> 
@@ -462,7 +462,7 @@
 <a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">         * @param val the constant value</em>
 <a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">         * @param source the source expression if any</em>
 <a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(Object val, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> source) {
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(Object val, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> source) {
 <a class="jxr_linenumber" name="L458" href="#L458">458</a>             <strong class="jxr_keyword">super</strong>(source);
 <a class="jxr_linenumber" name="L459" href="#L459">459</a>             <strong class="jxr_keyword">if</strong> (val == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L460" href="#L460">460</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> NullPointerException(<span class="jxr_string">"constant can not be null"</span>);
@@ -496,7 +496,7 @@
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>     }
 <a class="jxr_linenumber" name="L489" href="#L489">489</a> 
 <a class="jxr_linenumber" name="L490" href="#L490">490</a>     <em class="jxr_javadoccomment">/** The base for Jexl based expressions. */</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">JexlBasedExpression</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> {
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">JexlBasedExpression</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> {
 <a class="jxr_linenumber" name="L492" href="#L492">492</a>         <em class="jxr_javadoccomment">/** The JEXL string for this expression. */</em>
 <a class="jxr_linenumber" name="L493" href="#L493">493</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> CharSequence expr;
 <a class="jxr_linenumber" name="L494" href="#L494">494</a>         <em class="jxr_javadoccomment">/** The JEXL node for this expression. */</em>
@@ -508,7 +508,7 @@
 <a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">         * @param theNode the expression as an AST</em>
 <a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">         * @param theSource the source expression if any</em>
 <a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">JexlBasedExpression</a>(CharSequence theExpr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> theNode, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> theSource) {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">JexlBasedExpression</a>(CharSequence theExpr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> theNode, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> theSource) {
 <a class="jxr_linenumber" name="L504" href="#L504">504</a>             <strong class="jxr_keyword">super</strong>(theSource);
 <a class="jxr_linenumber" name="L505" href="#L505">505</a>             <strong class="jxr_keyword">this</strong>.expr = theExpr;
 <a class="jxr_linenumber" name="L506" href="#L506">506</a>             <strong class="jxr_keyword">this</strong>.node = theNode;
@@ -553,7 +553,7 @@
 <a class="jxr_linenumber" name="L545" href="#L545">545</a> <em class="jxr_javadoccomment">         * @param node the expression as an AST</em>
 <a class="jxr_linenumber" name="L546" href="#L546">546</a> <em class="jxr_javadoccomment">         * @param source the source expression if any</em>
 <a class="jxr_linenumber" name="L547" href="#L547">547</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ImmediateExpression</a>(CharSequence expr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> node, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> source) {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ImmediateExpression</a>(CharSequence expr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> node, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> source) {
 <a class="jxr_linenumber" name="L549" href="#L549">549</a>             <strong class="jxr_keyword">super</strong>(expr, node, source);
 <a class="jxr_linenumber" name="L550" href="#L550">550</a>         }
 <a class="jxr_linenumber" name="L551" href="#L551">551</a> 
@@ -565,7 +565,7 @@
 <a class="jxr_linenumber" name="L557" href="#L557">557</a> 
 <a class="jxr_linenumber" name="L558" href="#L558">558</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
 <a class="jxr_linenumber" name="L559" href="#L559">559</a>         @Override
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
 <a class="jxr_linenumber" name="L561" href="#L561">561</a>             <em class="jxr_comment">// evaluate immediate as constant</em>
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>             Object value = evaluate(interpreter);
 <a class="jxr_linenumber" name="L563" href="#L563">563</a>             <strong class="jxr_keyword">return</strong> value != <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(value, source) : <strong class="jxr_keyword">null</strong>;
@@ -580,7 +580,7 @@
 <a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">         * @param node the expression as an AST</em>
 <a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">         * @param source the source expression if any</em>
 <a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">DeferredExpression</a>(CharSequence expr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> node, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> source) {
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">DeferredExpression</a>(CharSequence expr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> node, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> source) {
 <a class="jxr_linenumber" name="L576" href="#L576">576</a>             <strong class="jxr_keyword">super</strong>(expr, node, source);
 <a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
 <a class="jxr_linenumber" name="L578" href="#L578">578</a> 
@@ -598,7 +598,7 @@
 <a class="jxr_linenumber" name="L590" href="#L590">590</a> 
 <a class="jxr_linenumber" name="L591" href="#L591">591</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
 <a class="jxr_linenumber" name="L592" href="#L592">592</a>         @Override
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
 <a class="jxr_linenumber" name="L594" href="#L594">594</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ImmediateExpression</a>(expr, node, source);
 <a class="jxr_linenumber" name="L595" href="#L595">595</a>         }
 <a class="jxr_linenumber" name="L596" href="#L596">596</a> 
@@ -621,7 +621,7 @@
 <a class="jxr_linenumber" name="L613" href="#L613">613</a> <em class="jxr_javadoccomment">         * @param node the expression as an AST</em>
 <a class="jxr_linenumber" name="L614" href="#L614">614</a> <em class="jxr_javadoccomment">         * @param source the source expression if any</em>
 <a class="jxr_linenumber" name="L615" href="#L615">615</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">NestedExpression</a>(CharSequence expr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> node, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> source) {
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">NestedExpression</a>(CharSequence expr, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> node, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> source) {
 <a class="jxr_linenumber" name="L617" href="#L617">617</a>             <strong class="jxr_keyword">super</strong>(expr, node, source);
 <a class="jxr_linenumber" name="L618" href="#L618">618</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.source != <strong class="jxr_keyword">this</strong>) {
 <a class="jxr_linenumber" name="L619" href="#L619">619</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Nested expression can not have a source"</span>);
@@ -648,7 +648,7 @@
 <a class="jxr_linenumber" name="L640" href="#L640">640</a> 
 <a class="jxr_linenumber" name="L641" href="#L641">641</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
 <a class="jxr_linenumber" name="L642" href="#L642">642</a>         @Override
-<a class="jxr_linenumber" name="L643" href="#L643">643</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
 <a class="jxr_linenumber" name="L644" href="#L644">644</a>             String value = interpreter.interpret(node).toString();
 <a class="jxr_linenumber" name="L645" href="#L645">645</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/JexlNode.html">JexlNode</a> dnode = jexl.parse(value, jexl.isDebug() ? node.debugInfo() : <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L646" href="#L646">646</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ImmediateExpression</a>(value, dnode, <strong class="jxr_keyword">this</strong>);
@@ -662,11 +662,11 @@
 <a class="jxr_linenumber" name="L654" href="#L654">654</a>     }
 <a class="jxr_linenumber" name="L655" href="#L655">655</a> 
 <a class="jxr_linenumber" name="L656" href="#L656">656</a>     <em class="jxr_javadoccomment">/** A composite expression: "... ${...} ... #{...} ...". */</em>
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">CompositeExpression</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> {
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">CompositeExpression</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> {
 <a class="jxr_linenumber" name="L658" href="#L658">658</a>         <em class="jxr_javadoccomment">/** Bit encoded (deferred count &gt; 0) bit 1, (immediate count &gt; 0) bit 0. */</em>
 <a class="jxr_linenumber" name="L659" href="#L659">659</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> meta;
 <a class="jxr_linenumber" name="L660" href="#L660">660</a>         <em class="jxr_javadoccomment">/** The list of sub-expression resulting from parsing. */</em>
-<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] exprs;
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] exprs;
 <a class="jxr_linenumber" name="L662" href="#L662">662</a> 
 <a class="jxr_linenumber" name="L663" href="#L663">663</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">         * Creates a composite expression.</em>
@@ -674,9 +674,9 @@
 <a class="jxr_linenumber" name="L666" href="#L666">666</a> <em class="jxr_javadoccomment">         * @param list the sub-expressions</em>
 <a class="jxr_linenumber" name="L667" href="#L667">667</a> <em class="jxr_javadoccomment">         * @param src the source for this expresion if any</em>
 <a class="jxr_linenumber" name="L668" href="#L668">668</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L669" href="#L669">669</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">CompositeExpression</a>(<strong class="jxr_keyword">int</strong>[] counters, ArrayList&lt;Expression&gt; list, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> src) {
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">CompositeExpression</a>(<strong class="jxr_keyword">int</strong>[] counters, ArrayList&lt;Expression&gt; list, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> src) {
 <a class="jxr_linenumber" name="L670" href="#L670">670</a>             <strong class="jxr_keyword">super</strong>(src);
-<a class="jxr_linenumber" name="L671" href="#L671">671</a>             <strong class="jxr_keyword">this</strong>.exprs = list.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[list.size()]);
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>             <strong class="jxr_keyword">this</strong>.exprs = list.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[list.size()]);
 <a class="jxr_linenumber" name="L672" href="#L672">672</a>             <strong class="jxr_keyword">this</strong>.meta = (counters[ExpressionType.DEFERRED.index] &gt; 0 ? 2 : 0)
 <a class="jxr_linenumber" name="L673" href="#L673">673</a>                     | (counters[ExpressionType.IMMEDIATE.index] &gt; 0 ? 1 : 0);
 <a class="jxr_linenumber" name="L674" href="#L674">674</a>         }
@@ -715,7 +715,7 @@
 <a class="jxr_linenumber" name="L707" href="#L707">707</a> 
 <a class="jxr_linenumber" name="L708" href="#L708">708</a>         <em class="jxr_javadoccomment">/** {@inheritDoc} */</em>
 <a class="jxr_linenumber" name="L709" href="#L709">709</a>         @Override
-<a class="jxr_linenumber" name="L710" href="#L710">710</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
+<a class="jxr_linenumber" name="L710" href="#L710">710</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Interpreter.html">Interpreter</a> interpreter) {
 <a class="jxr_linenumber" name="L711" href="#L711">711</a>             <em class="jxr_comment">// if this composite is not its own source, it is already prepared</em>
 <a class="jxr_linenumber" name="L712" href="#L712">712</a>             <strong class="jxr_keyword">if</strong> (source != <strong class="jxr_keyword">this</strong>) {
 <a class="jxr_linenumber" name="L713" href="#L713">713</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
@@ -726,8 +726,8 @@
 <a class="jxr_linenumber" name="L718" href="#L718">718</a>             <em class="jxr_comment">// tracking whether prepare will return a different expression</em>
 <a class="jxr_linenumber" name="L719" href="#L719">719</a>             <strong class="jxr_keyword">boolean</strong> eq = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L720" href="#L720">720</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> e = 0; e &lt; size; ++e) {
-<a class="jxr_linenumber" name="L721" href="#L721">721</a>                 <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> expr = exprs[e];
-<a class="jxr_linenumber" name="L722" href="#L722">722</a>                 <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> prepared = expr.prepare(interpreter);
+<a class="jxr_linenumber" name="L721" href="#L721">721</a>                 <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> expr = exprs[e];
+<a class="jxr_linenumber" name="L722" href="#L722">722</a>                 <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> prepared = expr.prepare(interpreter);
 <a class="jxr_linenumber" name="L723" href="#L723">723</a>                 <em class="jxr_comment">// add it if not null</em>
 <a class="jxr_linenumber" name="L724" href="#L724">724</a>                 <strong class="jxr_keyword">if</strong> (prepared != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L725" href="#L725">725</a>                     builder.add(prepared);
@@ -735,7 +735,7 @@
 <a class="jxr_linenumber" name="L727" href="#L727">727</a>                 <em class="jxr_comment">// keep track of expression equivalence</em>
 <a class="jxr_linenumber" name="L728" href="#L728">728</a>                 eq &amp;= expr == prepared;
 <a class="jxr_linenumber" name="L729" href="#L729">729</a>             }
-<a class="jxr_linenumber" name="L730" href="#L730">730</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> ready = eq ? <strong class="jxr_keyword">this</strong> : builder.build(UnifiedJEXL.<strong class="jxr_keyword">this</strong>, <strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L730" href="#L730">730</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> ready = eq ? <strong class="jxr_keyword">this</strong> : builder.build(UnifiedJEXL.<strong class="jxr_keyword">this</strong>, <strong class="jxr_keyword">this</strong>);
 <a class="jxr_linenumber" name="L731" href="#L731">731</a>             <strong class="jxr_keyword">return</strong> ready;
 <a class="jxr_linenumber" name="L732" href="#L732">732</a>         }
 <a class="jxr_linenumber" name="L733" href="#L733">733</a> 
@@ -766,9 +766,9 @@
 <a class="jxr_linenumber" name="L758" href="#L758">758</a> <em class="jxr_javadoccomment">     * @return the UnifiedJEXL object expression, null if silent and an error occured</em>
 <a class="jxr_linenumber" name="L759" href="#L759">759</a> <em class="jxr_javadoccomment">     * @throws UnifiedJEXL.Exception if an error occurs and the {@link JexlEngine} is not silent</em>
 <a class="jxr_linenumber" name="L760" href="#L760">760</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L761" href="#L761">761</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> parse(String expression) {
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> parse(String expression) {
 <a class="jxr_linenumber" name="L762" href="#L762">762</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Exception</a> xuel = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L763" href="#L763">763</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> stmt = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L763" href="#L763">763</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> stmt = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L764" href="#L764">764</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L765" href="#L765">765</a>             <strong class="jxr_keyword">if</strong> (cache == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L766" href="#L766">766</a>                 stmt = parseExpression(expression, <strong class="jxr_keyword">null</strong>);
@@ -804,7 +804,7 @@
 <a class="jxr_linenumber" name="L796" href="#L796">796</a> <em class="jxr_javadoccomment">     * @param xany the exception</em>
 <a class="jxr_linenumber" name="L797" href="#L797">797</a> <em class="jxr_javadoccomment">     * @return an exception containing an explicit error message</em>
 <a class="jxr_linenumber" name="L798" href="#L798">798</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L799" href="#L799">799</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Exception</a> createException(String action, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> expr, java.lang.Exception xany) {
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Exception</a> createException(String action, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> expr, java.lang.Exception xany) {
 <a class="jxr_linenumber" name="L800" href="#L800">800</a>         StringBuilder strb = <strong class="jxr_keyword">new</strong> StringBuilder(<span class="jxr_string">"failed to "</span>);
 <a class="jxr_linenumber" name="L801" href="#L801">801</a>         strb.append(action);
 <a class="jxr_linenumber" name="L802" href="#L802">802</a>         <strong class="jxr_keyword">if</strong> (expr != <strong class="jxr_keyword">null</strong>) {
@@ -846,7 +846,7 @@
 <a class="jxr_linenumber" name="L838" href="#L838">838</a> <em class="jxr_javadoccomment">     * @return the expression instance</em>
 <a class="jxr_linenumber" name="L839" href="#L839">839</a> <em class="jxr_javadoccomment">     * @throws JexlException if an error occur during parsing</em>
 <a class="jxr_linenumber" name="L840" href="#L840">840</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L841" href="#L841">841</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> parseExpression(String expr, JexlEngine.Scope scope) {
+<a class="jxr_linenumber" name="L841" href="#L841">841</a>     <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> parseExpression(String expr, JexlEngine.Scope scope) {
 <a class="jxr_linenumber" name="L842" href="#L842">842</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size = expr.length();
 <a class="jxr_linenumber" name="L843" href="#L843">843</a>         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ExpressionBuilder</a> builder = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ExpressionBuilder</a>(0);
 <a class="jxr_linenumber" name="L844" href="#L844">844</a>         StringBuilder strb = <strong class="jxr_keyword">new</strong> StringBuilder(size);
@@ -877,7 +877,7 @@
 <a class="jxr_linenumber" name="L869" href="#L869">869</a>                         state = ParseState.IMMEDIATE1;
 <a class="jxr_linenumber" name="L870" href="#L870">870</a>                         <em class="jxr_comment">// if chars in buffer, create constant</em>
 <a class="jxr_linenumber" name="L871" href="#L871">871</a>                         <strong class="jxr_keyword">if</strong> (strb.length() &gt; 0) {
-<a class="jxr_linenumber" name="L872" href="#L872">872</a>                             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> cexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(strb.toString(), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L872" href="#L872">872</a>                             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> cexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(strb.toString(), <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L873" href="#L873">873</a>                             builder.add(cexpr);
 <a class="jxr_linenumber" name="L874" href="#L874">874</a>                             strb.delete(0, Integer.MAX_VALUE);
 <a class="jxr_linenumber" name="L875" href="#L875">875</a>                         }
@@ -893,7 +893,7 @@
 <a class="jxr_linenumber" name="L885" href="#L885">885</a>                         state = ParseState.DEFERRED1;
 <a class="jxr_linenumber" name="L886" href="#L886">886</a>                         <em class="jxr_comment">// if chars in buffer, create constant</em>
 <a class="jxr_linenumber" name="L887" href="#L887">887</a>                         <strong class="jxr_keyword">if</strong> (strb.length() &gt; 0) {
-<a class="jxr_linenumber" name="L888" href="#L888">888</a>                             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> cexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(strb.toString(), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L888" href="#L888">888</a>                             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> cexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(strb.toString(), <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L889" href="#L889">889</a>                             builder.add(cexpr);
 <a class="jxr_linenumber" name="L890" href="#L890">890</a>                             strb.delete(0, Integer.MAX_VALUE);
 <a class="jxr_linenumber" name="L891" href="#L891">891</a>                         }
@@ -907,7 +907,7 @@
 <a class="jxr_linenumber" name="L899" href="#L899">899</a>                 <strong class="jxr_keyword">case</strong> IMMEDIATE1: <em class="jxr_comment">// ${...</em>
 <a class="jxr_linenumber" name="L900" href="#L900">900</a>                     <strong class="jxr_keyword">if</strong> (c == '}') {
 <a class="jxr_linenumber" name="L901" href="#L901">901</a>                         <em class="jxr_comment">// materialize the immediate expr</em>
-<a class="jxr_linenumber" name="L902" href="#L902">902</a>                         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> iexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ImmediateExpression</a>(
+<a class="jxr_linenumber" name="L902" href="#L902">902</a>                         <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> iexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ImmediateExpression</a>(
 <a class="jxr_linenumber" name="L903" href="#L903">903</a>                                 strb.toString(),
 <a class="jxr_linenumber" name="L904" href="#L904">904</a>                                 jexl.parse(strb, <strong class="jxr_keyword">null</strong>, scope),
 <a class="jxr_linenumber" name="L905" href="#L905">905</a>                                 <strong class="jxr_keyword">null</strong>);
@@ -942,7 +942,7 @@
 <a class="jxr_linenumber" name="L934" href="#L934">934</a>                             <strong class="jxr_keyword">inner</strong> -= 1;
 <a class="jxr_linenumber" name="L935" href="#L935">935</a>                         } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L936" href="#L936">936</a>                             <em class="jxr_comment">// materialize the nested/deferred expr</em>
-<a class="jxr_linenumber" name="L937" href="#L937">937</a>                             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> dexpr = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L937" href="#L937">937</a>                             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> dexpr = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L938" href="#L938">938</a>                             <strong class="jxr_keyword">if</strong> (nested) {
 <a class="jxr_linenumber" name="L939" href="#L939">939</a>                                 dexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">NestedExpression</a>(
 <a class="jxr_linenumber" name="L940" href="#L940">940</a>                                         expr.substring(inested, i + 1),
@@ -982,7 +982,7 @@
 <a class="jxr_linenumber" name="L974" href="#L974">974</a>         }
 <a class="jxr_linenumber" name="L975" href="#L975">975</a>         <em class="jxr_comment">// if any chars were buffered, add them as a constant</em>
 <a class="jxr_linenumber" name="L976" href="#L976">976</a>         <strong class="jxr_keyword">if</strong> (strb.length() &gt; 0) {
-<a class="jxr_linenumber" name="L977" href="#L977">977</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> cexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(strb.toString(), <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> cexpr = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">ConstantExpression</a>(strb.toString(), <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L978" href="#L978">978</a>             builder.add(cexpr);
 <a class="jxr_linenumber" name="L979" href="#L979">979</a>         }
 <a class="jxr_linenumber" name="L980" href="#L980">980</a>         <strong class="jxr_keyword">return</strong> builder.build(<strong class="jxr_keyword">this</strong>, <strong class="jxr_keyword">null</strong>);
@@ -1078,7 +1078,7 @@
 <a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>         <em class="jxr_javadoccomment">/** The resulting script. */</em>
 <a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/ASTJexlScript.html">ASTJexlScript</a> script;
 <a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>         <em class="jxr_javadoccomment">/** The UnifiedJEXL expressions called by the script. */</em>
-<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] exprs;
+<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] exprs;
 <a class="jxr_linenumber" name="L1074" href="#L1074">1074</a> 
 <a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>         <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1076" href="#L1076">1076</a> <em class="jxr_javadoccomment">         * Creates a new template from an input.</em>
@@ -1134,7 +1134,7 @@
 <a class="jxr_linenumber" name="L1126" href="#L1126">1126</a>                 }
 <a class="jxr_linenumber" name="L1127" href="#L1127">1127</a>             }
 <a class="jxr_linenumber" name="L1128" href="#L1128">1128</a>             source = blocks.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateBlock</a>[blocks.size()]);
-<a class="jxr_linenumber" name="L1129" href="#L1129">1129</a>             exprs = uexprs.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[uexprs.size()]);
+<a class="jxr_linenumber" name="L1129" href="#L1129">1129</a>             exprs = uexprs.toArray(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[uexprs.size()]);
 <a class="jxr_linenumber" name="L1130" href="#L1130">1130</a>         }
 <a class="jxr_linenumber" name="L1131" href="#L1131">1131</a> 
 <a class="jxr_linenumber" name="L1132" href="#L1132">1132</a>         <em class="jxr_javadoccomment">/**</em>
@@ -1144,7 +1144,7 @@
 <a class="jxr_linenumber" name="L1136" href="#L1136">1136</a> <em class="jxr_javadoccomment">         * @param theScript the script</em>
 <a class="jxr_linenumber" name="L1137" href="#L1137">1137</a> <em class="jxr_javadoccomment">         * @param theExprs the expressions</em>
 <a class="jxr_linenumber" name="L1138" href="#L1138">1138</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L1139" href="#L1139">1139</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Template</a>(String thePrefix, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateBlock</a>[] theSource, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/ASTJexlScript.html">ASTJexlScript</a> theScript, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] theExprs) {
+<a class="jxr_linenumber" name="L1139" href="#L1139">1139</a>         <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Template</a>(String thePrefix, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateBlock</a>[] theSource, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/parser/ASTJexlScript.html">ASTJexlScript</a> theScript, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] theExprs) {
 <a class="jxr_linenumber" name="L1140" href="#L1140">1140</a>             prefix = thePrefix;
 <a class="jxr_linenumber" name="L1141" href="#L1141">1141</a>             source = theSource;
 <a class="jxr_linenumber" name="L1142" href="#L1142">1142</a>             script = theScript;
@@ -1190,7 +1190,7 @@
 <a class="jxr_linenumber" name="L1182" href="#L1182">1182</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Template</a> prepare(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/JexlContext.html">JexlContext</a> context) {
 <a class="jxr_linenumber" name="L1183" href="#L1183">1183</a>             JexlEngine.Frame frame = script.createFrame((Object[]) <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L1184" href="#L1184">1184</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateContext</a> tcontext = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateContext</a>(context, frame, exprs, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L1185" href="#L1185">1185</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] immediates = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[exprs.length];
+<a class="jxr_linenumber" name="L1185" href="#L1185">1185</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] immediates = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[exprs.length];
 <a class="jxr_linenumber" name="L1186" href="#L1186">1186</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> e = 0; e &lt; exprs.length; ++e) {
 <a class="jxr_linenumber" name="L1187" href="#L1187">1187</a>                 immediates[e] = exprs[e].prepare(tcontext);
 <a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>             }
@@ -1231,7 +1231,7 @@
 <a class="jxr_linenumber" name="L1223" href="#L1223">1223</a>         <em class="jxr_javadoccomment">/** The wrapped context. */</em>
 <a class="jxr_linenumber" name="L1224" href="#L1224">1224</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/JexlContext.html">JexlContext</a> wrap;
 <a class="jxr_linenumber" name="L1225" href="#L1225">1225</a>         <em class="jxr_javadoccomment">/** The array of UnifiedJEXL expressions. */</em>
-<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] exprs;
+<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] exprs;
 <a class="jxr_linenumber" name="L1227" href="#L1227">1227</a>         <em class="jxr_javadoccomment">/** The writer used to output. */</em>
 <a class="jxr_linenumber" name="L1228" href="#L1228">1228</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Writer writer;
 <a class="jxr_linenumber" name="L1229" href="#L1229">1229</a>         <em class="jxr_javadoccomment">/** The call frame. */</em>
@@ -1244,7 +1244,7 @@
 <a class="jxr_linenumber" name="L1236" href="#L1236">1236</a> <em class="jxr_javadoccomment">         * @param expressions the list of expression from the template to evaluate</em>
 <a class="jxr_linenumber" name="L1237" href="#L1237">1237</a> <em class="jxr_javadoccomment">         * @param out the output writer</em>
 <a class="jxr_linenumber" name="L1238" href="#L1238">1238</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L1239" href="#L1239">1239</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateContext</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/JexlContext.html">JexlContext</a> jcontext, JexlEngine.Frame jframe, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] expressions, Writer out) {
+<a class="jxr_linenumber" name="L1239" href="#L1239">1239</a>         <strong class="jxr_keyword">protected</strong> <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">TemplateContext</a>(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/JexlContext.html">JexlContext</a> jcontext, JexlEngine.Frame jframe, <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] expressions, Writer out) {
 <a class="jxr_linenumber" name="L1240" href="#L1240">1240</a>             wrap = jcontext;
 <a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>             frame = jframe;
 <a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>             exprs = expressions;
@@ -1307,7 +1307,7 @@
 <a class="jxr_linenumber" name="L1299" href="#L1299">1299</a>             <strong class="jxr_keyword">if</strong> (e &lt; 0 || e &gt;= exprs.length) {
 <a class="jxr_linenumber" name="L1300" href="#L1300">1300</a>                 <strong class="jxr_keyword">return</strong>;
 <a class="jxr_linenumber" name="L1301" href="#L1301">1301</a>             }
-<a class="jxr_linenumber" name="L1302" href="#L1302">1302</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a> expr = exprs[e];
+<a class="jxr_linenumber" name="L1302" href="#L1302">1302</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a> expr = exprs[e];
 <a class="jxr_linenumber" name="L1303" href="#L1303">1303</a>             <strong class="jxr_keyword">if</strong> (expr.isDeferred()) {
 <a class="jxr_linenumber" name="L1304" href="#L1304">1304</a>                 expr = expr.prepare(wrap);
 <a class="jxr_linenumber" name="L1305" href="#L1305">1305</a>             }
@@ -1323,7 +1323,7 @@
 <a class="jxr_linenumber" name="L1315" href="#L1315">1315</a> <em class="jxr_javadoccomment">         * @param composite the composite expression</em>
 <a class="jxr_linenumber" name="L1316" href="#L1316">1316</a> <em class="jxr_javadoccomment">         */</em>
 <a class="jxr_linenumber" name="L1317" href="#L1317">1317</a>         <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">void</strong> printComposite(<a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">CompositeExpression</a> composite) {
-<a class="jxr_linenumber" name="L1318" href="#L1318">1318</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/Expression.html">Expression</a>[] cexprs = composite.exprs;
+<a class="jxr_linenumber" name="L1318" href="#L1318">1318</a>             <a href="../../../../../../../../edu/internet2/middleware/grouperClientExt/org/apache/commons/jexl2/UnifiedJEXL.html">Expression</a>[] cexprs = composite.exprs;
 <a class="jxr_linenumber" name="L1319" href="#L1319">1319</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> size = cexprs.length;
 <a class="jxr_linenumber" name="L1320" href="#L1320">1320</a>             Object value = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L1321" href="#L1321">1321</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> e = 0; e &lt; size; ++e) {
