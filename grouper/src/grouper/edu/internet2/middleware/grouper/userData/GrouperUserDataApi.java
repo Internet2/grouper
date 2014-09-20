@@ -244,9 +244,10 @@ public class GrouperUserDataApi {
     
     /**
      * get the list of data
+     * @param <T> template
      * @param userDataGroupName
      * @param subject
-     * @param uuid
+     * @param objectClass
      */
     public <T> T retrieve(String userDataGroupName, Subject subject, Class<T> objectClass) {
       

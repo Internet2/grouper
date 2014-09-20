@@ -41,12 +41,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preference;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItem;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer.IndexPanel;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
@@ -63,6 +65,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.userData.GrouperFavoriteFinder;
+import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -342,11 +345,12 @@ public class UiV2Main extends UiServiceLogicBase {
 
       int col = GrouperUtil.intValue(request.getParameter("col"));
       
-      //GrouperUserDataApi.
-      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexMyFavorites.jsp"));
+      
+      panelColPersonalPreferenceStore(col, IndexPanel.MyFavorites);
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -375,6 +379,9 @@ public class UiV2Main extends UiServiceLogicBase {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexMyServices.jsp"));
+
+      panelColPersonalPreferenceStore(col, IndexPanel.MyServices);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -389,7 +396,6 @@ public class UiV2Main extends UiServiceLogicBase {
    */
   public void indexColGroupsImanage(HttpServletRequest request, HttpServletResponse response) {
     
-
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     //initialize the bean
@@ -401,15 +407,56 @@ public class UiV2Main extends UiServiceLogicBase {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       int col = GrouperUtil.intValue(request.getParameter("col"));
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexGroupsImanage.jsp"));
+      
+      panelColPersonalPreferenceStore(col, IndexPanel.GroupsImanage);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
 
     
   }
+
+  /**
+   * find the index panel for the column as a user preference
+   * @param colIndex
+   * @param indexPanel
+   */
+  public static void panelColPersonalPreferenceStore(int colIndex, IndexPanel indexPanel) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+
+    //get the panel string
+    UiV2Preference uiV2Preference = GrouperUserDataApi.preferences(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+        grouperSession.getSubject(), UiV2Preference.class);
+    
+    if (uiV2Preference == null) {
+      uiV2Preference = new UiV2Preference();
+    }
+    
+    String indexPanelString = indexPanel == null ? null : indexPanel.name();
+    
+    switch(colIndex) {
+      case 0:
+        uiV2Preference.setIndexCol0(indexPanelString);
+        break;
+      case 1:
+        uiV2Preference.setIndexCol1(indexPanelString);
+        break;
+      case 2:
+        uiV2Preference.setIndexCol2(indexPanelString);
+        break;
+      default: 
+        throw new RuntimeException("Not expecting column index: " + colIndex);
+    }
+
+    GrouperUserDataApi.preferencesAssign(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject(), uiV2Preference);
+  }
+
   
   /**
    * index page of application
@@ -491,6 +538,9 @@ public class UiV2Main extends UiServiceLogicBase {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexStemsImanage.jsp"));
+
+      panelColPersonalPreferenceStore(col, IndexPanel.StemsImanage);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -518,6 +568,9 @@ public class UiV2Main extends UiServiceLogicBase {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexMyMemberships.jsp"));
+
+      panelColPersonalPreferenceStore(col, IndexPanel.MyMemberships);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -546,6 +599,9 @@ public class UiV2Main extends UiServiceLogicBase {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexRecentlyUsed.jsp"));
+
+      panelColPersonalPreferenceStore(col, IndexPanel.RecentlyUsed);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
