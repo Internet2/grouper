@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexStemsImanage.jsp -->
-                    <h4>My folders</h4>
+                    <h4>${textContainer.text['indexStemsImanageStemsImanage'] }</h4>
                     <ul class="unstyled list-widget">
                       <c:forEach items="${grouperRequestContainer.indexContainer.guiStemsUserManagesAbbreviated}" var="guiStem">
                         <li>

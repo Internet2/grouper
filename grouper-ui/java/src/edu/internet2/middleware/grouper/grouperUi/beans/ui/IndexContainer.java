@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -29,11 +30,13 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preference;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
@@ -105,49 +108,135 @@ public class IndexContainer {
    * note, the name here must match exactly the substring of the name of the JSP
    * e.g. grouperUi2/index/indexGroupsImanage.jsp
    */
-  private static enum IndexPanel {
-    GroupsImanage, MyFavorites, MyMemberships, MyServices, RecentlyUsed, StemsImanage;
+  public static enum IndexPanel {
+    
+    /** groups I manage panel */
+    GroupsImanage, 
+    
+    /** my favorites panel */
+    MyFavorites, 
+    
+    /** my memberships panel */
+    MyMemberships, 
+    
+    /** my service panel */
+    MyServices, 
+    
+    /** recently used panel */
+    RecentlyUsed, 
+
+    /** stems I manage panel */
+    StemsImanage;
+    
+    /**
+     * convert a string to enum
+     * @param indexPanelString
+     * @param exceptionOnNotFound
+     * @param exceptionIfInvalid
+     * @return enum or exception
+     */
+    public static IndexPanel valueOfIgnoreCase(String indexPanelString, boolean exceptionOnNotFound, boolean exceptionIfInvalid) {
+      
+      return GrouperUtil.enumValueOfIgnoreCase(IndexPanel.class, indexPanelString, exceptionOnNotFound, exceptionIfInvalid);
+      
+    }
+    
   }
   
-  /**
-   * panel (IndexPanel enum) for col 0 on main index page
-   */
-  private String panelCol0;
-
-  /**
-   * panel (IndexPanel enum) for col 1 on main index page
-   */
-  private String panelCol1;
-
-  /**
-   * panel (IndexPanel enum) for col 2 on main index page
-   */
-  private String panelCol2;
-
   /**
    * panel (IndexPanel enum) for col 0 on main index page
    * @return the panel
    */
   public String getPanelCol0() {
-    return IndexPanel.MyFavorites.name();
+    
+    IndexPanel defaultIndexPanel = IndexPanel.MyFavorites;
+    
+    IndexPanel indexPanel = panelColPersonalPreference(0);
+    
+    if (indexPanel == null) {
+      String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget0", defaultIndexPanel.name());
+  
+      indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+    }
+    
+    return GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
   }
 
-  
+  /**
+   * find the index panel for the column as a user preference
+   * @param colIndex
+   * @return the enum or null
+   */
+  public static IndexPanel panelColPersonalPreference(int colIndex) {
+    
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(loggedInSubject);
+    }
+    try {
+      //get the panel string
+      UiV2Preference uiV2Preference = GrouperUserDataApi.preferences(GrouperUiUserData.grouperUiGroupNameForUserData(), loggedInSubject, UiV2Preference.class);
+      
+      if (uiV2Preference != null) {
+        
+        String indexPanelString = null;
+        
+        switch(colIndex) {
+          case 0:
+            indexPanelString = uiV2Preference.getIndexCol0();
+            break;
+          case 1:
+            indexPanelString = uiV2Preference.getIndexCol1();
+            break;
+            
+          case 2:
+            indexPanelString = uiV2Preference.getIndexCol2();
+            break;
+          default: 
+            throw new RuntimeException("Not expecting column index: " + colIndex);
+        }
+
+        if (!StringUtils.isBlank(indexPanelString)) {
+          IndexPanel indexPanel = IndexPanel.valueOfIgnoreCase(indexPanelString, false, false);
+          return indexPanel;
+        }
+        
+      }
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+
+
+    
+    return null;
+
+  }
   
   /**
    * panel (IndexPanel enum) for col 1 on main index page
    * @return col1
    */
   public String getPanelCol1() {
-    return IndexPanel.GroupsImanage.name();
-  }
-
-  /**
-   * panel (IndexPanel enum) for col 1 on main index page
-   * @param panelCol1_
-   */
-  public void setPanelCol1(String panelCol1_) {
-    this.panelCol1 = panelCol1_;
+    IndexPanel defaultIndexPanel = IndexPanel.GroupsImanage;
+    
+    IndexPanel indexPanel = panelColPersonalPreference(1);
+    
+    if (indexPanel == null) {
+      String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget1", defaultIndexPanel.name());
+  
+      indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+    }
+    
+    return GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
   }
 
   /**
@@ -155,25 +244,18 @@ public class IndexContainer {
    * @return col2
    */
   public String getPanelCol2() {
-    return IndexPanel.MyServices.name();
+    IndexPanel defaultIndexPanel = IndexPanel.MyServices;
+    
+    IndexPanel indexPanel = panelColPersonalPreference(2);
+    
+    if (indexPanel == null) {
+      String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget2", defaultIndexPanel.name());
+  
+      indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+    }
+    
+    return GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
   }
-
-  /**
-   * panel (IndexPanel enum) for col 2 on main index page
-   * @param panelCol2_
-   */
-  public void setPanelCol2(String panelCol2_) {
-    this.panelCol2 = panelCol2_;
-  }
-
-  /**
-   * panel (IndexPanel enum) for col 0 on main index page
-   * @param panelCol0_
-   */
-  public void setPanelCol0(String panelCol0_) {
-    this.panelCol0 = panelCol0_;
-  }
-
 
 
   /**
@@ -187,46 +269,59 @@ public class IndexContainer {
    */
   public Set<GuiAuditEntry> getGuiAuditEntriesRecentActivity() {
     
-    Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
+    }
     try {
-      if (this.guiAuditEntriesRecentActivity == null) {
-        if (LOG.isDebugEnabled()) {
-          debugLog.put("inittingRecentActivity", true);
+      Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+      try {
+        if (this.guiAuditEntriesRecentActivity == null) {
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("inittingRecentActivity", true);
+          }
+          
+          Subject subject = grouperSession.getSubject();
+
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("userName", subject == null ? null : subject.getId() + " - " + subject.getName());
+          }
+          
+          Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+
+          QueryOptions queryOptions = new QueryOptions();
+          queryOptions.paging(6, 1, false);
+
+          Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), queryOptions);
+    
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("resultsFromDb", GrouperUtil.length(auditEntries));
+          }
+          
+          this.guiAuditEntriesRecentActivity = GuiAuditEntry.convertFromAuditEntries(auditEntries);
+    
+        } else {
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("inittingRecentActivity", false);
+          }
         }
-        GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-        Subject subject = grouperSession.getSubject();
 
         if (LOG.isDebugEnabled()) {
-          debugLog.put("userName", subject == null ? null : subject.getId() + " - " + subject.getName());
+          debugLog.put("recentActivitySize", GrouperUtil.length(this.guiAuditEntriesRecentActivity));
         }
         
-        Member member = MemberFinder.findBySubject(grouperSession, subject, true);
-
-        QueryOptions queryOptions = new QueryOptions();
-        queryOptions.paging(6, 1, false);
-
-        Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), queryOptions);
-  
+        return this.guiAuditEntriesRecentActivity;
+      } finally {
         if (LOG.isDebugEnabled()) {
-          debugLog.put("resultsFromDb", GrouperUtil.length(auditEntries));
+          LOG.debug(GrouperUtil.mapToString(debugLog));
         }
-        
-        this.guiAuditEntriesRecentActivity = GuiAuditEntry.convertFromAuditEntries(auditEntries);
-  
-      } else {
-        if (LOG.isDebugEnabled()) {
-          debugLog.put("inittingRecentActivity", false);
-        }
-      }
-
-      if (LOG.isDebugEnabled()) {
-        debugLog.put("recentActivitySize", GrouperUtil.length(this.guiAuditEntriesRecentActivity));
       }
       
-      return this.guiAuditEntriesRecentActivity;
     } finally {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(GrouperUtil.mapToString(debugLog));
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
       }
     }
   }
@@ -255,20 +350,32 @@ public class IndexContainer {
    */
   public Set<GuiStem> getGuiStemsUserManagesAbbreviated() {
 
-    if (this.guiStemsUserManagesAbbreviated == null) {
-      
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-      Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
-          .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
-          .assignQueryOptions(new QueryOptions().paging(
-              GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
-              1, false)).findStems();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
 
-      this.guiStemsUserManagesAbbreviated = GuiStem.convertFromStems(stems);
-            
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
+    try {
+      if (this.guiStemsUserManagesAbbreviated == null) {
+        
+        Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
+            .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
+            .assignQueryOptions(new QueryOptions().paging(
+                GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
+                1, false)).findStems();
 
-    return this.guiStemsUserManagesAbbreviated;
+        this.guiStemsUserManagesAbbreviated = GuiStem.convertFromStems(stems);
+              
+      }
+
+      return this.guiStemsUserManagesAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -287,17 +394,30 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsUserManagesAbbreviated() {
     
-    if (this.guiGroupsUserManagesAbbreviated == null) {
-      
-      Set<Group> groups = new GroupFinder()
-          .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
-          .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
 
-      this.guiGroupsUserManagesAbbreviated = GuiGroup.convertFromGroups(groups);
-            
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiGroupsUserManagesAbbreviated;
+    try {
+      if (this.guiGroupsUserManagesAbbreviated == null) {
+        
+        Set<Group> groups = new GroupFinder()
+            .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+            .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+
+        this.guiGroupsUserManagesAbbreviated = GuiGroup.convertFromGroups(groups);
+              
+      }
+      
+      return this.guiGroupsUserManagesAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -315,21 +435,33 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsMyMembershipsAbbreviated() {
     
-    if (this.guiGroupsMyMembershipsAbbreviated == null) {
-      
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-      Set<Group> groups = new GroupFinder()
-          .assignSubject(grouperSession.getSubject())
-          .assignField(Group.getDefaultList())
-          .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
-          .assignQueryOptions(new QueryOptions().paging(
-              GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
 
-      this.guiGroupsMyMembershipsAbbreviated = GuiGroup.convertFromGroups(groups);
-            
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiGroupsMyMembershipsAbbreviated;
+    try {
+      if (this.guiGroupsMyMembershipsAbbreviated == null) {
+        
+        Set<Group> groups = new GroupFinder()
+            .assignSubject(grouperSession.getSubject())
+            .assignField(Group.getDefaultList())
+            .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+            .assignQueryOptions(new QueryOptions().paging(
+                GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+
+        this.guiGroupsMyMembershipsAbbreviated = GuiGroup.convertFromGroups(groups);
+              
+      }
+      
+      return this.guiGroupsMyMembershipsAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -353,14 +485,28 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsMyFavoritesAbbreviated() {
     
-    if (this.guiGroupsMyFavoritesAbbreviated == null) {
-      
-      Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiGroupsMyFavoritesAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiGroupsMyFavoritesAbbreviated;
+    try {
+
+      if (this.guiGroupsMyFavoritesAbbreviated == null) {
+        
+        Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiGroupsMyFavoritesAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5);
+      }
+      
+      return this.guiGroupsMyFavoritesAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -483,32 +629,45 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDefName> getGuiAttributeDefNamesMyServices() {
     
-    if (this.guiAttributeDefNamesMyServices == null) {
-      
-      GrouperSession grouperSessionOuter = GrouperSession.staticGrouperSession();
-      final Subject subject = grouperSessionOuter.getSubject();
-      
-      GrouperSession.callbackGrouperSession(grouperSessionOuter.internal_getRootSession(), new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
-              .assignSubject(subject)
-              .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
-              .findAttributeNames();
-              
-          IndexContainer.this.guiAttributeDefNamesMyServices = GuiAttributeDefName.convertFromAttributeDefNames(attributeDefNames);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
 
-          return null;
-        }
-      });
-      
-      
-      
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiAttributeDefNamesMyServices;
+    try {
+      if (this.guiAttributeDefNamesMyServices == null) {
+        
+        GrouperSession grouperSessionOuter = GrouperSession.staticGrouperSession();
+        final Subject subject = grouperSessionOuter.getSubject();
+        
+        GrouperSession.callbackGrouperSession(grouperSessionOuter.internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+            
+            Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
+                .assignSubject(subject)
+                .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
+                .findAttributeNames();
+                
+            IndexContainer.this.guiAttributeDefNamesMyServices = GuiAttributeDefName.convertFromAttributeDefNames(attributeDefNames);
+
+            return null;
+          }
+        });
+        
+        
+        
+      }
+      
+      return this.guiAttributeDefNamesMyServices;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -526,16 +685,29 @@ public class IndexContainer {
    */
   public Set<GuiStem> getGuiStemsMyFavoritesAbbreviated() {
     
-    if (this.guiStemsMyFavoritesAbbreviated == null) {
-      
-      Set<Stem> stems = GrouperUserDataApi.favoriteStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-          GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiStemsMyFavoritesAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxFavoritesEachType", 5);
-      
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiStemsMyFavoritesAbbreviated;
+    try {
+      if (this.guiStemsMyFavoritesAbbreviated == null) {
+        
+        Set<Stem> stems = GrouperUserDataApi.favoriteStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            grouperSession.getSubject());
+        
+        this.guiStemsMyFavoritesAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxFavoritesEachType", 5);
+        
+      }
+      
+      return this.guiStemsMyFavoritesAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -544,14 +716,27 @@ public class IndexContainer {
    */
   public Set<GuiMember> getGuiMembersMyFavoritesAbbreviated() {
     
-    if (this.guiMembersMyFavoritesAbbreviated == null) {
-      
-      Set<Member> members = GrouperUserDataApi.favoriteMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiMembersMyFavoritesAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxFavoritesEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiMembersMyFavoritesAbbreviated;
+    try {
+      if (this.guiMembersMyFavoritesAbbreviated == null) {
+        
+        Set<Member> members = GrouperUserDataApi.favoriteMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiMembersMyFavoritesAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxFavoritesEachType", 5);
+      }
+      
+      return this.guiMembersMyFavoritesAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -560,16 +745,29 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDefName> getGuiAttributeDefNamesMyFavoritesAbbreviated() {
     
-    if (this.guiAttributeDefNamesMyFavoritesAbbreviated == null) {
-      
-      Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.favoriteAttributeDefNames(
-          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiAttributeDefNamesMyFavoritesAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
-          attributeDefNames, "uiV2.index.maxFavoritesEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiAttributeDefNamesMyFavoritesAbbreviated;
+    try {
+      
+      if (this.guiAttributeDefNamesMyFavoritesAbbreviated == null) {
+        
+        Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.favoriteAttributeDefNames(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiAttributeDefNamesMyFavoritesAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
+            attributeDefNames, "uiV2.index.maxFavoritesEachType", 5);
+      }
+      
+      return this.guiAttributeDefNamesMyFavoritesAbbreviated;
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -578,16 +776,29 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDef> getGuiAttributeDefsMyFavoritesAbbreviated() {
     
-    if (this.guiAttributeDefsMyFavoritesAbbreviated == null) {
-      
-      Set<AttributeDef> attributeDefs = GrouperUserDataApi.favoriteAttributeDefs(
-          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiAttributeDefsMyFavoritesAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
-          attributeDefs, "uiV2.index.maxFavoritesEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiAttributeDefsMyFavoritesAbbreviated;
+    try {
+      if (this.guiAttributeDefsMyFavoritesAbbreviated == null) {
+        
+        Set<AttributeDef> attributeDefs = GrouperUserDataApi.favoriteAttributeDefs(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiAttributeDefsMyFavoritesAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
+            attributeDefs, "uiV2.index.maxFavoritesEachType", 5);
+      }
+      
+      return this.guiAttributeDefsMyFavoritesAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -596,16 +807,29 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDefName> getGuiAttributeDefNamesRecentlyUsedAbbreviated() {
     
-    if (this.guiAttributeDefNamesRecentlyUsedAbbreviated == null) {
-      
-      Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(
-          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiAttributeDefNamesRecentlyUsedAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
-          attributeDefNames, "uiV2.index.maxRecentlyUsedEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiAttributeDefNamesRecentlyUsedAbbreviated;
+    try {
+      if (this.guiAttributeDefNamesRecentlyUsedAbbreviated == null) {
+        
+        Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiAttributeDefNamesRecentlyUsedAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
+            attributeDefNames, "uiV2.index.maxRecentlyUsedEachType", 5);
+      }
+      
+      return this.guiAttributeDefNamesRecentlyUsedAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -614,16 +838,29 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDef> getGuiAttributeDefsRecentlyUsedAbbreviated() {
     
-    if (this.guiAttributeDefsRecentlyUsedAbbreviated == null) {
-      
-      Set<AttributeDef> attributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(
-          GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiAttributeDefsRecentlyUsedAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
-          attributeDefs, "uiV2.index.maxRecentlyUsedEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiAttributeDefsRecentlyUsedAbbreviated;
+    try {
+      if (this.guiAttributeDefsRecentlyUsedAbbreviated == null) {
+        
+        Set<AttributeDef> attributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiAttributeDefsRecentlyUsedAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
+            attributeDefs, "uiV2.index.maxRecentlyUsedEachType", 5);
+      }
+      
+      return this.guiAttributeDefsRecentlyUsedAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -632,14 +869,27 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsRecentlyUsedAbbreviated() {
     
-    if (this.guiGroupsRecentlyUsedAbbreviated == null) {
-      
-      Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiGroupsRecentlyUsedAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiGroupsRecentlyUsedAbbreviated;
+    try {
+      if (this.guiGroupsRecentlyUsedAbbreviated == null) {
+        
+        Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiGroupsRecentlyUsedAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5);
+      }
+      
+      return this.guiGroupsRecentlyUsedAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -648,14 +898,27 @@ public class IndexContainer {
    */
   public Set<GuiMember> getGuiMembersRecentlyUsedAbbreviated() {
     
-    if (this.guiMembersRecentlyUsedAbbreviated == null) {
-      
-      Set<Member> members = GrouperUserDataApi.recentlyUsedMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiMembersRecentlyUsedAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxRecentlyUsedEachType", 5);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiMembersRecentlyUsedAbbreviated;
+    try {
+      if (this.guiMembersRecentlyUsedAbbreviated == null) {
+        
+        Set<Member> members = GrouperUserDataApi.recentlyUsedMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        this.guiMembersRecentlyUsedAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxRecentlyUsedEachType", 5);
+      }
+      
+      return this.guiMembersRecentlyUsedAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
@@ -664,16 +927,29 @@ public class IndexContainer {
    */
   public Set<GuiStem> getGuiStemsRecentlyUsedAbbreviated() {
     
-    if (this.guiStemsRecentlyUsedAbbreviated == null) {
-      
-      Set<Stem> stems = GrouperUserDataApi.recentlyUsedStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-          GrouperSession.staticGrouperSession().getSubject());
-      
-      this.guiStemsRecentlyUsedAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxRecentlyUsedEachType", 5);
-      
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean startedSession = grouperSession == null;
+
+    if (startedSession) {
+      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
-    
-    return this.guiStemsRecentlyUsedAbbreviated;
+    try {
+      if (this.guiStemsRecentlyUsedAbbreviated == null) {
+        
+        Set<Stem> stems = GrouperUserDataApi.recentlyUsedStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            grouperSession.getSubject());
+        
+        this.guiStemsRecentlyUsedAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxRecentlyUsedEachType", 5);
+        
+      }
+      
+      return this.guiStemsRecentlyUsedAbbreviated;
+      
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
   }
 
   /**
