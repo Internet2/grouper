@@ -281,6 +281,29 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * service container
+   */
+  private ServiceContainer serviceContainer;
+  
+  /**
+   * service container lazy load if null
+   * @return the serviceContainer
+   */
+  public ServiceContainer getServiceContainer() {
+    if (this.serviceContainer == null) {
+      this.serviceContainer = new ServiceContainer();
+    }
+    return this.serviceContainer;
+  }
+  
+  /**
+   * @param serviceContainer1 the serviceContainer to set
+   */
+  public void setServiceContainer(ServiceContainer serviceContainer1) {
+    this.serviceContainer = serviceContainer1;
+  }
+
+  /**
    * container for index screen and general components
    */
   private IndexContainer indexContainer = null;

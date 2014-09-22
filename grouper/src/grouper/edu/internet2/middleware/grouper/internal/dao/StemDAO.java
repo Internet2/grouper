@@ -526,6 +526,7 @@ public interface StemDAO extends GrouperDAO {
    * @param stemIds 
    * @param idOfAttributeDefName if looking for groups that have this attribute def name
    * @param attributeValue if looking for groups that have this attribute value on the attribute def name
+   * @param attributeCheckReadOnAttributeDef if check read on attribute for attribute on stem
    * @return the stems
    * @throws GrouperDAOException
    * @since v2.2.1
@@ -534,7 +535,8 @@ public interface StemDAO extends GrouperDAO {
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
       boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
-      Collection<String> stemIds, String idOfAttributeDefName, Object attributeValue)
+      Collection<String> stemIds, String idOfAttributeDefName, Object attributeValue, 
+      Boolean attributeCheckReadOnAttributeDef)
     throws  GrouperDAOException;
 
   /**

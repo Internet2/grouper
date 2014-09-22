@@ -554,6 +554,21 @@ public class StemFinder {
   private Object attributeValue;
   
   /**
+   * check read on attribute def when checking attribute def name
+   */
+  private Boolean attributeCheckReadOnAttributeDef;
+
+  /**
+   * check read on attribute def when checking attribute def name
+   * @param theAttributeCheckReadOnAttributeDef
+   * @return this for chaining
+   */
+  public StemFinder assignAttributeCheckReadOnAttributeDef(boolean theAttributeCheckReadOnAttributeDef) {
+    this.attributeCheckReadOnAttributeDef = theAttributeCheckReadOnAttributeDef;
+    return this;
+  }
+  
+  /**
    * find objects with this value
    * @param theValue
    * @return this for chaining
@@ -677,7 +692,7 @@ public class StemFinder {
             this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
             this.findByUuidOrName, this.userHasInGroupFields,
             this.userHasInAttributeFields, this.stemIds, 
-            this.attributeDefNameId, this.attributeValue);
+            this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef);
     
   }
 

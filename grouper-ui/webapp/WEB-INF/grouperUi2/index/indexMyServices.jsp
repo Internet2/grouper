@@ -2,8 +2,8 @@
                     <!-- start indexMyServices.jsp -->
                     <h4>${textContainer.text['indexMyServicesSectionTitle'] }</h4>
                     <ul class="unstyled list-widget">
-                      <c:forEach items="${grouperRequestContainer.indexContainer.guiAttributeDefNamesMyServices}" var="guiAttributeDefName">
-                        <li>${guiAttributeDefName.shortLinkWithIcon }
+                      <c:forEach items="${grouperRequestContainer.indexContainer.guiMyServices}" var="guiService">
+                        <li>${guiService.shortLinkWithIcon }
                         </li>
                       </c:forEach>
                     </ul>

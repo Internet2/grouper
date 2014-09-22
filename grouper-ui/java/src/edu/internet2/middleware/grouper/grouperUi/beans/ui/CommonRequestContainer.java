@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -281,6 +282,27 @@ public class CommonRequestContainer {
    */
   public void setGuiStem(GuiStem guiStem1) {
     this.guiStem = guiStem1;
+  }
+
+  /**
+   * service
+   */
+  private GuiService guiService;
+  
+  /**
+   * service
+   * @return the guiService
+   */
+  public GuiService getGuiService() {
+    return this.guiService;
+  }
+  
+  /**
+   * service
+   * @param guiService1 the guiService to set
+   */
+  public void setGuiService(GuiService guiService1) {
+    this.guiService = guiService1;
   }
 
   /**

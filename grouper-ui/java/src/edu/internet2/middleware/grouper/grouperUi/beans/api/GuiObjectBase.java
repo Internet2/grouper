@@ -36,7 +36,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
-
+/**
+ * base object for gui grouper objects
+ */
 public abstract class GuiObjectBase {
 
   /**
@@ -214,7 +216,7 @@ public abstract class GuiObjectBase {
   
   /**
    * get created string: Tue Sep 25 12:01:07 PM CDT 2012
-   * @return
+   * @return when created
    */
   public String getCreatedString() {
     long createTimeLong = -1;
@@ -265,7 +267,7 @@ public abstract class GuiObjectBase {
   private boolean showBreadcrumbLinkSeparator = true;
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(GuiObjectBase.class);
+  private static final Log LOG = LogFactory.getLog(GuiObjectBase.class);
   
   /**
    * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator
