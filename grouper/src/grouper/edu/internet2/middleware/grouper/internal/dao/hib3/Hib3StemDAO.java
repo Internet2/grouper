@@ -1318,7 +1318,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
       QueryOptions queryOptions) throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, 
-        queryOptions, false, null, null, false, null, null, null, null, null);
+        queryOptions, false, null, null, false, null, null, null, null, null, null);
   }
 
   /**
@@ -1336,6 +1336,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @param totalStemIds
    * @param idOfAttributeDefName 
    * @param attributeValue 
+   * @param attributeCheckReadOnAttributeDef
    * @return the matching stems
    * @throws GrouperDAOException
    */
@@ -1344,13 +1345,18 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       QueryOptions queryOptions, boolean splitScope,
       String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
-      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue) 
+      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue, 
+      Boolean attributeCheckReadOnAttributeDef) 
           throws GrouperDAOException {
 
     if (attributeValue != null && StringUtils.isBlank(idOfAttributeDefName)) {
       throw new RuntimeException("If you are searching by attributeValue then you must specify an attribute definition name");
     }
 
+    if (idOfAttributeDefName == null && attributeCheckReadOnAttributeDef != null) {
+      throw new RuntimeException("Cant pass attributeCheckReadOnAttributeDef if not passing idOfAttributeDefName");
+    }
+    
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -1460,8 +1466,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         changedQuery = true;
 
         //make sure user can READ the attribute
-        AttributeDefName attributeDefName = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName)
-          .addPrivilege(AttributeDefPrivilege.ATTR_READ).findAttributeName();
+        AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
+        
+        if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
+          attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
+        }
+        
+        AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
 
         //cant read the attribute????
         if (attributeDefName == null) {
@@ -2115,7 +2126,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       GrouperSession grouperSession, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions) {
     return this.getAllStemsSecureHelper(scope, grouperSession, subject, privileges, 
-        queryOptions, true, null, null, false, null, null, null, null, null);
+        queryOptions, true, null, null, false, null, null, null, null, null, null);
   }
 
   /**
@@ -2192,22 +2203,22 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
         splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-        totalStemIds, null, null);
+        totalStemIds, null, null, null);
   }
 
   /**
-   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, Collection, Collection, Collection, String, Object)
+   * @see StemDAO#getAllStemsSecure(String, GrouperSession, Subject, Set, QueryOptions, boolean, String, Scope, boolean, Collection, Collection, Collection, String, Object, Boolean)
    */
   @Override
   public Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
       boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
-      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue)
+      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue, Boolean attributeCheckReadOnAttributeDef)
       throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, 
         splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-        totalStemIds, idOfAttributeDefName, attributeValue);
+        totalStemIds, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef);
   }
 
 } 

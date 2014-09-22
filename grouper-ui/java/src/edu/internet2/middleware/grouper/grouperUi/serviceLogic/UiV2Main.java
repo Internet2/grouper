@@ -35,8 +35,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -47,8 +47,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer.IndexPanel;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
@@ -859,7 +859,7 @@ public class UiV2Main extends UiServiceLogicBase {
             TextContainer.retrieveFromRequest().getText().get("myServicesNoResultsFound")));
       }
       
-      indexContainer.setGuiAttributeDefNamesMyServices(GuiAttributeDefName.convertFromAttributeDefNames(results));
+      indexContainer.setGuiMyServices(GuiService.convertFromAttributeDefNames(results));
       
       guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
 

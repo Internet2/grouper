@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preference;
@@ -510,9 +511,9 @@ public class IndexContainer {
   }
 
   /**
-   * 
+   * services for the user
    */
-  private Set<GuiAttributeDefName> guiAttributeDefNamesMyServices;
+  private Set<GuiService> guiMyServices;
   
   /**
    * for index page, this is a short list of stems the user has favorited
@@ -627,7 +628,7 @@ public class IndexContainer {
    * for index page, this is a short list of user's services, lazy load if null
    * @return the list of services
    */
-  public Set<GuiAttributeDefName> getGuiAttributeDefNamesMyServices() {
+  public Set<GuiService> getGuiMyServices() {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
     boolean startedSession = grouperSession == null;
@@ -636,7 +637,7 @@ public class IndexContainer {
       grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
     }
     try {
-      if (this.guiAttributeDefNamesMyServices == null) {
+      if (this.guiMyServices == null) {
         
         GrouperSession grouperSessionOuter = GrouperSession.staticGrouperSession();
         final Subject subject = grouperSessionOuter.getSubject();
@@ -651,17 +652,15 @@ public class IndexContainer {
                 .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
                 .findAttributeNames();
                 
-            IndexContainer.this.guiAttributeDefNamesMyServices = GuiAttributeDefName.convertFromAttributeDefNames(attributeDefNames);
+            IndexContainer.this.guiMyServices = GuiService.convertFromAttributeDefNames(attributeDefNames);
 
             return null;
           }
         });
         
-        
-        
       }
       
-      return this.guiAttributeDefNamesMyServices;
+      return this.guiMyServices;
       
     } finally {
       if (startedSession) {
@@ -672,11 +671,11 @@ public class IndexContainer {
 
   /**
    * gui attribute def names my services
-   * @param guiAttributeDefNamesMyServices1
+   * @param guiMyServices1
    */
-  public void setGuiAttributeDefNamesMyServices(
-      Set<GuiAttributeDefName> guiAttributeDefNamesMyServices1) {
-    this.guiAttributeDefNamesMyServices = guiAttributeDefNamesMyServices1;
+  public void setGuiMyServices(
+      Set<GuiService> guiMyServices1) {
+    this.guiMyServices = guiMyServices1;
   }
 
   /**

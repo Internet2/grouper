@@ -274,7 +274,14 @@ public class GrouperUiRestServlet extends HttpServlet {
       //now lets call some simple reflection, must be public static void and take a request and response
       className = "edu.internet2.middleware.grouper.grouperUi.serviceLogic." + className;
       
-      Object instance = GrouperUtil.newInstance(GrouperUtil.forName(className));
+      Object instance = null;
+      
+      try {
+        instance = GrouperUtil.newInstance(GrouperUtil.forName(className));
+      } catch (RuntimeException re) {
+        GrouperUtil.injectInException(re, "Problem calling class and method: " + className + "." + methodName);
+        throw re;
+      }
       
       try {
         

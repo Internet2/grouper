@@ -3,13 +3,13 @@
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-paths">
                   <thead>
                     <tr>
-                      <th>${textContainer.text['myServicesParentStemHeader'] }</th>
-                      <th>${textContainer.text['myServicesStemHeader'] }</th>
+                      <th>${textContainer.text['viewServiceParentStemHeader'] }</th>
+                      <th>${textContainer.text['viewServiceStemNameHeader'] }</th>
                     </tr>
                   </thead>
                   <tbody>
 
-                    <c:forEach items="${grouperRequestContainer.indexContainer.guiMyServices}" var="guiService">
+                    <c:forEach items="${grouperRequestContainer.serviceContainer.guiStemsInService}" var="guiStem">
 
                       <%-- <tr>
                         <td>Root : Applications</td>
@@ -18,15 +18,15 @@
                       </tr> --%>
 
                       <tr>
-                        <td>${guiService.guiAttributeDefName.pathColonSpaceSeparated}</td>
-                        <td>${guiService.shortLinkWithIcon}</td>
+                        <td>${guiStem.pathColonSpaceSeparated}</td>
+                        <td>${guiStem.shortLinkWithIcon}</td>
                       </tr>
 
                     </c:forEach>
                   </tbody>
                 </table>
                 <div class="data-table-bottom gradient-background">
-                  <grouper:paging2 guiPaging="${grouperRequestContainer.indexContainer.myServicesGuiPaging}" 
-                    formName="myServicesPagingForm" ajaxFormIds="myServicesForm"
-                    refreshOperation="../app/UiV2Main.myServicesSubmit" />
+                  <grouper:paging2 guiPaging="${grouperRequestContainer.serviceContainer.guiPaging}" 
+                    formName="viewServicePagingForm" ajaxFormIds="viewServiceForm"
+                    refreshOperation="../app/UiV2Service.viewServiceSubmit" />
                 </div>
