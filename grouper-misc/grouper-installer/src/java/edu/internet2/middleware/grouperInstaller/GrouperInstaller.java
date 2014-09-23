@@ -397,7 +397,11 @@ public class GrouperInstaller {
       return this.shCommand;
     }
     
-    String[] attempts = new String[]{"sh", "/bin/sh", 
+    String[] attempts = new String[]{
+        "bash", "/bin/bash", 
+        "/sbin/bash", "/usr/local/bin/bash", 
+        "/usr/bin/bash", "/usr/sbin/bash", 
+        "/usr/local/sbin/bash", "sh", "/bin/sh", 
         "/sbin/sh", "/usr/local/bin/sh", 
         "/usr/bin/sh", "/usr/sbin/sh", 
         "/usr/local/sbin/sh"}; 
