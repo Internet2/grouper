@@ -272,20 +272,6 @@ public class GrouperInstaller {
   private String version;
   
   /**
-   * tag
-   * @return the tag
-   */
-  private String tag() {
-    if (GrouperInstallerUtils.isBlank(this.version)) {
-      throw new RuntimeException("tag is null!");
-    }
-    
-    String underscores = this.version.replace('.', '_');
-    
-    return "GROUPER_" + underscores;
-  }
-  
-  /**
    * 
    */
   private void buildUi() {
@@ -1506,7 +1492,14 @@ public class GrouperInstaller {
     boolean addQuickstartSubjects = readFromStdInBoolean(true);
     
     if (addQuickstartSubjects) {
-      String url = "http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/tags/" + tag() + "/grouper-qs-builder/subjects.sql?view=co";
+
+      String url = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+      
+      if (!url.endsWith("/")) {
+        url += "/";
+      }
+      url += "release/" + this.version + "/subjects.sql";
+
       String subjectsSqlFileName = this.untarredApiDir.getParent() + File.separator + "subjects.sql";
       File subjectsSqlFile = new File(subjectsSqlFileName);
       downloadFile(url, subjectsSqlFileName);
@@ -1548,7 +1541,12 @@ public class GrouperInstaller {
     boolean addQuickstartData = readFromStdInBoolean(true);
     
     if (addQuickstartData) {
-      String url = "http://anonsvn.internet2.edu/cgi-bin/viewvc.cgi/i2mi/tags/" + tag() + "/grouper-qs-builder/quickstart.xml?view=co";
+      String url = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+      
+      if (!url.endsWith("/")) {
+        url += "/";
+      }
+      url += "release/" + this.version + "/quickstart.xml";
       String quickstartFileName = this.untarredApiDir.getParent() + File.separator + "quickstart.xml";
       
       File quickstartFile = new File(quickstartFileName);
