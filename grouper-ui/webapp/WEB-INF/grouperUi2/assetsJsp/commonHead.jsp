@@ -10,6 +10,12 @@
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/grouperUi2.css" rel="stylesheet">
 
+<c:if test="${!empty mediaNullMap['css.additional']}">
+  <c:forTokens var="cssRef" items="${mediaNullMap['css.additional']}" delims=" ">
+    <link href="${grouper:escapeHtml(cssRef)}" rel="stylesheet" type="text/css" />
+  </c:forTokens>
+</c:if>
+
 <script src="../../grouperExternal/public/OwaspJavaScriptServlet"></script>
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
