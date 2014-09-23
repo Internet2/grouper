@@ -37,13 +37,13 @@ base.append("/");
 <link href="grouper/grouperInfodot.css" rel="stylesheet" type="text/css" id="grouperInfodotStylesheet"/>
 <link href="grouper/grouperPrint.css" rel="stylesheet" type="text/css" media="print" />
 </c:if>
-<c:if test="${!empty mediaMap['css.additional']}">
+<c:if test="${!empty mediaNullMap['css.additional']}">
 	<%
 		String css;
 		String modulePrefix = (String)request.getAttribute("modulePrefix");
 	%>
 	<!-- modulePrefix=<%=modulePrefix%>-->
-	<c:forTokens var="cssRef" items="${mediaMap['css.additional']}" delims=" ">
+	<c:forTokens var="cssRef" items="${mediaNullMap['css.additional']}" delims=" ">
 	<%
 		css = (String)pageContext.findAttribute("cssRef");
 		if(modulePrefix == null || "".equals(modulePrefix) ||(css !=null && css.startsWith(modulePrefix))) {
