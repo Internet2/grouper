@@ -45,7 +45,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -68,10 +67,13 @@ import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /** 
@@ -358,6 +360,50 @@ public class GrouperSession implements Serializable {
     throws SessionException {
     
     return start(subject, true);
+  }
+
+  /**
+   * Start a session for interacting with the Grouper API.
+   * This adds the session to the threadlocal.    This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * 
+   * This will not start a session if it is already started.
+   * If it is started as a different user, it will start
+   * 
+   * <pre class="eg">
+   * // Start a Grouper API session.
+   * GrouperSession s = GrouperSession.subject);
+   * </pre>
+   * @param   subject   Start session as this {@link Subject}.
+   * @return  A Grouper API session.
+   * @throws  SessionException
+   */
+  public static GrouperSessionResult startIfNotStarted(Subject subject) 
+    throws SessionException {
+    
+    if (subject == null) {
+      throw new NullPointerException("subject is null");
+    }
+    
+    GrouperSessionResult grouperSessionResult = new GrouperSessionResult();
+    
+    GrouperSession grouperSession = staticGrouperSession(false);
+    
+    //if there is a session and it is started and same user, use that
+    if (grouperSession != null) {
+      if (SubjectHelper.eq(subject, grouperSession.getSubject())) {
+        grouperSessionResult.setCreated(false);
+        grouperSessionResult.setGrouperSession(grouperSession);
+        return grouperSessionResult;
+      }
+    }
+
+    grouperSession = start(subject, true);
+    grouperSessionResult.setCreated(true);
+    grouperSessionResult.setGrouperSession(grouperSession);
+    return grouperSessionResult;
+    
   }
 
   /**
@@ -784,6 +830,24 @@ public class GrouperSession implements Serializable {
       this.attributeDefResolver = AttributeDefResolverFactory.getInstance(this);
     }
     return this.attributeDefResolver;
+  }
+
+  /**
+   * Start a root session for interacting with the Grouper API.
+   * This adds the session to the threadlocal.    This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * 
+   * This will not start a session if it is already started.
+   * If it is started as a different user, it will start
+   * 
+   * @return  A Grouper API session result.
+   * @throws  SessionException
+   */
+  public static GrouperSessionResult startRootSessionIfNotStarted() throws SessionException {
+    
+    return startIfNotStarted(SubjectFinder.findRootSubject());
+
   }
 
   /**
