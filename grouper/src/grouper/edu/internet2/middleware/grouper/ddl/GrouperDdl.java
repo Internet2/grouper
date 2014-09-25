@@ -2144,6 +2144,20 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
+
+      if (!ddlVersionBean.isSqlServer()) {
+        //do 12 string indexes
+        for (int i=1;i<=12;i++) {
+          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
+              "ON grouper_change_log_entry_temp (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
+              "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
+              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
+          
+        }
+      }
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
           "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
@@ -12431,6 +12445,19 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "string12", Types.VARCHAR, "4000", false, false); 
 
+      if (!ddlVersionBean.isSqlServer()) {
+        //do 12 string indexes
+        for (int i=1;i<=12;i++) {
+          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
+              "ON grouper_change_log_entry_temp (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogTempEntryTable.getName(), 
+              "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
+              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
+          
+        }
+      }
     }
 
     {
