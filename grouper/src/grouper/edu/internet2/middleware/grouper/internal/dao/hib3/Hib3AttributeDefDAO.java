@@ -44,6 +44,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -360,6 +362,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
+    massageSortFields(queryOptions.getQuerySort());
     if (queryOptions.getQuerySort() == null) {
       queryOptions.sortAsc("theAttributeDef.nameDb");
     }
@@ -576,6 +579,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
+    massageSortFields(queryOptions.getQuerySort());
     if (queryOptions.getQuerySort() == null) {
       queryOptions.sortAsc("theAttributeDef.nameDb");
     }
@@ -668,6 +672,25 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
         privileges, queryOptions, true, attributeAssignType, attributeDefType, null, null, false, null);
   }
 
+  /**
+   * if there are sort fields, go through them, and replace name with nameDb, etc,
+   * extension for extensionDb, displayName with displayNameDb, and displayExtension with displayExtensionDb
+   * @param querySort
+   */
+  private static void massageSortFields(QuerySort querySort) {
+    if (querySort == null) {
+      return;
+    }
+    for (QuerySortField querySortField : GrouperUtil.nonNull(querySort.getQuerySortFields())) {
+      if (StringUtils.equals("extension", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDef.extensionDb");
+      }
+      if (StringUtils.equals("name", querySortField.getColumn())) {
+        querySortField.setColumn("theAttributeDef.nameDb");
+      }
+    }
+
+  }
 
   /**
    * not a secure method, find by id index
@@ -676,6 +699,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   public AttributeDef findByIdIndex(Long idIndex, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws AttributeDefNotFoundException {
     
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
     StringBuilder hql = new StringBuilder("select theAttributeDef from AttributeDef as theAttributeDef where (theAttributeDef.idIndex = :theIdIndex)");
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic().options(queryOptions)
       .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
@@ -719,6 +745,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   @Override
   public Set<AttributeDef> findByIdsSecure(Collection<String> ids,
       QueryOptions queryOptions) {
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 180);
