@@ -273,11 +273,20 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
+        
+        // simplify the basic case for performance -- one identifier and not dealing with entities
+        if (identifiers.size() == 1 && (GrouperSourceAdapter.this.typeOfGroups() == null || !GrouperSourceAdapter.this.typeOfGroups().contains(TypeOfGroup.entity))) {
+          Set<Group> groups = new HashSet<Group>();
+          Group group = GrouperDAOFactory.getFactory().getGroup().findByName(identifiers.iterator().next(), false, null, GrouperSourceAdapter.this.typeOfGroups(), GrouperSourceAdapter.this.privilegesToLimitTo());
+          if (group != null) {
+            groups.add(group);
+          }
+          return groups;
+        }
+          
         return new GroupFinder().assignGroupNames(identifiers).assignTypeOfGroups(GrouperSourceAdapter.this.typeOfGroups())
             .assignSubject(grouperSession.getSubject())
-            .assignPrivileges(GrouperSourceAdapter.this.privilegesToLimitTo()).findGroups();
-        
-        
+            .assignPrivileges(GrouperSourceAdapter.this.privilegesToLimitTo()).findGroups();        
       }
     });
 
