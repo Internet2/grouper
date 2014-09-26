@@ -2195,6 +2195,9 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+          "group_type_of_group_idx", false, "type_of_group");
+      
       if (!ddlVersionBean.isSqlServer()) {
         //do 12 string indexes
         for (int i=1;i<=12;i++) {
@@ -13165,6 +13168,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "type_of_group", 
           Types.VARCHAR, "10", false, groupsTableNew, "group"); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTable.getName(),
+          "group_type_of_group_idx", false, "type_of_group");
       
       //see if we need to add a script on top to massage data
       if (columnNew) {

@@ -1062,13 +1062,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
       .setCacheable(true).setCacheRegion(KLASS + ".FindByName").options(queryOptions);
-    
-    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
-    
+        
     byHqlStatic.createQuery(hql.toString());
     
     Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
 
+    if (group != null && GrouperUtil.length(typeOfGroups) > 0) {
+      // see if the type of group matches
+      if (!typeOfGroups.contains(group.getTypeOfGroup())) {
+        group = null;
+      }
+    }
+    
     //System.out.println("Group: " + name + ", found? " + (group!=null));
     
     //handle exceptions out of data access method...
@@ -1089,6 +1094,21 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @since   @HEAD@
    */
   public Group findByNameSecure(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    return findByName(name, exceptionIfNotFound, queryOptions, typeOfGroups, AccessPrivilege.VIEW_PRIVILEGES);
+  }
+  
+  /**
+   * @param name
+   * @param exceptionIfNotFound exception if cant find group
+   * @param queryOptions if we should use cache or not
+   * @param typeOfGroups
+   * @param inPrivSet
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @since   @HEAD@
+   */
+  public Group findByName(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Set<Privilege> inPrivSet) {
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -1097,7 +1117,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     //see if we are adding more to the query
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
-        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+        hql, "theGroup.uuid", inPrivSet);
 
     if (changedQuery) {
       hql.append(" and ");
@@ -1106,8 +1126,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     
     hql.append(" ( theGroup.nameDb = :value or theGroup.alternateNameDb = :value ) ");
-
-    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
 
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
@@ -1118,6 +1136,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
 
+    if (group != null && GrouperUtil.length(typeOfGroups) > 0) {
+      // see if the type of group matches
+      if (!typeOfGroups.contains(group.getTypeOfGroup())) {
+        group = null;
+      }
+    }
+    
     //System.out.println("Group: " + name + ", found? " + (group!=null));
     
     //handle exceptions out of data access method...
@@ -1232,8 +1257,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
-    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
-
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }
@@ -1244,6 +1267,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .options(queryOptions)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid).uniqueResult(Group.class);
+    
+    if (group != null && GrouperUtil.length(typeOfGroups) > 0) {
+      // see if the type of group matches
+      if (!typeOfGroups.contains(group.getTypeOfGroup())) {
+        group = null;
+      }
+    }
+    
     if (group == null && exceptionIfNotFound) {
        throw new GroupNotFoundException("Cant find group by uuid: " + uuid);
     }
@@ -1274,8 +1305,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     sql.append(" theGroup.uuid = :uuid ");
 
-    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, sql, byHqlStatic);
-
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }
@@ -1287,6 +1316,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .setCacheRegion(KLASS + ".FindByUuidSecure")
       .setString("uuid", uuid);
     Group group = byHqlStatic.uniqueResult(Group.class);
+    
+    if (group != null && GrouperUtil.length(typeOfGroups) > 0) {
+      // see if the type of group matches
+      if (!typeOfGroups.contains(group.getTypeOfGroup())) {
+        group = null;
+      }
+    }
+    
     if (group == null && exceptionIfNotFound) {
        throw new GroupNotFoundException("Cant find group by uuid: " + uuid);
     }
