@@ -8,6 +8,8 @@ conf/log4j.properties
 conf/morphString.properties
 conf/sources.xml
 conf/spy.properties
+conf/penn*
+ddlScripts
 dist
 misc/server/i2midev1
 spy.log

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>GROUPER_TRUNK_SVN</name>
+	<name>GROUPER_MASTER_ALL</name>
 	<comment></comment>
 	<projects>
 	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
 </projectDescription>

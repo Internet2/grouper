@@ -944,7 +944,8 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       Group group = GroupFinder.findByName(grouperSession, overallName, false);
       if (group != null) {
         
-        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findById(group.getUuid(), true), null, false);
+        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findByIdAndSource(group.getUuid(),
+            SubjectFinder.internal_getGSA().getId(), true), null, false);
         
         if (member != null) {
           //get any membership

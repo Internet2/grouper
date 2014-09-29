@@ -27,7 +27,9 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,175 @@ import edu.vt.middleware.ldap.SearchFilter;
  */
 public class GrouperLoaderResultset {
 
+  /**
+   * if we should bulk lookup subjects to add/remove
+   */
+  public void bulkLookupSubjects() {
+
+    //do not bulk retrieve subjects if not configured to do that
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.bulkLookupSubjects", true)) {
+      return;
+    }
+
+    //dont do this twice if has already done on the outer list
+    if (this.hasBulkLookupedSubjects) {
+      return;
+    }
+    
+    this.hasBulkLookupedSubjects = true;
+    
+    //lets assume all rows are the same
+    if (GrouperUtil.length(this.data) == 0) {
+      return;
+    }
+
+    //if we are looking by subject id or identifier and dont have the source
+    Set<String> subjectIdsOrIdentifiers = new HashSet<String>();
+
+    //if we have the source and are looking by source and id or identifier
+    Map<String, Set<String>> sourceToSubjectIdsOrIdentifiers = new LinkedHashMap<String, Set<String>>();
+
+    String subjectIdCol = null;
+    String sourceIdCol = null;
+
+    String defaultSubjectSourceId = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        GrouperLoaderConfig.DEFAULT_SUBJECT_SOURCE_ID);
+    
+    for (Row row : this.data) {
+      
+      if (subjectIdCol == null) {
+        
+        String subjectId = (String) row.getCell(
+            GrouperLoaderResultset.SUBJECT_ID_COL, false);
+        
+        if (!StringUtils.isBlank(subjectId)) {
+          subjectIdCol = GrouperLoaderResultset.SUBJECT_ID_COL;
+        } else {
+          String subjectIdentifier = (String) row.getCell(
+              GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL, false);
+          if (!StringUtils.isBlank(subjectIdentifier)) {
+            subjectIdCol = GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL;
+          } else {
+            String subjectIdOrIdentifier = (String) row.getCell(
+                GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL, false);
+            if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
+              subjectIdCol = GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL;
+            } else {
+              //wtf?  dont do anthing, cant find subject id col, let the normal error message prevail
+              return;
+            }
+          }
+        }
+        //see if there is a source id col
+        String subjectSourceId = (String) row.getCell(
+            GrouperLoaderResultset.SUBJECT_SOURCE_ID_COL, false);
+        if (!StringUtils.isBlank(subjectSourceId)) {
+          sourceIdCol = GrouperLoaderResultset.SUBJECT_SOURCE_ID_COL;
+        }
+      }
+      String sourceId = null;
+      String subjectIdOrIdentifer = null;
+      if (!StringUtils.isBlank(sourceIdCol)) {
+        sourceId = (String) row.getCell(
+            GrouperLoaderResultset.SUBJECT_SOURCE_ID_COL, false);
+      }
+      //default this to what is in the config file
+      sourceId = StringUtils.defaultString(sourceId, defaultSubjectSourceId);
+      subjectIdOrIdentifer = (String) row.getCell(subjectIdCol, false);
+
+      if (!StringUtils.isBlank(sourceId)) {
+        Set<String> subjectIdsOrIdentifiersForSource = sourceToSubjectIdsOrIdentifiers.get(sourceId);
+        //lazy load for source
+        if (subjectIdsOrIdentifiersForSource == null) {
+          subjectIdsOrIdentifiersForSource = new HashSet<String>();
+          sourceToSubjectIdsOrIdentifiers.put(sourceId, subjectIdsOrIdentifiersForSource);
+        }
+        subjectIdsOrIdentifiersForSource.add(subjectIdOrIdentifer);
+      } else {
+        //no source, just keep track of identifier
+        subjectIdsOrIdentifiers.add(subjectIdOrIdentifer);
+      }
+
+    }
+    
+    Map<String, Map<String, Subject>> sourceToSubjectIdOrIdentifierToSubject = new HashMap<String, Map<String, Subject>>();
+    
+    //lets resolve the subjects
+    //see if there are any where we know the source
+    if (GrouperUtil.length(sourceToSubjectIdsOrIdentifiers) > 0) {
+      
+      Map<String, Subject> localSubjectIdOrIdentifierToSubject = null;
+      
+      for (String sourceId : sourceToSubjectIdsOrIdentifiers.keySet()) {
+        Set<String> subjectIdsOrIdentifiersForSource = sourceToSubjectIdsOrIdentifiers.get(sourceId);
+        //what are they?
+        if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_ID_COL)) {
+
+          localSubjectIdOrIdentifierToSubject = SubjectFinder.findByIds(subjectIdsOrIdentifiersForSource, sourceId);
+        
+        } else if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL)) {
+        
+          localSubjectIdOrIdentifierToSubject = SubjectFinder.findByIdentifiers(subjectIdsOrIdentifiersForSource, sourceId);
+          
+        } else if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL)) {
+          
+          localSubjectIdOrIdentifierToSubject = SubjectFinder.findByIdsOrIdentifiers(subjectIdsOrIdentifiersForSource, sourceId);
+          
+        } else {
+          throw new RuntimeException("Not expecting subjectIdCol: " + subjectIdCol);
+        }
+        
+        //keep track in map
+        sourceToSubjectIdOrIdentifierToSubject.put(sourceId, localSubjectIdOrIdentifierToSubject);
+        
+      }
+    }
+
+    Map<String, Subject> subjectIdOrIdentifierToSubject = null;
+
+    if (GrouperUtil.length(subjectIdsOrIdentifiers) > 0) {
+      //what are they?
+      if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_ID_COL)) {
+        subjectIdOrIdentifierToSubject = SubjectFinder.findByIds(subjectIdsOrIdentifiers);
+      } else if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_IDENTIFIER_COL)) {
+        subjectIdOrIdentifierToSubject = SubjectFinder.findByIdentifiers(subjectIdsOrIdentifiers);
+      } else if (StringUtils.equals(subjectIdCol, GrouperLoaderResultset.SUBJECT_ID_OR_IDENTIFIER_COL)) {
+        subjectIdOrIdentifierToSubject = SubjectFinder.findByIdsOrIdentifiers(subjectIdsOrIdentifiers);
+      } else {
+        throw new RuntimeException("Not expecting subjectIdCol: " + subjectIdCol);
+      }
+    }
+    
+    for (Row row : this.data) {
+
+      String subjectIdOrIdentifier = (String)row.getCell(subjectIdCol, false);
+      Subject subject = null;
+      
+      //get the subject from the source id map
+      if (!StringUtils.isBlank(sourceIdCol)) {
+        String sourceId = (String)row.getCell(sourceIdCol, false);
+        if (!StringUtils.isBlank(sourceId)) {
+          Map<String, Subject> localSubjectIdOrIdentifierToSubject = sourceToSubjectIdOrIdentifierToSubject.get(sourceId);
+          if (localSubjectIdOrIdentifierToSubject != null) {
+            subject = localSubjectIdOrIdentifierToSubject.get(subjectIdOrIdentifier);
+          }
+        }
+      } else {
+        //get the subject from the subjectId map
+        subject = subjectIdOrIdentifierToSubject.get(subjectIdOrIdentifier);
+      }
+
+      //if we found it, set it
+      if (subject != null) {
+        row.subject = subject;
+      }
+      
+    }
+
+    
+
+  }
+  
   /**
    * 
    */
@@ -186,6 +357,10 @@ public class GrouperLoaderResultset {
    * @param groupName
    */
   public GrouperLoaderResultset(GrouperLoaderResultset parentResultSet, String groupName) {
+    
+    //if bulk lookuped the parent, then use that for the child
+    this.hasBulkLookupedSubjects = parentResultSet.hasBulkLookupedSubjects;
+
     this.columnNames = parentResultSet.columnNames == null ? null
         : new ArrayList<String>(parentResultSet.columnNames);
     this.columnTypes = parentResultSet.columnTypes == null ? null
@@ -280,7 +455,7 @@ public class GrouperLoaderResultset {
   /**
    * get subject id col
    * @param subjectIdType
-   * @return
+   * @return the subjectId col
    */
   private String subjectIdCol(String subjectIdType) {
     String subjectIdCol = "SUBJECT_ID";
@@ -1097,6 +1272,11 @@ public class GrouperLoaderResultset {
   private List<Row> data = new ArrayList<Row>();
 
   /**
+   * if has bulk lookuped subjects already
+   */
+  private boolean hasBulkLookupedSubjects = false;
+  
+  /**
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderResultset.class);
@@ -1132,7 +1312,6 @@ public class GrouperLoaderResultset {
     /**
      * @param jobName for logging
      * @param errorUnresolvable if there should be an error if unresolvable
-     * @param hib3GrouperLoaderLog
      * @return the subject
      */
     public Subject getSubject(String jobName, boolean errorUnresolvable) {
