@@ -1094,7 +1094,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @since   @HEAD@
    */
   public Group findByNameSecure(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
-    return findByName(name, exceptionIfNotFound, queryOptions, typeOfGroups, AccessPrivilege.VIEW_PRIVILEGES);
+    return findByNameSecure(name, exceptionIfNotFound, queryOptions, typeOfGroups, AccessPrivilege.VIEW_PRIVILEGES);
   }
   
   /**
@@ -1108,7 +1108,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @throws GroupNotFoundException
    * @since   @HEAD@
    */
-  public Group findByName(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Set<Privilege> inPrivSet) {
+  public Group findByNameSecure(final String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Set<Privilege> inPrivSet) {
     
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
