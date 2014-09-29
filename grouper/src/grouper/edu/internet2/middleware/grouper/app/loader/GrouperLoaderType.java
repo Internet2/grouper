@@ -407,6 +407,8 @@ public enum GrouperLoaderType {
 
           hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
 
+          grouperLoaderResultsetOverall.bulkLookupSubjects();
+          
           //#######################################
           //Get group metadata
           int groupMetadataNumberOfRows = 0;
@@ -1120,7 +1122,6 @@ public enum GrouperLoaderType {
    * @param groupNameToDescription 
    * @param privsToAdd 
    * @param groupNamesFromGroupQuery if not null, this is the list of groups to sync
-   * @return the status
    */
   public static void syncGroupList(GrouperLoaderResultset grouperLoaderResultsetOverall, long startTime,
       GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString,
@@ -2175,6 +2176,9 @@ public enum GrouperLoaderType {
       
       //here are new members
       numberOfRows = grouperLoaderResultset.numberOfRows();
+      
+      grouperLoaderResultset.bulkLookupSubjects();
+      
       count = 1;
       for (int i=0;i<numberOfRows;i++) {
         
