@@ -356,7 +356,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   2.2.1
    */
-  Group findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Set<Privilege> inPrivSet);
+  Group findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups, Set<Privilege> inPrivSet);
   
   /**
    * @since   2.1.0
