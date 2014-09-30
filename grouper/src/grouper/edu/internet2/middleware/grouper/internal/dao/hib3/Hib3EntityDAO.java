@@ -33,12 +33,14 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.entity.Entity;
@@ -277,11 +279,16 @@ public class Hib3EntityDAO extends Hib3DAO implements EntityDAO {
       sql.append(" ) ");
     }
 
-    Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindEntitiesSecure")
-      .options(queryOptions)
-      .listSet(Group.class);
+    String sqlString = sql.toString();
+    Set<Group> groups = new HashSet<Group>();
+    
+    if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      groups = byHqlStatic.createQuery(sqlString)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindEntitiesSecure")
+        .options(queryOptions)
+        .listSet(Group.class);
+    }
     
     return (Set<Entity>)(Object)groups;
   }

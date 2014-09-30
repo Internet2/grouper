@@ -44,7 +44,6 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
@@ -91,7 +90,7 @@ public class TestMembership11 extends GrouperTest {
   Subject subjC;
   Subject subjD;
   Subject subjE;
-  Subject all;
+  Subject subjF;
 
   Field fieldMembers;
   Field fieldUpdaters;
@@ -114,7 +113,7 @@ public class TestMembership11 extends GrouperTest {
 //      before   = DateHelper.getPastDate();
       before   = new Date();
 
-      r     = R.populateRegistry(1, 14, 5);
+      r     = R.populateRegistry(1, 14, 6);
       gA    = r.getGroup("a", "a");
       gB    = r.getGroup("a", "b");
       gC    = r.getGroup("a", "c");
@@ -134,7 +133,7 @@ public class TestMembership11 extends GrouperTest {
       subjC = r.getSubject("c");
       subjD = r.getSubject("d");
       subjE = r.getSubject("e");
-      all   = SubjectFinder.findAllSubject();
+      subjF = r.getSubject("f");
 
       fieldMembers = Group.getDefaultList();
       fieldUpdaters = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
@@ -155,7 +154,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -183,7 +182,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -211,7 +210,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -239,7 +238,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -267,7 +266,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -295,7 +294,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -323,7 +322,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -351,7 +350,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -379,7 +378,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -407,7 +406,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -435,7 +434,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -463,7 +462,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -491,7 +490,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -519,7 +518,7 @@ public class TestMembership11 extends GrouperTest {
       // Test 14
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -547,7 +546,7 @@ public class TestMembership11 extends GrouperTest {
 
       // Test 15
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -575,7 +574,7 @@ public class TestMembership11 extends GrouperTest {
       deleteMemberships();
 
       // Test 16
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -627,7 +626,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       
       verifyMemberships();
       deleteMemberships();
@@ -655,7 +654,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       
       verifyMemberships();
@@ -683,7 +682,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       
@@ -711,7 +710,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -739,7 +738,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -767,7 +766,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -795,7 +794,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -823,7 +822,7 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
@@ -856,12 +855,12 @@ public class TestMembership11 extends GrouperTest {
     Assert.assertTrue("Verify SC -> gE", gE.hasMember(subjC));
     Assert.assertTrue("Verify SD -> gE", gE.hasMember(subjD));
     Assert.assertTrue("Verify SE -> gE", gE.hasMember(subjE));
-    Assert.assertTrue("Verify all -> gE", gE.hasMember(all));
+    Assert.assertTrue("Verify SF -> gE", gE.hasMember(subjF));
 
     // gH should have two members only
     T.amount("Verify number of memberships for gH", 2, gH.getCompositeMemberships().size());
     Assert.assertTrue("Verify SC -> gH", gH.hasMember(subjC));
-    Assert.assertTrue("Verify all -> gH", gH.hasMember(all));
+    Assert.assertTrue("Verify SF -> gH", gH.hasMember(subjF));
 
     // gJ should have two members only
     T.amount("Verify number of memberships for gJ", 2, gJ.getCompositeMemberships().size());
@@ -870,17 +869,17 @@ public class TestMembership11 extends GrouperTest {
 
     // gH should have 2 effective update privileges
     T.amount("Verify number of effective update privileges for gH", 2, gH.getEffectiveMemberships(fieldUpdaters).size());
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "all -> gH", gH, all, gH, 1, gH, gH.toSubject(), null, 0, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SF -> gH", gH, subjF, gH, 1, gH, gH.toSubject(), null, 0, fieldUpdaters);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gH", gH, subjC, gH, 1, gH, gH.toSubject(), null, 0, fieldUpdaters);
 
     // gG should have 2 effective privileges
     T.amount("Verify number of effective privileges for gG", 2, gG.getEffectiveMemberships().size());
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "all -> gG", gG, all, gH, 1, gG, gH.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SF -> gG", gG, subjF, gH, 1, gG, gH.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gG", gG, subjC, gH, 1, gG, gH.toSubject(), null, 0, fieldMembers);
 
     // gD should have 5 effective privileges
     T.amount("Verify number of effective privileges for gD", 4, gD.getEffectiveMemberships().size());
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "all -> gD", gD, all, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SF -> gD", gD, subjF, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gD", gD, subjC, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gD", gD, subjD, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SE -> gD", gD, subjE, gE, 1, gD, gE.toSubject(), null, 0, fieldMembers);
@@ -888,7 +887,7 @@ public class TestMembership11 extends GrouperTest {
     // gB should have 6 effective privileges
     T.amount("Verify number of effective privileges for gB", 5, gB.getEffectiveMemberships().size());
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gB", gB, gE.toSubject(), gD, 1, gB, gD.toSubject(), null, 0, fieldMembers);
-    MembershipTestHelper.verifyEffectiveMembership(r.rs, "all -> gB", gB, all, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SF -> gB", gB, subjF, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gB", gB, subjC, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gB", gB, subjD, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
     MembershipTestHelper.verifyEffectiveMembership(r.rs, "SE -> gB", gB, subjE, gE, 2, gB, gE.toSubject(), gD, 1, fieldMembers);
@@ -934,7 +933,7 @@ public class TestMembership11 extends GrouperTest {
     gI.deleteMember(subjA);
     gI.deleteMember(subjB);
     gI.deleteMember(subjC);
-    gI.deleteMember(all);
+    gI.deleteMember(subjF);
     gJ.deleteCompositeMember();
     gK.deleteMember(subjA);
     gK.deleteMember(subjB);

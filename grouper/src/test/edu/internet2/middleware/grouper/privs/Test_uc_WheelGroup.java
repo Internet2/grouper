@@ -167,29 +167,6 @@ public class Test_uc_WheelGroup extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
-  /** 
-   * @since   1.2.1
-   */
-  public void test_allCanAdminWhenMemberOfWheel()
-    throws  GrantPrivilegeException,
-            GroupNotFoundException,
-            InsufficientPrivilegeException,
-            MemberAddException,
-            SchemaException,
-            SessionException
-  {
-    // make ALL a member of wheel
-    GroupFinder.findByUuid( 
-      GrouperSession.start( SubjectFinder.findRootSubject() ), wheel.getUuid(), true
-    ).addMember( SubjectFinder.findAllSubject() );
-
-    // start session and turn on wheel
-    GrouperSession s = GrouperSession.start( SubjectFinder.findAllSubject() );
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
-    // now should be able to grant admin 
-    assertTrue( s.getMember().canAdmin(dev) );
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
-  }
 
   /**
    * @since   1.2.1

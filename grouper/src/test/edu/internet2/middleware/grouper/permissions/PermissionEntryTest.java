@@ -748,7 +748,7 @@ public class PermissionEntryTest extends GrouperTest {
 
     roleParent.getPermissionRoleDelegate().assignRolePermission("actionParent", attrDefNameParent);
     roleParent2.getPermissionRoleDelegate().assignRolePermission("actionChild", attrDefNameChild);
-    roleParent.addMember(SubjectTestHelper.SUBJA, false);
+    roleParent.addMember(SubjectTestHelper.SUBJR, false);
     roleParent2.addMember(groupParent.toSubject(), false);
     
     roleParent.addMember(SubjectTestHelper.SUBJ6, false);
@@ -881,7 +881,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleChild2", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.8", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "g:isa", "GrouperSystem", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 1);
 
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.2", "role");
@@ -899,7 +899,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionChild", "jdbc", "test.subject.7", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, false, 0, -1, 0, 1);
 
-    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "g:isa", "GrouperSystem", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 0, 1);
 
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.2", "role");
@@ -914,7 +914,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameChild", "actionParent", "jdbc", "test.subject.6", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "g:isa", "GrouperSystem", "role");
     assertPermission(permissionEntry, "role", true, false, 0, 0, 1, 0);
 
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.2", "role");
@@ -929,7 +929,7 @@ public class PermissionEntryTest extends GrouperTest {
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionChild", "jdbc", "test.subject.7", "role_subject");
     assertPermission(permissionEntry, "role_subject", true, true, 0, -1, 0, 0);
 
-    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "g:isa", "GrouperAll", "role");
+    permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "g:isa", "GrouperSystem", "role");
     assertPermission(permissionEntry, "role", true, true, 0, 0, 0, 0);
 
     permissionEntry = PermissionEntryUtils.collectionFindFirst(permissionEntriesList, "top:roleParent", "top:attrDefNameParent", "actionParent", "jdbc", "test.subject.2", "role");

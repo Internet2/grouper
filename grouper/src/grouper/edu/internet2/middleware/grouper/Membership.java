@@ -2395,6 +2395,14 @@ public class Membership extends GrouperAPI implements
       throw new RuntimeException("Unexpected update attempt on effective membership.");
     }
     
+    if (this.isImmediate()) {
+      // validate the immediate membership
+      GrouperValidator v = ImmediateMembershipValidator.validate(this);
+      if (v.isInvalid()) {
+        throw new IllegalStateException(v.getErrorMessage());
+      }
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);

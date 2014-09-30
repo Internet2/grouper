@@ -889,7 +889,7 @@ public class HibernateSessionTest extends GrouperTest {
     i2.addMember(SubjectTestHelper.SUBJ0);
     i2.addMember(SubjectTestHelper.SUBJ1);
     i2.addMember(SubjectTestHelper.SUBJ2);
-    i2.addMember(SubjectFinder.findAllSubject());
+    i2.addMember(SubjectTestHelper.SUBJ3);
     i2.addMember(SubjectFinder.findRootSubject());
     
     //page the members in a group
@@ -937,7 +937,7 @@ public class HibernateSessionTest extends GrouperTest {
     i2.addMember(SubjectTestHelper.SUBJ0);
     i2.addMember(SubjectTestHelper.SUBJ1);
     i2.addMember(SubjectTestHelper.SUBJ2);
-    i2.addMember(SubjectFinder.findAllSubject());
+    i2.addMember(SubjectTestHelper.SUBJ3);
     i2.addMember(SubjectFinder.findRootSubject());
 
     i3.addMember(SubjectTestHelper.SUBJ1);
@@ -953,7 +953,7 @@ public class HibernateSessionTest extends GrouperTest {
       		.setString("ownerId", i2.getUuid())
       .options(new QueryOptions().sortAsc("theMember.subjectIdDb").paging(queryPaging)).list(Member.class);
     
-    assertEquals("GrouperAll, GrouperSystem, test.subject.0", Member.subjectIds(members));
+    assertEquals("GrouperSystem, test.subject.0, test.subject.1", Member.subjectIds(members));
     
     assertEquals(5, queryPaging.getTotalRecordCount());
     assertEquals(2, queryPaging.getNumberOfPages());

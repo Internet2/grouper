@@ -32,7 +32,6 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -1290,8 +1289,8 @@ public class AuditTest extends GrouperTest {
     AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
 
     Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
-    group.addMember(SubjectFinder.findAllSubject());
-    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findAllSubject(), true);
+    group.addMember(SubjectFinder.findRootSubject());
+    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findRootSubject(), true);
     Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, true, true);
     
     HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
@@ -1379,8 +1378,8 @@ public class AuditTest extends GrouperTest {
     AttributeDefName attributeDefName = this.edu.addChildAttributeDefName(attributeDef, "test1", "test1");
   
     Group group = new GroupSave(this.grouperSession).assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
-    group.addMember(SubjectFinder.findAllSubject());
-    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findAllSubject(), true);
+    group.addMember(SubjectFinder.findRootSubject());
+    Member member = MemberFinder.findBySubject(this.grouperSession, SubjectFinder.findRootSubject(), true);
 
     GroupMember groupMember = new GroupMember(group, member);
     

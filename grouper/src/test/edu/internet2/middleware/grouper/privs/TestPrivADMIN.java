@@ -168,13 +168,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.ADMIN);     
   } // public void testGrantAdminWithADMIN()
 
-  public void testGrantAdminWithAllADMIN() {
-    LOG.info("testGrantAdminWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.ADMIN);     
-  } // public void testGrantAdminWithADMIN()
-
   public void testGrantOptinWithoutADMIN() {
     LOG.info("testGrantOptinWithoutADMIN");
     a = GroupHelper.findByName(nrs, i2.getName());
@@ -187,13 +180,6 @@ public class TestPrivADMIN extends TestCase {
     a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.OPTIN);     
   } // public void testGrantOptinWithADMIN()
-
-  public void testGrantOptinWithAllADMIN() {
-    LOG.info("testGrantOptinWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.OPTIN);     
-  } // public void testGrantOptinWithAllADMIN()
 
   public void testGrantOptoutWithoutADMIN() {
     LOG.info("testGrantOptoutWithoutADMIN");
@@ -208,13 +194,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.OPTOUT);     
   } // public void testGrantOptoutWithADMIN()
 
-  public void testGrantOptoutWithAllADMIN() {
-    LOG.info("testGrantOptoutWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.OPTOUT);     
-  } // public void testGrantOptoutWithAllADMIN()
-
   public void testGrantReadWithoutADMIN() {
     LOG.info("testGrantReadWithoutADMIN");
     a = GroupHelper.findByName(nrs, i2.getName());
@@ -228,13 +207,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.READ);     
   } // public void testGrantReadWithADMIN()
 
-  public void testGrantReadWithAllADMIN() {
-    LOG.info("testGrantReadWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.READ);     
-  } // public void testGrantReadWithAllADMIN()
-
   public void testGrantUpdateWithoutADMIN() {
     LOG.info("testGrantUpdateWithoutADMIN");
     a = GroupHelper.findByName(nrs, i2.getName());
@@ -244,13 +216,6 @@ public class TestPrivADMIN extends TestCase {
   public void testGrantUpdateWithADMIN() {
     LOG.info("testGrantUpdateWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.UPDATE);     
-  } // public void testGrantUpdateWithADMIN()
-
-  public void testGrantUpdateWithAllADMIN() {
-    LOG.info("testGrantUpdateWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.UPDATE);     
   } // public void testGrantUpdateWithADMIN()
@@ -267,14 +232,7 @@ public class TestPrivADMIN extends TestCase {
     a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.VIEW);     
   } // public void testGrantViewWithADMIN()
-
-  public void testGrantViewWithAllADMIN() {
-    LOG.info("testGrantViewWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.grantPriv(nrs, a, subj1, AccessPrivilege.VIEW);     
-  } // public void testGrantViewWithADMIN()
-
+  
   public void testRevokeAdminWithoutADMIN() {
     LOG.info("testRevokeAdminWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.ADMIN);
@@ -288,14 +246,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.ADMIN);     
-  } // public void testRevokeAdminWithADMIN()
-
-  public void testRevokeAdminWithAllADMIN() {
-    LOG.info("testRevokeAdminWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.ADMIN);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.revokePrivAllHasPriv(nrs, a, subj1, AccessPrivilege.ADMIN);     
   } // public void testRevokeAdminWithADMIN()
 
   public void testRevokeOptinWithoutADMIN() {
@@ -313,14 +263,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.OPTIN);     
   } // public void testRevokeOptinWithADMIN()
 
-  public void testRevokeOptinWithAllADMIN() {
-    LOG.info("testRevokeOptinWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.OPTIN);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.OPTIN);     
-  } // public void testRevokeOptinWithAllADMIN()
-
   public void testRevokeOptoutWithoutADMIN() {
     LOG.info("testRevokeOptoutWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.OPTOUT);
@@ -337,14 +279,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.OPTOUT);     
   } // public void testRevokeOptoutWithADMIN()
 
-  public void testRevokeOptoutWithAllADMIN() {
-    LOG.info("testRevokeOptoutWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.OPTOUT);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.OPTOUT);     
-  } // public void testRevokeOptoutWithAllADMIN()
-
   public void testRevokeReadWithoutADMIN() {
     LOG.info("testRevokeReadWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.READ);
@@ -360,14 +294,6 @@ public class TestPrivADMIN extends TestCase {
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.READ);     
   } // public void testRevokeReadWithADMIN()
 
-  public void testRevokeReadWithAllADMIN() {
-    LOG.info("testRevokeReadWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.READ);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.READ);     
-  } // public void testRevokeReadWithAllADMIN()
-
   public void testRevokeUpdateWithoutADMIN() {
     LOG.info("testRevokeUpdateWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.UPDATE);
@@ -379,14 +305,6 @@ public class TestPrivADMIN extends TestCase {
     LOG.info("testRevokeUpdateWithADMIN");
     PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.UPDATE);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.UPDATE);     
-  } // public void testRevokeUpdateWithADMIN()
-
-  public void testRevokeUpdateWithAllADMIN() {
-    LOG.info("testRevokeUpdateWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, subj1, AccessPrivilege.UPDATE);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
     PrivHelper.revokePriv(nrs, a, subj1, AccessPrivilege.UPDATE);     
   } // public void testRevokeUpdateWithADMIN()
@@ -418,20 +336,6 @@ public class TestPrivADMIN extends TestCase {
     a = GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.delete(nrs, a, i2.getName());
   } // public void testDeleteGroupWithADMIN()
-
-  public void testDeleteGroupWithAllADMIN() {
-    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
-
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
-        LOG.info("testDeleteGroupWithAllADMIN");
-        PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-        a = GroupHelper.findByName(nrs, i2.getName());
-        GroupHelper.delete(nrs, a, i2.getName());
-        return null;
-      }
-    });
-  } // public void testDeleteGroupWithAllADMIN()
 
   public void testDeleteGroupWithMemberWithoutADMIN() {
     GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
@@ -473,25 +377,6 @@ public class TestPrivADMIN extends TestCase {
     });
   } // public void testDeleteGroupWithMemberWithADMIN()
 
-  public void testDeleteGroupWithMemberWithAllADMIN() {
-    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
-
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
-
-        LOG.info("testDeleteGroupWithMemberWithAllADMIN");
-        GroupHelper.addMember(i2, subj1, m);
-        PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-        a = GroupHelper.findByName(nrs, i2.getName());
-        try {
-        	Thread.currentThread().sleep(3000);
-        }catch(InterruptedException e){}
-        GroupHelper.delete(nrs, a, i2.getName());
-        return null;
-      }
-    });
-  } // public void testDeleteGroupWithMemberWithAllADMIN()
-
   public void testDeleteGroupIsMemberWithoutADMIN() {
     GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
@@ -528,22 +413,6 @@ public class TestPrivADMIN extends TestCase {
     });
     
   } // public void testDeleteGroupIsMemberWithADMIN()
-
-  public void testDeleteGroupIsMemberWithAllADMIN() {
-    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
-
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
-
-        LOG.info("testDeleteGroupIsMemberWithAllADMIN");
-        GroupHelper.addMember(uofc, i2);
-        PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-        a = GroupHelper.findByName(nrs, i2.getName());
-        GroupHelper.delete(nrs, a, i2.getName());
-        return null;
-      }
-    });
-  } // public void testDeleteGroupIsMemberWithAllADMIN()
 
   public void testSetAttrsWithoutADMIN() {
     LOG.info("testSetAttrsWithoutADMIN");
@@ -612,46 +481,6 @@ public class TestPrivADMIN extends TestCase {
 
   } // public void testSetAttrsWithADMIN()
 
-  public void testSetAttrsWithAllADMIN() throws Exception {
-    LOG.info("testSetAttrsWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    String val = "new value";
-    GroupHelper.setAttrFail(a, ""                 , ""  );
-    GroupHelper.setAttrFail(a, ""                 , null);
-    GroupHelper.setAttrFail(a, null               , null);
-    GroupHelper.setAttrFail(a, null               , ""  );
-    GroupHelper.setAttrFail(a, "attr"             , val );
-
-    a.setDescription( val );
-    try {
-      //fail 
-      a.setDisplayName( val );
-      fail();
-    } catch (Exception e) {
-      //ok
-    }
-    a.setDisplayExtension(val );
-    a.setExtension( val );
-    try {
-      //fail 
-      a.setName( val );
-      fail();
-    } catch (Exception e) {
-      //ok
-    }
-    a.store();
-    
-    GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
-
-    GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
-    groupType.addAttribute(grouperSession,ATTRIBUTE1, 
-          false);
-    a.addType(groupType, false);
-    a.setAttribute(ATTRIBUTE1, "whatever");
-
-  } // public void testSetAttrsWithAllADMIN()
-
   public void testDelAttrsWithoutADMIN() {
     LOG.info("testDelAttrsWithoutADMIN");
     a = GroupHelper.findByName(nrs, i2.getName());
@@ -716,31 +545,5 @@ public class TestPrivADMIN extends TestCase {
       Assert.fail("failed to set displayExtension");
     } 
   } // public void testRenameGroupWithADMIN()
-
-  public void testRenameGroupWithAllADMIN() {
-    LOG.info("testRenameGroupWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    String  val   = "foo";
-    try {
-      a.setExtension("foo");
-      a.store();
-      Assert.assertTrue("set extension", true);
-      Assert.assertTrue("extension", a.getExtension().equals(val));
-    }
-    catch (Exception e) {
-      Assert.fail("failed to set extension");
-    } 
-    try {
-      a.setDisplayExtension("foo");
-      a.store();
-      Assert.assertTrue("set displayExtension", true);
-      Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(val));
-    }
-    catch (Exception e) {
-      Assert.fail("failed to set displayExtension");
-    } 
-  } // public void testRenameGroupWithAllADMIN()
-
 }
 

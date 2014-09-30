@@ -41,8 +41,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
@@ -81,17 +79,23 @@ public class TestMembershipDeletes1 extends GrouperTest {
   Subject subjD;
   Subject subjE;
   Subject subjFDel;
+  Subject subjG;
   Member  memberA;
   Member  memberD;
-  Subject all;
 
   Field fieldMembers;
   Field fieldUpdaters;
 
+  /**
+   * @param name
+   */
   public TestMembershipDeletes1(String name) {
     super(name);
   }
 
+  /**
+   * 
+   */
   public void testMembershipDeletes1() {
     LOG.info("testMembershipDeletes1");
     try {
@@ -99,7 +103,7 @@ public class TestMembershipDeletes1 extends GrouperTest {
       before  = new Date();
       GrouperUtil.sleep(100);
 
-      r     = R.populateRegistry(1, 14, 6);
+      r     = R.populateRegistry(1, 14, 7);
       gA    = r.getGroup("a", "a");
       gB    = r.getGroup("a", "b");
       gC    = r.getGroup("a", "c");
@@ -120,7 +124,7 @@ public class TestMembershipDeletes1 extends GrouperTest {
       subjD = r.getSubject("d");
       subjE = r.getSubject("e");
       subjFDel = r.getSubject("f");
-      all   = SubjectFinder.findAllSubject();
+      subjG = r.getSubject("g");
       memberA = MemberFinder.findBySubject(r.rs, subjA, true);
       memberD = MemberFinder.findBySubject(r.rs, subjD, true);
 
@@ -143,7 +147,7 @@ public class TestMembershipDeletes1 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      gI.addMember(all);
+      gI.addMember(subjG);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);

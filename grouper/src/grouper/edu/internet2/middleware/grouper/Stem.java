@@ -2653,14 +2653,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
       // Now optionally grant other privs
       if (g.getTypeOfGroup() != TypeOfGroup.entity) {
-        this._grantOptionalPrivUponCreate( g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
-        this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.GROUP_ATTR_READ, GrouperConfig.GCGAGAR );
-        this._grantOptionalPrivUponCreate( g, AccessPrivilege.GROUP_ATTR_UPDATE, GrouperConfig.GCGAGAU );
       }
       if (g.getTypeOfGroup() == TypeOfGroup.entity) {
         this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, "entities.create.grant.all.view" );

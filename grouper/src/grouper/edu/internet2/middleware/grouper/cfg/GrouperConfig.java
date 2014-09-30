@@ -224,14 +224,11 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   public static final String ATTRIBUTE_EXTENSION        = "extension";
   public static final String ATTRIBUTE_NAME        = "name";
   public static final String BT            = "true";
-  public static final String GCGAA         = "groups.create.grant.all.admin";
   public static final String GCGAOI        = "groups.create.grant.all.optin";
   public static final String GCGAOO        = "groups.create.grant.all.optout";
   public static final String GCGAR         = "groups.create.grant.all.read";
-  public static final String GCGAU         = "groups.create.grant.all.update";
   public static final String GCGAV         = "groups.create.grant.all.view";
   public static final String GCGAGAR       = "groups.create.grant.all.groupAttrRead";
-  public static final String GCGAGAU       = "groups.create.grant.all.groupAttrUpdate";
 
   /** */
   public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_ADMIN 

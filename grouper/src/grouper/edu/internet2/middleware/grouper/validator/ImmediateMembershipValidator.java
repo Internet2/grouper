@@ -40,6 +40,8 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 
 /** 
  * An immediate member is directly assigned to a group.
@@ -95,8 +97,12 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     }
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(INVALID_CIRCULAR);
-    }
-    else {
+    } else if (GrouperConfig.ALL.equals(_ms.getMember().getSubjectId()) && _ms.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      v.setErrorMessage("GrouperAll can't be member of a group.");
+    } else if (GrouperConfig.ALL.equals(_ms.getMember().getSubjectId()) && _ms.getField().isGroupAccessField() && 
+        AccessPrivilege.MANAGE_PRIVILEGES.contains(Privilege.listToPriv(_ms.getField().getName(), true))) {
+      v.setErrorMessage("GrouperAll can't get a manage privilege.");
+    } else {
       // Perform generic Membership validation
       MembershipValidator vMS = MembershipValidator.validate(_ms);
       if (vMS.isInvalid()) {

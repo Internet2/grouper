@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -2017,11 +2018,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       if (queryOptions != null) {
         massageSortFields(queryOptions.getQuerySort());
       }
-      Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllStemsWithGroupsSecure")
-        .options(queryOptions)
-        .listSet(Stem.class);
+      
+      String sqlString = sql.toString();
+      Set<Stem> stems = new HashSet<Stem>();
+      
+      if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+        stems = byHqlStatic.createQuery(sqlString)
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllStemsWithGroupsSecure")
+          .options(queryOptions)
+          .listSet(Stem.class);
+      }
             
       //if the hql didnt filter, this will
       Set<Stem> filteredGroups = grouperSession.getAccessResolver()

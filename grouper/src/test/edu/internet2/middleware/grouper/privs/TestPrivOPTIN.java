@@ -116,13 +116,6 @@ public class TestPrivOPTIN extends TestCase {
     GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithADMIN
 
-  public void testAddSelfAsMemberWithAllADMIN() {
-    LOG.info("testAddSelfAsMemberWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0);
-  } // public void testAddSelfAsMemberWithAllADMIN
-
   public void testAddSelfAsMemberWithoutOPTIN() {
     LOG.info("testAddSelfAsMemberWithoutOPTIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
@@ -138,13 +131,6 @@ public class TestPrivOPTIN extends TestCase {
     GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithOPTIN
 
-  public void testAddSelfAsMemberWithAllOPTIN() {
-    LOG.info("testAddSelfAsMemberWithAllOPTIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0);
-  } // public void testAddSelfAsMemberWithAllOPTIN
-
   public void testAddSelfAsMemberWithoutUPDATE() {
     LOG.info("testAddSelfAsMemberWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
@@ -158,13 +144,5 @@ public class TestPrivOPTIN extends TestCase {
     Group a = GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithUPDATE
-
-  public void testAddSelfAsMemberWithAllUPDATE() {
-    LOG.info("testAddSelfAsMemberWithAllUPDATE");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0);
-  } // public void testAddSelfAsMemberWithAllUPDATE
-
 }
 

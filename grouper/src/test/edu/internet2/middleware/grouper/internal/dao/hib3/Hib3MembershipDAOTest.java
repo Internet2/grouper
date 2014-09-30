@@ -69,19 +69,19 @@ public class Hib3MembershipDAOTest extends GrouperTest {
     i2.addMember(SubjectTestHelper.SUBJ0);
     i2.addMember(SubjectTestHelper.SUBJ1);
     i2.addMember(SubjectTestHelper.SUBJ2);
-    i2.addMember(SubjectFinder.findAllSubject());
+    i2.addMember(SubjectTestHelper.SUBJ3);
     i2.addMember(SubjectFinder.findRootSubject());
 
     i3.addMember(SubjectTestHelper.SUBJ0);
     i3.addMember(SubjectTestHelper.SUBJ1);
     i3.addMember(SubjectTestHelper.SUBJ2);
-    i3.addMember(SubjectFinder.findAllSubject());
+    i3.addMember(SubjectTestHelper.SUBJ3);
     i3.addMember(SubjectFinder.findRootSubject());
 
     i4.addMember(SubjectTestHelper.SUBJ0);
     i4.addMember(SubjectTestHelper.SUBJ1);
     i4.addMember(SubjectTestHelper.SUBJ2);
-    i4.addMember(SubjectFinder.findAllSubject());
+    i4.addMember(SubjectTestHelper.SUBJ3);
     i4.addMember(SubjectFinder.findRootSubject());
 
     

@@ -546,7 +546,7 @@ public class TestMembershipFinder extends GrouperTest {
                           .addChildStem("top", "top")
                           .addChildGroup("child", "child")
                           ;
-    g.addMember( SubjectFinder.findAllSubject() );
+    g.addMember( SubjectFinder.findRootSubject() );
     assertEquals( 1, MembershipFinder.findMembers( g, Group.getDefaultList() ).size() );
   }
 

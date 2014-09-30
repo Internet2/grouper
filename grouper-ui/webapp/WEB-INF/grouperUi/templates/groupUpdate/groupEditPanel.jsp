@@ -145,24 +145,8 @@
          </td>
          <td class="formTableRight" style="white-space: nowrap;">
             
-            <input type="checkbox" name="groupToEditAllowAllAdmin" 
-              value="true" 
-              ${groupUpdateRequestContainer.allowAllAdmin ? 'checked="checked"' : '' } />
-              
-             <grouper:message key="priv.admin" /> 
-             
-             &nbsp;
-
             <c:if test="${groupUpdateRequestContainer.groupToEdit.typeOfGroupDb != 'entity'}" >
               
-              <input type="checkbox" name="groupToEditAllowAllUpdate" 
-                value="true" 
-                ${groupUpdateRequestContainer.allowAllUpdate ? 'checked="checked"' : '' } />
-                
-               <grouper:message key="priv.update" /> 
-               
-               &nbsp;
-               
                <input type="checkbox" name="groupToEditAllowAllRead" 
                 value="true" 
                 ${groupUpdateRequestContainer.allowAllRead ? 'checked="checked"' : '' } />
@@ -188,14 +172,6 @@
 
              &nbsp;
 
-            <input type="checkbox" name="groupToEditAllowAllGroupAttrUpdate"
-              value="true"
-              ${groupUpdateRequestContainer.allowAllGroupAttrUpdate ? 'checked="checked"' : '' } />
-
-            <grouper:message key="priv.groupAttrUpdate" />
-
-            &nbsp;
-               
               <input type="checkbox" name="groupToEditAllowAllOptin" 
                 value="true" 
                 ${groupUpdateRequestContainer.allowAllOptin ? 'checked="checked"' : '' } />

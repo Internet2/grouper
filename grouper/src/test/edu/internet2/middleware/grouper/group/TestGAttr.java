@@ -214,44 +214,6 @@ public class TestGAttr extends GrouperTest {
     }
   } // public void testDeleteAttribute()
 
-  public void testDeleteAttributeNotRootButAllHasAdmin() {
-    LOG.info("testDeleteAttributeNotRootButAllHasAdmin");
-    try {
-      R       r     = R.populateRegistry(1, 1, 1);
-      Group   gA    = r.getGroup("a", "a");
-      Subject subjA = r.getSubject("a");
-      GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
-  
-      GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
-      groupType.addAttribute(grouperSession, "theAttribute1", 
-            false);
-      gA.addType(groupType, false);
-      groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_READ, false);
-      groupType.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_UPDATE, false);
-      groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_READ, false);
-      groupType.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(subjA, AttributeDefPrivilege.ATTR_UPDATE, false);
-      
-      String theAttribute = "theAttribute1";
-      gA.setAttribute(theAttribute, "whatever");
-    
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
-      grouperSession.stop();
-      r.rs.stop();  
-      GrouperSession.start(subjA);
-      gA.setAttribute(theAttribute, theAttribute);
-
-      gA.deleteAttribute(theAttribute);
-      T.string(
-        "fetch deleted attribute",
-        GrouperConfig.EMPTY_STRING,
-        gA.getAttributeValue(theAttribute, false, false)
-      );
-    }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testDeleteAttributeNotRootButAllHasAdmin()
-
   public void testDeleteAttributeNotRootButHasAdmin() {
     LOG.info("testDeleteAttributeNotRootButHasAdmin");
     try {
@@ -294,28 +256,6 @@ public class TestGAttr extends GrouperTest {
     }
   } // public void testDeleteAttributeNotRootButHasAdmin()
 
-  public void testFailDeleteAttributeBlankAttributeNotRootButAllHasAdmin() {
-    LOG.info("testFailDeleteAttributeBlankAttributeNotRootButAllHasAdmin");
-    try {
-      R       r     = R.populateRegistry(1, 1, 1);
-      Group   gA    = r.getGroup("a", "a");
-      Subject subjA = r.getSubject("a");
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
-      r.rs.stop();  
-      GrouperSession.start(subjA);
-      try {
-        gA.deleteAttribute("");
-        fail("deleted blank attribute");
-      }
-      catch (AttributeNotFoundException eANF) {
-        assertTrue(true);
-      }
-    }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testFailDeleteAttributeBlankAttributeNotRootButAllHasAdmin()
-
   public void testFailDeleteAttributeBlankAttributeNotRootButHasAdmin() {
     LOG.info("testFailDeleteAttributeBlankAttributeNotRootButHasAdmin");
     try {
@@ -337,28 +277,6 @@ public class TestGAttr extends GrouperTest {
       unexpectedException(e);
     }
   } // public void testFailDeleteAttributeBlankAttributeNotRootButHasAdmin()
-
-  public void testFailDeleteAttributeNullAttributeNotRootButAllHasAdmin() {
-    LOG.info("testFailDeleteAttributeNullAttributeNotRootButAllHasAdmin");
-    try {
-      R       r     = R.populateRegistry(1, 1, 1);
-      Group   gA    = r.getGroup("a", "a");
-      Subject subjA = r.getSubject("a");
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
-      r.rs.stop();  
-      GrouperSession.start(subjA);
-      try {
-        gA.deleteAttribute(null);
-        fail("deleted null attribute");
-      }
-      catch (AttributeNotFoundException eANF) {
-        assertTrue(true);
-      }
-    }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testFailDeleteAttributeNullAttributeNotRootButAllHasAdmin()
 
   public void testFailDeleteAttributeNullAttributeNotRootButHasAdmin() {
     LOG.info("testFailDeleteAttributeNullAttributeNotRootButHasAdmin");
@@ -402,28 +320,6 @@ public class TestGAttr extends GrouperTest {
       T.e(e);
     }
   } // public void testFailDeleteAttributeUnset()
-
-  public void testFailDeleteAttributeUnsetNotRootButAllHasAdmin() {
-    LOG.info("testFailDeleteAttributeUnsetNotRootButAllHasAdmin");
-    try {
-      R       r     = R.populateRegistry(1, 1, 1);
-      Group   gA    = r.getGroup("a", "a");
-      Subject subjA = r.getSubject("a");
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
-      r.rs.stop();  
-      GrouperSession.start(subjA);
-      try {
-        gA.deleteAttribute("description");
-        fail("deleted unset attribute");
-      }
-      catch (AttributeNotFoundException eANF) {
-        assertTrue(true);
-      }
-    }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testFailDeleteAttributeUnsetNotRootButAllHasAdmin()
 
   public void testFailDeleteAttributeUnsetNotRootButHasAdmin() {
     LOG.info("testFailDeleteAttributeUnsetNotRootButHasAdmin");

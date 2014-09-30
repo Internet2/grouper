@@ -271,7 +271,7 @@ public class TestGroup extends GrouperTest {
     Group entityGroup = (Group)entity;
     
     try {
-      entityGroup.addMember(SubjectFinder.findAllSubject());
+      entityGroup.addMember(SubjectFinder.findRootSubject());
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
@@ -293,42 +293,42 @@ public class TestGroup extends GrouperTest {
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("entities.create.grant.all.view", "false");
     }
 
-    entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-    entity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-    entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
-    entity.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
+    entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.VIEW, false);
+    entity.revokePriv(SubjectFinder.findRootSubject(), AccessPrivilege.VIEW, false);
+    entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.ADMIN, false);
+    entity.revokePriv(SubjectFinder.findRootSubject(), AccessPrivilege.ADMIN, false);
     try {
-      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.READ, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
     }
     try {
-      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
+      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.UPDATE, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
     }
     try {
-      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.OPTIN, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
     }
     try {
-      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT, false);
+      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.OPTOUT, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
     }
     try {
-      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
+      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good
     }
     try {
-      entity.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
+      entity.grantPriv(SubjectFinder.findRootSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
       fail("shouldnt get here");
     } catch (Exception e) {
       //good

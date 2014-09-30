@@ -67,12 +67,15 @@ public class TestPrivAdmin0 extends GrouperTest {
       Subject subjB = r.getSubject("b");
       Subject all   = SubjectFinder.findAllSubject();
       g.grantPriv(subjA, AccessPrivilege.VIEW);
-      g.grantPriv(all,  AccessPrivilege.ADMIN);
+      g.revokePriv(all, AccessPrivilege.VIEW);
+      g.revokePriv(all, AccessPrivilege.READ);
+      g.grantPriv(subjA,  AccessPrivilege.ADMIN);
+      g.grantPriv(all, AccessPrivilege.VIEW);
       String  name  = g.getName();
       r.rs.stop();
 
       GrouperSession  nrs = GrouperSession.start(subjB);
-      g = GroupFinder.findByName(nrs, name, true);
+      g = GroupFinder.findByName(r.getSession(), name, true);
       g.revokePriv(subjA, AccessPrivilege.VIEW);
       // Should still have VIEW through ALL
       Assert.assertTrue("subjA VIEW", g.hasView(subjA));

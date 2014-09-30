@@ -128,9 +128,9 @@ public class TestPrivREAD extends TestCase {
     GroupHelper.testAttrs(i2, a);
   } // public void testReadAttrsWithADMIN()
 
-  public void testReadAttrsWithAllADMIN() {
+  public void testReadAttrsWithAllGroupAttrRead() {
     LOG.info("testReadAttrsWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ);
     Group a = GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.testAttrs(i2, a);
   } // public void testReadAttrsWithAllADMIN()
@@ -182,18 +182,6 @@ public class TestPrivREAD extends TestCase {
     Assert.assertTrue("eff mships",   a.getEffectiveMemberships().size()  == 0);
   } // public void testReadMembersWithADMIN()
 
-  public void testReadMembersWithAllADMIN() {
-    LOG.info("testReadMembersWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    Assert.assertTrue("members",      a.getMembers().size()               == 1);
-    Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 1);
-    Assert.assertTrue("eff members",  a.getEffectiveMembers().size()      == 0);
-    Assert.assertTrue("mships",       a.getMemberships().size()           == 1);
-    Assert.assertTrue("imm mships",   a.getImmediateMemberships().size()  == 1);
-    Assert.assertTrue("eff mships",   a.getEffectiveMemberships().size()  == 0);
-  } // public void testReadMembersWithAllADMIN()
-
   public void testReadMembersWithoutREAD() {
     LOG.info("testReadMembersWithoutREAD");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
@@ -220,8 +208,7 @@ public class TestPrivREAD extends TestCase {
 
   public void testReadMembersWithAllREAD() {
     LOG.info("testReadMembersWithAllREAD");
-    // Already exists
-    // PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.READ);
+    i2.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
     Group a = GroupHelper.findByName(nrs, i2.getName());
     Assert.assertTrue("members",      a.getMembers().size()               == 1);
     Assert.assertTrue("imm members",  a.getImmediateMembers().size()      == 1);

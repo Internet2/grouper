@@ -32,10 +32,12 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.GrouperNonDbAccessAdapter;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilegeAdapter;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -59,6 +61,11 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
 
   /**
+   * Caller can see if this string ends up in the filter to indicate that no results would be returned.
+   */
+  public static final String HQL_FILTER_NO_RESULTS_INDICATOR = "HQL_FILTER_NO_RESULTS_INDICATOR";
+  
+  /**
    * note, can use 
    * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
@@ -69,6 +76,10 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     if (GrouperUtil.length(privInSet) == 0) {
       return false;
     }
+    
+    Set<Privilege> checkIfAllManagePrivs = new LinkedHashSet<Privilege>(privInSet);
+    checkIfAllManagePrivs.removeAll(AccessPrivilege.MANAGE_PRIVILEGES);
+    boolean includeGrouperAll = checkIfAllManagePrivs.size() == 0 ? false : true;
     
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
     Member allMember = MemberFinder.internal_findAllMember();
@@ -82,10 +93,20 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     		"__accessMembership.ownerGroupId = " + groupColumn
     		+ " and __accessMembership.fieldId in (");
     query.append(accessInClause).append(") and __accessMembership.memberUuid in (");
-    Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
+    Set<String> memberIds = new LinkedHashSet<String>();
     if (member != null) {
       memberIds.add(member.getUuid());
     }
+    
+    if (includeGrouperAll) {
+      memberIds.add(allMember.getUuid());
+    }
+    
+    if (memberIds.size() == 0) {
+      // hmm need this to fail somehow.  caller can check or if caller doesn't, a query would just get executed that would return nothing.
+      memberIds.add(HQL_FILTER_NO_RESULTS_INDICATOR);
+    }
+    
     String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
     query.append(memberInClause).append(")");
     
@@ -111,14 +132,16 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
       hql.append(" and ");
     }
     
+    boolean reallyConsiderAllPrivilege = considerAllSubject && !AccessPrivilege.MANAGE_PRIVILEGES.contains(privilege);
+    
     hql.append(" not exists (select __notInMembership.uuid from MembershipEntry __notInMembership where " +
     		" __notInMembership.enabledDb = 'T' and __notInMembership.ownerGroupId = " + groupColumn + " " +
     				" and __notInMembership.fieldId = :notInMembershipFieldId and __notInMembership.memberUuid in ( " +
-    				" :notInMembershipMemberId" + (considerAllSubject ? ", :notInMembershipAllMemberId" : "") + ")) ");
+    				" :notInMembershipMemberId" + (reallyConsiderAllPrivilege ? ", :notInMembershipAllMemberId" : "") + ")) ");
     
     hqlQuery.setString("notInMembershipFieldId", fieldId);
     hqlQuery.setString("notInMembershipMemberId", member.getUuid());
-    if (considerAllSubject) {
+    if (reallyConsiderAllPrivilege) {
       hqlQuery.setString("notInMembershipAllMemberId", allMember.getUuid());
     }
 
