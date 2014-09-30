@@ -52,20 +52,6 @@
                       <label class="control-label">${textContainer.text['groupCreateAssignPrivilegesToEveryone'] }</label>
                       <div class="controls">
                         <label class="checkbox inline">
-                          <%--
-                          <input type="checkbox" name="privileges_admins" value="true" 
-                            ${grouperRequestContainer.groupContainer.configDefaultGroupsCreateGrantAllAdmin ? 'checked="checked"' : '' } />ADMIN
-                          --%>
-                          <input type="checkbox" name="privileges_admins" value="true" 
-                            ${grouperRequestContainer.groupContainer.guiGroup.grantAllAdmin ? 'checked="checked"' : '' }
-                          />${textContainer.text['priv.adminUpper'] }
-                        </label>
-                        <label class="checkbox inline">
-                          <input type="checkbox" name="privileges_updaters" value="true"
-                            ${grouperRequestContainer.groupContainer.guiGroup.grantAllUpdate ? 'checked="checked"' : '' }                          
-                          />${textContainer.text['priv.updateUpper'] }
-                        </label>
-                        <label class="checkbox inline">
                           <input type="checkbox" name="privileges_readers" value="true"
                             ${grouperRequestContainer.groupContainer.guiGroup.grantAllRead ? 'checked="checked"' : '' }                          
                           />${textContainer.text['priv.readUpper'] }
@@ -89,11 +75,6 @@
                           <input type="checkbox" name="privileges_groupAttrReaders" value="true"
                             ${grouperRequestContainer.groupContainer.guiGroup.grantAllAttrRead ? 'checked="checked"' : '' }                          
                           />${textContainer.text['priv.groupAttrReadUpper'] }
-                        </label>
-                        <label class="checkbox inline">
-                          <input type="checkbox" name="privileges_groupAttrUpdaters" value="true"
-                            ${grouperRequestContainer.groupContainer.guiGroup.grantAllAttrUpdate ? 'checked="checked"' : '' }                          
-                          />${textContainer.text['priv.groupAttrUpdateUpper'] }
                         </label>
 
                         <span class="help-block">${textContainer.text['groupCreatePrivilegeDescription']}</span>

@@ -133,13 +133,6 @@ public class TestPrivVIEW extends TestCase {
     GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithADMIN()
 
-  public void testFindGroupWithAllADMIN() {
-    LOG.info("testFindGroupWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.findByUuid(nrs, i2.getUuid());
-  } // public void testFindGroupWithAllADMIN()
-
   public void testFindGroupWithoutOPTIN() {
     LOG.info("testFindGroupWithoutOPTIN");
     // ALL has VIEW
@@ -196,13 +189,6 @@ public class TestPrivVIEW extends TestCase {
     GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.findByUuid(nrs, i2.getUuid());
   } // public void testFindGroupWithUPDATE()
-
-  public void testFindGroupWithAllUPDATE() {
-    LOG.info("testFindGroupWithAllUPDATE");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
-    GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.findByUuid(nrs, i2.getUuid());
-  } // public void testFindGroupWithAllUPDATE()
 
   public void testFindChildGroupWithoutVIEW() {
     LOG.info("testFindChildGroupWithoutVIEW");
@@ -314,20 +300,6 @@ public class TestPrivVIEW extends TestCase {
     MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithADMIN()
 
-  public void testAddGroupAsMemberWithAllADMIN() {
-    LOG.info("testAddGroupAsMemberWithAllADMIN");
-    PrivHelper.grantPriv(s, uofc, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    PrivHelper.grantPriv(s, i2,   subj0, AccessPrivilege.ADMIN);
-    GroupHelper.addMember(uofc, subj1, m);
-    Group a = GroupHelper.findByName(nrs, uofc.getName());
-    Group b = GroupHelper.findByName(nrs, i2.getName());
-    // add uofc (a) to i2 (b)
-    GroupHelper.addMember(b, a);
-    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
-  } // public void testAddGroupAsMemberWithAllADMIN()
-
   public void testAddGroupAsMemberWithOPTIN() {
     LOG.info("testAddGroupAsMemberWithOPTIN");
     PrivHelper.grantPriv(s, uofc, subj0, AccessPrivilege.OPTIN);
@@ -426,20 +398,6 @@ public class TestPrivVIEW extends TestCase {
     MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
     MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
   } // public void testAddGroupAsMemberWithUPDATE()
-
-  public void testAddGroupAsMemberWithAllUPDATE() {
-    LOG.info("testAddGroupAsMemberWithAllUPDATE");
-    PrivHelper.grantPriv(s, uofc, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
-    PrivHelper.grantPriv(s, i2,   subj0, AccessPrivilege.ADMIN);
-    GroupHelper.addMember(uofc, subj1, m);
-    Group a = GroupHelper.findByName(nrs, uofc.getName());
-    Group b = GroupHelper.findByName(nrs, i2.getName());
-    // add uofc (a) to i2 (b)
-    GroupHelper.addMember(b, a);
-    MembershipTestHelper.testNumMship(b, Group.getDefaultList(), 2, 1, 1);
-    MembershipTestHelper.testImmMship(nrs, b, a, Group.getDefaultList());
-    MembershipTestHelper.testEffMship(nrs, b, subj1, Group.getDefaultList(), a, 1);
-  } // public void testAddGroupAsMemberWithAllUPDATE()
 
   public void testAddGroupAsMemberWithVIEW() {
     LOG.info("testAddGroupAsMemberWithVIEW");

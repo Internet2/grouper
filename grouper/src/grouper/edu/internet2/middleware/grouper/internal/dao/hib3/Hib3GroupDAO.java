@@ -50,6 +50,7 @@ import org.hibernate.criterion.Restrictions;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -1130,12 +1131,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }
+    
+    Group group = null;
+    String hqlString = hql.toString();
 
-    byHqlStatic.createQuery(hql.toString())
-      .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
-
-    Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
-
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString)
+        .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+  
+      group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
+    }
+    
     if (group != null && GrouperUtil.length(typeOfGroups) > 0) {
       // see if the type of group matches
       if (!typeOfGroups.contains(group.getTypeOfGroup())) {
@@ -1663,11 +1669,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       if (queryOptions != null) {
         massageSortFields(queryOptions.getQuerySort());
       }
-      Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllGroupsSecure")
-        .options(queryOptions)
-        .listSet(Group.class);
+      
+      String sqlString = sql.toString();
+      Set<Group> groups = new HashSet<Group>();
+
+      if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+        groups = byHqlStatic.createQuery(sqlString)
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+          .options(queryOptions)
+          .listSet(Group.class);
+      }
             
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
@@ -1729,12 +1741,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         massageSortFields(queryOptions.getQuerySort());
       }
       
-      Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setString("scope", StringUtils.defaultString(scope).toLowerCase() + "%")
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
-        .options(queryOptions)
-        .listSet(Group.class);
+      String sqlString = sql.toString();
+      Set<Group> groups = new HashSet<Group>();
+      
+      if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+        groups = byHqlStatic.createQuery(sqlString)
+          .setString("scope", StringUtils.defaultString(scope).toLowerCase() + "%")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
+          .options(queryOptions)
+          .listSet(Group.class);
+      }
 
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
@@ -1795,12 +1812,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         massageSortFields(queryOptions.getQuerySort());
       }
 
-      Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setString("parent", stem.getUuid())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
-        .options(queryOptions)
-        .listSet(Group.class);
+      String sqlString = sql.toString();
+      Set<Group> groups = new HashSet<Group>();
+      
+      if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+        groups = byHqlStatic.createQuery(sqlString)
+          .setString("parent", stem.getUuid())
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
+          .options(queryOptions)
+          .listSet(Group.class);
+      }
 
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
@@ -1951,22 +1973,26 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     
     try {
-      byHqlStatic.createQuery(sql.toString())
-        .setString("listId", listId)
-        .setString("memberId", member.getUuid());
-      if (hasScope) {
-        byHqlStatic.setString("scope", scope + "%");
-      }
+      String sqlString = sql.toString();
+      Set<Group> groups = new HashSet<Group>();
+      if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+        byHqlStatic.createQuery(sqlString)
+          .setString("listId", listId)
+          .setString("memberId", member.getUuid());
+        if (hasScope) {
+          byHqlStatic.setString("scope", scope + "%");
+        }
+    
+        if (queryOptions != null) {
+          massageSortFields(queryOptions.getQuerySort());
+        }
   
-      if (queryOptions != null) {
-        massageSortFields(queryOptions.getQuerySort());
+        groups = byHqlStatic
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
+          .options(queryOptions)
+          .listSet(Group.class);
       }
-
-      Set<Group> groups = byHqlStatic
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
-        .options(queryOptions)
-        .listSet(Group.class);
   
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
@@ -2027,14 +2053,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
         massageSortFields(queryOptions.getQuerySort());
       }
 
-      Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-        .setString("parent", stem.getUuid())
-        .setString("listId", listId)
-        .setString("memberId", member.getUuid())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
-        .options(queryOptions)
-        .listSet(Group.class);  
+      String sqlString = sql.toString();
+      Set<Group> groups = new HashSet<Group>();
+      if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+        groups = byHqlStatic.createQuery(sqlString)
+          .setString("parent", stem.getUuid())
+          .setString("listId", listId)
+          .setString("memberId", member.getUuid())
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
+          .options(queryOptions)
+          .listSet(Group.class);  
+      }
       
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
@@ -2367,11 +2397,16 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       massageSortFields(queryOptions.getQuerySort());
     }
 
-    Set<Group> groups = byHqlStatic.createQuery(sql.toString())
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindGroupsInStemWithoutPrivilege")
-      .options(queryOptions)
-      .listSet(Group.class);
+    String sqlString = sql.toString();
+    Set<Group> groups = new HashSet<Group>();
+    
+    if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      groups = byHqlStatic.createQuery(sqlString)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindGroupsInStemWithoutPrivilege")
+        .options(queryOptions)
+        .listSet(Group.class);
+    }
           
     //if the hql didnt filter, this will
     Set<Group> filteredGroups = grouperSession.getAccessResolver()
@@ -2798,13 +2833,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           massageSortFields(queryOptions.getQuerySort());
         }
     
-        Set<Group> tempGroups = byHqlStatic.createQuery(sql.toString())
-          .setCacheable(false)
-          .setCacheRegion(KLASS + ".GetAllGroupsSecure")
-          .options(queryOptions)
-          .listSet(Group.class);
+
+        String sqlString = sql.toString();
         
-        overallResults.addAll(GrouperUtil.nonNull(tempGroups));
+        if (!sqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+          Set<Group> tempGroups = byHqlStatic.createQuery(sqlString)
+            .setCacheable(false)
+            .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+            .options(queryOptions)
+            .listSet(Group.class);
+          
+          overallResults.addAll(GrouperUtil.nonNull(tempGroups));
+        }
       }      
     }
     

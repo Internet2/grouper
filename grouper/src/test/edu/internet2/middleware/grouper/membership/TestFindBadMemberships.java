@@ -44,6 +44,7 @@ import org.apache.commons.logging.Log;
 
 import bsh.Interpreter;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -53,6 +54,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
@@ -112,13 +114,193 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testDeletedGroupAsMember2"));
+    TestRunner.run(new TestFindBadMemberships("testGrouperAllMembership"));
   }
   
   protected void setUp () {
     super.setUp();
     FindBadMemberships.clearResults();
     FindBadMemberships.printErrorsToSTOUT(false);
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testGrouperAllMembership() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    Group test = top.addChildGroup("test", "test");
+    
+    Field badField = Group.getDefaultList();
+    PITField badPITField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(badField.getId(), true);
+
+    test.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, test, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN.getField(), true);
+    
+    // all should be good right now
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // now update to the bad membership
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set field_id = '" + badField.getId() + "' where id='" + membership.getImmediateMembershipId() + "'");
+    
+    // update bad pit membership
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    pitMembership.setFieldId(badPITField.getId());
+    pitMembership.update();
+    
+    // everything should seem to be okay as far as PIT goes
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // now check it
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testGrouperAllGroupAttrUpdatePrivilege() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    Group test = top.addChildGroup("test", "test");
+    
+    Field badField = AccessPrivilege.GROUP_ATTR_UPDATE.getField();
+    PITField badPITField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(badField.getId(), true);
+
+    test.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, test, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN.getField(), true);
+    
+    // all should be good right now
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // now update to the bad membership
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set field_id = '" + badField.getId() + "' where id='" + membership.getImmediateMembershipId() + "'");
+    
+    // update bad pit membership
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    pitMembership.setFieldId(badPITField.getId());
+    pitMembership.update();
+    
+    // everything should seem to be okay as far as PIT goes
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // now check it
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testGrouperAllUpdatePrivilege() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    Group test = top.addChildGroup("test", "test");
+    
+    Field badField = AccessPrivilege.UPDATE.getField();
+    PITField badPITField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(badField.getId(), true);
+
+    test.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, test, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN.getField(), true);
+    
+    // all should be good right now
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // now update to the bad membership
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set field_id = '" + badField.getId() + "' where id='" + membership.getImmediateMembershipId() + "'");
+    
+    // update bad pit membership
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    pitMembership.setFieldId(badPITField.getId());
+    pitMembership.update();
+    
+    // everything should seem to be okay as far as PIT goes
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // now check it
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testGrouperAllAdminPrivilege() throws Exception {
+    grouperSession = SessionHelper.getRootSession();
+    Stem root = StemFinder.findRootStem(grouperSession);
+    top = root.addChildStem("top", "top");
+    Group test = top.addChildGroup("test", "test");
+    
+    Field badField = AccessPrivilege.ADMIN.getField();
+    PITField badPITField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(badField.getId(), true);
+
+    test.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
+    
+    // add to point in time
+    ChangeLogTempToEntity.convertRecords();
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, test, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN.getField(), true);
+    
+    // all should be good right now
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // now update to the bad membership
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set field_id = '" + badField.getId() + "' where id='" + membership.getImmediateMembershipId() + "'");
+    
+    // update bad pit membership
+    PITMembership pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
+    pitMembership.setFieldId(badPITField.getId());
+    pitMembership.update();
+    
+    // everything should seem to be okay as far as PIT goes
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    
+    // now check it
+    assertEquals(1, FindBadMemberships.checkAll());
+    String gsh = "importCommands(\"edu.internet2.middleware.grouper.app.gsh\");\nimport edu.internet2.middleware.grouper.*;\nimport edu.internet2.middleware.grouper.misc.*;\n" + FindBadMemberships.gshScript.toString();
+    new Interpreter(new StringReader(gsh), System.out, System.err, false).run();
+    assertEquals(0, FindBadMemberships.checkAll());
+    
+    // verify we don't mess up point in time
+    ChangeLogTempToEntity.convertRecords();
+    assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
   }
 
   /**

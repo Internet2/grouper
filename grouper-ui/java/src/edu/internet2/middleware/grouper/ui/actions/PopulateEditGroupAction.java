@@ -190,7 +190,11 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 		List privileges = new ArrayList();
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		for(int i=0;i<accessPrivs.length;i++) {
-			privileges.add(accessPrivs[i]);
+		  Privilege p = Privilege.getInstance(accessPrivs[i], true);
+		  
+		  if (!AccessPrivilege.MANAGE_PRIVILEGES.contains(p)) {
+		    privileges.add(accessPrivs[i]);
+		  }
 		}
 		
 		Subject grouperAll = SubjectFinder.findById("GrouperAll", true);

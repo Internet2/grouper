@@ -583,10 +583,10 @@ public class MembershipSubjectContainer {
 
     for (Group group : groups) {
       
-      boolean grouperAllHasAdmin = group.hasAdmin(SubjectFinder.findAllSubject());
+      boolean grouperAllHasAdmin = false;
       groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.ADMIN.getName()), grouperAllHasAdmin);
       
-      boolean grouperAllHasUpdate = grouperAllHasAdmin || group.hasUpdate(SubjectFinder.findAllSubject());
+      boolean grouperAllHasUpdate = false;
       groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.UPDATE.getName()), grouperAllHasUpdate);
 
       boolean grouperAllHasRead = grouperAllHasAdmin || group.hasRead(SubjectFinder.findAllSubject());
@@ -601,7 +601,7 @@ public class MembershipSubjectContainer {
       boolean grouperAllHasAttrRead = grouperAllHasAdmin || group.hasGroupAttrRead(SubjectFinder.findAllSubject());
       groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.GROUP_ATTR_READ.getName()), grouperAllHasAttrRead);
 
-      boolean grouperAllHasAttrUpdate = grouperAllHasAdmin || group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+      boolean grouperAllHasAttrUpdate = false;
       groupIdPermissionNameAllowedForGrouperAll.put(new MultiKey(group.getId(), AccessPrivilege.GROUP_ATTR_UPDATE.getName()), grouperAllHasAttrUpdate);
 
       boolean grouperAllHasView = grouperAllHasAdmin || grouperAllHasUpdate || grouperAllHasRead 
