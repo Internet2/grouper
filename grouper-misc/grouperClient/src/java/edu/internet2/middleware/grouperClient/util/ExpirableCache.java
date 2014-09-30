@@ -99,9 +99,6 @@ public class ExpirableCache<K,V> implements Serializable {
    */
   public ExpirableCache(int defaultTimeToLiveInMinutes) {
     super();
-    if (defaultTimeToLiveInMinutes <= 0) {
-      throw new RuntimeException("Time to live in minutes must be greater than 0");
-    }
     //make sure this is less than the max
     long newTimeToLiveMillis = (long)defaultTimeToLiveInMinutes * 60 * 1000;
     if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
@@ -154,9 +151,7 @@ public class ExpirableCache<K,V> implements Serializable {
    */
   public ExpirableCache(ExpirableCacheUnit expirableCacheUnit, int defaultTimeToLive) {
     super();
-    if (defaultTimeToLive <= 0) {
-      throw new RuntimeException("Time to live in minutes must be greater than 0");
-    }
+
     //make sure this is less than the max
     long newTimeToLiveMillis = expirableCacheUnit.defaultTimeToLiveMillis(defaultTimeToLive);
     if (newTimeToLiveMillis < MAX_TIME_TO_LIVE_MILLIS) {
@@ -218,9 +213,13 @@ public class ExpirableCache<K,V> implements Serializable {
       newTimeToLiveInMillis = proposedTimeToLiveInMillis;
     }
     ExpirableValue<V> expirableValue = new ExpirableValue<V>(value, newTimeToLiveInMillis);
-    this.cache.put(key, expirableValue);
-    this.cacheInserts++;
-    globalCacheInserts++;
+    
+    //might be expired if not caching
+    if (!expirableValue.expired()) {
+      this.cache.put(key, expirableValue);
+      this.cacheInserts++;
+      globalCacheInserts++;
+    }
   }
   
   /**
@@ -349,7 +348,7 @@ public class ExpirableCache<K,V> implements Serializable {
    * @see java.lang.Object#toString()
    */
   @Override
-public String toString() {
+  public String toString() {
     this.checkForEvictions(true);
     return this.getClass().getSimpleName() + ": size: " + this.size(false)
       + ", cacheHits: " + this.getCacheHits() + ", cacheInserts: " 
