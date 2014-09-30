@@ -35,6 +35,7 @@ import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -50,6 +51,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -57,11 +60,14 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.ByHql;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -87,9 +93,173 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderUnresolvable"));
+    //TestRunner.run(new GrouperLoaderTest("testLoaderTypes"));
+    //performanceRunSetupLoaderTables();
+    performanceRun();
   }
 
+  /**
+   * 
+   */
+  public static void performanceRunSetupLoaderTables() {
+    
+    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+    try {
+    
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
+    
+      
+      for (int i=0;i<10;i++) {
+        List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+  
+        for (int j=0;j<10;j++) {
+          TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group_" + i + "_systemOfRecord", "test.subject." + j, null);
+          testDataList.add(group1subj0);
+        }
+    
+        HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+        
+      }
+  
+      //lets add a group which will load these
+      Group loaderGroup = new GroupSave(grouperSession).assignName("loader:owner").assignCreateParentStemsIfNotExist(true).save();
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+          "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+  //    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
+  //        "addIncludeExclude");
+    } finally {
+      grouperSessionResult.stopQuietlyIfCreated();
+    }
+  }
+  
+  /**
+   * 
+   */
+  public static void performanceRun() {
+      
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    try {
+      Group loaderGroup = GroupFinder.findByName(grouperSession, "loader:owner", true);
+
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+          "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+
+      //prime the pump
+      performanceRunClearOutSomeMembers(grouperSession);
+  
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+
+      performanceRunClearOutAllMembers(grouperSession);
+
+      GrouperSession.stopQuietly(grouperSession);
+      SubjectFinder.flushCache();
+      EhcacheController.ehcacheController().flushCache();
+      grouperSession =  GrouperSession.startRootSession();
+      
+      long now = System.nanoTime();
+      long queryCount = GrouperContext.totalQueryCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+      
+      long tookMillis = (System.nanoTime() - now) / 1000000;
+      
+      System.out.println("All took: " + tookMillis + "ms, " + (GrouperContext.totalQueryCount - queryCount) + " queries");
+      
+      performanceRunClearOutSomeMembers(grouperSession);
+
+      GrouperSession.stopQuietly(grouperSession);
+      SubjectFinder.flushCache();
+      EhcacheController.ehcacheController().flushCache();
+      grouperSession =  GrouperSession.startRootSession();
+
+      now = System.nanoTime();
+      queryCount = GrouperContext.totalQueryCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+      
+      tookMillis = (System.nanoTime() - now) / 1000000;
+      
+      System.out.println("Some took: " + tookMillis + "ms, " + (GrouperContext.totalQueryCount - queryCount) + " queries");
+
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+          "select col1 as GROUP_NAME, col2 as SUBJECT_ID, 'jdbc' as SUBJECT_SOURCE_ID from testgrouper_loader");
+
+      System.out.println("\nAdded subject_source_id to query...\n");
+      
+      performanceRunClearOutAllMembers(grouperSession);
+
+      GrouperSession.stopQuietly(grouperSession);
+      SubjectFinder.flushCache();
+      EhcacheController.ehcacheController().flushCache();
+      grouperSession =  GrouperSession.startRootSession();
+      
+      now = System.nanoTime();
+      queryCount = GrouperContext.totalQueryCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+      
+      tookMillis = (System.nanoTime() - now) / 1000000;
+      
+      System.out.println("All took: " + tookMillis + "ms, " + (GrouperContext.totalQueryCount - queryCount) + " queries");
+      
+      performanceRunClearOutSomeMembers(grouperSession);
+
+      GrouperSession.stopQuietly(grouperSession);
+      SubjectFinder.flushCache();
+      EhcacheController.ehcacheController().flushCache();
+      grouperSession =  GrouperSession.startRootSession();
+      
+      now = System.nanoTime();
+      queryCount = GrouperContext.totalQueryCount;
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, loaderGroup);
+      
+      tookMillis = (System.nanoTime() - now) / 1000000;
+      
+      System.out.println("Some took: " + tookMillis + "ms, " + (GrouperContext.totalQueryCount - queryCount) + " queries");
+
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * @param grouperSession
+   */
+  public static void performanceRunClearOutAllMembers(GrouperSession grouperSession) {
+    //clear out the groups
+    for (int i=0;i<10;i++) {
+      String groupName = "loader:group_" + i + "_systemOfRecord";
+      Group group = GroupFinder.findByName(grouperSession, groupName, false);
+      if (group != null) {
+        for (Member member : group.getImmediateMembers()) {
+          group.deleteMember(member);
+        }
+      }
+          
+    }
+  }
+  
+  /**
+   * @param grouperSession
+   */
+  public static void performanceRunClearOutSomeMembers(GrouperSession grouperSession) {
+    //clear out the groups
+    for (int i=0;i<10;i++) {
+      String groupName = "loader:group_" + i + "_systemOfRecord";
+      Group group = GroupFinder.findByName(grouperSession, groupName, false);
+      if (group != null) {
+        group.deleteMember(SubjectTestHelper.SUBJ0, false);
+        group.addMember(SubjectTestHelper.SUBJA, false);
+      }
+          
+    }
+  }
+  
   /**
    * test the loader
    * @throws Exception 
