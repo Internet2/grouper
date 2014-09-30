@@ -931,7 +931,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public boolean addMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyMember)
     throws  InsufficientPrivilegeException,
             MemberAddException, SchemaException {
-    return this.internal_addMember(subj, f, exceptionIfAlreadyMember, null);
+    return this.internal_addMember(subj, f, exceptionIfAlreadyMember, null, null, null);
   }
 
   /**
@@ -1199,30 +1199,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         boolean hadChange = false;
         
         if (addedMember) {
-          addedMember = Group.this.addMember(subject, false);
+          addedMember = Group.this.internal_addMember(subject, Group.getDefaultList(), false, null, GrouperUtil.toTimestamp(startDate), 
+              GrouperUtil.toTimestamp(endDate));
           hadChange = hadChange || addedMember;
-          
-          Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
-          
-          Membership membership = Group.this.getImmediateMembership(Group.getDefaultList(), member, false, true);
-          
-          boolean storeMembership = false;
-          if (!GrouperUtil.equals(startDate, membership.getEnabledTime())) {
-
-            storeMembership = true;
-            hadChange = true;
-            membership.setEnabledTime(startDate == null ? null : new Timestamp(startDate.getTime()));
-          }
-          if (!GrouperUtil.equals(endDate, membership.getDisabledTime())) {
-
-            storeMembership = true;
-            hadChange = true;
-            membership.setDisabledTime(endDate == null ? null : new Timestamp(endDate.getTime()));
-            
-          }
-          if (storeMembership) {
-            GrouperDAOFactory.getFactory().getMembership().update(membership);
-          }
           
         } else {
         
@@ -1268,12 +1247,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param exceptionIfAlreadyMember if false, and subject is already a member,
    * then dont throw a MemberAddException if the member is already in the group
    * @param uuid is uuid or null for generated
+   * @param startDate 
+   * @param endDate 
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
    * @throws  SchemaException
    * @return false if it already existed, true if it didnt already exist
    */
-  public boolean internal_addMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyMember, final String uuid)
+  public boolean internal_addMember(final Subject subj, final Field f, 
+      final boolean exceptionIfAlreadyMember, final String uuid, final Timestamp startDate, final Timestamp endDate)
     throws  InsufficientPrivilegeException,
             MemberAddException, SchemaException {
 
@@ -1311,7 +1293,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               Membership membership = null;
               
               try {
-                membership = Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), Group.this, subj, f , uuid);
+                membership = Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), Group.this, 
+                    subj, f , uuid, startDate, endDate);
                 
               } catch (MemberAddAlreadyExistsException memberAddAlreadyExistsException) {
                 if (exceptionIfAlreadyMember) {

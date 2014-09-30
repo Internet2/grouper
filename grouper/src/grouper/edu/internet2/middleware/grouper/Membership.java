@@ -1204,15 +1204,21 @@ public class Membership extends GrouperAPI implements
    * @param subj
    * @param f
    * @param uuid is uuid or null
+   * @param startDate 
+   * @param endDate 
    * @throws MemberAddException
    * @return the membership if available
    */
   public static Membership internal_addImmediateMembership(
-    GrouperSession s, Group g, Subject subj, Field f, String uuid) throws  MemberAddException {
+    GrouperSession s, Group g, Subject subj, Field f, String uuid, Timestamp startDate,
+    Timestamp endDate) throws  MemberAddException {
     
     String errorString = "membership: group: " + (g == null ? null : g.getName())
       + ", subject: " + (subj  == null ? null : subj.getId())
-      + ", field: " + (f == null ? null : f.getName());
+      + ", field: " + (f == null ? null : f.getName())
+      + ", uuid: " + uuid
+      + ", startDate: " + startDate
+      + ", endDate: " + endDate;
     try {
       GrouperSession.validate(s);
       
@@ -1235,7 +1241,8 @@ public class Membership extends GrouperAPI implements
       ms.setMemberUuid(member.getUuid());
       ms.setOwnerGroupId(g.getUuid());
       ms.setMember(member);
-            
+      ms.setEnabledTime(startDate);
+      ms.setDisabledTime(endDate);
       GrouperDAOFactory.getFactory().getMembership().save(ms);
       
       return ms;
@@ -3084,7 +3091,7 @@ public class Membership extends GrouperAPI implements
         
         if (FieldType.LIST.equals(field.getType())) {
           
-          group.internal_addMember(subject, field, false, this.getImmediateMembershipId());
+          group.internal_addMember(subject, field, false, this.getImmediateMembershipId(), null, null);
           
         } else if (FieldType.ACCESS.equals(field.getType())) {
           

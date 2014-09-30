@@ -304,7 +304,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
             if ( !g.internal_canWriteField( grouperSession.getSubject(), f ) ) {
               throw new GrouperSessionException(new InsufficientPrivilegeException());
             }
-            Membership.internal_addImmediateMembership(grouperSession, g, subj, f, uuid);
+            Membership.internal_addImmediateMembership(grouperSession, g, subj, f, uuid, null, null);
           } catch (MemberAddException eMA) {
             if (eMA instanceof MemberAddAlreadyExistsException) {
               throw new GrouperSessionException(new GrantPrivilegeAlreadyExistsException(eMA.getMessage(), eMA));

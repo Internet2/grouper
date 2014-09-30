@@ -19,12 +19,17 @@
  */
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -63,7 +68,7 @@ public class RuleNameChangeTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleNameChangeTest("testCheckOwnerNameUpdateOnAttributeDefNameChange"));
+    TestRunner.run(new RuleNameChangeTest("testCheckOwnerDisabledDate"));
   }
   
   /**
@@ -179,6 +184,63 @@ public class RuleNameChangeTest extends GrouperTest {
     
     assertEquals(initialFirings + 3, RuleEngine.ruleFirings);
     assertEquals("edu2:edu-renamed:attributeDef-renamed", AttributeAssignValueContainer.attributeValueString(RuleEngine.allRulesAttributeAssignValueContainers(null).get(attributeAssign), "etc:attribute:rules:ruleCheckOwnerName"));
+  }
+  
+  /**
+   * 
+   */
+  public void testCheckOwnerDisabledDate() {
+
+    Group group = edu.addChildGroup("group", "group");
+
+    AttributeAssign attributeAssign = group.getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+  
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(RuleUtils.ruleActAsSubjectSourceIdName(), grouperSession.getSubject().getSourceId());
+    attributeValueDelegate.assignValue(RuleUtils.ruleActAsSubjectIdName(), grouperSession.getSubject().getId());
+    
+    attributeValueDelegate.assignValue(RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
+    attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumName(), RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
+    attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg0Name(), "320");
+    attributeValueDelegate.assignValue(RuleUtils.ruleThenEnumArg1Name(), "T");
+
+    // should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(RuleUtils.ruleValidName());
+    assertEquals("T", isValidString);
+
+    
+    // make sure rule is still working
+    long initialFirings = RuleEngine.ruleFirings;
+
+    //now add a member
+    group.addMember(SubjectTestHelper.SUBJ0);
+
+    assertEquals(initialFirings + 1, RuleEngine.ruleFirings);
+
+    //query to get the updated attribute
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ0, true);
+    
+    Calendar calendarExpected = new GregorianCalendar();
+    calendarExpected.setTimeInMillis(System.currentTimeMillis());
+    calendarExpected.add(Calendar.DAY_OF_YEAR, 320);
+    calendarExpected.set(Calendar.HOUR, 0);
+    calendarExpected.set(Calendar.MINUTE, 0);
+    calendarExpected.set(Calendar.SECOND, 0);
+    calendarExpected.set(Calendar.MILLISECOND, 0);
+    
+    assertNull(membership.getEnabledTime());
+    assertNotNull(membership.getDisabledTime());
+
+    Calendar calendarActual = new GregorianCalendar();
+    calendarActual.setTimeInMillis(membership.getDisabledTime().getTime());
+    calendarActual.set(Calendar.HOUR, 0);
+    calendarActual.set(Calendar.MINUTE, 0);
+    calendarActual.set(Calendar.SECOND, 0);
+    calendarActual.set(Calendar.MILLISECOND, 0);
+    
+    
+    assertEquals(membership.getDisabledTime().toString(), calendarExpected.getTimeInMillis(), calendarActual.getTimeInMillis());
   }
   
   /**
