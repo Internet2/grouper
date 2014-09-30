@@ -277,7 +277,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
         // simplify the basic case for performance -- one identifier and not dealing with entities
         if (identifiers.size() == 1 && (GrouperSourceAdapter.this.typeOfGroups() == null || !GrouperSourceAdapter.this.typeOfGroups().contains(TypeOfGroup.entity))) {
           Set<Group> groups = new HashSet<Group>();
-          Group group = GrouperDAOFactory.getFactory().getGroup().findByName(identifiers.iterator().next(), false, null, GrouperSourceAdapter.this.typeOfGroups(), GrouperSourceAdapter.this.privilegesToLimitTo());
+          Group group = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(identifiers.iterator().next(), false, null, GrouperSourceAdapter.this.typeOfGroups(), GrouperSourceAdapter.this.privilegesToLimitTo());
           if (group != null) {
             groups.add(group);
           }

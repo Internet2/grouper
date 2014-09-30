@@ -72,7 +72,7 @@ public class TestXml extends GrouperTest {
 
   public static void main(String[] args) {
     //TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
-    TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
+    TestRunner.run(new TestXml("testUpdateOkNamingPrivsInReplaceMode"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestXml.class);
@@ -297,11 +297,9 @@ public class TestXml extends GrouperTest {
       // Populate Registry And Verify
       R     r   = R.populateRegistry(1, 1, 0);
       Group gA  = assertFindGroupByName( r.rs, "i2:a:a" );
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
       gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN );
       gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT );
       gA.revokePriv( SubjectFinder.findAllSubject(), AccessPrivilege.READ );
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE );
       gA.revokePriv( SubjectFinder.findAllSubject(), AccessPrivilege.VIEW );
       boolean has_a   = gA.hasAdmin( SubjectFinder.findAllSubject() );
       boolean has_oi  = gA.hasOptin( SubjectFinder.findAllSubject() );
@@ -1236,9 +1234,9 @@ public class TestXml extends GrouperTest {
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
       String  nameA = gA.getName();
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE );
+      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN );
       // Make sure no exception is thrown due to gB not existing when updating
-      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ );
       r.rs.stop();
   
       // Export
@@ -1257,7 +1255,7 @@ public class TestXml extends GrouperTest {
       r = R.populateRegistry(1, 1, 0);
       gA = assertFindGroupByName(r.rs, nameA, "recreate");
       // Now grant an added priv
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ );
       r.rs.stop();
   
       // Import 
@@ -1272,9 +1270,9 @@ public class TestXml extends GrouperTest {
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
       gA  = assertFindGroupByName(s, nameA);
       // Should have
-      assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), true );
+      assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), true );
       // Should still have
-      assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), true );
+      assertGroupHasGroupAttrRead( gA, SubjectFinder.findAllSubject(), true );
       s.stop();
     }
     catch (Exception e) {
@@ -1294,8 +1292,8 @@ public class TestXml extends GrouperTest {
       assertFindGroupByName(r.rs, nameA, "setup");
       assertFindGroupByName(r.rs, nameB, "setup");
       // These are to make sure no exception is thrown due to gB not existing when updating
-      gB.addMember( SubjectFinder.findAllSubject() );
-      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      gB.addMember( SubjectFinder.findRootSubject() );
+      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ );
       r.rs.stop();
   
       // Export
@@ -1767,9 +1765,9 @@ public class TestXml extends GrouperTest {
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
       String  nameA = gA.getName();
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE );
+      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN );
       // Make sure no exception is thrown due to gB not existing when updating
-      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ );
       r.rs.stop();
   
       // Export
@@ -1801,9 +1799,9 @@ public class TestXml extends GrouperTest {
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
       gA = assertFindGroupByName(s, nameA);
       // Should not have
-      assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), false );
+      assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), false );
       // Should not have
-      assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), false );
+      assertGroupHasGroupAttrRead( gA, SubjectFinder.findAllSubject(), false );
       s.stop();
     }
     catch (Exception e) {
@@ -1875,9 +1873,9 @@ public class TestXml extends GrouperTest {
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
       String  nameA = gA.getName();
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE );
+      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN );
       // Make sure no exception is thrown due to gB not existing when updating
-      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      gB.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ );
       r.rs.stop();
   
       // Export
@@ -1896,7 +1894,7 @@ public class TestXml extends GrouperTest {
       r = R.populateRegistry(1, 1, 0);
       gA = assertFindGroupByName(r.rs, nameA, "recreate");
       // Now grant an added priv
-      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ );
       r.rs.stop();
   
       // Import 
@@ -1911,9 +1909,9 @@ public class TestXml extends GrouperTest {
       s   = GrouperSession.start( SubjectFinder.findRootSubject() );
       gA = assertFindGroupByName(s, nameA);
       // Should have
-      assertGroupHasUpdate( gA, SubjectFinder.findAllSubject(), true );
+      assertGroupHasOptin( gA, SubjectFinder.findAllSubject(), true );
       // Should no longer have
-      assertGroupHasAdmin( gA, SubjectFinder.findAllSubject(), false );
+      assertGroupHasGroupAttrRead( gA, SubjectFinder.findAllSubject(), false );
       s.stop();
     }
     catch (Exception e) {

@@ -329,14 +329,11 @@ public class GrouperCheckConfig {
     //  return;
     //}
 
-    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.admin", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.optin", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.optout", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.read", true);
-    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.update", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.view", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.groupAttrRead", true);
-    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.groupAttrUpdate", true);
 
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.create", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stem", true);

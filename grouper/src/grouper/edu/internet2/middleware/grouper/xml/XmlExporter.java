@@ -1206,6 +1206,8 @@ public class XmlExporter {
       this._writePrivileges("view"  , g.getViewers()  , g);
       this._writePrivileges("optin" , g.getOptins()   , g);
       this._writePrivileges("optout", g.getOptouts()  , g);
+      this._writePrivileges("groupAttrRead", g.getGroupAttrReaders()  , g);
+      this._writePrivileges("groupAttrUpdate", g.getGroupAttrUpdaters()  , g);
     } 
   } // private void _writeGroupPrivs(g)
 

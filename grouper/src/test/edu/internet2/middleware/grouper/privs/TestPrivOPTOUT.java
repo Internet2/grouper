@@ -119,13 +119,6 @@ public class TestPrivOPTOUT extends TestCase {
     GroupHelper.delMemberUpdate(a, subj0);
   } // public void testDelSelfAsMemberWithADMIN
 
-  public void testDelSelfAsMemberWithAllADMIN() {
-    LOG.info("testDelSelfAsMemberWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj0);
-  } // public void testDelSelfAsMemberWithAllADMIN
-
   public void testDelSelfAsMemberWithoutOPTOUT() {
     LOG.info("testDelSelfAsMemberWithoutOPTOUT");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
@@ -140,13 +133,6 @@ public class TestPrivOPTOUT extends TestCase {
     GroupHelper.delMemberUpdate(a, subj0);
   } // public void testDelSelfAsMemberWithOPTOUT
 
-  public void testDelSelfAsMemberWithAllOPTOUT() {
-    LOG.info("testDelSelfAsMemberWithAllOPTOUT");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.OPTOUT);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj0);
-  } // public void testDelSelfAsMemberWithAllOPTOUT
-
   public void testDelSelfAsMemberWithoutUPDATE() {
     LOG.info("testDelSelfAsMemberWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
@@ -160,13 +146,5 @@ public class TestPrivOPTOUT extends TestCase {
     Group a = GroupHelper.findByName(nrs, i2.getName());
     GroupHelper.delMemberUpdate(a, subj0);
   } // public void testDelSelfAsMemberWithUPDATE
-
-  public void testDelSelfAsMemberWithAllUPDATE() {
-    LOG.info("testDelSelfAsMemberWithAllUPDATE");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj0);
-  } // public void testDelSelfAsMemberWithAllUPDATE
-
 }
 

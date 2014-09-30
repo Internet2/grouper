@@ -51,14 +51,18 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -203,6 +207,12 @@ public class FindBadMemberships {
     }
     errors += checkDeletedGroupAsMember();
     
+    
+    if (printErrorsToSTOUT) {
+      out.println("Checking GrouperAll");
+    }
+    errors += checkGrouperAll();
+    
     return errors;
   }
   
@@ -293,6 +303,66 @@ public class FindBadMemberships {
     }
     
     return badType.size() + badCompositeGroupSets.size() + immediateGroupSetsWithMissingEffective.size();
+  }
+  
+  /**
+   * GrouperAll shouldn't have manage privileges or be a member of a group
+   * @return count of bad memberships
+   */
+  public static long checkGrouperAll() {
+    
+    Member grouperAll = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findAllSubject().getId(), SubjectFinder.findAllSubject().getSourceId(), SubjectFinder.findAllSubject().getTypeName(), false);
+    if (grouperAll == null) {
+      return 0;
+    }
+    
+    Set<Membership> badMemberships = new LinkedHashSet<Membership>();
+    
+    for (Privilege privilege : AccessPrivilege.MANAGE_PRIVILEGES) {
+      Field field = privilege.getField();
+      badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), field, false));
+    }
+    
+    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), Group.getDefaultList(), false));
+    
+    for (Membership ms : badMemberships) {
+      if (printErrorsToSTOUT) {
+        out.println("Bad GrouperAll membership: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", field=" + ms.getField().getName() + ".");
+      }
+      
+      logGshScript("GrouperDAOFactory.getFactory().getMembership().findByImmediateUuid(\"" + ms.getImmediateMembershipId() + "\", true).delete();\n");
+    }
+    
+    return badMemberships.size();
+  }
+  
+  /**
+   * GrouperAll shouldn't have manage privileges or be a member of a group.  Use this to force a cleanup without outputting a GSH script.
+   */
+  public static void checkAndFixGrouperAll() {
+    
+    Member grouperAll = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findAllSubject().getId(), SubjectFinder.findAllSubject().getSourceId(), SubjectFinder.findAllSubject().getTypeName(), false);
+    if (grouperAll == null) {
+      System.out.println("Finished running successfully.  0 changes made.");
+      return;
+    }
+    
+    Set<Membership> badMemberships = new LinkedHashSet<Membership>();
+    
+    for (Privilege privilege : AccessPrivilege.MANAGE_PRIVILEGES) {
+      Field field = privilege.getField();
+      badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), field, false));
+    }
+    
+    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), Group.getDefaultList(), false));
+    
+    for (Membership ms : badMemberships) {
+      System.out.println("Removing GrouperAll membership: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", field=" + ms.getField().getName() + ".");
+      
+      ms.delete();
+    }
+    
+    System.out.println("Finished running successfully.  " + badMemberships.size() + " changes made.");
   }
 
   /**

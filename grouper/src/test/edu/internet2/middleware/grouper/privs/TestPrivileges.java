@@ -89,8 +89,8 @@ public class TestPrivileges extends GrouperTest {
       Stem            ns    = root.addChildStem("ns", "ns");
       Group           a     = ns.addChildGroup("a", "a");
       Group           b     = ns.addChildGroup("b", "b");
-      PrivHelper.grantPriv(s, a, all, AccessPrivilege.ADMIN);
-      PrivHelper.grantPriv(s, b, all, AccessPrivilege.UPDATE);
+      PrivHelper.grantPriv(s, a, all, AccessPrivilege.GROUP_ATTR_READ);
+      PrivHelper.grantPriv(s, b, all, AccessPrivilege.OPTIN);
       s.stop();
     }
     catch (Exception e) {
@@ -194,7 +194,6 @@ public class TestPrivileges extends GrouperTest {
     edu.addChildGroup("d", "d");
     PrivHelper.grantPriv(s, a, all, AccessPrivilege.OPTIN);
     PrivHelper.grantPriv(s, b, all, AccessPrivilege.OPTOUT);
-    PrivHelper.grantPriv(s, c, all, AccessPrivilege.UPDATE);
     s.stop();
   
     // Test
@@ -260,15 +259,15 @@ public class TestPrivileges extends GrouperTest {
   
     Set update  = m.hasUpdate();
     Assert.assertTrue(
-      "UPDATE/1 ("  + update.size() + ")", update.size()  == 1
+      "UPDATE/1 ("  + update.size() + ")", update.size()  == 0
     );
     Assert.assertTrue("UPDATE/A/HAS", !A.hasUpdate(subj));
     Assert.assertTrue("UPDATE/B/HAS", !B.hasUpdate(subj));
-    Assert.assertTrue("UPDATE/C/HAS", C.hasUpdate(subj) );
+    Assert.assertTrue("UPDATE/C/HAS", !C.hasUpdate(subj) );
     Assert.assertTrue("UPDATE/D/HAS", !D.hasUpdate(subj));
     Assert.assertTrue("UPDATE/A/IS" , !m.hasUpdate(A)   );
     Assert.assertTrue("UPDATE/B/IS" , !m.hasUpdate(B)   );
-    Assert.assertTrue("UPDATE/C/IS" , m.hasUpdate(C)    );
+    Assert.assertTrue("UPDATE/C/IS" , !m.hasUpdate(C)    );
     Assert.assertTrue("UPDATE/D/IS" , !m.hasUpdate(D)   );
   
     Set admin   = m.hasAdmin();

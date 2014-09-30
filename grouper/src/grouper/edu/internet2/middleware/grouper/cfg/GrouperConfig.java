@@ -35,8 +35,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
@@ -55,6 +57,20 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
  */
 public class GrouperConfig extends ConfigPropertiesCascadeBase {
 
+  /** logger */
+  private static Log LOG = null;
+
+  /**
+   * logger
+   * @return the logger
+   */
+  private static Log LOG() {
+    if (LOG == null) {
+      LOG = GrouperUtil.getLog(GrouperConfig.class);
+    }
+    return LOG;
+  }
+  
   /**
    * cache this so we dont have to lookup ids all the time
    */
@@ -98,8 +114,14 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 
                 for (String nameOfAttributeDef : namesOfAttributeDefs) {
                   try {
-                    //throw an exception if not there... that is a problem
-                    AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, true);
+                    //if not there log it.  e.g. for UI you might ignore attributes, but wont be there if testing the API
+                    AttributeDef attributeDef = AttributeDefFinder.findByName(nameOfAttributeDef, false);
+                    
+                    if (attributeDef == null) {
+                      LOG().error("Attribute def not found: " + nameOfAttributeDef);
+                      continue;
+                    }
+                    
                     result.add(attributeDef.getId());
                     
                     if (result.size() > 150) {
@@ -202,14 +224,11 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   public static final String ATTRIBUTE_EXTENSION        = "extension";
   public static final String ATTRIBUTE_NAME        = "name";
   public static final String BT            = "true";
-  public static final String GCGAA         = "groups.create.grant.all.admin";
   public static final String GCGAOI        = "groups.create.grant.all.optin";
   public static final String GCGAOO        = "groups.create.grant.all.optout";
   public static final String GCGAR         = "groups.create.grant.all.read";
-  public static final String GCGAU         = "groups.create.grant.all.update";
   public static final String GCGAV         = "groups.create.grant.all.view";
   public static final String GCGAGAR       = "groups.create.grant.all.groupAttrRead";
-  public static final String GCGAGAU       = "groups.create.grant.all.groupAttrUpdate";
 
   /** */
   public static final String ATTRIBUTE_DEFS_CREATE_GRANT_ALL_ATTR_ADMIN 

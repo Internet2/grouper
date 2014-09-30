@@ -50,6 +50,8 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
@@ -161,7 +163,11 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 		List privileges = new ArrayList();
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
 		for(int i=0;i<accessPrivs.length;i++) {
-			privileges.add(accessPrivs[i]);
+      Privilege p = Privilege.getInstance(accessPrivs[i], true);
+      
+      if (!AccessPrivilege.MANAGE_PRIVILEGES.contains(p)) {
+        privileges.add(accessPrivs[i]);
+      }
 		}
 		
 		Map selected = GrouperHelper.getDefaultAccessPrivsForUI(GrouperUiFilter.retrieveSessionMediaResourceBundle());

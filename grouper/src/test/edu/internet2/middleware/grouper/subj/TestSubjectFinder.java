@@ -146,14 +146,6 @@ public class TestSubjectFinder extends GrouperTest {
     adminGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
     adminGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
     
-    Group adminAllGroup = new GroupSave(grouperSession).assignName("test:abc:adminAllGroup")
-        .assignCreateParentStemsIfNotExist(true).save();
-    
-    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-    adminAllGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
-    adminAllGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
-    
     Group viewAllGroup = new GroupSave(grouperSession).assignName("test:abc:viewAllGroup")
         .assignCreateParentStemsIfNotExist(true).save();
     
@@ -210,15 +202,14 @@ public class TestSubjectFinder extends GrouperTest {
     //do a search, get back all the groups with privs
     List<Subject> subjectList = new ArrayList<Subject>(SubjectFinder.findAll("test:abc"));
     
-    assertEquals(GrouperUtil.toStringForLog(subjectList), 8, GrouperUtil.length(subjectList));
-    assertEquals(GrouperUtil.toStringForLog(subjectList), adminAllGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), updateGroup, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), viewAllGroup, ((GrouperSubject)(subjectList.get(5))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), viewGroup, ((GrouperSubject)(subjectList.get(6))).internal_getGroup());
-    assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(7))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), 7, GrouperUtil.length(subjectList));
+    assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), updateGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewAllGroup, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewGroup, ((GrouperSubject)(subjectList.get(5))).internal_getGroup());
+    assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(6))).internal_getGroup());
 
     assertEquals(viewGroup.toSubject(), SubjectFinder.findById(viewGroup.getId(), false));
     assertEquals(viewGroup.toSubject(), SubjectFinder.findByIdentifier(viewGroup.getName(), false));
@@ -235,12 +226,11 @@ public class TestSubjectFinder extends GrouperTest {
       
       subjectList = new ArrayList<Subject>(SubjectFinder.findAll("test:abc"));
       
-      assertEquals(GrouperUtil.toStringForLog(subjectList), 5, GrouperUtil.length(subjectList));
-      assertEquals(GrouperUtil.toStringForLog(subjectList), adminAllGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
-      assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
-      assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
-      assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
-      assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(4))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), 4, GrouperUtil.length(subjectList));
+      assertEquals(GrouperUtil.toStringForLog(subjectList), adminGroup, ((GrouperSubject)(subjectList.get(0))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), readAllGroup, ((GrouperSubject)(subjectList.get(1))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), readGroup, ((GrouperSubject)(subjectList.get(2))).internal_getGroup());
+      assertEquals(GrouperUtil.toStringForLog(subjectList), viewEntity, ((GrouperSubject)(subjectList.get(3))).internal_getGroup());
 
       assertNull(SubjectFinder.findById(viewGroup.getId(), false));
       assertNull(SubjectFinder.findByIdentifier(viewGroup.getName(), false));

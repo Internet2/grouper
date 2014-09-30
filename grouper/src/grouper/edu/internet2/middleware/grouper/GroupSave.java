@@ -23,7 +23,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -51,19 +50,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GroupSave {
   
   /**
-   * if the priv admin should be different from the defaults
-   */
-  private Boolean privAllAdmin;
-  
-  /**
    * if the priv read should be different from the defaults
    */
   private Boolean privAllRead;
   
-  /**
-   * if the priv update should be different from the defaults
-   */
-  private Boolean privAllUpdate;
   
   /**
    * if the priv view should be different from the defaults
@@ -85,10 +75,6 @@ public class GroupSave {
    */
   private Boolean privAllAttrRead;
   
-  /**
-   * if the priv attr update should be different from the defaults
-   */
-  private Boolean privAllAttrUpdate;
   
   /**
    * assign priv admin to be different than the defaults for grouperAll
@@ -96,7 +82,11 @@ public class GroupSave {
    * @return this for chaining
    */
   public GroupSave assignPrivAllAdmin(boolean thePrivAllAdmin) {
-    this.privAllAdmin = thePrivAllAdmin;
+
+    if (thePrivAllAdmin) {
+      throw new RuntimeException("Not allowed.");
+    }
+    
     return this;
   }
 
@@ -126,7 +116,11 @@ public class GroupSave {
    * @return this for chaining
    */
   public GroupSave assignPrivAllUpdate(boolean thePrivAllUpdate) {
-    this.privAllUpdate = thePrivAllUpdate;
+
+    if (thePrivAllUpdate) {
+      throw new RuntimeException("Not allowed.");
+    }
+    
     return this;
   }
 
@@ -166,7 +160,11 @@ public class GroupSave {
    * @return this for chaining
    */
   public GroupSave assignPrivAllAttrUpdate(boolean thePrivAllAttrUpdate) {
-    this.privAllAttrUpdate = thePrivAllAttrUpdate;
+
+    if (thePrivAllAttrUpdate) {
+      throw new RuntimeException("Not allowed.");
+    }
+    
     return this;
   }
 
@@ -592,11 +590,7 @@ public class GroupSave {
                 }
 
                 boolean changedPrivs = false;
-                
-                boolean adminDefaultChecked = theGroup.hasAdmin(SubjectFinder.findAllSubject());
-                
-                boolean updateDefaultChecked = theGroup.hasUpdate(SubjectFinder.findAllSubject());
-                
+                                                
                 boolean readDefaultChecked = theGroup.hasRead(SubjectFinder.findAllSubject());
       
                 boolean viewDefaultChecked = theGroup.hasView(SubjectFinder.findAllSubject());
@@ -606,16 +600,6 @@ public class GroupSave {
                 boolean optoutDefaultChecked = theGroup.hasOptout(SubjectFinder.findAllSubject());
       
                 boolean attrReadDefaultChecked = theGroup.hasGroupAttrRead(SubjectFinder.findAllSubject());
-      
-                boolean attrUpdateDefaultChecked = theGroup.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
-      
-                if (GroupSave.this.privAllAdmin != null && GroupSave.this.privAllAdmin != adminDefaultChecked) {
-                  if (GroupSave.this.privAllAdmin) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN, false);
-                  }
-                }
                             
                 if (GroupSave.this.privAllView != null && GroupSave.this.privAllView != viewDefaultChecked) {
                   if (GroupSave.this.privAllView) {
@@ -630,13 +614,6 @@ public class GroupSave {
                     changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
                   } else {
                     changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-                  }
-                }
-                if (GroupSave.this.privAllUpdate != null && GroupSave.this.privAllUpdate != updateDefaultChecked) {
-                  if (GroupSave.this.privAllUpdate) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE, false);
                   }
                 }
                 if (GroupSave.this.privAllOptin != null && GroupSave.this.privAllOptin != optinDefaultChecked) {
@@ -658,13 +635,6 @@ public class GroupSave {
                     changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
                   } else {
                     changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_READ, false);
-                  }
-                }
-                if (GroupSave.this.privAllAttrUpdate != null && GroupSave.this.privAllAttrUpdate != attrUpdateDefaultChecked) {
-                  if (GroupSave.this.privAllAttrUpdate) {
-                    changedPrivs = changedPrivs | theGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
-                  } else {
-                    changedPrivs = changedPrivs | theGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.GROUP_ATTR_UPDATE, false);
                   }
                 }
                 

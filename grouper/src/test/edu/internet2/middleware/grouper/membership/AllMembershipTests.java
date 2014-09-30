@@ -59,6 +59,7 @@ public class AllMembershipTests {
     suite.addTestSuite(TestMemberOf1.class);
     suite.addTestSuite(TestMembershipDeletes3.class);
     suite.addTestSuite(TestMembershipDeletes5.class);
+    suite.addTestSuite(TestInvalidGrouperAllMemberships.class);
     //$JUnit-END$
     return suite;
   }
