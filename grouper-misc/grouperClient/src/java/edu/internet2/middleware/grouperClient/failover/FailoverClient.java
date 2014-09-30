@@ -321,7 +321,6 @@ public class FailoverClient implements Serializable {
 
   /**
    * @param connectionName
-   * @param minutesToCheck
    * @return the cache
    */
   private ExpirableCache<Long, Long> errorCountPerMinute(String connectionName) {

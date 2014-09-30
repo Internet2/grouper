@@ -45,8 +45,7 @@ public class ExpirableValue<T> implements Serializable {
   ExpirableValue(T theContent, long theTimeToLiveInCacheMillis) {
     super();
     //cant be longer then the max
-    if (theTimeToLiveInCacheMillis > 0 && 
-        theTimeToLiveInCacheMillis <= ExpirableCache.MAX_TIME_TO_LIVE_MILLIS) {
+    if (theTimeToLiveInCacheMillis <= ExpirableCache.MAX_TIME_TO_LIVE_MILLIS) {
       this.timeToLiveInCacheMillis = theTimeToLiveInCacheMillis;
     }
     this.content = theContent;
@@ -69,6 +68,9 @@ public class ExpirableValue<T> implements Serializable {
    * @return true if expired
    */
   boolean expired() {
+    if (this.timeToLiveInCacheMillis <= 0) {
+      return true;
+    }
     return System.currentTimeMillis() - this.timePlacedInCache > this.timeToLiveInCacheMillis;
   }
   
@@ -77,6 +79,9 @@ public class ExpirableValue<T> implements Serializable {
    * @return true if expired
    */
   boolean expiredLongTime() {
+    if (this.timeToLiveInCacheMillis <= 0) {
+      return true;
+    }
     return (System.currentTimeMillis() - 3000) - this.timePlacedInCache > this.timeToLiveInCacheMillis;
   }
 }
