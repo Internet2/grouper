@@ -335,6 +335,35 @@ public class FindBadMemberships {
     
     return badMemberships.size();
   }
+  
+  /**
+   * GrouperAll shouldn't have manage privileges or be a member of a group.  Use this to force a cleanup without outputting a GSH script.
+   */
+  public static void checkAndFixGrouperAll() {
+    
+    Member grouperAll = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findAllSubject().getId(), SubjectFinder.findAllSubject().getSourceId(), SubjectFinder.findAllSubject().getTypeName(), false);
+    if (grouperAll == null) {
+      System.out.println("Finished running successfully.  0 changes made.");
+      return;
+    }
+    
+    Set<Membership> badMemberships = new LinkedHashSet<Membership>();
+    
+    for (Privilege privilege : AccessPrivilege.MANAGE_PRIVILEGES) {
+      Field field = privilege.getField();
+      badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), field, false));
+    }
+    
+    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), Group.getDefaultList(), false));
+    
+    for (Membership ms : badMemberships) {
+      System.out.println("Removing GrouperAll membership: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", field=" + ms.getField().getName() + ".");
+      
+      ms.delete();
+    }
+    
+    System.out.println("Finished running successfully.  " + badMemberships.size() + " changes made.");
+  }
 
   /**
    * @return count of bad and missing memberships
