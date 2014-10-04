@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preference;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -51,6 +52,28 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class IndexContainer {
+
+  /**
+   * if we should run widgets in threads (main page performance)
+   */
+  private boolean runWidgetsInThreads = false;
+  
+  /**
+   * if we should run widgets in threads (main page performance)
+   * @return the runWidgetsInThreads
+   */
+  public boolean isRunWidgetsInThreads() {
+    return this.runWidgetsInThreads;
+  }
+
+  
+  /**
+   * if we should run widgets in threads (main page performance)
+   * @param runWidgetsInThreads1 the runWidgetsInThreads to set
+   */
+  public void setRunWidgetsInThreads(boolean runWidgetsInThreads1) {
+    this.runWidgetsInThreads = runWidgetsInThreads1;
+  }
 
   /**
    * link to support docs
@@ -112,22 +135,63 @@ public class IndexContainer {
   public static enum IndexPanel {
     
     /** groups I manage panel */
-    GroupsImanage, 
+    GroupsImanage {
+
+      @Override
+      public void initData() {
+        UiV2Main.initGroupsImanage();
+      }
+    }, 
     
     /** my favorites panel */
-    MyFavorites, 
+    MyFavorites {
+
+      @Override
+      public void initData() {
+        UiV2Main.initMyFavorites();
+      }
+    }, 
     
     /** my memberships panel */
-    MyMemberships, 
+    MyMemberships {
+
+      @Override
+      public void initData() {
+        UiV2Main.initMyMemberships();
+      }
+    }, 
     
     /** my service panel */
-    MyServices, 
+    MyServices {
+
+      @Override
+      public void initData() {
+        UiV2Main.initMyServices();
+      }
+    }, 
     
     /** recently used panel */
-    RecentlyUsed, 
+    RecentlyUsed {
+
+      @Override
+      public void initData() {
+        UiV2Main.initRecentlyUsed();
+      }
+    }, 
 
     /** stems I manage panel */
-    StemsImanage;
+    StemsImanage {
+
+      @Override
+      public void initData() {
+        UiV2Main.initStemsImanage();
+      }
+    };
+    
+    /**
+     * init data in this index panel
+     */
+    public abstract void initData();
     
     /**
      * convert a string to enum
@@ -144,23 +208,30 @@ public class IndexContainer {
     
   }
   
+  /** cache panelCol0 */
+  private String panelCol0;
+  
   /**
    * panel (IndexPanel enum) for col 0 on main index page
    * @return the panel
    */
   public String getPanelCol0() {
     
-    IndexPanel defaultIndexPanel = IndexPanel.MyFavorites;
+    if (this.panelCol0 == null) {
+      
+      IndexPanel defaultIndexPanel = IndexPanel.MyFavorites;
+      
+      IndexPanel indexPanel = panelColPersonalPreference(0);
+      
+      if (indexPanel == null) {
+        String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget0", defaultIndexPanel.name());
     
-    IndexPanel indexPanel = panelColPersonalPreference(0);
-    
-    if (indexPanel == null) {
-      String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget0", defaultIndexPanel.name());
-  
-      indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+        indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+      }
+      
+      this.panelCol0 = GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
     }
-    
-    return GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
+    return this.panelCol0;
   }
 
   /**
@@ -223,41 +294,59 @@ public class IndexContainer {
   }
   
   /**
+   * cache panel col 1
+   */
+  private String panelCol1;
+  
+  /**
    * panel (IndexPanel enum) for col 1 on main index page
    * @return col1
    */
   public String getPanelCol1() {
-    IndexPanel defaultIndexPanel = IndexPanel.GroupsImanage;
+    if (this.panelCol1 == null) {
+      IndexPanel defaultIndexPanel = IndexPanel.GroupsImanage;
+      
+      IndexPanel indexPanel = panelColPersonalPreference(1);
+      
+      if (indexPanel == null) {
+        String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString(
+            "uiV2.widget1", defaultIndexPanel.name());
     
-    IndexPanel indexPanel = panelColPersonalPreference(1);
-    
-    if (indexPanel == null) {
-      String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget1", defaultIndexPanel.name());
-  
-      indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+        indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+      }
+      
+      this.panelCol1 = GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), 
+          defaultIndexPanel.name());
     }
-    
-    return GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
+    return this.panelCol1;
   }
 
+  /**
+   * cache panel col2
+   */
+  private String panelCol2;
+  
   /**
    * panel (IndexPanel enum) for col 2 on main index page
    * @return col2
    */
   public String getPanelCol2() {
-    IndexPanel defaultIndexPanel = IndexPanel.MyServices;
-    
-    IndexPanel indexPanel = panelColPersonalPreference(2);
-    
-    if (indexPanel == null) {
-      String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget2", defaultIndexPanel.name());
-  
-      indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
-    }
-    
-    return GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
-  }
 
+    if (this.panelCol2 == null) {
+      IndexPanel defaultIndexPanel = IndexPanel.MyServices;
+
+      IndexPanel indexPanel = panelColPersonalPreference(2);
+
+      if (indexPanel == null) {
+        String panel0string = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.widget2", defaultIndexPanel.name());
+
+        indexPanel = IndexPanel.valueOfIgnoreCase(panel0string, true, false);
+      }
+
+      this.panelCol2 = GrouperUtil.defaultIfBlank(indexPanel == null ? null : indexPanel.name(), defaultIndexPanel.name());
+    }
+    return this.panelCol2;
+  }
 
   /**
    * recent activity
@@ -333,6 +422,124 @@ public class IndexContainer {
   private Set<GuiGroup> guiGroupsUserManagesAbbreviated;
 
   /**
+   * for index page if my services retrieved
+   */
+  private boolean myServicesRetrieved;
+  
+  /**
+   * for index page if my services retrieved
+   * @return the myServicesRetrieved
+   */
+  public boolean isMyServicesRetrieved() {
+    return this.myServicesRetrieved;
+  }
+  
+  /**
+   * for index page if my services retrieved
+   * @param myServicesRetrieved1 the myServicesRetrieved to set
+   */
+  public void setMyServicesRetrieved(boolean myServicesRetrieved1) {
+    this.myServicesRetrieved = myServicesRetrieved1;
+  }
+
+  /**
+   * for index page if recently used retrieved
+   */
+  private boolean recentlyUsedRetrieved;
+  
+  
+  /**
+   * for index page if recently used retrieved
+   * @return the recentlyUsedRetrieved
+   */
+  public boolean isRecentlyUsedRetrieved() {
+    return this.recentlyUsedRetrieved;
+  }
+  
+  /**
+   * for index page if recently used retrieved
+   * @param recentlyUsedRetrieved1 the recentlyUsedRetrieved to set
+   */
+  public void setRecentlyUsedRetrieved(boolean recentlyUsedRetrieved1) {
+    this.recentlyUsedRetrieved = recentlyUsedRetrieved1;
+  }
+
+  /**
+   * for index page if stems I manage are retrieved
+   */
+  private boolean stemsImanageRetrieved;
+
+  /**
+   * for index page if stems I manage are retrieved
+   * @return the stemsImanageRetrieved
+   */
+  public boolean isStemsImanageRetrieved() {
+    return this.stemsImanageRetrieved;
+  }
+  
+  /**
+   * for index page if stems I manage are retrieved
+   * @param stemsImanageRetrieved1 the stemsImanageRetrieved to set
+   */
+  public void setStemsImanageRetrieved(boolean stemsImanageRetrieved1) {
+    this.stemsImanageRetrieved = stemsImanageRetrieved1;
+  }
+
+  /**
+   * for index page, this is if my memberships retrieved
+   */
+  private boolean myMembershipsRetrieved;
+  
+  /**
+   * for index page, this is if my memberships retrieved
+   * @return the myMembershipsRetrieved
+   */
+  public boolean isMyMembershipsRetrieved() {
+    return this.myMembershipsRetrieved;
+  }
+  
+  /**
+   * for index page, this is if my memberships retrieved
+   * @param myMembershipsRetrieved1 the myMembershipsRetrieved to set
+   */
+  public void setMyMembershipsRetrieved(boolean myMembershipsRetrieved1) {
+    this.myMembershipsRetrieved = myMembershipsRetrieved1;
+  }
+
+  /**
+   * for index page, this is if retrieved favorites
+   */
+  private boolean myFavoritesRetrieved;
+  
+  /**
+   * for index page, this is if retrieved favorites
+   * @return the favoritesRetrieved
+   */
+  public boolean isMyFavoritesRetrieved() {
+    return this.myFavoritesRetrieved;
+  }
+  
+  /**
+   * @param favoritesRetrieved1 the favoritesRetrieved to set
+   */
+  public void setMyFavoritesRetrieved(boolean favoritesRetrieved1) {
+    this.myFavoritesRetrieved = favoritesRetrieved1;
+  }
+
+  /**
+   * for index page, this is if retrieved a short list of groups the user manages
+   */
+  private boolean groupsImanageRetrieved;
+  
+  /**
+   * for index page, this is if retrieved a short list of groups the user manages
+   * @return the guiGroupsUserManagesAbbreviatedRetrieved
+   */
+  public boolean isGroupsImanageRetrieved() {
+    return this.groupsImanageRetrieved;
+  }
+
+  /**
    * for the index page, this is a short list of stems the user manages
    */
   private Set<GuiStem> guiStemsUserManagesAbbreviated;
@@ -351,32 +558,9 @@ public class IndexContainer {
    */
   public Set<GuiStem> getGuiStemsUserManagesAbbreviated() {
 
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiStemsUserManagesAbbreviated == null) {
         
-        Set<Stem> stems = new StemFinder().assignSubject(grouperSession.getSubject())
-            .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
-            .assignQueryOptions(new QueryOptions().paging(
-                GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
-                1, false)).findStems();
-
-        this.guiStemsUserManagesAbbreviated = GuiStem.convertFromStems(stems);
-              
-      }
-
-      return this.guiStemsUserManagesAbbreviated;
+    return this.guiStemsUserManagesAbbreviated;
       
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
   }
 
   /**
@@ -394,32 +578,19 @@ public class IndexContainer {
    * @return the list of groups
    */
   public Set<GuiGroup> getGuiGroupsUserManagesAbbreviated() {
-    
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiGroupsUserManagesAbbreviated == null) {
-        
-        Set<Group> groups = new GroupFinder()
-            .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
-            .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
-
-        this.guiGroupsUserManagesAbbreviated = GuiGroup.convertFromGroups(groups);
-              
-      }
-      
       return this.guiGroupsUserManagesAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
   }
+
+  
+  /**
+   * if the groups were retrieved (e.g. if they had enough time)
+   * @param guiGroupsUserManagesAbbreviatedRetrieved1 the guiGroupsUserManagesAbbreviatedRetrieved to set
+   */
+  public void setGroupsImanageRetrieved(
+      boolean guiGroupsUserManagesAbbreviatedRetrieved1) {
+    this.groupsImanageRetrieved = guiGroupsUserManagesAbbreviatedRetrieved1;
+  }
+
 
   /**
    * for index page, this is a short list of groups the user manages, lazy load if null
@@ -436,33 +607,8 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsMyMembershipsAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiGroupsMyMembershipsAbbreviated == null) {
-        
-        Set<Group> groups = new GroupFinder()
-            .assignSubject(grouperSession.getSubject())
-            .assignField(Group.getDefaultList())
-            .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
-            .assignQueryOptions(new QueryOptions().paging(
-                GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
-
-        this.guiGroupsMyMembershipsAbbreviated = GuiGroup.convertFromGroups(groups);
-              
-      }
+    return this.guiGroupsMyMembershipsAbbreviated;
       
-      return this.guiGroupsMyMembershipsAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
   }
 
   /**
@@ -486,28 +632,8 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsMyFavoritesAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-
-      if (this.guiGroupsMyFavoritesAbbreviated == null) {
-        
-        Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiGroupsMyFavoritesAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5);
-      }
+    return this.guiGroupsMyFavoritesAbbreviated;
       
-      return this.guiGroupsMyFavoritesAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
   }
 
   /**
@@ -629,44 +755,9 @@ public class IndexContainer {
    * @return the list of services
    */
   public Set<GuiService> getGuiMyServices() {
-    
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiMyServices == null) {
-        
-        GrouperSession grouperSessionOuter = GrouperSession.staticGrouperSession();
-        final Subject subject = grouperSessionOuter.getSubject();
-        
-        GrouperSession.callbackGrouperSession(grouperSessionOuter.internal_getRootSession(), new GrouperSessionHandler() {
-          
-          @Override
-          public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
             
-            Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
-                .assignSubject(subject)
-                .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
-                .findAttributeNames();
-                
-            IndexContainer.this.guiMyServices = GuiService.convertFromAttributeDefNames(attributeDefNames);
-
-            return null;
-          }
-        });
-        
-      }
+    return this.guiMyServices;
       
-      return this.guiMyServices;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
   }
 
   /**
@@ -684,29 +775,7 @@ public class IndexContainer {
    */
   public Set<GuiStem> getGuiStemsMyFavoritesAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiStemsMyFavoritesAbbreviated == null) {
-        
-        Set<Stem> stems = GrouperUserDataApi.favoriteStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-            grouperSession.getSubject());
-        
-        this.guiStemsMyFavoritesAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxFavoritesEachType", 5);
-        
-      }
-      
-      return this.guiStemsMyFavoritesAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiStemsMyFavoritesAbbreviated;
   }
 
   /**
@@ -715,27 +784,7 @@ public class IndexContainer {
    */
   public Set<GuiMember> getGuiMembersMyFavoritesAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiMembersMyFavoritesAbbreviated == null) {
-        
-        Set<Member> members = GrouperUserDataApi.favoriteMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiMembersMyFavoritesAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxFavoritesEachType", 5);
-      }
-      
-      return this.guiMembersMyFavoritesAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiMembersMyFavoritesAbbreviated;
   }
 
   /**
@@ -744,29 +793,7 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDefName> getGuiAttributeDefNamesMyFavoritesAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      
-      if (this.guiAttributeDefNamesMyFavoritesAbbreviated == null) {
-        
-        Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.favoriteAttributeDefNames(
-            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiAttributeDefNamesMyFavoritesAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
-            attributeDefNames, "uiV2.index.maxFavoritesEachType", 5);
-      }
-      
-      return this.guiAttributeDefNamesMyFavoritesAbbreviated;
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiAttributeDefNamesMyFavoritesAbbreviated;
   }
 
   /**
@@ -775,29 +802,7 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDef> getGuiAttributeDefsMyFavoritesAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiAttributeDefsMyFavoritesAbbreviated == null) {
-        
-        Set<AttributeDef> attributeDefs = GrouperUserDataApi.favoriteAttributeDefs(
-            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiAttributeDefsMyFavoritesAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
-            attributeDefs, "uiV2.index.maxFavoritesEachType", 5);
-      }
-      
-      return this.guiAttributeDefsMyFavoritesAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiAttributeDefsMyFavoritesAbbreviated;
   }
 
   /**
@@ -805,31 +810,120 @@ public class IndexContainer {
    * @return the list of attributeDefNames
    */
   public Set<GuiAttributeDefName> getGuiAttributeDefNamesRecentlyUsedAbbreviated() {
-    
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiAttributeDefNamesRecentlyUsedAbbreviated == null) {
-        
-        Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(
-            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiAttributeDefNamesRecentlyUsedAbbreviated = GuiAttributeDefName.convertFromAttributeDefNames(
-            attributeDefNames, "uiV2.index.maxRecentlyUsedEachType", 5);
-      }
-      
-      return this.guiAttributeDefNamesRecentlyUsedAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiAttributeDefNamesRecentlyUsedAbbreviated;
   }
+
+  
+  /**
+   * @param guiAuditEntriesRecentActivity1 the guiAuditEntriesRecentActivity to set
+   */
+  public void setGuiAuditEntriesRecentActivity(Set<GuiAuditEntry> guiAuditEntriesRecentActivity1) {
+    this.guiAuditEntriesRecentActivity = guiAuditEntriesRecentActivity1;
+  }
+
+
+  
+  /**
+   * @param guiAttributeDefsMyFavoritesAbbreviated1 the guiAttributeDefsMyFavoritesAbbreviated to set
+   */
+  public void setGuiAttributeDefsMyFavoritesAbbreviated(
+      Set<GuiAttributeDef> guiAttributeDefsMyFavoritesAbbreviated1) {
+    this.guiAttributeDefsMyFavoritesAbbreviated = guiAttributeDefsMyFavoritesAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiAttributeDefNamesMyFavoritesAbbreviated1 the guiAttributeDefNamesMyFavoritesAbbreviated to set
+   */
+  public void setGuiAttributeDefNamesMyFavoritesAbbreviated(
+      Set<GuiAttributeDefName> guiAttributeDefNamesMyFavoritesAbbreviated1) {
+    this.guiAttributeDefNamesMyFavoritesAbbreviated = guiAttributeDefNamesMyFavoritesAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiGroupsMyFavoritesAbbreviated1 the guiGroupsMyFavoritesAbbreviated to set
+   */
+  public void setGuiGroupsMyFavoritesAbbreviated(Set<GuiGroup> guiGroupsMyFavoritesAbbreviated1) {
+    this.guiGroupsMyFavoritesAbbreviated = guiGroupsMyFavoritesAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiGroupsMyMembershipsAbbreviated1 the guiGroupsMyMembershipsAbbreviated to set
+   */
+  public void setGuiGroupsMyMembershipsAbbreviated(Set<GuiGroup> guiGroupsMyMembershipsAbbreviated1) {
+    this.guiGroupsMyMembershipsAbbreviated = guiGroupsMyMembershipsAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiMembersMyFavoritesAbbreviated1 the guiMembersMyFavoritesAbbreviated to set
+   */
+  public void setGuiMembersMyFavoritesAbbreviated(Set<GuiMember> guiMembersMyFavoritesAbbreviated1) {
+    this.guiMembersMyFavoritesAbbreviated = guiMembersMyFavoritesAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiStemsMyFavoritesAbbreviated1 the guiStemsMyFavoritesAbbreviated to set
+   */
+  public void setGuiStemsMyFavoritesAbbreviated(Set<GuiStem> guiStemsMyFavoritesAbbreviated1) {
+    this.guiStemsMyFavoritesAbbreviated = guiStemsMyFavoritesAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiAttributeDefNamesRecentlyUsedAbbreviated1 the guiAttributeDefNamesRecentlyUsedAbbreviated to set
+   */
+  public void setGuiAttributeDefNamesRecentlyUsedAbbreviated(
+      Set<GuiAttributeDefName> guiAttributeDefNamesRecentlyUsedAbbreviated1) {
+    this.guiAttributeDefNamesRecentlyUsedAbbreviated = guiAttributeDefNamesRecentlyUsedAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiAttributeDefsRecentlyUsedAbbreviated1 the guiAttributeDefsRecentlyUsedAbbreviated to set
+   */
+  public void setGuiAttributeDefsRecentlyUsedAbbreviated(
+      Set<GuiAttributeDef> guiAttributeDefsRecentlyUsedAbbreviated1) {
+    this.guiAttributeDefsRecentlyUsedAbbreviated = guiAttributeDefsRecentlyUsedAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiGroupsRecentlyUsedAbbreviated1 the guiGroupsRecentlyUsedAbbreviated to set
+   */
+  public void setGuiGroupsRecentlyUsedAbbreviated(Set<GuiGroup> guiGroupsRecentlyUsedAbbreviated1) {
+    this.guiGroupsRecentlyUsedAbbreviated = guiGroupsRecentlyUsedAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiMembersRecentlyUsedAbbreviated1 the guiMembersRecentlyUsedAbbreviated to set
+   */
+  public void setGuiMembersRecentlyUsedAbbreviated(Set<GuiMember> guiMembersRecentlyUsedAbbreviated1) {
+    this.guiMembersRecentlyUsedAbbreviated = guiMembersRecentlyUsedAbbreviated1;
+  }
+
+
+  
+  /**
+   * @param guiStemsRecentlyUsedAbbreviated1 the guiStemsRecentlyUsedAbbreviated to set
+   */
+  public void setGuiStemsRecentlyUsedAbbreviated(Set<GuiStem> guiStemsRecentlyUsedAbbreviated1) {
+    this.guiStemsRecentlyUsedAbbreviated = guiStemsRecentlyUsedAbbreviated1;
+  }
+
 
   /**
    * for index page, this is a short list of attributeDefs the user has RecentlyUsed, lazy load if null
@@ -837,29 +931,8 @@ public class IndexContainer {
    */
   public Set<GuiAttributeDef> getGuiAttributeDefsRecentlyUsedAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiAttributeDefsRecentlyUsedAbbreviated == null) {
-        
-        Set<AttributeDef> attributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(
-            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiAttributeDefsRecentlyUsedAbbreviated = GuiAttributeDef.convertFromAttributeDefs(
-            attributeDefs, "uiV2.index.maxRecentlyUsedEachType", 5);
-      }
+    return this.guiAttributeDefsRecentlyUsedAbbreviated;
       
-      return this.guiAttributeDefsRecentlyUsedAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
   }
 
   /**
@@ -868,27 +941,7 @@ public class IndexContainer {
    */
   public Set<GuiGroup> getGuiGroupsRecentlyUsedAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiGroupsRecentlyUsedAbbreviated == null) {
-        
-        Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiGroupsRecentlyUsedAbbreviated = GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5);
-      }
-      
-      return this.guiGroupsRecentlyUsedAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiGroupsRecentlyUsedAbbreviated;
   }
 
   /**
@@ -897,27 +950,7 @@ public class IndexContainer {
    */
   public Set<GuiMember> getGuiMembersRecentlyUsedAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiMembersRecentlyUsedAbbreviated == null) {
-        
-        Set<Member> members = GrouperUserDataApi.recentlyUsedMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
-        
-        this.guiMembersRecentlyUsedAbbreviated = GuiMember.convertFromMembers(members, "uiV2.index.maxRecentlyUsedEachType", 5);
-      }
-      
-      return this.guiMembersRecentlyUsedAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiMembersRecentlyUsedAbbreviated;
   }
 
   /**
@@ -926,29 +959,7 @@ public class IndexContainer {
    */
   public Set<GuiStem> getGuiStemsRecentlyUsedAbbreviated() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedSession = grouperSession == null;
-
-    if (startedSession) {
-      grouperSession = GrouperSession.start(GrouperUiFilter.retrieveSubjectLoggedIn());
-    }
-    try {
-      if (this.guiStemsRecentlyUsedAbbreviated == null) {
-        
-        Set<Stem> stems = GrouperUserDataApi.recentlyUsedStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-            grouperSession.getSubject());
-        
-        this.guiStemsRecentlyUsedAbbreviated = GuiStem.convertFromStems(stems, "uiV2.index.maxRecentlyUsedEachType", 5);
-        
-      }
-      
-      return this.guiStemsRecentlyUsedAbbreviated;
-      
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-    }
+    return this.guiStemsRecentlyUsedAbbreviated;
   }
 
   /**
