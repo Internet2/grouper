@@ -458,6 +458,13 @@ public class UiV2Main extends UiServiceLogicBase {
       @Override
       public Boolean callLogic() {
         
+        {
+          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.recentlyUsed.widgetMillis", -1);
+          if (millisToSleepForTest > 0) {
+            GrouperUtil.sleep(millisToSleepForTest);
+          }
+        }
+        
         GrouperSession grouperSession = GrouperSession.staticGrouperSession();
         Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(
             GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
@@ -524,6 +531,13 @@ public class UiV2Main extends UiServiceLogicBase {
       
       @Override
       public Void callLogic() {
+
+        {
+          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.groupsImanage.widgetMillis", -1);
+          if (millisToSleepForTest > 0) {
+            GrouperUtil.sleep(millisToSleepForTest);
+          }
+        }
 
         Set<Group> theGroups = new GroupFinder()
           .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
@@ -1098,6 +1112,13 @@ public class UiV2Main extends UiServiceLogicBase {
       @Override
       public Void callLogic() {
         
+        {
+          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.stemsImanage.widgetMillis", -1);
+          if (millisToSleepForTest > 0) {
+            GrouperUtil.sleep(millisToSleepForTest);
+          }
+        }
+
         Set<Stem> stems = new StemFinder().assignSubject(GrouperSession.staticGrouperSession().getSubject())
             .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
             .assignQueryOptions(new QueryOptions().paging(
@@ -1146,6 +1167,13 @@ public class UiV2Main extends UiServiceLogicBase {
       @Override
       public Void callLogic() {
         
+        {
+          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myFavorites.widgetMillis", -1);
+          if (millisToSleepForTest > 0) {
+            GrouperUtil.sleep(millisToSleepForTest);
+          }
+        }
+
         GrouperSession grouperSession = GrouperSession.staticGrouperSession();
         
         Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.favoriteAttributeDefNames(
@@ -1215,6 +1243,13 @@ public class UiV2Main extends UiServiceLogicBase {
       @Override
       public Void callLogic() {
         
+        {
+          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myMemberships.widgetMillis", -1);
+          if (millisToSleepForTest > 0) {
+            GrouperUtil.sleep(millisToSleepForTest);
+          }
+        }
+
         Set<Group> groups = new GroupFinder()
             .assignSubject(GrouperSession.staticGrouperSession().getSubject())
             .assignField(Group.getDefaultList())
@@ -1264,6 +1299,13 @@ public class UiV2Main extends UiServiceLogicBase {
       @Override
       public Void callLogic() {
         
+        {
+          int millisToSleepForTest = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.test.sleepIn.myServices.widgetMillis", -1);
+          if (millisToSleepForTest > 0) {
+            GrouperUtil.sleep(millisToSleepForTest);
+          }
+        }
+
         Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
             .assignSubject(GrouperSession.staticGrouperSession().getSubject())
             .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
