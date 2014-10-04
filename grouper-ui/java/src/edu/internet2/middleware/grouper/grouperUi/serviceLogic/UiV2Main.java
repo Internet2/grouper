@@ -17,6 +17,9 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -35,8 +40,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -57,6 +67,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -66,6 +77,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.userData.GrouperFavoriteFinder;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -206,7 +218,6 @@ public class UiV2Main extends UiServiceLogicBase {
    */
   public void folderMenu(HttpServletRequest httpServletRequest, HttpServletResponse response) {
     //the query string has the folder to print out.  starting with root.  undefined means there is a problem
-    //System.out.println(httpServletRequest.getQueryString());
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -343,13 +354,18 @@ public class UiV2Main extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
 
+      //init the data
+      initMyFavorites();
+
       int col = GrouperUtil.intValue(request.getParameter("col"));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexMyFavorites.jsp"));
       
-      panelColPersonalPreferenceStore(col, IndexPanel.MyFavorites);
+      if (GrouperUtil.booleanValue(request.getParameter("storePref"), true)) {
+        panelColPersonalPreferenceStore(col, IndexPanel.MyFavorites);
+      }
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -374,14 +390,18 @@ public class UiV2Main extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
+      
+      //init the data
+      initMyServices();
 
       int col = GrouperUtil.intValue(request.getParameter("col"));
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexMyServices.jsp"));
 
-      panelColPersonalPreferenceStore(col, IndexPanel.MyServices);
-
+      if (GrouperUtil.booleanValue(request.getParameter("storePref"), true)) {
+        panelColPersonalPreferenceStore(col, IndexPanel.MyServices);
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -405,15 +425,19 @@ public class UiV2Main extends UiServiceLogicBase {
 
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-
+      
+      //init the data
+      initGroupsImanage();
+      
       int col = GrouperUtil.intValue(request.getParameter("col"));
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexGroupsImanage.jsp"));
       
-      panelColPersonalPreferenceStore(col, IndexPanel.GroupsImanage);
-
+      if (GrouperUtil.booleanValue(request.getParameter("storePref"), true)) {
+        panelColPersonalPreferenceStore(col, IndexPanel.GroupsImanage);
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -421,6 +445,119 @@ public class UiV2Main extends UiServiceLogicBase {
     
   }
 
+  /**
+   * 
+   */
+  public static void initRecentlyUsed() {
+        
+    final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    GrouperCallable<Boolean> callable = new GrouperCallable<Boolean>(
+        "GrouperUi.UiV2Main.initRecentlyUsed()") {
+      
+      @Override
+      public Boolean callLogic() {
+        
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+        Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.recentlyUsedAttributeDefNames(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiAttributeDefNamesRecentlyUsedAbbreviated(GuiAttributeDefName.convertFromAttributeDefNames(
+            attributeDefNames, "uiV2.index.maxRecentlyUsedEachType", 5));
+
+        Set<AttributeDef> attributeDefs = GrouperUserDataApi.recentlyUsedAttributeDefs(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiAttributeDefsRecentlyUsedAbbreviated(GuiAttributeDef.convertFromAttributeDefs(
+            attributeDefs, "uiV2.index.maxRecentlyUsedEachType", 5));
+
+        Set<Group> groups = GrouperUserDataApi.recentlyUsedGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiGroupsRecentlyUsedAbbreviated(
+            GuiGroup.convertFromGroups(groups, "uiV2.index.maxRecentlyUsedEachType", 5));
+
+        Set<Member> members = GrouperUserDataApi.recentlyUsedMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiMembersRecentlyUsedAbbreviated(GuiMember.convertFromMembers(members, "uiV2.index.maxRecentlyUsedEachType", 5));
+
+        Set<Stem> stems = GrouperUserDataApi.recentlyUsedStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            grouperSession.getSubject());
+        
+        indexContainer.setGuiStemsRecentlyUsedAbbreviated(GuiStem.convertFromStems(stems, "uiV2.index.maxRecentlyUsedEachType", 5));
+        
+        indexContainer.setRecentlyUsedRetrieved(true);
+        return true;
+      }
+    };
+    
+    int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
+
+    indexContainer.setRecentlyUsedRetrieved(false);
+    
+    if (indexContainer.isRunWidgetsInThreads() && maxMillis > 0) {
+      
+      Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(callable);
+      try {
+        future.get(maxMillis, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException te) {
+        //this is ok, didnt return groups, thats fine
+      } catch (Throwable throwable) {
+        GrouperCallable.throwRuntimeException(throwable);
+      }
+    } else if (!indexContainer.isRunWidgetsInThreads() || maxMillis < 0) {
+      //just run it
+      callable.callLogicWithSessionIfExists();
+    }
+    //if 0 dont run it...
+    
+  }
+  
+  /**
+   * init groups user manages
+   */
+  public static void initGroupsImanage() {
+    
+    final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    GrouperCallable<Void> callable = new GrouperCallable<Void>(
+        "GrouperUi.UiV2Main.initGroupsImanage()") {
+      
+      @Override
+      public Void callLogic() {
+
+        Set<Group> theGroups = new GroupFinder()
+          .assignPrivileges(AccessPrivilege.MANAGE_PRIVILEGES)
+          .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt(
+            "uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+
+        indexContainer.setGuiGroupsUserManagesAbbreviated(GuiGroup.convertFromGroups(theGroups));
+        indexContainer.setGroupsImanageRetrieved(true);
+        return null;
+      }
+    };
+    
+    int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
+
+    indexContainer.setGroupsImanageRetrieved(false);
+    
+    if (indexContainer.isRunWidgetsInThreads() && maxMillis > 0) {
+      
+      Future<Void> future = GrouperUtil.retrieveExecutorService().submit(callable);
+      try {
+        future.get(maxMillis, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException te) {
+        //this is ok, didnt return groups, thats fine
+      } catch (Throwable throwable) {
+        GrouperCallable.throwRuntimeException(throwable);
+      }
+    } else if (!indexContainer.isRunWidgetsInThreads() || maxMillis < 0) {
+      //just run it
+      callable.callLogicWithSessionIfExists();
+    }
+    //if 0 dont run it...
+    
+  }
+  
   /**
    * find the index panel for the column as a user preference
    * @param colIndex
@@ -493,7 +630,7 @@ public class UiV2Main extends UiServiceLogicBase {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     //initialize the bean
-    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     
     GrouperSession grouperSession = null;
 
@@ -506,6 +643,21 @@ public class UiV2Main extends UiServiceLogicBase {
       
       grouperSession = GrouperSession.start(loggedInSubject);
 
+      IndexContainer indexContainer = grouperRequestContainer.getIndexContainer();
+
+      //run things in threads (if configured to)
+      indexContainer.setRunWidgetsInThreads(true);
+      
+      for (String indexPanelString : new String[]{ indexContainer.getPanelCol0(), 
+          indexContainer.getPanelCol1(), indexContainer.getPanelCol2() }) {
+        
+        IndexPanel indexPanel = IndexPanel.valueOfIgnoreCase(indexPanelString, false, true);
+        
+        indexPanel.initData();
+        
+      }
+      
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/index/indexMain.jsp"));
@@ -533,14 +685,18 @@ public class UiV2Main extends UiServiceLogicBase {
   
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-  
+      
+      //init the data
+      initStemsImanage();
+
       int col = GrouperUtil.intValue(request.getParameter("col"));
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexStemsImanage.jsp"));
 
-      panelColPersonalPreferenceStore(col, IndexPanel.StemsImanage);
-
+      if (GrouperUtil.booleanValue(request.getParameter("storePref"), true)) {
+        panelColPersonalPreferenceStore(col, IndexPanel.StemsImanage);
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -563,14 +719,19 @@ public class UiV2Main extends UiServiceLogicBase {
   
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
+      
+      //init the data
+      initMyMemberships();
   
       int col = GrouperUtil.intValue(request.getParameter("col"));
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexMyMemberships.jsp"));
 
-      panelColPersonalPreferenceStore(col, IndexPanel.MyMemberships);
-
+      if (GrouperUtil.booleanValue(request.getParameter("storePref"), true)) {
+        panelColPersonalPreferenceStore(col, IndexPanel.MyMemberships);
+      }
+      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -595,12 +756,17 @@ public class UiV2Main extends UiServiceLogicBase {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
+      //init the data
+      initRecentlyUsed();
+      
       int col = GrouperUtil.intValue(request.getParameter("col"));
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#indexCol" + col, 
           "/WEB-INF/grouperUi2/index/indexRecentlyUsed.jsp"));
 
-      panelColPersonalPreferenceStore(col, IndexPanel.RecentlyUsed);
+      if (GrouperUtil.booleanValue(request.getParameter("storePref"), true)) {
+        panelColPersonalPreferenceStore(col, IndexPanel.RecentlyUsed);
+      }
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -917,4 +1083,218 @@ public class UiV2Main extends UiServiceLogicBase {
     }
   }
 
+  
+  
+  /**
+   * init stems user manages
+   */
+  public static void initStemsImanage() {
+    
+    final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    GrouperCallable<Void> callable = new GrouperCallable<Void>(
+        "GrouperUi.UiV2Main.initStemsImanage()") {
+      
+      @Override
+      public Void callLogic() {
+        
+        Set<Stem> stems = new StemFinder().assignSubject(GrouperSession.staticGrouperSession().getSubject())
+            .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
+            .assignQueryOptions(new QueryOptions().paging(
+                GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10),
+                1, false)).findStems();
+  
+        indexContainer.setGuiStemsUserManagesAbbreviated(GuiStem.convertFromStems(stems));
+  
+        indexContainer.setStemsImanageRetrieved(true);
+        return null;
+      }
+    };
+    
+    int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
+  
+    indexContainer.setStemsImanageRetrieved(false);
+    
+    if (indexContainer.isRunWidgetsInThreads() && maxMillis > 0) {
+      
+      Future<Void> future = GrouperUtil.retrieveExecutorService().submit(callable);
+      try {
+        future.get(maxMillis, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException te) {
+        //this is ok, didnt return groups, thats fine
+      } catch (Throwable throwable) {
+        GrouperCallable.throwRuntimeException(throwable);
+      }
+    } else if (!indexContainer.isRunWidgetsInThreads() || maxMillis < 0) {
+      //just run it
+      callable.callLogicWithSessionIfExists();
+    }
+    //if 0 dont run it...
+    
+  }
+
+  /**
+   * init my favorites
+   */
+  public static void initMyFavorites() {
+    
+    final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    GrouperCallable<Void> callable = new GrouperCallable<Void>(
+        "GrouperUi.UiV2Main.initMyFavorites()") {
+      
+      @Override
+      public Void callLogic() {
+        
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+        
+        Set<AttributeDefName> attributeDefNames = GrouperUserDataApi.favoriteAttributeDefNames(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiAttributeDefNamesMyFavoritesAbbreviated(GuiAttributeDefName.convertFromAttributeDefNames(
+            attributeDefNames, "uiV2.index.maxFavoritesEachType", 5));
+
+        Set<AttributeDef> attributeDefs = GrouperUserDataApi.favoriteAttributeDefs(
+            GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiAttributeDefsMyFavoritesAbbreviated(GuiAttributeDef.convertFromAttributeDefs(
+            attributeDefs, "uiV2.index.maxFavoritesEachType", 5));
+
+        Set<Group> groups = GrouperUserDataApi.favoriteGroups(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiGroupsMyFavoritesAbbreviated(
+            GuiGroup.convertFromGroups(groups, "uiV2.index.maxFavoritesEachType", 5));
+
+        Set<Member> members = GrouperUserDataApi.favoriteMembers(GrouperUiUserData.grouperUiGroupNameForUserData(), grouperSession.getSubject());
+        
+        indexContainer.setGuiMembersMyFavoritesAbbreviated(
+            GuiMember.convertFromMembers(members, "uiV2.index.maxFavoritesEachType", 5));
+
+        Set<Stem> stems = GrouperUserDataApi.favoriteStems(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+            grouperSession.getSubject());
+        
+        indexContainer.setGuiStemsMyFavoritesAbbreviated(GuiStem.convertFromStems(stems, "uiV2.index.maxFavoritesEachType", 5));
+
+        indexContainer.setMyFavoritesRetrieved(true);
+        return null;
+      }
+    };
+    
+    int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
+  
+    indexContainer.setMyFavoritesRetrieved(false);
+    
+    if (indexContainer.isRunWidgetsInThreads() && maxMillis > 0) {
+      
+      Future<Void> future = GrouperUtil.retrieveExecutorService().submit(callable);
+      try {
+        future.get(maxMillis, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException te) {
+        //this is ok, didnt return groups, thats fine
+      } catch (Throwable throwable) {
+        GrouperCallable.throwRuntimeException(throwable);
+      }
+    } else if (!indexContainer.isRunWidgetsInThreads() || maxMillis < 0) {
+      //just run it
+      callable.callLogicWithSessionIfExists();
+    }
+    //if 0 dont run it...
+    
+  }
+  
+  /**
+   * init stems user manages
+   */
+  public static void initMyMemberships() {
+    
+    final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    GrouperCallable<Void> callable = new GrouperCallable<Void>(
+        "GrouperUi.UiV2Main.initMyMemberships()") {
+      
+      @Override
+      public Void callLogic() {
+        
+        Set<Group> groups = new GroupFinder()
+            .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+            .assignField(Group.getDefaultList())
+            .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+            .assignQueryOptions(new QueryOptions().paging(
+                GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
+    
+        indexContainer.setGuiGroupsMyMembershipsAbbreviated(GuiGroup.convertFromGroups(groups));
+
+        indexContainer.setMyMembershipsRetrieved(true);
+        return null;
+      }
+    };
+    
+    int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
+  
+    indexContainer.setMyMembershipsRetrieved(false);
+    
+    if (indexContainer.isRunWidgetsInThreads() && maxMillis > 0) {
+      
+      Future<Void> future = GrouperUtil.retrieveExecutorService().submit(callable);
+      try {
+        future.get(maxMillis, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException te) {
+        //this is ok, didnt return groups, thats fine
+      } catch (Throwable throwable) {
+        GrouperCallable.throwRuntimeException(throwable);
+      }
+    } else if (!indexContainer.isRunWidgetsInThreads() || maxMillis < 0) {
+      //just run it
+      callable.callLogicWithSessionIfExists();
+    }
+    //if 0 dont run it...
+    
+  }
+
+  /**
+   * init my services
+   */
+  public static void initMyServices() {
+    
+    final IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    GrouperCallable<Void> callable = new GrouperCallable<Void>(
+        "GrouperUi.UiV2Main.initMyServices()") {
+      
+      @Override
+      public Void callLogic() {
+        
+        Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignAnyRole(true)
+            .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+            .assignQueryOptions(new QueryOptions().paging(GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false))
+            .findAttributeNames();
+            
+        indexContainer.setGuiMyServices(GuiService.convertFromAttributeDefNames(attributeDefNames));
+
+        indexContainer.setMyServicesRetrieved(true);
+        return null;
+      }
+    };
+    
+    int maxMillis = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.widgetMaxQueryMillis", 5000);
+  
+    indexContainer.setStemsImanageRetrieved(false);
+    
+    if (indexContainer.isRunWidgetsInThreads() && maxMillis > 0) {
+      
+      Future<Void> future = GrouperUtil.retrieveExecutorService().submit(callable);
+      try {
+        future.get(maxMillis, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException te) {
+        //this is ok, didnt return groups, thats fine
+      } catch (Throwable throwable) {
+        GrouperCallable.throwRuntimeException(throwable);
+      }
+    } else if (!indexContainer.isRunWidgetsInThreads() || maxMillis < 0) {
+      //just run it
+      callable.callLogicWithSessionIfExists();
+    }
+    //if 0 dont run it...
+    
+  }
 }
