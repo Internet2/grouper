@@ -583,6 +583,17 @@ public class GrouperUiFilter implements Filter {
       }
       
       if (StringUtils.isBlank(remoteUser)) {
+        String userHeaderName = GrouperUiConfig.retrieveConfig().propertyValueString(
+            "grouper.ui.authentication.http.header");
+        if (StringUtils.isNotBlank(userHeaderName)) {
+          remoteUser = httpServletRequest.getHeader(userHeaderName);
+          if (LOG.isDebugEnabled()) {
+            debugLog.put(userHeaderName + " header", remoteUser);
+          }
+        }
+      }
+      
+      if (StringUtils.isBlank(remoteUser)) {
         //this is how mod_jk passes env vars
         remoteUser = (String)httpServletRequest.getAttribute("REMOTE_USER");
         if (LOG.isDebugEnabled()) {
