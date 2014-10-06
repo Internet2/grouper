@@ -256,8 +256,8 @@ public class QueryPaging {
    */
   public int getFirstIndexOnPage() {
     
-    if (this.pageNumber < 0 && this.pageStartIndex > 0) {
-      return this.pageStartIndex - 1;
+    if (this.pageNumber < 0 && this.pageStartIndex >= 0) {
+      return this.pageStartIndex;
     }
     
     return (this.getPageNumber() - 1) * this.getPageSize();

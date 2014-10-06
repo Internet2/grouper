@@ -884,21 +884,25 @@ public class GrouperUiFilter implements Filter {
       HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, session, false);
       HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
   
-      GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+      final GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
           GrouperEngineBuiltin.UI, false, false);
       
       grouperContext.setCallerIpAddress(httpServletRequest.getRemoteAddr());
-      
-      GrouperSession rootSession = grouperSession == null ? 
-          GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
+
       
       if (subject != null) {
-        //TODO also put this at the login step...
-        Member member = MemberFinder.findBySubject(rootSession, subject, true);
-        
-        grouperContext.setLoggedInMemberId(member.getUuid());
+        final Subject SUBJECT = subject;
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+            //TODO also put this at the login step...
+            Member member = MemberFinder.findBySubject(grouperSession2, SUBJECT, true);
+            
+            grouperContext.setLoggedInMemberId(member.getUuid());
+            return null;
+          }
+        }); 
       }
-  
   
       return httpServletRequest;
     } catch (RuntimeException re) {

@@ -3,6 +3,7 @@
 Edit the build.properties (might need to copy from template first), set the location of the grouper API, 
 and set other properties.  See a quick start document, google for this, or try these:
 
+https://spaces.internet2.edu/display/Grouper/Grouper+Installer
 https://spaces.internet2.edu/display/Grouper/Starting+with+Grouper
 https://spaces.internet2.edu/display/Grouper/Grouper+Hosted+on+a+Cloud+Server
 https://spaces.internet2.edu/display/Grouper/Customising+the+Grouper+UI

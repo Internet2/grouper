@@ -34,7 +34,9 @@ package edu.internet2.middleware.grouper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -73,7 +75,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /** 
@@ -468,28 +469,92 @@ public class GrouperSession implements Serializable {
       LOG.fatal(msg);
       throw new SessionException(msg);
     }
-    Member            m = null;
-    StopWatch sw = new StopWatch();
-    sw.start();
-
-    //  this will create the member if it doesn't already exist
-    m   = MemberFinder.internal_findBySubject(subject, null, true); 
-    GrouperSession    s   =  new GrouperSession();
-      s.setMemberUuid( m.getUuid() );
-      s.setStartTimeLong( new Date().getTime() );
-      s.setSubject(subject);
-      s.setUuid( GrouperUuid.getUuid() );
-
-    sw.stop();
-    EventLog.info( s.toString(), M.S_START, sw );
-    if (addToThreadLocal) {
-      //add to threadlocal
-      staticGrouperSession.set(s);
-    }
     
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("method", "start(subject,threadLocal)");
+      debugMap.put("subjectId", subject.getId());
+      debugMap.put("threadLocal", addToThreadLocal);
+    }
+    GrouperSession s = null;
+    try {
+      Member            m = null;
+      StopWatch sw = new StopWatch();
+      sw.start();
+  
+      //  this will create the member if it doesn't already exist
+      m   = MemberFinder.internal_findBySubject(subject, null, true); 
+      s   =  new GrouperSession();
+      
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("hash", s.hashCode());
+      }
+      
+        s.setMemberUuid( m.getUuid() );
+        s.setStartTimeLong( new Date().getTime() );
+        s.setSubject(subject);
+        s.setUuid( GrouperUuid.getUuid() );
+      
+      sw.stop();
+      EventLog.info( s.toString(), M.S_START, sw );
+      if (addToThreadLocal) {
+        if (LOG.isDebugEnabled()) {
+          GrouperSession tempGrouperSession = staticGrouperSession.get();
+          if (tempGrouperSession == null || tempGrouperSession.getSubject() == null) {
+            debugMap.put("replacingSession", "null");
+          } else {
+            debugMap.put("replacingSession", tempGrouperSession.getSubject().getId() + ", " + tempGrouperSession.hashCode());
+          }          
+        }
+        //add to threadlocal
+        staticGrouperSession.set(s);
+      }
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        logAddThreadLocal(debugMap, "");
+        LOG.debug("Stack: " + GrouperUtil.stack());
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
     return s;
   } 
 
+  /**
+   * add thread local info to debug map
+   * @param debugMap
+   * @param prefix for log message if multiple in one map
+   */
+  private static void logAddThreadLocal(Map<String, Object> debugMap, String prefix) {
+    if (LOG.isDebugEnabled()) {
+      {
+        GrouperSession grouperSession = staticGrouperSession.get();
+        Subject subject = grouperSession == null ? null : grouperSession.getSubject();
+        if (grouperSession == null || subject == null) {
+          debugMap.put(prefix + "staticSession", "null");
+        } else {
+          debugMap.put(prefix + "staticSession", subject.getId());
+        }
+      }
+      
+      List<GrouperSession> staticGrouperSessions = staticSessions.get();
+      if (GrouperUtil.length(staticGrouperSessions) == 0) {
+        debugMap.put(prefix + "staticSessions", "0");
+      } else {
+        int i=0;
+        for (GrouperSession grouperSession : staticGrouperSessions) {
+          Subject subject = grouperSession == null ? null : grouperSession.getSubject();
+          if (grouperSession == null || subject == null) {
+            debugMap.put(prefix + "staticSessions_" + i, "null");
+          } else {
+            debugMap.put(prefix + "staticSessions_" + i, subject.getId());
+          }
+          i++;
+        }
+      }
+    }
+  }
+  
   /**
    * @param s 
    * @throws  IllegalStateException
@@ -656,39 +721,56 @@ public class GrouperSession implements Serializable {
    */
   public void stop()  throws  SessionException
   {
-    //remove from threadlocal if this is the one on threadlocal (might not be due
-    //to nesting)
-    if (this == staticGrouperSession.get()) {
-      staticGrouperSession.remove();
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("method", "stop()");
+      debugMap.put("hash", this.hashCode());
+      if (this.subject == null) {
+        debugMap.put("subject", "null");
+      } else {
+        debugMap.put("subject", this.subject.getId());
+      }
     }
-    
-    if (this.accessResolver != null) {
-      this.accessResolver.stop();
+    try {
+      //remove from threadlocal if this is the one on threadlocal (might not be due
+      //to nesting)
+      if (this == staticGrouperSession.get()) {
+        staticGrouperSession.remove();
+      }
+      
+      if (this.accessResolver != null) {
+        this.accessResolver.stop();
+      }
+      if (this.attributeDefResolver != null) {
+        this.attributeDefResolver.stop();
+      }
+      if (this.namingResolver != null) {
+        this.namingResolver.stop();
+      }
+      
+      //stop the root
+      if (this.rootSession != null) {
+        this.rootSession.stop();
+      }
+      
+      
+      
+      //set some fields to null
+      this.subject = null;
+      this.accessResolver = null;
+      this.attributeDefResolver = null;
+      this.cachedMember = null;
+      this.memberUUID = null;
+      this.namingResolver = null;
+      this.rootSession = null;
+      this.uuid = null;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        logAddThreadLocal(debugMap, "");
+        LOG.debug("Stack: " + GrouperUtil.stack());
+        LOG.debug(debugMap);
+      }
     }
-    if (this.attributeDefResolver != null) {
-      this.attributeDefResolver.stop();
-    }
-    if (this.namingResolver != null) {
-      this.namingResolver.stop();
-    }
-    
-    //stop the root
-    if (this.rootSession != null) {
-      this.rootSession.stop();
-    }
-    
-    
-    
-    //set some fields to null
-    this.subject = null;
-    this.accessResolver = null;
-    this.attributeDefResolver = null;
-    this.cachedMember = null;
-    this.memberUUID = null;
-    this.namingResolver = null;
-    this.rootSession = null;
-    this.uuid = null;
-    
   } 
 
   /**
@@ -866,20 +948,48 @@ public class GrouperSession implements Serializable {
    */
   public static Object callbackGrouperSession(GrouperSession grouperSession, GrouperSessionHandler grouperSessionHandler)
       throws GrouperSessionException {
+    
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    if (LOG.isDebugEnabled()) {
+      debugMap.put("method", "callbackGrouperSession()");
+      if (grouperSession == null || grouperSession.getSubject() == null) {
+        debugMap.put("subject", "null");
+      } else {
+        debugMap.put("hash", grouperSession.hashCode());
+
+        debugMap.put("subject", grouperSession.getSubject().getId());
+      }
+      logAddThreadLocal(debugMap, "start_");
+    }
     Object ret = null;
-    boolean needsToBeRemoved = false;
     try {
-      //add to threadlocal
-      needsToBeRemoved = addStaticHibernateSession(grouperSession);
-      ret = grouperSessionHandler.callback(grouperSession);
-  
+      boolean needsToBeRemoved = false;
+      try {
+        //add to threadlocal
+        needsToBeRemoved = addStaticHibernateSession(grouperSession);
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("needsToBeRemoved", needsToBeRemoved);
+          logAddThreadLocal(debugMap, "postAdd_");
+        }
+        ret = grouperSessionHandler.callback(grouperSession);
+    
+      } finally {
+        //remove from threadlocal
+        if (needsToBeRemoved) {
+          removeLastStaticGrouperSession(grouperSession);
+        }
+      }
+
     } finally {
-      //remove from threadlocal
-      if (needsToBeRemoved) {
-        removeLastStaticGrouperSession(grouperSession);
+      if (LOG.isDebugEnabled()) {
+        logAddThreadLocal(debugMap, "end_");
+        LOG.debug("Stack: " + GrouperUtil.stack());
+        LOG.debug(debugMap);
       }
     }
+
     return ret;
+    
   
   }
 
@@ -900,7 +1010,7 @@ public class GrouperSession implements Serializable {
 
     //this needs to run as root
     boolean startedGrouperSession = false;
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
     if (grouperSession == null) {
       grouperSession = GrouperSession.startRootSession(false);
       startedGrouperSession = true;
