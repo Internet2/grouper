@@ -3206,7 +3206,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
       try {
         attributeDefs = GrouperSession.staticGrouperSession().getAttributeDefResolver().getAttributeDefsWhereSubjectHasPrivilege(
-                  this.getSubject(), AccessPrivilege.ADMIN
+                  this.getSubject(), AttributeDefPrivilege.ATTR_ADMIN
                 );
       }
       catch (SubjectNotFoundException eSNF) {
