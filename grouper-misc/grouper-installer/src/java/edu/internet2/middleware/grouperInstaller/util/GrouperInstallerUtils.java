@@ -75,6 +75,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.jar.Attributes;
+import java.util.jar.JarInputStream;
+import java.util.jar.Attributes.Name;
+import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -111,6 +115,33 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperInstallerUtils  {
 
+  /**
+   * delete a file
+   * @param file
+   * @return true if delete, false if not exist
+   */
+  public static boolean fileDelete(File file) {
+    if (!file.exists()) {
+      return false;
+    }
+    if (!file.delete()) {
+      throw new RuntimeException("Couldnt delete file: " + file);
+    }
+    return true;
+  }
+  
+  /**
+   * move a file
+   * @param file
+   * @param newFile move to new file
+   */
+  public static void fileMove(File file, File newFile) {
+    fileDelete(newFile);
+    if (!file.renameTo(newFile)) {
+      throw new RuntimeException("Cant rename file " + file.getAbsolutePath() + " to file: " + newFile);
+    }
+  }
+  
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
@@ -9969,11 +10000,46 @@ public class GrouperInstallerUtils  {
       NodeList nodes = (NodeList) result;
       return nodes;
     } catch (Exception e) {
-      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'");
+      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'", e);
     }
 
   }
   
+  /** array for converting HTML to string */
+  private static final String[] XML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
+
+  /** array for converting HTML to string */
+  private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input) {
+    return xmlEscape(input, true);
+  }
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   *
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   *
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input, boolean isEscape) {
+    if (isEscape) {
+      return replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
+    }
+    return replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
+  }
+
   /**
    * 
    * @param xmlFile
@@ -10016,5 +10082,74 @@ public class GrouperInstallerUtils  {
     String nodeValue = xpathEvaluateAttribute(xmlFile, xpathExpression, attributeName);
     Integer intValue = GrouperInstallerUtils.intValue(nodeValue, defaultValue);
     return intValue;
-  }  
+  }
+
+  /**
+   * get the property value from version in the manifest of a jar
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion(File jarFile) {
+    FileInputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream(jarFile);
+      JarInputStream jarInputStream = new JarInputStream(fileInputStream);
+      
+      Manifest manifest = jarInputStream.getManifest();
+
+      return manifestVersion(jarFile, manifest);
+      
+    } catch (Exception e) {
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
+      closeQuietly(fileInputStream);
+    }
+
+  }
+  
+  /**
+   * @param jarFile
+   * @param manifest
+   * @return manifest version
+   */
+  public static String manifestVersion(File jarFile, Manifest manifest) {
+    String[] propertyNames = new String[]{
+        "Implementation-Version","Version"};
+    
+    Map<String, Attributes> attributeMap = manifest.getEntries();
+    String value = null;
+    for (String propertyName : propertyNames) {
+      value = manifest.getMainAttributes().getValue(propertyName);
+      if (!isBlank(value)) {
+        break;
+      }
+    }
+    if (value == null) {
+      OUTER:
+      for (Attributes attributes: attributeMap.values()) {
+        for (String propertyName : propertyNames) {
+          value = attributes.getValue(propertyName);
+          if (!isBlank(value)) {
+            break OUTER;
+          }
+        }
+      }
+    }
+    if (value == null) {
+      System.out.println("Error: cant find version for jar");
+      for (Attributes attributes: attributeMap.values()) {
+        for (Object key : attributes.keySet()) {
+          System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+        }
+      }
+      Attributes attributes = manifest.getMainAttributes();
+      for (Object key : attributes.keySet()) {
+        System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+      }
+    }
+    return value;
+  }
 }

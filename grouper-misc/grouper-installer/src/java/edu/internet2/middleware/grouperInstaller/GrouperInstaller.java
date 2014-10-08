@@ -24,14 +24,30 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import edu.internet2.middleware.grouperInstaller.util.GiDbUtils;
@@ -187,9 +203,16 @@ public class GrouperInstaller {
    */
   public static void main(String[] args) {
 
-    GrouperInstaller grouperInstaller = new GrouperInstaller();
-    grouperInstaller.mainLogic(args);
+//    GrouperInstaller grouperInstaller = new GrouperInstaller();
+//    grouperInstaller.mainLogic(args);
 
+    
+    mergeEhcacheXmlFiles(new File("C:\\temp\\ehcache\\ehcache.new.xml"),
+        new File("C:\\temp\\ehcache\\ehcache.example.xml"), 
+        new File("C:\\temp\\ehcache\\ehcache.xml"),
+        new File("C:\\temp\\ehcache\\ehcache.bak.xml")
+    );
+    
 //    
 //    
 //    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
@@ -690,7 +713,10 @@ public class GrouperInstaller {
   private File untarredTomcatDir;
 
   /** main install dir, must end in file separator */
-  private String grouperInstallDirectoryString;
+  private String grouperTarballDirectoryString;
+  
+  /** base bak dir for backing up files that are upgraded, ends in File separator */
+  private String grouperBaseBakDir;
   
   /** grouper system password */
   private String grouperSystemPassword;
@@ -798,16 +824,823 @@ public class GrouperInstaller {
     editPropertiesFile(buildPropertiesFile, "grouper.dir", apiDir);
     
   }
-  
+
   /**
    * 
    * @param args
    */
   private void mainLogic(String[] args) {
+    boolean install = this.grouperInstallOrUpgrade();
+    if (install) {
+      mainInstallLogic(args);
+    } else {
+      mainUpgradeLogic(args);
+    }
+  }
+  
+  /**
+   * which app is being upgraded
+   */
+  private AppToUpgrade appToUpgrade;
+  
+  /**
+   * 
+   * @param args
+   */
+  private void mainUpgradeLogic(String[] args) {
+    
+    //####################################
+    //Find out what directory to upgrade to.  This ends in a file separator
+    this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
+    
+    //see what we are upgrading: api, ui, ws, client
+    this.appToUpgrade = grouperAppToUpgrade();
+
+    for (int i=0;i<10;i++) {
+      System.out.println("Are there any running processes using this installation?  tomcats?  loader?  psp?  etc?  (t|f)? [f]:");
+      boolean runningProcesses = readFromStdInBoolean(true);
+      if (runningProcesses) {
+        break;
+      }
+      System.out.println("Please stop any processes using this installation...");
+      //lets sleep for a bit to let it start
+      GrouperInstallerUtils.sleep(2000);
+    }
+    
+    
+    //get the directory where the existing installation is
+    this.upgradeExistingApplicationDirectoryString = upgradeExistingDirectory();
+    
+    this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    System.out.println("Upgrading to grouper " + this.appToUpgrade.name() + " version: " + this.version);
+    
+    //download new files
+    this.appToUpgrade.downloadAndBuildGrouperProjects(this);
+
+    this.grouperBaseBakDir = this.grouperTarballDirectoryString + "bak_" + this.appToUpgrade + "_" 
+        + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + File.separator; 
+    
+    this.appToUpgrade.upgradeApp(this);
+
+  }
+
+  /**
+   * upgrade the client
+   */
+  private void upgradeClient() {
+
+    this.compareAndReplaceJar(this.grouperClientJar, new File(this.untarredClientDir + File.separator + "grouperClient.jar"), true);
+
+    this.compareUpgradePropertiesFile(this.grouperClientBasePropertiesFile, 
+      new File(this.untarredClientDir + File.separator + "grouper.client.base.properties"),
+      this.grouperClientPropertiesFile,
+      this.grouperClientExamplePropertiesFile,
+      GrouperInstallerUtils.toSet("grouperClient.webService.client.version")
+    );
+      
+  }
+
+  /**
+   * upgrade the client
+   */
+  private void upgradeApi() {
+
+    this.upgradeClient();
+    
+    this.compareAndReplaceJar(this.grouperJar, 
+        new File(this.untarredApiDir + File.separator + "dist" + File.separator 
+            + "lib" + File.separator + "grouper.jar"), true);
+
+    this.compareUpgradePropertiesFile(this.grouperBasePropertiesFile, 
+      new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouper.base.properties"),
+      this.grouperPropertiesFile,
+      this.grouperExamplePropertiesFile, null
+    );
+      
+    this.compareUpgradePropertiesFile(this.grouperHibernateBasePropertiesFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouper.hibernate.base.properties"),
+        this.grouperHibernatePropertiesFile,
+        this.grouperHibernateExamplePropertiesFile, null
+      );
+        
+    this.compareUpgradePropertiesFile(this.grouperLoaderBasePropertiesFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouper-loader.base.properties"),
+        this.grouperLoaderPropertiesFile,
+        this.grouperLoaderExamplePropertiesFile, null
+      );
+
+    this.compareUpgradePropertiesFile(this.subjectBasePropertiesFile, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "subject.base.properties"),
+        this.subjectPropertiesFile,
+        null, null
+      );
+
+    //ehcache, prompt to see if do it (if difference than example, and if old example different than new example?
+    
+    
+  }
+
+  /**
+   * @param existingBasePropertiesFile 
+   * @param newBasePropertiesFile 
+   * @param existingPropertiesFile 
+   * @param existingExamplePropertiesFile 
+   * @param propertiesToIgnore
+   */
+  private void compareUpgradePropertiesFile(File existingBasePropertiesFile, 
+      File newBasePropertiesFile,
+      File existingPropertiesFile,
+      File existingExamplePropertiesFile,
+      Set<String> propertiesToIgnore) {
+    
+    if (!newBasePropertiesFile.exists() && newBasePropertiesFile.isFile()) {
+      throw new RuntimeException("Why does this file not exist? " + newBasePropertiesFile.getAbsolutePath());
+    }
+    
+    //if there is an existing base properties file, compare and replace and done
+    if (existingBasePropertiesFile != null && existingBasePropertiesFile.exists() && existingBasePropertiesFile.isFile()) {
+      
+      String existingBaseContents = GrouperInstallerUtils.readFileIntoString(existingBasePropertiesFile);
+      String newBaseContents = GrouperInstallerUtils.readFileIntoString(newBasePropertiesFile);
+      
+      if (!GrouperInstallerUtils.equals(existingBaseContents, newBaseContents)) {
+        
+        String existingBasePropertiesFilePath = existingBasePropertiesFile.getAbsolutePath();
+        if (!existingBasePropertiesFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+          throw new RuntimeException("Why does existing path not start with upgrade path??? " 
+              + existingBasePropertiesFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
+        }
+        
+        String bakBasePropertiesString = this.grouperBaseBakDir + existingBasePropertiesFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
+
+        File bakBasePropertiesFile = new File(bakBasePropertiesString);
+        
+        //make sure parents exist
+        GrouperInstallerUtils.createParentDirectories(bakBasePropertiesFile);
+
+        System.out.println(existingBasePropertiesFile.getName() + " has changes and was upgraded.\n  It is backed up to " 
+            + bakBasePropertiesFile.getAbsolutePath());
+
+        GrouperInstallerUtils.fileMove(existingBasePropertiesFile, bakBasePropertiesFile);
+        
+        GrouperInstallerUtils.copyFile(newBasePropertiesFile, existingBasePropertiesFile);
+
+      }
+      
+    } else {
+      
+      System.out.println(existingBasePropertiesFile.getName() + " didn't exist and was installed.");
+      GrouperInstallerUtils.copyFile(newBasePropertiesFile, new File(this.upgradeExistingClassesDirectoryString + newBasePropertiesFile.getName()));
+    }
+    
+    // if there is an example there, it can be removed
+    if (existingExamplePropertiesFile != null && existingExamplePropertiesFile.exists() && existingExamplePropertiesFile.isFile()) {
+
+      String existingExamplePropertiesFilePath = existingExamplePropertiesFile.getAbsolutePath();
+      if (!existingExamplePropertiesFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+        throw new RuntimeException("Why does existing path not start with upgrade path??? " 
+            + existingExamplePropertiesFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
+      }
+      
+      String bakExamplePropertiesString = this.grouperBaseBakDir 
+          + existingExamplePropertiesFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
+
+      File bakExamplePropertiesFile = new File(bakExamplePropertiesString);
+      
+      //make sure parents exist
+      GrouperInstallerUtils.createParentDirectories(bakExamplePropertiesFile);
+
+      System.out.println(existingExamplePropertiesFile.getName() + " is not needed and was deleted.\n  It is backed up to " 
+          + bakExamplePropertiesFile.getAbsolutePath());
+
+      GrouperInstallerUtils.fileMove(existingExamplePropertiesFile, bakExamplePropertiesFile);
+    
+    }
+
+    if (existingPropertiesFile != null && existingPropertiesFile.exists() && existingPropertiesFile.isFile()) {
+      
+      // now then, if there is a properties file, we can look for duplicate configs, and remove them...
+      Set<String> duplicateConfigPropertyNames = configPropertyDuplicates(newBasePropertiesFile, existingPropertiesFile);
+
+      if (GrouperInstallerUtils.length(propertiesToIgnore) > 0 && GrouperInstallerUtils.length(duplicateConfigPropertyNames) > 0) {
+        duplicateConfigPropertyNames.addAll(propertiesToIgnore);
+      }
+      
+      if (GrouperInstallerUtils.length(duplicateConfigPropertyNames) > 0) {
+
+        System.out.println(existingPropertiesFile.getName() + " has properties that can be removed since the values are the same in "
+            + newBasePropertiesFile.getName());
+
+        System.out.println("Would you like to have the redundant properties automatically removed from " 
+            + existingPropertiesFile.getName() + " (t|f)? [t]: ");
+        boolean removeRedundantProperties = readFromStdInBoolean(true);
+        
+        if (removeRedundantProperties) {
+
+          String existingPropertiesFilePath = existingPropertiesFile.getAbsolutePath();
+          if (!existingPropertiesFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+            throw new RuntimeException("Why does existing path not start with upgrade path??? " 
+                + existingPropertiesFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
+          }
+          
+          String bakPropertiesString = this.grouperBaseBakDir 
+              + existingPropertiesFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
+
+          File bakPropertiesFile = new File(bakPropertiesString);
+          
+          //make sure parents exist
+          GrouperInstallerUtils.createParentDirectories(bakPropertiesFile);
+
+          System.out.println(existingPropertiesFile.getName() + " had redundant properties removed after being backed up to " 
+              + bakPropertiesFile.getAbsolutePath());
+
+          GrouperInstallerUtils.copyFile(existingPropertiesFile, bakPropertiesFile);
+          
+          removeRedundantProperties(existingPropertiesFile, duplicateConfigPropertyNames);
+          
+        }
+      }
+    } else {
+      //if we didnt have a properties file, create one
+      //file is null...
+      String contents = "\n# The " + existingPropertiesFile.getName() + " file uses Grouper Configuration Overlays (documented on wiki)\n"
+          + "# By default the configuration is read from " + newBasePropertiesFile.getName() + "\n"
+          + "# (which should not be edited), and the " + existingPropertiesFile.getName() + " overlays\n"
+          + "# the base settings.  See the " + newBasePropertiesFile.getName() + " for the possible\n"
+          + "# settings that can be applied to the " + existingPropertiesFile.getName() + "\n\n";
+
+      String fileName = this.upgradeExistingClassesDirectoryString + newBasePropertiesFile.getName().replace(".base", "");
+      File file = new File(fileName);
+      System.out.println("Created overlay config file: " + file.getAbsolutePath());
+      
+      GrouperInstallerUtils.saveStringIntoFile(file, contents);
+    }
+  }
+
+  /**
+   * remove duplicate properties
+   * @param propertiesFile
+   * @param duplicatePropertyNames
+   */
+  private static void removeRedundantProperties(File propertiesFile, Set<String> duplicatePropertyNames) {
+    
+    String fileContents = GrouperInstallerUtils.readFileIntoString(propertiesFile);
+    
+    String newline = newlineFromFile(fileContents);
+
+    StringBuilder newContents = new StringBuilder();
+
+    String[] lines = null;
+    if ("\n".equals(newline)) {
+      lines = fileContents.split("[\\n]");
+    } else if ("\r".equals(newline)) {
+      lines = fileContents.split("[\\r]");
+    } else if ("\r\n".equals(newline)) {
+      lines = fileContents.split("[\\r\\n]");
+    } else {
+      lines = fileContents.split("[\\r\\n]+");
+    }
+    
+    boolean inStartComments = true;
+    boolean inHeaderComments = false;
+
+    StringBuilder captureHeader = new StringBuilder();
+    StringBuilder propertyAndComments = new StringBuilder();
+    
+    for (String line: lines) {
+      
+      line = line.trim();
+      
+      boolean isBlank = GrouperInstallerUtils.isBlank(line);
+      boolean isComment = line.startsWith("#");
+      boolean isSingleComment = line.startsWith("#") && !line.startsWith("##");
+      boolean isHeaderComment = line.contains("#####");
+      boolean isProperty = !isBlank && !isComment;
+      
+      //if in header then we are done with the start comments
+      if (isHeaderComment) {
+        inStartComments = false;
+      }
+
+      //we want to keep the start comments
+      if (inStartComments) {
+        
+        if (isBlank || isComment) {
+          newContents.append(line).append(newline);
+          continue;
+        }
+        inStartComments = false;
+      }
+
+      //we are done with headers
+      if (isProperty || isBlank || isSingleComment) {
+        inHeaderComments = false;
+      }
+
+      if (isHeaderComment) {
+        //if header and in headers, then we arent in headers
+        if (inHeaderComments) {
+          inHeaderComments = false;
+        } else {
+          //if this is a header, and we arent in headers, then we are in headers
+          inHeaderComments = true;          
+          captureHeader.setLength(0);
+        }
+      }
+
+      if (isHeaderComment || inHeaderComments) {
+        propertyAndComments.setLength(0);
+        captureHeader.append(line).append(newline);
+        continue;
+      }
+      
+      if (isProperty) {
+        
+        //get the property
+        int equalsIndex = line.indexOf('=');
+        if (equalsIndex == -1) {
+          //uh... ignore this... 
+          System.out.println("Invalid line removed from properties file: " + propertiesFile.getAbsolutePath() + ":\n  " + line);
+          continue;
+        }
+        
+        String propertyName = line.substring(0, equalsIndex).trim();
+        if (duplicatePropertyNames.contains(propertyName)) {
+          propertyAndComments.setLength(0);
+          //remove it!
+          continue;
+        }
+
+        //keep it
+        propertyAndComments.append(line).append(newline);
+
+        //we need a header if there is one
+        if (captureHeader.length() > 0) {
+          newContents.append(newline);
+          newContents.append(captureHeader);
+          captureHeader.setLength(0);
+        }
+
+        //append the property and contents
+        newContents.append(propertyAndComments);
+
+        propertyAndComments.setLength(0);
+        continue;
+      }
+      
+      //must be whitespace or comment...
+      propertyAndComments.append(line).append(newline);
+    }
+    
+    GrouperInstallerUtils.saveStringIntoFile(propertiesFile, newContents.toString());
+    
+  }
+  
+  /**
+   * 
+   * @param file1
+   * @param file2
+   * @return the property names which are the same
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<String> configPropertyDuplicates(File file1, File file2) {
+    Properties file1properties = GrouperInstallerUtils.propertiesFromFile(file1);
+    Properties file2properties = GrouperInstallerUtils.propertiesFromFile(file2);
+    
+    Set<String> duplicatePropertyNames = new LinkedHashSet<String>();
+    
+    for (String propertyName : (Set<String>)(Object)file2properties.keySet()) {
+      
+      String file1Value = GrouperInstallerUtils.trimToEmpty(file1properties.getProperty(propertyName));
+      String file2Value = GrouperInstallerUtils.trimToEmpty(file2properties.getProperty(propertyName));
+      
+      if (GrouperInstallerUtils.equals(file1Value, file2Value)) {
+        duplicatePropertyNames.add(propertyName);
+      }
+      
+    }
+    return duplicatePropertyNames;
+  }
+  
+  
+  /**
+   * the location of the existing installation, must end in file separator
+   */
+  private String upgradeExistingApplicationDirectoryString;
+  
+  /**
+   * 
+   */
+  private static enum AppToUpgrade {
+    
+    /**
+     * upgrading the UI
+     */
+    UI {
+
+      @Override
+      public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        return true;
+      }
+
+      @Override
+      public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+      }
+
+      @Override
+      public void upgradeApp(GrouperInstaller grouperInstaller) {
+      }
+    },
+    
+    /**
+     * upgrading the API
+     */
+    API {
+
+      @Override
+      public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+
+        //client is in the API
+        if (!CLIENT.validateExistingDirectory(grouperInstaller)) {
+          return false;
+        }
+        
+        grouperInstaller.subjectPropertiesFile = grouperInstaller.findClasspathFile("subject.properties", false);
+        grouperInstaller.subjectBasePropertiesFile = grouperInstaller.findClasspathFile("subject.base.properties", false);
+        
+        //no need to check if it exists... its new in 2.2
+        
+        grouperInstaller.grouperPropertiesFile = grouperInstaller.findClasspathFile("grouper.properties", false);
+        grouperInstaller.grouperBasePropertiesFile = grouperInstaller.findClasspathFile("grouper.base.properties", false);
+        grouperInstaller.grouperExamplePropertiesFile = grouperInstaller.findClasspathFile("grouper.example.properties", false);
+
+        if (grouperInstaller.grouperBasePropertiesFile == null 
+            && grouperInstaller.grouperPropertiesFile == null 
+            && grouperInstaller.grouperExamplePropertiesFile == null) {
+          return false;
+        }
+        
+        grouperInstaller.grouperHibernatePropertiesFile = grouperInstaller.findClasspathFile("grouper.hibernate.properties", false);
+        grouperInstaller.grouperHibernateBasePropertiesFile = grouperInstaller.findClasspathFile("grouper.hibernate.base.properties", false);
+        grouperInstaller.grouperHibernateExamplePropertiesFile = grouperInstaller.findClasspathFile("grouper.hibernate.example.properties", false);
+
+        if (grouperInstaller.grouperHibernateBasePropertiesFile == null 
+            && grouperInstaller.grouperHibernatePropertiesFile == null 
+            && grouperInstaller.grouperHibernateExamplePropertiesFile == null) {
+          return false;
+        }
+        
+        grouperInstaller.grouperLoaderPropertiesFile = grouperInstaller.findClasspathFile("grouper-loader.properties", false);
+        grouperInstaller.grouperLoaderBasePropertiesFile = grouperInstaller.findClasspathFile("grouper-loader.base.properties", false);
+        grouperInstaller.grouperLoaderExamplePropertiesFile = grouperInstaller.findClasspathFile("grouper-loader.example.properties", false);
+
+        if (grouperInstaller.grouperLoaderBasePropertiesFile == null 
+            && grouperInstaller.grouperLoaderPropertiesFile == null 
+            && grouperInstaller.grouperLoaderExamplePropertiesFile == null) {
+          return false;
+        }
+        
+        //this must exist
+        grouperInstaller.grouperJar = grouperInstaller.findLibraryFile("grouper.jar", false);
+        if (grouperInstaller.grouperJar == null) {
+          return false;
+        }
+        
+        //all good
+        return true;
+      }
+
+      @Override
+      public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+      }
+
+      @Override
+      public void upgradeApp(GrouperInstaller grouperInstaller) {
+        grouperInstaller.upgradeApi();
+      }
+    },
+    
+    /**
+     * upgrading the client
+     */
+    CLIENT {
+
+      @Override
+      public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        
+        grouperInstaller.grouperClientPropertiesFile = grouperInstaller.findClasspathFile("grouper.client.properties", false);
+        grouperInstaller.grouperClientBasePropertiesFile = grouperInstaller.findClasspathFile("grouper.client.base.properties", false);
+        grouperInstaller.grouperClientExamplePropertiesFile = grouperInstaller.findClasspathFile("grouper.client.example.properties", false);
+
+        if (grouperInstaller.grouperClientBasePropertiesFile == null 
+            && grouperInstaller.grouperClientPropertiesFile == null 
+            && grouperInstaller.grouperClientExamplePropertiesFile == null) {
+          return false;
+        }
+        
+        //this must exist
+        grouperInstaller.grouperClientJar = grouperInstaller.findLibraryFile("grouperClient.jar", false);
+        if (grouperInstaller.grouperClientJar == null) {
+          return false;
+        }
+        
+        //all good
+        return true;
+      }
+
+      @Override
+      public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+        File clientDir = grouperInstaller.downloadClient();
+        File unzippedClientFile = unzip(clientDir.getAbsolutePath());
+        grouperInstaller.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
+
+      }
+
+      @Override
+      public void upgradeApp(GrouperInstaller grouperInstaller) {
+        grouperInstaller.upgradeClient();
+      }
+    },
+
+    /**
+     * upgrading the WS
+     */
+    WS {
+
+      @Override
+      public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        return true;
+      }
+
+      @Override
+      public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+      }
+
+      @Override
+      public void upgradeApp(GrouperInstaller grouperInstaller) {
+      }
+    };
+
+    /**
+     * validate that the existing directory is valid, and find all the file paths
+     * @param grouperInstaller 
+     * @return true if valid, false if not
+     */
+    public abstract boolean validateExistingDirectory(GrouperInstaller grouperInstaller);
+    
+    /**
+     * based on what is being upgraded, download and build the grouper projects
+     * @param grouperInstaller
+     */
+    public abstract void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller);
+    
+    /**
+     * upgrade this app
+     * @param grouperInstaller
+     */
+    public abstract void upgradeApp(GrouperInstaller grouperInstaller);
+    
+    /**
+     * 
+     * @param string
+     * @param exceptionOnNotFound
+     * @return the enum of what to upgrade
+     */
+    public static AppToUpgrade valueOfIgnoreCase(String string, boolean exceptionOnNotFound) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(AppToUpgrade.class, string, exceptionOnNotFound);
+    }
+    
+  }
+  
+  /**
+   * on an upgrade, compare a new jar and an existing jar and see if needs to be updated, and if so, update it
+   * @param existingJarFile
+   * @param newJarFile
+   * @param printResultIfNotUpgrade
+   */
+  private void compareAndReplaceJar(File existingJarFile, File newJarFile, boolean printResultIfNotUpgrade) {
+    
+    String existingJarFilePath = existingJarFile.getAbsolutePath();
+    if (!existingJarFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+      throw new RuntimeException("Why does existing path not start with upgrade path??? " + existingJarFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
+    }
+    
+    String bakJarFileString = this.grouperBaseBakDir + existingJarFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
+    File bakJarFile = new File(bakJarFileString);
+    
+    //make sure parents exist
+    GrouperInstallerUtils.createParentDirectories(bakJarFile);
+    
+    String existingVersion = GrouperInstallerUtils.jarVersion(existingJarFile);
+    String newVersion = GrouperInstallerUtils.jarVersion(newJarFile);
+    
+    long existingSize = existingJarFile.length();
+    long newSize = newJarFile.length();
+    
+    if (!GrouperInstallerUtils.equals(existingVersion, newVersion) || existingSize != newSize) {
+
+      System.out.println(existingJarFile.getName() + " had version " + existingVersion + " and size " + existingSize + " bytes and is being upgraded to version "
+          + newVersion + " and size " + newSize + " bytes.\n  It is backed up to " + bakJarFile);
+
+      GrouperInstallerUtils.fileMove(existingJarFile, bakJarFile);
+      
+      GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
+      
+    } else {
+      if (printResultIfNotUpgrade) {
+        System.out.println(existingJarFile.getName() + " is up to date");
+      }
+    }
+    
+  }
+
+  /**
+   * grouper.client.properties
+   */
+  private File grouperClientPropertiesFile;
+  
+  /**
+   * grouper.client.base.properties
+   */
+  private File grouperClientBasePropertiesFile;
+  
+  /**
+   * grouper.client.example.properties
+   */
+  private File grouperClientExamplePropertiesFile;
+
+  /**
+   * grouperClient.jar
+   */
+  private File grouperClientJar;
+
+  /**
+   * grouper.properties
+   */
+  private File grouperPropertiesFile;
+  
+  /**
+   * grouper.base.properties
+   */
+  private File grouperBasePropertiesFile;
+  
+  /**
+   * subject.properties
+   */
+  private File subjectPropertiesFile;
+  
+  /**
+   * subject.base.properties
+   */
+  private File subjectBasePropertiesFile;
+  
+  /**
+   * grouper.example.properties
+   */
+  private File grouperExamplePropertiesFile;
+
+  /**
+   * grouper.hibernate.properties
+   */
+  private File grouperHibernatePropertiesFile;
+  
+  /**
+   * grouper.hibernate.base.properties
+   */
+  private File grouperHibernateBasePropertiesFile;
+  
+  /**
+   * grouper.hibernate.example.properties
+   */
+  private File grouperHibernateExamplePropertiesFile;
+
+  /**
+   * grouper-loader.properties
+   */
+  private File grouperLoaderPropertiesFile;
+  
+  /**
+   * grouper-loader.base.properties
+   */
+  private File grouperLoaderBasePropertiesFile;
+  
+  /**
+   * grouper-loader.example.properties
+   */
+  private File grouperLoaderExamplePropertiesFile;
+
+  /**
+   * grouper.jar
+   */
+  private File grouperJar;
+
+  
+  /**
+   * find a classpath file on classpath by resourceName
+   * @param resourceName resource name of file
+   * @param exceptionIfNotFound 
+   * @return the file or null if not exception if not found
+   */
+  private File findClasspathFile(String resourceName, boolean exceptionIfNotFound) {
+    
+    Set<String> fileNamesTried = new LinkedHashSet<String>();
+    
+    File file = new File(this.upgradeExistingApplicationDirectoryString + "classes/" + resourceName);
+    if (file.exists()) {
+      return file;
+    }
+    
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + "conf/" + resourceName);
+    if (file.exists()) {
+      return file;
+    }
+    
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF/classes/" + resourceName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + resourceName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find file, looked in: " + GrouperInstallerUtils.join(fileNamesTried.iterator(), ", "));
+    }
+    
+    return null;
+  }
+  
+  /**
+   * find a library file on lib dir by libName
+   * @param libName lib name of file
+   * @param exceptionIfNotFound 
+   * @return the file or null if not exception if not found
+   */
+  private File findLibraryFile(String libName, boolean exceptionIfNotFound) {
+    
+    Set<String> fileNamesTried = new LinkedHashSet<String>();
+    
+    File file = new File(this.upgradeExistingApplicationDirectoryString + "lib/" + libName);
+    if (file.exists()) {
+      return file;
+    }
+    
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF/lib/" + libName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + "lib/grouper/" + libName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + "dist/lib/" + libName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    file = new File(this.upgradeExistingApplicationDirectoryString + libName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cant find file, looked in: " + GrouperInstallerUtils.join(fileNamesTried.iterator(), ", "));
+    }
+    
+    return null;
+  }
+  
+  /**
+   * 
+   * @param args
+   */
+  private void mainInstallLogic(String[] args) {
     
     //####################################
     //Find out what directory to install to.  This ends in a file separator
-    this.grouperInstallDirectoryString = grouperInstallDirectory();
+    this.grouperTarballDirectoryString = grouperInstallDirectory();
 
     //####################################
     //get default ip address
@@ -1111,7 +1944,7 @@ public class GrouperInstaller {
     File clientDir = downloadClient();
 
     //####################################
-    //unzip/untar the ws file
+    //unzip/untar the client file
     File unzippedClientFile = unzip(clientDir.getAbsolutePath());
     this.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
 
@@ -1377,6 +2210,258 @@ public class GrouperInstaller {
     }
     
   }
+
+  /**
+   * 
+   * @param newEhcacheExampleFile
+   * @param existingEhcacheExampleFile
+   * @param existingEhcacheFile
+   * @param backedUpEhcacheFile
+   */
+  public static void mergeEhcacheXmlFiles(File newEhcacheExampleFile, File existingEhcacheExampleFile, File existingEhcacheFile,
+      File backedUpEhcacheFile) {
+    
+    try {
+      //lets get the differences of the existing ehcache file and the existing ehcache example file
+      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+      domFactory.setNamespaceAware(true); 
+      DocumentBuilder builder = domFactory.newDocumentBuilder();
+      Document existingEhcacheDoc = builder.parse(existingEhcacheFile);
+      Document existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
+
+      Map<String, String> diskstoreAttributes = new LinkedHashMap<String, String>();
+      
+      Element existingDocumentElement = existingEhcacheDoc.getDocumentElement();
+      Element existingExampleDocumentElement = existingEhcacheExampleDoc.getDocumentElement();
+
+      Map<String, String> diskStoreDifferences = null;
+      
+      {
+        Element existingDiskStoreElement = (Element)existingDocumentElement.getElementsByTagName("diskStore").item(0);
+        Element existingExampleDiskStoreElement = (Element)existingExampleDocumentElement.getElementsByTagName("diskStore").item(0);
+        diskStoreDifferences = xmlNodeAttributeDifferences(existingExampleDiskStoreElement, existingDiskStoreElement);
+      }
+
+      Map<String, String> defaultCacheDifferences = null;
+
+      {
+        Element existingDefaultCacheElement = (Element)existingDocumentElement.getElementsByTagName("defaultCache").item(0);
+        Element existingExampleDefaultCacheElement = (Element)existingExampleDocumentElement.getElementsByTagName("defaultCache").item(0);
+        defaultCacheDifferences = xmlNodeAttributeDifferences(existingExampleDefaultCacheElement, existingDefaultCacheElement);
+        
+      }
+
+      XPath xpath = XPathFactory.newInstance().newXPath();
+      
+      //map of cache name to the differences in the attributes of the cache
+      Map<String, Map<String, String>> cacheDifferencesByCacheName = new LinkedHashMap<String, Map<String, String>>();
+      
+      {
+        NodeList existingCacheNodeList = existingDocumentElement.getElementsByTagName("cache");
+        
+        //loop through all the caches
+        for (int i=0;i<existingCacheNodeList.getLength(); i++) {
+          
+          Element existingCacheElement = (Element)existingCacheNodeList.item(i);
+
+          String cacheName = existingCacheElement.getAttribute("name");
+
+          //find the example cache
+          XPathExpression expr = xpath.compile("cache[@name='" + cacheName + "']");
+          Element existingExampleCacheElement = (Element)expr.evaluate(existingExampleDocumentElement, XPathConstants.NODE);
+
+          //see if they differ
+          Map<String, String> differences = xmlNodeAttributeDifferences(existingExampleCacheElement, existingCacheElement);
+          
+          if (differences != null) {
+            cacheDifferencesByCacheName.put(cacheName, differences);
+          }
+        }
+        
+        //note, dont worry if there were caches in the example that werent in the configured one
+        
+      }      
+      
+      //lets see if there are any other nodes
+      Set<String> otherNodes = new LinkedHashSet<String>();
+      {
+        NodeList nodeList = existingDocumentElement.getChildNodes();
+        
+        for (int i=0;i<nodeList.getLength();i++) {
+          Node node = nodeList.item(i);
+          if (node instanceof Element) {
+            Element nodeElement = (Element)node;
+            String nodeName = nodeElement.getNodeName();
+            if (!GrouperInstallerUtils.equals(nodeName, "cache")
+                && !GrouperInstallerUtils.equals(nodeName, "defaultCache")
+                && !GrouperInstallerUtils.equals(nodeName, "diskStore")) {
+              otherNodes.add(nodeName);
+            }
+          }
+        }
+      }
+      
+      //lets copy the new example to both the example and the configured ehcache file
+      //assume this is already backed up
+      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile);
+      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheFile);
+      
+      //now lets do our edits
+      if (GrouperInstallerUtils.length(diskstoreAttributes) > 0) {
+        for (String attributeName : diskstoreAttributes.keySet()) {
+          
+          String attributeValue = diskstoreAttributes.get(attributeName);
+          
+          editFile(existingEhcacheFile, attributeName + "=\"([^\"]+)\"", new String[]{"<diskStore"}, 
+              null, attributeValue, 
+              "ehcache diskStore attribute", true, attributeName);
+        }
+      }
+      
+      if (GrouperInstallerUtils.length(defaultCacheDifferences) > 0) {
+        for (String attributeName : defaultCacheDifferences.keySet()) {
+          
+          String attributeValue = defaultCacheDifferences.get(attributeName);
+          
+          editFile(existingEhcacheFile, attributeName + "=\"([^\"]+)\"", new String[]{"<defaultCache"}, 
+              null, attributeValue, 
+              "ehcache defaultCache attribute", true, attributeName);
+        }
+      }
+
+      if (GrouperInstallerUtils.length(cacheDifferencesByCacheName) > 0) {
+        for (String cacheName : cacheDifferencesByCacheName.keySet()) {
+
+          existingEhcacheDoc = builder.parse(existingEhcacheFile);
+
+          //see if the name exists
+          //find the example cache
+          XPathExpression expr = xpath.compile("cache[@name='/" + cacheName + "']");
+          Element existingCacheElement = (Element)expr.evaluate(existingDocumentElement, XPathConstants.NODE);
+
+          Map<String, String> attributeMap = cacheDifferencesByCacheName.get(cacheName);
+          
+          //it exists
+          if (existingCacheElement != null) {
+            
+            for (String attributeName : attributeMap.keySet()) {
+              
+              String attributeValue = attributeMap.get(attributeName);
+              
+              editFile(existingEhcacheFile, attributeName + "=\"([^\"]+)\"", 
+                  new String[]{"<cache", "name=\"" + cacheName + "\""}, 
+                  null, attributeValue, 
+                  "ehcache cache name=" + cacheName + " attribute", true, attributeName);
+            }
+          } else {
+            
+            String fileContents = GrouperInstallerUtils.readFileIntoString(existingEhcacheFile);
+            
+            String newline = newlineFromFile(fileContents);
+
+            int indexCloseTag = fileContents.lastIndexOf("</ehcache>");
+            
+            fileContents = fileContents.substring(0, indexCloseTag)
+                + elementToXml("cache", "", attributeMap)
+                + newline + "</ehcache>";
+            
+            GrouperInstallerUtils.saveStringIntoFile(existingEhcacheFile, fileContents);
+          }
+          
+        }
+      }
+
+      if (GrouperInstallerUtils.length(otherNodes) > 0) {
+        System.out.println("Compare you old ehcache.xml with your new ehcache.xml file and merge in these elements: " 
+            + GrouperInstallerUtils.toStringForLog(otherNodes) + "\n  Old file: "
+            + backedUpEhcacheFile.getAbsolutePath()
+            + "\n  New file: " + existingEhcacheFile.getAbsolutePath());
+        System.out.println("Do you want to continue (t|f)? [t]: ");
+        if (!readFromStdInBoolean(true)) {
+          System.exit(1);
+        }
+      }
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e.getMessage(), e);
+    }
+    
+  }
+
+  /**
+   * turn a map of attributes into an xml string
+   * @param elementName
+   * @param extraAttributes
+   * @param attributes
+   * @return the xml
+   */
+  private static String elementToXml(String elementName, 
+      String extraAttributes, Map<String, String> attributes) {
+    
+    StringBuilder result = new StringBuilder();
+    
+    result.append("<").append(elementName).append(" ").append(extraAttributes);
+    
+    for (String attributeName : attributes.keySet()) {
+      result.append(" ").append(attributeName).append("=\"");
+      String attributeValue = GrouperInstallerUtils.trimToEmpty(attributes.get(attributeName));
+      result.append(GrouperInstallerUtils.xmlEscape(attributeValue)).append("\"");
+    }
+    
+    result.append(" />");
+    
+    return result.toString();
+  }
+  
+  /**
+   * 
+   * @param baseElement
+   * @param configuredElement
+   * @return the map of differences
+   */
+  public static Map<String, String> xmlNodeAttributeDifferences(Element baseElement, Element configuredElement) {
+    NamedNodeMap configuredNamedNodeMap = configuredElement.getAttributes();
+    
+    Map<String, String> result = null;
+    
+    //see which attributes are new or changed
+    for (int i=0;i<configuredNamedNodeMap.getLength();i++) {
+      Node configuredAttribute = configuredNamedNodeMap.item(i);
+      Node baseAttribute = baseElement == null ? null : baseElement.getAttributeNode(configuredAttribute.getNodeName());
+
+      String configuredValue = configuredAttribute.getNodeValue();
+      String baseValue = baseAttribute == null ? null : baseAttribute.getNodeValue();
+      
+      if (!GrouperInstallerUtils.equals(configuredValue, baseValue)) {
+        if (result == null) {
+          result = new LinkedHashMap<String, String>();
+        }
+        result.put(configuredAttribute.getNodeName(), configuredValue);
+      }
+    }
+    
+    //see which ones are missing
+    NamedNodeMap baseNamedNodeMap = baseElement == null ? null : baseElement.getAttributes();
+    
+    //see which attributes are new or changed
+    for (int i=0;i<(baseNamedNodeMap == null ? 0 : baseNamedNodeMap.getLength());i++) {
+      
+      Node baseAttribute = configuredNamedNodeMap.item(0);
+      Node configuredAttribute = configuredElement.getAttributeNode(baseAttribute.getNodeName());
+
+      String baseValue = baseAttribute.getNodeValue();
+      String configuredValue = configuredAttribute == null ? null : configuredAttribute.getNodeValue();
+      
+      if (configuredValue == null && !GrouperInstallerUtils.equals(configuredValue, baseValue)) {
+        if (result == null) {
+          result = new LinkedHashMap<String, String>();
+        }
+        result.put(baseAttribute.getNodeName(), configuredValue);
+      }
+    }
+    
+    return result;
+  }
   
   /**
    * 
@@ -1392,7 +2477,7 @@ public class GrouperInstaller {
     String apiFileName = "grouper.apiBinary-" + this.version + ".tar.gz";
     urlToDownload += this.version + "/" + apiFileName;
 
-    File apiFile = new File(this.grouperInstallDirectoryString + apiFileName);
+    File apiFile = new File(this.grouperTarballDirectoryString + apiFileName);
     
     downloadFile(urlToDownload, apiFile.getAbsolutePath());
 
@@ -1414,7 +2499,7 @@ public class GrouperInstaller {
     String uiFileName = "grouper.ui-" + this.version + ".tar.gz";
     urlToDownload += this.version + "/" + uiFileName;
 
-    File uiFile = new File(this.grouperInstallDirectoryString + uiFileName);
+    File uiFile = new File(this.grouperTarballDirectoryString + uiFileName);
     
     downloadFile(urlToDownload, uiFile.getAbsolutePath());
 
@@ -1436,7 +2521,7 @@ public class GrouperInstaller {
     String wsFileName = "grouper.ws-" + this.version + ".tar.gz";
     urlToDownload += this.version + "/" + wsFileName;
 
-    File wsFile = new File(this.grouperInstallDirectoryString + wsFileName);
+    File wsFile = new File(this.grouperTarballDirectoryString + wsFileName);
     
     downloadFile(urlToDownload, wsFile.getAbsolutePath());
 
@@ -1456,7 +2541,7 @@ public class GrouperInstaller {
 
     urlToDownload += "downloads/tools/apache-ant-1.8.2-bin.tar.gz";
     
-    File antFile = new File(this.grouperInstallDirectoryString + "apache-ant-1.8.2-bin.tar.gz");
+    File antFile = new File(this.grouperTarballDirectoryString + "apache-ant-1.8.2-bin.tar.gz");
     
     downloadFile(urlToDownload, antFile.getAbsolutePath());
 
@@ -1476,7 +2561,7 @@ public class GrouperInstaller {
 
     urlToDownload += "downloads/tools/apache-tomcat-6.0.35.tar.gz";
     
-    File tomcatFile = new File(this.grouperInstallDirectoryString + "apache-tomcat-6.0.35.tar.gz");
+    File tomcatFile = new File(this.grouperTarballDirectoryString + "apache-tomcat-6.0.35.tar.gz");
     
     downloadFile(urlToDownload, tomcatFile.getAbsolutePath());
 
@@ -1665,7 +2750,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
               true, true, null, GrouperInstaller.this.untarredApiDir, 
-              GrouperInstaller.this.grouperInstallDirectoryString + "grouperLoader");
+              GrouperInstaller.this.grouperTarballDirectoryString + "grouperLoader");
         }
       });
       thread.setDaemon(true);
@@ -1764,7 +2849,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class),
               true, true, null, null, 
-              GrouperInstaller.this.grouperInstallDirectoryString + "hsqlDb");
+              GrouperInstaller.this.grouperTarballDirectoryString + "hsqlDb");
         }
       });
       thread.setDaemon(true);
@@ -2056,15 +3141,15 @@ public class GrouperInstaller {
      */
     private void configureClient() {
       //properties file
-      File grouperClientPropertiesFile = new File(this.untarredClientDir.getAbsolutePath() + File.separator 
+      File localGrouperClientPropertiesFile = new File(this.untarredClientDir.getAbsolutePath() + File.separator 
           + "grouper.client.properties");
       
       //set the grouper property
-      System.out.println("Editing " + grouperClientPropertiesFile.getAbsolutePath() + ": ");
-      editPropertiesFile(grouperClientPropertiesFile, "grouperClient.webService.url", "http://localhost:" 
+      System.out.println("Editing " + localGrouperClientPropertiesFile.getAbsolutePath() + ": ");
+      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.url", "http://localhost:" 
           + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/servicesRest");
-      editPropertiesFile(grouperClientPropertiesFile, "grouperClient.webService.login", "GrouperSystem");
-      editPropertiesFile(grouperClientPropertiesFile, "grouperClient.webService.password", this.grouperSystemPassword);
+      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.login", "GrouperSystem");
+      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.password", this.grouperSystemPassword);
       
       
 //      grouperClient.webService.url = http://localhost:8200/grouper-ws/servicesRest
@@ -2094,7 +3179,7 @@ public class GrouperInstaller {
     String clientFileName = "grouper.clientBinary-" + this.version + ".tar.gz";
     urlToDownload += this.version + "/" + clientFileName;
   
-    File clientFile = new File(this.grouperInstallDirectoryString + clientFileName);
+    File clientFile = new File(this.grouperTarballDirectoryString + clientFileName);
     
     downloadFile(urlToDownload, clientFile.getAbsolutePath());
 
@@ -2412,7 +3497,7 @@ public class GrouperInstaller {
   /** tomcat ws path */
   private String tomcatWsPath = null;
 
-  /** untarred dir */
+  /** untarred dir, this does NOT end in file.separator */
   private File untarredClientDir;
   
   /**
@@ -2448,6 +3533,34 @@ public class GrouperInstaller {
   }
 
   /**
+   * see if install or upgrade
+   * @return true if install, or false if upgrade
+   */
+  private boolean grouperInstallOrUpgrade() {
+    String input = null;
+    String defaultAction = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.installOrUpgrade", false);
+    defaultAction = GrouperInstallerUtils.defaultIfBlank(defaultAction, "install");
+    for (int i=0;i<10;i++) {
+      System.out.print("Do you want to 'install' a new installation of grouper, or 'upgrade' an existing installation\n(enter: 'install' or 'upgrade' or blank for the default) ["
+          + defaultAction + "]: ");
+      input = readFromStdIn();
+      if (GrouperInstallerUtils.isBlank(input)) {
+        input = defaultAction;
+      }
+      if (GrouperInstallerUtils.equalsIgnoreCase("install", input)) {
+        return true;
+      }
+      if (GrouperInstallerUtils.equalsIgnoreCase("upgrade", input)) {
+        return false;
+      }
+      System.out.println("Please enter 'install' or 'upgrade' or blank for default (which is " + defaultAction + ")");
+    }
+    throw new RuntimeException("Expecting 'install' or 'upgrade' but was: '" + input + "'");
+  }
+
+
+  
+  /**
    * 
    * @return install directory
    */
@@ -2471,6 +3584,165 @@ public class GrouperInstaller {
       }
     }
     return grouperInstallDirectoryString;
+  }
+
+  /**
+   * 
+   * @return upgrade directory
+   */
+  private static String grouperUpgradeTempDirectory() {
+    String grouperInstallDirectoryString = null;
+    {
+      File grouperInstallDirectoryFile = new File("");
+      String defaultDirectory = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tarballDirectory", false);
+      if (GrouperInstallerUtils.isBlank(defaultDirectory)) {
+        defaultDirectory = grouperInstallDirectoryFile.getAbsolutePath();
+      }
+      System.out.print("Enter in a Grouper temp directory to download tarballs (note: better if no spaces or special chars) [" 
+          + defaultDirectory + "]: ");
+      grouperInstallDirectoryString = readFromStdIn();
+      if (!GrouperInstallerUtils.isBlank(grouperInstallDirectoryString)) {
+        grouperInstallDirectoryFile = new File(grouperInstallDirectoryString);
+        if (!grouperInstallDirectoryFile.exists() || !grouperInstallDirectoryFile.isDirectory()) {
+          System.out.println("Error: cant find directory: '" + grouperInstallDirectoryFile.getAbsolutePath() + "'");
+          System.exit(1);
+        }
+      } else {
+        grouperInstallDirectoryString = defaultDirectory;
+      }
+      if (!grouperInstallDirectoryString.endsWith(File.separator)) {
+        grouperInstallDirectoryString += File.separator;
+      }
+    }
+    return grouperInstallDirectoryString;
+  }
+
+  /**
+   * 
+   * @return directory where existing installation exists
+   */
+  private String upgradeExistingDirectory() {
+
+    //get the directory where the existing installation is
+    String tempUpgradeExistingApplicationDirectoryString = this.upgradeExistingApplicationDirectoryString;
+
+    String errorMessage = "Cant find Grouper " + this.appToUpgrade.name() + " properties files or libs, looked in the directory, "
+        + "/classes/ , /conf/ , /WEB-INF/classes/ , /lib/ , /WEB-INF/lib/ , /lib/grouper/ , /dist/lib/ ";
+
+    try {
+      String upgradeExistingDirectoryString = null;
+      for (int i=0;i<10;i++) {
+        File grouperInstallDirectoryFile = new File("");
+        String defaultDirectory = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.existingInstalledDirectory", false);
+        System.out.print("Where is the grouper " + this.appToUpgrade.name() + " installed? " +
+          (GrouperInstallerUtils.isBlank(defaultDirectory) ? "" : ("[" + defaultDirectory + "]: ")));
+        upgradeExistingDirectoryString = readFromStdIn();
+        if (!GrouperInstallerUtils.isBlank(upgradeExistingDirectoryString)) {
+          grouperInstallDirectoryFile = new File(upgradeExistingDirectoryString);
+          if (!grouperInstallDirectoryFile.exists() || !grouperInstallDirectoryFile.isDirectory()) {
+            System.out.println("Error: cant find directory: '" + grouperInstallDirectoryFile.getAbsolutePath() + "'");
+            continue;
+          }
+        } else {
+          upgradeExistingDirectoryString = defaultDirectory;
+        }
+        if (upgradeExistingDirectoryString.endsWith("/") || upgradeExistingDirectoryString.endsWith("\\")) {
+          upgradeExistingDirectoryString = upgradeExistingDirectoryString.substring(0, upgradeExistingDirectoryString.length()-1);
+        }
+        if (!upgradeExistingDirectoryString.endsWith(File.separator)) {
+          upgradeExistingDirectoryString += File.separator;
+        }
+        this.upgradeExistingApplicationDirectoryString = upgradeExistingDirectoryString;
+
+        //make sure directory is where the app is
+        if (!this.appToUpgrade.validateExistingDirectory(this)) {
+          System.out.println(errorMessage);
+          continue;
+        }
+        //find the resources dir
+        {
+          File resourcesDirFile = new File(this.upgradeExistingApplicationDirectoryString + "classes" + File.separator);
+          if (resourcesDirFile.exists()) {
+            this.upgradeExistingClassesDirectoryString = resourcesDirFile.getAbsolutePath();
+          } else {
+            resourcesDirFile = new File(this.upgradeExistingApplicationDirectoryString + "conf" + File.separator);
+            if (resourcesDirFile.exists()) {
+              this.upgradeExistingClassesDirectoryString = resourcesDirFile.getAbsolutePath();
+            } else {
+              resourcesDirFile = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF" + File.separator + "classes" + File.separator);
+              if (resourcesDirFile.exists()) {
+                this.upgradeExistingClassesDirectoryString = resourcesDirFile.getAbsolutePath();
+              } else {
+                this.upgradeExistingClassesDirectoryString = this.upgradeExistingApplicationDirectoryString;
+              }            
+            }
+          }
+        }
+        
+        //find the lib dir
+        {
+          File libDirFile = new File(this.upgradeExistingApplicationDirectoryString + "lib" + File.separator + "grouper" + File.separator);
+          if (libDirFile.exists()) {
+            this.upgradeExistingLibDirectoryString = libDirFile.getAbsolutePath();
+          } else {
+            libDirFile = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF" + File.separator + "lib" + File.separator);
+            if (libDirFile.exists()) {
+              this.upgradeExistingLibDirectoryString = libDirFile.getAbsolutePath();
+            } else {
+              libDirFile = new File(this.upgradeExistingApplicationDirectoryString + "lib" + File.separator);
+              if (libDirFile.exists()) {
+                this.upgradeExistingLibDirectoryString = libDirFile.getAbsolutePath();
+              } else {
+                this.upgradeExistingLibDirectoryString = this.upgradeExistingApplicationDirectoryString;
+              }            
+            }
+          }
+        }        
+                
+        return upgradeExistingDirectoryString;
+      }
+      
+      throw new RuntimeException(errorMessage);
+      
+    } finally {
+      //set this back
+      this.upgradeExistingApplicationDirectoryString = tempUpgradeExistingApplicationDirectoryString;
+    }
+  }
+
+  /**
+   * where classes are in the upgrade directory, ends in file separator
+   */
+  private String upgradeExistingClassesDirectoryString;
+  
+  /**
+   * where jars are in the upgrade directory, ends in file separator
+   */
+  private String upgradeExistingLibDirectoryString;
+  
+  /**
+   * 
+   * @return what we are upgrading
+   */
+  private AppToUpgrade grouperAppToUpgrade() {
+
+    String appToUpgradeString = null;
+    String defaultAppToUpgrade = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.appToUpgrade", false);
+    defaultAppToUpgrade = GrouperInstallerUtils.defaultIfBlank(defaultAppToUpgrade, AppToUpgrade.API.name().toLowerCase());
+    
+    for (int i=0;i<10;i++) {
+      System.out.print("What do you want to upgrade?  api, ui, ws, or client? [" + defaultAppToUpgrade + "]: ");
+      appToUpgradeString = readFromStdIn();
+      if (GrouperInstallerUtils.isBlank(appToUpgradeString)) {
+        appToUpgradeString = defaultAppToUpgrade;
+      }
+      try {
+        return AppToUpgrade.valueOfIgnoreCase(appToUpgradeString, true);
+      } catch (Exception e) {
+        System.out.print("Error: please enter: 'api', 'ui', 'ws', 'client', or blank for default [" + defaultAppToUpgrade + "]");
+      }
+    }
+    throw new RuntimeException("Expecting api, ui, ws, or client, but was: '" + appToUpgradeString + "'");
   }
 
   /**
@@ -2863,7 +4135,7 @@ public class GrouperInstaller {
     String pspFileName = "grouper.psp-" + this.version + ".tar.gz";
     urlToDownload += this.version + "/" + pspFileName;
 
-    File pspFile = new File(this.grouperInstallDirectoryString + pspFileName);
+    File pspFile = new File(this.grouperTarballDirectoryString + pspFileName);
     
     downloadFile(urlToDownload, pspFile.getAbsolutePath());
 

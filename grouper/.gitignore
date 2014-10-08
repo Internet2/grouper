@@ -11,6 +11,7 @@ conf/spy.properties
 conf/penn*
 ddlScripts
 dist
+javadoc.log
 misc/server/i2midev1
 spy.log
 test.log
