@@ -95,7 +95,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testNonFlattenedMemberships"));
+    TestRunner.run(new ChangeLogTest("testAccessPrivileges"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -108,6 +108,9 @@ public class ChangeLogTest extends GrouperTest {
     super.setUp();
     grouperSession = SessionHelper.getRootSession();
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.env.name", "testEnv");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeFlattenedPrivileges", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeFlattenedMemberships", "true");
+
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -5426,6 +5429,8 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(newSubjectId, membershipDeleteChangeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
   }
 
+  
+
 
   /**
    * @throws Exception 
@@ -5750,6 +5755,49 @@ public class ChangeLogTest extends GrouperTest {
     
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    
+    //##################################
+    // try disabling privileges in change log
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeFlattenedPrivileges", "false");
+
+    Group group3 = this.edu.addChildGroup("test3", "test3");
+
+    ChangeLogTempToEntity.convertRecords();
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    group3.grantPriv(newMember1.getSubject(), AccessPrivilege.UPDATE);
+    group3.grantPriv(newMember2.getSubject(), AccessPrivilege.UPDATE);
+    Group group4 = this.edu.addChildGroup("test2", "test2");
+    group3.grantPriv(group4.toSubject(), AccessPrivilege.UPDATE);
+    group3.grantPriv(newMember3.getSubject(), AccessPrivilege.UPDATE);
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    
+    assertEquals(0, changeLogEntries.size());
+    
+    group3.revokePriv(newMember1.getSubject(), AccessPrivilege.UPDATE);
+    group3.revokePriv(newMember2.getSubject(), AccessPrivilege.UPDATE);
+    group4.delete();
+    group3.revokePriv(newMember3.getSubject(), AccessPrivilege.UPDATE);
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    
+    assertEquals(0, changeLogEntries.size());
   }
   
   /**
@@ -6071,6 +6119,50 @@ public class ChangeLogTest extends GrouperTest {
     
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    
+    
+    //##################################
+    // try disabling privileges in change log
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeFlattenedPrivileges", "false");
+
+    Stem stem2 = this.edu.addChildStem("test2", "test2");
+
+    ChangeLogTempToEntity.convertRecords();
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    
+    stem2.grantPriv(newMember1.getSubject(), NamingPrivilege.STEM);
+    stem2.grantPriv(newMember2.getSubject(), NamingPrivilege.STEM);
+    Group group2 = this.edu.addChildGroup("test2", "test2");
+    stem2.grantPriv(group2.toSubject(), NamingPrivilege.STEM);
+    stem2.grantPriv(newMember3.getSubject(), NamingPrivilege.STEM);
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    
+    assertEquals(0, changeLogEntries.size());
+    
+    stem2.revokePriv(newMember1.getSubject(), NamingPrivilege.STEM);
+    stem2.revokePriv(newMember2.getSubject(), NamingPrivilege.STEM);
+    group2.delete();
+    stem2.revokePriv(newMember3.getSubject(), NamingPrivilege.STEM);
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    
+    assertEquals(0, changeLogEntries.size());
   }
 
 
@@ -6414,6 +6506,48 @@ public class ChangeLogTest extends GrouperTest {
     
     
     assertEquals("Should have 7 change log entries", 7, changeLogEntries.size());
+    
+    //##################################
+    // try disabling privileges in change log
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeFlattenedPrivileges", "false");
+
+    AttributeDef attrDef2 = this.edu.addChildAttributeDef("test2", AttributeDefType.perm);
+
+    ChangeLogTempToEntity.convertRecords();
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    attrDef2.getPrivilegeDelegate().grantPriv(newMember1.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    attrDef2.getPrivilegeDelegate().grantPriv(newMember2.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    Group group2 = this.edu.addChildGroup("test", "test");
+    attrDef2.getPrivilegeDelegate().grantPriv(group2.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    attrDef2.getPrivilegeDelegate().grantPriv(newMember3.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    
+    assertEquals(0, changeLogEntries.size());
+    
+    attrDef2.getPrivilegeDelegate().revokePriv(newMember1.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    attrDef2.getPrivilegeDelegate().revokePriv(newMember2.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    group2.delete();
+    attrDef2.getPrivilegeDelegate().revokePriv(newMember3.getSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    
+    assertEquals(0, changeLogEntries.size());
   }
 
   /**
@@ -8539,6 +8673,611 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+  }
+  
+  /**
+   * @throws Exception 
+   * 
+   */
+  public void testMembershipsNoPrivileges() throws Exception {
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeFlattenedPrivileges", "false");
+
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member newMember2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member newMember3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, true);
+    
+    Group group = this.edu.addChildGroup("test1", "test1");
+
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic()
+      .createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_change_log_entry_temp");
+    int changeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    Member rootMember = MemberFinder.findBySubject(grouperSession, rootSubject, true);
+    group.addMember(rootSubject);
+    Membership membership = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(group.getUuid(), rootMember.getUuid(), 
+          Group.getDefaultList(), "immediate", true, true);
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+
+    assertTrue("Should have added more than one change log temp", changeLogTempCount+1 <= newChangeLogTempCount);
+    
+    assertEquals("Should be the same", changeLogCount, newChangeLogCount);
+
+    //get one entry in there
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
+
+    assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
+    assertEquals(rootMember.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
+    assertEquals(rootMember.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
+    assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //#########################
+    // Check the change log table, and temp table, see the record moved over
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", changeLogTempCount, newChangeLogTempCount);
+    assertTrue("Should have more than one record in the change log table: " + changeLogCount + ", " + newChangeLogCount, 
+        changeLogCount+1 <= newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity").uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), membership.getContextId());
+    
+    //##################################
+    // try an update
+
+    //try an update of two field
+    Member newMember = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    membership.setMember(newMember);
+    
+    final Membership MEMBERSHIP = membership;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP);
+
+        return null;
+      }
+    });
+
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have three in temp table", changeLogTempCount+3, newChangeLogTempCount);
+    assertTrue("Should have more than one record in the change log table: " + changeLogCount + ", " + newChangeLogCount, 
+        changeLogCount+1 <= newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    int newerChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    assertTrue("Should have three more records in the change log table: " + newChangeLogCount + ", " + newerChangeLogCount, 
+        newChangeLogCount+3 == newerChangeLogCount);
+    
+    {
+      List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subj")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
+        .setString("subj", rootMember.getSubjectId())
+        .list(ChangeLogEntry.class);
+
+      ChangeLogEntry deleteEntry = changeLogEntries.get(0);
+    
+      assertTrue("contextId should exist", StringUtils.isNotBlank(deleteEntry.getContextId()));
+      
+      assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+          deleteEntry.getContextId()));
+
+      assertEquals(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId(), deleteEntry.getChangeLogTypeId());
+      assertEquals("members", deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName));
+      assertEquals(rootMember.getSubjectId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
+      assertNull(deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
+      assertEquals(rootMember.getSubjectSourceId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+      assertEquals(membership.getGroup().getUuid(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
+      assertEquals(membership.getGroup().getName(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    }
+    
+    {
+      List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subj")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+        .setString("subj", newMember.getSubjectId())
+        .list(ChangeLogEntry.class);
+
+      ChangeLogEntry addEntry = changeLogEntries.get(0);
+      assertTrue("contextId should exist", StringUtils.isNotBlank(addEntry.getContextId()));
+      
+      assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+          addEntry.getContextId()));
+      
+      assertEquals(ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId(), addEntry.getChangeLogTypeId());
+      assertEquals("members", addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
+      assertEquals(newMember.getSubjectId(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
+      assertEquals(newMember.getSubjectSourceId(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+      assertEquals(membership.getGroup().getUuid(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
+      assertEquals(membership.getGroup().getName(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    }
+    
+    //##################################
+    // try a delete
+    
+    group.addMember(SubjectTestHelper.SUBJ1);
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    membership = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(group.getUuid(), newMember1.getUuid(), 
+      Group.getDefaultList(), "immediate", true, true);
+
+    group.deleteMember(SubjectTestHelper.SUBJ1);
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertTrue("Should have more than one in temp table", changeLogTempCount+1 <= newChangeLogTempCount);
+    assertTrue("Should have more than two record in the change log table", changeLogCount+2 <= newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string03 = :subj")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
+      .setString("subj", newMember1.getSubjectId())
+      .list(ChangeLogEntry.class);
+    
+    ChangeLogEntry changeLogEntry2 = changeLogEntries.get(0);
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+
+    assertEquals(membership.getMemberSubjectId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
+    assertNull(changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
+    assertEquals("members", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName));
+    assertEquals(membership.getMemberSourceId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(membership.getGroup().getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
+    assertEquals(membership.getGroup().getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
+    
+    
+    //##################################
+    // try multiple immediate memberships
+
+    Group group2 = this.edu.addChildGroup("test2", "test2");
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    group2.addMember(newMember1.getSubject());
+    group2.addMember(newMember2.getSubject());
+    Group group3 = this.edu.addChildGroup("test3", "test3");
+    group2.addMember(group3.toSubject());
+    Group group4 = this.edu.addChildGroup("test4", "test4");
+    group4.addMember(group2.toSubject());
+    group2.addMember(newMember3.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+
+    assertEquals("Should have 9 change log entries", 9, changeLogEntries.size());
+
+    group2.deleteMember(newMember1.getSubject());
+    group2.deleteMember(newMember2.getSubject());
+    group3.delete();
+    group4.delete();
+    group2.deleteMember(newMember3.getSubject());
+    ChangeLogTempToEntity.convertRecords();
+
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId())
+      .list(ChangeLogEntry.class);
+    
+    assertEquals("Should have 9 change log entries", 9, changeLogEntries.size());
+    
+    //##################################
+    // try a membership add that causes effective memberships
+    
+    Group g0 = this.edu.addChildGroup("group0", "group0");
+    Group g1 = this.edu.addChildGroup("group1", "group1");
+    Group g2 = this.edu.addChildGroup("group2", "group2");
+    Group g3 = this.edu.addChildGroup("group3", "group3");
+    Group g4 = this.edu.addChildGroup("group4", "group4");
+    Group g5 = this.edu.addChildGroup("group5", "group5");
+    Stem s0 = this.edu.addChildStem("stem0", "stem0");
+    Member subj2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    AttributeDef a0 = this.edu.addChildAttributeDef("attributeDef0", AttributeDefType.perm);
+        
+    g0.addMember(g1.toSubject());
+    g1.grantPriv(g3.toSubject(), AccessPrivilege.UPDATE);
+    g2.addMember(g3.toSubject());
+    g4.addMember(g5.toSubject());
+    s0.grantPriv(g3.toSubject(), NamingPrivilege.CREATE);
+    a0.getPrivilegeDelegate().grantPriv(g3.toSubject(), AttributeDefPrivilege.ATTR_UPDATE, true);
+    
+    g5.addMember(subj2.getSubject());
+    g3.addMember(subj2.getSubject());
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    g3.addMember(g4.toSubject());
+
+    Membership g3g4Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "immediate", true, true);
+    Membership g3g5Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    Membership g2g4Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    Membership g2g5Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g5.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    Membership g1g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
+    Membership g1g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
+    Membership s0g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
+    Membership s0g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
+    Membership a0g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find("attrUpdaters", true), "effective", true, true);
+    Membership a0g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find("attrUpdaters", true), "effective", true, true);
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+
+    // note that subj2 already had the memberships and privileges...
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    assertEquals(4, newChangeLogCount);
+
+    //##################################
+    // try disabling membership now
+    
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    g3g4Mship.setEnabled(false);
+    g3g4Mship.setEnabledTime(new Timestamp(new Date().getTime() + 100000));
+
+    final Membership MEMBERSHIP2 = g3g4Mship;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP2);
+
+        return null;
+      }
+    });
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    assertEquals(4, newChangeLogCount);
+    
+    //##################################
+    // try changing member when disabled
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    g3g4Mship.setMember(rootMember);
+
+    final Membership MEMBERSHIP3 = g3g4Mship;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP3);
+
+        return null;
+      }
+    });
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
+
+    g3g4Mship.setMember(g4.toMember());
+
+    final Membership MEMBERSHIP4 = g3g4Mship;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP4);
+
+        return null;
+      }
+    });
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
+
+    
+    //##################################
+    // try enabling membership now
+    
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    g3g4Mship.setEnabled(true);
+    g3g4Mship.setEnabledTime(new Timestamp(new Date().getTime() - 100000));
+
+    final Membership MEMBERSHIP5 = g3g4Mship;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP5);
+
+        return null;
+      }
+    });
+    
+    g3g4Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "immediate", true, true);
+    g3g5Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    g2g4Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    g2g5Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g5.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    g1g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
+    g1g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
+    s0g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
+    s0g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
+    a0g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find("attrUpdaters", true), "effective", true, true);
+    a0g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find("attrUpdaters", true), "effective", true, true);
+  
+    ChangeLogTempToEntity.convertRecords();
+
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    
+    assertEquals(4, newChangeLogCount);
+
+    
+    //##################################
+    // try changing member and make sure change log has correct deletes
+    
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    Membership immediate = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "immediate", true, true);
+    immediate.setMember(rootMember);
+
+    final Membership MEMBERSHIP6 = immediate;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP6);
+
+        return null;
+      }
+    });
+
+    ChangeLogTempToEntity.convertRecords();
+
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    
+    assertEquals(6, newChangeLogCount);
+
+    
+    //##################################
+    // try changing member and make sure change log has correct adds
+    
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    immediate.setMember(g4.toMember());
+
+    final Membership MEMBERSHIP7 = immediate;
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().setEntityName("ImmediateMembershipEntry").update(MEMBERSHIP7);
+
+        return null;
+      }
+    });
+    
+    g3g4Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "immediate", true, true);
+    g3g5Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g3.getUuid(), g5.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    g2g4Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g4.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    g2g5Mship = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g2.getUuid(), g5.toMember().getUuid(), 
+          Group.getDefaultList(), "effective", true, true);
+    g1g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
+    g1g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByGroupOwnerAndMemberAndFieldAndType(g1.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_UPDATERS, true), "effective", true, true);
+    s0g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
+    s0g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByStemOwnerAndMemberAndFieldAndType(s0.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find(Field.FIELD_NAME_CREATORS, true), "effective", true, true);
+    a0g4Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g4.toMember().getUuid(), 
+          FieldFinder.find("attrUpdaters", true), "effective", true, true);
+    a0g5Priv = GrouperDAOFactory.getFactory().getMembership()
+      .findByAttrDefOwnerAndMemberAndFieldAndType(a0.getUuid(), g5.toMember().getUuid(), 
+          FieldFinder.find("attrUpdaters", true), "effective", true, true);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    
+    assertEquals(6, newChangeLogCount);
+
+    
+    //##################################
+    // try deleting membership now
+    
+
+    // clear changelog
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    g3.deleteMember(g4.toSubject());
+
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp")
+      .uniqueResult(ChangeLogEntry.class);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    
+    assertEquals(4, newChangeLogCount);
   }
   
   /** top level stem */
