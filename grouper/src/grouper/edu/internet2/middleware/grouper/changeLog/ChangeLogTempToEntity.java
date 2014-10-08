@@ -917,11 +917,10 @@ public class ChangeLogTempToEntity {
       pitMembership.setContextId(changeLogEntry.getContextId());
     }
     
-    boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
     boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-    pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+    pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(false);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
     
     pitMembership.save();
@@ -954,11 +953,10 @@ public class ChangeLogTempToEntity {
       pitMembership.setContextId(changeLogEntry.getContextId());
     }
     
-    boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
     boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
     boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
     pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-    pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+    pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(false);
     pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
     
     pitMembership.update();
