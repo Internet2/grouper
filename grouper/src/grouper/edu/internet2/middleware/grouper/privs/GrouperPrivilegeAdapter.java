@@ -414,6 +414,9 @@ public class GrouperPrivilegeAdapter {
             throws GrouperSessionException {
           
           Privilege privilege = AttributeDefPrivilege.listToPriv(f.getName());
+          if (privilege == null) {
+            throw new RuntimeException("invalid privilege: " + f.getName());
+          }
           
           Set<AttributeDef>         attributeDefs  = GrouperDAOFactory.getFactory().getAttributeDef().getAllAttributeDefsSecure(
               grouperSession, m.getSubject(), GrouperUtil.toSet(privilege), null);
