@@ -2,5 +2,6 @@ build
 conf/grouper.client.properties
 conf/grouper.client.usage.txt
 dist
+doc
 misc/README.txt
 javadoc
