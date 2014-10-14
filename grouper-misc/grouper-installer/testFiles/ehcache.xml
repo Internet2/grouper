@@ -1,0 +1,93 @@
+<ehcache updateCheck="false">
+
+  <!-- Sets the path to the directory where cache .data files are created. -->
+  <diskStore path="c:/temp"/>
+
+
+  <!--
+    Default Cache configuration. These will applied to caches
+    programmatically created through the CacheManager.
+
+    The following attributes are required for defaultCache:
+
+    maxInMemory       - Sets the maximum number of objects that
+                        will be created in memory
+    eternal           - Sets whether elements are eternal. If
+                        eternal,  timeouts are ignored and the
+                        element is never expired.
+    timeToIdleSeconds - Sets the time to idle for an element
+                        before it expires. Is only used if the
+                        element is not eternal.  Idle time is now -
+                        last accessed time
+    timeToLiveSeconds - Sets the time to live for an element
+                        before it expires. Is only used if the
+                        element is not eternal.  TTL is now -
+                        creation time
+    overflowToDisk    - Sets whether elements can overflow to
+                        disk when the in-memory cache has reached
+                        the maxInMemory limit.
+  -->
+  <defaultCache
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="10"
+    overflowToDisk="false"
+    statistics="false"
+    anotherAttribute="something"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO"
+          maxElementsInMemory="500"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <!--
+    Predefined caches.  Add your cache configuration settings here.
+    If you do not have a configuration for your cache a WARNING
+    will be issued when the CacheManager starts
+  -->
+
+  
+<!--
+  Grouper Caches
+-->
+
+  <!-- class: HibernateMemberDAO -->
+<!--
+  <cache  name="edu.internet2.middleware.grouper.HibernateMemberDAO.FindByUuid"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"  
+  />
+-->
+
+  <cache  name="edu.internet2.middleware.grouper.HibernateMemberDAO.FindByUuid123"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="30"
+          overflowToDisk="false"  
+  />
+
+
+  <cache  name="edu.internet2.middleware.grouper.HibernateMemberDAO.FindByUuid"
+          maxElementsInMemory="1000"
+          newAttr="newVal"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="20"
+          overflowToDisk="false"  
+  />
+
+  <anotherElement>
+    <someChild attr="val"/>
+  </anotherElement>
+
+</ehcache>
+  

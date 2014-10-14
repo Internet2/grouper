@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -203,16 +204,9 @@ public class GrouperInstaller {
    */
   public static void main(String[] args) {
 
-//    GrouperInstaller grouperInstaller = new GrouperInstaller();
-//    grouperInstaller.mainLogic(args);
-
-    
-    mergeEhcacheXmlFiles(new File("C:\\temp\\ehcache\\ehcache.new.xml"),
-        new File("C:\\temp\\ehcache\\ehcache.example.xml"), 
-        new File("C:\\temp\\ehcache\\ehcache.xml"),
-        new File("C:\\temp\\ehcache\\ehcache.bak.xml")
-    );
-    
+    GrouperInstaller grouperInstaller = new GrouperInstaller();
+    grouperInstaller.mainLogic(args);
+        
 //    
 //    
 //    grouperInstaller.dbUrl = "jdbc:hsqldb:hsql://localhost:9001/grouper";
@@ -848,7 +842,10 @@ public class GrouperInstaller {
    * @param args
    */
   private void mainUpgradeLogic(String[] args) {
-    
+
+    System.out.println("\n##################################");
+    System.out.println("Gather upgrade information\n");
+
     //####################################
     //Find out what directory to upgrade to.  This ends in a file separator
     this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
@@ -870,16 +867,28 @@ public class GrouperInstaller {
     
     //get the directory where the existing installation is
     this.upgradeExistingApplicationDirectoryString = upgradeExistingDirectory();
-    
+
     this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
     System.out.println("Upgrading to grouper " + this.appToUpgrade.name() + " version: " + this.version);
-    
+
+    System.out.println("End gather upgrade information\n");
+    System.out.println("\n##################################");
+
+    System.out.println("\n##################################");
+    System.out.println("Download and build grouper packages\n");
+
     //download new files
     this.appToUpgrade.downloadAndBuildGrouperProjects(this);
 
+    System.out.println("End download and build grouper packages\n");
+    System.out.println("\n##################################");
+
     this.grouperBaseBakDir = this.grouperTarballDirectoryString + "bak_" + this.appToUpgrade + "_" 
         + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(new Date()) + File.separator; 
-    
+
+    GrouperInstallerUtils.tempFilePathForJars = this.grouperBaseBakDir 
+        + "jarToDelete" + File.separator;
+
     this.appToUpgrade.upgradeApp(this);
 
   }
@@ -888,6 +897,9 @@ public class GrouperInstaller {
    * upgrade the client
    */
   private void upgradeClient() {
+
+    System.out.println("\n##################################");
+    System.out.println("Upgrading grouper client\n");
 
     this.compareAndReplaceJar(this.grouperClientJar, new File(this.untarredClientDir + File.separator + "grouperClient.jar"), true);
 
@@ -905,11 +917,19 @@ public class GrouperInstaller {
    */
   private void upgradeApi() {
 
+    this.runChangeLogTempToChangeLog();
+    
     this.upgradeClient();
     
+    System.out.println("\n##################################");
+    System.out.println("Upgrading API\n");
+
     this.compareAndReplaceJar(this.grouperJar, 
         new File(this.untarredApiDir + File.separator + "dist" + File.separator 
             + "lib" + File.separator + "grouper.jar"), true);
+
+    System.out.println("\n##################################");
+    System.out.println("Upgrading API config files\n");
 
     this.compareUpgradePropertiesFile(this.grouperBasePropertiesFile, 
       new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouper.base.properties"),
@@ -935,11 +955,241 @@ public class GrouperInstaller {
         null, null
       );
 
-    //ehcache, prompt to see if do it (if difference than example, and if old example different than new example?
-    
+    this.upgradeEhcacheXml();
+
+    System.out.println("\n##################################");
+    System.out.println("Upgrading API jars\n");
+
+    this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
+      + File.separator + "grouper" + File.separator));
+    this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
+      + File.separator + "jdbcSamples" + File.separator));
+
+    this.apiUpgradeDbVersion(true);
     
   }
 
+  /**
+   * @param firstTime if first time
+   */
+  private void apiUpgradeDbVersion(boolean firstTime) {
+    List<String> commands = new ArrayList<String>();
+    
+    addGshCommands(commands);
+    commands.add("-registry");
+    commands.add("-check");
+    commands.add("-noprompt");
+    
+    System.out.println("\n##################################");
+    System.out.println("Checking API database version with command: " + convertCommandsIntoCommand(commands) + "\n");
+
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(
+        GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+        new File(this.upgradeExistingApplicationDirectoryString), null);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+
+    String result = commandResult.getErrorText().trim();
+    String[] lines = GrouperInstallerUtils.splitLines(result);
+    {
+      boolean okWithVersion = false;
+      boolean notOkWithVersion = false;
+      for (String line : lines) {
+        line = line.toLowerCase();
+        //expecting stderr: NOTE: database table/object structure (ddl) is up to date
+        if (line.contains("ddl") && line.contains("up to date") && line.contains("note:")) {
+          okWithVersion = true;
+        }
+        //cant have this line
+        if (line.contains("requires updates")) {
+          notOkWithVersion = true;
+        }
+      }
+      if (okWithVersion && !notOkWithVersion) {
+        return;
+      }
+    }
+
+    if (!firstTime) {
+      System.out.println("Error: we tried to upgrade the database but it didnt work, would you like to continue skipping DDL (t|f)? ");
+      boolean continueOn = readFromStdInBoolean(null);
+      if (continueOn) {
+        return;
+      }
+    }
+    
+    //we need to upgrade the DDL
+    //Grouper ddl object type 'Grouper' has dbVersion: 26 and java version: 28
+    //Grouper database schema DDL requires updates
+    //(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),
+    //script file is:
+    //C:\app\grouper_2_2_0_installer\grouper.apiBinary-2.2.0\ddlScripts\grouperDdl_20141014_10_17_12_577.sql
+    //Note: this script was not executed due to option passed in
+    //To run script via gsh, carefully review it, then run this:
+    //gsh -registry -runsqlfile C:\\app\\grouper_2_2_0_installer\\grouper.apiBinary-2.2.0\\ddlScripts\\grouperDdl_20141014_10_17_12_577.sql
+
+    System.out.println("Review the script(s) above if there are any, do you want the upgrader to run it or upgrade the DDL for you (t|f)? [t]: ");
+    boolean runIt = readFromStdInBoolean(true);
+    
+    if (runIt) {
+
+      boolean foundScript = false;
+
+      for (String line : lines) {
+        if (line.contains("-registry -runsqlfile")) {
+          
+          String regexPattern = "^[^\\s]+\\s+-registry -runsqlfile (.*)$";
+          Pattern pattern = Pattern.compile(regexPattern);
+          
+          Matcher matcher = pattern.matcher(line);
+          
+          if (!matcher.matches()) {
+            throw new RuntimeException("Expected " + regexPattern + " but received: " + line);
+          }
+
+          String fileName = matcher.group(1);
+          
+          commands = new ArrayList<String>();
+          
+          addGshCommands(commands);
+          commands.add("-registry");
+          commands.add("-noprompt");
+          commands.add("-runsqlfile");
+          commands.add(fileName);
+          
+          System.out.println("\n##################################");
+          System.out.println("Upgrading database with command: " + convertCommandsIntoCommand(commands) + "\n");
+
+          commandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File(this.upgradeExistingApplicationDirectoryString), null, true);
+
+          //no out/err since printing as we go
+        }
+      }
+      //cant find script, thats ok, just check and go
+      if (!foundScript) {
+        throw new RuntimeException("didnt find script to to run: " + result);
+      }
+
+      //check again to make sure ok
+      apiUpgradeDbVersion(false);
+    }
+  }
+  
+  /**
+   * upgrade jars from a directory
+   * @param fromDir jars from this directory
+   */
+  private void upgradeJars(File fromDir) {
+
+    //for each jar in the directory
+    if (!fromDir.exists() || !fromDir.isDirectory()) {
+      throw new RuntimeException("Why does jar directory not exist? " + fromDir);
+    }
+    
+    for (File jarFile : fromDir.listFiles()) {
+      
+      //only do jar files
+      if (!jarFile.getName().endsWith(".jar")) {
+        continue;
+      }
+
+      File existingJar = this.findLibraryFile(jarFile.getName(), false);
+
+      this.compareAndReplaceJar(existingJar, jarFile, false);
+      
+      //TODO see if there are conflicting jars there?
+      
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  private void upgradeEhcacheXml() {
+    //ehcache, prompt to see if do it (if difference than example, and if old example different than new example?
+    File newEhcacheExample = new File(this.untarredApiDir + File.separator + "conf" + File.separator + "ehcache.xml");
+    
+    //lets see if different
+    String existingEhcacheContents = GrouperInstallerUtils.readFileIntoString(this.ehcacheFile);
+    String existingExampleEhcacheContents = GrouperInstallerUtils.readFileIntoString(this.ehcacheExampleFile);
+    String newEhcacheContents = GrouperInstallerUtils.readFileIntoString(newEhcacheExample);
+    
+    //if existing is the same as new...
+    if (GrouperInstallerUtils.equals(existingEhcacheContents, newEhcacheContents)) {
+      //make sure example is up to date
+      if (!GrouperInstallerUtils.equals(existingExampleEhcacheContents, newEhcacheContents)) {
+        this.backupAndCopyFile(newEhcacheExample, this.ehcacheExampleFile);
+      }
+
+      //we are all good
+      return;
+    }
+
+    //lets backup the example and regular file
+    File ehcacheBakFile = bakFile(this.ehcacheFile);
+    File ehcacheExampleBakFile = bakFile(this.ehcacheExampleFile);
+
+    GrouperInstallerUtils.copyFile(this.ehcacheFile, ehcacheBakFile);
+    GrouperInstallerUtils.copyFile(this.ehcacheExampleFile, ehcacheExampleBakFile);
+    
+    //if the ehcache is the same as the example, lets just copy
+    if (GrouperInstallerUtils.equals(existingEhcacheContents, existingExampleEhcacheContents)) {
+      this.backupAndCopyFile(newEhcacheExample, this.ehcacheFile);
+      this.backupAndCopyFile(newEhcacheExample, this.ehcacheExampleFile);
+      return;
+    }
+
+    //the ehcache file is different from the example and different from the new one, so merge it in
+    mergeEhcacheXmlFiles(newEhcacheExample, this.ehcacheExampleFile, this.ehcacheFile);
+    System.out.println("Compare you old ehcache.xml with the new ehcache.xml file: " 
+        + "\n  Old file: "
+        + ehcacheBakFile.getAbsolutePath()
+        + "\n  New file: " + this.ehcacheFile.getAbsolutePath()
+        + "\n  Press <enter> when done");
+    readFromStdIn();
+
+  }
+
+  /**
+   * 
+   * @param newFile
+   * @param existingFile
+   * @return the bakFile
+   */
+  public File backupAndCopyFile(File newFile, File existingFile) {
+    File bakFile = bakFile(existingFile);
+    GrouperInstallerUtils.copyFile(existingFile, bakFile);
+    GrouperInstallerUtils.copyFile(newFile, existingFile);
+    return bakFile;
+  }
+
+  /**
+   * 
+   * @param existingFile
+   * @return the bak file
+   */
+  public File bakFile(File existingFile) {
+    String existingFilePath = existingFile.getAbsolutePath();
+    if (!existingFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+      throw new RuntimeException("Why does existing path not start with upgrade path??? " 
+          + existingFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
+    }
+    
+    String bakString = this.grouperBaseBakDir 
+        + existingFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
+
+    File bakFile = new File(bakString);
+    return bakFile;
+  }
+  
   /**
    * @param existingBasePropertiesFile 
    * @param newBasePropertiesFile 
@@ -1086,20 +1336,11 @@ public class GrouperInstaller {
     
     String fileContents = GrouperInstallerUtils.readFileIntoString(propertiesFile);
     
-    String newline = newlineFromFile(fileContents);
+    String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
 
     StringBuilder newContents = new StringBuilder();
 
-    String[] lines = null;
-    if ("\n".equals(newline)) {
-      lines = fileContents.split("[\\n]");
-    } else if ("\r".equals(newline)) {
-      lines = fileContents.split("[\\r]");
-    } else if ("\r\n".equals(newline)) {
-      lines = fileContents.split("[\\r\\n]");
-    } else {
-      lines = fileContents.split("[\\r\\n]+");
-    }
+    String[] lines = GrouperInstallerUtils.splitLines(fileContents);
     
     boolean inStartComments = true;
     boolean inHeaderComments = false;
@@ -1305,6 +1546,9 @@ public class GrouperInstaller {
         if (grouperInstaller.grouperJar == null) {
           return false;
         }
+
+        grouperInstaller.ehcacheFile = grouperInstaller.findClasspathFile("ehcache.xml", false);
+        grouperInstaller.ehcacheExampleFile = grouperInstaller.findClasspathFile("ehcache.example.xml", false);        
         
         //all good
         return true;
@@ -1312,6 +1556,11 @@ public class GrouperInstaller {
 
       @Override
       public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+        CLIENT.downloadAndBuildGrouperProjects(grouperInstaller);
+        
+        //download api and set executable and dos2unix etc
+        grouperInstaller.downloadAndConfigureApi();
+
       }
 
       @Override
@@ -1350,10 +1599,7 @@ public class GrouperInstaller {
 
       @Override
       public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
-        File clientDir = grouperInstaller.downloadClient();
-        File unzippedClientFile = unzip(clientDir.getAbsolutePath());
-        grouperInstaller.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
-
+        grouperInstaller.downloadAndBuildClient();
       }
 
       @Override
@@ -1420,6 +1666,13 @@ public class GrouperInstaller {
    */
   private void compareAndReplaceJar(File existingJarFile, File newJarFile, boolean printResultIfNotUpgrade) {
     
+    if (existingJarFile == null || !existingJarFile.exists()) {
+      System.out.println(newJarFile.getName() + " is a new file and is being copied to the application lib dir");
+      existingJarFile = new File(this.upgradeExistingLibDirectoryString + newJarFile.getName());
+      GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
+      return;
+    }
+
     String existingJarFilePath = existingJarFile.getAbsolutePath();
     if (!existingJarFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
       throw new RuntimeException("Why does existing path not start with upgrade path??? " + existingJarFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
@@ -1514,6 +1767,16 @@ public class GrouperInstaller {
    */
   private File grouperHibernateExamplePropertiesFile;
 
+  /**
+   * ehcache.xml
+   */
+  private File ehcacheFile;
+
+  /**
+   * ehcache.example.xml
+   */
+  private File ehcacheExampleFile;
+  
   /**
    * grouper-loader.properties
    */
@@ -1611,6 +1874,13 @@ public class GrouperInstaller {
 
     fileNamesTried.add(file.getAbsolutePath());
     
+    file = new File(this.upgradeExistingApplicationDirectoryString + "lib/jdbcSamples/" + libName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+    
     file = new File(this.upgradeExistingApplicationDirectoryString + "dist/lib/" + libName);
     if (file.exists()) {
       return file;
@@ -1662,110 +1932,16 @@ public class GrouperInstaller {
     System.out.println("Installing grouper version: " + this.version);
     //see if it is already downloaded
     
-    
-    File apiFile = downloadApi();
-    
-    //####################################
-    //unzip/untar the api file
-    
-    File unzippedApiFile = unzip(apiFile.getAbsolutePath());
-    this.untarredApiDir = untar(unzippedApiFile.getAbsolutePath());
-    
-    //lts make sure gsh is executable and in unix format
-
-    if (!GrouperInstallerUtils.isWindows()) {
-
-      System.out.print("Do you want to set gsh script to executable (t|f)? [t]: ");
-      boolean setGshFile = readFromStdInBoolean(true);
-      
-      if (setGshFile) {
-      
-        List<String> commands = GrouperInstallerUtils.toList("chmod", "+x", 
-            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
-  
-        System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
-  
-        CommandResult commandResult = GrouperInstallerUtils.execCommand(
-            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
-        
-        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-          System.out.println("stderr: " + commandResult.getErrorText());
-        }
-        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-          System.out.println("stdout: " + commandResult.getOutputText());
-        }
-
-        commands = GrouperInstallerUtils.toList("chmod", "+x", 
-            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh");
-  
-        System.out.println("Making sure gsh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
-  
-        commandResult = GrouperInstallerUtils.execCommand(
-            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
-        
-        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-          System.out.println("stderr: " + commandResult.getErrorText());
-        }
-        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-          System.out.println("stdout: " + commandResult.getOutputText());
-        }
-
-        System.out.print("Do you want to run dos2unix on gsh.sh (t|f)? [t]: ");
-        setGshFile = readFromStdInBoolean(true);
-        
-        if (setGshFile) {
-        
-          
-          commands = GrouperInstallerUtils.toList("dos2unix", 
-              this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
-    
-          System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-          String error = null;
-          try {
-            commandResult = GrouperInstallerUtils.execCommand(
-                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
-
-            commands = GrouperInstallerUtils.toList("dos2unix", 
-                this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh");
-      
-            System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-            commandResult = GrouperInstallerUtils.execCommand(
-                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
-
-          } catch (Throwable t) {
-            error = t.getMessage();
-          }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-            System.out.println("stderr: " + commandResult.getErrorText());
-          }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-            System.out.println("stdout: " + commandResult.getOutputText());
-          }
-          if (!GrouperInstallerUtils.isBlank(error)) {
-            System.out.println("Error: " + error);
-            System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
-            		"cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh" 
-            		+ " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh\n");
-            System.out.println("\n" +
-                "cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh" 
-                + " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh\n");
-          }
-        }
-      }
-      
-    }
+    //download api and set executable and dos2unix etc
+    downloadAndConfigureApi();
 
     //####################################
     //ask about database
 
-    File grouperHibernatePropertiesFile = new File(this.untarredApiDir.getAbsoluteFile() + File.separator + "conf" 
+    File localGrouperHibernatePropertiesFile = new File(this.untarredApiDir.getAbsoluteFile() + File.separator + "conf" 
         + File.separator + "grouper.hibernate.properties");
 
-    Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(grouperHibernatePropertiesFile);
+    Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(localGrouperHibernatePropertiesFile);
 
     this.dbUrl = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.url"), "jdbc:hsqldb:hsql://localhost:9001/grouper");
     this.dbUser = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.username"));
@@ -1821,10 +1997,10 @@ public class GrouperInstaller {
     //get the config file
 
     //lets edit the three properties:
-    System.out.println("Editing " + grouperHibernatePropertiesFile.getAbsolutePath() + ": ");
-    editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl);
-    editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser);
-    editPropertiesFile(grouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass);
+    System.out.println("Editing " + localGrouperHibernatePropertiesFile.getAbsolutePath() + ": ");
+    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl);
+    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser);
+    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass);
 
     //####################################
     //check to see if listening on port?
@@ -1939,14 +2115,8 @@ public class GrouperInstaller {
     //tell user to go to url
     System.out.println("This is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
 
-    //####################################
-    //download the client
-    File clientDir = downloadClient();
-
-    //####################################
-    //unzip/untar the client file
-    File unzippedClientFile = unzip(clientDir.getAbsolutePath());
-    this.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
+    //download and build client
+    this.downloadAndBuildClient();
 
     //####################################
     //configure where WS is
@@ -1982,6 +2152,120 @@ public class GrouperInstaller {
     System.out.println("\nThis is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
     System.out.println("\n##################################\n");
     
+  }
+  /**
+   * 
+   */
+  public void downloadAndConfigureApi() {
+    File apiFile = downloadApi();
+    
+    //####################################
+    //unzip/untar the api file
+    
+    File unzippedApiFile = unzip(apiFile.getAbsolutePath());
+    this.untarredApiDir = untar(unzippedApiFile.getAbsolutePath());
+    
+    //lts make sure gsh is executable and in unix format
+
+    if (!GrouperInstallerUtils.isWindows()) {
+
+      System.out.print("Do you want to set gsh script to executable (t|f)? [t]: ");
+      boolean setGshFile = readFromStdInBoolean(true);
+      
+      if (setGshFile) {
+      
+        List<String> commands = GrouperInstallerUtils.toList("chmod", "+x", 
+            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+  
+        System.out.println("Making sure gsh.sh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+  
+        CommandResult commandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+
+        commands = GrouperInstallerUtils.toList("chmod", "+x", 
+            this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh");
+  
+        System.out.println("Making sure gsh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+  
+        commandResult = GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+            new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+
+        System.out.print("Do you want to run dos2unix on gsh.sh (t|f)? [t]: ");
+        setGshFile = readFromStdInBoolean(true);
+        
+        if (setGshFile) {
+        
+          
+          commands = GrouperInstallerUtils.toList("dos2unix", 
+              this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh");
+    
+          System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+          String error = null;
+          try {
+            commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+
+            commands = GrouperInstallerUtils.toList("dos2unix", 
+                this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh");
+      
+            System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+            commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                new File(this.untarredApiDir.getAbsolutePath() + File.separator + "bin"), null);
+
+          } catch (Throwable t) {
+            error = t.getMessage();
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
+          if (!GrouperInstallerUtils.isBlank(error)) {
+            System.out.println("Error: " + error);
+            System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
+            		"cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh" 
+            		+ " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh.sh\n");
+            System.out.println("\n" +
+                "cat " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh" 
+                + " | col -b > " + this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator + "gsh\n");
+          }
+        }
+      }
+      
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void downloadAndBuildClient() {
+    //####################################
+    //download the client
+    File clientDir = downloadClient();
+
+    //####################################
+    //unzip/untar the client file
+    File unzippedClientFile = unzip(clientDir.getAbsolutePath());
+    this.untarredClientDir = untar(unzippedClientFile.getAbsolutePath());
   }
 
   /**
@@ -2216,10 +2500,8 @@ public class GrouperInstaller {
    * @param newEhcacheExampleFile
    * @param existingEhcacheExampleFile
    * @param existingEhcacheFile
-   * @param backedUpEhcacheFile
    */
-  public static void mergeEhcacheXmlFiles(File newEhcacheExampleFile, File existingEhcacheExampleFile, File existingEhcacheFile,
-      File backedUpEhcacheFile) {
+  public static void mergeEhcacheXmlFiles(File newEhcacheExampleFile, File existingEhcacheExampleFile, File existingEhcacheFile) {
     
     try {
       //lets get the differences of the existing ehcache file and the existing ehcache example file
@@ -2229,8 +2511,6 @@ public class GrouperInstaller {
       Document existingEhcacheDoc = builder.parse(existingEhcacheFile);
       Document existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
 
-      Map<String, String> diskstoreAttributes = new LinkedHashMap<String, String>();
-      
       Element existingDocumentElement = existingEhcacheDoc.getDocumentElement();
       Element existingExampleDocumentElement = existingEhcacheExampleDoc.getDocumentElement();
 
@@ -2283,7 +2563,7 @@ public class GrouperInstaller {
       }      
       
       //lets see if there are any other nodes
-      Set<String> otherNodes = new LinkedHashSet<String>();
+      Set<Element> otherNodes = new LinkedHashSet<Element>();
       {
         NodeList nodeList = existingDocumentElement.getChildNodes();
         
@@ -2295,7 +2575,7 @@ public class GrouperInstaller {
             if (!GrouperInstallerUtils.equals(nodeName, "cache")
                 && !GrouperInstallerUtils.equals(nodeName, "defaultCache")
                 && !GrouperInstallerUtils.equals(nodeName, "diskStore")) {
-              otherNodes.add(nodeName);
+              otherNodes.add(nodeElement);
             }
           }
         }
@@ -2305,114 +2585,427 @@ public class GrouperInstaller {
       //assume this is already backed up
       GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile);
       GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheFile);
-      
+
       //now lets do our edits
-      if (GrouperInstallerUtils.length(diskstoreAttributes) > 0) {
-        for (String attributeName : diskstoreAttributes.keySet()) {
+      if (GrouperInstallerUtils.length(diskStoreDifferences) > 0) {
+        
+        for (String attributeName : diskStoreDifferences.keySet()) {
+
+          String attributeValue = diskStoreDifferences.get(attributeName);
+
+          editXmlFileAttribute(existingEhcacheFile, "diskStore", null, attributeName, attributeValue, 
+              "ehcache diskStore attribute '" + attributeName + "'");
           
-          String attributeValue = diskstoreAttributes.get(attributeName);
-          
-          editFile(existingEhcacheFile, attributeName + "=\"([^\"]+)\"", new String[]{"<diskStore"}, 
-              null, attributeValue, 
-              "ehcache diskStore attribute", true, attributeName);
         }
       }
       
       if (GrouperInstallerUtils.length(defaultCacheDifferences) > 0) {
+        
         for (String attributeName : defaultCacheDifferences.keySet()) {
           
           String attributeValue = defaultCacheDifferences.get(attributeName);
+
+          editXmlFileAttribute(existingEhcacheFile, "defaultCache", null, attributeName, attributeValue, 
+              "ehcache defaultCache attribute '" + attributeName + "'");
+
+        }
+      }
+
+      if (GrouperInstallerUtils.length(cacheDifferencesByCacheName) > 0) {
+
+        existingEhcacheDoc = builder.parse(existingEhcacheFile);
+        existingDocumentElement = existingEhcacheDoc.getDocumentElement();
+        
+        for (String cacheName : cacheDifferencesByCacheName.keySet()) {
+
+          //see if the name exists
+          //find the example cache
+          XPathExpression expr = xpath.compile("cache[@name='" + cacheName + "']");
+
+          Element existingCacheElement = (Element)expr.evaluate(existingDocumentElement, XPathConstants.NODE);
+
+          Map<String, String> attributeMap = cacheDifferencesByCacheName.get(cacheName);
+
+          //it exists
+          if (existingCacheElement != null) {
+
+            Map<String, String> expectedAttribute = new HashMap<String, String>();
+
+            expectedAttribute.put("name", cacheName);
+            
+            for (String attributeName : attributeMap.keySet()) {
+
+              String attributeValue = attributeMap.get(attributeName);
+
+              editXmlFileAttribute(existingEhcacheFile, "cache", expectedAttribute, attributeName, attributeValue, 
+                  "ehcache cache name=" + cacheName + " attribute '" + attributeName + "'");
+            }
+          } else {
+
+              String fileContents = GrouperInstallerUtils.readFileIntoString(existingEhcacheFile);
+
+              String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
+
+              int lastTagStart = fileContents.lastIndexOf("</ehcache>");
+              
+              if (lastTagStart == -1) {
+                throw new RuntimeException("Why is </ehcache> not found???? " + fileContents);
+              }
+
+              String tag = GrouperInstallerUtils.xmlElementToXml("cache", null, attributeMap);
+//              sdf
+              String newFileContents = fileContents.substring(0, lastTagStart) + tag + newline 
+                  + fileContents.substring(lastTagStart, fileContents.length());
+
+              System.out.println(" - adding ehcache cache " + cacheName);
+
+              GrouperInstallerUtils.saveStringIntoFile(existingEhcacheFile, newFileContents);
+
+          }
+
+        }
+      }
+
+      if (GrouperInstallerUtils.length(otherNodes) > 0) {
+        String fileContents = GrouperInstallerUtils.readFileIntoString(existingEhcacheFile);
+        
+        String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
+
+        StringBuilder otherNodesStringBuilder = new StringBuilder();
+        for (Element element : otherNodes) {
+          String elementString = GrouperInstallerUtils.xmlToString(element);
+          // take out the xml header: <?xml version="1.0" encoding="UTF-8"?>
           
-          editFile(existingEhcacheFile, attributeName + "=\"([^\"]+)\"", new String[]{"<defaultCache"}, 
-              null, attributeValue, 
-              "ehcache defaultCache attribute", true, attributeName);
+          int elementStart = elementString.indexOf("<" + element.getNodeName());
+          
+          elementString = elementString.substring(elementStart);
+          
+          otherNodesStringBuilder.append(elementString).append(newline);
+          System.out.println(" - adding element " + element.getTagName());
+        }
+
+        int lastTagStart = fileContents.lastIndexOf("</ehcache>");
+        
+        if (lastTagStart == -1) {
+          throw new RuntimeException("Why is </ehcache> not found???? " + fileContents);
+        }
+
+        String newFileContents = fileContents.substring(0, lastTagStart) + otherNodesStringBuilder.toString()
+            + fileContents.substring(lastTagStart, fileContents.length());
+
+        GrouperInstallerUtils.saveStringIntoFile(existingEhcacheFile, newFileContents);
+
+      }
+
+
+      // test the new file, look for things
+      existingEhcacheDoc = builder.parse(existingEhcacheFile);
+      existingDocumentElement = existingEhcacheDoc.getDocumentElement();
+
+      if (GrouperInstallerUtils.length(diskStoreDifferences) > 0) {
+        Element existingDiskStoreElement = (Element)existingDocumentElement.getElementsByTagName("diskStore").item(0);
+        for (String attributeName : diskStoreDifferences.keySet()) {
+          String attributeValue = diskStoreDifferences.get(attributeName);
+          if (!GrouperInstallerUtils.equals(attributeValue, existingDiskStoreElement.getAttribute(attributeName))) {
+            throw new RuntimeException("Why is diskStore attribute " + attributeName + " not '" + attributeValue + "'" 
+                + existingEhcacheFile.getAbsolutePath());
+          }
+        }
+      }
+      
+      if (GrouperInstallerUtils.length(defaultCacheDifferences) > 0) {
+        Element existingDefaultCacheElement = (Element)existingDocumentElement.getElementsByTagName("defaultCache").item(0);
+        for (String attributeName : defaultCacheDifferences.keySet()) {
+          String attributeValue = defaultCacheDifferences.get(attributeName);
+          if (!GrouperInstallerUtils.equals(attributeValue, existingDefaultCacheElement.getAttribute(attributeName))) {
+            throw new RuntimeException("Why is defaultCache attribute " + attributeName + " not '" + attributeValue + "'" 
+                + existingEhcacheFile.getAbsolutePath());
+          }
         }
       }
 
       if (GrouperInstallerUtils.length(cacheDifferencesByCacheName) > 0) {
         for (String cacheName : cacheDifferencesByCacheName.keySet()) {
 
-          existingEhcacheDoc = builder.parse(existingEhcacheFile);
-
           //see if the name exists
           //find the example cache
-          XPathExpression expr = xpath.compile("cache[@name='/" + cacheName + "']");
+          XPathExpression expr = xpath.compile("cache[@name='" + cacheName + "']");
           Element existingCacheElement = (Element)expr.evaluate(existingDocumentElement, XPathConstants.NODE);
 
           Map<String, String> attributeMap = cacheDifferencesByCacheName.get(cacheName);
           
+          for (String attributeName : attributeMap.keySet()) {
+            
+            String attributeValue = attributeMap.get(attributeName);
+
+            if (!GrouperInstallerUtils.equals(attributeValue, existingCacheElement.getAttribute(attributeName))) {
+              throw new RuntimeException("Why is cache " + cacheName + " attribute " + attributeName + " not '" + attributeValue + "'" 
+                  + existingEhcacheFile.getAbsolutePath());
+            }
+            
+          }
+        }
+      }
+
+      if (GrouperInstallerUtils.length(otherNodes) > 0) {
+        for (Element element : otherNodes) {
+          
+          NodeList nodeList = existingDocumentElement.getElementsByTagName(element.getNodeName());
+          if (nodeList == null || nodeList.getLength() == 0 ) {
+            throw new RuntimeException("Why is new element not there? " + element.getTagName() + ", "
+                + existingEhcacheFile.getAbsolutePath());
+          }
+        }
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException(e.getMessage(), e);
+    }
+  }
+
+  /**
+   * 
+   * @param newEhcacheExampleFile
+   * @param existingEhcacheExampleFile
+   * @param existingEhcacheFile
+   * @return hasMerging
+   */
+  @SuppressWarnings("unused")
+  private static boolean mergeEhcacheXmlFiles_XML_NOT_USED(File newEhcacheExampleFile, File existingEhcacheExampleFile, 
+      File existingEhcacheFile) {
+    
+    boolean hasMerging = false;
+    
+    try {
+      //lets get the differences of the existing ehcache file and the existing ehcache example file
+      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+      domFactory.setNamespaceAware(true); 
+      DocumentBuilder builder = domFactory.newDocumentBuilder();
+      Document existingEhcacheDoc = builder.parse(existingEhcacheFile);
+      Document existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
+
+      Element existingDocumentElement = existingEhcacheDoc.getDocumentElement();
+      Element existingExampleDocumentElement = existingEhcacheExampleDoc.getDocumentElement();
+
+      Map<String, String> diskStoreDifferences = null;
+      
+      {
+        Element existingDiskStoreElement = (Element)existingDocumentElement.getElementsByTagName("diskStore").item(0);
+        Element existingExampleDiskStoreElement = (Element)existingExampleDocumentElement.getElementsByTagName("diskStore").item(0);
+        diskStoreDifferences = xmlNodeAttributeDifferences(existingExampleDiskStoreElement, existingDiskStoreElement);
+      }
+
+      Map<String, String> defaultCacheDifferences = null;
+
+      {
+        Element existingDefaultCacheElement = (Element)existingDocumentElement.getElementsByTagName("defaultCache").item(0);
+        Element existingExampleDefaultCacheElement = (Element)existingExampleDocumentElement.getElementsByTagName("defaultCache").item(0);
+        defaultCacheDifferences = xmlNodeAttributeDifferences(existingExampleDefaultCacheElement, existingDefaultCacheElement);
+        
+      }
+
+      XPath xpath = XPathFactory.newInstance().newXPath();
+      
+      //map of cache name to the differences in the attributes of the cache
+      Map<String, Map<String, String>> cacheDifferencesByCacheName = new LinkedHashMap<String, Map<String, String>>();
+      
+      {
+        NodeList existingCacheNodeList = existingDocumentElement.getElementsByTagName("cache");
+        
+        //loop through all the caches
+        for (int i=0;i<existingCacheNodeList.getLength(); i++) {
+          
+          Element existingCacheElement = (Element)existingCacheNodeList.item(i);
+
+          String cacheName = existingCacheElement.getAttribute("name");
+
+          //find the example cache
+          XPathExpression expr = xpath.compile("cache[@name='" + cacheName + "']");
+          Element existingExampleCacheElement = (Element)expr.evaluate(existingExampleDocumentElement, XPathConstants.NODE);
+
+          //see if they differ
+          Map<String, String> differences = xmlNodeAttributeDifferences(existingExampleCacheElement, existingCacheElement);
+          
+          if (differences != null) {
+            cacheDifferencesByCacheName.put(cacheName, differences);
+          }
+        }
+        
+        //note, dont worry if there were caches in the example that werent in the configured one
+        
+      }      
+      
+      //lets see if there are any other nodes
+      Set<Element> otherNodes = new LinkedHashSet<Element>();
+      {
+        NodeList nodeList = existingDocumentElement.getChildNodes();
+        
+        for (int i=0;i<nodeList.getLength();i++) {
+          Node node = nodeList.item(i);
+          if (node instanceof Element) {
+            Element nodeElement = (Element)node;
+            String nodeName = nodeElement.getNodeName();
+            if (!GrouperInstallerUtils.equals(nodeName, "cache")
+                && !GrouperInstallerUtils.equals(nodeName, "defaultCache")
+                && !GrouperInstallerUtils.equals(nodeName, "diskStore")) {
+              otherNodes.add(nodeElement);
+            }
+          }
+        }
+      }
+      
+      //lets copy the new example to both the example and the configured ehcache file
+      //assume this is already backed up
+      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile);
+
+      //this is the new existing ehcache file
+      existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
+      existingExampleDocumentElement = existingEhcacheExampleDoc.getDocumentElement();
+
+      //now lets do our edits
+      if (GrouperInstallerUtils.length(diskStoreDifferences) > 0) {
+        
+        hasMerging = true;
+
+        Element existingExampleDiskStoreElement = (Element)existingExampleDocumentElement.getElementsByTagName("diskStore").item(0);
+
+        for (String attributeName : diskStoreDifferences.keySet()) {
+
+          String attributeValue = diskStoreDifferences.get(attributeName);
+
+          existingExampleDiskStoreElement.setAttribute(attributeName, attributeValue);
+        }
+      }
+      
+      if (GrouperInstallerUtils.length(defaultCacheDifferences) > 0) {
+
+        hasMerging = true;
+
+        Element existingExampleDefaultCacheElement = (Element)existingExampleDocumentElement.getElementsByTagName("defaultCache").item(0);
+        
+        for (String attributeName : defaultCacheDifferences.keySet()) {
+          
+          String attributeValue = defaultCacheDifferences.get(attributeName);
+
+          existingExampleDefaultCacheElement.setAttribute(attributeName, attributeValue);
+          
+        }
+      }
+
+      if (GrouperInstallerUtils.length(cacheDifferencesByCacheName) > 0) {
+        hasMerging = true;
+        for (String cacheName : cacheDifferencesByCacheName.keySet()) {
+
+          //see if the name exists
+          //find the example cache
+          XPathExpression expr = xpath.compile("cache[@name='" + cacheName + "']");
+          Element existingExampleCacheElement = (Element)expr.evaluate(existingExampleDocumentElement, XPathConstants.NODE);
+
+          Map<String, String> attributeMap = cacheDifferencesByCacheName.get(cacheName);
+          
           //it exists
-          if (existingCacheElement != null) {
+          if (existingExampleCacheElement != null) {
             
             for (String attributeName : attributeMap.keySet()) {
               
               String attributeValue = attributeMap.get(attributeName);
+              existingExampleCacheElement.setAttribute(attributeName, attributeValue);
               
-              editFile(existingEhcacheFile, attributeName + "=\"([^\"]+)\"", 
-                  new String[]{"<cache", "name=\"" + cacheName + "\""}, 
-                  null, attributeValue, 
-                  "ehcache cache name=" + cacheName + " attribute", true, attributeName);
             }
           } else {
             
-            String fileContents = GrouperInstallerUtils.readFileIntoString(existingEhcacheFile);
+            Element existingCacheElement = (Element)expr.evaluate(existingDocumentElement, XPathConstants.NODE);
+            //move a cache from one document to another
+            existingExampleDocumentElement.appendChild(existingCacheElement.cloneNode(true));
             
-            String newline = newlineFromFile(fileContents);
-
-            int indexCloseTag = fileContents.lastIndexOf("</ehcache>");
-            
-            fileContents = fileContents.substring(0, indexCloseTag)
-                + elementToXml("cache", "", attributeMap)
-                + newline + "</ehcache>";
-            
-            GrouperInstallerUtils.saveStringIntoFile(existingEhcacheFile, fileContents);
           }
           
         }
       }
 
       if (GrouperInstallerUtils.length(otherNodes) > 0) {
-        System.out.println("Compare you old ehcache.xml with your new ehcache.xml file and merge in these elements: " 
-            + GrouperInstallerUtils.toStringForLog(otherNodes) + "\n  Old file: "
-            + backedUpEhcacheFile.getAbsolutePath()
-            + "\n  New file: " + existingEhcacheFile.getAbsolutePath());
-        System.out.println("Do you want to continue (t|f)? [t]: ");
-        if (!readFromStdInBoolean(true)) {
-          System.exit(1);
+        hasMerging = true;
+        for (Element element : otherNodes) {
+          
+          //move a cache from one document to another
+          existingExampleDocumentElement.appendChild(element.cloneNode(true));
+        }
+      }
+
+//      System.out.println("Compare you old ehcache.xml with your new ehcache.xml file: " 
+//          + "\n  Old file: "
+//          + backedUpEhcacheFile.getAbsolutePath()
+//          + "\n  New file: " + existingEhcacheFile.getAbsolutePath());
+
+      // save to file
+      String xml = GrouperInstallerUtils.xmlToString(existingEhcacheExampleDoc);
+      GrouperInstallerUtils.saveStringIntoFile(existingEhcacheFile, xml);
+      
+      // test the new file, look for things
+      existingEhcacheDoc = builder.parse(existingEhcacheFile);
+      existingDocumentElement = existingEhcacheDoc.getDocumentElement();
+
+      if (GrouperInstallerUtils.length(diskStoreDifferences) > 0) {
+        Element existingDiskStoreElement = (Element)existingDocumentElement.getElementsByTagName("diskStore").item(0);
+        for (String attributeName : diskStoreDifferences.keySet()) {
+          String attributeValue = diskStoreDifferences.get(attributeName);
+          if (!GrouperInstallerUtils.equals(attributeValue, existingDiskStoreElement.getAttribute(attributeName))) {
+            throw new RuntimeException("Why is diskStore attribute " + attributeName + " not '" + attributeValue + "'" 
+                + existingEhcacheFile.getAbsolutePath());
+          }
         }
       }
       
+      if (GrouperInstallerUtils.length(defaultCacheDifferences) > 0) {
+        Element existingDefaultCacheElement = (Element)existingDocumentElement.getElementsByTagName("defaultCache").item(0);
+        for (String attributeName : defaultCacheDifferences.keySet()) {
+          String attributeValue = defaultCacheDifferences.get(attributeName);
+          if (!GrouperInstallerUtils.equals(attributeValue, existingDefaultCacheElement.getAttribute(attributeName))) {
+            throw new RuntimeException("Why is defaultCache attribute " + attributeName + " not '" + attributeValue + "'" 
+                + existingEhcacheFile.getAbsolutePath());
+          }
+        }
+      }
+
+      if (GrouperInstallerUtils.length(cacheDifferencesByCacheName) > 0) {
+        for (String cacheName : cacheDifferencesByCacheName.keySet()) {
+
+          //see if the name exists
+          //find the example cache
+          XPathExpression expr = xpath.compile("cache[@name='" + cacheName + "']");
+          Element existingCacheElement = (Element)expr.evaluate(existingDocumentElement, XPathConstants.NODE);
+
+          Map<String, String> attributeMap = cacheDifferencesByCacheName.get(cacheName);
+          
+          for (String attributeName : attributeMap.keySet()) {
+            
+            String attributeValue = attributeMap.get(attributeName);
+
+            if (!GrouperInstallerUtils.equals(attributeValue, existingCacheElement.getAttribute(attributeName))) {
+              throw new RuntimeException("Why is cache " + cacheName + " attribute " + attributeName + " not '" + attributeValue + "'" 
+                  + existingEhcacheFile.getAbsolutePath());
+            }
+            
+          }
+        }
+      }
+
+      if (GrouperInstallerUtils.length(otherNodes) > 0) {
+        for (Element element : otherNodes) {
+          
+          NodeList nodeList = existingDocumentElement.getElementsByTagName(element.getNodeName());
+          if (nodeList == null || nodeList.getLength() == 0 ) {
+            throw new RuntimeException("Why is new element not there? " + element.getTagName() 
+                + existingEhcacheFile.getAbsolutePath());
+          }
+        }
+      }
+
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage(), e);
     }
-    
+    return hasMerging;
   }
-
-  /**
-   * turn a map of attributes into an xml string
-   * @param elementName
-   * @param extraAttributes
-   * @param attributes
-   * @return the xml
-   */
-  private static String elementToXml(String elementName, 
-      String extraAttributes, Map<String, String> attributes) {
-    
-    StringBuilder result = new StringBuilder();
-    
-    result.append("<").append(elementName).append(" ").append(extraAttributes);
-    
-    for (String attributeName : attributes.keySet()) {
-      result.append(" ").append(attributeName).append("=\"");
-      String attributeValue = GrouperInstallerUtils.trimToEmpty(attributes.get(attributeName));
-      result.append(GrouperInstallerUtils.xmlEscape(attributeValue)).append("\"");
-    }
-    
-    result.append(" />");
-    
-    return result.toString();
-  }
-  
   /**
    * 
    * @param baseElement
@@ -2769,9 +3362,12 @@ public class GrouperInstaller {
    */
   private String gshCommand() {
     
-    //note: at some point change this to gsh instead of gsh.sh
-    return this.untarredApiDir.getAbsolutePath() + File.separator + "bin" + File.separator 
-      + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh.sh");
+    String gshDir = GrouperInstallerUtils.defaultIfBlank(this.upgradeExistingApplicationDirectoryString, 
+        this.untarredApiDir.getAbsolutePath() + File.separator);
+    
+    return gshDir + "bin" + File.separator 
+        + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh");
+    
   }
   
   /**
@@ -3228,6 +3824,49 @@ public class GrouperInstaller {
   /**
    * 
    */
+  private void runChangeLogTempToChangeLog() {
+
+    System.out.println("Is it ok to run a script that copies change log temp records to the change log (recommended) (t|f)? [t]: ");
+    boolean runScript = readFromStdInBoolean(true);
+    
+    if (!runScript) {
+      return;
+    }
+    
+    //running with command on command line doenst work on linux since the args with whitespace translate to 
+    //save the commands to a file, and runt he file
+    StringBuilder gshCommands = new StringBuilder();
+    gshCommands.append("grouperSession = GrouperSession.startRootSession();\n");
+    gshCommands.append("loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\");\n");
+    
+    File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "changeLogTempToChangeLog.gsh");
+    GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
+    
+    List<String> commands = new ArrayList<String>();
+
+    addGshCommands(commands);
+    commands.add(gshFile.getAbsolutePath());
+
+    System.out.println("\n##################################");
+    System.out.println("Copying records from change log temp to change log with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(
+        GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+        new File(this.upgradeExistingApplicationDirectoryString), null);
+
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+
+  }
+
+  /**
+   * 
+   */
   private void runClientCommand() {
     System.out.println("##################################");
     System.out.println("Running client command:");
@@ -3295,18 +3934,9 @@ public class GrouperInstaller {
     
     String fileContents = GrouperInstallerUtils.readFileIntoString(file);
     
-    String newline = newlineFromFile(fileContents);
+    String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
     
-    String[] lines = null;
-    if ("\n".equals(newline)) {
-      lines = fileContents.split("[\\n]");
-    } else if ("\r".equals(newline)) {
-      lines = fileContents.split("[\\r]");
-    } else if ("\r\n".equals(newline)) {
-      lines = fileContents.split("[\\r\\n]");
-    } else {
-      lines = fileContents.split("[\\r\\n]+");
-    }
+    String[] lines = GrouperInstallerUtils.splitLines(fileContents);
     
     Pattern pattern = Pattern.compile(valueRegex);
     
@@ -3408,7 +4038,7 @@ public class GrouperInstaller {
       }
       
       //we need to change the value
-      System.out.println(" - changing " + description + " from old value: '" + oldValue + "' to new value: '" + newValue + "'");
+      System.out.println(" - changing " + description + " from: '" + oldValue + "' to: '" + newValue + "'");
       newfile.append(line.substring(0, matcher.start(1)));
       newfile.append(newValue);
       newfile.append(line.substring(matcher.end(1), line.length()));
@@ -3445,18 +4075,9 @@ public class GrouperInstaller {
     
     String fileContents = GrouperInstallerUtils.readFileIntoString(file);
     
-    String newline = newlineFromFile(fileContents);
+    String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
     
-    String[] lines = null;
-    if ("\n".equals(newline)) {
-      lines = fileContents.split("[\\n]");
-    } else if ("\r".equals(newline)) {
-      lines = fileContents.split("[\\r]");
-    } else if ("\r\n".equals(newline)) {
-      lines = fileContents.split("[\\r\\n]");
-    } else {
-      lines = fileContents.split("[\\r\\n]+");
-    }
+    String[] lines = GrouperInstallerUtils.splitLines(fileContents);
 
     line = GrouperInstallerUtils.replace(line, "\n", newline);
     
@@ -3697,6 +4318,9 @@ public class GrouperInstaller {
               }            
             }
           }
+          if (!this.upgradeExistingLibDirectoryString.endsWith(File.separator)) {
+            this.upgradeExistingLibDirectoryString += File.separator;
+          }
         }        
                 
         return upgradeExistingDirectoryString;
@@ -3784,11 +4408,11 @@ public class GrouperInstaller {
     
     String fileContents = GrouperInstallerUtils.readFileIntoString(file);
     
-    String newline = newlineFromFile(fileContents);
+    String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
     
     Pattern pattern = Pattern.compile(addAfterThisRegex);
 
-    String[] lines = fileContents.split("[\\r\\n]+");
+    String[] lines = GrouperInstallerUtils.splitLines(fileContents);
     
     Pattern[] lineMustPassThesePatterns = new Pattern[GrouperInstallerUtils.length(mustPassTheseRegexes)];
     
@@ -3871,7 +4495,7 @@ public class GrouperInstaller {
     
     String fileContents = GrouperInstallerUtils.readFileIntoString(file);
     
-    String newline = newlineFromFile(fileContents);
+    String newline = GrouperInstallerUtils.newlineFromFile(fileContents);
     
     //if it starts with it, add a newline to start so the regexes work
     if (!fileContents.startsWith(newline)) {
@@ -3958,25 +4582,6 @@ public class GrouperInstaller {
     
   }
 
-  /**
-   * based on file contents see what the newline type is
-   * @param fileContents
-   * @return the newline
-   */
-  private static String newlineFromFile(String fileContents) {
-    String newline = "\n";
-    if (fileContents.contains("\\r\\n")) {
-      newline = "\\r\\n";
-    }
-    if (fileContents.contains("\\n\\r")) {
-      newline = "\\n\\r";
-    }
-    if (fileContents.contains("\\r")) {
-      newline = "\\r";
-    }
-    return newline;
-  }
-  
   /**
    * untar a file to a dir
    * @param fileName
@@ -4141,4 +4746,313 @@ public class GrouperInstaller {
 
     return pspFile;
   }
+  
+  /**
+   * edit an xml file attribute in a xml file
+   * @param file
+   * @param elementName
+   * @param elementMustHaveAttributeAndValue
+   * @param newValue
+   * @param description of change for sys out print
+   * @param newAttributeName if adding new attribute, this is the name
+   * @return true if edited file, or false if not but didnt need to, null if not found
+   */
+  public static Boolean editXmlFileAttribute(File file, String elementName, Map<String, String> elementMustHaveAttributeAndValue, 
+      String newAttributeName, String newValue, String description) {
+
+    if (!file.exists() || file.length() == 0) {
+      throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
+          + file.getAbsolutePath());
+    }
+    
+    String fileContents = GrouperInstallerUtils.readFileIntoString(file);
+    
+    boolean inComment = false;
+    
+    //lets parse the file and get to the element
+    OUTER: for (int i=0;i<fileContents.length();i++) {
+      
+      //look for start element
+      char curChar = fileContents.charAt(i);
+
+      Character nextChar = (i+1) < fileContents.length() ? fileContents.charAt(i+1) : null;
+      Character nextNextChar = (i+2) < fileContents.length() ? fileContents.charAt(i+2) : null;
+      Character nextNextNextChar = (i+3) < fileContents.length() ? fileContents.charAt(i+3) : null;
+      
+      //if we are in comment, see when we are out of comment
+      if (inComment) {
+        if (curChar == '-' && nextChar != null && nextChar == '-' && nextNextChar != null && nextNextChar == '>') {
+          inComment = false;
+        }
+        continue;
+        
+      }
+
+      //look for a tag or comment
+      if (curChar != '<') {
+        continue;
+      }
+      
+      //see if this is a comment
+      if (nextChar != null && nextChar == '!' && nextNextChar != null && nextNextChar == '-' && nextNextNextChar != null && nextNextNextChar == '-') {
+        inComment = true;
+        continue;
+      }
+
+      //get tagName
+      String currentElementName = _internalXmlTagName(fileContents, i+1);
+      
+      //not the right tag
+      if (!GrouperInstallerUtils.equals(currentElementName, elementName)) {
+        continue;
+      }
+      
+      int tagNameStart = fileContents.indexOf(currentElementName, i+1);
+      
+      //get the attributes
+      int tagAttributesStart = tagNameStart + currentElementName.length();
+      XmlParseAttributesResult xmlParseAttributesResult = _internalXmlParseAttributes(fileContents, tagAttributesStart);
+      Map<String, String> currentAttributes = xmlParseAttributesResult.getAttributes();
+      
+      if (GrouperInstallerUtils.length(elementMustHaveAttributeAndValue) > 0) {
+        for (String attributeName : elementMustHaveAttributeAndValue.keySet()) {
+          String expectedValue = elementMustHaveAttributeAndValue.get(attributeName);
+          String hasValue = currentAttributes.get(attributeName);
+
+          //if we dont have that value, then keep going
+          if (!GrouperInstallerUtils.equals(expectedValue, hasValue)) {
+            continue OUTER;
+          }
+        }
+      }
+      
+      //we have the tag and it has the expected attributes
+
+      //see if the attribute is even there...
+      if (!currentAttributes.containsKey(newAttributeName)) {
+        System.out.println(" - adding " + description + " with value: '" + newValue + "'");
+        String newFileContents = fileContents.substring(0, tagAttributesStart) + " " + newAttributeName + "=\"" + newValue + 
+            "\" " + fileContents.substring(tagAttributesStart, fileContents.length());
+        GrouperInstallerUtils.writeStringToFile(file, newFileContents);
+        return true;
+      }
+
+      //does it already have the value?
+      String currentValue = currentAttributes.get(newAttributeName);
+      
+      //value is already there
+      if (GrouperInstallerUtils.equals(currentValue, newValue)) {
+        return false;
+      }
+
+      //it has the wrong value
+      int startQuote = xmlParseAttributesResult.getAttributeStartIndex().get(newAttributeName);
+      int endQuote = xmlParseAttributesResult.getAttributeEndIndex().get(newAttributeName);
+
+      System.out.println(" - changing " + description + " from old value: '" + currentValue 
+          + "' to new value: '" + newValue + "'");
+
+      String newFileContents = fileContents.substring(0, startQuote+1)  + newValue + 
+          fileContents.substring(endQuote, fileContents.length());
+      GrouperInstallerUtils.writeStringToFile(file, newFileContents);
+      return true;
+
+    }
+
+    return null;
+
+  }
+
+  /**
+   * 
+   * @param fileContents
+   * @param tagIndexStart
+   * @return the tag name
+   */
+  private static String _internalXmlTagName(String fileContents, int tagIndexStart) {
+    StringBuilder tagName = new StringBuilder();
+    for (int i=tagIndexStart; i<fileContents.length(); i++) {
+      char curChar = fileContents.charAt(i);
+      if (tagName.length() == 0 && Character.isWhitespace(curChar)) {
+        continue;
+      }
+      if (Character.isWhitespace(curChar) || '/' == curChar || '>' == curChar) {
+        return tagName.toString();
+      }
+      tagName.append(curChar);
+    }
+    throw new RuntimeException("How did I get here???? '" + tagName.toString() + "'");
+  }
+  
+  /**
+   * xml parse attribute result
+   */
+  private static class XmlParseAttributesResult {
+
+    /**
+     * attributes name to value
+     */
+    private Map<String, String> attributes;
+    
+    /**
+     * attribute name to startIndex (of quote)
+     */
+    private Map<String, Integer> attributeStartIndex;
+
+    /**
+     * attribute name to endIndex (of quote)
+     */
+    private Map<String, Integer> attributeEndIndex;
+
+    
+    /**
+     * attributes name to value
+     * @return the attributes
+     */
+    public Map<String, String> getAttributes() {
+      return this.attributes;
+    }
+
+    
+    /**
+     * attributes name to value
+     * @param attributes1 the attributes to set
+     */
+    public void setAttributes(Map<String, String> attributes1) {
+      this.attributes = attributes1;
+    }
+
+    
+    /**
+     * attribute name to startIndex (of quote)
+     * @return the attributeStartIndex
+     */
+    public Map<String, Integer> getAttributeStartIndex() {
+      return this.attributeStartIndex;
+    }
+    
+    /**
+     * attribute name to startIndex (of quote)
+     * @param attributeStartIndex1 the attributeStartIndex to set
+     */
+    public void setAttributeStartIndex(Map<String, Integer> attributeStartIndex1) {
+      this.attributeStartIndex = attributeStartIndex1;
+    }
+    
+    /**
+     * attribute name to endIndex (of quote)
+     * @return the attributeEndIndex
+     */
+    public Map<String, Integer> getAttributeEndIndex() {
+      return this.attributeEndIndex;
+    }
+    
+    /**
+     * attribute name to endIndex (of quote)
+     * @param attributeEndIndex1 the attributeEndIndex to set
+     */
+    public void setAttributeEndIndex(Map<String, Integer> attributeEndIndex1) {
+      this.attributeEndIndex = attributeEndIndex1;
+    }
+    
+  }
+  
+  /**
+   * parse attributes
+   * @param fileContents
+   * @param tagAttributesStart is the index where the attributes start
+   * @return the map of attribute names and values
+   */
+  private static XmlParseAttributesResult _internalXmlParseAttributes(String fileContents, int tagAttributesStart) {
+
+    XmlParseAttributesResult xmlParseAttributesResult = new XmlParseAttributesResult();
+
+    Map<String, String> attributes = new LinkedHashMap<String, String>();
+    Map<String, Integer> attributeStartIndex = new LinkedHashMap<String, Integer>();
+    Map<String, Integer> attributeEndIndex = new LinkedHashMap<String, Integer>();
+
+    xmlParseAttributesResult.setAttributes(attributes);
+    xmlParseAttributesResult.setAttributeStartIndex(attributeStartIndex);
+    xmlParseAttributesResult.setAttributeEndIndex(attributeEndIndex);
+    
+    boolean inAttributeStartValue = false;
+    boolean inAttributeStartName = true;
+    boolean inAttributeName = false;
+    boolean inAttributeValue = false;
+    
+    StringBuilder attributeName = null;
+    StringBuilder attributeValue = null;
+    
+    for (int i=tagAttributesStart; i<fileContents.length(); i++) {
+      char curChar = fileContents.charAt(i);
+      boolean isWhitespace = Character.isWhitespace(curChar);
+
+      //waiting for the attribute
+      if ((inAttributeStartValue || inAttributeStartName) && isWhitespace) {
+        continue;
+      }
+
+      //if waiting for value and equals, keep looking
+      if (inAttributeStartValue && curChar == '=') {
+        continue;
+      }
+
+      //waiting to start an attribute name, its not whitespace so do it
+      if (inAttributeStartName) {
+        
+        //we done if we got to this character
+        if (curChar == '/' || curChar == '>') {
+          return xmlParseAttributesResult;
+        }
+        
+        inAttributeStartName = false;
+        inAttributeName = true;
+        attributeName = new StringBuilder();
+      }
+
+      //if in an attribute name and whitespace or equals, then we are done
+      if (inAttributeName && (isWhitespace || curChar == '=' )) {
+        inAttributeName = false;
+        inAttributeStartValue = true;
+        continue;
+      }
+
+      //getting the attribute name
+      if (inAttributeName) {
+        attributeName.append(curChar);
+        continue;
+      }
+
+      //if waiting for start value and found quote
+      if (inAttributeStartValue && curChar == '"') {
+        inAttributeStartValue = false;
+        inAttributeValue = true;
+        attributeValue = new StringBuilder();
+        attributeStartIndex.put(attributeName.toString(), i);
+        continue;
+      }
+
+      //if in attribute value and not quote, append the char
+      if (inAttributeValue && curChar != '"') {
+        attributeValue.append(curChar);
+        continue;
+      }
+
+      //done with attribute value
+      if (inAttributeValue && curChar == '"') {
+        inAttributeValue = false;
+        inAttributeStartName = true;
+        if (attributes.containsKey(attributeName.toString())) {
+          throw new RuntimeException("Duplicate attribute: " + attributeName.toString());
+        }
+        attributes.put(attributeName.toString(), attributeValue.toString());
+        attributeEndIndex.put(attributeName.toString(), i);
+        continue;
+      }
+
+      throw new RuntimeException("Why are we here? " + i + ", " + fileContents);
+    }
+    return xmlParseAttributesResult;
+  }
+  
 }

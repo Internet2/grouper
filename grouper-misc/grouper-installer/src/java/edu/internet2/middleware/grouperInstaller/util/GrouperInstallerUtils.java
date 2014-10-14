@@ -76,8 +76,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.Attributes.Name;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -90,6 +90,10 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -9397,19 +9401,27 @@ public class GrouperInstallerUtils  {
   private static class StreamGobbler implements Runnable {
     
     /** stream to read */
-    InputStream inputStream;
+    private InputStream inputStream;
     
     /** where to put the result */
-    String resultString;
+    private String resultString;
 
     /** type of the output for logging purposes */
-    String type;
+    private String type;
     
     /** command to log */
-    String command;
+    private String command;
     
     /** if print to stdout */
-    File printToFile;
+    private File printToFile;
+
+    /** if this is out or error */
+    private boolean outOrErr;
+    
+    /**
+     * if should print stdout and stderr as received
+     */
+    private boolean printOutputErrorAsReceived;
     
     /**
      * construct
@@ -9417,12 +9429,17 @@ public class GrouperInstallerUtils  {
      * @param theType 
      * @param theCommand
      * @param thePrintToFile 
+     * @param thePrintOutputErrorAsReceived
+     * @param theOutOrErr
      */
-    StreamGobbler(InputStream is, String theType, String theCommand, File thePrintToFile) {
+    private StreamGobbler(InputStream is, String theType, String theCommand, File thePrintToFile, 
+        boolean thePrintOutputErrorAsReceived, boolean theOutOrErr) {
       this.inputStream = is;
       this.type = theType;
       this.command = theCommand;
       this.printToFile = thePrintToFile;
+      this.printOutputErrorAsReceived = thePrintOutputErrorAsReceived;
+      this.outOrErr = theOutOrErr;
     }
 
     /**
@@ -9451,7 +9468,13 @@ public class GrouperInstallerUtils  {
       
       try {
         
-        if (this.printToFile  != null) {
+        if (this.printOutputErrorAsReceived) {
+          if (this.outOrErr) {
+            copy(this.inputStream, System.out);
+          } else {
+            copy(this.inputStream, System.err);
+          }
+        } else if (this.printToFile  != null) {
           copy(this.inputStream, fileOutputStream);
           
         } else {
@@ -9567,6 +9590,33 @@ public class GrouperInstallerUtils  {
    */
   public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
       String[] envVariables, File workingDirectory, String outputFilePrefix) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, workingDirectory, outputFilePrefix, false);
+  }
+
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @param waitFor if we should wait for this process to end
+   * @param workingDirectory 
+   * @param envVariables are env vars with name=val
+   * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printOutputErrorAsReceived if should print output error as received
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
+      String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printOutputErrorAsReceived) {
+    
+    if (printOutputErrorAsReceived && !isBlank(outputFilePrefix)) {
+      throw new RuntimeException("Cant print as received and have output file prefix");
+    }
+    
     Process process = null;
 
     StringBuilder commandBuilder = new StringBuilder();
@@ -9585,8 +9635,8 @@ public class GrouperInstallerUtils  {
       if (!waitFor) {
         return new CommandResult(null, null, -1);
       }
-      outputGobbler = new StreamGobbler(process.getInputStream(), ".out", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Out.log"));
-      errorGobbler = new StreamGobbler(process.getErrorStream(), ".err", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Err.log"));
+      outputGobbler = new StreamGobbler(process.getInputStream(), ".out", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Out.log"), printOutputErrorAsReceived, true);
+      errorGobbler = new StreamGobbler(process.getErrorStream(), ".err", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Err.log"), printOutputErrorAsReceived, false);
 
       Thread outputThread = new Thread(outputGobbler);
       outputThread.setDaemon(true);
@@ -10071,6 +10121,55 @@ public class GrouperInstallerUtils  {
   }  
 
   /**
+   * turn a map of attributes into an xml string
+   * @param elementName
+   * @param extraAttributes
+   * @param attributes
+   * @return the xml
+   */
+  public static String xmlElementToXml(String elementName, 
+      String extraAttributes, Map<String, String> attributes) {
+    
+    StringBuilder result = new StringBuilder();
+    
+    result.append("<").append(elementName).append(" ");
+    
+    if (!isBlank(extraAttributes)) {
+      result.append(extraAttributes);
+    }
+
+    for (String attributeName : attributes.keySet()) {
+      result.append(" ").append(attributeName).append("=\"");
+      String attributeValue = GrouperInstallerUtils.trimToEmpty(attributes.get(attributeName));
+      result.append(GrouperInstallerUtils.xmlEscape(attributeValue)).append("\"");
+    }
+    
+    result.append(" />");
+    
+    return result.toString();
+  }
+  
+
+  /**
+   * convert XML to string
+   * @param document
+   * @return the string of the XML
+   */
+  public static String xmlToString(Node document) {
+    try {
+      DOMSource domSource = new DOMSource(document);
+      StringWriter writer = new StringWriter();
+      StreamResult result = new StreamResult(writer);
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer transformer = tf.newTransformer();
+      transformer.transform(domSource, result);
+      return writer.toString();
+    } catch (Exception exception) {
+      throw new RuntimeException(exception);
+    }
+  }
+  
+  /**
    * 
    * @param xmlFile
    * @param xpathExpression
@@ -10085,11 +10184,41 @@ public class GrouperInstallerUtils  {
   }
 
   /**
-   * get the property value from version in the manifest of a jar
+   * 
    * @param jarFile
    * @return the version
    */
   public static String jarVersion(File jarFile) {
+    String version = jarVersion1(jarFile);
+    if (isBlank(version)) {
+
+      //hopefully this is set
+      if (tempFilePathForJars != null) {
+        
+        String jarFilePath = jarFile.getAbsolutePath();
+        jarFilePath = replace(jarFilePath, ":", "_");
+        if (jarFilePath.startsWith("/") || jarFilePath.startsWith("\\")) {
+          jarFilePath = jarFilePath.substring(1);
+        }
+        jarFilePath = tempFilePathForJars + jarFilePath;
+        File bakJarFile = new File(jarFilePath);
+        mkdirs(bakJarFile.getParentFile());
+        copyFile(jarFile, bakJarFile);
+        version = jarVersion2(bakJarFile);
+      } else {
+        throw new RuntimeException("You need to set tempFileForJars");
+      }
+      
+    }
+    return version;
+  }
+  
+  /**
+   * get the property value from version in the manifest of a jar
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion1(File jarFile) {
     FileInputStream fileInputStream = null;
     try {
       fileInputStream = new FileInputStream(jarFile);
@@ -10097,7 +10226,7 @@ public class GrouperInstallerUtils  {
       
       Manifest manifest = jarInputStream.getManifest();
 
-      return manifestVersion(jarFile, manifest);
+      return manifest == null ? null : manifestVersion(jarFile, manifest);
       
     } catch (Exception e) {
       if (e instanceof RuntimeException) {
@@ -10108,6 +10237,66 @@ public class GrouperInstallerUtils  {
       closeQuietly(fileInputStream);
     }
 
+  }
+
+  /** set this to copy jars if the jarinputstream doesnt work, must end in File.separator, set this at the beginning of the
+   * program. 
+   */
+  public static String tempFilePathForJars = null;
+  
+  /**
+   * 
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion2(File jarFile) {
+    
+    InputStream manifestStream = null;  
+    try {  
+      URL manifestUrl = new URL("jar:file:" + jarFile.getCanonicalPath() + "!/META-INF/MANIFEST.MF");  
+      manifestStream = manifestUrl.openStream();  
+      Manifest manifest = new Manifest(manifestStream);  
+      return manifest == null ? null : manifestVersion(jarFile, manifest);
+    } catch (Exception e) {  
+      if (e instanceof RuntimeException) {  
+        throw (RuntimeException)e;  
+      }  
+      throw new RuntimeException(e.getMessage(), e);  
+    } finally {  
+      closeQuietly(manifestStream);  
+    }  
+  }
+
+  /**
+   * split a string (e.g. file contents) into lines
+   * @param string
+   * @return the lines
+   */
+  public static String[] splitLines(String string) {
+    String newline = newlineFromFile(string);
+    String[] lines = null;
+    if ("\n".equals(newline)) {
+      lines = string.split("[\\n]");
+    } else if ("\r".equals(newline)) {
+      lines = string.split("[\\r]");
+    } else if ("\r\n".equals(newline)) {
+      lines = string.split("[\\r\\n]");
+    } else {
+      lines = string.split("[\\r\\n]+");
+    }
+    return lines;
+  }
+  
+  /**
+   * if printed cant find version, put the jar name here
+   */
+  private static Set<String> printedCantFindVersionJarName = new HashSet<String>();
+  
+  static {
+    //we know about this one, signed, cant change
+    //sqljdbc4.jar, Manifest-Version: 1.0
+    //sqljdbc4.jar, Created-By: 1.6.0_33 (Sun Microsystems Inc.)
+    printedCantFindVersionJarName.add("sqljdbc4.jar");
   }
   
   /**
@@ -10139,17 +10328,39 @@ public class GrouperInstallerUtils  {
       }
     }
     if (value == null) {
-      System.out.println("Error: cant find version for jar");
-      for (Attributes attributes: attributeMap.values()) {
-        for (Object key : attributes.keySet()) {
-          System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+      if (!printedCantFindVersionJarName.contains(jarFile.getName())) {
+        printedCantFindVersionJarName.add(jarFile.getName());
+        System.out.println("Error: cant find version for jar: " + jarFile.getName());
+        for (Attributes attributes: attributeMap.values()) {
+          for (Object key : attributes.keySet()) {
+            System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+          }
         }
-      }
-      Attributes attributes = manifest.getMainAttributes();
-      for (Object key : attributes.keySet()) {
-        System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+        Attributes attributes = manifest.getMainAttributes();
+        for (Object key : attributes.keySet()) {
+          System.out.println(jarFile.getName() + ", main " + key + ": " + attributes.getValue((Name)key));
+        }
       }
     }
     return value;
+  }
+
+  /**
+   * based on file contents see what the newline type is
+   * @param fileContents
+   * @return the newline
+   */
+  public static String newlineFromFile(String fileContents) {
+    String newline = "\n";
+    if (fileContents.contains("\\r\\n")) {
+      newline = "\\r\\n";
+    }
+    if (fileContents.contains("\\n\\r")) {
+      newline = "\\n\\r";
+    }
+    if (fileContents.contains("\\r")) {
+      newline = "\\r";
+    }
+    return newline;
   }
 }
