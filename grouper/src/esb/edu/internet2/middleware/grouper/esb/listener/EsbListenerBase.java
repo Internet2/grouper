@@ -19,9 +19,21 @@
 
 package edu.internet2.middleware.grouper.esb.listener;
 
+/**
+ * extend this to make an ESB processor
+ */
 public abstract class EsbListenerBase {
 
+  /**
+   * 
+   * @param eventJsonString
+   * @param consumerName
+   * @return true if ok, false if not
+   */
   public abstract boolean dispatchEvent(String eventJsonString, String consumerName);
 
+  /**
+   * disconnect if needed
+   */
   public abstract void disconnect();
 }
