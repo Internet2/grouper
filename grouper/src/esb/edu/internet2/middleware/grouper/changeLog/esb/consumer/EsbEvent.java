@@ -130,6 +130,27 @@ public class EsbEvent {
     return !GrouperUtil.isBlank(subjectAttribute(attributeName));
   }
   
+  /**
+   * if a change occurred but no sensitive data is being sent
+   */
+  private boolean changeOccurred;
+  
+  /**
+   * if a change occurred but no sensitive data is being sent
+   * @return the changeOccurred
+   */
+  public boolean isChangeOccurred() {
+    return this.changeOccurred;
+  }
+  
+  /**
+   * if a change occurred but no sensitive data is being sent
+   * @param changeOccurred the changeOccurred to set
+   */
+  public void setChangeOccurred(boolean changeOccurred) {
+    this.changeOccurred = changeOccurred;
+  }
+
   /** sequence number of event for logging or whatnot */
   private String sequenceNumber;
   
