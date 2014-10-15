@@ -19,6 +19,7 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -442,17 +443,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           EsbEvents events = new EsbEvents();
           
           events.addEsbEvent(event);
-          String eventJsonString = null;
-          
-          eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
-          //String eventJsonString = gson.toJson(event);
-          // add indenting for debugging
-          // add subject attributes if configured
 
-          if (GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
-              + ".publisher.debug", false)) {
-            eventJsonString = GrouperUtil.indent(eventJsonString, false);
-          }
           //System.out.println(eventJsonString);
           if (this.esbPublisherBase == null) {
             String theClassName = GrouperLoaderConfig
@@ -481,6 +472,41 @@ public class EsbConsumer extends ChangeLogConsumerBase {
             }
           }
           if (processEvent) {
+
+            String eventJsonString = null;
+            
+            // changeLog.consumer.awsJira.noSensitiveData
+            boolean noSensitiveData = GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
+                + ".noSensitiveData", false);
+            
+            //if no sensitive data, then just send over that a change occurred and the event type and the id
+            if (noSensitiveData) {
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("noSensitiveData", true);
+              }
+              EsbEvents tempEsbEvents = new EsbEvents();
+              List<EsbEvent> tempEsbEventList = new ArrayList<EsbEvent>();
+              for (EsbEvent esbEvent : GrouperUtil.nonNull(events.getEsbEvent(), EsbEvent.class)) {
+                EsbEvent tempEvent = new EsbEvent();
+                //copy over non sensitive data
+                tempEvent.setSequenceNumber(esbEvent.getSequenceNumber());
+                tempEvent.setEventType(esbEvent.getEventType());
+                tempEvent.setChangeOccurred(true);
+                tempEsbEventList.add(tempEvent);
+              }
+              tempEsbEvents.setEsbEvent(GrouperUtil.toArray(tempEsbEventList, EsbEvent.class));
+              events = tempEsbEvents;
+            }
+            eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
+            //String eventJsonString = gson.toJson(event);
+            // add indenting for debugging
+            // add subject attributes if configured
+
+            if (GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
+                + ".publisher.debug", false)) {
+              eventJsonString = GrouperUtil.indent(eventJsonString, false);
+            }
+
             if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
               //OK;
               if (LOG.isDebugEnabled()) {
