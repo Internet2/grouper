@@ -166,6 +166,9 @@ public class StemDataConnector extends BaseGrouperDataConnector<Stem> {
       descriptionAttr.setValues(GrouperUtil.toList(description));
       attributes.put(descriptionAttr.getId(), descriptionAttr);
     }
+        
+    // IntegerID 
+    attributes.put("IdIndex", new BasicAttribute(stem.getIdIndex()+""));
 
     // attribute defs
     for (String attributeDefName : getAttributeDefNames()) {

@@ -200,7 +200,10 @@ public class GroupDataConnector extends BaseGrouperDataConnector<Group> implemen
     BasicAttribute<GroupType> groupTypes = new BasicAttribute<GroupType>(GROUP_TYPE_ATTR);
     groupTypes.setValues(group.getTypes());
     attributes.put(groupTypes.getId(), groupTypes);
-
+    
+    // IntegerID 
+    attributes.put("IdIndex", new BasicAttribute(group.getIdIndex()+""));
+    
     // alternate names
     Set<String> alternateNames = group.getAlternateNames();
     if (alternateNames != null && !alternateNames.isEmpty()) {
