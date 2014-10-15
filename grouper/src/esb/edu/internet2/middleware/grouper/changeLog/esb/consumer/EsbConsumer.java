@@ -19,12 +19,11 @@
 
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -62,21 +61,20 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     String consumerName = changeLogProcessorMetadata.getConsumerName();
     long currentId = -1;
 
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
+    
     //try catch so we can track that we made some progress
     try {
       for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
 
         currentId = changeLogEntry.getSequenceNumber();
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Processing event number " + currentId);
+          debugMap.put("eventNumber", currentId);
         }
         EsbEvent event = new EsbEvent();
         event.setSequenceNumber(Long.toString(currentId));
         //if this is a group type add action and category
         if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_ADD");
-          }
           event.setEventType(EsbEvent.EsbEventType.GROUP_ADD.name());
           event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ADD.id));
           event.setName(this
@@ -90,9 +88,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_DELETE");
-          }
           event.setEventType(EsbEvent.EsbEventType.GROUP_DELETE.name());
           event
               .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_DELETE.id));
@@ -106,9 +101,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.GROUP_DELETE.description));
 
         } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is ENTITY_ADD");
-          }
           event.setEventType(EsbEvent.EsbEventType.ENTITY_ADD.name());
           event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_ADD.id));
           event.setName(this
@@ -122,9 +114,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is ENTITY_DELETE");
-          }
           event.setEventType(EsbEvent.EsbEventType.ENTITY_DELETE.name());
           event
               .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_DELETE.id));
@@ -139,9 +128,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_FIELD_ADD");
-          }
           event.setEventType(EsbEvent.EsbEventType.GROUP_FIELD_ADD.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_FIELD_ADD.id));
@@ -156,9 +142,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_FIELD_DELETE");
-          }
           event.setEventType(EsbEvent.EsbEventType.GROUP_FIELD_DELETE.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_FIELD_DELETE.id));
@@ -173,9 +156,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_FIELD_UPDATE");
-          }
           event.setEventType(EsbEvent.EsbEventType.GROUP_FIELD_UPDATE.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.GROUP_FIELD_UPDATE.id));
@@ -200,9 +180,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is GROUP_UPDATE");
-          }
           event.setEventType(EsbEvent.EsbEventType.GROUP_UPDATE.name());
           event
               .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id));
@@ -225,9 +202,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.ENTITY_UPDATE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is ENTITY_UPDATE");
-          }
           event.setEventType(EsbEvent.EsbEventType.ENTITY_UPDATE.name());
           event
               .setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.ENTITY_UPDATE.id));
@@ -250,9 +224,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is MEMBERSHIP_ADD");
-          }
           event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_ADD.name());
           // throws error
           event.setId(this.getLabelValue(changeLogEntry,
@@ -273,9 +244,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is MEMBERSHIP_DELETE");
-          }
           event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_DELETE.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.MEMBERSHIP_DELETE.id));
@@ -294,9 +262,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is MEMBERSHIP_UPDATE");
-          }
           event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_UPDATE.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.MEMBERSHIP_UPDATE.id));
@@ -321,9 +286,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is PRIVILEGE_ADD");
-          }
           event.setEventType(EsbEvent.EsbEventType.PRIVILEGE_ADD.name());
           // next line throws error, so removed
           //event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.PRIVILEGE_ADD.id));
@@ -344,9 +306,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is PRIVILEGE_DELETE");
-          }
           event.setEventType(EsbEvent.EsbEventType.PRIVILEGE_DELETE.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.PRIVILEGE_DELETE.id));
@@ -367,9 +326,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.PRIVILEGE_UPDATE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is PRIVILEGE_UPDATE");
-          }
           event.setEventType(EsbEvent.EsbEventType.PRIVILEGE_UPDATE.name());
           event.setId(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.PRIVILEGE_UPDATE.id));
@@ -389,9 +345,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.PRIVILEGE_UPDATE.ownerName));
 
         } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_ADD)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is STEM_ADD");
-          }
           event.setEventType(EsbEvent.EsbEventType.STEM_ADD.name());
           event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.STEM_ADD.id));
           event
@@ -405,9 +358,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.STEM_DELETE)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Event is STEM_DELETE");
-          }
           event.setEventType(EsbEvent.EsbEventType.STEM_DELETE.name());
           event.setId(this.getLabelValue(changeLogEntry, ChangeLogLabels.STEM_DELETE.id));
           event.setName(this.getLabelValue(changeLogEntry,
@@ -442,6 +392,10 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.STEM_UPDATE.propertyNewValue));
 
         }
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("eventType", event.getEventType());
+        }
+
         if (event.getEventType() != null) {
           // convert to JSON and process
 
@@ -455,7 +409,9 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           // add event to array, only one event supported for now
           EsbEvents events = new EsbEvents();
           events.addEsbEvent(event);
-          String eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
+          String eventJsonString = null;
+          
+          eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
           //String eventJsonString = gson.toJson(event);
           // add indenting for debugging
           // add subject attributes if configured
@@ -470,28 +426,36 @@ public class EsbConsumer extends ChangeLogConsumerBase {
                     + ".publisher.class");
             Class<?> theClass = GrouperUtil.forName(theClassName);
             if (LOG.isDebugEnabled()) {
-              LOG.debug("Creating instance of class " + theClass.getCanonicalName()
-                  + " to process event " + event.getSequenceNumber());
+              debugMap.put("publisherClass", theClassName);
             }
             esbPublisherBase = (EsbListenerBase) GrouperUtil.newInstance(theClass);
           }
           String elFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
               + consumerName + ".elfilter", "");
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("elFilter", elFilter);
+          }
+          boolean processEvent = true;
+          
           if (!StringUtils.isBlank(elFilter)) {
-            if (!matchesFilter(event, elFilter)) {
+            boolean matchesFilter = matchesFilter(event, elFilter);
               if (LOG.isDebugEnabled()) {
-                LOG.debug("Event " + event.getSequenceNumber() + " does not match consumer filter " + elFilter);
-              }
-            } else {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Event " + event.getSequenceNumber() + " matches filter " + elFilter + ", processing");
-              }
+              debugMap.put("matchesFilter", matchesFilter);
+            }
+            if (!matchesFilter) {
+              processEvent = false;
+            }
+          }
+          if (processEvent) {
               if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
                 //OK;
                 if (LOG.isDebugEnabled()) {
-                  LOG.debug("Event " + currentId + " processed");
+                  debugMap.put("processed", true);
                 }
               } else {
+              if (LOG.isDebugEnabled()) {
+                debugMap.put("processed", false);
+              }
                 // error, need to retry
                 changeLogProcessorMetadata.registerProblem(null,
                     "Error processing record " + event.getSequenceNumber(), currentId);
@@ -499,36 +463,26 @@ public class EsbConsumer extends ChangeLogConsumerBase {
                 return currentId - 1;
               }
             }
-          } else if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
-            //OK;
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("No filter configured, event " + event.getSequenceNumber() + " processed");
-            }
           } else {
-            // error, need to retry
             if (LOG.isDebugEnabled()) {
-              LOG.debug("No filter configured, event " + event.getSequenceNumber() + " processed");
+              debugMap.put("unsupportedEvant", event.getType());
             }
-            changeLogProcessorMetadata.registerProblem(null, "Error processing record " + event.getSequenceNumber(),
-                currentId);
-            //we made it to this -1
-            return currentId - 1;
           }
-        } else {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Unsupported event " + event.getType() + ", " + event.getSequenceNumber());
-          }
-        }
 
-      }
-      //we successfully processed this record
+        }
+        //we successfully processed this record
 
     } catch (Exception e) {
       LOG.error("problem", e);
       changeLogProcessorMetadata.registerProblem(e, "Error processing record " + currentId, currentId);
       //we made it to this -1
       return currentId - 1;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
     }
+    }
+    
     if (currentId == -1) {
       throw new RuntimeException("Couldn't process any records");
     }
@@ -602,12 +556,15 @@ public class EsbConsumer extends ChangeLogConsumerBase {
    * @return true if matches, false if doesnt
    */
   public static boolean matchesFilter(EsbEvent esbEvent, String filterString) {
-    //TODO: use the GrouperUtil.substituteExpressionLanguage() instead
-    JexlEngine jexl = new JexlEngine();
-    Expression e = jexl.createExpression(filterString);
-    JexlContext jc = new MapContext();
-    jc.set("event", esbEvent);
-    jc.set("grouperUtilElSafe", new GrouperUtil());
-    return (Boolean) e.evaluate(jc);
+    
+    Map<String, Object> elVariables = new HashMap<String, Object>();
+    elVariables.put("event", esbEvent);
+    elVariables.put("grouperUtilElSafe", new GrouperUtil());
+    
+    String resultString = GrouperUtil.substituteExpressionLanguage("${" + filterString + "}", elVariables, true, true, true);
+    
+    boolean result = GrouperUtil.booleanValue(resultString, false);
+    
+    return result;
   }
 }
