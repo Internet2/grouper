@@ -37,6 +37,8 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -475,6 +477,44 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
 
 
+            //lets see if we are encrypting
+            //    # if you want to encrypt messages, set this to an implementation of edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface
+            //changeLog.consumer.awsJira.encryptionImplementation = edu.internet2.middleware.grouperClient.encryption.GcSymmetricEncryptAesCbcPkcs5Padding
+            //    # this is a key or could be encrypted in a file as well like other passwords
+            //    changeLog.consumer.awsJira.encryptionKey = Mdxabc123zouRykg==
+            String encryptionImplName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName
+                + ".encryptionImplementation", false);
+            if (!StringUtils.isBlank(encryptionImplName)) {
+              
+              String encryptionKey = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName
+                  + ".encryptionKey", true);
+              encryptionKey = GrouperClientUtils.decryptFromFileIfFileExists(encryptionKey, null);
+              
+              Class<GcEncryptionInterface> encryptionImplClass = GrouperUtil.forName(encryptionImplName);
+              GcEncryptionInterface gcEncryptionInterface = GrouperUtil.newInstance(encryptionImplClass);
+              String encryptedPayload = gcEncryptionInterface.encrypt(encryptionKey, eventJsonString);
+              
+              events = new EsbEvents();
+              events.setEncrypted(true);
+              events.setEncryptedPayload(encryptedPayload);
+              
+              boolean dontSendFirst4 = GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
+                  + ".dontSendShaBase64secretFirst4", false);
+              
+              if (!dontSendFirst4) {
+                String secretFirst4 = GrouperClientUtils.encryptSha(encryptionKey).substring(0,4);
+                events.setEncryptionKeySha1First4(secretFirst4);
+              }
+
+              eventJsonString = GrouperUtil.jsonConvertToNoWrap(events);
+
+              if (GrouperLoaderConfig.getPropertyBoolean("changeLog.consumer." + consumerName
+                  + ".publisher.debug", false)) {
+                eventJsonString = GrouperUtil.indent(eventJsonString, false);
+              }
+
+            }
+            
             if (esbPublisherBase.dispatchEvent(eventJsonString, consumerName)) {
               //OK;
               if (LOG.isDebugEnabled()) {

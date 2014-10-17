@@ -36,6 +36,16 @@ public class EsbEvent {
    *
    */
   public static enum EsbEventType {
+    
+    /** ENTITY_ADD event */
+    ENTITY_ADD, 
+    
+    /** ENTITY_DELETE event */
+    ENTITY_DELETE,
+    
+    /** ENTITY_UPDATE event */
+    ENTITY_UPDATE,
+
     /** GROUP_ADD event */
     GROUP_ADD, 
     
@@ -116,6 +126,27 @@ public class EsbEvent {
     return !GrouperClientUtils.isBlank(subjectAttribute(attributeName));
   }
   
+  /**
+   * if a change occurred but no sensitive data is being sent
+   */
+  private boolean changeOccurred;
+  
+  /**
+   * if a change occurred but no sensitive data is being sent
+   * @return the changeOccurred
+   */
+  public boolean isChangeOccurred() {
+    return this.changeOccurred;
+  }
+  
+  /**
+   * if a change occurred but no sensitive data is being sent
+   * @param changeOccurred the changeOccurred to set
+   */
+  public void setChangeOccurred(boolean changeOccurred) {
+    this.changeOccurred = changeOccurred;
+  }
+
   /** sequence number of event for logging or whatnot */
   private String sequenceNumber;
   
@@ -662,8 +693,8 @@ public class EsbEvent {
       String[][] newArray = new String[this.subjectAttributes.length + 1][2];
       System.arraycopy(this.subjectAttributes, 0, newArray, 0,
           this.subjectAttributes.length);
-      newArray[this.subjectAttributes.length + 1][0] = attributeName;
-      newArray[this.subjectAttributes.length + 1][1] = attributeValue;
+      newArray[this.subjectAttributes.length][0] = attributeName;
+      newArray[this.subjectAttributes.length][1] = attributeValue;
       this.setSubjectAttributes(newArray);
     }
   }

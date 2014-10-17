@@ -17,6 +17,7 @@ import com.amazonaws.services.sns.model.PublishResult;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -35,8 +36,11 @@ public class GrouperAwsEsbPublisher extends EsbListenerBase  {
     
     String accessKey = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.awsAccessKey", true);
+    accessKey = GrouperClientUtils.decryptFromFileIfFileExists(accessKey, null);
     String secretKey = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.awsSecretKey", true);
+    secretKey = GrouperClientUtils.decryptFromFileIfFileExists(secretKey, null);
+    
     //e.g. US_EAST_1
     String region = GrouperLoaderConfig.getPropertyString("changeLog.consumer."
         + consumerName + ".publisher.awsRegion", true);

@@ -4,10 +4,9 @@
  */
 package edu.internet2.middleware.grouperAwsChangelog;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -16,9 +15,9 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
+import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
 
 
 /**
@@ -30,22 +29,116 @@ public class GrouperAwsSqsListener {
    * @param args
    */
   public static void main(String[] args) {
+    
+    List<GrouperSqsMessage> grouperSqsMessages = checkMessages(true);
+    
+    for (GrouperSqsMessage grouperSqsMessage : grouperSqsMessages) {
+      //{"esbEvent":[{"changeOccurred":true,"eventType":"MEMBERSHIP_DELETE","sequenceNumber":"392"}]}
+      String json = grouperSqsMessage.getMessageBody();
+      EsbEvents esbEvents = GcDecodeEsbEvents.decodeEsbEvents(json);
+      esbEvents = GcDecodeEsbEvents.unencryptEsbEvents(esbEvents);
+      System.out.println(esbEvents.getEsbEvent()[0].getEventType());
+      deleteMessage(grouperSqsMessage.getReceiptHandle());
+    }
+    
+  }
 
+  /**
+   * delete a message that was processed
+   * @param receiptHandle to delete
+   */
+  public static void deleteMessage(String receiptHandle) {
     String accessKey = GrouperClientUtils.propertiesValue("grouperClient.awsAccessKey", true);
+    accessKey = GrouperClientUtils.decryptFromFileIfFileExists(accessKey, null);
     String secretKey = GrouperClientUtils.propertiesValue("grouperClient.awsSecretKey", true);
-
+    secretKey = GrouperClientUtils.decryptFromFileIfFileExists(secretKey, null);
+    
     //e.g. https://sqs.us-east-1.amazonaws.com/060107389071/isc_jira_penngroups
     String queueUrl = GrouperClientUtils.propertiesValue("grouperClient.awsSqsQueueUrl", true);
+    deleteMessage(accessKey, secretKey, queueUrl, receiptHandle);
+  }
+
+  /**
+   * get a list of messages based on sqs credentials.  note, this might poll for up to 20 seconds if the queue is so defined.
+   * it will loop until there are messages... note, this will unwrap sns messages if applicable
+   * @param accessKey for aws
+   * @param secretKey for aws
+   * @param queueUrl for aws
+   * @param receiptHandle to delete
+   */
+  public static void deleteMessage(String accessKey, String secretKey, String queueUrl, String receiptHandle) {
+    
+    AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+
+    AmazonSQSClient sqs = new AmazonSQSClient(credentials);
+    sqs.deleteMessage(queueUrl, receiptHandle);
+    
+  }
+
+  /**
+   * check messages with default credentials in the grouper.client.properties
+   * @param waitForMessages if we should wait until there are messages there
+   * @return the list of messages
+   */
+  public static List<GrouperSqsMessage> checkMessages(boolean waitForMessages) {
+    String accessKey = GrouperClientUtils.propertiesValue("grouperClient.awsAccessKey", true);
+    accessKey = GrouperClientUtils.decryptFromFileIfFileExists(accessKey, null);
+    String secretKey = GrouperClientUtils.propertiesValue("grouperClient.awsSecretKey", true);
+    secretKey = GrouperClientUtils.decryptFromFileIfFileExists(secretKey, null);
+    
+    //e.g. https://sqs.us-east-1.amazonaws.com/060107389071/isc_jira_penngroups
+    String queueUrl = GrouperClientUtils.propertiesValue("grouperClient.awsSqsQueueUrl", true);
+    return checkMessages(accessKey, secretKey, queueUrl, waitForMessages);
+  }
+
+  /**
+   * get a list of messages based on sqs credentials.  note, this might poll for up to 20 seconds if the queue is so defined.
+   * it will loop until there are messages... note, this will unwrap sns messages if applicable
+   * @param accessKey for aws
+   * @param secretKey for aws
+   * @param queueUrl for aws
+   * @param waitForMessages if we should wait until there are messages there
+   * @return the list of messages or null if none and not wait for messages
+   */
+  public static List<GrouperSqsMessage> checkMessages(String accessKey, String secretKey, String queueUrl, boolean waitForMessages) {
 
     AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
 
     AmazonSQSClient sqs = new AmazonSQSClient(credentials);
     
     ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl);
-    List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
+    List<Message> messages = null;
+
+    List<GrouperSqsMessage> result = new ArrayList<GrouperSqsMessage>();
+    
+    while(true) {
+      //dont check more than every 19.5 seconds
+      long lastCheck = System.nanoTime();
+      messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
+      
+      //if we have messages, then return them (after processing below)
+      if (GrouperClientUtils.length(messages) > 0) {
+        break;
+      }
+
+      if (!waitForMessages) {
+        return null;
+      }
+      
+      //sleep until 19.5 seconds since the last check
+      long timeSinceLastCheckMillis = ((System.nanoTime() - lastCheck) / 1000000);
+      if (timeSinceLastCheckMillis < 19500) {
+        GrouperClientUtils.sleep(19500 - timeSinceLastCheckMillis);
+      }
+      
+    }
+
+    //at this point we have messages
     for (Message message : messages) {
+
       String json = message.getBody();
       String receiptHandle = message.getReceiptHandle();
+      
       //      Message
       //      MessageId:     255dc371-b828-4295-9428-2e233053808e
       //      ReceiptHandle: v5iiyMGi3b6MIj3gF2FKMtGGDhxUAsGgrwlat43jo+ymvjam0xW08ej9H7xhUBPoh5KTuC7adO1h7NdXT4k8NwFvt5eMI6dR5XKyhDgg0t7trpzT9klFXsfBJJn4rZvj2MjsoBSfX2xLbPQIzqHPoHsAo6Ccucxmj9ATPQqw9XBC5D6SUv/K6GcnEQ0ce04mcS9FIRHeaUxV/I3gbhtmuh0jfcHCs+CwyaJDc1+bDxQ3ICGGPI1Vvi7rL1HaZZsiUDS2ERXObXwRiEDvxQzafDjczY2q+o/81z9OdHsr1+4=
@@ -62,24 +155,35 @@ public class GrouperAwsSqsListener {
       //    "UnsubscribeURL" : "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:060107389071:isc_jira_penngroups:304c0ea8-5b78-414f-adb9-442785286b16"
       //  }      
 
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      //see if we need to unwrap an sns to sqs that doesnt have the setting about not wrapping
+      if (json.contains("\"Message\"")) {
 
-      {
-        //unwrap if not raw message
-        JSONObject tempObject = (JSONObject)jsonObject.get("Message");
-        if (tempObject != null) {
-          jsonObject = tempObject;
+        JSONObject jsonObject = JSONObject.fromObject(json);
+
+        {
+          //unwrap if not raw message
+          JSONObject tempObject = (JSONObject)jsonObject.get("Message");
+          if (tempObject != null) {
+            jsonObject = tempObject;
+            json = jsonObject.toString();
+          }
         }
       }
       
-      JSONArray jsonArray = (JSONArray)(jsonObject).get("esbEvent");
+      GrouperSqsMessage grouperSqsMessage = new GrouperSqsMessage();
+      grouperSqsMessage.setMessageBody(json);
+      grouperSqsMessage.setReceiptHandle(receiptHandle);
       
-      for (int i=0;i<jsonArray.size();i++) {
-        jsonObject = (JSONObject) jsonArray.get(i);
+      result.add(grouperSqsMessage);
       
-        System.out.println(jsonObject.get("eventType"));
+      //JSONArray jsonArray = (JSONArray)(jsonObject).get("esbEvent");
+      
+      //for (int i=0;i<jsonArray.size();i++) {
+        //jsonObject = (JSONObject) jsonArray.get(i);
+      
+        //System.out.println(jsonObject.get("eventType"));
   
-        sqs.deleteMessage(queueUrl, receiptHandle);
+        //sqs.deleteMessage(queueUrl, receiptHandle);
         
         //sqs.deleteMessage();
         //        System.out.println("  Message");
@@ -92,10 +196,8 @@ public class GrouperAwsSqsListener {
   //            System.out.println("    Name:  " + entry.getKey());
   //            System.out.println("    Value: " + entry.getValue());
   //        }
-      }
     }
-    System.out.println();
-    
+    return result;
   }
-
+  
 }
