@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouperClient.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -29,8 +30,10 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouperClient.discovery.DiscoveryClient;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.digest.DigestUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.ExpressionFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl.JexlContext;
@@ -300,7 +303,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
     
     boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-        "encrypt.disableExternalFileLookup", false, true);
+        "encrypt.disableExternalFileLookup", false, false);
     
     //lets lookup if file
     encryptKey = GrouperClientUtils.readFromFileIfFile(encryptKey, disableExternalFileLookup);
@@ -313,6 +316,39 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     
     return encryptKey;
   }
+
+  /**
+   * decrypt a pass from a file if the file exists (i.e. passes might have slashes in them)
+   * @param pass
+   * @param logInfo if not null, put log info in there
+   * @return the pass
+   */
+  public static String decryptFromFileIfFileExists(String pass, StringBuilder logInfo) {
+
+    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
+        "encrypt.disableExternalFileLookup", false, false);
+    
+    //lets lookup if file
+    String passFromFile = GrouperClientUtils.readFromFileIfFileExists(pass, disableExternalFileLookup);
+
+    if (!GrouperClientUtils.equals(pass, passFromFile)) {
+
+      if (logInfo != null) {
+        logInfo.append("reading encrypted value from file: " + pass);
+      }
+      
+      String encryptKey = encryptKey();
+      pass = new Crypto(encryptKey).decrypt(passFromFile);
+      
+    } else {
+      if (logInfo != null) {
+        logInfo.append("pass is a scalar");
+      }
+    }
+    
+    return pass;
+  }
+  
 
   /**
    * name of the cache directory without trailing slash
@@ -340,6 +376,23 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       cacheDirectoryName = directoryName;
     }    
     return cacheDirectoryName;
+  }
+
+  /**
+   * encrypt a message to SHA with base 64
+   * @param plaintext
+   * @return the hash
+   */
+  public synchronized static String encryptSha(String plaintext) {
+    
+    try {
+    
+      byte[] sha1bytes = DigestUtils.sha(plaintext.getBytes("UTF-8"));
+      return new String(Base64.encodeBase64(sha1bytes));
+      
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** cache directory name */

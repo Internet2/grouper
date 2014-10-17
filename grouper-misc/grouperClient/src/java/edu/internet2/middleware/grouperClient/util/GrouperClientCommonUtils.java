@@ -80,6 +80,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -5828,6 +5829,35 @@ public class GrouperClientCommonUtils  {
       //read the contents of the file into a string
       theIn = readFileIntoString(new File(theIn));
       return theIn;
+    }
+    return in;
+  
+  }
+
+  /**
+   * if the input is a file, read string from file.  if not, or if disabled from grouper.properties, return the input
+   * note, pass could have slashes in it... so only do this if file exists...
+   * @param in
+   * @param disableExternalFileLookup 
+   * @return the result
+   */
+  public static String readFromFileIfFileExists(String in, boolean disableExternalFileLookup) {
+    
+    String theIn = in;
+    //convert both slashes to file slashes
+    if (File.separatorChar == '/') {
+      theIn = replace(theIn, "\\", "/");
+    } else {
+      theIn = replace(theIn, "/", "\\");
+    }
+    
+    //see if it is a file reference
+    if (theIn.indexOf(File.separatorChar) != -1 && !disableExternalFileLookup) {
+      if (new File(theIn).exists()) {
+        //read the contents of the file into a string
+        theIn = readFileIntoString(new File(theIn));
+        return theIn;
+      }
     }
     return in;
   
