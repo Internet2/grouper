@@ -924,6 +924,9 @@ public class GrouperInstaller {
     System.out.println("\n##################################");
     System.out.println("Upgrading API\n");
 
+    //lets get the version of the existing jar
+    this.originalGrouperJarVersion();
+    
     this.compareAndReplaceJar(this.grouperJar, 
         new File(this.untarredApiDir + File.separator + "dist" + File.separator 
             + "lib" + File.separator + "grouper.jar"), true);
@@ -965,10 +968,222 @@ public class GrouperInstaller {
     this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
       + File.separator + "jdbcSamples" + File.separator));
 
+    System.out.println("\n##################################");
+    System.out.println("Upgrading DB (registry)\n");
+
     this.apiUpgradeDbVersion(true);
+
+    this.apiUpgradeAdditionalGshScripts();
     
   }
 
+  /**
+   * run additional GSH scripts based on what we are upgrading from...
+   */
+  private void apiUpgradeAdditionalGshScripts() {
+    GiGrouperVersion giGrouperVersion = this.originalGrouperJarVersion();
+    if (giGrouperVersion == null) {
+      System.out.println("Grouper jar file: " + (this.grouperJar == null ? null : this.grouperJar.getAbsolutePath()));
+      System.out.println("ERROR, cannot find grouper version in grouper jar file, do you want to continue? (t|f)? [f]: ");
+      boolean continueScript = readFromStdInBoolean(false);
+      if (!continueScript) {
+        System.exit(1);
+      }
+    }
+    
+    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.0.0"))) {
+
+      System.out.println("You are upgrading from pre API version 2.0.0, do you want to run Unresolvable Subject Deletion Utility (USDU) (recommended) (t|f)? [t]: ");
+      boolean runScript = readFromStdInBoolean(true);
+      
+      if (runScript) {
+        
+        //running with command on command line doenst work on linux since the args with whitespace translate to 
+        //save the commands to a file, and runt he file
+        StringBuilder gshCommands = new StringBuilder();
+  
+        //gsh 0% GrouperSession.startRootSession()
+        //edu.internet2.middleware.grouper.GrouperSession: 6f94c99d5b0948a3be96f94f00ab4d87,'GrouperSystem','application'
+        //gsh 1% // run USDU to resolve all the subjects with type=person
+        //gsh 3% usdu()
+  
+        gshCommands.append("grouperSession = GrouperSession.startRootSession();\n");
+        gshCommands.append("usdu();\n");
+  
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshUsdu.gsh");
+        GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
+        
+        List<String> commands = new ArrayList<String>();
+  
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+  
+        System.out.println("\n##################################");
+        System.out.println("Running USDU with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+  
+        GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+           new File(this.gshCommand()).getParentFile(), null, true);
+  
+      }
+      
+      System.out.println("You are upgrading from pre API version 2.0.0, do you want to resolve all group subjects (recommended) (t|f)? [t]: ");
+      runScript = readFromStdInBoolean(true);
+      
+      if (runScript) {
+        
+        //running with command on command line doenst work on linux since the args with whitespace translate to 
+        //save the commands to a file, and runt he file
+        StringBuilder gshCommands = new StringBuilder();
+  
+        //gsh 5% GrouperSession.startRootSession();
+        //edu.internet2.middleware.grouper.GrouperSession: 4163fb08b3b24922b55a14010d48e121,'GrouperSystem','application'
+        //gsh 6% for (String g : HibernateSession.byHqlStatic().createQuery("select uuid from Group").listSet(String.class)) { subj = SubjectFinder.findByIdAndSource(g, "g:gsa", true); GrouperDAOFactory.getFactory().getMember().findBySubject(subj).updateMemberAttributes(subj, true); }
+  
+        gshCommands.append("grouperSession = GrouperSession.startRootSession();\n");
+        gshCommands.append("for (String g : HibernateSession.byHqlStatic().createQuery(\"select uuid from Group\").listSet(String.class)) { subj = SubjectFinder.findByIdAndSource(g, \"g:gsa\", true); GrouperDAOFactory.getFactory().getMember().findBySubject(subj).updateMemberAttributes(subj, true);\n");
+  
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshUsdu.gsh");
+        GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
+        
+        List<String> commands = new ArrayList<String>();
+  
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+  
+        System.out.println("\n##################################");
+        System.out.println("Resolving group subjects with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+
+        GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+           new File(this.gshCommand()).getParentFile(), null, true);
+      }
+    }
+    
+    if (giGrouperVersion.lessThanArg(new GiGrouperVersion("2.1.0"))) {
+
+      System.out.println("You are upgrading from pre API version 2.1.0, do you want to see if you have rules with ruleCheckType: flattenedPermission* (recommended) (t|f)? [t]: ");
+      boolean runScript = readFromStdInBoolean(true);
+      
+      if (runScript) {
+        
+        //running with command on command line doenst work on linux since the args with whitespace translate to 
+        //save the commands to a file, and runt he file
+        StringBuilder gshCommands = new StringBuilder();
+    
+        gshCommands.append("\"Count: \" + HibernateSession.bySqlStatic().select(int.class, \"SELECT count(*) FROM grouper_rules_v WHERE rule_check_type LIKE 'flattenedPermission%'\");\n");
+  
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshRuleFlattenedPermissionCount.gsh");
+        GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
+        
+        List<String> commands = new ArrayList<String>();
+  
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+  
+        System.out.println("\n##################################");
+        System.out.println("Counting flattenedPermission rules with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+
+        CommandResult commandResult = GrouperInstallerUtils.execCommand(
+          GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+          new File(this.gshCommand()).getParentFile(), null);
+
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+
+        String result = commandResult.getOutputText().trim();
+        String[] lines = GrouperInstallerUtils.splitLines(result);
+        {
+          Pattern pattern = Pattern.compile("^Count: ([0-9]+)$");
+          int count = -1;
+          for (String line : lines) {
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.matches()) {
+              count = GrouperInstallerUtils.intValue(matcher.group(1));
+              break;
+            }
+          }
+          if (count == -1) {
+            System.out.println("Error getting count of rules, would you like to continue (t|f)? [t]:");
+            if (!readFromStdInBoolean(true)) {
+              System.exit(1);
+            }
+          } else {
+            if (count > 0) {
+              System.out.println("You have " + count + " flattenedPermission rules that need to be removed.  You need to look in the view grouper_rules_v and notify the owners and remove these rules.  Do you want to continue (t|f)? [t]: ");
+              
+              if (!readFromStdInBoolean(true)) {
+                System.exit(1);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.1"))) {
+
+      System.out.println("You are upgrading from pre API version 2.2.1, do you want to run the 2.2 upgrade GSH script (recommended) (t|f)? [t]: ");
+      boolean runScript = readFromStdInBoolean(true);
+      
+      if (runScript) {
+        
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "misc" + File.separator + "postGrouper2_2Upgrade.gsh");
+        
+        List<String> commands = new ArrayList<String>();
+  
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+  
+        System.out.println("\n##################################");
+        System.out.println("Running 2.2 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+  
+        GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+           new File(this.gshCommand()).getParentFile(), null, true);
+  
+      }
+    }
+
+  }
+  
+  /**
+   * grouper jar version e.g. 2.1.5
+   */
+  private GiGrouperVersion originalGrouperJarVersion = null;
+  
+  /**
+   * keep trac if we have found it or not
+   */
+  private boolean originalGrouperJarVersionRetrieved = false;
+  
+  /**
+   * get the version of the grouper jar
+   * @return the version or null if couldnt be found
+   */
+  private GiGrouperVersion originalGrouperJarVersion() {
+
+    if (!this.originalGrouperJarVersionRetrieved) {
+
+      this.originalGrouperJarVersionRetrieved = true;
+      
+      if (this.grouperJar != null && this.grouperJar.exists()) {
+        String grouperJarVersionString = GrouperInstallerUtils.jarVersion(this.grouperJar);
+        
+        if (!GrouperInstallerUtils.isBlank(grouperJarVersionString)) {
+          this.originalGrouperJarVersion = new GiGrouperVersion(grouperJarVersionString);
+        }
+      }
+      
+    }
+    
+    return this.originalGrouperJarVersion;
+  }
+  
   /**
    * @param firstTime if first time
    */
@@ -985,7 +1200,7 @@ public class GrouperInstaller {
 
     CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-        new File(this.upgradeExistingApplicationDirectoryString), null);
+        new File(this.gshCommand()).getParentFile(), null);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
       System.out.println("stdout: " + commandResult.getOutputText());
@@ -1067,7 +1282,7 @@ public class GrouperInstaller {
 
           commandResult = GrouperInstallerUtils.execCommand(
               GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-              new File(this.upgradeExistingApplicationDirectoryString), null, true);
+             new File(this.gshCommand()).getParentFile(), null, true);
 
           //no out/err since printing as we go
         }
@@ -1681,9 +1896,6 @@ public class GrouperInstaller {
     String bakJarFileString = this.grouperBaseBakDir + existingJarFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
     File bakJarFile = new File(bakJarFileString);
     
-    //make sure parents exist
-    GrouperInstallerUtils.createParentDirectories(bakJarFile);
-    
     String existingVersion = GrouperInstallerUtils.jarVersion(existingJarFile);
     String newVersion = GrouperInstallerUtils.jarVersion(newJarFile);
     
@@ -1692,6 +1904,9 @@ public class GrouperInstaller {
     
     if (!GrouperInstallerUtils.equals(existingVersion, newVersion) || existingSize != newSize) {
 
+      //make sure parents exist
+      GrouperInstallerUtils.createParentDirectories(bakJarFile);
+      
       System.out.println(existingJarFile.getName() + " had version " + existingVersion + " and size " + existingSize + " bytes and is being upgraded to version "
           + newVersion + " and size " + newSize + " bytes.\n  It is backed up to " + bakJarFile);
 
@@ -3355,21 +3570,45 @@ public class GrouperInstaller {
     }
 
   }
+
+  /**
+   * gsh command fully qualified
+   */
+  private String gshCommand;
   
   /**
    * 
    * @return the gsh command
    */
   private String gshCommand() {
-    
-    String gshDir = GrouperInstallerUtils.defaultIfBlank(this.upgradeExistingApplicationDirectoryString, 
-        this.untarredApiDir.getAbsolutePath() + File.separator);
-    
-    return gshDir + "bin" + File.separator 
-        + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh");
-    
+
+    if (this.gshCommand == null) {
+
+      String gshDir = GrouperInstallerUtils.defaultIfBlank(this.upgradeExistingApplicationDirectoryString, 
+          this.untarredApiDir.getAbsolutePath() + File.separator);
+      
+      String gsh = gshDir + "bin" + File.separator 
+          + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh");
+      
+      if (new File(gsh).exists()) {
+        this.gshCommand = gsh;
+        return gsh;
+      }
+
+      gsh = gshDir + "WEB-INF" + File.separator + "bin" + File.separator 
+          + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh");
+
+      if (new File(gsh).exists()) {
+        this.gshCommand = gsh;
+        return gsh;
+      }
+      
+      throw new RuntimeException("Cant find gsh: " + gshDir);
+    }
+
+    return this.gshCommand;
   }
-  
+
   /**
    * 
    */
@@ -3796,7 +4035,7 @@ public class GrouperInstaller {
     gshCommands.append("wsGroup = new GroupSave(grouperSession).assignName(\"etc:webServiceClientUsers\").assignCreateParentStemsIfNotExist(true).save();\n");
     gshCommands.append("wsGroup.addMember(SubjectFinder.findRootSubject(), false);\n");
     
-    File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "addGrouperSystemWsGroup.gsh");
+    File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshAddGrouperSystemWsGroup.gsh");
     GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
     
     List<String> commands = new ArrayList<String>();
@@ -3839,7 +4078,7 @@ public class GrouperInstaller {
     gshCommands.append("grouperSession = GrouperSession.startRootSession();\n");
     gshCommands.append("loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\");\n");
     
-    File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "changeLogTempToChangeLog.gsh");
+    File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshChangeLogTempToChangeLog.gsh");
     GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
     
     List<String> commands = new ArrayList<String>();
@@ -3852,7 +4091,7 @@ public class GrouperInstaller {
 
     CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-        new File(this.upgradeExistingApplicationDirectoryString), null);
+       new File(this.gshCommand()).getParentFile(), null);
 
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
