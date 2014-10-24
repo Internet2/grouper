@@ -110,6 +110,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO#findById(java.lang.String, boolean, QueryOptions)
    */
   public AttributeDef findById(String id, boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
     AttributeDef attributeDef = HibernateSession.byHqlStatic()
       .setCacheable(true)
       .setCacheRegion(KLASS + ".FindById")
@@ -183,6 +186,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public AttributeDef findByNameSecure(String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws GrouperDAOException, AttributeDefNotFoundException {
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
     AttributeDef attributeDef = HibernateSession.byHqlStatic()
       .createQuery("select a from AttributeDef as a where a.nameDb = :value")
       .setCacheable(true)
@@ -253,6 +259,9 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
    */
   public AttributeDef findByUuidOrName(String id, String name,
       boolean exceptionIfNotFound, QueryOptions queryOptions) {
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
     try {
       AttributeDef attributeDef = HibernateSession.byHqlStatic()
         .createQuery("from AttributeDef as theAttributeDef where theAttributeDef.id = :theId or theAttributeDef.nameDb = :theName")
