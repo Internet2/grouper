@@ -289,9 +289,10 @@ public class GrouperInstaller {
   private String version;
   
   /**
+   * @param isInstallNotUpgrade 
    * 
    */
-  private void buildUi() {
+  private void buildUi(boolean isInstallNotUpgrade) {
     
     File grouperUiBuildToDir = new File(this.grouperUiBuildToDirName());
     
@@ -306,14 +307,16 @@ public class GrouperInstaller {
     if (!rebuildUi) {
       return;
     }
-    
-    //stop tomcat
-    try {
-      tomcatBounce("stop");
-    } catch (Exception e) {
-      System.out.println("Couldnt stop tomcat, ignoring...");
-    }
 
+    if (isInstallNotUpgrade) {
+      //stop tomcat
+      try {
+        tomcatBounce("stop");
+      } catch (Exception e) {
+        System.out.println("Couldnt stop tomcat, ignoring...");
+      }
+    }
+    
     List<String> commands = new ArrayList<String>();
     
     addAntCommands(commands);
@@ -333,49 +336,50 @@ public class GrouperInstaller {
       System.out.println("stdout: " + commandResult.getOutputText());
     }
     
-    System.out.print("Do you want to set the log dir of UI (t|f)? [t]: ");
-    boolean setLogDir = readFromStdInBoolean(true);
-    
-    if (setLogDir) {
+    if (isInstallNotUpgrade) {
+      System.out.print("Do you want to set the log dir of UI (t|f)? [t]: ");
+      boolean setLogDir = readFromStdInBoolean(true);
       
-      ////set the log dir
-      //C:\apps\grouperInstallerTest\grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws\WEB-INF\classes\log4j.properties
-      //
-      //${grouper.home}logs
-
-      String defaultLogDir = this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "grouperUi";
-      System.out.print("Enter the UI log dir: [" + defaultLogDir + "]: ");
-      String logDir = readFromStdIn();
-      logDir = GrouperInstallerUtils.defaultIfBlank(logDir, defaultLogDir);
-      
-      //lets replace \\ with /
-      logDir = GrouperInstallerUtils.replace(logDir, "\\\\", "/");
-      //lets replace \ with /
-      logDir = GrouperInstallerUtils.replace(logDir, "\\", "/");
-
-      File log4jFile = new File(grouperUiBuildToDirName() + File.separator + "WEB-INF" + File.separator + "classes"
-          + File.separator + "log4j.properties");
-
-      System.out.println("Editing file: " + log4jFile.getAbsolutePath());
-
-      //log4j.appender.grouper_event.File = c:/apps/grouperInstallerTest/grouper.apiBinary-2.0.2/logs/grouper_event.log
-      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+logs)/grouper_[^\\s]+\\.log", null, 
-          null, logDir, "UI log directory");
-
-      File logDirFile = new File(defaultLogDir);
-      if (!logDirFile.exists()) {
-        System.out.println("Creating log directory: " + logDirFile.getAbsolutePath());
-        GrouperInstallerUtils.mkdirs(logDirFile);
+      if (setLogDir) {
+        
+        ////set the log dir
+        //C:\apps\grouperInstallerTest\grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws\WEB-INF\classes\log4j.properties
+        //
+        //${grouper.home}logs
+  
+        String defaultLogDir = this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "grouperUi";
+        System.out.print("Enter the UI log dir: [" + defaultLogDir + "]: ");
+        String logDir = readFromStdIn();
+        logDir = GrouperInstallerUtils.defaultIfBlank(logDir, defaultLogDir);
+        
+        //lets replace \\ with /
+        logDir = GrouperInstallerUtils.replace(logDir, "\\\\", "/");
+        //lets replace \ with /
+        logDir = GrouperInstallerUtils.replace(logDir, "\\", "/");
+  
+        File log4jFile = new File(grouperUiBuildToDirName() + File.separator + "WEB-INF" + File.separator + "classes"
+            + File.separator + "log4j.properties");
+  
+        System.out.println("Editing file: " + log4jFile.getAbsolutePath());
+  
+        //log4j.appender.grouper_event.File = c:/apps/grouperInstallerTest/grouper.apiBinary-2.0.2/logs/grouper_event.log
+        editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+logs)/grouper_[^\\s]+\\.log", null, 
+            null, logDir, "UI log directory");
+  
+        File logDirFile = new File(defaultLogDir);
+        if (!logDirFile.exists()) {
+          System.out.println("Creating log directory: " + logDirFile.getAbsolutePath());
+          GrouperInstallerUtils.mkdirs(logDirFile);
+        }
+        //test log dir
+        File testLogDirFile = new File(logDirFile.getAbsolutePath() + File.separator + "testFile" + GrouperInstallerUtils.uniqueId() + ".txt");
+        GrouperInstallerUtils.saveStringIntoFile(testLogDirFile, "test");
+        if (!testLogDirFile.delete()) {
+          throw new RuntimeException("Cant delete file: " +  testLogDirFile.getAbsolutePath());
+        }
+        System.out.println("Created and deleted a test file successfully in dir: " + logDirFile.getAbsolutePath());
       }
-      //test log dir
-      File testLogDirFile = new File(logDirFile.getAbsolutePath() + File.separator + "testFile" + GrouperInstallerUtils.uniqueId() + ".txt");
-      GrouperInstallerUtils.saveStringIntoFile(testLogDirFile, "test");
-      if (!testLogDirFile.delete()) {
-        throw new RuntimeException("Cant delete file: " +  testLogDirFile.getAbsolutePath());
-      }
-      System.out.println("Created and deleted a test file successfully in dir: " + logDirFile.getAbsolutePath());
-    }
-    
+    }    
 
     
     System.out.println("\nEnd building UI");
@@ -871,8 +875,6 @@ public class GrouperInstaller {
     this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
     System.out.println("Upgrading to grouper " + this.appToUpgrade.name() + " version: " + this.version);
 
-    System.out.println("End gather upgrade information\n");
-    System.out.println("\n##################################");
 
     System.out.println("\n##################################");
     System.out.println("Download and build grouper packages\n");
@@ -891,6 +893,7 @@ public class GrouperInstaller {
 
     this.appToUpgrade.upgradeApp(this);
 
+    System.out.println("\nGrouper is upgraded to " + this.originalGrouperJarVersion == null ? null : this.originalGrouperJarVersion + "\n");
   }
 
   /**
@@ -1125,9 +1128,9 @@ public class GrouperInstaller {
       }
     }
 
-    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.1"))) {
+    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.0"))) {
 
-      System.out.println("You are upgrading from pre API version 2.2.1, do you want to run the 2.2 upgrade GSH script (recommended) (t|f)? [t]: ");
+      System.out.println("You are upgrading from pre API version 2.2.0, do you want to run the 2.2 upgrade GSH script (recommended) (t|f)? [t]: ");
       boolean runScript = readFromStdInBoolean(true);
       
       if (runScript) {
@@ -1141,6 +1144,31 @@ public class GrouperInstaller {
   
         System.out.println("\n##################################");
         System.out.println("Running 2.2 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+  
+        GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+           new File(this.gshCommand()).getParentFile(), null, true);
+  
+      }
+      
+    }
+
+    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.1"))) {
+
+      System.out.println("You are upgrading from pre API version 2.2.1, do you want to run the 2.2.1 upgrade GSH script (recommended) (t|f)? [t]: ");
+      boolean runScript = readFromStdInBoolean(true);
+      
+      if (runScript) {
+        
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "misc" + File.separator + "postGrouper2_2_1Upgrade.gsh");
+        
+        List<String> commands = new ArrayList<String>();
+  
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+  
+        System.out.println("\n##################################");
+        System.out.println("Running 2.2.1 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
   
         GrouperInstallerUtils.execCommand(
             GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
@@ -1696,11 +1724,72 @@ public class GrouperInstaller {
 
       @Override
       public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        //API and client are in the UI
+        if (!API.validateExistingDirectory(grouperInstaller)) {
+          return false;
+        }
+        
+        grouperInstaller.grouperUiPropertiesFile = grouperInstaller.findClasspathFile("grouper-ui.properties", false);
+        grouperInstaller.grouperUiBasePropertiesFile = grouperInstaller.findClasspathFile("grouper-ui.base.properties", false);
+
+        //no need to check if it exists... its new in 2.2
+
+        grouperInstaller.mediaPropertiesFile = grouperInstaller.findClasspathFile("media.properties", false);
+        grouperInstaller.navPropertiesFile = grouperInstaller.findClasspathFile("nav.properties", false);
+
+        //hmm, maybe these are in different directories...  well, assume they are in the default
+        if (grouperInstaller.mediaPropertiesFile == null 
+            || grouperInstaller.navPropertiesFile == null) {
+          return false;
+        }
+        
         return true;
       }
 
       @Override
       public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+        API.downloadAndBuildGrouperProjects(grouperInstaller);
+        
+        //download api and set executable and dos2unix etc
+        grouperInstaller.downloadAndConfigureApi();
+
+        //####################################
+        //download and configure ui
+        grouperInstaller.downloadAndConfigureUi();
+
+        //####################################
+        //get ant
+        grouperInstaller.downloadAndUnzipAnt();
+
+        //####################################
+        //build UI
+        grouperInstaller.buildUi(false);
+
+        File webXml = null;
+        for (int i=0;i<10;i++) {
+          System.out.println("What is the location of your tomcat server.xml for the UI?  Note, if you dont use tomcat just leave it blank: ");
+          String webXmlLocation = readFromStdIn();
+          if (GrouperInstallerUtils.isBlank(webXmlLocation)) {
+            break;
+          }
+          webXml = new File(webXmlLocation);
+          if (webXml.exists() && webXml.isFile()) {
+            break;
+          }
+          if (i != 9) {
+            System.out.println("Error: web.xml cant be found, try again.");
+          }
+        }
+        if (webXml != null && webXml.exists() && webXml.isFile()) {
+          grouperInstaller.configureTomcatUriEncoding(webXml);
+        }
+
+        //we need to migrate the media.properties to the grouper-ui.properties
+        //we need to migrate the nav.properties to the grouper text properties
+        //we need to see if the old web.xml had authn and if not remove from new web.xml
+        //now we need to sync files from build UI to old
+        
+        
       }
 
       @Override
@@ -1872,6 +1961,27 @@ public class GrouperInstaller {
     }
     
   }
+
+  /**
+   * media.properies
+   */
+  private File mediaPropertiesFile;
+
+  /**
+   * nav.properies
+   */
+  private File navPropertiesFile;
+
+  /**
+   * grouper-ui.properies
+   */
+  private File grouperUiPropertiesFile;
+
+  /**
+   * grouper-ui.base.properties
+   */
+  private File grouperUiBasePropertiesFile;
+
   
   /**
    * on an upgrade, compare a new jar and an existing jar and see if needs to be updated, and if so, update it
@@ -2034,8 +2144,19 @@ public class GrouperInstaller {
     if (file.exists()) {
       return file;
     }
-    
+
     fileNamesTried.add(file.getAbsolutePath());
+
+    //these could be in this location
+    if (GrouperInstallerUtils.equals("nav.properties", resourceName) 
+        || GrouperInstallerUtils.equals("media.properties", resourceName)) {
+      file = new File(this.upgradeExistingApplicationDirectoryString + "conf/resources/grouper/" + resourceName);
+      if (file.exists()) {
+        return file;
+      }
+      
+      fileNamesTried.add(file.getAbsolutePath());
+    }
     
     file = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF/classes/" + resourceName);
     if (file.exists()) {
@@ -2251,23 +2372,12 @@ public class GrouperInstaller {
     startLoader();
     
     //####################################
-    //get UI
-    File uiDir = downloadUi();
-    
-    //####################################
-    //unzip/untar the ui file
-    File unzippedUiFile = unzip(uiDir.getAbsolutePath());
-    this.untarredUiDir = untar(unzippedUiFile.getAbsolutePath());
-
-    //####################################
-    //configure UI
-    configureUi();
+    //download and configure ui
+    downloadAndConfigureUi();
 
     //####################################
     //get ant
-    File antDir = downloadAnt();
-    File unzippedAntFile = unzip(antDir.getAbsolutePath());
-    this.untarredAntDir = untar(unzippedAntFile.getAbsolutePath());
+    downloadAndUnzipAnt();
     
     //####################################
     //look for or ask or download tomcat
@@ -2281,7 +2391,7 @@ public class GrouperInstaller {
     
     //####################################
     //build UI
-    buildUi();
+    buildUi(true);
 
     //####################################
     //configureTomcatUiWebapp
@@ -2368,6 +2478,32 @@ public class GrouperInstaller {
     System.out.println("\n##################################\n");
     
   }
+  /**
+   * 
+   */
+  public void downloadAndUnzipAnt() {
+    File antDir = downloadAnt();
+    File unzippedAntFile = unzip(antDir.getAbsolutePath());
+    this.untarredAntDir = untar(unzippedAntFile.getAbsolutePath());
+  }
+  /**
+   * 
+   */
+  public void downloadAndConfigureUi() {
+    //####################################
+    //get UI
+    File uiDir = downloadUi();
+    
+    //####################################
+    //unzip/untar the ui file
+    File unzippedUiFile = unzip(uiDir.getAbsolutePath());
+    this.untarredUiDir = untar(unzippedUiFile.getAbsolutePath());
+
+    //####################################
+    //configure UI
+    configureUi();
+  }
+
   /**
    * 
    */
@@ -2677,6 +2813,13 @@ public class GrouperInstaller {
       break;
     }
 
+    configureTomcatUriEncoding(serverXmlFile);
+    
+  }
+  /**
+   * @param serverXmlFile
+   */
+  public void configureTomcatUriEncoding(File serverXmlFile) {
     //set encoding for connectors
     //  /Server/Service/Connector <Connector port="8080" protocol="HTTP/1.1" 
     String uriEncodingHttp = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
@@ -2707,7 +2850,6 @@ public class GrouperInstaller {
       }
 
     }
-    
   }
 
   /**
