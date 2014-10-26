@@ -1,5 +1,7 @@
 build
-conf/grouper.client.properties
+conf/grouper.client.properties*
 conf/grouper.client.usage.txt
+conf/spy.properties
+
 dist
 misc/README.txt

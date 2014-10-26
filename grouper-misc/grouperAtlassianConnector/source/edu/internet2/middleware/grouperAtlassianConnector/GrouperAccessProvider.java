@@ -28,11 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.opensymphony.user.Entity.Accessor;
-import com.opensymphony.user.provider.AccessProvider;
-
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianAutoaddConfig;
-import edu.internet2.middleware.grouperAtlassianConnector.xmpp.GrouperAtlassianXmppHandler;
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
 import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivileges;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
@@ -66,7 +62,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * implement the opensymphony interface that Atlassian uses for products like jira/confluence
  */
 @SuppressWarnings("serial")
-public class GrouperAccessProvider implements AccessProvider {
+public class GrouperAccessProvider {
 
   /**
    * last time the cache was refreshed
@@ -199,11 +195,13 @@ public class GrouperAccessProvider implements AccessProvider {
 
   /** cache for list groups, key is TRUE */
   private static ExpirableCache<Boolean, GrouperAccessCacheBean> grouperAccessCacheBeanCache = null;
-  
+
   /**
-   * @see com.opensymphony.user.provider.AccessProvider#addToGroup(java.lang.String, java.lang.String)
+   * 
+   * @param username
+   * @param groupname
+   * @return if added
    */
-  @Override
   public boolean addToGroup(String username, String groupname) {
 
     long startNanos = System.nanoTime();
@@ -294,8 +292,6 @@ public class GrouperAccessProvider implements AccessProvider {
    * @return the cache
    */
   private static GrouperAccessCacheBean grouperAccessCacheBean() {
-    
-    GrouperAtlassianXmppHandler.registerXmppListenerIfNeeded();
     
     if (cacheShouldBeClearedNow()) {
       new GrouperAccessProvider().flushCaches();
@@ -430,7 +426,7 @@ public class GrouperAccessProvider implements AccessProvider {
   
   /**
    * list users in group
-   * @param groupNames group names to check
+   * @param listUsersInGroupFromGrouper 
    * @return the group names (atlassian format)
    */
   private static Map<String, List<String>> listGroupsContainingUser(Map<String, List<String>> listUsersInGroupFromGrouper) {
@@ -579,11 +575,13 @@ public class GrouperAccessProvider implements AccessProvider {
     }
 
   }
-  
+
   /**
-   * @see com.opensymphony.user.provider.AccessProvider#inGroup(java.lang.String, java.lang.String)
+   * 
+   * @param username
+   * @param groupname
+   * @return if in group
    */
-  @Override
   public boolean inGroup(String username, String groupname) {
 
     long startNanos = System.nanoTime();
@@ -619,9 +617,10 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.AccessProvider#listGroupsContainingUser(java.lang.String)
+   * groups containing user
+   * @param username
+   * @return the groups
    */
-  @Override
   public List<String> listGroupsContainingUser(String username) {
     
     long startNanos = System.nanoTime();
@@ -653,9 +652,10 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.AccessProvider#listUsersInGroup(java.lang.String)
+   * list users in group
+   * @param groupname
+   * @return the users
    */
-  @Override
   public List<String> listUsersInGroup(String groupname) {
     
     long startNanos = System.nanoTime();
@@ -677,9 +677,11 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.AccessProvider#removeFromGroup(java.lang.String, java.lang.String)
+   * 
+   * @param username
+   * @param groupname
+   * @return if removed
    */
-  @Override
   public boolean removeFromGroup(String username, String groupname) {
     
     long startNanos = System.nanoTime();
@@ -752,9 +754,10 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#create(java.lang.String)
+   * 
+   * @param groupname
+   * @return if created
    */
-  @Override
   public boolean create(String groupname) {
     
     long startNanos = System.nanoTime();
@@ -768,7 +771,7 @@ public class GrouperAccessProvider implements AccessProvider {
     try {
 
       //see if exists
-      if (load(groupname, null)) {
+      if (load(groupname)) {
         debugMap.put("groupExists", "true");
         result = false;
         cacheHits++;
@@ -882,9 +885,8 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#flushCaches()
+   * flush caches
    */
-  @Override
   public void flushCaches() {
 
     long startNanos = System.nanoTime();
@@ -907,10 +909,10 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * this should return true if group/user exists, false if not
-   * @see com.opensymphony.user.provider.UserProvider#handles(java.lang.String)
+   * if group/user exists
+   * @param name
+   * @return true if handles
    */
-  @Override
   public boolean handles(String name) {
     
     long startNanos = System.nanoTime();
@@ -958,10 +960,11 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#init(java.util.Properties)
+   * init
+   * @param properties
+   * @return true
    */
   @SuppressWarnings("unchecked")
-  @Override
   public boolean init(Properties properties) {
 
         //nothing to do here
@@ -982,9 +985,9 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#list()
+   * list group names
+   * @return list
    */
-  @Override
   public List<String> list() {
 
     long startNanos = System.nanoTime();
@@ -1005,10 +1008,11 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#load(java.lang.String, com.opensymphony.user.Entity.Accessor)
+   * load
+   * @param groupname
+   * @return true if group name exists
    */
-  @Override
-  public boolean load(String groupname, Accessor accessor) {
+  public boolean load(String groupname) {
     long startNanos = System.nanoTime();
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -1028,9 +1032,10 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#remove(java.lang.String)
+   * remove group
+   * @param groupname
+   * @return true if group name exists
    */
-  @Override
   public boolean remove(String groupname) {
     
     long startNanos = System.nanoTime();
@@ -1044,7 +1049,7 @@ public class GrouperAccessProvider implements AccessProvider {
     try {
 
       //see if exists
-      if (!load(groupname, null)) {
+      if (!load(groupname)) {
         debugMap.put("groupExists", "false");
         result = false;
         cacheHits++;
@@ -1105,10 +1110,11 @@ public class GrouperAccessProvider implements AccessProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#store(java.lang.String, com.opensymphony.user.Entity.Accessor)
+   * store
+   * @param name
+   * @return true if stored
    */
-  @Override
-  public boolean store(String name, Accessor accessor) {
+  public boolean store(String name) {
     //I dont know what this does...
     if (LOG.isDebugEnabled()) {
       LOG.debug("Operation is 'store' '" + name + "' which is a no-op");
