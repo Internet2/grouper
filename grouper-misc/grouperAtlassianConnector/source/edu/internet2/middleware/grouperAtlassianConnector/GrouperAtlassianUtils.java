@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opensymphony.module.propertyset.PropertySet;
-import com.opensymphony.module.propertyset.map.MapPropertySet;
-
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianSourceConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
@@ -42,6 +39,16 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  * 
  */
 public class GrouperAtlassianUtils {
+
+  /**
+   * in property set map, this is name
+   */
+  public static final String PROPERTY_SET_NAME = "fullName";
+  
+  /**
+   * in property set map, this is email
+   */
+  public static final String PROPERTY_SET_EMAIL = "email";
 
   /**
    * assign how long this method took in nanos
@@ -134,10 +141,10 @@ public class GrouperAtlassianUtils {
    * @param wsSubjects 
    * @return the list of users, by user id
    */
-  public static Map<String,PropertySet> convertToAtlassianPropertySets(String[] subjectAttributeNames, WsSubject[] wsSubjects) {
+  public static Map<String,Map<String, String>> convertToAtlassianPropertySets(String[] subjectAttributeNames, WsSubject[] wsSubjects) {
     Map<String, GrouperAtlassianSourceConfig> sourceConfigMap = GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs();
     
-    Map<String,PropertySet> propertySetMap = new HashMap<String, PropertySet>();
+    Map<String,Map<String, String>> propertySetMap = new HashMap<String, Map<String, String>>();
     
     for (WsSubject wsSubject : GrouperClientUtils.nonNull(wsSubjects, WsSubject.class)) {
       
@@ -145,18 +152,15 @@ public class GrouperAtlassianUtils {
       if (GrouperClientUtils.isBlank(userId)) {
         continue;
       }
-      PropertySet propertySet = convertToAtlassianPropertySet(userId, subjectAttributeNames, wsSubject, sourceConfigMap);
+      Map<String, String> propertySet = convertToAtlassianPropertySet(userId, subjectAttributeNames, wsSubject, sourceConfigMap);
       if (propertySet == null) {
-        propertySet = NULL_PROPERTY_SET;
+        propertySet = new HashMap<String, String>();
       }
       propertySetMap.put(userId, propertySet);
     }
     
     return propertySetMap;
   }
-  
-  /** this instance means null since expirable cache doesnt have null values */
-  public static final PropertySet NULL_PROPERTY_SET = new MapPropertySet();
   
   /**
    * convert WS user to atlassian propertySet
@@ -166,7 +170,7 @@ public class GrouperAtlassianUtils {
    * @param sourceConfigMap e.g. GrouperAtlassianConfig.grouperAtlassianConfig().getSourceConfigs()
    * @return the propertySet or null if not found or a problem
    */
-  public static PropertySet convertToAtlassianPropertySet(String userId, String[] subjectAttributeNames, WsSubject wsSubject, Map<String, GrouperAtlassianSourceConfig> sourceConfigMap) {
+  public static Map<String, String> convertToAtlassianPropertySet(String userId, String[] subjectAttributeNames, WsSubject wsSubject, Map<String, GrouperAtlassianSourceConfig> sourceConfigMap) {
 
     String name = null;
     String email = null;
@@ -421,7 +425,7 @@ public class GrouperAtlassianUtils {
     return grouperGroupName;
     
   }
-
+  
   /**
    * property set of name and email
    * @param userId 
@@ -429,13 +433,13 @@ public class GrouperAtlassianUtils {
    * @param email
    * @return property set
    */
-  public static PropertySet propertySet(String userId, String name, String email) {
-    MapPropertySet propertySet = new MapPropertySet();
-    propertySet.setMap(new HashMap<String, String>());
+  public static Map<String, String> propertySet(String userId, String name, String email) {
+    Map<String, String> propertySet = new HashMap<String, String>();
+
     if (!GrouperClientUtils.isBlank(email)) {
-      propertySet.setString("email", email);
+      propertySet.put(PROPERTY_SET_EMAIL, email);
     }
-    propertySet.setString("fullName", GrouperClientUtils.defaultIfBlank(name, userId));
+    propertySet.put(PROPERTY_SET_NAME, GrouperClientUtils.defaultIfBlank(name, userId));
     return propertySet;
   }
   

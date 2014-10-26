@@ -15,6 +15,7 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
 import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
@@ -32,6 +33,8 @@ public class GrouperAwsSqsListener {
     
     List<GrouperSqsMessage> grouperSqsMessages = checkMessages(true);
     
+    System.out.println("Number of messages: " + GrouperUtil.length(grouperSqsMessages));
+
     for (GrouperSqsMessage grouperSqsMessage : grouperSqsMessages) {
       //{"esbEvent":[{"changeOccurred":true,"eventType":"MEMBERSHIP_DELETE","sequenceNumber":"392"}]}
       String json = grouperSqsMessage.getMessageBody();
@@ -40,7 +43,9 @@ public class GrouperAwsSqsListener {
       System.out.println(esbEvents.getEsbEvent()[0].getEventType());
       deleteMessage(grouperSqsMessage.getReceiptHandle());
     }
-    
+
+    GrouperClientUtils.sleep(10000);
+
   }
 
   /**
@@ -107,6 +112,8 @@ public class GrouperAwsSqsListener {
     AmazonSQSClient sqs = new AmazonSQSClient(credentials);
     
     ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueUrl);
+    receiveMessageRequest.setMaxNumberOfMessages(10);
+    
     List<Message> messages = null;
 
     List<GrouperSqsMessage> result = new ArrayList<GrouperSqsMessage>();

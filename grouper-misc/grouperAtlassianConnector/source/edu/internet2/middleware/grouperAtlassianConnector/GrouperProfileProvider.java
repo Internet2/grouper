@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouperAtlassianConnector;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,12 +30,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.opensymphony.module.propertyset.PropertySet;
-import com.opensymphony.user.Entity.Accessor;
-import com.opensymphony.user.provider.ProfileProvider;
-
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianConfig.GrouperAtlassianAutoaddUserConfig;
-import edu.internet2.middleware.grouperAtlassianConnector.xmpp.GrouperAtlassianXmppHandler;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcGetSubjects;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
@@ -53,7 +49,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * implement the opensymphony interface that Atlassian uses for products like jira/confluence
  */
 @SuppressWarnings("serial")
-public class GrouperProfileProvider implements ProfileProvider {
+public class GrouperProfileProvider {
 
   /**
    * if we should fail on grouper for failsafe cache
@@ -94,15 +90,15 @@ public class GrouperProfileProvider implements ProfileProvider {
   /** 
    * cache for list users, key is atlassian username, value is the map property set of name and email 
    */
-  private static ExpirableCache<String, PropertySet> propertySetCache = null;
+  private static ExpirableCache<String, Map<String, String>> propertySetCache = null;
   
   /**
    * cache for list users, key is atlassian username, value is the map property set of name and email 
    * @return the cache
    */
-  private static ExpirableCache<String, PropertySet> propertySetCache() {
+  private static ExpirableCache<String, Map<String, String>> propertySetCache() {
     if (propertySetCache == null) {
-      propertySetCache = new ExpirableCache<String, PropertySet>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheProfileMinutes());
+      propertySetCache = new ExpirableCache<String, Map<String, String>>(GrouperAtlassianConfig.grouperAtlassianConfig().getCacheProfileMinutes());
     }
     return propertySetCache;
   }
@@ -113,7 +109,7 @@ public class GrouperProfileProvider implements ProfileProvider {
   /** 
    * cache for list users, key is atlassian username, value is the map property set of name and email 
    */
-  private static ExpirableCache<String, PropertySet> propertySetFailsafeCache = null;
+  private static ExpirableCache<String, Map<String, String>> propertySetFailsafeCache = null;
 
   /**
    * count the failsafe cache hits for testing
@@ -121,9 +117,10 @@ public class GrouperProfileProvider implements ProfileProvider {
   static long cacheFailsafeHits = 0;
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#create(java.lang.String)
+   * 
+   * @param name
+   * @return true or false
    */
-  @Override
   public boolean create(String name) {
     
     long startNanos = System.nanoTime();
@@ -141,7 +138,7 @@ public class GrouperProfileProvider implements ProfileProvider {
         //add it to the created users map and the createdUsers cache
         createdUsers.add(name);
         
-        PropertySet propertySet = GrouperAtlassianUtils.propertySet(name, name, null);
+        Map<String, String> propertySet = GrouperAtlassianUtils.propertySet(name, name, null);
         
         propertySetCache().put(name, propertySet);
         propertySetFailsafeCache().put(name, propertySet);
@@ -176,9 +173,8 @@ public class GrouperProfileProvider implements ProfileProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#flushCaches()
+   * 
    */
-  @Override
   public void flushCaches() {
     
     long startNanos = System.nanoTime();
@@ -199,20 +195,21 @@ public class GrouperProfileProvider implements ProfileProvider {
 
   /**
    * this should return true if user exists, false if not
-   * @see com.opensymphony.user.provider.UserProvider#handles(java.lang.String)
+   * @param theUsername 
+   * @return true or false
    */
-  @Override
-  public boolean handles(String username) {
+  public boolean handles(String theUsername) {
     
-    return getPropertySetHelper(username, "handles") != null ;
+    return getPropertySetHelper(theUsername, "handles") != null ;
 
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#init(java.util.Properties)
+   * 
+   * @param properties
+   * @return true or false
    */
   @SuppressWarnings("unchecked")
-  @Override
   public boolean init(Properties properties) {
     //nothing to do here
     Boolean result = true;
@@ -232,9 +229,9 @@ public class GrouperProfileProvider implements ProfileProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#list()
+   * 
+   * @return the list
    */
-  @Override
   public List<String> list() {
 
     long startNanos = System.nanoTime();
@@ -246,9 +243,6 @@ public class GrouperProfileProvider implements ProfileProvider {
     Set<String> resultSet = new TreeSet<String>(createdUsers);
 
     try {
-
-      //register xmpp if needed
-      GrouperAtlassianXmppHandler.registerXmppListenerIfNeeded();
 
       //check cache
       List<String> listUsers = listUsersCache().get(Boolean.TRUE);
@@ -274,8 +268,8 @@ public class GrouperProfileProvider implements ProfileProvider {
 
             //lets check the overrides
             GrouperAtlassianConfig grouperAtlassianConfig = GrouperAtlassianConfig.grouperAtlassianConfig();
-            ExpirableCache<String, PropertySet> thePropertySetCache = propertySetCache();
-            ExpirableCache<String, PropertySet> thePropertySetFailsafeCache = propertySetFailsafeCache();
+            ExpirableCache<String, Map<String, String>> thePropertySetCache = propertySetCache();
+            ExpirableCache<String, Map<String, String>> thePropertySetFailsafeCache = propertySetFailsafeCache();
             {
               Set<String> autoaddUsers = grouperAtlassianConfig.getAutoaddConfigUsers().keySet();
               resultSet.addAll(autoaddUsers);
@@ -287,7 +281,7 @@ public class GrouperProfileProvider implements ProfileProvider {
                 
                 String name = grouperAtlassianAutoaddUserConfig.getUserName();
                 String email = grouperAtlassianAutoaddUserConfig.getEmail();
-                PropertySet propertySet = GrouperAtlassianUtils.propertySet(autoaddUserId, name, email);
+                Map<String, String> propertySet = GrouperAtlassianUtils.propertySet(autoaddUserId, name, email);
                 
                 thePropertySetCache.put(autoaddUserId, propertySet);
                 thePropertySetFailsafeCache.put(autoaddUserId, propertySet);
@@ -340,7 +334,7 @@ public class GrouperProfileProvider implements ProfileProvider {
               //lets add to cache
               listUsersFailsafeCache().put(Boolean.TRUE, resultList);
               
-              Map<String, PropertySet> propertySetMap = GrouperAtlassianUtils.convertToAtlassianPropertySets(subjectAttributeNames, wsSubjects);
+              Map<String, Map<String, String>> propertySetMap = GrouperAtlassianUtils.convertToAtlassianPropertySets(subjectAttributeNames, wsSubjects);
               
               //add that to cache too
               for (String userId: propertySetMap.keySet()) {
@@ -366,7 +360,7 @@ public class GrouperProfileProvider implements ProfileProvider {
             {
               //add created people
               for (String principalName : createdUsers) {
-                PropertySet propertySet = GrouperAtlassianUtils.propertySet(principalName, principalName, null);
+                Map<String, String> propertySet = GrouperAtlassianUtils.propertySet(principalName, principalName, null);
                 
                 if (thePropertySetCache.get(principalName) == null) {
                   thePropertySetCache.put(principalName, propertySet);
@@ -412,38 +406,20 @@ public class GrouperProfileProvider implements ProfileProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#load(java.lang.String, com.opensymphony.user.Entity.Accessor)
+   * 
+   * @param username
+   * @return true or false
    */
-  @Override
-  public boolean load(String username, Accessor accessor) {
+  public boolean load(String username) {
     return getPropertySetHelper(username, "load") != null;
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#remove(java.lang.String)
+   * 
+   * @param username
+   * @return the map
    */
-  @Override
-  public boolean remove(String name) {
-    LOG.error("You cannot remove here: '" + name + "', information is read from the source system via Grouper.");
-    throw new RuntimeException("You cannot remove here '" + name + "', information is read from the source system via Grouper");
-  }
-
-  /**
-   * @see com.opensymphony.user.provider.UserProvider#store(java.lang.String, com.opensymphony.user.Entity.Accessor)
-   */
-  @Override
-  public boolean store(String name, Accessor accessor) {
-
-    LOG.error("You cannot store here: '" + name + "', information is read from the source system via Grouper");
-    throw new RuntimeException("You cannot store here '" + name + "', information is read from the source system via Grouper.");
-
-  }
-
-  /**
-   * @see com.opensymphony.user.provider.ProfileProvider#getPropertySet(String)
-   */
-  @Override
-  public PropertySet getPropertySet(String username) {
+  public Map<String, String> getPropertySet(String username) {
     return this.getPropertySetHelper(username, "getPropertySet");
   }
   
@@ -452,7 +428,7 @@ public class GrouperProfileProvider implements ProfileProvider {
    * @param operation 
    * @return the proeprty set or null
    */
-  private PropertySet getPropertySetHelper(String username, String operation) {
+  private Map<String, String> getPropertySetHelper(String username, String operation) {
 
     long startNanos = System.nanoTime();
 
@@ -463,14 +439,14 @@ public class GrouperProfileProvider implements ProfileProvider {
     //lets get from cache first
     this.list();
     
-    PropertySet propertySet = propertySetCache().get(username);
+    Map<String, String> propertySet = propertySetCache().get(username);
     boolean fromFailsafeCache = false;
     try {
       
       //check if null, but not the null property set
       if (propertySet != null) {
         
-        debugMap.put("retrievedFromPropertySetCache", true);
+        debugMap.put("retrievedFromMap<String, String>Cache", true);
         cacheHits++;
   
       } else {
@@ -547,7 +523,7 @@ public class GrouperProfileProvider implements ProfileProvider {
         }
         
         //add to cache, but with special value if null so we dont have to keep looking...
-        PropertySet cachePropertySet = GrouperClientUtils.defaultIfNull(propertySet, GrouperAtlassianUtils.NULL_PROPERTY_SET);
+        Map<String, String> cachePropertySet = GrouperClientUtils.defaultIfNull(propertySet, new HashMap<String, String>());
         propertySetCache().put(username, cachePropertySet);
         if (!fromFailsafeCache) {
           propertySetFailsafeCache().put(username, cachePropertySet);
@@ -555,12 +531,12 @@ public class GrouperProfileProvider implements ProfileProvider {
       }
       
       //if it is null, then it does not exist, I wonder if we should return a null one... hmmm
-      if (propertySet == null || propertySet == GrouperAtlassianUtils.NULL_PROPERTY_SET) {
+      if (propertySet == null || propertySet.size() == 0) {
         debugMap.put("propertySetIsNull", true);
         propertySet = null;
       } else {
-        debugMap.put("fullName", propertySet.getString("fullName"));
-        debugMap.put("email", propertySet.getString("email"));
+        debugMap.put("fullName", propertySet.get("fullName"));
+        debugMap.put("email", propertySet.get("email"));
       }
       if (LOG.isDebugEnabled()) {
         GrouperAtlassianUtils.assignTimingGate(debugMap, startNanos);
@@ -603,9 +579,9 @@ public class GrouperProfileProvider implements ProfileProvider {
    * cache for list users, key is atlassian username, value is the map property set of name and email 
    * @return the cache
    */
-  private static ExpirableCache<String, PropertySet> propertySetFailsafeCache() {
+  private static ExpirableCache<String, Map<String, String>> propertySetFailsafeCache() {
     if (propertySetFailsafeCache == null) {
-      propertySetFailsafeCache = new ExpirableCache<String, PropertySet>(
+      propertySetFailsafeCache = new ExpirableCache<String, Map<String, String>>(
           GrouperAtlassianConfig.grouperAtlassianConfig().getCacheFailsafeMinutes());
     }
     return propertySetFailsafeCache;
