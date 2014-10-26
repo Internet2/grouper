@@ -1,0 +1,382 @@
+/**
+ * @author mchyzer
+ * $Id$
+ */
+package edu.internet2.middleware.grouperAtlassianConnector.db;
+
+import java.sql.Timestamp;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
+
+
+/**
+ *
+ */
+@GcPersistableClass(tableName="CWD_GROUP", defaultFieldPersist=GcPersist.persistIfPersistableField)
+public class AtlassianCwdGroup implements GcSqlAssignPrimaryKey {
+
+  /**
+   * id col
+   */
+  @GcPersistableField(primaryKey=true)
+  private Long id;
+  
+  /**
+   * id col
+   * @return the id
+   */
+  public Long getId() {
+    return this.id;
+  }
+
+  
+  /**
+   * id col
+   * @param id1 the id to set
+   */
+  public void setId(Long id1) {
+    this.id = id1;
+  }
+
+  /**
+   * group_name col
+   */
+  @GcPersistableField
+  private String groupName;
+  
+  /**
+   * group_name col
+   * @return the groupName
+   */
+  public String getGroupName() {
+    return this.groupName;
+  }
+
+  
+  /**
+   * group_name col
+   * @param groupName1 the groupName to set
+   */
+  public void setGroupName(String groupName1) {
+    this.groupName = groupName1;
+  }
+
+  /**
+   * active col
+   */
+  @GcPersistableField
+  private Long active;
+
+  /**
+   * active col
+   * @return the active
+   */
+  public Long getActive() {
+    return this.active;
+  }
+
+  
+  /**
+   * active col
+   * @param active1 the active to set
+   */
+  public void setActive(Long active1) {
+    this.active = active1;
+  }
+
+  /**
+   * updated_date col
+   */
+  @GcPersistableField
+  private Timestamp updatedDate;
+
+  /**
+   * updated_date col
+   * @return the updatedDate
+   */
+  public Timestamp getUpdatedDate() {
+    return this.updatedDate;
+  }
+
+  
+  /**
+   * updated_date col
+   * @param updatedDate1 the updatedDate to set
+   */
+  public void setUpdatedDate(Timestamp updatedDate1) {
+    this.updatedDate = updatedDate1;
+  }
+
+  /**
+   * directory_id col
+   */
+  @GcPersistableField
+  private Long directoryId;
+  
+  /**
+   * directory_id col
+   * @return the directoryId
+   */
+  public Long getDirectoryId() {
+    return this.directoryId;
+  }
+  
+  /**
+   * directory_id col
+   * @param directoryId1 the directoryId to set
+   */
+  public void setDirectoryId(Long directoryId1) {
+    this.directoryId = directoryId1;
+  }
+
+  /**
+   * lower_group_name col
+   */
+  @GcPersistableField
+  private String lowerGroupName;
+
+  
+  
+  /**
+   * lower_group_name col
+   * @return the lowerGroupName
+   */
+  public String getLowerGroupName() {
+    return this.lowerGroupName;
+  }
+
+  
+  /**
+   * lower_group_name col
+   * @param lowerGroupName1 the lowerGroupName to set
+   */
+  public void setLowerGroupName(String lowerGroupName1) {
+    this.lowerGroupName = lowerGroupName1;
+  }
+
+  /**
+   * created date col
+   */
+  @GcPersistableField
+  private Timestamp createdDate;
+
+  
+  
+  /**
+   * created date col
+   * @return the createdDate
+   */
+  public Timestamp getCreatedDate() {
+    return this.createdDate;
+  }
+
+  
+  /**
+   * created date col
+   * @param createdDate1 the createdDate to set
+   */
+  public void setCreatedDate(Timestamp createdDate1) {
+    this.createdDate = createdDate1;
+  }
+
+  /**
+   * lower_description col
+   */
+  @GcPersistableField
+  private String lowerDescription;
+
+  
+  /**
+   * lower_description col
+   * @return the lowerDisplayName
+   */
+  public String getLowerDescription() {
+    return this.lowerDescription;
+  }
+
+  
+  /**
+   * lower_description col
+   * @param lowerDescription1 the lowerDescription to set
+   */
+  public void setLowerDescription(String lowerDescription1) {
+    this.lowerDescription = lowerDescription1;
+  }
+
+  /**
+   * description col
+   */
+  @GcPersistableField
+  private String description;
+
+  
+  /**
+   * description col
+   * @return the description
+   */
+  public String getDescription() {
+    return this.description;
+  }
+
+  
+  /**
+   * description col
+   * @param description1 the description to set
+   */
+  public void setDescription(String description1) {
+    this.description = description1;
+  }
+
+  /** group_type col */
+  @GcPersistableField
+  private String groupType;
+  
+  /**
+   * group_type col
+   * @return the grouptype
+   */
+  public String getGroupType() {
+    return this.groupType;
+  }
+  
+  /**
+   * group_type col
+   * @param groupType1 the grouptype to set
+   */
+  public void setGroupType(String groupType1) {
+    this.groupType = groupType1;
+  }
+
+  /**
+   * local col
+   */
+  @GcPersistableField
+  private Long local;
+  
+  /**
+   * local col
+   * @return the local
+   */
+  public Long getLocal() {
+    return this.local;
+  }
+  
+  /**
+   * local col
+   * @param local1 the local to set
+   */
+  public void setLocal(Long local1) {
+    this.local = local1;
+  }
+
+
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "AtlassianCwdGroup [id=" + this.id + ", groupName=" + this.groupName + ", active=" + this.active
+        + ", updatedDate=" + this.updatedDate + ", directoryId=" + this.directoryId + ", lowerGroupName="
+        + this.lowerGroupName + ", createdDate=" + this.createdDate + ", lowerDescription="
+        + this.lowerDescription + ", description=" + this.description + ", groupType=" + this.groupType
+        + ", local=" + this.local + "]";
+  }
+
+
+  /**
+   * note, you need to commit this (or at least flush) so the id is incremented
+   */
+  public void initNewObject() {
+
+    this.setLocal(0L);
+    this.setGroupType("GROUP");
+    this.setActive(1L);
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+    this.setCreatedDate(now);
+    this.setUpdatedDate(now);
+    this.setDirectoryId(1L);
+
+  }
+  
+  /**
+   * get all groups
+   * @return the groups or null by map of groupname to group
+   */
+  public static Map<String, AtlassianCwdGroup> retrieveGroups() {
+    
+    List<AtlassianCwdGroup> resultList = new GcDbAccess().selectList(AtlassianCwdGroup.class);
+    Map<String, AtlassianCwdGroup> resultMap = new LinkedHashMap<String, AtlassianCwdGroup>();
+    for (AtlassianCwdGroup atlassianCwdGroup : resultList) {
+      resultMap.put(atlassianCwdGroup.getGroupName(), atlassianCwdGroup);
+    }
+    return resultMap;
+  }
+
+  /**
+   * store this record insert or update
+   */
+  public void store() {
+    new GcDbAccess().storeToDatabase(this);
+  }
+
+  /**
+   * delete this record
+   */
+  public void delete() {
+    new GcDbAccess().deleteFromDatabase(this);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey#gcSqlAssignNewPrimaryKeyForInsert()
+   */
+  public void gcSqlAssignNewPrimaryKeyForInsert() {
+    if (this.id != null) {
+      throw new RuntimeException("Why setting primary key if already exists! " + this.id);
+    }
+    Long maxId = new GcDbAccess().sql("select max(id) from cwd_group").select(Long.class);
+    this.setId(maxId + 1);
+  }
+  
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((this.groupName == null) ? 0 : this.groupName.hashCode());
+    return result;
+  }
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    AtlassianCwdGroup other = (AtlassianCwdGroup) obj;
+    if (this.groupName == null) {
+      if (other.groupName != null)
+        return false;
+    } else if (!this.groupName.equals(other.groupName))
+      return false;
+    return true;
+  }
+
+  
+}

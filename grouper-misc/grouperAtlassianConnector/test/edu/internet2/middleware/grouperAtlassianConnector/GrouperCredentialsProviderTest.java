@@ -22,6 +22,9 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
+/**
+ * 
+ */
 public class GrouperCredentialsProviderTest extends TestCase {
   /** profile provider */
   private GrouperCredentialsProvider grouperCredentialsProvider = new GrouperCredentialsProvider();
@@ -43,47 +46,6 @@ public class GrouperCredentialsProviderTest extends TestCase {
     TestRunner.run(new GrouperCredentialsProviderTest("testList"));
   }
   
-  /**
-   * make sure these throw exceptions
-   */
-  public void testCreateRemoveStore() {
-    try {
-      this.grouperCredentialsProvider.create("whatever");
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
-
-    try {
-      this.grouperCredentialsProvider.remove("whatever");
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
-
-    try {
-      this.grouperCredentialsProvider.store("whatever", null);
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
-
-    try {
-      this.grouperCredentialsProvider.authenticate("whatever", "yo");
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
-
-    try {
-      this.grouperCredentialsProvider.changePassword("whatever", "yo");
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
-
-  }
-
   /**
    * 
    */
@@ -174,21 +136,21 @@ public class GrouperCredentialsProviderTest extends TestCase {
     long cacheHits = GrouperAccessProvider.cacheHits;
     long cacheMisses = GrouperAccessProvider.cacheMisses;
     
-    assertFalse(this.grouperCredentialsProvider.load("whataslkfdjasldkfj", null));
+    assertFalse(this.grouperCredentialsProvider.load("whataslkfdjasldkfj"));
 
     assertTrue(GrouperAccessProvider.cacheMisses + ", " + cacheMisses, GrouperAccessProvider.cacheMisses > cacheMisses);
 
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
 
-    assertFalse(this.grouperCredentialsProvider.load("whataslkfdjasldkfj", null));
+    assertFalse(this.grouperCredentialsProvider.load("whataslkfdjasldkfj"));
     
     assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
     assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
 
-    assertTrue(this.grouperCredentialsProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperCredentialsProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
 
     assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
     assertTrue(GrouperAccessProvider.cacheHits > cacheHits);
@@ -198,13 +160,13 @@ public class GrouperCredentialsProviderTest extends TestCase {
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
 
-    assertTrue(this.grouperCredentialsProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperCredentialsProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
 
     assertTrue(GrouperAccessProvider.cacheMisses + ", " + cacheMisses, GrouperAccessProvider.cacheMisses > cacheMisses);
     cacheHits = GrouperAccessProvider.cacheHits;
     cacheMisses = GrouperAccessProvider.cacheMisses;
 
-    assertTrue(this.grouperCredentialsProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperCredentialsProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
 
     assertEquals(cacheMisses, GrouperAccessProvider.cacheMisses);
     assertTrue(GrouperAccessProvider.cacheHits > cacheHits);

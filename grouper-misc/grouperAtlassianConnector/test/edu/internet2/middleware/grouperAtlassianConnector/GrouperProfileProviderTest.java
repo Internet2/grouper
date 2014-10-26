@@ -16,13 +16,11 @@
 package edu.internet2.middleware.grouperAtlassianConnector;
 
 import java.util.List;
-
-import com.opensymphony.module.propertyset.PropertySet;
-
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * 
@@ -70,7 +68,7 @@ public class GrouperProfileProviderTest extends TestCase {
     long cacheHits = GrouperProfileProvider.cacheHits;
     long cacheMisses = GrouperProfileProvider.cacheMisses;
     
-    PropertySet propertySet = this.grouperProfileProvider.getPropertySet("whataslkfdjasldkfj");
+    Map<String, String> propertySet = this.grouperProfileProvider.getPropertySet("whataslkfdjasldkfj");
     
     assertNull(propertySet);
         
@@ -96,8 +94,8 @@ public class GrouperProfileProviderTest extends TestCase {
 
     assertTrue(cacheHits < GrouperProfileProvider.cacheHits);
   
-    assertEquals(GrouperClientUtils.propertiesValue("atlassian.test.email", true), propertySet.getString("email"));
-    assertEquals(GrouperClientUtils.propertiesValue("atlassian.test.name", true), propertySet.getString("fullName"));
+    assertEquals(GrouperClientUtils.propertiesValue("atlassian.test.email", true), propertySet.get("email"));
+    assertEquals(GrouperClientUtils.propertiesValue("atlassian.test.name", true), propertySet.get("fullName"));
 
     cacheHits = GrouperProfileProvider.cacheHits;
     cacheMisses = GrouperProfileProvider.cacheMisses;
@@ -146,21 +144,7 @@ public class GrouperProfileProviderTest extends TestCase {
     
     assertFalse(this.grouperProfileProvider.create("whatever"));
     
-    assertEquals(this.grouperProfileProvider.getPropertySet("whatever").getString("fullName"), "whatever");
-
-    try {
-      this.grouperProfileProvider.remove("whatever");
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
-
-    try {
-      this.grouperProfileProvider.store("whatever", null);
-      fail("Should fail");
-    } catch (Exception e) {
-      //good
-    }
+    assertEquals(this.grouperProfileProvider.getPropertySet("whatever").get("fullName"), "whatever");
 
   }
 
@@ -281,17 +265,17 @@ public class GrouperProfileProviderTest extends TestCase {
     long cacheHits = GrouperProfileProvider.cacheHits;
     long cacheMisses = GrouperProfileProvider.cacheMisses;
     
-    assertFalse(this.grouperProfileProvider.load("whataslkfdjasldkfj", null));
+    assertFalse(this.grouperProfileProvider.load("whataslkfdjasldkfj"));
   
     assertEquals(cacheMisses + 2, GrouperProfileProvider.cacheMisses);
     assertEquals(cacheHits, GrouperProfileProvider.cacheHits);
   
-    assertFalse(this.grouperProfileProvider.load("whataslkfdjasldkfj", null));
+    assertFalse(this.grouperProfileProvider.load("whataslkfdjasldkfj"));
   
     assertEquals(cacheMisses + 2, GrouperProfileProvider.cacheMisses);
     assertEquals(cacheHits + 2, GrouperProfileProvider.cacheHits);
   
-    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
   
     assertEquals(cacheMisses + 2, GrouperProfileProvider.cacheMisses);
     assertEquals(cacheHits + 4, GrouperProfileProvider.cacheHits);
@@ -301,12 +285,12 @@ public class GrouperProfileProviderTest extends TestCase {
     cacheHits = GrouperProfileProvider.cacheHits;
     cacheMisses = GrouperProfileProvider.cacheMisses;
   
-    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
   
     assertEquals(cacheMisses + 1, GrouperProfileProvider.cacheMisses);
     assertEquals(cacheHits + 1, GrouperProfileProvider.cacheHits);
   
-    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
   
     assertEquals(cacheMisses + 1, GrouperProfileProvider.cacheMisses);
     assertEquals(cacheHits + 3, GrouperProfileProvider.cacheHits);
@@ -316,7 +300,7 @@ public class GrouperProfileProviderTest extends TestCase {
     GrouperProfileProvider.failOnGrouperForTestingFailsafeCache = true;
     new GrouperProfileProvider().flushCaches();
     
-    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
 
     assertTrue(GrouperProfileProvider.cacheFailsafeHits > cacheFailsafeHits);
     
@@ -324,7 +308,7 @@ public class GrouperProfileProviderTest extends TestCase {
     cacheHits = GrouperProfileProvider.cacheHits;
     cacheFailsafeHits = GrouperProfileProvider.cacheFailsafeHits;
     
-    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME, null));
+    assertTrue(this.grouperProfileProvider.load(GrouperAccessProviderTest.TEST_USERNAME));
     
     assertTrue(GrouperProfileProvider.cacheHits > cacheHits);
     assertEquals(cacheMisses, GrouperProfileProvider.cacheMisses);

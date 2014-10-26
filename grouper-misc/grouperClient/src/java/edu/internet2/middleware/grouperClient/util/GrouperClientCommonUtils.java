@@ -80,7 +80,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -1080,6 +1079,23 @@ public class GrouperClientCommonUtils  {
     return map == null ? new HashMap<K,V>() : map;
   }
 
+  /**
+   * convert a collection to a list (if already a list, keep it)
+   * @param <T>
+   * @param collection
+   * @return the list
+   */
+  public static <T> List<T> toListFromCollection(Collection<T> collection) {
+    if (collection == null) {
+      return null;
+    }
+    if (collection instanceof List) {
+      return (List)collection;
+    }
+    return new ArrayList<T>(collection);
+    
+  }
+  
   /**
    * return a list of objects from varargs.  Though if there is one
    * object, and it is a list, return it.
@@ -3955,6 +3971,42 @@ public class GrouperClientCommonUtils  {
   }
 
   /**
+   * remove end if there
+   * @param str
+   * @param remove
+   */
+  public static void removeEnd(StringBuilder str, String remove) {
+    if (str == null || str.length() == 0 || isEmpty(remove)) {
+      return;
+    }    
+    
+    if (endsWith(str, remove)) {
+      str.setLength(str.length() - remove.length());
+    }
+  }
+  
+  /**
+   * 
+   * @param str
+   * @param end
+   * @return true if ends with
+   */
+  public static boolean endsWith(StringBuilder str, String end) {
+    if (str == null || str.length() == 0 || isEmpty(end) || str.length() < end.length()) {
+      return false;
+    }
+
+    int endIndex = 0;
+    for (int i=str.length()-end.length(); i<str.length(); i++) {
+      if (str.charAt(i) != end.charAt(endIndex)) {
+        return false;
+      }
+      endIndex++;
+    }
+    return true;
+  }
+  
+  /**
    * <pre>
    * make a new file in the name prefix dir.  If parent dir name is c:\temp
    * and namePrefix is grouperDdl and nameSuffix is sql, then the file will be:
@@ -4273,6 +4325,40 @@ public class GrouperClientCommonUtils  {
       throw new RuntimeException("Cannot convert Object to timestamp : " + input);
     }
 
+  }
+
+  /**
+   * <p>Removes a substring only if it is at the end of a source string,
+   * otherwise returns the source string.</p>
+   *
+   * <p>A <code>null</code> source string will return <code>null</code>.
+   * An empty ("") source string will return the empty string.
+   * A <code>null</code> search string will return the source string.</p>
+   *
+   * <pre>
+   * StringUtils.removeEnd(null, *)      = null
+   * StringUtils.removeEnd("", *)        = ""
+   * StringUtils.removeEnd(*, null)      = *
+   * StringUtils.removeEnd("www.domain.com", ".com.")  = "www,domain"
+   * StringUtils.removeEnd("www.domain.com", ".com")   = "www.domain"
+   * StringUtils.removeEnd("www.domain.com", "domain") = "www.domain.com"
+   * StringUtils.removeEnd("abc", "")    = "abc"
+   * </pre>
+   *
+   * @param str  the source String to search, may be null
+   * @param remove  the String to search for and remove, may be null
+   * @return the substring with the string removed if found,
+   *  <code>null</code> if null String input
+   * @since 2.1
+   */
+  public static String removeEnd(String str, String remove) {
+    if (isEmpty(str) || isEmpty(remove)) {
+      return str;
+    }
+    if (str.endsWith(remove)) {
+      return str.substring(0, str.length() - remove.length());
+    }
+    return str;
   }
 
   /**
@@ -5687,6 +5773,33 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * keys and values go into map
+   * @param keysAndValues
+   * @return the map
+   */
+  public static Map<?,?> toMap(Object... keysAndValues) {
+    if (keysAndValues == null) {
+      return null;
+    }
+    Map<Object,Object> result = new LinkedHashMap();
+    
+    if (GrouperClientUtils.length(keysAndValues) > 0) {
+      if (keysAndValues.length % 2 != 0) {
+        throw new RuntimeException("Must have an even number of keys and values");
+      }
+      
+      for (int i = 0; i<keysAndValues.length; i+=2) {
+        result.put(keysAndValues[i], keysAndValues[i+1]);
+      }
+      
+    }
+    
+    return result;
+  }
+  
+
+  
+  /**
    * close a connection null safe and dont throw exception
    * @param connection
    */
@@ -5695,7 +5808,7 @@ public class GrouperClientCommonUtils  {
       try {
         connection.close();
       } catch (Exception e) {
-        //ignore
+        throw new RuntimeException("Cant close connection!");
       }
     }
   }

@@ -1,0 +1,2318 @@
+package edu.internet2.middleware.grouperClient.jdbc2;
+
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
+
+/** 
+ * <pre>Get access to the global database connections, create a new connection 
+ * if Mule is not up and running db pools, and execute sql against them.</pre>
+ * @author harveycg
+ */
+public class GcDbAccess {
+
+  /**
+   * A map to cache result bean data in based on a key, and host it for a particular amount of time.
+   */
+  private static Map<String, GcDbQueryCache> dbQueryCacheMap = new GcDbQueryCacheMap();
+
+
+  /**
+   * How long the currently selected objects will be stored in the cache.
+   */
+  private Integer cacheMinutes;
+
+
+  // Explicitly add the driver for shadow.
+  static{
+    try {
+      // Don't fail here, some projects may not need the shadow driver and there will be errors 
+      // if the driver is not loaded properly for those that do anyway.
+      DriverManager.registerDriver(new com.ddtek.jdbc.shadow.ShadowDriver());
+    } catch (Exception e) {
+      e.printStackTrace();
+    } 
+  }
+
+  /**
+   * If true, the map queryAndTime will be populated with date regarding the time spent in each unique query (unique by query string, not considering bind variable values).
+   */
+  private static boolean accumulateQueryMillis;
+
+  /**
+   * A map of the time spent in each unique query (unique by query string, not considering bind variable values).
+   */
+  private static Map<String, GcQueryReport> queriesAndMillis;
+
+
+  /**
+   * The amount of seconds that the query can run before being rolled back.
+   */
+  private Integer queryTimeoutSeconds;
+
+
+  /**
+   * The list of bind variable objects.
+   */
+  private List<Object> bindVars;
+
+
+  /**
+   * If you are executing a statement as a batch, this is the list of lists of bind variables to set.
+   */
+  private List<List<Object>> batchBindVars;
+
+
+  /**
+   * The sql to execute.s
+   */
+  private String sql;
+
+
+  /**
+   * If selecting something by primary key, this is one or many keys.
+   */
+  private List<Object> primaryKeys;
+
+
+  /**
+   * The object containing the mule connector to the database and methods to create a connection if mule is not running.
+   */
+  private DbResource dbResource;
+
+
+  /**
+   * Whether to use a transaction or not.
+   */
+  private boolean useTransaction;
+
+
+  /**
+   * If we are doing a shadow connection, the type can be set.
+   */
+  private NaturalCallType naturalCallType;
+
+
+  /**
+   * Whether, if we were using a transaction, it ended. If so, no more action is allowed with this object.
+   */
+  private boolean transactionEnded;
+
+
+  /**
+   * The connection that we are using.
+   */
+  private Connection connection;
+
+  /**
+   * If selecting by example, set this and all column values will be used to create a where clause.
+   */
+  private Object example;
+
+
+  /**
+   * If selecting by example, set this and all column values of the given example object except null values will be used to create a where clause.
+   */
+  private boolean omitNullValuesForExample;
+
+
+  /**
+   * The number of rows touched if an update, delete, etc was executed.
+   */
+  private int numberOfRowsAffected;
+
+
+  /**
+   * The number of batch rows touched if an update, delete, etc was executed.
+   */
+  private int numberOfBatchRowsAffected[];
+
+
+  /**
+   * What to do at the end of a transaction.
+   */
+  private TransactionEnd transactionEnd;
+
+
+  /**
+   * <pre>This is our helper to convert data to and from Oracle. It is externalized because it will likely be 
+   * common that editing will need to be done on a per project basis.</pre>
+   */
+  private static GcBoundDataConversion boundDataConversion = new GcBoundDataConversionImpl();
+
+
+  /**
+   * Whether we registered all of the dbconnection classes yet or not.
+   */
+  private static boolean dbConnectionClassesRegistered = false;
+
+  /**
+   * Constructor.
+   */
+  @SuppressWarnings("rawtypes")
+  public GcDbAccess(){
+
+    synchronized (this) {
+
+      if (!dbConnectionClassesRegistered){
+
+        // We are now going to try to find the classes that implement DbResource.
+        String errorMessage = "In order to utilize the class DbAccess, for each database connection, you must extend the class " +
+            "DbConnectionProviderImpl in your project under a parent package of edu.upenn.isc.YOUR_PROJECT_NAME.db and register a connection within it.";
+
+        // Get all of the loaded classes.
+        Class theClassFailed = null;
+        try{
+          Set<Class> classes = EsbClassUtilities.getClasses("edu.upenn", null, null);
+          for (Class<?> clazz : classes){
+            theClassFailed = clazz;
+            // If we have an type of DbResource, create an instance and get the connection information from it.
+            if (DbConnectionProvider.class.isAssignableFrom(clazz) && clazz != DbConnectionProvider.class && clazz != DbConnectionProviderImpl.class){
+              DbConnectionProvider dbConnectionProvider = (DbConnectionProvider)clazz.newInstance();
+              DbResource.register(dbConnectionProvider);
+              if (dbConnectionProvider.isDefault()){
+                DbResource.setDefaultConnectionClass(dbConnectionProvider.getConnectionClass());
+              }
+            }
+          }
+        } catch (Exception e){
+          throw new RuntimeException(errorMessage + (theClassFailed != null ? " Failed class is " + theClassFailed : ""), e);
+        }
+
+        dbConnectionClassesRegistered = true;
+      }
+    }
+
+  }
+
+
+
+  /**
+   * This is the helper to convert data to and from Oracle, which has a default of GcBoundDataConversionImpl. 
+   * If you encounter errors getting and setting data from oracle to java, you may need to override the default
+   * and set your version here. Otherwise, nothing is needed.
+   * @param _boundDataConversion the boundDataConversion to set.
+   */
+  public static void loadBoundDataConversion(GcBoundDataConversion _boundDataConversion) {
+    boundDataConversion = _boundDataConversion;
+  }
+
+
+
+  /**
+   * Create an in statement with the given number of bind variables: createInString(2) returns " (?,?) "
+   * @param numberOfBindVariables is the number of bind variables to use.
+   * @return the string.
+   */
+  public static String createInString(int numberOfBindVariables){
+    String results = " (";
+    for (int i=0; i<numberOfBindVariables; i++){
+      results +="?,";
+    }
+    return StringUtils.removeEnd(results, ",") + ") ";
+  }
+
+
+  /**
+   * Set what to do at the end of a transaction.
+   * @param _transactionEnd the transactionEnd to set
+   */
+  public void setTransactionEnd(TransactionEnd _transactionEnd) {
+    this.transactionEnd = _transactionEnd;
+  }
+
+
+  /**
+    /**
+   * Set the list of bind variable objects, always replacing any that exist.
+   * @param _bindVars are the variables to add to the list.
+   * @return this.
+   */
+  public GcDbAccess bindVars(Object... _bindVars){
+    this.bindVars = new ArrayList<Object>();
+
+    for (Object bindVar : _bindVars){
+      if (bindVar instanceof List){
+        List<?> arrayData = (List<?>)bindVar;
+        for (Object value : arrayData){
+          this.bindVars.add(value);
+        }             
+      } else {
+        this.bindVars.add(bindVar);
+      }   
+    }
+
+    return this;
+  }
+
+
+
+  /**
+   * Add to the list of bind variable objects, leaving any that exist there - if you use this in a transaction callback
+   * you will have to clear bindvars between calls or they will accumulate.
+   * @param _bindVar is the variable to add to the list.
+   * @return this.
+   */
+  public GcDbAccess addBindVar(Object _bindVar){
+
+    if (this.bindVars == null){
+      this.bindVars = new ArrayList<Object>();
+    }
+
+    this.bindVars.add(_bindVar);
+
+    return this;
+  }
+
+
+  /**
+   * If you are executing sql as a batch statement, set the batch bind variables here.
+   * @param _batchBindVars are the variables to set.
+   * @return this.
+   */
+  public GcDbAccess batchBindVars(List<List<Object>> _batchBindVars){
+    this.batchBindVars = _batchBindVars;
+    return this;
+  }
+
+
+  /**
+   * <pre>Cache the results of a SELECT query for the allotted minutes.
+   * Note that cached objects are not immutable; if you modify them you are modifying them in the cache as well.</pre>
+   * @param _cacheMinutes is how long to persist the object(s) in cache for after the initial selection.
+   * @return this.
+   */
+  public GcDbAccess cacheMinutes(Integer _cacheMinutes){
+    this.cacheMinutes = _cacheMinutes;
+    return this;
+  }
+
+
+  /**
+   * Set the sql to use.
+   * @param _sql is the sql to use.
+   * @return this.
+   */
+  public GcDbAccess sql(String _sql){
+    this.sql = _sql;
+    return this;
+  }
+
+
+  /**
+   * If selecting by example, set this and all column values of the given example object except null values will be used to create a where clause.
+   * @return this.
+   */
+  public GcDbAccess omitNullValuesForExample(){
+    this.omitNullValuesForExample = true;
+    return this;
+  }
+
+
+
+
+  /**
+   * If selecting by example, set this and all column values will be used to create a where clause.
+   * @param _example is the example to use.
+   * @return this.
+   */
+  public GcDbAccess example(Object _example){
+    this.example = _example;
+    return this;
+  }
+
+
+  /**
+   * The amount of seconds that the query can run before being rolled back.
+   * @param _queryTimeoutSeconds is the amount of seconds to set.
+   * @return this.
+   */
+  public GcDbAccess queryTimeoutSeconds(Integer _queryTimeoutSeconds){
+    this.queryTimeoutSeconds = _queryTimeoutSeconds;
+    return this;
+  }
+
+
+
+  /**
+   * <pre>If true, the map queryAndTime will be populated with the time spent in each unique query (unique by query string, not considering bind variable values) 
+   * - BE SURE TO TURN THIS OFF when done debugging, this is ONLY for debugging on the desktop!Turning it off CLEARS the stats, so write it off first!
+   * Example:
+   * 1. DbAccess.accumulateQueryMillis(true);
+   * 2. use application normally
+   * 3. Get the results: Map<String, Long> timeSpentInQueries = 
+   * </pre>
+   * @param _accumulateQueryMillis is whether to accumulate them or not.
+   */
+  public static void accumulateQueryMillis(boolean _accumulateQueryMillis){
+    if (_accumulateQueryMillis){
+      queriesAndMillis = new LinkedHashMap<String, GcQueryReport>();
+    } else {
+      queriesAndMillis.clear();
+    }
+    accumulateQueryMillis = _accumulateQueryMillis;
+  }
+
+
+  /**
+   * <pre>Write the stats of queries and time spent in them to a file at the given location, then stop collection stats. accumulateQueryMillis(true)
+   * must be called first to turn on debugging.</pre>
+   * @param fileLocation is the location of the file to write.
+   */
+  public static void reportQueriesAndMillisAndTurnOffAccumulation(String fileLocation){
+    if (!accumulateQueryMillis){
+      throw new RuntimeException("accumulateQueryMillis must be set to true first!");
+    }
+    GcQueryReport.reportToFile(fileLocation, queriesAndMillis);
+  }
+
+
+
+
+  /**
+   * The type of call being made if using a transaction and connecting to the mainframe via shadow.
+   * @param _naturalCallType is the type to set.
+   * @return this.
+   */
+  public GcDbAccess naturalCallType(NaturalCallType _naturalCallType){
+    this.naturalCallType = _naturalCallType;
+    return this;
+  }
+
+
+  /**
+   * Set the primary key to select by.
+   * @param _primaryKey is the _primaryKey to use.
+   * @return this.
+   */
+  public GcDbAccess primaryKey(Object... _primaryKey){
+    this.primaryKeys = new ArrayList<Object>();
+
+    if (_primaryKey != null && _primaryKey.length == 1 && _primaryKey[0] instanceof List){
+      List<?> arrayData = (List<?>)_primaryKey[0];
+      for (Object value : arrayData){
+        this.primaryKeys.add(value);
+      }
+    } else if (_primaryKey != null){
+      for (Object primaryKey : _primaryKey){
+        this.primaryKeys.add(primaryKey);
+      }
+    }
+    return this;
+  }
+
+
+  /**
+   * Set the name of the mule resource containing the connector to the database.
+   * This name will have to have been registered to the class DbResource first.
+   * @param _dbResourceClass is the class of the resource to connect to.
+   * @return this.
+   */
+  public GcDbAccess dbResourceClass(Class<? extends DbConnectionProvider> _dbResourceClass){
+    this.dbResource = DbResource.byClass(_dbResourceClass);
+    return this;
+  }
+
+
+  /**
+   * If we are in a session we need to reset some stuff with each call.
+   */
+  private void cleanupForReuse(){
+    if (this.useTransaction){
+      this.sql = null;
+      this.bindVars = null;
+      this.batchBindVars = null;
+      this.primaryKeys = null;
+      this.example = null;
+      this.omitNullValuesForExample = false;
+    }
+  }
+
+  /**
+   * <pre>If a db resource was set for this instance, use it. if not, use the default if that was set in DbResource.setDefaultConnectionFriendlyName().
+   * Otherwise, throw an exception.</pre>
+   * @return the resource.
+   */
+  private DbResource dbResource(){
+    if (this.dbResource != null){
+      return this.dbResource;
+    }
+
+    if (DbResource.defaultDbResource() != null){
+      return DbResource.defaultDbResource();
+    }
+
+    throw new RuntimeException("No connection provider was set - either call dbAccess.dbResourceName() or " +
+        "ensure that a default is set by calling DbResource.setDefaultConnectionFriendlyName().");
+  }
+
+
+  /**
+   * Add information about the query that was just executed.
+   * @param query is the query.
+   * @param millisSpent is how many millis were spent executing the query.
+   * @param dbAccess is the holder for the query and logic.
+   */
+  private static void addQueryToQueriesAndMillis(String query, Long millisSpent, GcDbAccess dbAccess){
+    if (!accumulateQueryMillis){
+      return;
+    }
+    GcQueryReport queryReport = queriesAndMillis.get(query);
+    if (queryReport == null){
+      queryReport = new GcQueryReport();
+      queryReport.setQuery(query);
+
+      queryReport.setDbConnectionProviderClass(dbAccess.dbResource().getConnectionClass());
+      queriesAndMillis.put(query, queryReport);
+    }
+
+    queryReport.addExecutionTime(millisSpent);
+  }
+
+
+
+  /**
+   * <pre>Whether this class has already been saved to the database, looks for a field(s) with annotation @Persistable(primaryKeyField=true),
+   * assumes that it is a number, and returns true if it is null or larger than 0.</pre>
+   *  @param o is the object to store to the database.
+   * @return true if so.
+   */
+  public boolean isPreviouslyPersisted(Object o){
+    Field field = GcPersistableHelper.primaryKeyField(o.getClass());
+
+
+    List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(o.getClass());
+
+
+    // Objects with no PK are never considered previously persisted.
+    if (field == null && compoundPrimaryKeys.size() == 0){
+      return false;
+    }
+
+
+    // We have a single primary key.
+    if (field != null){
+      Object fieldValue = null;
+      try {
+        fieldValue = field.get(o);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } 
+
+      if (fieldValue == null){
+        return false;
+      }
+
+      // If it was manually assigned, we have to check the database.
+      if (GcPersistableHelper.primaryKeyManuallyAssigned(field)){
+
+        Long startTime = System.currentTimeMillis();
+
+        String query = "select count(*) from " + GcPersistableHelper.tableName(o.getClass()) + " where " +  GcPersistableHelper.columnName(field) + " =  ?";
+
+        int count = considerTransaction()
+            .sql(query)
+            .bindVars(fieldValue)
+            .select(int.class);
+
+        addQueryToQueriesAndMillis(query, System.currentTimeMillis() - startTime, this);
+
+        return count > 0;
+      }
+
+      // If field is numeric, it must be > 0.
+      try{
+        Long theId = new Long(String.valueOf(fieldValue));
+        return theId > 0;
+      } catch (Exception e){
+        throw new RuntimeException("Expected primary key field of numeric type but got " + field.getName() + " of type " + field.getClass() + ". You need to override isPreviouslyPersisted() or provide a Persistable annotation for your primary key!", e);
+      }
+    }
+
+
+
+
+    // We have multiple primary keys.
+    if (compoundPrimaryKeys.size() > 0){
+
+      List<Object> theBindVariables = new ArrayList<Object>();
+
+      String theSql = "select count(*) from " + GcPersistableHelper.tableName(o.getClass()) + " where ";
+
+      // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
+      for (Field compoundPrimaryKey : compoundPrimaryKeys){
+        Object fieldValue = null;
+        try {
+          fieldValue = compoundPrimaryKey.get(o);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } 
+        theSql += GcPersistableHelper.columnName(compoundPrimaryKey) + " = ? and ";
+        theBindVariables.add(fieldValue);
+      }
+      theSql = theSql.substring(0, theSql.length() - 4);
+
+      Long startTime = System.currentTimeMillis();
+
+      int count = considerTransaction()
+          .sql(theSql)
+          .bindVars(theBindVariables)
+          .select(int.class);
+
+      addQueryToQueriesAndMillis(theSql, System.currentTimeMillis() - startTime, this);
+
+      return count > 0;
+    }
+
+
+    throw new RuntimeException("No primary key or compound primary keys specified!");
+
+  }
+
+
+
+  /**
+   * Delete the object from  the database if it has already been stored - the object should have appropriate annotations from the PersistableX annotations.
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   *  @param o is the object to delete from the database.
+   */
+  public  void deleteFromDatabase(Object o){
+    if (!isPreviouslyPersisted(o)){
+      return;
+    }
+
+    Field primaryKeyField = GcPersistableHelper.primaryKeyField(o.getClass());
+
+    List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(o.getClass());
+
+
+
+    if (primaryKeyField == null && compoundPrimaryKeys.size() == 0){
+      throw new RuntimeException("Cannot delete a row with no primary key or compound primary keys - use sql to delete the row instead of the method deleteFromDatabase().");
+    }
+
+
+    // Single primary key.
+    if (primaryKeyField != null){
+      String primaryKeyColumnName = GcPersistableHelper.columnName(primaryKeyField);
+
+      Object primaryKey = null;
+
+      try {
+        primaryKey = primaryKeyField.get(o);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } 
+
+      String tableName = GcPersistableHelper.tableName(o.getClass());
+
+      String sqlToUse = "delete from " + tableName + " where " + primaryKeyColumnName + " = ? ";
+
+      this.sql(sqlToUse);
+      this.bindVars(primaryKey);
+      this.executeSql();
+
+      return;
+    }
+
+
+
+    // Multiple column primary key.
+    if (compoundPrimaryKeys.size() > 0){
+      List<Object> theBindVariables = new ArrayList<Object>();
+
+      String theSql = "delete from " + GcPersistableHelper.tableName(o.getClass()) + " where ";
+
+      // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
+      for (Field compoundPrimaryKey : compoundPrimaryKeys){
+        Object fieldValue = null;
+        try {
+          fieldValue = compoundPrimaryKey.get(o);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } 
+        theSql += GcPersistableHelper.columnName(compoundPrimaryKey) + " = ? and ";
+        theBindVariables.add(fieldValue);
+      }
+      theSql = theSql.substring(0, theSql.length() - 4);
+
+      this.sql(theSql);
+      this.bindVars(theBindVariables);
+      this.executeSql();
+    }
+
+  }
+
+
+  /**
+   * Store the given objects to the database in one transaction - the object should have appropriate annotations from the PersistableX annotations.
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects are the object to store to the database.
+   */
+  public void storeListToDatabase(final List<? extends Object> objects){
+    this.callbackTransaction(Boolean.class, new GcTransactionCallback<Boolean>() {
+      /**
+       * @see edu.upenn.isc.esbUtilities.jdbc.GcTransactionCallback#callback(edu.upenn.isc.esbUtilities.GcDbAccess.DbAccess)
+       */
+      @Override
+      public Boolean callback(GcDbAccess dbAccess) {
+        for (Object object : objects){
+          dbAccess.storeToDatabase(object);
+        }
+        return true;
+      }
+    });
+  }
+
+
+  /**
+   * Store the given object to the database - the object should have appropriate annotations from the PersistableX annotations.
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param o is the object to store to the database.
+   */
+  public void storeToDatabase(Object o){
+
+    if (!StringUtils.isBlank(this.sql) && !this.useTransaction){
+      throw new RuntimeException("Cannot use both sql and set an object to store.");
+    }
+
+    Map<String, Object> columnNamesAndValues = new HashMap<String, Object>();
+    Object primaryKeyValue = null;
+
+    // Get the primary key.
+    Field primaryKey = GcPersistableHelper.primaryKeyField(o.getClass());
+
+    List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(o.getClass());
+
+    try{
+      // Get column names and values
+      for (Field field: GcPersistableHelper.heirarchicalFields(o.getClass())){
+        field.setAccessible(true);
+        // We are putting everything in here except the primary key because we may have to go out and get a primary key shortly
+        // unless the primary key is manually assigned, in which case it can go in here.
+        if ((primaryKey == null && GcPersistableHelper.isPersist(field, o.getClass())) || ( GcPersistableHelper.isPersist(field, o.getClass()) && (GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field)))){
+          columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(o));
+        }
+      }
+
+      String sqlToUse = "";
+      List<Object> bindVarstoUse = new ArrayList<Object>();
+
+      // Update if we are already saved.
+      if (isPreviouslyPersisted(o)){
+        sqlToUse =  " update " + GcPersistableHelper.tableName(o.getClass()) + " set ";
+        for (String columnName : columnNamesAndValues.keySet()){
+          sqlToUse += " " + columnName + " = ?, " ;
+          bindVarstoUse.add(columnNamesAndValues.get(columnName));
+        }
+        sqlToUse = GrouperClientUtils.removeEnd(sqlToUse, ", ");
+
+
+        if (primaryKey != null){
+          sqlToUse += " where " + GcPersistableHelper.columnName(primaryKey) + " = ? ";
+          bindVarstoUse.add(primaryKey.get(o));
+        } else if (compoundPrimaryKeys.size() > 0){
+
+          sqlToUse += " where ";
+
+          // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
+          for (Field compoundPrimaryKey : compoundPrimaryKeys){
+            Object fieldValue = null;
+            try {
+              fieldValue = compoundPrimaryKey.get(o);
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            } 
+            sqlToUse += GcPersistableHelper.columnName(compoundPrimaryKey) + " = ? and ";
+            bindVarstoUse.add(fieldValue);
+          }
+          sqlToUse = sqlToUse.substring(0, sqlToUse.length() - 4);
+        }
+      } else {
+
+        // Else insert.
+        sqlToUse =  " insert into " + GcPersistableHelper.tableName(o.getClass()) + " ( ";
+        String bindVarString = "values (";
+        for (String columnName : columnNamesAndValues.keySet()){
+          sqlToUse +=  columnName + "," ;
+          bindVarString += "?,";
+          bindVarstoUse.add(columnNamesAndValues.get(columnName));
+        }
+
+        // Get a primary key from the sequence if it is not manually assigned.
+        if (primaryKey != null && !GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) && !GcPersistableHelper.findPersistableClassAnnotation(o.getClass()).hasNoPrimaryKey()){
+
+          sqlToUse += GcPersistableHelper.columnName(primaryKey);
+          sqlToUse += ") ";
+
+          primaryKeyValue = considerTransaction()
+              .sql(" select " + GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval from dual")
+              .select(primaryKey.getType());
+
+          bindVarstoUse.add(primaryKeyValue);
+          bindVarString += "?) ";
+
+        } else {
+          sqlToUse = GrouperClientUtils.removeEnd(sqlToUse, ",") + ") ";
+          bindVarString = GrouperClientUtils.removeEnd(bindVarString, ",") + ") ";
+        }
+
+
+        sqlToUse += bindVarString;
+      }
+
+      // Execute the insert or update.
+      this.sql(sqlToUse);
+      this.bindVars(bindVarstoUse);
+      this.executeSql();
+
+      // Set the primary key if it was an insert and we grabbed a new one.
+      if (primaryKeyValue != null){
+        boundDataConversion.setFieldValue(o, primaryKey, primaryKeyValue);
+      }
+
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+  }
+
+
+  /**
+   * <pre>Store the given objects to the database in a batch - 
+   * the objects should have appropriate annotations from the PersistableX annotations.
+   * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
+   * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
+   * sqls in a batch but do not support bind variables when using this capability.</pre>
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects is the list of objects to store to the database.
+   * @param batchSize is the size of the batch to insert or update in.
+   */
+  public void storeBatchToDatabase(final List<Object> objects, final int batchSize){
+    storeBatchToDatabase(objects, batchSize, false);
+  }
+
+  /**
+   * <pre>Store the given objects to the database in a batch - 
+   * the objects should have appropriate annotations from the PersistableX annotations.
+   * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
+   * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
+   * sqls in a batch but do not support bind variables when using this capability.</pre>
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects is the list of objects to store to the database.
+   * @param batchSize is the size of the batch to insert or update in.
+   * @param omitPrimaryKeyPopulation if you DON'T need primary keys populated into your objects, you can set this and save some query time since
+   * we will just set the primary key population as "some_sequence.nextval" instead of selecting it manually before storing the object.
+   */
+  public void storeBatchToDatabase(final List<Object> objects, final int batchSize, final boolean omitPrimaryKeyPopulation){
+
+    if (objects == null || objects.size() == 0){
+      return;
+    }
+
+    GcDbAccess dbAccess = this.cloneDbAccess();
+    final List<Object> objectsToStore = new ArrayList<Object>();
+    final List<Object> objectsToReturn = new ArrayList<Object>();
+
+    dbAccess.callbackTransaction(Boolean.class, new GcTransactionCallback<Boolean>() {
+
+      @Override
+      public Boolean callback(GcDbAccess dbAccessForStorage) {
+
+        for (int i=0; i < objects.size(); i++){
+
+          // Add it.
+          objectsToStore.add(objects.get(i));
+
+          // If we have one batch or are at the end, store it.
+          if (objectsToStore.size() >= batchSize || i == objects.size() -1){
+            dbAccessForStorage.storeBatchToDatabase(objectsToStore, omitPrimaryKeyPopulation);
+            objectsToReturn.addAll(objectsToStore);
+            objectsToStore.clear();
+          }
+        }
+
+        return null;
+      }
+    });
+
+    int existingLength = objects.size();
+    objects.clear();
+    objects.addAll(objectsToReturn);
+    if (objects.size() != existingLength){
+      throw new RuntimeException("There should have been " + existingLength + " objects returned but there are only " + objects.size() + "!");
+    }
+  }
+
+
+  /**
+   * <pre>Store the given objects to the database in a batch - 
+   * the objects should have appropriate annotations from the PersistableX annotations.
+   * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
+   * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
+   * sqls in a batch but do not support bind variables when using this capability.</pre>
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects is the list of objects to store to the database.
+   */
+  public void storeBatchToDatabase(List<Object> objects){
+    storeBatchToDatabase(objects, false);
+  }
+
+
+  /**
+   * <pre>Store the given objects to the database in a batch - 
+   * the objects should have appropriate annotations from the PersistableX annotations.
+   * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
+   * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
+   * sqls in a batch but do not support bind variables when using this capability.</pre>
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects is the list of objects to store to the database.
+   * @param omitPrimaryKeyPopulation if you DON'T need primary keys populated into your objects, you can set this and save some query time since
+   * we will just set the primary key population as "some_sequence.nextval" instead of selecting it manually before storing the object.
+   */
+  public void storeBatchToDatabase(List<Object> objects, boolean omitPrimaryKeyPopulation){
+
+    // No data nothing to do.
+    if (objects == null || objects.size() == 0){
+      return;
+    }
+
+    // We only want to formulate insert or update sql one time.
+    String insertSql = null;
+    String updateSql = null;
+    boolean updateSqlInitialized = false;
+    boolean insertSqlInitialized = false;
+
+    if (!StringUtils.isBlank(this.sql) && !this.useTransaction){
+      throw new RuntimeException("Cannot use both sql and set objects to store.");
+    }
+
+ 
+
+    // Get the primary key or primary keys.
+    Field primaryKey = GcPersistableHelper.primaryKeyField(objects.get(0).getClass());
+
+    // Get any compound primary keys
+    List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(objects.get(0).getClass());
+
+    // Get a list of all fields in the class.
+    List<Field> allFields = GcPersistableHelper.heirarchicalFields(objects.get(0).getClass());
+    
+    // Create a map indicating which fields are to be included as bind variables.
+    Map<Field, Boolean> fieldAndIncludeStatuses = new HashMap<Field, Boolean>();
+    
+    // Get field and the status of inclusion.
+    for (Field field : allFields){
+      field.setAccessible(true);
+      // We are putting everything in here except the primary key because we may have to go out and get a primary key shortly
+      // unless the primary key is manually assigned, in which case it can go in here.
+      if ((primaryKey == null && GcPersistableHelper.isPersist(field, objects.get(0).getClass())) || ( GcPersistableHelper.isPersist(field, objects.get(0).getClass()) && (GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field)))){
+        fieldAndIncludeStatuses.put(field, true);
+      } else {
+        fieldAndIncludeStatuses.put(field, false);
+      }
+    }
+    
+    try{
+
+
+      // List of lists of bind variables.
+      List<List<Object>> listsOfBindVars = new ArrayList<List<Object>>();
+
+      // Store the primary keys back to the object after we save successfully.
+      Map<Integer, Object> indexOfObjectAndPrimaryKeyToSet = new HashMap<Integer, Object>();
+      int objectIndex = 0;
+
+      for (Object object : objects){
+        
+        Map<String, Object> columnNamesAndValues = new HashMap<String, Object>();
+                
+        // Get column names and values
+        for (Field field : allFields){
+          if (fieldAndIncludeStatuses.get(field)){
+            columnNamesAndValues.put(GcPersistableHelper.columnName(field), field.get(object));
+          }
+        }
+        
+        // The bind vars for the given object.
+        List<Object> bindVarstoUse = new ArrayList<Object>();
+
+        // Update if we are already saved.
+        if (isPreviouslyPersisted(object)){
+
+          // Create the sql.
+          if (!updateSqlInitialized){
+            updateSql =  " update " + GcPersistableHelper.tableName(object.getClass()) + " set ";
+            for (String columnName : columnNamesAndValues.keySet()){
+              updateSql += " " + columnName + " = ?, " ;
+            }
+            updateSql = GrouperClientUtils.removeEnd(updateSql, ", ");
+          }
+
+          // Populate the bind vars.
+          for (String columnName : columnNamesAndValues.keySet()){
+            bindVarstoUse.add(columnNamesAndValues.get(columnName));
+          }
+
+          // If there is a primary key add that statement.
+          if (primaryKey != null){
+            if (!updateSqlInitialized){
+              updateSql += " where " + GcPersistableHelper.columnName(primaryKey) + " = ? ";
+            }
+            bindVarstoUse.add(primaryKey.get(object));
+          } else if (compoundPrimaryKeys.size() > 0){
+
+            // There are multiple primary keys.
+            if (!updateSqlInitialized){
+              updateSql += " where ";
+            }
+
+            // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
+            for (Field compoundPrimaryKey : compoundPrimaryKeys){
+              Object fieldValue = null;
+              try {
+                fieldValue = compoundPrimaryKey.get(object);
+                bindVarstoUse.add(fieldValue);
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              } 
+              if (!updateSqlInitialized){
+                updateSql += GcPersistableHelper.columnName(compoundPrimaryKey) + " = ? and ";
+              }
+            }
+            if (!updateSqlInitialized){
+              updateSql = updateSql.substring(0, updateSql.length() - 4);
+            }
+          }
+
+          // Store the fact that we made the sql and store the bind vars and sql.
+          updateSqlInitialized = true;
+          listsOfBindVars.add(bindVarstoUse);
+
+        } else {
+
+          // Else insert.
+          String bindVarString = "";
+          if (!insertSqlInitialized){
+            insertSql =  " insert into " + GcPersistableHelper.tableName(object.getClass()) + " ( ";
+            bindVarString = "values (";
+            for (String columnName : columnNamesAndValues.keySet()){
+              insertSql +=  columnName + "," ;
+              bindVarString += "?,";
+            }
+          }
+
+          for (String columnName : columnNamesAndValues.keySet()){
+            bindVarstoUse.add(columnNamesAndValues.get(columnName));
+          }
+
+          // Get a primary key from the sequence if it is not manually assigned.
+          if (primaryKey != null && !GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) && !GcPersistableHelper.findPersistableClassAnnotation(object.getClass()).hasNoPrimaryKey()){
+
+            // Make the sql.
+            if (!insertSqlInitialized){
+              insertSql += GcPersistableHelper.columnName(primaryKey);
+              insertSql += ") ";
+              if (!omitPrimaryKeyPopulation){
+                bindVarString += "?) ";
+              } else {
+                bindVarString += GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval) ";
+              }
+            }
+
+            // Get the primary key.
+            if (!omitPrimaryKeyPopulation){
+              Object primaryKeyValue = considerTransaction()
+                  .sql(" select " + GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval from dual")
+                  .select(primaryKey.getType().getClass());
+              bindVarstoUse.add(primaryKeyValue);
+              indexOfObjectAndPrimaryKeyToSet.put(objectIndex, primaryKeyValue);
+            }
+
+          } else {
+            if (!insertSqlInitialized){
+              insertSql = GrouperClientUtils.removeEnd(insertSql, ",") + ") ";
+              bindVarString = GrouperClientUtils.removeEnd(bindVarString, ",") + ") ";
+            }
+          }
+
+          if (!insertSqlInitialized){
+            insertSql += bindVarString;
+          }
+
+          // Store the fact that we made the sql and store the bind vars and sql.
+          insertSqlInitialized = true;
+          listsOfBindVars.add(bindVarstoUse);
+        }
+
+        objectIndex++;
+      }
+
+
+      // See which sql we need to send it.
+      if (updateSql != null && insertSql != null){
+        throw new RuntimeException("It is not possible to mix updates and inserts in one batch; Statement supports it but not with bind variables so we do not support it.");
+      } else if (updateSql == null && insertSql == null){
+        throw new RuntimeException("No sql was created!");
+      } 
+
+
+      // Execute the sql.
+      this.batchBindVars(listsOfBindVars);
+      this.sql(updateSql != null ? updateSql : insertSql);
+      this.executeBatchSql();
+      this.sql(null);
+      this.batchBindVars(null);
+
+
+      // Set the primary keys if there were inserts and we got new ones.
+      for (Integer objectIndexInList : indexOfObjectAndPrimaryKeyToSet.keySet()){
+        boundDataConversion.setFieldValue(objects.get(objectIndexInList), primaryKey, indexOfObjectAndPrimaryKeyToSet.get(objectIndexInList));
+      }
+
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+  }
+
+
+  /**
+   * <pre>For each row of a given resultset, hydrate an object and pass it to the callback.</pre>
+   * @param <T>
+   * @param clazz is the type of thing passed to the entity callback.
+   * @param entityCallback is the callback object that receives this dbAccess with a session set up. 
+   */
+  public <T> void callbackEntity(Class<T> clazz, GcEntityCallback<T> entityCallback){
+    selectList(clazz, entityCallback);
+  }
+
+
+
+
+  /**
+   * <pre>Use a transaction for all calls that happen within this callback. Upon success with no exceptions thrown,
+   * commit is called automatically. Upon failure, rollback it called. You may also call dbAccess.setTransactionEnd()
+   * within the callback block.</pre>
+   * @param clazz is the type of thing being returned.
+   * @param <T>  is the type of thing being returned.
+   * @param transactionCallback is the callback object that receives this dbAccess with a session set up. 
+   * @return the thing that you want to return.
+   */
+  public <T> T callbackTransaction(Class<T> clazz, GcTransactionCallback<T> transactionCallback){
+    this.useTransaction = true;
+
+    this.transactionEnd = TransactionEnd.commit;
+
+    try {
+      return transactionCallback.callback(this);
+    } catch (Exception e){
+      this.transactionEnd = TransactionEnd.rollback;
+      throw new RuntimeException("Rollback for session due to failure:  " + e.getMessage(), e);
+    } finally {
+      this.endConnection();
+      this.transactionEnded = true;
+    }
+  }
+
+
+  /**
+   * If using a transaction, commit.
+   */
+  public void commitTransaction(){
+    if (this.useTransaction != true){
+      throw new RuntimeException("useTransaction() must be set before commit can be called!");
+    }
+    if (this.connection == null){
+      throw new RuntimeException("Connection was never set!");
+    }
+
+    // Commit, then close.
+    try {
+      this.connection.commit();
+    } catch (SQLException e) {
+      throw new RuntimeException("Issues attempting to commit transaction!", e);
+    }
+  }
+
+
+
+
+  /**
+   * If using a transaction, commit or rollback.
+   */
+  private void endConnection(){
+    if (this.useTransaction != true){
+      throw new RuntimeException("useTransaction() must be set before commit can be called!");
+    }
+
+
+    // If they made a transaction callback but never made a query, 
+    // there may be noo connection - that's ok.
+    if (this.connection == null){
+      return;
+    }
+
+    // Rollback or commit, then close.
+    try{
+      switch (this.transactionEnd) {
+        case commit:
+          this.connection.commit();
+          break;
+        case rollback:
+          this.connection.rollback();
+      }
+    } catch (Exception e){
+      try {
+        this.connection.close();
+      } catch (Exception e2){
+      }
+      throw new RuntimeException(e);
+    } finally {
+      try {
+        this.connection.close();
+      } catch (Exception e){
+      }
+    }
+  }
+
+
+  /**
+   * Select a map of something from the database - set sql() before calling - this will return a map with column name and column value - this should only select one row from the database.
+   * @param keyClass is the class of the key.
+   * @param valueClass is the class of the value.
+   * @param <K> 
+   * @param <V> 
+   * @return the map or null if nothing is found..
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public <K, V> Map<K,V>  selectMap(Class<K> keyClass, Class<V> valueClass){
+
+    List<Map> list = selectList(Map.class);
+    if (list.size() == 0){
+      return null;
+    }
+
+    if (list.size() > 1){
+      throw new RuntimeException("Only one object expected but " + list.size() + " were returned for sql " + this.sql);
+    }
+
+    // If it is  a map with a string key, we'll be nice and put it into a case ignore map to make it easier on people.
+    if (keyClass.equals(String.class)){
+      Map mapToReturn = new GcCaseIgnoreHashMap();
+      for (Object key : list.get(0).keySet()){
+        mapToReturn.put(String.valueOf(key), boundDataConversion.getFieldValue(valueClass, list.get(0).get(key)));
+      }
+      return mapToReturn;
+    }
+
+    // Else just make sure that the data conversion from the database happens.
+    Map mapToReturn = new HashMap<K, V>();
+    for (Object key : list.get(0).keySet()){
+      mapToReturn.put(key, boundDataConversion.getFieldValue(valueClass, list.get(0).get(key)));
+    }
+    return mapToReturn;
+  }
+
+
+
+
+  /**
+   * Select a map of two column values from the database - set sql() before calling - the first column in the sql will be used for  the map keys and the second will be used for the map values.
+   * @param keyClass is the class of the key.
+   * @param valueClass is the class of the value.
+   * @param <K> 
+   * @param <V> 
+   * @return the map or null if nothing is found..
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public <K, V> Map<K,V>  selectMapMultipleRows(Class<K> keyClass, Class<V> valueClass){
+
+    List<Map> list = selectList(Map.class);
+    if (list.size() == 0){
+      return null;
+    }
+
+    Iterator columnNames = list.get(0).keySet().iterator();
+    Object keyName = columnNames.next();
+    Object valueName = columnNames.next();
+
+
+    // Else just make sure that the data conversion from the database happens.
+    Map<K, V> mapToReturn = new HashMap<K, V>();
+    for (Map theMap : list){
+      mapToReturn.put((K)theMap.get(keyName), boundDataConversion.getFieldValue(valueClass, theMap.get(valueName)));
+    }
+    return mapToReturn;
+  }
+
+
+
+
+  /**
+   * Select a map of rows from the database with column name as key and valueClass as value (should be Object if types differ)  from the database - set sql() before calling
+   * Example: select first_name, last_name, middle_name from person where rownum < 3:
+   * 
+   * List(0)
+   * Map key      Map value
+   * first_name   Fred
+   * last_name    Jones
+   * middle_name  Percival
+   * List(1)
+   * Map key      Map value
+   * first_name   Jeanette
+   * last_name    Shawna
+   * middle_name  Percival
+   * </pre>
+   * 
+   * @return the map or null if nothing is found..
+   */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public List<GcCaseIgnoreHashMap>  selectListMap(){
+
+    List<Map> list = selectList(Map.class);
+
+    // Be nice and put it into a case ignore map to make it easier on people.
+    List<GcCaseIgnoreHashMap> newList = new ArrayList<GcCaseIgnoreHashMap>();
+    for (Map map : list){
+      GcCaseIgnoreHashMap mapToReturn= new GcCaseIgnoreHashMap();
+      mapToReturn.putAll(map);
+      newList.add(mapToReturn);
+    }
+
+    return newList;
+  }
+
+
+  /**
+   * <pre>Select a map of key : column name and value : column value from the database - set sql() before calling.
+   * Example: select first_name, last_name, middle_name from person:
+   * Map key      Map value
+   * first_name   Fred
+   * last_name    Jones
+   * middle_name  Percival
+   * </pre>
+   * @return the map or null if nothing is found..
+   */
+  public GcCaseIgnoreHashMap selectMapMultipleColumnsOneRow(){
+
+    List<GcCaseIgnoreHashMap> caseIgnoreHashMaps = selectListMap();
+
+    if (caseIgnoreHashMaps.size() > 1){
+      throw new RuntimeException("More than one row was returned for query " + this.sql);
+    }
+    if (caseIgnoreHashMaps.size() == 1){
+      return caseIgnoreHashMaps.get(0);
+    }
+    return null;
+  }
+
+
+
+  /**
+   * Select something from the database - either set sql() before calling or primaryKey() 
+   * @param <T> is the type of object that will be returned.
+   * @param clazz  is the type of object that will be returned.
+   * @return anything.
+   */
+  @SuppressWarnings("unchecked")
+  public <T>T  select (Class<T> clazz){
+
+    // See if we are caching and we have it in cache.
+    if (this.cacheMinutes != null){
+      Object cachedObject = this.selectFromQueryCache(false, clazz);
+      if (cachedObject != null){
+        return (T)cachedObject;
+      }
+    }
+
+    List<T> list = selectList(clazz, true);
+    if (list.size() == 0){
+      return null;
+    }
+
+    if (list.size() > 1){
+      throw new RuntimeException("Only one object expected but " + list.size() + " were returned for sql " + this.sql);
+    }
+
+    // See if we are caching and store it in cache.
+    if (this.cacheMinutes != null){
+      this.populateQueryCache(clazz, list.get(0), false);
+    }
+
+    return list.get(0);
+  }
+
+
+  /**
+   * Select something from the database - either set sql() before calling or primaryKey(...) 
+   * @param <T> is the type of object that will be returned.
+   * @param clazz  is the type of object that will be returned.
+   * @return anything.
+   */
+  public <T> List<T> selectList (final Class<T> clazz){
+    return selectList(clazz, false);
+  }
+  
+  
+
+  /**
+   * Select something from the database - either set sql() before calling or primaryKey(...) 
+   * @param <T> is the type of object that will be returned.
+   * @param clazz  is the type of object that will be returned.
+   * @param calledFromSelect is whether the calling method is select, just for caching purposes.
+   * @return anything.
+   */
+  @SuppressWarnings("unchecked")
+  private <T> List<T> selectList (final Class<T> clazz, boolean calledFromSelect){
+    // See if we are caching and we have it in cache if we are not being called from select.
+    if (!calledFromSelect){
+      if (this.cacheMinutes != null){
+        Object cachedObject = this.selectFromQueryCache(true, clazz);
+        if (cachedObject != null){
+          return (List<T>)cachedObject;
+        }
+      }
+    }
+
+
+    List<T> resultList = selectList(clazz, null);
+
+    if (!calledFromSelect){
+      // See if we are caching and store it in cache.
+      if (this.cacheMinutes != null){
+        this.populateQueryCache(clazz, resultList, true);
+      }
+    }
+
+    return resultList;
+  }
+
+
+  /**
+   * Select something from the database - either set sql() before calling or primaryKey(...) 
+   * @param <T> is the type of object that will be returned.
+   * @param clazz  is the type of object that will be returned.
+   * @param entityCallback is a callback made for each row of data hydrated to an entity, may be null if actually returning the list.
+   * @return anything.
+   */
+  private  <T> List<T> selectList (final Class<T> clazz, final GcEntityCallback<T> entityCallback){
+
+    // Can't select by primary key and sql at the same time.
+    if ((this.primaryKeys != null && (this.sql != null || this.example != null))
+        || (this.sql != null && (this.primaryKeys != null || this.example != null)) 
+        || (this.example != null && (this.primaryKeys != null || this.sql != null))){
+      throw new RuntimeException("Set sql(), primaryKey(), or example() but not more than one! primaryKey() will formulate sql.");
+    }
+
+
+    // Get a list of the columns that we are selecting.
+    List<String> columnNamesList = new ArrayList<String>();
+    for (Field field : GcPersistableHelper.heirarchicalFields(clazz)){
+      if (GcPersistableHelper.isSelect(field, clazz)){
+        String columnName = GcPersistableHelper.columnName(field);
+        columnNamesList.add(columnName);
+      }
+    }
+    String columnNames = StringUtils.join(columnNamesList.iterator(), ",");
+
+
+    // If we have a primary key or a list of primary keys, select by them.
+    if (this.primaryKeys != null){
+      if (this.bindVars != null){
+        throw new RuntimeException("Set bindVars() or primaryKey() but not both! primaryKey() will formulate sql.");
+      }
+
+      // Get the primary key field.
+      Field primaryKeyField = GcPersistableHelper.primaryKeyField(clazz);
+
+      String theSql = " select " + columnNames + " from " + GcPersistableHelper.tableName(clazz) + " where " +   GcPersistableHelper.columnName(primaryKeyField);
+      if (this.primaryKeys.size() == 1){
+        theSql += " = ? ";
+        this.bindVars(this.primaryKeys.get(0));
+      } else if (this.primaryKeys.size() > 1) {
+        theSql += " in (";
+        for (int i = 0; i < this.primaryKeys.size(); i++){
+          theSql += "?,";
+        }
+        theSql = GrouperClientUtils.removeEnd(theSql, ",") + ")";
+        this.bindVars(this.primaryKeys);
+      } 
+      this.sql(theSql);
+
+      // They used no sql and no primary key - that means that we are selecting everything from the table.
+    } else if (this.sql == null && this.example == null){
+      this.sql(" select " + columnNames + " from " + GcPersistableHelper.tableName(clazz));
+    } else if (this.example != null){
+
+      // Make the sql and bind variables.
+      String theSql = " select * from " + GcPersistableHelper.tableName(clazz) + " where ";
+      String whereClauseToUse = "";
+      List<Object> bindVarstoUse = new ArrayList<Object>();
+
+      // We are selecting by example, get all values from the example object and put them into the where clause.
+      for (Field field: GcPersistableHelper.heirarchicalFields(clazz)){
+        field.setAccessible(true);
+        try{
+          if (GcPersistableHelper.isSelect(field, clazz) && !GcPersistableHelper.isPrimaryKey(field)){
+
+            // Get the value of the field.
+            Object fieldValue = field.get(this.example);
+
+            // See if we are omitting null values from the comparison.
+            if (this.omitNullValuesForExample && fieldValue == null){
+              continue;
+            }
+
+            // All strings get wrapped in to_char for comparison by example - this allows us to compare on clobs.
+            String columnName = "";
+            if (field.getType().equals(String.class)){
+              columnName = "to_char(" + GcPersistableHelper.columnName(field) + ")";
+              if (fieldValue != null){
+                bindVarstoUse.add(fieldValue);
+              }
+            } else if (field.getType().equals(Date.class)){
+              columnName = "to_char(" + GcPersistableHelper.columnName(field) + ", 'MM/DD/YYYY HH24:MI:SS')";
+              if (fieldValue != null){
+                bindVarstoUse.add(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format((Date)fieldValue));
+              }
+            } else {
+              columnName =  GcPersistableHelper.columnName(field);
+              if (fieldValue != null){
+                bindVarstoUse.add(fieldValue);
+              }
+            }
+            String bindOrEquals = (fieldValue == null ? " is null and " : " = ? and ");
+            whereClauseToUse += columnName + bindOrEquals;
+
+          }
+        } catch (Exception e){
+          throw new RuntimeException("Issues encountered trying to read field " + field.getName() + " in class " + this.example.getClass(), e);
+        }
+      }
+      whereClauseToUse = GrouperClientUtils.removeEnd(whereClauseToUse, "and ");
+
+      theSql += whereClauseToUse;
+      this.sql(theSql);
+      this.bindVars(bindVarstoUse);
+    } 
+
+
+    // Callback on the resultset and create the list of objects, attempting
+    // to assign to class fields if T is a PersistableBase, else assign directly to T.
+    Long startTime = System.currentTimeMillis();
+    String sqlToRecord = this.sql;
+    List<T> list = this.callbackResultSet(new GcResultSetCallback<List<T>>() {
+
+      @Override
+      public List<T> callback(ResultSet resultSet) throws Exception {
+        List<T> theList = new ArrayList<T>();
+
+        // If we are selecting abig list we don't want to have to check every field on every object
+        // to see if we have a value in the resultSet, we just want to do it once, so store that here.
+        Map<String, Boolean> fieldIsIncludedInResults = new HashMap<String, Boolean>();
+
+        while (resultSet.next()){
+
+          // This is either an entity callback or we are adding stuff to a list.
+          if (entityCallback != null){
+            T t = addObjectToList(clazz, fieldIsIncludedInResults, resultSet, null);
+            boolean keepScrolling = entityCallback.callback(t);
+            if (!keepScrolling){
+              break;
+            }
+          } else {
+            addObjectToList(clazz, fieldIsIncludedInResults, resultSet, theList);
+          }
+        }
+
+        cleanupForReuse();
+        return theList;
+      }
+    });
+    addQueryToQueriesAndMillis(sqlToRecord, System.currentTimeMillis() - startTime, this);
+
+    cleanupForReuse();
+    return list;
+  }
+
+
+
+
+
+
+
+
+
+  /**
+   * Callback to get a callableStatement - commit is called if there is no exception thrown, otherwise rollback is called.
+   * @param <T> is what you are returning, must be a type but you can return null.
+   * @param callableStatementCallback is the callback object.
+   * @return whatever you return from the connection callback.
+   */
+  public  <T> T callbackCallableStatement (GcCallableStatementCallback<T> callableStatementCallback){
+
+
+    CallableStatement callableStatement = null;
+
+    try{
+
+      // Make a new connection.
+      this.connection = dbResource().getDbConnectionProvider().openConnection();
+
+      // Don't auto commit.
+      this.connection.setAutoCommit(false);
+
+      // Create the callable statement.
+      callableStatement = this.connection.prepareCall(callableStatementCallback.getQuery());
+
+      // Execute sub logic.
+      Long startTime = System.currentTimeMillis();
+      T t = callableStatementCallback.callback(callableStatement);
+      addQueryToQueriesAndMillis(callableStatementCallback.getQuery(), System.currentTimeMillis() - startTime, this);
+
+      // Commit.
+      this.connection.commit();
+
+      return t;
+
+    } catch (Exception e){
+      try {
+        if (this.connection != null){
+          this.connection.rollback();
+        }
+      } catch (Exception e2){
+        throw new RuntimeException(e2);
+      }
+      throw new RuntimeException(e);
+    } finally{
+      try{
+        if (callableStatement != null){
+          callableStatement.close();
+        }
+      } catch (Exception e){
+        // Nothing to do here.
+      }
+      if (this.connection != null && this.useTransaction == false){
+        try {
+          this.connection.close();
+        } catch (Exception e){
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
+  }
+
+
+
+  /**
+   * Callback to get a preparedStatement - commit is called if there is no exception thrown, otherwise rollback is called.
+   * @param <T> is what you are returning, must be a type but you can return null.
+   * @param preparedStatementCallback is the callback object.
+   * @return whatever you return from the connection callback.
+   */
+  public  <T> T callbackPreparedStatement (GcPreparedStatementCallback<T> preparedStatementCallback){
+
+
+    PreparedStatement callableStatement = null;
+
+    try{
+
+      // Make a new connection.
+      this.connection = dbResource().getDbConnectionProvider().openConnection();
+
+      // Don't auto commit.
+      this.connection.setAutoCommit(false);
+
+      // Create the callable statement.
+      callableStatement = this.connection.prepareStatement(preparedStatementCallback.getQuery());
+
+      // Execute sub logic.
+      Long startTime = System.currentTimeMillis();
+      T t = preparedStatementCallback.callback(callableStatement);
+      addQueryToQueriesAndMillis(preparedStatementCallback.getQuery(), System.currentTimeMillis() - startTime, this);
+
+      // Commit.
+      this.connection.commit();
+
+      return t;
+
+    } catch (Exception e){
+      try {
+        if (this.connection != null){
+          this.connection.rollback();
+        }
+      } catch (Exception e2){
+        throw new RuntimeException(e2);
+      }
+      throw new RuntimeException(e);
+    } finally{
+      try{
+        if (callableStatement != null){
+          callableStatement.close();
+        }
+      } catch (Exception e){
+        // Nothing to do here.
+      }
+      if (this.connection != null && this.useTransaction == false){
+        try {
+          this.connection.close();
+        } catch (Exception e){
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
+  }
+
+
+
+
+  /**
+   * Callback to get a connection - commit is called if there is no exception thrown, otherwise rollback is called.
+   * @param <T> is what you are returning, must be a type but you can return null.
+   * @param connectionCallback is the callback object.
+   * @return whatever you return from the connection callback.
+   */
+  public  <T> T callbackConnection (ConnectionCallback<T> connectionCallback){
+
+    try{
+
+      // Make a new connection.
+      this.connection = dbResource().getDbConnectionProvider().openConnection();
+
+      // Don't auto commit.
+      this.connection.setAutoCommit(false);
+
+      // Execute sub logic.
+      Long startTime = System.currentTimeMillis();
+      T t = connectionCallback.callback(this.connection);
+      addQueryToQueriesAndMillis("Connection callback, SQL unknown", System.currentTimeMillis() - startTime, this);
+
+      // Commit.
+      this.connection.commit();
+
+      return t;
+
+    } catch (Exception e){
+      try {
+        if (this.connection != null){
+          this.connection.rollback();
+        }
+      } catch (Exception e2){
+        throw new RuntimeException(e2);
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (this.connection != null && this.useTransaction == false){
+        try {
+          this.connection.close();
+        } catch (Exception e){
+          throw new RuntimeException(e);
+        }
+      }
+    }
+
+  }
+
+
+
+  /**
+   * Callback a resultSet.
+   * @param <T> is the type of object that will be returned.
+   * @param resultSetCallback is the object to callback.
+   * @return anything return from the callback object.
+   */
+  public  <T> T callbackResultSet (GcResultSetCallback<T> resultSetCallback){
+
+    // At very least, we have to have sql and a connection.
+    checkIfReadyToExecute();
+
+    PreparedStatement preparedStatement = null;
+
+    // You cannot open or close a Natural conversation without a session.
+    if (this.useTransaction && (this.naturalCallType == NaturalCallType.EOC || this.naturalCallType == NaturalCallType.SOC)){
+      throw new RuntimeException("You may not open or close a conversation unless you are using a session");
+    }
+
+
+    try{
+
+      // See if we are using an already open connection - if not, make a new one.
+      if (this.connection == null){
+        this.connection = dbResource().getDbConnectionProvider().openConnection();
+
+        // Don't auto commit if we are using a transaction.
+        if (this.useTransaction){
+          this.connection.setAutoCommit(false);
+        }
+      }
+
+      // Get the statement object that we are going to use.
+      preparedStatement = this.connection.prepareStatement(this.sql);
+      String sqltoRecord = this.sql;
+
+
+      // Set the query timeout if there is one.
+      if (this.queryTimeoutSeconds != null){
+        preparedStatement.setQueryTimeout(this.queryTimeoutSeconds);
+      }
+
+      // Add bind variables if we have them.
+      if (this.bindVars != null){
+        int i = 1;
+        for (Object bindVar : this.bindVars){
+          boundDataConversion.addBindVariableToStatement(preparedStatement, bindVar, i);
+          i++;
+        }
+      }
+
+      // Add batch bind variables if we have them.
+      if(this.batchBindVars != null){
+        for (List<Object> theBindVars : this.batchBindVars){
+          int i = 1;
+          for (Object bindVar : theBindVars){
+            boundDataConversion.addBindVariableToStatement(preparedStatement, bindVar, i);
+            i++;
+          }
+          preparedStatement.addBatch();
+        }
+      }
+
+      // Internally, we use this without a resultset callback.
+      if (resultSetCallback == null){
+
+        // Add batch bind variables if we have them.
+        if(this.batchBindVars != null){
+          Long startTime = System.currentTimeMillis();
+          this.numberOfBatchRowsAffected = preparedStatement.executeBatch();
+          addQueryToQueriesAndMillis(sqltoRecord, System.currentTimeMillis() - startTime, this);
+          return null;
+        } 
+
+        Long startTime = System.currentTimeMillis();
+        this.numberOfRowsAffected = preparedStatement.executeUpdate();
+        addQueryToQueriesAndMillis(sqltoRecord, System.currentTimeMillis() - startTime, this);
+        return null; 
+      }
+
+      // Externally, it is used as a callback.
+      ResultSet rs = preparedStatement.executeQuery();
+      return resultSetCallback.callback(rs);
+
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    } finally {
+      if (preparedStatement != null){
+        try {
+          preparedStatement.close();
+        } catch (Exception e){
+          throw new RuntimeException(e);
+        }
+      }
+      if (this.connection != null && this.useTransaction == false){
+        try {
+          this.connection.close();
+        } catch (Exception e){
+          throw new RuntimeException(e);
+        }
+      }
+    }
+  }
+
+
+  /**
+   * Execute some sql.
+   * @return anything return from the callback object.
+   */
+  public int executeSql(){
+    if (this.batchBindVars != null){
+      throw new RuntimeException("Use executeBatchSql() with batchBindVars!");
+    }
+
+    callbackResultSet(null);
+
+    cleanupForReuse();
+    return this.numberOfRowsAffected;
+  }
+
+
+  /**
+   * Execute some sql as a batch.
+   * @return anything return from the callback object.
+   */
+  public int[] executeBatchSql(){
+    if (this.bindVars != null){
+      throw new RuntimeException("Use batchBindVars with executeBatchSql(), not bindVars!");
+    }
+    callbackResultSet(null);
+    cleanupForReuse();
+    return this.numberOfBatchRowsAffected;
+  }
+
+  /**
+   * Throw an exception if we don't have enough stuff to make the call.
+   */
+  private void checkIfReadyToExecute(){
+    if (dbResource() == null){
+      throw new RuntimeException("No connection provider was set - either call dbAccess.dbResourceName() or " +
+          "ensure that a default is set by calling DbResource.setDefaultConnectionFriendlyName().");
+    }
+    if (this.sql == null){
+      throw new RuntimeException("You must set sql!");
+    }
+    if (this.transactionEnded){
+      throw new RuntimeException("You may not use a DbAccess instance past the scope of a GcTransactionCallback!");
+    }
+  }
+
+
+
+  /**
+   * <pre>Create a base POJO from a table, also a child class. Never replace the child class if it already exists.
+   * You will have to refresh your project after running this method - a Base bean will appear in the package
+   * edu.upenn.isc.esb.PROJECT_NAME.beans.generated and a child bean will appear in the package edu.upenn.isc.esb.PROJECT_NAME.beans.</pre>
+   * @param tableName is tha table name to create it from, this can also contain schema name such as SCHEMA.TABLE.
+   */
+  public void createPojoFromTable(String tableName){
+    createPojoFromTable(tableName, null);
+  }
+
+
+  /**
+   * Create the object of type T from the resultSet and add it to the list if the list is not null.
+   * @param clazz is the class type to return.
+   * @param fieldIsIncludedInResults is a map that allows us to check if the resultset field maps to the object only once for each query.
+   * @param resultSet is the row of data.
+   * @param theList is the list to add to if not null.
+   * @param <T> is the class type to return.
+   * @return the object.
+   * @throws Exception 
+   */
+  private <T> T addObjectToList(Class<T> clazz, Map<String, Boolean> fieldIsIncludedInResults, ResultSet resultSet, List<T> theList) throws Exception{
+    // We are either setting fields of a class that has at least one persistable annotation.
+    if (GcPersistableHelper.hasPersistableAnnotation(clazz)){
+
+      // Make a new instance to assign properties to.
+      T t = clazz.newInstance();
+
+      // Check each field of the class for persistability and try to assign if if possible.
+      for (Field field : GcPersistableHelper.heirarchicalFields(clazz)){
+        if (GcPersistableHelper.isSelect(field, clazz)){
+          String columnName = GcPersistableHelper.columnName(field);
+
+          // Make sure that we have the column data.
+          Boolean columnInQueryResults = fieldIsIncludedInResults.get(columnName);
+          if (columnInQueryResults == null){
+            try {
+              resultSet.findColumn(columnName);
+              fieldIsIncludedInResults.put(columnName, new Boolean(true));
+              columnInQueryResults = new Boolean(true);
+            } catch (SQLException e){
+              fieldIsIncludedInResults.put(columnName, new Boolean(false));
+              columnInQueryResults = new Boolean(false);
+            }
+          }
+          if (columnInQueryResults){
+            Object value = resultSet.getObject(columnName);
+            boundDataConversion.setFieldValue(t, field, value);
+          }
+        }
+      }
+      // Add the hydrated object to the list.
+      if (theList != null){
+        theList.add(t);
+      }
+      return t;
+    } 
+
+
+    // If someone is selecting a list of Map then we are just going to put the object and column name in the map.
+    if (clazz.isAssignableFrom(Map.class)){
+      int columnCount = resultSet.getMetaData().getColumnCount();
+      Map<Object, Object> results = new LinkedHashMap<Object, Object>();
+      for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
+        results.put(resultSet.getMetaData().getColumnName(columnNumber), resultSet.getObject(columnNumber));
+      }
+      @SuppressWarnings("unchecked")
+      T t = (T)results;
+      if (theList != null){
+        theList.add(t);
+      }
+      return t;
+    }
+
+
+    // Or we are just returning a primitive or single object such as Long, etc.
+    T t = boundDataConversion.getFieldValue(clazz, resultSet.getObject(1));
+    if (theList != null){
+      theList.add(t);
+    }
+    return t;
+
+
+  }
+
+
+  /**
+   * <pre>Create a base POJO from a table, also a child class. Never replace the child class if it already exists.
+   * You will have to refresh your project after running this method - a Base bean will appear in the package
+   * edu.upenn.isc.esb.PROJECT_NAME.beans.generated and a child bean will appear in the package edu.upenn.isc.esb.PROJECT_NAME.beans.</pre>
+   * @param tableName is tha table name to create it from, this can also contain schema name such as SCHEMA.TABLE.
+   * @param owner is if the owner is different from the current schema.
+   */
+  public void createPojoFromTable(String tableName, String owner){
+
+    try{
+
+      // See if we have schema.table.
+      String theSchemaName = null;
+      String schemaAndTableName = tableName;
+      if (tableName.indexOf(".") > -1){
+        theSchemaName = tableName.substring(0, tableName.indexOf("."));
+        tableName = tableName.substring(tableName.indexOf(".") + 1, tableName.length());
+      }
+
+      // Upper case it so that we can find associated data.
+      tableName = GrouperClientUtils.trimToEmpty(tableName.toUpperCase());
+
+      // The file that we will write to eventually, right now get the project name and the path to the generated folder.
+      File file = new File("");
+      String projectFolder = file.getAbsolutePath();
+      String projectName = projectFolder.substring(projectFolder.lastIndexOf(File.separatorChar) + 1, projectFolder.length());
+
+
+      // Get the name of the class that we are going to create and the schema that the original table lives in.
+      String className = GrouperClientUtils.javaNameFromOracleName(tableName, true);
+      final StringBuilder classString = new StringBuilder();
+      final String schemaName = theSchemaName != null ? theSchemaName : (String)EsbReflectionUtils.fieldValue(EsbDbUtils.findUnderlyingConnection(GcDbAccess.this.dbResource().getDbConnectionProvider().openConnection()), "userName");
+
+      // Get the primary keys.
+      DatabaseMetaData meta =  GcDbAccess.this.dbResource().getDbConnectionProvider().openConnection().getMetaData();
+      ResultSet thePrimaryKeys = meta.getPrimaryKeys(null, schemaName, tableName);
+
+      // Put all of the PKs in a list.
+      final List<String> primaryKeyColumns = new ArrayList<String>();
+      while (thePrimaryKeys.next()){
+        primaryKeyColumns.add(thePrimaryKeys.getString(4));
+      }
+
+      // Store whether it has a pk or multiple pks.
+      final boolean multiplePks = primaryKeyColumns.size() > 1;
+      final boolean hasPk = primaryKeyColumns.size() > 0;
+
+      if (owner == null){
+        owner = schemaName;
+      }
+
+      // Get the table comments.
+      String tableComments = considerTransaction()
+          .sql("select comments from all_tab_comments where upper(owner) = upper(?) and upper(table_name) = upper(?)")
+          .bindVars(owner, tableName)
+          .select(String.class);
+      if (tableComments == null){
+        tableComments = "No comments on table";
+      }
+
+      // Build the class header.
+      classString.append("package edu.upenn.isc.esb." + projectName + ".beans.generated;\n\n");
+      classString.append("import edu.upenn.isc.esbUtilities.jdbc.Persist;\n");
+      classString.append("import edu.upenn.isc.esbUtilities.jdbc.PersistableClass;\n");
+      if (hasPk){
+        classString.append("import edu.upenn.isc.esbUtilities.jdbc.PersistableField;\n");
+      }
+
+      // Build the class javadoc and declaration.
+      classString.append("\n\n\n");
+      classString.append("/**\n");
+      classString.append("* " + tableComments);
+      classString.append("\n* DO NOT EDIT THIS CLASS, EDIT THE CHILD CLASS.");
+      classString.append("\n* $Id: DbAccess.java,v 1.73 2014/10/09 14:06:02 harveycg Exp $\n");
+      classString.append("\n*/\n");
+      if (hasPk){
+        classString.append("@PersistableClass(tableName=\"" + schemaAndTableName + "\", defaultFieldPersist=Persist.doPersist)\n");
+      } else {
+        classString.append("@PersistableClass(tableName=\"" + schemaAndTableName + "\", hasNoPrimaryKey=true, defaultFieldPersist=Persist.doPersist)\n");
+      }
+      classString.append("public abstract class " + className + "Base {\n");
+
+
+
+      // Get a map of column comments.
+      final Map<String, String> columnAndComment = considerTransaction()
+          .sql("select column_name, comments from all_col_comments where upper(owner) = upper(?) and upper(table_name) = upper(?)")
+          .bindVars(owner, tableName)
+          .selectMapMultipleRows(String.class, String.class);
+
+      if (columnAndComment == null){
+        throw new RuntimeException("Cannot find a object in all_col_comments with the name " + tableName + " owned by the schema " + owner + "!");
+      }
+
+
+
+      // Build the field declarations, getters, and setters.
+      String theSql = "select * from " + schemaAndTableName + " where rownum < 2";
+      considerTransaction()
+      .sql(theSql)
+      .callbackResultSet(new GcResultSetCallback<Boolean>() {
+
+        @Override
+        public Boolean callback(ResultSet resultSet) throws Exception {
+
+          // Do the field declarations first.
+          for (int i = 1; i < resultSet.getMetaData().getColumnCount() + 1; i++){
+            String fieldNameLower = GrouperClientUtils.javaNameFromOracleName(resultSet.getMetaData().getColumnName(i), false);
+            boolean isPk = primaryKeyColumns.contains(resultSet.getMetaData().getColumnName(i));
+            String fieldType = GcDbAccess.boundDataConversion.javaClassFromOracleColumnType(resultSet.getMetaData().getColumnTypeName(i), resultSet.getMetaData().getPrecision(i), resultSet.getMetaData().getScale(i), !isPk, isPk).getName();
+            String fieldComment = columnAndComment.get(resultSet.getMetaData().getColumnName(i));
+
+            if (fieldComment == null){
+              fieldComment = "No comment on field.";
+            }
+
+            classString.append("\n\n\t/**");
+            classString.append("\n\t* " + fieldComment);
+            classString.append("\n\t*/");            
+
+            if (isPk){
+              if (multiplePks){
+                classString.append("\n\t@PersistableField(compoundPrimaryKey=true)");
+              } else {
+                classString.append("\n\t@PersistableField(primaryKey=true, primaryKeySequenceName=\"YOUR_SEQUENCE_NAME_HERE\")");
+              }
+            }
+            classString.append("\n\tprivate " + fieldType + " " + fieldNameLower + ";");
+
+          }
+
+          // Then do getters and setters.
+          for (int i = 1; i < resultSet.getMetaData().getColumnCount() + 1; i++){
+            String fieldNameUpper = GrouperClientUtils.javaNameFromOracleName(resultSet.getMetaData().getColumnName(i), true);
+            String fieldNameLower = GrouperClientUtils.javaNameFromOracleName(resultSet.getMetaData().getColumnName(i), false);
+            boolean isPk = primaryKeyColumns.contains(resultSet.getMetaData().getColumnName(i));
+            String fieldType = GcDbAccess.boundDataConversion.javaClassFromOracleColumnType(resultSet.getMetaData().getColumnTypeName(i), resultSet.getMetaData().getPrecision(i), resultSet.getMetaData().getScale(i), true, isPk).getName();
+            String fieldComment = columnAndComment.get(resultSet.getMetaData().getColumnName(i));
+
+            String getterFieldComment = fieldComment;
+            if (getterFieldComment == null){
+              getterFieldComment = "Get the " + fieldNameLower;
+            }
+
+            classString.append("\n\n\t/**");
+            classString.append("\n\t* " + getterFieldComment);
+            classString.append("\n\t* @return the " + fieldNameLower);
+            classString.append("\n\t*/");
+            classString.append("\n\tpublic " + fieldType + " get" + fieldNameUpper + "(){");
+            classString.append("\n\t\t return this." + fieldNameLower + ";");
+            classString.append("\n\t}");
+
+            String setterFieldComment = fieldComment;
+            if (setterFieldComment == null){
+              setterFieldComment = "Set the " + fieldNameLower;
+            }
+
+            classString.append("\n\n\t/**");
+            classString.append("\n\t* " + setterFieldComment);
+            classString.append("\n\t* @param _" + fieldNameLower + " is the " + fieldNameLower + " to set.");
+            classString.append("\n\t*/");
+            classString.append("\n\tpublic void set" + fieldNameUpper + "(" + fieldType + " _" + fieldNameLower + "){");
+            classString.append("\n\t\tthis." + fieldNameLower + " = " + "_" + fieldNameLower + ";");
+            classString.append("\n\t}");
+          }
+
+          return null;
+
+        }
+      });
+
+
+
+      // End the class.
+      classString.append("\n\n}\n");
+
+      // Now write the file out, build the location.
+      String generatedClassLocation = file.getAbsolutePath();
+
+      String childClassLocation = generatedClassLocation + File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "java" + File.separatorChar
+          + "edu" + File.separatorChar + "upenn" + File.separatorChar + "isc" + File.separatorChar + "esb" + File.separatorChar
+          + projectName + File.separatorChar + "beans" + File.separatorChar + className + ".java";
+
+      generatedClassLocation += File.separatorChar + "src" + File.separatorChar + "main" + File.separatorChar + "java" + File.separatorChar
+          + "edu" + File.separatorChar + "upenn" + File.separatorChar + "isc" + File.separatorChar + "esb" + File.separatorChar
+          + projectName + File.separatorChar + "beans" + File.separatorChar + "generated" + File.separatorChar + className + "Base.java";
+
+      // Write out the base class.
+      file = new File(generatedClassLocation);
+      EsbFileUtils.createParentDirectories(file);
+      EsbFileUtils.writeStringToFile(file, classString.toString(), false);
+
+
+      // Make the child class if it does not exist.
+      file = new File(childClassLocation);
+      if (file.exists()){
+        return;
+      }
+      classString.delete(0, classString.length());
+
+      classString.append("package edu.upenn.isc.esb." + projectName + ".beans;\n\n");
+
+      classString.append("/**\n");
+      classString.append("* " + tableComments);
+      classString.append("\n* $Id: DbAccess.java,v 1.73 2014/10/09 14:06:02 harveycg Exp $\n");
+      classString.append("\n*/\n");
+      classString.append("public class " + className + " extends edu.upenn.isc.esb." + projectName + ".beans.generated." + className + "Base {\n");
+      classString.append("\n\n}\n");
+
+      EsbFileUtils.writeStringToFile(file, classString.toString(), false);
+
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+  }
+
+
+  /**
+   * Cached queries, exposed mostly for testing, you should not need direct access to this.
+   * @return the dbQueryCacheMap
+   */
+  public static Map<String, GcDbQueryCache> getGcDbQueryCacheMap() {
+    return dbQueryCacheMap;
+  }
+
+
+  /**
+   * The map containing reports if they have been turned on.
+   * @return the queriesAndMillis
+   */
+  public static Map<String, GcQueryReport> getQueriesAndMillis() {
+    return queriesAndMillis;
+  }
+
+
+
+  /**
+   * Select the objects from the query cache.
+   * @param isList is whether a list is being selected or not.
+   * @param clazz is the type of thing being selected.
+   * @return the cached object if it exists or null.
+   */
+  private Object selectFromQueryCache(boolean isList, Class<?> clazz){
+    if (this.cacheMinutes == null){
+      return null;
+    }
+    String queryKey = queryCacheKey(isList, clazz);
+    GcDbQueryCache dbQueryCache = dbQueryCacheMap.get(queryKey);
+    if (dbQueryCache == null){
+      return null;
+    }
+    return dbQueryCache.getThingBeingCached();
+  }
+
+
+  /**
+   * Set the object(s) to the query cache.
+   * @param isList is whether a list is being selected or not.
+   * @param clazz is the type of thing being selected.
+   * @param thingBeingCached is the object(s) being cached.
+   */
+  private void populateQueryCache(Class<?> clazz, Object thingBeingCached, boolean isList){
+    if (this.cacheMinutes == null){
+      return;
+    }
+    String queryKey = queryCacheKey(isList, clazz);
+    dbQueryCacheMap.put(queryKey, new GcDbQueryCache(this.cacheMinutes, thingBeingCached));
+  }
+
+
+  /**
+   * A key unique to the current state of this dbaccess.
+   * @param isList is whether a list is being selected or not.
+   * @param clazz is the type of thing being selected.
+   * @return the key.
+   */
+  private String queryCacheKey(boolean isList, Class<?> clazz){
+    String key = this.sql + "|";
+    key += clazz.getSimpleName() + "|";
+    key += isList + "|";;
+    key += this.dbResource == null ? null  + "|": this.dbResource.getClass().getSimpleName()+ "|";
+    key += this.queryTimeoutSeconds+ "|";
+    if (this.bindVars != null && this.bindVars.size() > 0){
+      for (Object bindVar : this.bindVars){
+        key += bindVar + "|";
+      }
+    }
+    if (this.batchBindVars != null && this.batchBindVars.size() > 0){
+      for (List<Object> bindVarList : this.batchBindVars){
+        for (Object bindVar : bindVarList){
+          key += bindVar + "|";
+        }
+      }
+    }
+    key += this.naturalCallType != null ? this.naturalCallType.name() + "|" : null + "|";
+    key += this.useTransaction + "|";
+    if (this.primaryKeys != null){
+      for (Object primaryKey : this.primaryKeys){
+        key += primaryKey + "|";
+      }
+    }
+    return key;
+  }
+
+
+  /**
+   * Clone the existing dbAccess.
+   * @return the cloned baccess.
+   */
+  private GcDbAccess cloneDbAccess(){
+    GcDbAccess dbAccess = new GcDbAccess();
+    for (Field field : GcDbAccess.class.getDeclaredFields()){
+      try {
+        field.setAccessible(true);
+        field.set(dbAccess, field.get(this));
+      } catch (Exception e) {
+        throw new RuntimeException("Cannot clone value of field " + field.getName());
+      } 
+    }
+    return dbAccess;
+  }
+
+
+  /**
+   * If we are using a transaction, return this, else a new DbAccess with the current connection class.
+   * @return the DbAccess.
+   */
+  private GcDbAccess considerTransaction(){
+    if (this.useTransaction){
+      return this;
+    }
+
+    return new GcDbAccess()
+    .dbResourceClass(this.dbResource().getConnectionClass());
+  }
+
+}

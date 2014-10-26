@@ -26,9 +26,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import com.opensymphony.user.Entity.Accessor;
-import com.opensymphony.user.provider.CredentialsProvider;
-
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -37,7 +34,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * implement the opensymphony interface that Atlassian uses for products like jira/confluence
  */
 @SuppressWarnings("serial")
-public class GrouperCredentialsProvider implements CredentialsProvider {
+public class GrouperCredentialsProvider {
 
   /**
    * logger
@@ -45,18 +42,8 @@ public class GrouperCredentialsProvider implements CredentialsProvider {
   private static Log LOG = GrouperClientUtils.retrieveLog(GrouperCredentialsProvider.class);
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#create(java.lang.String)
+   * 
    */
-  @Override
-  public boolean create(String name) {
-    LOG.error("You cannot create here '" + name + "', information is read from the source system via Grouper: " + name);
-    throw new RuntimeException("You cannot create here '" + name + "', information is read from the source system via Grouper");
-  }
-
-  /**
-   * @see com.opensymphony.user.provider.UserProvider#flushCaches()
-   */
-  @Override
   public void flushCaches() {
     LOG.debug("flushCaches");
     new GrouperAccessProvider().flushCaches();
@@ -64,9 +51,9 @@ public class GrouperCredentialsProvider implements CredentialsProvider {
 
   /**
    * this should return true if user exists, false if not
-   * @see com.opensymphony.user.provider.UserProvider#handles(java.lang.String)
+   * @param username 
+   * @return true or false
    */
-  @Override
   public boolean handles(String username) {
     
     String operation = "handles";
@@ -103,10 +90,11 @@ public class GrouperCredentialsProvider implements CredentialsProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#init(java.util.Properties)
+   * 
+   * @param properties
+   * @return true or false
    */
   @SuppressWarnings("unchecked")
-  @Override
   public boolean init(Properties properties) {
     //nothing to do here
     Boolean result = true;
@@ -126,9 +114,9 @@ public class GrouperCredentialsProvider implements CredentialsProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#list()
+   * 
+   * @return the list
    */
-  @Override
   public List<String> list() {
 
     long startNanos = System.nanoTime();
@@ -162,54 +150,16 @@ public class GrouperCredentialsProvider implements CredentialsProvider {
   }
 
   /**
-   * @see com.opensymphony.user.provider.UserProvider#load(java.lang.String, com.opensymphony.user.Entity.Accessor)
+   * 
+   * @param username
+   * @return true or false
    */
-  @Override
-  public boolean load(String username, Accessor accessor) {
+  public boolean load(String username) {
     String operation = "load";
 
     return handlesHelper(username, operation);
 
   }
 
-  /**
-   * @see com.opensymphony.user.provider.UserProvider#remove(java.lang.String)
-   */
-  @Override
-  public boolean remove(String name) {
-    LOG.error("You cannot remove here: '" + name + "', information is read from the source system via Grouper: " + name);
-    throw new RuntimeException("You cannot remove here '" + name + "', information is read from the source system via Grouper");
-  }
-
-  /**
-   * @see com.opensymphony.user.provider.UserProvider#store(java.lang.String, com.opensymphony.user.Entity.Accessor)
-   */
-  @Override
-  public boolean store(String name, Accessor accessor) {
-
-    LOG.error("You cannot store here: '" + name + "', information is read from the source system via Grouper");
-    throw new RuntimeException("You cannot store here '" + name + "', information is read from the source system via Grouper.");
-
-  }
-
-  /**
-   * 
-   */
-  @Override
-  public boolean authenticate(String user, String pass) {
-
-    LOG.error("You cannot authenticate here: '" + user + "', information is read from the source system via Grouper");
-    throw new RuntimeException("You cannot authenticate here '" + user + "', information is read from the source system via Grouper.");
-  }
-
-  /**
-   * 
-   */
-  @Override
-  public boolean changePassword(String user, String pass) {
-
-    LOG.error("You cannot changePassword here: '" + user + "'");
-    throw new RuntimeException("You cannot changePassword here '" + user + "'");
-  }
 
 }
