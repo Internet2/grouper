@@ -10,15 +10,22 @@ then
   exit 1
 fi  
 
-cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouper ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouper
-  /bin/chmod g+w /home/mchyzer/tmp/grouper
+if [ ! -d ../.git ]; then
+  echo "You must invoke this command from the grouper/misc directory"
+  echo 
+  exit 1
 fi
 
-cd /home/mchyzer/tmp/grouper
+if [ ! -d $HOME/tmp/grouper ]; then
+  /bin/mkdir $HOME/tmp/grouper
+  /bin/chmod g+w $HOME/tmp/grouper
+fi
 
-export buildDir=/home/mchyzer/tmp/grouper/build_$USER
+SOURCE_DIR=$CWD/..
+
+cd $HOME/tmp/grouper
+
+export buildDir=$HOME/tmp/grouper/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -29,15 +36,12 @@ if [ ! -d $buildDir ]; then
 fi
 
 cd $buildDir
+git clone -l $SOURCE_DIR .
 
-export CVSROOT=/home/cvs/i2mi
-
-#/usr/bin/cvs export -r $1 grouper
-
-if [ $1 == 'trunk' ]; then
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper/
+if [ $1 == 'master' ]; then
+ git checkout master 
 else
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+ git checkout $1 
 fi
 
 cd $buildDir/grouper

@@ -10,17 +10,19 @@ then
   exit 1
 fi  
 
+SOURCE_DIR=$CWD/..
+
 OBJ=ldappcng
 
 cd /tmp
-if [ ! -d /home/mchyzer/tmp/$OBJ ]; then
-  /bin/mkdir /home/mchyzer/tmp/$OBJ
-  /bin/chmod g+w /home/mchyzer/tmp/$OBJ
+if [ ! -d $HOME/tmp/$OBJ ]; then
+  /bin/mkdir $HOME/tmp/$OBJ
+  /bin/chmod g+w $HOME/tmp/$OBJ
 fi
 
-cd /home/mchyzer/tmp/$OBJ
+cd $HOME/tmp/$OBJ
 
-export buildDir=/home/mchyzer/tmp/$OBJ/build_$USER
+export buildDir=$HOME/tmp/$OBJ/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -32,19 +34,19 @@ fi
 
 cd $buildDir
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/ldappcng/ldappcng/
+git clone -l $SOURCE_DIR .
 
 cd $buildDir/$OBJ
 
 $M2_HOME/bin/mvn package -DskipTests
 
-cd /home/mchyzer/tmp/grouper/build_$USER/grouper
+cd $HOME/tmp/grouper/build_$USER/grouper
 
 ln -s $buildDir/ldappcng ../ldappcng_trunk
 
 $ANT_HOME/bin/ant ldappcng
 
-mv /home/mchyzer/tmp/grouper/build_$USER/grouper/dist/ldappcng/grouper.ldappcng-*.tar.gz /home/mchyzer/tmp/grouper/build_$USER
+mv $HOME/tmp/grouper/build_$USER/grouper/dist/ldappcng/grouper.ldappcng-*.tar.gz $HOME/tmp/grouper/build_$USER
 
 echo
 echo "regular result is in $buildDir/" 

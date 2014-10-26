@@ -10,6 +10,8 @@ then
   exit 1
 fi  
 
+SOURCE_DIR=$CWD/..
+
 OBJ=morphString
 
 cd /tmp
