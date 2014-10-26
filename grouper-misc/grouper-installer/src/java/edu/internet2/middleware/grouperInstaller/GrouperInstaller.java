@@ -1176,6 +1176,30 @@ public class GrouperInstaller {
   
       }
     }
+    
+    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.1"))) {
+
+      System.out.println("You are upgrading from pre API version 2.2.1, do you want to run the 2.2.1 upgrade GSH script (recommended) (t|f)? [t]: ");
+      boolean runScript = readFromStdInBoolean(true);
+      
+      if (runScript) {
+        
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "misc" + File.separator + "postGrouper2_2_1Upgrade.gsh");
+        
+        List<String> commands = new ArrayList<String>();
+  
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+  
+        System.out.println("\n##################################");
+        System.out.println("Running 2.2.1 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+  
+        GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+           new File(this.gshCommand()).getParentFile(), null, true);
+  
+      }
+    }
 
   }
   
