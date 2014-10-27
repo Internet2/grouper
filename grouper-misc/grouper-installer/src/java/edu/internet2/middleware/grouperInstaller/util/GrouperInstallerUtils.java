@@ -18,6 +18,7 @@
  */
 package edu.internet2.middleware.grouperInstaller.util;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -9146,6 +9147,19 @@ public class GrouperInstallerUtils  {
   public static String theLogLevel = "WARNING";
   
   /**
+   * replace separators which are wrong os, and add last slash if not exist
+   * @param filePath
+   * @return the file path
+   */
+  public static String fileAddLastSlashIfNotExists(String filePath) {
+    filePath = filePath.replace(File.separatorChar == '/' ? '\\' : '/', File.separatorChar);
+    if (!filePath.endsWith(File.separator)) {
+      filePath = filePath + File.separatorChar;
+    }
+    return filePath;
+  }
+  
+  /**
    * @param theClass
    * @return the log
    */
@@ -10305,6 +10319,9 @@ public class GrouperInstallerUtils  {
    * @return manifest version
    */
   public static String manifestVersion(File jarFile, Manifest manifest) {
+    
+    boolean printJarVersionProblemsV1 = propertiesValueBoolean("grouperInstaller.printJarVersionIssuesV1", false, false);
+    
     String[] propertyNames = new String[]{
         "Implementation-Version","Version"};
     
@@ -10330,15 +10347,19 @@ public class GrouperInstallerUtils  {
     if (value == null) {
       if (!printedCantFindVersionJarName.contains(jarFile.getName())) {
         printedCantFindVersionJarName.add(jarFile.getName());
-        System.out.println("Error: cant find version for jar: " + jarFile.getName());
-        for (Attributes attributes: attributeMap.values()) {
-          for (Object key : attributes.keySet()) {
-            System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
-          }
+        if (printJarVersionProblemsV1) {
+          System.out.println("Error: cant find version for jar: " + jarFile.getName());
         }
-        Attributes attributes = manifest.getMainAttributes();
-        for (Object key : attributes.keySet()) {
-          System.out.println(jarFile.getName() + ", main " + key + ": " + attributes.getValue((Name)key));
+        if (printJarVersionProblemsV1) {
+          for (Attributes attributes: attributeMap.values()) {
+            for (Object key : attributes.keySet()) {
+              System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+            }
+          }
+          Attributes attributes = manifest.getMainAttributes();
+          for (Object key : attributes.keySet()) {
+            System.out.println(jarFile.getName() + ", main " + key + ": " + attributes.getValue((Name)key));
+          }
         }
       }
     }
@@ -10363,4 +10384,181 @@ public class GrouperInstallerUtils  {
     }
     return newline;
   }
+
+  /**
+   * list files recursively from parent, dont include 
+   * @param parent
+   * @return set of files wont return null
+   */
+  public static List<File> fileListRecursive(File parent) {
+    List<File> results = new ArrayList<File>();
+    fileListRecursiveHelper(parent, results);
+    return results;
+  }
+
+  /**
+   * helper to add child files to a parent (
+   * @param parent
+   * @param fileList
+   */
+  private static void fileListRecursiveHelper(File parent, List<File> fileList) {
+    if (parent == null || !parent.exists() || !parent.isDirectory()) {
+      return;
+    }
+    List<File> subFiles = nonNull(toList(parent.listFiles()));
+    for (File subFile : subFiles) {
+      if (subFile.isFile()) {
+        fileList.add(subFile);
+      }
+      if (subFile.isDirectory()) {
+        fileListRecursiveHelper(subFile, fileList);
+      }
+    }
+  }
+
+  /**
+   * @param path
+   * @return the new path
+   */
+  public static String fileMassagePathsNoLeadingOrTrailing(String path) {
+    path = path.replace(File.separatorChar == '/' ? '\\' : '/', File.separatorChar);
+    if (path.startsWith(File.separator)) {
+      path = path.substring(1);
+    }
+    if (path.endsWith(File.separator)) {
+      path = path.substring(0, path.length()-1);
+    }
+    return path;
+  }
+  
+  /**
+   * Compares the contents of two files to determine if they are equal or not.
+   * <p>
+   * This method checks to see if the two files are different lengths
+   * or if they point to the same file, before resorting to byte-by-byte
+   * comparison of the contents.
+   * <p>
+   * Code origin: Avalon
+   *
+   * @param file1  the first file
+   * @param file2  the second file
+   * @return true if the content of the files are equal or they both don't
+   * exist, false otherwise
+   */
+  public static boolean contentEquals(File file1, File file2) {
+    try {
+      boolean file1Exists = file1.exists();
+      if (file1Exists != file2.exists()) {
+        return false;
+      }
+  
+      if (!file1Exists) {
+        // two not existing files are equal
+        return true;
+      }
+  
+      if (file1.isDirectory() || file2.isDirectory()) {
+        // don't want to compare directory contents
+        throw new IOException("Can't compare directories, only files");
+      }
+  
+      if (file1.length() != file2.length()) {
+        // lengths differ, cannot be equal
+        return false;
+      }
+  
+      if (file1.getCanonicalFile().equals(file2.getCanonicalFile())) {
+        // same file
+        return true;
+      }
+  
+      InputStream input1 = null;
+      InputStream input2 = null;
+      try {
+        input1 = new FileInputStream(file1);
+        input2 = new FileInputStream(file2);
+        return contentEquals(input1, input2);
+  
+      } finally {
+        closeQuietly(input1);
+        closeQuietly(input2);
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * Compare the contents of two Streams to determine if they are equal or
+   * not.
+   * <p>
+   * This method buffers the input internally using
+   * <code>BufferedInputStream</code> if they are not already buffered.
+   *
+   * @param input1  the first stream
+   * @param input2  the second stream
+   * @return true if the content of the streams are equal or they both don't
+   * exist, false otherwise
+   * @throws NullPointerException if either input is null
+   * @throws IOException if an I/O error occurs
+   */
+  public static boolean contentEquals(InputStream input1, InputStream input2)
+      throws IOException {
+    if (!(input1 instanceof BufferedInputStream)) {
+      input1 = new BufferedInputStream(input1);
+    }
+    if (!(input2 instanceof BufferedInputStream)) {
+      input2 = new BufferedInputStream(input2);
+    }
+
+    int ch = input1.read();
+    while (-1 != ch) {
+      int ch2 = input2.read();
+      if (ch != ch2) {
+        return false;
+      }
+      ch = input1.read();
+    }
+
+    int ch2 = input2.read();
+    return (ch2 == -1);
+  }
+
+  /**
+   * Compare the contents of two Readers to determine if they are equal or
+   * not.
+   * <p>
+   * This method buffers the input internally using
+   * <code>BufferedReader</code> if they are not already buffered.
+   *
+   * @param input1  the first reader
+   * @param input2  the second reader
+   * @return true if the content of the readers are equal or they both don't
+   * exist, false otherwise
+   * @throws NullPointerException if either input is null
+   * @throws IOException if an I/O error occurs
+   * @since Commons IO 1.1
+   */
+  public static boolean contentEquals(Reader input1, Reader input2)
+      throws IOException {
+    if (!(input1 instanceof BufferedReader)) {
+      input1 = new BufferedReader(input1);
+    }
+    if (!(input2 instanceof BufferedReader)) {
+      input2 = new BufferedReader(input2);
+    }
+
+    int ch = input1.read();
+    while (-1 != ch) {
+      int ch2 = input2.read();
+      if (ch != ch2) {
+        return false;
+      }
+      ch = input1.read();
+    }
+
+    int ch2 = input2.read();
+    return (ch2 == -1);
+  }
+
 }
