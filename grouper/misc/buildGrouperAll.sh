@@ -18,12 +18,12 @@ export PATH=$JAVA_HOME/bin:$PATH
 # don't build with mvn here anymore
 # $HOME/bin/buildMorphStringMvn.sh $1
 # $HOME/bin/buildSubjectMvn.sh $1
-$HOME/bin/buildGrouperClient.sh $1
-$HOME/bin/buildGrouper.sh $1
-$HOME/bin/buildGrouperWs.sh $1
-$HOME/bin/buildGrouperUi.sh $1
+./buildGrouperClient.sh $1
+./buildGrouper.sh $1
+./buildGrouperWs.sh $1
+./buildGrouperUi.sh $1
 #$HOME/bin/buildGrouperQs.sh $1
-$HOME/bin/buildGrouperInstaller.sh $1
+./buildGrouperInstaller.sh $1
 # $HOME/bin/buildGrouperShibMvn.sh $1
 # $HOME/bin/buildLdappcng.sh $1
 
@@ -41,7 +41,7 @@ if [ -d $buildDir ]; then
 fi
 
 if [ ! -d $buildDir ]; then
-  /bin/mkdir $buildDir
+  /bin/mkdir -p $buildDir
 fi
 
 # no more maven building as of 2.1.0

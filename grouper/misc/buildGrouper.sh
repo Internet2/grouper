@@ -10,18 +10,18 @@ then
   exit 1
 fi  
 
-if [ ! -d ../.git ]; then
+if [ ! -d ../../.git ]; then
   echo "You must invoke this command from the grouper/misc directory"
   echo 
   exit 1
 fi
 
 if [ ! -d $HOME/tmp/grouper ]; then
-  /bin/mkdir $HOME/tmp/grouper
+  /bin/mkdir -p $HOME/tmp/grouper
   /bin/chmod g+w $HOME/tmp/grouper
 fi
 
-SOURCE_DIR=$CWD/..
+SOURCE_DIR=$PWD/../../
 
 cd $HOME/tmp/grouper
 
@@ -46,9 +46,9 @@ fi
 
 cd $buildDir/grouper
 
-$ANT_HOME/bin/ant distPackage
+ant distPackage
 
-$ANT_HOME/bin/ant distBinary
+ant distBinary
 
 mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
 
