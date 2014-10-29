@@ -20,7 +20,11 @@ export PATH=$JAVA_HOME/bin:$PATH
 # $HOME/bin/buildSubjectMvn.sh $1
 ../../grouper-misc/grouperClient/misc/buildGrouperClient.sh $1
 ./buildGrouper.sh $1
+<<<<<<< GROUPER_2_3_BRANCH
 ../../grouper-ws/misc/buildGrouperWs.sh $1
+=======
+./buildGrouperWs.sh $1
+>>>>>>> 218ea01 fix path in build script
 ../../grouper-ui/misc/buildGrouperUi.sh $1
 #$HOME/bin/buildGrouperQs.sh $1
 ../../grouper-misc/grouper-installer/misc/buildGrouperInstaller.sh $1
