@@ -26,15 +26,16 @@ then
   exit 1
 fi  
 
-cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouperClient ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouperClient
-  /bin/chmod g+w /home/mchyzer/tmp/grouperClient
+SOURCEDIR=$PWD/../../../
+
+if [ ! -d $HOME/tmp/grouperClient ]; then
+  /bin/mkdir -p $HOME/tmp/grouperClient
+  /bin/chmod g+w $HOME/tmp/grouperClient
 fi
 
-cd /home/mchyzer/tmp/grouperClient
+cd $HOME/tmp/grouperClient
 
-export buildDir=/home/mchyzer/tmp/grouperClient/build_$USER
+export buildDir=$HOME/tmp/grouperClient/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -49,14 +50,15 @@ cd $buildDir
 #export CVSROOT=/home/cvs/i2mi
 
 #/usr/bin/cvs export -r $1 grouper-misc/grouperClient
+git clone -l $SOURCEDIR .
+git checkout $1
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/grouperClient/
 
-cd $buildDir/grouperClient
+cd $buildDir/grouper-misc/grouperClient
 
-$ANT_HOME/bin/ant distPackage
+ant distPackage
 
-$ANT_HOME/bin/ant distBinary
+ant distBinary
 
 #mv $buildDir/grouper-misc/*.tar.gz $buildDir/
 
