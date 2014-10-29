@@ -5,20 +5,21 @@ then
   echo
   echo "Give the version to build as the command line argument!"
   echo "e.g. trunk, GROUPER_WS_1_4_0, etc"
-  echo "e.g. buildGrouperWs.sh HEAD"
+  echo "e.g. buildGrouperWs.sh master"
   echo
   exit 1
 fi  
 
-cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouperWs ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouperWs
-  /bin/chmod g+w /home/mchyzer/tmp/grouperWs
+SOURCE_DIR=$PWD/../../../
+
+if [ ! -d $HOME/tmp/grouperWs ]; then
+  /bin/mkdir -p $HOME/tmp/grouperWs
+  /bin/chmod g+w $HOME/tmp/grouperWs
 fi
 
-cd /home/mchyzer/tmp/grouperWs
+cd $HOME/tmp/grouperWs
 
-export buildDir=/home/mchyzer/tmp/grouperWs/build_$USER
+export buildDir=$HOME/tmp/grouperWs/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -28,23 +29,23 @@ if [ ! -d $buildDir ]; then
   /bin/mkdir $buildDir
 fi
 
+
 cd $buildDir
+git clone -l $SOURCE_DIR .
 
 #export CVSROOT=/home/cvs/i2mi
 
 #/usr/bin/cvs export -r $1 grouper-ws
 
-if [ $1 == 'trunk' ]; then
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper-ws/
+if [ $1 == 'master' ]; then
+  git checkout master
 else
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-ws/
+  git checkout $1
 fi
-
-
 
 cd $buildDir/grouper-ws/grouper-ws
 
-$ANT_HOME/bin/ant distPackage
+ant distPackage
 
 echo
 echo "result is in $buildDir/" 
