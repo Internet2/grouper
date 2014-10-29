@@ -21,7 +21,7 @@ export PATH=$JAVA_HOME/bin:$PATH
 ./buildGrouperClient.sh $1
 ./buildGrouper.sh $1
 ./buildGrouperWs.sh $1
-./buildGrouperUi.sh $1
+../../grouper-ui/misc/buildGrouperUi.sh $1
 #$HOME/bin/buildGrouperQs.sh $1
 ./buildGrouperInstaller.sh $1
 # $HOME/bin/buildGrouperShibMvn.sh $1
