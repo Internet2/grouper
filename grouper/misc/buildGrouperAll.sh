@@ -18,12 +18,12 @@ export PATH=$JAVA_HOME/bin:$PATH
 # don't build with mvn here anymore
 # $HOME/bin/buildMorphStringMvn.sh $1
 # $HOME/bin/buildSubjectMvn.sh $1
-./buildGrouperClient.sh $1
+../../grouper-misc/grouperClient/misc/buildGrouperClient.sh $1
 ./buildGrouper.sh $1
-./buildGrouperWs.sh $1
+../../grouper-ws/misc/buildGrouperWs.sh $1
 ../../grouper-ui/misc/buildGrouperUi.sh $1
 #$HOME/bin/buildGrouperQs.sh $1
-./buildGrouperInstaller.sh $1
+../../grouper-misc/grouper-installer/misc/buildGrouperInstaller.sh $1
 # $HOME/bin/buildGrouperShibMvn.sh $1
 # $HOME/bin/buildLdappcng.sh $1
 
