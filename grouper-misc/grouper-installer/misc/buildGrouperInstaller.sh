@@ -9,16 +9,16 @@ then
   echo
   exit 1
 fi  
+SOURCEDIR=$PWD/../../../
 
-cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouper-installer ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouper-installer
-  /bin/chmod g+w /home/mchyzer/tmp/grouper-installer
+if [ ! -d $HOME/tmp/grouper-installer ]; then
+  /bin/mkdir -p $HOME/tmp/grouper-installer
+  /bin/chmod g+w $HOME/tmp/grouper-installer
 fi
 
-cd /home/mchyzer/tmp/grouper-installer
+cd $HOME/tmp/grouper-installer
 
-export buildDir=/home/mchyzer/tmp/grouper-installer/build_$USER
+export buildDir=$HOME/tmp/grouper-installer/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -33,14 +33,14 @@ cd $buildDir
 #export CVSROOT=/home/cvs/i2mi
 
 #/usr/bin/cvs export -r $1 grouper-misc/grouper-installer
+git clone -l $SOURCEDIR .
+git checkout $1
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper-misc/grouper-installer/
+cd $buildDir/grouper-misc/grouper-installer
 
-cd $buildDir/grouper-installer
+ant distPackage
 
-$ANT_HOME/bin/ant distPackage
-
-$ANT_HOME/bin/ant distBinary
+ant distBinary
 
 #mv $buildDir/grouper-misc/*.tar.gz $buildDir/
 
