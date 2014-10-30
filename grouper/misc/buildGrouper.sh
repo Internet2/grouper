@@ -4,21 +4,28 @@ if [ $# -ne "1" ]
 then
   echo
   echo "Give the version to build as the command line argument!"
-  echo "e.g. HEAD, GROUPER_1_3_1, etc"
-  echo "e.g. buildGrouper.sh HEAD"
+  echo "e.g. master, GROUPER_1_3_1, etc"
+  echo "e.g. buildGrouper.sh master"
   echo
   exit 1
 fi  
 
-cd /tmp
-if [ ! -d /home/mchyzer/tmp/grouper ]; then
-  /bin/mkdir /home/mchyzer/tmp/grouper
-  /bin/chmod g+w /home/mchyzer/tmp/grouper
+if [ ! -d ../../.git ]; then
+  echo "You must invoke this command from the grouper/misc directory"
+  echo 
+  exit 1
 fi
 
-cd /home/mchyzer/tmp/grouper
+if [ ! -d $HOME/tmp/grouper ]; then
+  /bin/mkdir -p $HOME/tmp/grouper
+  /bin/chmod g+w $HOME/tmp/grouper
+fi
 
-export buildDir=/home/mchyzer/tmp/grouper/build_$USER
+SOURCE_DIR=$PWD/../../
+
+cd $HOME/tmp/grouper
+
+export buildDir=$HOME/tmp/grouper/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -29,22 +36,19 @@ if [ ! -d $buildDir ]; then
 fi
 
 cd $buildDir
+git clone -l $SOURCE_DIR .
 
-export CVSROOT=/home/cvs/i2mi
-
-#/usr/bin/cvs export -r $1 grouper
-
-if [ $1 == 'trunk' ]; then
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/trunk/grouper/
+if [ $1 == 'master' ]; then
+ git checkout master 
 else
-  /usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/grouper/
+ git checkout $1 
 fi
 
 cd $buildDir/grouper
 
-$ANT_HOME/bin/ant distPackage
+ant distPackage
 
-$ANT_HOME/bin/ant distBinary
+ant distBinary
 
 mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
 

@@ -12,15 +12,17 @@ fi
 
 OBJ=subject
 
+SOURCE_DIR=$CWD/..
+
 cd /tmp
-if [ ! -d /home/mchyzer/tmp/$OBJ ]; then
-  /bin/mkdir /home/mchyzer/tmp/$OBJ
-  /bin/chmod g+w /home/mchyzer/tmp/$OBJ
+if [ ! -d $HOME/tmp/$OBJ ]; then
+  /bin/mkdir $HOME/tmp/$OBJ
+  /bin/chmod g+w $HOME/tmp/$OBJ
 fi
 
-cd /home/mchyzer/tmp/$OBJ
+cd $HOME/tmp/$OBJ
 
-export buildDir=/home/mchyzer/tmp/$OBJ/build_$USER
+export buildDir=$HOME/tmp/$OBJ/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -32,7 +34,7 @@ fi
 
 cd $buildDir
 
-/usr/bin/svn export https://svn.internet2.edu/svn/i2mi/tags/$1/subject/
+git clone -l $SOURCE_DIR
 
 cd $buildDir/$OBJ
 
