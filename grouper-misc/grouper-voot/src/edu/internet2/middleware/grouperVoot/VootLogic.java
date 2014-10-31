@@ -18,7 +18,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -165,7 +164,7 @@ public class VootLogic {
    * @param vootGroup
    * @return the response
    */
-  public static VootGetMembersResponse getMembers(Subject subject, VootGroup vootGroup) {
+  public static VootGetMembersResponse getMembers(Subject subject, VootGroup vootGroup, String sortBy, int start, int count) {
 	GrouperSession session = GrouperSession.staticGrouperSession();
 	// Non using session created by subject because findByName will only retrieve
 	// groups where the subject is administrator
@@ -221,12 +220,10 @@ public class VootLogic {
     }
     
     VootGetMembersResponse vootGetMembersResponse = new VootGetMembersResponse();
-    VootPerson[] result = new VootPerson[memberToRole.size()];
-    vootGetMembersResponse.setEntry(result);
-    
-    int index = 0;
+    VootPerson[] result = new VootPerson[memberToRole.size()];    
 
     //lets put them all back and make the person subjects
+    int index = 0;
     for (MultiKey multiKey : memberToRole.keySet()) {
       Subject curSubject = multiKeyToSubject.get(multiKey);
       String role = memberToRole.get(multiKey);
@@ -236,36 +233,10 @@ public class VootLogic {
       
       index++;
     }
-    
-    vootGetMembersResponse.assignPaging(result);
-    
-    return vootGetMembersResponse;
-  }
-  
-  /**
-   * get the groups that a person is in
-   * @param vootPerson
-   * @return the groups
-   */
-  public static VootGetGroupsResponse getGroups(VootPerson vootPerson) {
-	  
-    Subject subject = SubjectFinder.findById(vootPerson.getId(), true);
-    
-    return getGroups(subject);
-  }
-    
-  /**
-   * get a subject
-   * @param subject
-   * @return the response
-   */
-  public static VootGetMembersResponse getSubject(Subject subject) {
-    
-    VootPerson vootPerson = new VootPerson(GrouperSession.staticGrouperSession().getSubject());
-    VootGetMembersResponse vootGetMembersResponse = new VootGetMembersResponse();
-    vootGetMembersResponse.setEntry(new VootPerson[]{vootPerson});
-    
-    vootGetMembersResponse.assignPaging(vootGetMembersResponse.getEntry());
+
+    result = VootGetMembersResponse.sort(result, sortBy);
+    vootGetMembersResponse.paginate(result, start, count);
+    vootGetMembersResponse.setEntry(result, start, count);
     return vootGetMembersResponse;
   }
   
@@ -274,7 +245,7 @@ public class VootLogic {
    * @param subject
    * @return the groups
    */
-  public static VootGetGroupsResponse getGroups(Subject subject) {
+  public static VootGetGroupsResponse getGroups(Subject subject, String sortBy, int start, int count) {
 	GrouperSession session = GrouperSession.staticGrouperSession();
 	if (!GrouperSession.staticGrouperSession().getSubject().equals(subject)) {
 	  session = GrouperSession.start(subject, false);
@@ -285,7 +256,7 @@ public class VootLogic {
     VootGetGroupsResponse vootGetGroupsResponse = new VootGetGroupsResponse();
     
     if (member == null) {
-      vootGetGroupsResponse.assignPaging(null);
+      vootGetGroupsResponse.paginate(null, start, count);
       return vootGetGroupsResponse;
     }
     
@@ -313,12 +284,11 @@ public class VootLogic {
     
     
     if (groupToRole.size() == 0) {
-      vootGetGroupsResponse.assignPaging(null);
+      vootGetGroupsResponse.paginate(null, start, count);
       return vootGetGroupsResponse;
     }
     
     VootGroup[] result = new VootGroup[groupToRole.size()];
-    vootGetGroupsResponse.setEntry(result);
     
     int index = 0;
     for (Group group : groupToRole.keySet()) {
@@ -331,7 +301,9 @@ public class VootLogic {
       index++;
     }
     
-    vootGetGroupsResponse.assignPaging(result);
+    result = VootGetGroupsResponse.sort(result, sortBy);
+    vootGetGroupsResponse.paginate(result, start, count);
+    vootGetGroupsResponse.setEntry(result, start, count);
     return vootGetGroupsResponse;
   }
   
@@ -339,8 +311,8 @@ public class VootLogic {
    * Get the groups that a person is in.
    * @return the groups
    */
-  public static VootGetGroupsResponse getGroups() {
-	  return getGroups((String) null);
+  public static VootGetGroupsResponse getGroups(String sortBy, int start, int count) {
+	  return getGroups((String) null, sortBy, start, count);
   }
   
   /**
@@ -348,7 +320,7 @@ public class VootLogic {
    * @param search the search term to be searched in group name 
    * @return the groups
    */
-  public static VootGetGroupsResponse getGroups(String search) {
+  public static VootGetGroupsResponse getGroups(String search, String sortBy, int start, int count) {
     VootGetGroupsResponse vootGetGroupsResponse = new VootGetGroupsResponse();
     
     //this isnt in 2.0.0
@@ -359,12 +331,11 @@ public class VootLogic {
     Set<Group> groups = findAllByApproximateNameSecureHelper(searchString, null, true, true, null, null);
     
     if (GrouperUtil.length(groups) == 0) {
-      vootGetGroupsResponse.assignPaging(null);
+      vootGetGroupsResponse.paginate(null, start, count);
       return vootGetGroupsResponse;
     }
     
     VootGroup[] result = new VootGroup[groups.size()];
-    vootGetGroupsResponse.setEntry(result);
     
     int index = 0;
     for (Group group : groups) {
@@ -373,7 +344,9 @@ public class VootLogic {
       index++;
     }
     
-    vootGetGroupsResponse.assignPaging(result);
+    result = VootGetGroupsResponse.sort(result, sortBy);
+    vootGetGroupsResponse.paginate(result, start, count);
+    vootGetGroupsResponse.setEntry(result, start, count);
     return vootGetGroupsResponse;
   }
 }

@@ -58,10 +58,16 @@ public enum VootWsRest {
       }
       
       String userName = GrouperServiceUtils.popUrlString(urlStrings);
+      String sortBy = null;
+      if (requestParameters.get("sortBy") != null) {
+    	  sortBy = requestParameters.get("sortBy")[0];
+      }
+      int start = this.getStart(requestParameters);
+      int count = this.getCount(requestParameters);
 
       if (StringUtils.isBlank(userName)) {
     	  String[] searchTerm = requestParameters.get("search");
-    	  return VootLogic.getGroups(StringUtils.join(searchTerm, "%"));
+    	  return VootLogic.getGroups(StringUtils.join(searchTerm, "%"), sortBy, start, count);
       }
       
       if (GrouperUtil.length(urlStrings) > 0) {
@@ -69,11 +75,11 @@ public enum VootWsRest {
       }
       
       if (StringUtils.equals("@me", userName)) {
-    	return VootLogic.getGroups(GrouperSession.staticGrouperSession().getSubject());
+    	return VootLogic.getGroups(GrouperSession.staticGrouperSession().getSubject(), sortBy, start, count);
       }
       else {
         try{
-          return VootLogic.getGroups(SubjectFinder.findById(userName, true));
+          return VootLogic.getGroups(SubjectFinder.findById(userName, true), sortBy, start, count);
    	    }
    	    catch (SubjectNotFoundException e) {
    	      return new VootErrorResponse("Subject error", "Subject not found: " + userName + ", " + GrouperUtil.toStringForLog(urlStrings));
@@ -104,6 +110,12 @@ public enum VootWsRest {
 
       String personId = GrouperServiceUtils.popUrlString(urlStrings);
       String groupName = GrouperServiceUtils.popUrlString(urlStrings);
+      String sortBy = null;
+      if (requestParameters.get("sortBy") != null) {
+    	  sortBy = requestParameters.get("sortBy")[0];
+      } 
+      int start = this.getStart(requestParameters);
+      int count = this.getCount(requestParameters);
       
       if (StringUtils.isBlank(personId)) {
     	  return new VootErrorResponse("No username", "Error: no userName passed, " + vootRestHttpMethod + ", " + GrouperUtil.toStringForLog(urlStrings));
@@ -123,10 +135,10 @@ public enum VootWsRest {
       
       try {
         if (StringUtils.equals("@me", personId)) {
-      	  return VootLogic.getMembers(GrouperSession.staticGrouperSession().getSubject(), vootGroup);
+      	  return VootLogic.getMembers(GrouperSession.staticGrouperSession().getSubject(), vootGroup, sortBy, start, count);
         }
         else {
-          return VootLogic.getMembers(SubjectFinder.findById(personId, true), vootGroup);
+          return VootLogic.getMembers(SubjectFinder.findById(personId, true), vootGroup, sortBy, start, count);
  	    }
       }
  	  catch (SubjectNotFoundException e) {
@@ -155,6 +167,20 @@ public enum VootWsRest {
     }
     
   };
+  
+  protected int getStart(Map<String, String[]> requestParameters) {
+	  if (requestParameters.containsKey("startIndex")) {
+		  return Integer.parseInt(requestParameters.get("startIndex")[0]);
+	  }
+	  return 0;
+  }
+  
+  protected int getCount(Map<String, String[]> requestParameters) {
+	  if (requestParameters.containsKey("count")) {
+		  return Integer.parseInt(requestParameters.get("count")[0]);
+	  }
+	  return -1;
+  }
 
   /**
    * handle the incoming request based on HTTP method

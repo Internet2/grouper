@@ -1,32 +1,44 @@
 package edu.internet2.middleware.grouperVoot.beans;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-
+/**
+ * Bean to respresent a valid VOOT response.
+ * @author mchyzer
+ * @author Andrea Biancini <andrea.biancini@gmail.com>
+ *
+ */
 public abstract class VootResponse {
 
   /**
-   * assign paging for a results array
-   * @param resultArray
+   * Paginate the results ad assign the values to pagination attributes
+   * @param resultArray the compelte resultset from Grouper
+   * @param start the index of the first element to be put into result
+   * @param count the number of elements to be put into result
+   * @return the new collection containing the right page for the results 
    */
-  public void assignPaging(Object resultArray) {
-    int resultArrayLength = GrouperUtil.length(resultArray);
-    
-    this.startIndex = 0;
-    this.totalResults = resultArrayLength;
-    this.itemsPerPage = resultArrayLength;
+  public void paginate(Object[] resultArray, int start, int count) {
+    if (resultArray == null) {
+    	this.startIndex = 0;
+        this.totalResults = 0;
+        this.itemsPerPage = 0;
+    }
+    else {
+      this.startIndex = start;
+      this.totalResults = resultArray.length;
+      this.itemsPerPage = count;
+    }
   }
   
   /** starts with 0 */
-  private Integer startIndex;
+  protected Integer startIndex;
 
   /** total number of results */
-  private Integer totalResults;
+  protected Integer totalResults;
 
   /**
    * number of items in a page
    */
-  private Integer itemsPerPage;
+  protected Integer itemsPerPage;
 
   /**
    * starts with 0
