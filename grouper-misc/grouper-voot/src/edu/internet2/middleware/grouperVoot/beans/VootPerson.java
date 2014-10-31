@@ -37,7 +37,7 @@ public class VootPerson {
           this.emails = new VootEmail[emails.size()];
           for (String email : emails) {
             this.emails[i] = new VootEmail();
-            this.emails[i].setType("email");
+            this.emails[i].setType("work");
             this.emails[i].setValue(email);
           }
         }
@@ -53,10 +53,10 @@ public class VootPerson {
     vootPerson.setDisplayName("John Smith");
     vootPerson.setId("jsmith");
     VootEmail vootEmail = new VootEmail();
-    vootEmail.setType("email");
+    vootEmail.setType("work");
     vootEmail.setValue("john@smith.edu");
     VootEmail vootEmail2 = new VootEmail();
-    vootEmail2.setType("email");
+    vootEmail2.setType("work");
     vootEmail2.setValue("jsmith@university.edu");
     vootPerson.setEmails(new VootEmail[]{vootEmail, vootEmail2});
     
@@ -149,6 +149,4 @@ public class VootPerson {
     this.emails = emails1;
   }
 
-  
-  
 }
