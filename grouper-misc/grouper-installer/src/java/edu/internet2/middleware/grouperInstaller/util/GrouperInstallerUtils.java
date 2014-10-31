@@ -91,6 +91,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -10052,8 +10053,7 @@ public class GrouperInstallerUtils  {
   public static NodeList xpathEvaluate(File xmlFile, String xpathExpression) {
     
     try {
-      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-      domFactory.setNamespaceAware(true); 
+      DocumentBuilderFactory domFactory = xmlDocumentBuilderFactory(); 
       DocumentBuilder builder = domFactory.newDocumentBuilder();
       Document doc = builder.parse(xmlFile);
       XPath xpath = XPathFactory.newInstance().newXPath();
@@ -10067,6 +10067,22 @@ public class GrouperInstallerUtils  {
       throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'", e);
     }
 
+  }
+
+  /**
+   * xml builder factory that doesnt go to internet to get dtd
+   * @return the factory
+   */
+  public static DocumentBuilderFactory xmlDocumentBuilderFactory() {
+    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+    domFactory.setNamespaceAware(true);
+    domFactory.setValidating(false);
+    try {
+      domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    } catch (ParserConfigurationException pce) {
+      throw new RuntimeException(pce);
+    }
+    return domFactory;
   }
   
   /** array for converting HTML to string */
@@ -10275,7 +10291,7 @@ public class GrouperInstallerUtils  {
       if (e instanceof RuntimeException) {  
         throw (RuntimeException)e;  
       }  
-      throw new RuntimeException(e.getMessage(), e);  
+      throw new RuntimeException(jarFile.getAbsolutePath() + ", " + e.getMessage(), e);  
     } finally {  
       closeQuietly(manifestStream);  
     }  

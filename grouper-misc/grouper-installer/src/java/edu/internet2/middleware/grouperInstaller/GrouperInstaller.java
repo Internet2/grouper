@@ -863,6 +863,9 @@ public class GrouperInstaller {
    */
   private void mainUpgradeLogic(String[] args) {
 
+    System.out.println("You should backup your files and database before you start.  Press <enter> to continue.");
+    readFromStdIn();
+    
     System.out.println("\n##################################");
     System.out.println("Gather upgrade information\n");
 
@@ -911,6 +914,10 @@ public class GrouperInstaller {
 
     System.out.println("\nGrouper is upgraded from " + (this.originalGrouperJarVersion == null ? null : this.originalGrouperJarVersion) 
         + " to " + GrouperInstallerUtils.propertiesValue("grouper.version", true) +  "\n");
+
+    //this file keeps track of partial upgrades
+    GrouperInstallerUtils.fileDelete(this.grouperUpgradeOriginalVersionFile);
+    
   }
 
   /**
@@ -970,7 +977,7 @@ public class GrouperInstaller {
             + File.separator + "WEB-INF" + File.separator + "bin" + File.separator + gshName);
 
         if (!GrouperInstallerUtils.contentEquals(newGshFile, existingGshFile)) {
-          this.backupAndCopyFile(newGshFile, existingGshFile);
+          this.backupAndCopyFile(newGshFile, existingGshFile, true);
           if (!GrouperInstallerUtils.equals("gsh.bat", gshName)) {
             hadChange = true;
           }
@@ -1018,11 +1025,11 @@ public class GrouperInstaller {
         this.owaspCsrfGuardFile = new File(this.upgradeExistingClassesDirectoryString + newOwaspFile.getName());
       }
       
-      this.backupAndCopyFile(newBaseOwaspFile, this.owaspCsrfGuardBaseFile);
+      this.backupAndCopyFile(newBaseOwaspFile, this.owaspCsrfGuardBaseFile, true);
 
       boolean editedOwaspOverlay = this.owaspCsrfGuardFile != null && this.owaspCsrfGuardFile.exists();
 
-      File bakFile = this.backupAndCopyFile(newOwaspFile, this.owaspCsrfGuardFile);
+      File bakFile = this.backupAndCopyFile(newOwaspFile, this.owaspCsrfGuardFile, true);
 
       if (bakFile != null && editedOwaspOverlay) {
         if (!GrouperInstallerUtils.contentEquals(this.owaspCsrfGuardFile, newOwaspFile)) {
@@ -1044,7 +1051,7 @@ public class GrouperInstaller {
    */
   public void upgradeWebXml(File newWebXml, File existingWebXml) {
     
-    File bakFile = backupAndCopyFile(newWebXml, existingWebXml);
+    File bakFile = backupAndCopyFile(newWebXml, existingWebXml, true);
     
     if (bakFile != null) {
       //it existed
@@ -1061,7 +1068,7 @@ public class GrouperInstaller {
           webXmlContents = webXmlContents.substring(0, startAuthnIndex) + webXmlContents.substring(endAuthnIndex, webXmlContents.length());
           GrouperInstallerUtils.saveStringIntoFile(existingWebXml, webXmlContents);
           tookOutAuthn = true;
-          
+          System.out.println("Taking out basic authentication from " + existingWebXml + " since it wasnt there before");
         }
       }
       System.out.println("If you customized the web.xml please merge your changes back in "
@@ -1233,7 +1240,7 @@ public class GrouperInstaller {
 
           relativeFilePathsChangedAndIfInsert.put(relativePath, false);
 
-          this.backupAndCopyFile(fileToCopyFrom, fileToCopyTo);
+          this.backupAndCopyFile(fileToCopyFrom, fileToCopyTo, false);
 
           continue;
         }
@@ -1246,6 +1253,9 @@ public class GrouperInstaller {
       }
     }
 
+    System.out.println("Upgrading files from: " + fromDirString + "\n  to: " + toDirString 
+        + (GrouperInstallerUtils.length(relativePathsToIgnore) == 0 ? "" : 
+        ("\n  ignoring paths: " + GrouperInstallerUtils.join(relativePathsToIgnore.iterator(), ", "))));
     System.out.println("Compared " + allFiles.size() + " files and found " 
         + insertCount + " adds and " + updateCount + " updates");
 
@@ -1276,15 +1286,15 @@ public class GrouperInstaller {
   private void upgradeApi() {
 
     this.runChangeLogTempToChangeLog();
-    
+
     this.upgradeClient();
-    
+
     System.out.println("\n##################################");
     System.out.println("Upgrading API\n");
 
     //lets get the version of the existing jar
     this.originalGrouperJarVersion();
-    
+
     this.compareAndReplaceJar(this.grouperJar, 
         new File(this.untarredApiDir + File.separator + "dist" + File.separator 
             + "lib" + File.separator + "grouper.jar"), true);
@@ -1318,6 +1328,12 @@ public class GrouperInstaller {
 
     this.upgradeEhcacheXml();
 
+    System.out.println("\nYou should compare " + this.grouperPropertiesFile.getParentFile().getAbsolutePath() + File.separator + "sources.xml"
+        + "\n  with " + this.untarredApiDir + File.separator + "conf" + File.separator + "sources.xml");
+    System.out.println("Press <enter> to continue after you have merged the sources.xml");
+    readFromStdIn();
+    
+    
     System.out.println("\n##################################");
     System.out.println("Upgrading API jars\n");
 
@@ -1348,11 +1364,16 @@ public class GrouperInstaller {
         System.exit(1);
       }
     }
-    
-    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.0.0"))) {
 
-      System.out.println("You are upgrading from pre API version 2.0.0, do you want to run Unresolvable Subject Deletion Utility (USDU) (recommended) (t|f)? [t]: ");
-      boolean runScript = readFromStdInBoolean(true);
+    boolean lessThan2_0 = this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.0.0"));
+    {
+      if (lessThan2_0) {
+        System.out.println("You are upgrading from pre API version 2.0.0, do you want to run Unresolvable Subject Deletion Utility (USDU) (recommended) (t|f)? [t]: ");
+      } else {
+        System.out.println("You are upgrading from after API version 2.0.0, so you dont have to do this,\n  "
+            + "but do you want to run Unresolvable Subject Deletion Utility (USDU) (not recommended) (t|f)? [f]: ");
+      }
+      boolean runScript = readFromStdInBoolean(lessThan2_0);
       
       if (runScript) {
         
@@ -1384,9 +1405,17 @@ public class GrouperInstaller {
            new File(this.gshCommand()).getParentFile(), null, true);
   
       }
-      
-      System.out.println("You are upgrading from pre API version 2.0.0, do you want to resolve all group subjects (recommended) (t|f)? [t]: ");
-      runScript = readFromStdInBoolean(true);
+    }
+    
+    {
+
+      if (lessThan2_0) {
+        System.out.println("You are upgrading from pre API version 2.0.0, do you want to resolve all group subjects (recommended) (t|f)? [t]: ");
+      } else {
+        System.out.println("You are upgrading from after API version 2.0.0, so you dont have to do this,\n  "
+            + "but do you want to resolve all group subjects (not recommended) (t|f)? [f]: ");
+      }
+      boolean runScript = readFromStdInBoolean(lessThan2_0);
       
       if (runScript) {
         
@@ -1417,11 +1446,17 @@ public class GrouperInstaller {
            new File(this.gshCommand()).getParentFile(), null, true);
       }
     }
-    
-    if (giGrouperVersion.lessThanArg(new GiGrouperVersion("2.1.0"))) {
 
-      System.out.println("You are upgrading from pre API version 2.1.0, do you want to see if you have rules with ruleCheckType: flattenedPermission* (recommended) (t|f)? [t]: ");
-      boolean runScript = readFromStdInBoolean(true);
+    {
+      boolean lessThan2_1 = giGrouperVersion.lessThanArg(new GiGrouperVersion("2.1.0"));
+      if (lessThan2_1) {
+        System.out.println("You are upgrading from pre API version 2.1.0, do you want to "
+            + "see if you have rules with ruleCheckType: flattenedPermission* (recommended) (t|f)? [t]: ");
+      } else {
+        System.out.println("You are upgrading from after API version 2.1.0, so you dont have to do this,\n  "
+            + "but do you want to see if you have rules with ruleCheckType: flattenedPermission* (not recommended) (t|f)? [f]: ");
+      }
+      boolean runScript = readFromStdInBoolean(lessThan2_1);
       
       if (runScript) {
         
@@ -1483,10 +1518,16 @@ public class GrouperInstaller {
       }
     }
 
-    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.0"))) {
-
-      System.out.println("You are upgrading from pre API version 2.2.0, do you want to run the 2.2 upgrade GSH script (recommended) (t|f)? [t]: ");
-      boolean runScript = readFromStdInBoolean(true);
+    {
+      boolean lessThan2_2_0 = giGrouperVersion.lessThanArg(new GiGrouperVersion("2.2.0"));
+      if (lessThan2_2_0) {
+        System.out.println("You are upgrading from pre API version 2.2.0, "
+            + "do you want to run the 2.2 upgrade GSH script (recommended) (t|f)? [t]: ");
+      } else {
+        System.out.println("You are upgrading from after API version 2.2.0, so you dont have to do this,\n  "
+            + "but do you want to run the 2.2 upgrade GSH script (not recommended) (t|f)? [f]: ");
+      }
+      boolean runScript = readFromStdInBoolean(lessThan2_2_0);
       
       if (runScript) {
         
@@ -1508,51 +1549,33 @@ public class GrouperInstaller {
       
     }
 
-    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.1"))) {
-
-      System.out.println("You are upgrading from pre API version 2.2.1, do you want to run the 2.2.1 upgrade GSH script (recommended) (t|f)? [t]: ");
-      boolean runScript = readFromStdInBoolean(true);
-      
-      if (runScript) {
-        
-        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "misc" + File.separator + "postGrouper2_2_1Upgrade.gsh");
-        
-        List<String> commands = new ArrayList<String>();
-  
-        addGshCommands(commands);
-        commands.add(gshFile.getAbsolutePath());
-  
-        System.out.println("\n##################################");
-        System.out.println("Running 2.2.1 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
-  
-        GrouperInstallerUtils.execCommand(
-            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-           new File(this.gshCommand()).getParentFile(), null, true);
-  
+    {
+      boolean lessThan2_2_1 = giGrouperVersion.lessThanArg(new GiGrouperVersion("2.2.1"));
+      if (lessThan2_2_1) {
+        System.out.println("You are upgrading from pre API version 2.2.1, do you want to "
+            + "run the 2.2.1 upgrade GSH script (recommended) (t|f)? [t]: ");
+      } else {
+        System.out.println("You are upgrading from after API version 2.2.1, so you dont have to do this,\n  "
+            + "but do you want to run the 2.2.1 upgrade GSH script (not recommended) (t|f)? [f]: ");
       }
-    }
-    
-    if (this.originalGrouperJarVersion.lessThanArg(new GiGrouperVersion("2.2.1"))) {
-
-      System.out.println("You are upgrading from pre API version 2.2.1, do you want to run the 2.2.1 upgrade GSH script (recommended) (t|f)? [t]: ");
-      boolean runScript = readFromStdInBoolean(true);
+      boolean runScript = readFromStdInBoolean(lessThan2_2_1);
       
       if (runScript) {
         
         File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "misc" + File.separator + "postGrouper2_2_1Upgrade.gsh");
         
         List<String> commands = new ArrayList<String>();
-  
+
         addGshCommands(commands);
         commands.add(gshFile.getAbsolutePath());
-  
+
         System.out.println("\n##################################");
         System.out.println("Running 2.2.1 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
-  
+
         GrouperInstallerUtils.execCommand(
             GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
            new File(this.gshCommand()).getParentFile(), null, true);
-  
+
       }
     }
 
@@ -1578,6 +1601,9 @@ public class GrouperInstaller {
 
       this.originalGrouperJarVersionRetrieved = true;
       
+      //lets see if an upgrade went halfway through
+      this.grouperUpgradeOriginalVersionFile = new File(this.upgradeExistingApplicationDirectoryString + "grouperUpgradeOriginalVersion.txt");
+
       if (this.grouperJar != null && this.grouperJar.exists()) {
         String grouperJarVersionString = GrouperInstallerUtils.jarVersion(this.grouperJar);
         
@@ -1585,11 +1611,27 @@ public class GrouperInstaller {
           this.originalGrouperJarVersion = new GiGrouperVersion(grouperJarVersionString);
         }
       }
+
       
+      if (this.grouperUpgradeOriginalVersionFile.exists()) {
+        String grouperJarVersionString = GrouperInstallerUtils.readFileIntoString(this.grouperUpgradeOriginalVersionFile);
+        GiGrouperVersion fileGrouperJarVersion = new GiGrouperVersion(grouperJarVersionString);
+        
+        if (fileGrouperJarVersion != this.originalGrouperJarVersion) {
+          
+          System.out.println("It is detected that an upgrade did not complete from version " + fileGrouperJarVersion);
+          this.originalGrouperJarVersion = fileGrouperJarVersion;
+        }
+      }      
     }
     
     return this.originalGrouperJarVersion;
   }
+  
+  /**
+   * file where version is kept for partial upgrades
+   */
+  private File grouperUpgradeOriginalVersionFile;
   
   /**
    * @param firstTime if first time
@@ -1597,6 +1639,7 @@ public class GrouperInstaller {
   private void apiUpgradeDbVersion(boolean firstTime) {
     
     if (!GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.default.api.checkDdlVersion", true, false)) {
+      System.out.println("Not checking DDL version since grouper.installer.properties: grouperInstaller.default.api.checkDdlVersion = false");
       return;
     }
 
@@ -1622,6 +1665,16 @@ public class GrouperInstaller {
     }
 
     String result = commandResult.getErrorText().trim();
+    
+    // Grouper ddl object type 'Grouper' has dbVersion: 27 and java version: 28
+    // NOTE: Grouper database schema DDL may require updates, but the temp change log must 
+    // be empty to perform an upgrade.  To process the temp change log, start up your current 
+    // version of GSH and run: loaderRunOneJob("CHANGE_LOG_changeLogTempToChangeLog")
+    if (result != null && result.contains("CHANGE_LOG_changeLogTempToChangeLog")) {
+      System.out.println("You must run the change log temp to change log before upgrading.  You can start the upgrader again and run it.");
+      System.exit(1);
+    }
+    
     String[] lines = GrouperInstallerUtils.splitLines(result);
     {
       boolean okWithVersion = false;
@@ -1660,7 +1713,7 @@ public class GrouperInstaller {
     //To run script via gsh, carefully review it, then run this:
     //gsh -registry -runsqlfile C:\\app\\grouper_2_2_0_installer\\grouper.apiBinary-2.2.0\\ddlScripts\\grouperDdl_20141014_10_17_12_577.sql
 
-    System.out.println("Review the script(s) above if there are any, do you want the upgrader to run it or upgrade the DDL for you (t|f)? [t]: ");
+    System.out.println("Review the script(s) above if there are any, do you want the upgrader to run it to upgrade the DDL for you (t|f)? [t]: ");
     boolean runIt = readFromStdInBoolean(true);
     
     if (runIt) {
@@ -1688,6 +1741,8 @@ public class GrouperInstaller {
           commands.add("-noprompt");
           commands.add("-runsqlfile");
           commands.add(fileName);
+          
+          foundScript = true;
           
           System.out.println("\n##################################");
           System.out.println("Upgrading database with command: " + convertCommandsIntoCommand(commands) + "\n");
@@ -1722,6 +1777,10 @@ public class GrouperInstaller {
       throw new RuntimeException("Why does jar directory not exist? " + fromDir);
     }
     
+    File jarDir = null;
+    
+    int changes = 0;
+    
     for (File jarFile : fromDir.listFiles()) {
       
       //only do jar files
@@ -1731,11 +1790,18 @@ public class GrouperInstaller {
 
       File existingJar = this.findLibraryFile(jarFile.getName(), false);
 
-      this.compareAndReplaceJar(existingJar, jarFile, false);
+      changes += this.compareAndReplaceJar(existingJar, jarFile, false) ? 1 : 0;
+
+      if (jarDir == null) {
+        jarDir = existingJar.getParentFile();
+      }
       
       //TODO see if there are conflicting jars there?
       
     }
+
+    System.out.println("Upgraded " + changes + " jar files from: " + fromDir.getAbsolutePath()
+        + "\n  to: " + jarDir.getAbsolutePath());
     
   }
   
@@ -1756,7 +1822,7 @@ public class GrouperInstaller {
     if (GrouperInstallerUtils.equals(existingEhcacheContents, newEhcacheContents)) {
       //make sure example is up to date
       if (this.ehcacheExampleFile != null && !GrouperInstallerUtils.equals(existingExampleEhcacheContents, newEhcacheContents)) {
-        this.backupAndCopyFile(newEhcacheExample, this.ehcacheExampleFile);
+        this.backupAndCopyFile(newEhcacheExample, this.ehcacheExampleFile, true);
       }
 
       //we are all good
@@ -1781,17 +1847,17 @@ public class GrouperInstaller {
     if (mergeFiles) {
       //if the ehcache is the same as the example, lets just copy
       if (GrouperInstallerUtils.equals(existingEhcacheContents, existingExampleEhcacheContents)) {
-        this.backupAndCopyFile(newEhcacheExample, this.ehcacheFile);
+        this.backupAndCopyFile(newEhcacheExample, this.ehcacheFile, false);
         if (this.ehcacheExampleFile != null) {
-          this.backupAndCopyFile(newEhcacheExample, this.ehcacheExampleFile);
+          this.backupAndCopyFile(newEhcacheExample, this.ehcacheExampleFile, false);
         }
         return;
       }
-  
+
       //the ehcache file is different from the example and different from the new one, so merge it in
       mergeEhcacheXmlFiles(newEhcacheExample, this.ehcacheExampleFile, this.ehcacheFile);
     }
-    
+
     System.out.println("Compare you old ehcache.xml with the new ehcache.xml file: " 
         + "\n  Old file: "
         + ehcacheBakFile.getAbsolutePath()
@@ -1805,23 +1871,35 @@ public class GrouperInstaller {
    * 
    * @param newFile
    * @param existingFile
+   * @param printDetails
    * @return the bakFile
    */
-  public File backupAndCopyFile(File newFile, File existingFile) {
+  public File backupAndCopyFile(File newFile, File existingFile, boolean printDetails) {
     
     if (!GrouperInstallerUtils.contentEquals(newFile, existingFile)) {
       
       File bakFile = null;
           
-      if (existingFile.exists()) {
+      boolean fileExists = existingFile.exists();
+      if (fileExists) {
         bakFile = bakFile(existingFile);
         GrouperInstallerUtils.copyFile(existingFile, bakFile);
+        if (printDetails) {
+          System.out.println("Backing up: " + existingFile.getAbsolutePath() + " to: " + bakFile.getAbsolutePath());
+        }
+      }
+      if (printDetails) {
+        System.out.println("Copying " + (fileExists ? "new file" : "upgraded file") + ": " + newFile.getAbsolutePath() + " to: " + existingFile.getAbsolutePath());
       }
       GrouperInstallerUtils.copyFile(newFile, existingFile);
       return bakFile;
       
     }
 
+    if (printDetails) {
+      System.out.println(existingFile.getAbsolutePath() + " has not been updated so it was not changed");
+    }
+    
     return null;
   }
 
@@ -1856,6 +1934,8 @@ public class GrouperInstaller {
       File existingPropertiesFile,
       File existingExamplePropertiesFile,
       Set<String> propertiesToIgnore) {
+
+    boolean hadChange = false;
     
     if (!newBasePropertiesFile.exists() || !newBasePropertiesFile.isFile()) {
       throw new RuntimeException("Why does this file not exist? " + newBasePropertiesFile.getAbsolutePath());
@@ -1884,7 +1964,9 @@ public class GrouperInstaller {
 
         System.out.println(existingBasePropertiesFile.getName() + " has changes and was upgraded.\n  It is backed up to " 
             + bakBasePropertiesFile.getAbsolutePath());
-
+        
+        hadChange = true;
+        
         GrouperInstallerUtils.fileMove(existingBasePropertiesFile, bakBasePropertiesFile);
         
         GrouperInstallerUtils.copyFile(newBasePropertiesFile, existingBasePropertiesFile);
@@ -1892,6 +1974,8 @@ public class GrouperInstaller {
       }
       
     } else {
+      
+      hadChange = true;
       
       System.out.println(newBasePropertiesFile.getName() + " didn't exist and was installed.");
       
@@ -1937,10 +2021,14 @@ public class GrouperInstaller {
       
       if (GrouperInstallerUtils.length(duplicateConfigPropertyNames) > 0) {
 
-        System.out.println(existingPropertiesFile.getName() + " has properties that can be removed since the values are the same in "
+        hadChange = true;
+        
+        System.out.println(existingPropertiesFile.getName() + " has " + duplicateConfigPropertyNames.size() 
+            + " properties that can be removed since the values are the same in "
             + newBasePropertiesFile.getName());
 
-        System.out.println("Would you like to have the redundant properties automatically removed from " 
+        System.out.println("Would you like to have the " + duplicateConfigPropertyNames.size() 
+            + " redundant properties automatically removed from " 
             + existingPropertiesFile.getName() + " (t|f)? [t]: ");
         boolean removeRedundantProperties = readFromStdInBoolean(true);
         
@@ -1970,6 +2058,9 @@ public class GrouperInstaller {
         }
       }
     } else {
+      
+      hadChange = true;
+      
       //if we didnt have a properties file, create one
       //file is null...
       String contents = "\n# The " + newBasePropertiesFile.getName().replace(".base", "") 
@@ -1994,6 +2085,11 @@ public class GrouperInstaller {
       
       GrouperInstallerUtils.saveStringIntoFile(file, contents);
     }
+    
+    if (!hadChange) {
+      System.out.println("Found no changes in " + existingBasePropertiesFile.getAbsolutePath());
+    }
+    
   }
 
   /**
@@ -2169,9 +2265,6 @@ public class GrouperInstaller {
       public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
         API.downloadAndBuildGrouperProjects(grouperInstaller);
         
-        //download api and set executable and dos2unix etc
-        grouperInstaller.downloadAndConfigureApi();
-
         //####################################
         //download and configure ui
         grouperInstaller.downloadAndConfigureUi();
@@ -2184,44 +2277,38 @@ public class GrouperInstaller {
         //build UI
         grouperInstaller.buildUi(false);
 
-        File webXml = null;
+        File serverXml = null;
         for (int i=0;i<10;i++) {
-          String defaultWebXml = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.ui.web.xml", false);
+          String defaultServerXml = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.ui.server.xml", false);
           System.out.println("What is the location of your tomcat server.xml for the UI?  "
               + "Note, if you dont use tomcat just leave it blank or type 'blank': " 
-              + (GrouperInstallerUtils.isBlank(defaultWebXml) ? "" : ("[" + defaultWebXml + "]: ")));
-          String webXmlLocation = readFromStdIn();
+              + (GrouperInstallerUtils.isBlank(defaultServerXml) ? "" : ("[" + defaultServerXml + "]: ")));
+          String serverXmlLocation = readFromStdIn();
           
-          if (GrouperInstallerUtils.equals(defaultWebXml, "blank")) {
-            defaultWebXml = null;
+          if (GrouperInstallerUtils.equals(defaultServerXml, "blank")) {
+            defaultServerXml = null;
             break;
           }
           
-          if (GrouperInstallerUtils.isBlank(webXmlLocation)) {
-            if (GrouperInstallerUtils.isNotBlank(defaultWebXml)) {
-              webXmlLocation = defaultWebXml;
+          if (GrouperInstallerUtils.isBlank(serverXmlLocation)) {
+            if (GrouperInstallerUtils.isNotBlank(defaultServerXml)) {
+              serverXmlLocation = defaultServerXml;
             } else {
               break;
             }
           }
-          webXml = new File(webXmlLocation);
-          if (webXml.exists() && webXml.isFile()) {
+          serverXml = new File(serverXmlLocation);
+          if (serverXml.exists() && serverXml.isFile()) {
             break;
           }
           if (i != 9) {
-            System.out.println("Error: web.xml cant be found, try again.");
+            System.out.println("Error: server.xml cant be found, try again.");
           }
         }
-        if (webXml != null && webXml.exists() && webXml.isFile()) {
-          grouperInstaller.configureTomcatUriEncoding(webXml);
+        if (serverXml != null && serverXml.exists() && serverXml.isFile()) {
+          grouperInstaller.configureTomcatUriEncoding(serverXml);
         }
-
-        //we need to migrate the media.properties to the grouper-ui.properties
-        //we need to migrate the nav.properties to the grouper text properties
-        //we need to see if the old web.xml had authn and if not remove from new web.xml
-        //now we need to sync files from build UI to old
-        
-        
+                
       }
 
       @Override
@@ -2321,13 +2408,17 @@ public class GrouperInstaller {
         if (grouperInstaller.grouperClientBasePropertiesFile == null 
             && grouperInstaller.grouperClientPropertiesFile == null 
             && grouperInstaller.grouperClientExamplePropertiesFile == null) {
-          return false;
+          if (grouperInstaller.appToUpgrade == CLIENT) {
+            return false;
+          }
         }
         
         //this must exist
         grouperInstaller.grouperClientJar = grouperInstaller.findLibraryFile("grouperClient.jar", false);
         if (grouperInstaller.grouperClientJar == null) {
-          return false;
+          if (grouperInstaller.appToUpgrade == CLIENT) {
+            return false;
+          }
         }
         
         //all good
@@ -2352,15 +2443,45 @@ public class GrouperInstaller {
 
       @Override
       public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        //API and client are in the UI
+        if (!API.validateExistingDirectory(grouperInstaller)) {
+          return false;
+        }
+        
+        grouperInstaller.grouperWsPropertiesFile = grouperInstaller.findClasspathFile("grouper-ws.properties", false);
+        grouperInstaller.grouperWsBasePropertiesFile = grouperInstaller.findClasspathFile("grouper-ws.base.properties", false);
+        grouperInstaller.grouperWsExamplePropertiesFile = grouperInstaller.findClasspathFile("grouper-ws.example.properties", false);
+
+        if (grouperInstaller.grouperWsBasePropertiesFile == null 
+            && grouperInstaller.grouperWsPropertiesFile == null 
+            && grouperInstaller.grouperWsExamplePropertiesFile == null) {
+          return false;
+        }
+
         return true;
       }
 
       @Override
       public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+        API.downloadAndBuildGrouperProjects(grouperInstaller);
+        
+        //####################################
+        //download and configure ws
+        grouperInstaller.downloadAndConfigureWs();
+
+        //####################################
+        //get ant
+        grouperInstaller.downloadAndUnzipAnt();
+
+        //####################################
+        //build Ws
+        grouperInstaller.buildWs(false);
+
       }
 
       @Override
       public void upgradeApp(GrouperInstaller grouperInstaller) {
+        grouperInstaller.upgradeWs();
       }
     };
 
@@ -2411,14 +2532,15 @@ public class GrouperInstaller {
    * @param existingJarFile
    * @param newJarFile
    * @param printResultIfNotUpgrade
+   * @return true if upgraded, false if not
    */
-  private void compareAndReplaceJar(File existingJarFile, File newJarFile, boolean printResultIfNotUpgrade) {
+  private boolean compareAndReplaceJar(File existingJarFile, File newJarFile, boolean printResultIfNotUpgrade) {
     
     if (existingJarFile == null || !existingJarFile.exists()) {
       System.out.println(newJarFile.getName() + " is a new file and is being copied to the application lib dir");
       existingJarFile = new File(this.upgradeExistingLibDirectoryString + newJarFile.getName());
       GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
-      return;
+      return true;
     }
 
     String existingJarFilePath = existingJarFile.getAbsolutePath();
@@ -2447,12 +2569,13 @@ public class GrouperInstaller {
       
       GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
       
-    } else {
-      if (printResultIfNotUpgrade) {
-        System.out.println(existingJarFile.getName() + " is up to date");
-      }
+      return true;
     }
     
+    if (printResultIfNotUpgrade) {
+      System.out.println(existingJarFile.getName() + " is up to date");
+    }
+    return false;
   }
 
   /**
@@ -2516,6 +2639,21 @@ public class GrouperInstaller {
   private File grouperHibernateExamplePropertiesFile;
 
   /**
+   * grouper-ws.properties
+   */
+  private File grouperWsPropertiesFile;
+  
+  /**
+   * grouper-ws.example.properties
+   */
+  private File grouperWsBasePropertiesFile;
+
+  /**
+   * grouper-ws.base.properties
+   */
+  private File grouperWsExamplePropertiesFile;
+  
+  /**
    * ehcache.xml
    */
   private File ehcacheFile;
@@ -2556,14 +2694,14 @@ public class GrouperInstaller {
     
     Set<String> fileNamesTried = new LinkedHashSet<String>();
     
-    File file = new File(this.upgradeExistingApplicationDirectoryString + "classes/" + resourceName);
+    File file = new File(this.upgradeExistingApplicationDirectoryString + "classes" + File.separator + resourceName);
     if (file.exists()) {
       return file;
     }
     
     fileNamesTried.add(file.getAbsolutePath());
     
-    file = new File(this.upgradeExistingApplicationDirectoryString + "conf/" + resourceName);
+    file = new File(this.upgradeExistingApplicationDirectoryString + "conf" + File.separator + resourceName);
     if (file.exists()) {
       return file;
     }
@@ -2582,7 +2720,8 @@ public class GrouperInstaller {
       fileNamesTried.add(file.getAbsolutePath());
     }
     
-    file = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF/classes/" + resourceName);
+    file = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF" + File.separator + "classes" 
+        + File.separator + resourceName);
     if (file.exists()) {
       return file;
     }
@@ -2834,23 +2973,12 @@ public class GrouperInstaller {
     System.out.println("##################################\n");
     System.out.println("Go here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
     System.out.println("\n##################################\n");
-    
-    //####################################
-    //download the ws
-    File wsDir = downloadWs();
 
-    //####################################
-    //unzip/untar the ws file
-    File unzippedWsFile = unzip(wsDir.getAbsolutePath());
-    this.untarredWsDir = untar(unzippedWsFile.getAbsolutePath());
-
-    //####################################
-    //configure where api is
-    this.configureWs();
+    this.downloadAndConfigureWs();
     
     //####################################
     //build WS
-    buildWs();
+    buildWs(true);
     
     //####################################
     //copy to tomcat
@@ -2910,6 +3038,27 @@ public class GrouperInstaller {
     File unzippedAntFile = unzip(antDir.getAbsolutePath());
     this.untarredAntDir = untar(unzippedAntFile.getAbsolutePath());
   }
+
+  /**
+   * 
+   */
+  public void downloadAndConfigureWs() {
+
+    //####################################
+    //download the ws
+    File wsDir = downloadWs();
+
+    //####################################
+    //unzip/untar the ws file
+    File unzippedWsFile = unzip(wsDir.getAbsolutePath());
+    this.untarredWsDir = untar(unzippedWsFile.getAbsolutePath());
+
+    //####################################
+    //configure where api is
+    this.configureWs();
+
+  }
+
   /**
    * 
    */
@@ -3301,8 +3450,7 @@ public class GrouperInstaller {
     
     try {
       //lets get the differences of the existing ehcache file and the existing ehcache example file
-      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-      domFactory.setNamespaceAware(true); 
+      DocumentBuilderFactory domFactory = GrouperInstallerUtils.xmlDocumentBuilderFactory();
       DocumentBuilder builder = domFactory.newDocumentBuilder();
       Document existingEhcacheDoc = builder.parse(existingEhcacheFile);
       Document existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
@@ -3574,8 +3722,7 @@ public class GrouperInstaller {
     
     try {
       //lets get the differences of the existing ehcache file and the existing ehcache example file
-      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-      domFactory.setNamespaceAware(true); 
+      DocumentBuilderFactory domFactory = GrouperInstallerUtils.xmlDocumentBuilderFactory();
       DocumentBuilder builder = domFactory.newDocumentBuilder();
       Document existingEhcacheDoc = builder.parse(existingEhcacheFile);
       Document existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
@@ -4377,29 +4524,30 @@ public class GrouperInstaller {
   }
 
   /**
-   * 
+   * @param isInstallNotUpgrade
    */
-  private void buildWs() {
+  private void buildWs(boolean isInstallNotUpgrade) {
     
     File grouperWsBuildToDir = new File(this.grouperWsBuildToDirName());
     
     boolean rebuildWs = true;
-    
-    if (grouperWsBuildToDir.exists()) {
 
-      System.out.print("Do you want to build the Grouper WS? (t|f) [t]: ");
-      rebuildWs =readFromStdInBoolean(true);
-    }
-    
+    boolean defaultRebuild = GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.default.ws.rebuildIfBuilt", true, false);
+    System.out.print("The Grouper WS has been built in the past, do you want it rebuilt? (t|f) [" 
+        + (defaultRebuild ? "t" : "f") + "]: ");
+    rebuildWs = readFromStdInBoolean(defaultRebuild);
+
     if (!rebuildWs) {
       return;
     }
 
-    //stop tomcat
-    try {
-      tomcatBounce("stop");
-    } catch (Throwable e) {
-      System.out.println("Couldnt stop tomcat, ignoring...");
+    if (isInstallNotUpgrade) {
+      //stop tomcat
+      try {
+        tomcatBounce("stop");
+      } catch (Throwable e) {
+        System.out.println("Couldnt stop tomcat, ignoring...");
+      }
     }
     
     List<String> commands = new ArrayList<String>();
@@ -4421,46 +4569,48 @@ public class GrouperInstaller {
       System.out.println("stdout: " + commandResult.getOutputText());
     }
 
-    System.out.print("Do you want to set the log dir of WS (t|f)? [t]: ");
-    boolean setLogDir = readFromStdInBoolean(true);
-    
-    if (setLogDir) {
+    if (isInstallNotUpgrade) {
+      System.out.print("Do you want to set the log dir of WS (t|f)? [t]: ");
+      boolean setLogDir = readFromStdInBoolean(true);
       
-      ////set the log dir
-      //C:\apps\grouperInstallerTest\grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws\WEB-INF\classes\log4j.properties
-      //
-      //${grouper.home}logs
-
-      String defaultLogDir = this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "grouperWs";
-      System.out.print("Enter the WS log dir: [" + defaultLogDir + "]: ");
-      String logDir = readFromStdIn();
-      logDir = GrouperInstallerUtils.defaultIfBlank(logDir, defaultLogDir);
-      
-      //lets replace \\ with /
-      logDir = GrouperInstallerUtils.replace(logDir, "\\\\", "/");
-      //lets replace \ with /
-      logDir = GrouperInstallerUtils.replace(logDir, "\\", "/");
-
-      File log4jFile = new File(grouperWsBuildToDirName() + File.separator + "WEB-INF" + File.separator + "classes"
-          + File.separator + "log4j.properties");
-      
-      System.out.println("Editing file: " + log4jFile.getAbsolutePath());
-      
-      editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+logs)/grouper_[^\\s]+\\.log", null, 
-          null, logDir, "WS log directory");
-      
-      File logDirFile = new File(defaultLogDir);
-      if (!logDirFile.exists()) {
-        System.out.println("Creating log directory: " + logDirFile.getAbsolutePath());
-        GrouperInstallerUtils.mkdirs(logDirFile);
+      if (setLogDir) {
+        
+        ////set the log dir
+        //C:\apps\grouperInstallerTest\grouper.ws-2.0.2\grouper-ws\build\dist\grouper-ws\WEB-INF\classes\log4j.properties
+        //
+        //${grouper.home}logs
+  
+        String defaultLogDir = this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "grouperWs";
+        System.out.print("Enter the WS log dir: [" + defaultLogDir + "]: ");
+        String logDir = readFromStdIn();
+        logDir = GrouperInstallerUtils.defaultIfBlank(logDir, defaultLogDir);
+        
+        //lets replace \\ with /
+        logDir = GrouperInstallerUtils.replace(logDir, "\\\\", "/");
+        //lets replace \ with /
+        logDir = GrouperInstallerUtils.replace(logDir, "\\", "/");
+  
+        File log4jFile = new File(grouperWsBuildToDirName() + File.separator + "WEB-INF" + File.separator + "classes"
+            + File.separator + "log4j.properties");
+        
+        System.out.println("Editing file: " + log4jFile.getAbsolutePath());
+        
+        editFile(log4jFile, "log4j\\.\\S+\\.File\\s*=\\s*([^\\s]+logs)/grouper_[^\\s]+\\.log", null, 
+            null, logDir, "WS log directory");
+        
+        File logDirFile = new File(defaultLogDir);
+        if (!logDirFile.exists()) {
+          System.out.println("Creating log directory: " + logDirFile.getAbsolutePath());
+          GrouperInstallerUtils.mkdirs(logDirFile);
+        }
+        //test log dir
+        File testLogDirFile = new File(logDirFile.getAbsolutePath() + File.separator + "testFile" + GrouperInstallerUtils.uniqueId() + ".txt");
+        GrouperInstallerUtils.saveStringIntoFile(testLogDirFile, "test");
+        if (!testLogDirFile.delete()) {
+          throw new RuntimeException("Cant delete file: " +  testLogDirFile.getAbsolutePath());
+        }
+        System.out.println("Created and deleted a test file successfully in dir: " + logDirFile.getAbsolutePath());
       }
-      //test log dir
-      File testLogDirFile = new File(logDirFile.getAbsolutePath() + File.separator + "testFile" + GrouperInstallerUtils.uniqueId() + ".txt");
-      GrouperInstallerUtils.saveStringIntoFile(testLogDirFile, "test");
-      if (!testLogDirFile.delete()) {
-        throw new RuntimeException("Cant delete file: " +  testLogDirFile.getAbsolutePath());
-      }
-      System.out.println("Created and deleted a test file successfully in dir: " + logDirFile.getAbsolutePath());
     }
     
     System.out.println("\nEnd building Ws");
@@ -5565,6 +5715,81 @@ public class GrouperInstaller {
     return pspFile;
   }
   
+  /**
+   * upgrade the ws
+   */
+  private void upgradeWs() {
+  
+    this.upgradeApi();
+    
+    System.out.println("\n##################################");
+    System.out.println("Upgrading WS\n");
+    
+    //copy the jars there
+    System.out.println("\n##################################");
+    System.out.println("Upgrading WS jars\n");
+  
+    this.upgradeJars(new File(this.untarredWsDir + File.separator + 
+        "grouper-ws" + File.separator + "build" + File.separator + "dist" + File.separator + "grouper-ws"
+        + File.separator + "WEB-INF" + File.separator + "lib" + File.separator));
+  
+    System.out.println("\n##################################");
+    System.out.println("Upgrading WS files\n");
+  
+    //copy files there
+    this.copyFiles(this.untarredWsDir + File.separator + 
+        "grouper-ws" + File.separator + "build" + File.separator + "dist" + File.separator + "grouper-ws"
+        + File.separator,
+        this.upgradeExistingApplicationDirectoryString,
+        GrouperInstallerUtils.toSet("WEB-INF/lib", "WEB-INF/web.xml", "WEB-INF/classes",
+            "WEB-INF/bin/gsh", "WEB-INF/bin/gsh.bat", "WEB-INF/bin/gsh.sh"));
+
+    {
+      boolean hadChange = false;
+      for (String gshName : new String[]{"gsh", "gsh.bat", "gsh.sh"}) {
+        File newGshFile = new File(this.untarredWsDir + File.separator + "grouper-ws" + File.separator 
+            + "build" + File.separator + "dist" + File.separator + "grouper-ws"
+            + File.separator + "WEB-INF" + File.separator + "bin" 
+            + File.separator + gshName);
+  
+        File existingGshFile = new File(this.upgradeExistingApplicationDirectoryString 
+            + File.separator + "WEB-INF" + File.separator + "bin" + File.separator + gshName);
+  
+        if (!GrouperInstallerUtils.contentEquals(newGshFile, existingGshFile)) {
+          this.backupAndCopyFile(newGshFile, existingGshFile, true);
+          if (!GrouperInstallerUtils.equals("gsh.bat", gshName)) {
+            hadChange = true;
+          }
+        }
+        
+      }
+      if (hadChange) {
+        //set executable and dos2unix
+        gshExcutableAndDos2Unix(this.upgradeExistingApplicationDirectoryString + "WEB-INF" 
+            + File.separator + "bin" 
+            + File.separator);
+      }
+    }
+    
+    upgradeWebXml(new File(this.untarredWsDir + File.separator + "grouper-ws" 
+        + File.separator + "build" + File.separator + "dist" + File.separator + "grouper-ws"
+        + File.separator + "WEB-INF" + File.separator + "web.xml"),
+            new File(this.upgradeExistingApplicationDirectoryString 
+                + File.separator + "WEB-INF" + File.separator + "web.xml"));
+    
+    System.out.println("\n##################################");
+    System.out.println("Upgrading WS config files\n");
+
+    this.compareUpgradePropertiesFile(this.grouperWsBasePropertiesFile, 
+        new File(this.untarredWsDir + File.separator + 
+            "grouper-ws" + File.separator + "build" + File.separator + "dist" + File.separator + "grouper-ws"
+            + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "grouper-ws.base.properties"),
+        this.grouperWsPropertiesFile,
+        this.grouperWsExamplePropertiesFile, null
+      );
+
+
+  }
   /**
    * edit an xml file attribute in a xml file
    * @param file
