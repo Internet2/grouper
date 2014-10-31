@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -38,6 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.JsonIndenter;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouperVoot.beans.VootErrorResponse;
 import edu.internet2.middleware.grouperVoot.restLogic.VootWsRest;
 import edu.internet2.middleware.subject.Subject;
 
@@ -45,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * voot servlet for the voot rest protocol
  * @author mchyzer
- *
+ * @author Andrea Biancini <andrea.biancini@gmail.com>
  */
 @SuppressWarnings("serial")
 public class VootServlet extends HttpServlet {
@@ -78,13 +80,13 @@ public class VootServlet extends HttpServlet {
       //url should be: /groups/aStem:aGroup
       String resource = GrouperServiceUtils.popUrlString(urlStrings);
       
-      VootRestHttpMethod vootRestHttpMethod = VootRestHttpMethod
-          .valueOfIgnoreCase(request.getMethod(), true);
+      VootRestHttpMethod vootRestHttpMethod = VootRestHttpMethod.valueOfIgnoreCase(request.getMethod(), true);
       
       //validate and get the operation
       VootWsRest vootWsRest = VootWsRest.valueOfIgnoreCase(resource, false);
-
-      Object resultObject = vootWsRest.service(urlStrings, vootRestHttpMethod);
+      
+      @SuppressWarnings("unchecked")
+      Object resultObject = vootWsRest.service(urlStrings, vootRestHttpMethod, (Map<String, String[]>) request.getParameterMap());
       
       String json = GrouperUtil.jsonConvertToNoWrap(resultObject);
 
@@ -92,7 +94,12 @@ public class VootServlet extends HttpServlet {
         json = new JsonIndenter(json).result();
       }
       
-      response.setStatus(200);
+      if (resultObject instanceof VootErrorResponse) {
+    	 response.setStatus(500);
+      }
+      else {
+    	 response.setStatus(200);
+      }
       
       response.setContentType("application/json");
 

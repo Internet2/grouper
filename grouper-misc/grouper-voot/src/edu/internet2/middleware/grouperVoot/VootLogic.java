@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -20,6 +19,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -31,9 +31,10 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperVoot.beans.VootGetGroupsResponse;
 import edu.internet2.middleware.grouperVoot.beans.VootGetMembersResponse;
 import edu.internet2.middleware.grouperVoot.beans.VootGroup;
@@ -44,6 +45,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * business logic for voot
  * @author mchyzer
+ * @author Andrea Biancini <andrea.biancini@gmail.com>
  *
  */
 public class VootLogic {
@@ -65,7 +67,8 @@ public class VootLogic {
   private static Set<Group> findAllByApproximateNameSecureHelper(final String name, final String scope,
       final boolean currentNames, final boolean alternateNames, final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups)
       throws GrouperDAOException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
+    @SuppressWarnings("unchecked")
+	Set<Group> resultGroups = (Set<Group>) HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
   
@@ -155,29 +158,34 @@ public class VootLogic {
     }
 
   }
-
   
   /**
    * get the members for a group based on a group
+   * @param subject
    * @param vootGroup
    * @return the response
    */
-  public static VootGetMembersResponse getMembers(VootGroup vootGroup) {
-    
-    //note the name is the id
+  public static VootGetMembersResponse getMembers(Subject subject, VootGroup vootGroup) {
+	GrouperSession session = GrouperSession.staticGrouperSession();
+	// Non using session created by subject because findByName will only retrieve
+	// groups where the subject is administrator
+	//if (!GrouperSession.staticGrouperSession().getSubject().equals(subject)) {
+	//  session = GrouperSession.start(subject, false);
+	//}
+	  
+	//note the name is the id
     String groupName = vootGroup.getId();
     
     //throws exception if the group is not found
-    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+    Group group = GroupFinder.findByName(session, groupName, true);
     
     Set<Subject> memberSubjects = new HashSet<Subject>();
     
-    {
-      Set<Member> members = group.getMembers();
-      for (Member member : members) {
-        memberSubjects.add(member.getSubject());
-      }
+    Set<Member> members = group.getMembers();
+    for (Member member : members) {
+      memberSubjects.add(member.getSubject());
     }
+      
     Set<Subject> admins = group.getAdmins();
     Set<Subject> updaters = group.getUpdaters();
     
@@ -188,35 +196,41 @@ public class VootLogic {
     //member, admin, manager
     Map<MultiKey, String> memberToRole = new HashMap<MultiKey, String>();
     
-    for (Subject subject : memberSubjects) {
-      MultiKey subjectMultiKey = new MultiKey(subject.getSourceId(), subject.getId());
-      multiKeyToSubject.put(subjectMultiKey, subject);
+    boolean subjectInGroup = false;
+    for (Subject curSubject : memberSubjects) {
+      if (curSubject.getSourceId().equals(subject.getSourceId()) && curSubject.getId().equals(subject.getId())) subjectInGroup = true;
+      MultiKey subjectMultiKey = new MultiKey(curSubject.getSourceId(), curSubject.getId());
+      multiKeyToSubject.put(subjectMultiKey, curSubject);
       memberToRole.put(subjectMultiKey, "admin");
     }
-    for (Subject subject : updaters) {
-      MultiKey subjectMultiKey = new MultiKey(subject.getSourceId(), subject.getId());
-      multiKeyToSubject.put(subjectMultiKey, subject);
+    for (Subject curSubject : updaters) {
+      if (curSubject.getSourceId().equals(subject.getSourceId()) && curSubject.getId().equals(subject.getId())) subjectInGroup = true;
+      MultiKey subjectMultiKey = new MultiKey(subject.getSourceId(), curSubject.getId());
+      multiKeyToSubject.put(subjectMultiKey, curSubject);
       memberToRole.put(subjectMultiKey, "manager");
     }
-    for (Subject subject : admins) {
-      MultiKey subjectMultiKey = new MultiKey(subject.getSourceId(), subject.getId());
-      multiKeyToSubject.put(subjectMultiKey, subject);
+    for (Subject curSubject : admins) {
+      if (curSubject.getSourceId().equals(subject.getSourceId()) && curSubject.getId().equals(subject.getId())) subjectInGroup = true;
+      MultiKey subjectMultiKey = new MultiKey(curSubject.getSourceId(), curSubject.getId());
+      multiKeyToSubject.put(subjectMultiKey, curSubject);
       memberToRole.put(subjectMultiKey, "member");
     }
     
-    VootGetMembersResponse vootGetMembersResponse = new VootGetMembersResponse();
+    if (!GrouperSession.staticGrouperSession().getSubject().equals(subject) && !subjectInGroup) {
+    	throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + groupName);
+    }
     
+    VootGetMembersResponse vootGetMembersResponse = new VootGetMembersResponse();
     VootPerson[] result = new VootPerson[memberToRole.size()];
     vootGetMembersResponse.setEntry(result);
     
     int index = 0;
-    
-    
+
     //lets put them all back and make the person subjects
     for (MultiKey multiKey : memberToRole.keySet()) {
-      Subject subject = multiKeyToSubject.get(multiKey);
+      Subject curSubject = multiKeyToSubject.get(multiKey);
       String role = memberToRole.get(multiKey);
-      VootPerson vootPerson = new VootPerson(subject);
+      VootPerson vootPerson = new VootPerson(curSubject);
       vootPerson.setVoot_membership_role(role);
       result[index] = vootPerson;
       
@@ -234,7 +248,7 @@ public class VootLogic {
    * @return the groups
    */
   public static VootGetGroupsResponse getGroups(VootPerson vootPerson) {
-    
+	  
     Subject subject = SubjectFinder.findById(vootPerson.getId(), true);
     
     return getGroups(subject);
@@ -261,8 +275,12 @@ public class VootLogic {
    * @return the groups
    */
   public static VootGetGroupsResponse getGroups(Subject subject) {
+	GrouperSession session = GrouperSession.staticGrouperSession();
+	if (!GrouperSession.staticGrouperSession().getSubject().equals(subject)) {
+	  session = GrouperSession.start(subject, false);
+	}
     
-    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    Member member = MemberFinder.findBySubject(session, subject, false);
     
     VootGetGroupsResponse vootGetGroupsResponse = new VootGetGroupsResponse();
     
@@ -272,11 +290,8 @@ public class VootLogic {
     }
     
     //member, admin, manager
-    
     Set<Group> groups = member.getGroups();
-    
     Set<Group> admins = member.getGroups(FieldFinder.find("admins", true));
-    
     Set<Group> updaters = member.getGroups(FieldFinder.find("updaters", true));
     
     Map<Group, String> groupToRole = new TreeMap<Group, String>();
@@ -320,17 +335,28 @@ public class VootLogic {
     return vootGetGroupsResponse;
   }
   
-  
   /**
-   * get the groups that a person is in
+   * Get the groups that a person is in.
    * @return the groups
    */
   public static VootGetGroupsResponse getGroups() {
-    
+	  return getGroups((String) null);
+  }
+  
+  /**
+   * Get the groups that a person is in, searching by their name.
+   * @param search the search term to be searched in group name 
+   * @return the groups
+   */
+  public static VootGetGroupsResponse getGroups(String search) {
     VootGetGroupsResponse vootGetGroupsResponse = new VootGetGroupsResponse();
     
     //this isnt in 2.0.0
-    Set<Group> groups = findAllByApproximateNameSecureHelper("%", null, true, true, null, null);
+    String searchString = "%";
+    if (search != null) {
+    	searchString = "%" + search + "%";
+    }
+    Set<Group> groups = findAllByApproximateNameSecureHelper(searchString, null, true, true, null, null);
     
     if (GrouperUtil.length(groups) == 0) {
       vootGetGroupsResponse.assignPaging(null);
@@ -342,11 +368,8 @@ public class VootLogic {
     
     int index = 0;
     for (Group group : groups) {
-      
       VootGroup vootGroup = new VootGroup(group);
-      
       result[index] = vootGroup;
-      
       index++;
     }
     

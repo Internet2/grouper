@@ -10,23 +10,11 @@ public abstract class VootResponse {
    * @param resultArray
    */
   public void assignPaging(Object resultArray) {
-    
     int resultArrayLength = GrouperUtil.length(resultArray);
     
-    if (resultArrayLength == 0) {
-      
-      this.startIndex = 0;
-      this.totalResults = 0;
-      this.itemsPerPage = 0;
-      
-    } else {
-      
-      this.startIndex = 0;
-      this.totalResults = resultArrayLength;
-      this.itemsPerPage = resultArrayLength;
-      
-    }
-    
+    this.startIndex = 0;
+    this.totalResults = resultArrayLength;
+    this.itemsPerPage = resultArrayLength;
   }
   
   /** starts with 0 */
@@ -87,7 +75,5 @@ public abstract class VootResponse {
   public void setItemsPerPage(Integer itemsPerPage1) {
     this.itemsPerPage = itemsPerPage1;
   }
-
-  
   
 }

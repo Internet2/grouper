@@ -66,14 +66,14 @@
     
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <mkdir dir="${main.binDir}" />
     <delete dir="${main.binDir}" />
     <mkdir dir="${main.binDir}" />
 
   </target> 
   
-  <target name="compile">
+  <target name="compile" depends="init">
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
@@ -81,7 +81,7 @@
       srcdir="${main.sourceDir}" destdir="${main.binDir}" classpath="${main.theClasspath}" debug="true" />
   </target>
 
-  <target name="jarPrepare">
+  <target name="jarPrepare" depends="init">
     <mkdir dir="${main.binDir}" />
 
     <copy todir="${main.binDir}">
@@ -93,7 +93,7 @@
     </copy>
   </target>
 
-  <target name="jar">
+  <target name="jar" depends="init">
     <tstamp>
         <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
     </tstamp>
