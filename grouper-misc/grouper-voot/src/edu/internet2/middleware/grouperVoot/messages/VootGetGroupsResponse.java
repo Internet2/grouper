@@ -14,55 +14,58 @@
  * limitations under the License.
  ******************************************************************************/
 
-package edu.internet2.middleware.grouperVoot.beans;
+package edu.internet2.middleware.grouperVoot.messages;
 
 import java.lang.reflect.Field;
 import java.util.Comparator;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.internet2.middleware.grouperVoot.beans.VootGroup;
+import edu.internet2.middleware.grouperVoot.beans.VootResponse;
 
 /**
- * Response to get members request.
+ * Response for get groups request.
  * 
  * @author mchyzer
- * @author Andrea Biancini <andrea.biancini@gmail.com>
+ * @author Andrea Biancini <andrea.biancin@gmail.com>
  */
-public class VootGetMembersResponse extends VootResponse {
+public class VootGetGroupsResponse extends VootResponse {
 
 	/** result body */
-	private VootPerson[] entry;
+	private VootGroup[] entry;
 
 	/**
-	 * Get the results as array of VOOT persons.
+	 * Get the results as array of VOOT groups.
 	 * 
-	 * @return the results as array of VOOT persons.
+	 * @return the results as array of VOOT groups.
 	 */
-	public VootPerson[] getEntry() {
+	public VootGroup[] getEntry() {
 		return this.entry;
 	}
 
 	/**
-	 * Set the results passing an array of VOOT persons.
+	 * Set the results passing an array of VOOT groups.
 	 * 
-	 * @param entry the array of VOOT persons.
+	 * @param entry the array of VOOT groups.
 	 */
-	public void setEntry(VootPerson[] entry) {
+	public void setEntry(VootGroup[] entry) {
 		this.entry = entry;
 	}
 
 	/**
-	 * Set the results by taking a slice of the elements in an array of VOOT persons.
+	 * Set the results by taking a slice of the elements in an array of VOOT groups.
 	 * 
-	 * @param entry the array of VOOT persons.
+	 * @param entry the array of VOOT groups.
 	 * @param start the first element in the result set (0 means start from beginning).
 	 * @param count the number of elements in the result set (-1 or 0 means find all).
 	 */
-	public void setEntry(VootPerson[] entry, int start, int count) {
+	public void setEntry(VootGroup[] entry, int start, int count) {
 		int remaining = count;
-		if (remaining < 0 || (entry.length - start) < count)
+		if (remaining < 0 || (entry.length - start) < count) {
 			remaining = entry.length - start;
+		}
 
-		VootPerson[] pageArray = new VootPerson[remaining];
+		VootGroup[] pageArray = new VootGroup[remaining];
 		for (int i = 0; i < remaining; ++i) {
 			pageArray[i] = entry[i + start];
 		}
@@ -71,25 +74,25 @@ public class VootGetMembersResponse extends VootResponse {
 	}
 
 	/**
-	 * Method that sorts one array of VOOT persons.
+	 * Method that sorts one array of VOOT groups.
 	 * 
 	 * @param entries the array to sort.
 	 * @param sortBy the field name to be used for sorting or null of no sorting.
 	 * @return the sorted array.
 	 */
-	public static VootPerson[] sort(VootPerson[] entries, final String sortBy) {
+	public static VootGroup[] sort(VootGroup[] entries, final String sortBy) {
 		if (sortBy != null) {
-			Arrays.sort(entries, new Comparator<VootPerson>() {
+			Arrays.sort(entries, new Comparator<VootGroup>() {
 				@Override
-				public int compare(VootPerson person1, VootPerson person2) {
+				public int compare(VootGroup group1, VootGroup group2) {
 					try {
 						// Set up introspection for the field specified by sortBy
 						Field f = VootGroup.class.getDeclaredField(sortBy);
 						f.setAccessible(true);
 
 						// Retrieve String value for the field obtained by introspection
-						String value1 = f.get(person1).toString();
-						String value2 = f.get(person2).toString();
+						String value1 = f.get(group1).toString();
+						String value2 = f.get(group2).toString();
 
 						// Compare the two strings
 						return value1.compareTo(value2);

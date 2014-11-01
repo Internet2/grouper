@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package edu.internet2.middleware.grouperVoot.beans;
+package edu.internet2.middleware.grouperVoot.messages;
 
 /**
  * Class representing an error in the VOOT call.

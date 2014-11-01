@@ -32,8 +32,8 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperVoot.VootLogic;
 import edu.internet2.middleware.grouperVoot.VootRestHttpMethod;
-import edu.internet2.middleware.grouperVoot.beans.VootErrorResponse;
 import edu.internet2.middleware.grouperVoot.beans.VootGroup;
+import edu.internet2.middleware.grouperVoot.messages.VootErrorResponse;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
