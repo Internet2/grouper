@@ -59,4 +59,25 @@ public class VootEmail {
   public void setValue(String value) {
     this.value = value;
   }
+  
+	/**
+	 * Enum to represnet email types, as supported by VOOT protocol.
+	 * 
+	 * @author Andrea Biancini <andrea.biancini@gmail.com>
+	 */
+	public enum MailTypes {
+	    WORK ("work"),
+	    HOME ("home"),
+	    OTHER ("other");
+
+	    private final String type;       
+
+	    private MailTypes(String type) {
+	        this.type = type;
+	    }
+
+	    public String toString(){
+	       return type;
+	    }
+	}
 }
