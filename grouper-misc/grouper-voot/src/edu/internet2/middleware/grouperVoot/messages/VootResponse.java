@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-package edu.internet2.middleware.grouperVoot.beans;
+package edu.internet2.middleware.grouperVoot.messages;
 
 /**
  * Bean to respresent a valid VOOT response.

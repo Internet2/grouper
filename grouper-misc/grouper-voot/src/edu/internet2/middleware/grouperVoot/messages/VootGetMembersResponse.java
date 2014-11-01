@@ -22,7 +22,6 @@ import java.util.Comparator;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouperVoot.beans.VootGroup;
 import edu.internet2.middleware.grouperVoot.beans.VootPerson;
-import edu.internet2.middleware.grouperVoot.beans.VootResponse;
 
 /**
  * Response to get members request.
