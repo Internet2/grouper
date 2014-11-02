@@ -31,122 +31,122 @@ import edu.internet2.middleware.subject.Subject;
  * @author <andrea.biancini@gmail.com>
  */
 public class VootPerson {
-	/** The voot membership role (being "manager", "admin" or "member"). */
-	private String voot_membership_role;
-	
-	/** Person id, e.g. jsmith */
-	private String id;
-	
-	/** Display name, e.g. John Smith */
-	private String displayName;
-	
-	/** Email addresses e.g. jsmith@school.edu, johns@company.com */
-	private VootEmail[] emails;
-	
-	/**
-	 * Default constructor. 
-	 */
-	public VootPerson() {
-		// Do nothing
-	}
+  /** The voot membership role (being "manager", "admin" or "member"). */
+  private String voot_membership_role;
+  
+  /** Person id, e.g. jsmith */
+  private String id;
+  
+  /** Display name, e.g. John Smith */
+  private String displayName;
+  
+  /** Email addresses e.g. jsmith@school.edu, johns@company.com */
+  private VootEmail[] emails;
+  
+  /**
+   * Default constructor. 
+   */
+  public VootPerson() {
+    // Do nothing
+  }
 
-	/**
-	 * Contructor that builds a VOOT person from a Grouper subject. 
-	 * @param subject the groupser subject.
-	 */
-	public VootPerson(Subject subject) {
-		this.id = subject.getId();
-		this.displayName = subject.getName();
+  /**
+   * Contructor that builds a VOOT person from a Grouper subject. 
+   * @param subject the groupser subject.
+   */
+  public VootPerson(Subject subject) {
+    this.id = subject.getId();
+    this.displayName = subject.getName();
 
-		String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
-		if (!StringUtils.isBlank(emailAttributeName)) {
-			Set<String> emails = subject.getAttributeValues(emailAttributeName);
+    String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+    if (!StringUtils.isBlank(emailAttributeName)) {
+      Set<String> emails = subject.getAttributeValues(emailAttributeName);
 
-			if (GrouperUtil.length(emails) > 0) {
-				// maybe first is blank
-				if (GrouperUtil.length(emails) != 1 || !StringUtils.isBlank(emails.iterator().next())) {
-					int i = 0;
-					this.emails = new VootEmail[emails.size()];
-					for (String email : emails) {
-						this.emails[i] = new VootEmail();
-						this.emails[i].setType(VootEmail.MailTypes.OTHER.toString());
-						this.emails[i].setValue(email);
-					}
-				}
-			}
-		}
+      if (GrouperUtil.length(emails) > 0) {
+        // maybe first is blank
+        if (GrouperUtil.length(emails) != 1 || !StringUtils.isBlank(emails.iterator().next())) {
+          int i = 0;
+          this.emails = new VootEmail[emails.size()];
+          for (String email : emails) {
+            this.emails[i] = new VootEmail();
+            this.emails[i].setType(VootEmail.MailTypes.OTHER.toString());
+            this.emails[i].setValue(email);
+          }
+        }
+      }
+    }
 
-	}
+  }
 
-	/**
-	 * Get the voot membership role (being "manager", "admin" or "member").
-	 * 
-	 * @return the voot membership role
-	 */
-	public String getVoot_membership_role() {
-		return this.voot_membership_role;
-	}
+  /**
+   * Get the voot membership role (being "manager", "admin" or "member").
+   * 
+   * @return the voot membership role
+   */
+  public String getVoot_membership_role() {
+    return this.voot_membership_role;
+  }
 
-	/**
-	 * Set the voot membership role (being "manager", "admin" or "member").
-	 * 
-	 * @param voot_membership_role the voot membership role
-	 */
-	public void setVoot_membership_role(String voot_membership_role) {
-		this.voot_membership_role = voot_membership_role;
-	}
-	
-	/**
-	 * Get the person id, e.g. jsmith
-	 * 
-	 * @return the person id, e.g. jsmith
-	 */
-	public String getId() {
-		return this.id;
-	}
+  /**
+   * Set the voot membership role (being "manager", "admin" or "member").
+   * 
+   * @param voot_membership_role the voot membership role
+   */
+  public void setVoot_membership_role(String voot_membership_role) {
+    this.voot_membership_role = voot_membership_role;
+  }
+  
+  /**
+   * Get the person id, e.g. jsmith
+   * 
+   * @return the person id, e.g. jsmith
+   */
+  public String getId() {
+    return this.id;
+  }
 
-	/**
-	 * Set the person id, e.g. jsmith
-	 * 
-	 * @param id the the person id, e.g. jsmith
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+  /**
+   * Set the person id, e.g. jsmith
+   * 
+   * @param id the the person id, e.g. jsmith
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
 
-	/**
-	 * Get the display name, e.g. John Smith
-	 * 
-	 * @return the display name, e.g. John Smith
-	 */
-	public String getDisplayName() {
-		return this.displayName;
-	}
+  /**
+   * Get the display name, e.g. John Smith
+   * 
+   * @return the display name, e.g. John Smith
+   */
+  public String getDisplayName() {
+    return this.displayName;
+  }
 
-	/**
-	 * Set the display name, e.g. John Smith
-	 * 
-	 * @param displayName the display name, e.g. John Smith
-	 */
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
+  /**
+   * Set the display name, e.g. John Smith
+   * 
+   * @param displayName the display name, e.g. John Smith
+   */
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-	/**
-	 * Get email addresses e.g. jsmith@school.edu, johns@company.com
-	 * 
-	 * @return the email addresses.
-	 */
-	public VootEmail[] getEmails() {
-		return this.emails;
-	}
+  /**
+   * Get email addresses e.g. jsmith@school.edu, johns@company.com
+   * 
+   * @return the email addresses.
+   */
+  public VootEmail[] getEmails() {
+    return this.emails;
+  }
 
-	/**
-	 * Set email addresses e.g. jsmith@school.edu, johns@company.com
-	 * 
-	 * @param emails the email addresses.
-	 */
-	public void setEmails(VootEmail[] emails) {
-		this.emails = emails;
-	}
+  /**
+   * Set email addresses e.g. jsmith@school.edu, johns@company.com
+   * 
+   * @param emails the email addresses.
+   */
+  public void setEmails(VootEmail[] emails) {
+    this.emails = emails;
+  }
 }

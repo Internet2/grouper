@@ -50,118 +50,118 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class VootServlet extends HttpServlet {
 
-	/** logger facility for this class. */
-	private static final Log LOG = LogFactory.getLog(VootServlet.class);
+  /** logger facility for this class. */
+  private static final Log LOG = LogFactory.getLog(VootServlet.class);
 
-	/**
-	 * Method called when GET method received on the servlet.
-	 * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
-	 */
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		GrouperSession grouperSession = null;
-		try {
-			GrouperServiceJ2ee.assignHttpServlet(this);
+  /**
+   * Method called when GET method received on the servlet.
+   * @see HttpServlet#doGet(HttpServletRequest, HttpServletResponse)
+   */
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    GrouperSession grouperSession = null;
+    try {
+      GrouperServiceJ2ee.assignHttpServlet(this);
 
-			// get the logged in user
-			Subject loggedInSubject = GrouperServiceJ2ee.retrieveSubjectLoggedIn();
-			if (loggedInSubject == null) {
-				throw new NullPointerException("No logged in user!");
-			}
-			grouperSession = GrouperSession.start(loggedInSubject);
+      // get the logged in user
+      Subject loggedInSubject = GrouperServiceJ2ee.retrieveSubjectLoggedIn();
+      if (loggedInSubject == null) {
+        throw new NullPointerException("No logged in user!");
+      }
+      grouperSession = GrouperSession.start(loggedInSubject);
 
-			List<String> urlStrings = extractUrlStrings(request);
+      List<String> urlStrings = extractUrlStrings(request);
 
-			// url should be: /groups/aStem:aGroup
-			String resource = GrouperServiceUtils.popUrlString(urlStrings);
-			VootRestHttpMethod vootRestHttpMethod = VootRestHttpMethod.valueOfIgnoreCase(request.getMethod(), true);
+      // url should be: /groups/aStem:aGroup
+      String resource = GrouperServiceUtils.popUrlString(urlStrings);
+      VootRestHttpMethod vootRestHttpMethod = VootRestHttpMethod.valueOfIgnoreCase(request.getMethod(), true);
 
-			// validate and get the operation
-			VootWsRest vootWsRest = VootWsRest.valueOfIgnoreCase(resource, false);
+      // validate and get the operation
+      VootWsRest vootWsRest = VootWsRest.valueOfIgnoreCase(resource, false);
 
-			@SuppressWarnings("unchecked")
-			Object resultObject = vootWsRest.service(urlStrings, vootRestHttpMethod,
-					(Map<String, String[]>) request.getParameterMap());
+      @SuppressWarnings("unchecked")
+      Object resultObject = vootWsRest.service(urlStrings, vootRestHttpMethod,
+          (Map<String, String[]>) request.getParameterMap());
 
-			String json = GrouperUtil.jsonConvertToNoWrap(resultObject);
+      String json = GrouperUtil.jsonConvertToNoWrap(resultObject);
 
-			if (GrouperUtil.booleanValue(request.getParameter("indentResponse"), false)) {
-				json = new JsonIndenter(json).result();
-			}
+      if (GrouperUtil.booleanValue(request.getParameter("indentResponse"), false)) {
+        json = new JsonIndenter(json).result();
+      }
 
-			if (resultObject instanceof VootErrorResponse) {
-				response.setStatus(500);
-			} else {
-				response.setStatus(200);
-			}
+      if (resultObject instanceof VootErrorResponse) {
+        response.setStatus(500);
+      } else {
+        response.setStatus(200);
+      }
 
-			response.setContentType("application/json");
+      response.setContentType("application/json");
 
-			Writer writer = null;
+      Writer writer = null;
 
-			try {
-				writer = response.getWriter();
-				writer.write(json);
-			} catch (Exception e) {
-				LOG.error("error", e);
-			} finally {
-				GrouperUtil.closeQuietly(writer);
-			}
-		} catch (RuntimeException re) {
-			response.setStatus(500);
+      try {
+        writer = response.getWriter();
+        writer.write(json);
+      } catch (Exception e) {
+        LOG.error("error", e);
+      } finally {
+        GrouperUtil.closeQuietly(writer);
+      }
+    } catch (RuntimeException re) {
+      response.setStatus(500);
 
-			LOG.error("Error in voot", re);
-			throw new RuntimeException("Error in voot", re);
+      LOG.error("Error in voot", re);
+      throw new RuntimeException("Error in voot", re);
 
-		} finally {
-			try {
-				GrouperSession.stopQuietly(grouperSession);
+    } finally {
+      try {
+        GrouperSession.stopQuietly(grouperSession);
 
-				HttpSession httpSession = request.getSession(false);
-				if (httpSession != null) {
-					httpSession.invalidate();
-				}
-			} catch (Exception e) {
-				LOG.error("Error", e);
-			}
-		}
-	}
+        HttpSession httpSession = request.getSession(false);
+        if (httpSession != null) {
+          httpSession.invalidate();
+        }
+      } catch (Exception e) {
+        LOG.error("Error", e);
+      }
+    }
+  }
 
-	/**
-	 * Take a request and get the list of url strings for the rest web service.
-	 * @see #extractUrlStrings(String)
-	 * 
-	 * @param request is the request to get the url strings out of.
-	 * @return the list of url strings.
-	 */
-	private static List<String> extractUrlStrings(HttpServletRequest request) {
-		String requestResourceFull = request.getRequestURI();
-		return extractUrlStrings(requestResourceFull);
-	}
+  /**
+   * Take a request and get the list of url strings for the rest web service.
+   * @see #extractUrlStrings(String)
+   * 
+   * @param request is the request to get the url strings out of.
+   * @return the list of url strings.
+   */
+  private static List<String> extractUrlStrings(HttpServletRequest request) {
+    String requestResourceFull = request.getRequestURI();
+    return extractUrlStrings(requestResourceFull);
+  }
 
-	/**
-	 * Take a request uri and break up the url strings not including the app name or servlet
-	 * this does not include the url params (if applicable).
-	 * If the input is: grouper-ws/servicesRest/xhtml/v1_3_000/groups/members
-	 * then the result is a list of size 2: {"group", "members"}.
-	 * 
-	 * @param requestResourceFull the request string.
-	 * @return the parsed URL strings.
-	 */
-	private static List<String> extractUrlStrings(String requestResourceFull) {
-		String[] requestResources = StringUtils.split(requestResourceFull, '/');
-		List<String> urlStrings = new ArrayList<String>();
-		
-		// loop through and decode
-		int index = 0;
-		for (String requestResource : requestResources) {
-			// skip the app name and lite servlet
-			if (index++ < 2) {
-				continue;
-			}
-			// unescape the url encoding
-			urlStrings.add(GrouperUtil.escapeUrlDecode(requestResource));
-		}
-		return urlStrings;
-	}
+  /**
+   * Take a request uri and break up the url strings not including the app name or servlet
+   * this does not include the url params (if applicable).
+   * If the input is: grouper-ws/servicesRest/xhtml/v1_3_000/groups/members
+   * then the result is a list of size 2: {"group", "members"}.
+   * 
+   * @param requestResourceFull the request string.
+   * @return the parsed URL strings.
+   */
+  private static List<String> extractUrlStrings(String requestResourceFull) {
+    String[] requestResources = StringUtils.split(requestResourceFull, '/');
+    List<String> urlStrings = new ArrayList<String>();
+    
+    // loop through and decode
+    int index = 0;
+    for (String requestResource : requestResources) {
+      // skip the app name and lite servlet
+      if (index++ < 2) {
+        continue;
+      }
+      // unescape the url encoding
+      urlStrings.add(GrouperUtil.escapeUrlDecode(requestResource));
+    }
+    return urlStrings;
+  }
 }
