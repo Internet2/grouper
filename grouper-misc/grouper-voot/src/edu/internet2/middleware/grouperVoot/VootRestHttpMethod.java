@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-/*
- * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.5 2008-03-29 10:50:43 mchyzer Exp $
- */
+
 package edu.internet2.middleware.grouperVoot;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * types of http methods accepted by grouper rest
+ * Enum representing types of HTTP methods accepted by Grouper VOOT connector.
+ *  
+ * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.5 2008-03-29 10:50:43 mchyzer Exp $
+ * @author Andrea Biancini <andrea.biancini@gmail.com>
  */
 public enum VootRestHttpMethod {
 
@@ -38,11 +39,11 @@ public enum VootRestHttpMethod {
   DELETE;
 
   /**
-   * do a case-insensitive matching
+   * Do a case-insensitive matching.
    * 
-   * @param string
-   * @param exceptionOnNotFound true to throw exception if method not found
-   * @return the enum or null or exception if not found
+   * @param string the input string to be matched with one HTTP method.
+   * @param exceptionOnNotFound true to throw exception if method not found.
+   * @return the enum or null or exception if not found.
    */
   public static VootRestHttpMethod valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) {
