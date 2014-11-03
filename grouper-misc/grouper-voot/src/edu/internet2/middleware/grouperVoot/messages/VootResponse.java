@@ -65,10 +65,10 @@ public abstract class VootResponse {
   /**
    * Set start index, starts with 0
    * 
-   * @param startIndex the start index
+   * @param startIndex1 the start index
    */
-  public void setStartIndex(Integer startIndex) {
-    this.startIndex = startIndex;
+  public void setStartIndex(Integer startIndex1) {
+    this.startIndex = startIndex1;
   }
 
   /**
@@ -83,10 +83,10 @@ public abstract class VootResponse {
   /**
    * Set the total number of results.
    * 
-   * @param totalResults the total number of results.
+   * @param totalResults1 the total number of results.
    */
-  public void setTotalResults(Integer totalResults) {
-    this.totalResults = totalResults;
+  public void setTotalResults(Integer totalResults1) {
+    this.totalResults = totalResults1;
   }
 
   /**
@@ -101,10 +101,10 @@ public abstract class VootResponse {
   /**
    * Set the number of items in a page.
    * 
-   * @param itemsPerPage the number of items in a page.
+   * @param itemsPerPage1 the number of items in a page.
    */
-  public void setItemsPerPage(Integer itemsPerPage) {
-    this.itemsPerPage = itemsPerPage;
+  public void setItemsPerPage(Integer itemsPerPage1) {
+    this.itemsPerPage = itemsPerPage1;
   }
 
 }

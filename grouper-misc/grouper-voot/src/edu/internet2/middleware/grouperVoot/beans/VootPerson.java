@@ -90,10 +90,10 @@ public class VootPerson {
   /**
    * Set the voot membership role (being "manager", "admin" or "member").
    * 
-   * @param voot_membership_role the voot membership role
+   * @param voot_membership_role1 the voot membership role
    */
-  public void setVoot_membership_role(String voot_membership_role) {
-    this.voot_membership_role = voot_membership_role;
+  public void setVoot_membership_role(String voot_membership_role1) {
+    this.voot_membership_role = voot_membership_role1;
   }
   
   /**
@@ -108,10 +108,10 @@ public class VootPerson {
   /**
    * Set the person id, e.g. jsmith
    * 
-   * @param id the the person id, e.g. jsmith
+   * @param id1 the the person id, e.g. jsmith
    */
-  public void setId(String id) {
-    this.id = id;
+  public void setId(String id1) {
+    this.id = id1;
   }
 
   /**
@@ -126,10 +126,10 @@ public class VootPerson {
   /**
    * Set the display name, e.g. John Smith
    * 
-   * @param displayName the display name, e.g. John Smith
+   * @param displayName1 the display name, e.g. John Smith
    */
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
+  public void setDisplayName(String displayName1) {
+    this.displayName = displayName1;
   }
 
   /**
@@ -144,9 +144,9 @@ public class VootPerson {
   /**
    * Set email addresses e.g. jsmith@school.edu, johns@company.com
    * 
-   * @param emails the email addresses.
+   * @param emails1 the email addresses.
    */
-  public void setEmails(VootEmail[] emails) {
-    this.emails = emails;
+  public void setEmails(VootEmail[] emails1) {
+    this.emails = emails1;
   }
 }
