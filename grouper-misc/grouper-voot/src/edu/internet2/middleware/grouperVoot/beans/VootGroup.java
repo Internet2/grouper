@@ -55,6 +55,25 @@ public class VootGroup {
     this.setName(group.getDisplayName());
     this.setDescription(group.getDescription());
   }
+  
+  /**
+   * Method to check if an object is equal to the current object.
+   * @param otherVootGroup the other object to check
+   */
+  @Override
+  public boolean equals(Object otherVootGroup) {
+    if (otherVootGroup instanceof VootGroup) {
+      VootGroup other = (VootGroup) otherVootGroup;
+      if (!other.getId().equals(id)) return false;
+      if (!other.getName().equals(name)) return false;
+      if (!other.getDescription().equals(description)) return false;
+      if (other.getVoot_membership_role() != null)
+        if (!other.getVoot_membership_role().equals(voot_membership_role)) return false;
+      
+      return true;
+    }
+    return false;
+  }
 
   /**
    * Return the VOOT membership role (being either "manager", "admin" or "member").
@@ -134,19 +153,22 @@ public class VootGroup {
    * @author Andrea Biancini <andrea.biancini@gmail.com>
    */
   public enum GroupRoles {
-      MANAGER ("manager"),
-      ADMIN ("admin"),
-      MEMBER ("member");
+    /** Manager role within a group */
+    MANAGER ("manager"),
+    /** Admin role within a group */
+    ADMIN ("admin"),
+    /** Generic member role within a group */
+    MEMBER ("member");
 
-      private final String role;       
+    private final String role;       
 
-      private GroupRoles(String role1) {
-          this.role = role1;
-      }
+    private GroupRoles(String role1) {
+        this.role = role1;
+    }
 
-      public String toString(){
-         return role;
-      }
+    public String toString(){
+       return role;
+    }
   }
 }
 

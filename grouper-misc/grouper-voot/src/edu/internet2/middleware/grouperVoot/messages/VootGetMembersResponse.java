@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.util.Comparator;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
-import edu.internet2.middleware.grouperVoot.beans.VootGroup;
 import edu.internet2.middleware.grouperVoot.beans.VootPerson;
 
 /**
@@ -86,7 +85,7 @@ public class VootGetMembersResponse extends VootResponse {
         public int compare(VootPerson person1, VootPerson person2) {
           try {
             // Set up introspection for the field specified by sortBy
-            Field f = VootGroup.class.getDeclaredField(sortBy);
+            Field f = VootPerson.class.getDeclaredField(sortBy);
             f.setAccessible(true);
 
             // Retrieve String value for the field obtained by introspection

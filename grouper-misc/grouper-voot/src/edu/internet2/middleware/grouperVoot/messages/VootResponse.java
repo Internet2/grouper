@@ -49,6 +49,7 @@ public abstract class VootResponse {
       this.startIndex = (start > 0 ) ? start : 0;
       this.totalResults = resultArray.length;
       if (count > 0) {
+        //note Integer.min is in Java7, so lets use Math.min so Java6 will work
         this.itemsPerPage = Math.min(count, resultArray.length - start);
       }
       else {

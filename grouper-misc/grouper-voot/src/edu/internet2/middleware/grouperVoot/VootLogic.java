@@ -25,6 +25,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -60,9 +61,6 @@ import edu.internet2.middleware.subject.Subject;
  * @author Andrea Biancini <andrea.biancini@gmail.com>
  */
 public class VootLogic {
-  public static final String GROUPER_ADMIN_ROLE = "admins";
-  public static final String GROUPER_UPDATER_ROLE = "updaters";
-  
   /**
    * Helper for find by approximate name queries.
    * This isn't in 2.0.0.
@@ -169,30 +167,32 @@ public class VootLogic {
    * @return the response to be sent back to user in JSON format.
    */
   public static VootGetMembersResponse getMembers(Subject subject, VootGroup vootGroup, String sortBy, int start, int count) {
-    GrouperSession session = GrouperSession.staticGrouperSession();
-    // Non using session created by subject because findByName will only
-    // retrieve
-    // groups where the subject is administrator
-    // if
-    // (!GrouperSession.staticGrouperSession().getSubject().equals(subject))
-    // {
-    // session = GrouperSession.start(subject, false);
-    // }
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
 
     // note the name is the id
     String groupName = vootGroup.getId();
     // throws exception if the group is not found
-    Group group = GroupFinder.findByName(session, groupName, true);
+    Group group = GroupFinder.findByName(grouperSession, groupName, true);
     Set<Subject> memberSubjects = new HashSet<Subject>();
 
+    Set<Subject> admins = new HashSet<Subject>();
+    Set<Subject> updaters = new HashSet<Subject>();
+    
     Set<Member> members = group.getMembers();
     for (Member member : members) {
       memberSubjects.add(member.getSubject());
+      
+      Set<Group> isAdminOf = member.getGroups(FieldFinder.find(Field.FIELD_NAME_ADMINS, true));
+      if (isAdminOf.contains(group)) {
+        admins.add(member.getSubject());
+      }
+      
+      Set<Group> isUpdaterOf = member.getGroups(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true));
+      if (isUpdaterOf.contains(group)) {
+        updaters.add(member.getSubject());
+      }
     }
-
-    Set<Subject> admins = group.getAdmins();
-    Set<Subject> updaters = group.getUpdaters();
-
+    
     // lets keep track of the subjects
     // since subjects have a composite key, then keep track with multikey
     Map<MultiKey, Subject> multiKeyToSubject = new HashMap<MultiKey, Subject>();
@@ -206,7 +206,7 @@ public class VootLogic {
         subjectInGroup = true;
       MultiKey subjectMultiKey = new MultiKey(curSubject.getSourceId(), curSubject.getId());
       multiKeyToSubject.put(subjectMultiKey, curSubject);
-      memberToRole.put(subjectMultiKey, VootGroup.GroupRoles.ADMIN.toString());
+      memberToRole.put(subjectMultiKey, VootGroup.GroupRoles.MEMBER.toString());
     }
     for (Subject curSubject : updaters) {
       if (curSubject.getSourceId().equals(subject.getSourceId()) && curSubject.getId().equals(subject.getId()))
@@ -220,7 +220,7 @@ public class VootLogic {
         subjectInGroup = true;
       MultiKey subjectMultiKey = new MultiKey(curSubject.getSourceId(), curSubject.getId());
       multiKeyToSubject.put(subjectMultiKey, curSubject);
-      memberToRole.put(subjectMultiKey, VootGroup.GroupRoles.MEMBER.toString());
+      memberToRole.put(subjectMultiKey, VootGroup.GroupRoles.ADMIN.toString());
     }
 
     if (!GrouperSession.staticGrouperSession().getSubject().equals(subject) && !subjectInGroup) {
@@ -245,6 +245,7 @@ public class VootLogic {
     result = VootGetMembersResponse.sort(result, sortBy);
     vootGetMembersResponse.paginate(result, start, count);
     vootGetMembersResponse.setEntry(result, start, count);
+    
     return vootGetMembersResponse;
   }
 
@@ -258,12 +259,8 @@ public class VootLogic {
    * @return the groups the subject passed as a parameter is part of.
    */
   public static VootGetGroupsResponse getGroups(Subject subject, String sortBy, int start, int count) {
-    GrouperSession session = GrouperSession.staticGrouperSession();
-    if (!GrouperSession.staticGrouperSession().getSubject().equals(subject)) {
-      session = GrouperSession.start(subject, false);
-    }
-
-    Member member = MemberFinder.findBySubject(session, subject, false);
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    Member member = MemberFinder.findBySubject(grouperSession, subject, false);
 
     VootGetGroupsResponse vootGetGroupsResponse = new VootGetGroupsResponse();
 
@@ -274,8 +271,8 @@ public class VootLogic {
 
     // member, admin, manager
     Set<Group> groups = member.getGroups();
-    Set<Group> admins = member.getGroups(FieldFinder.find(GROUPER_ADMIN_ROLE, true));
-    Set<Group> updaters = member.getGroups(FieldFinder.find(GROUPER_UPDATER_ROLE, true));
+    Set<Group> admins = member.getGroups(FieldFinder.find(Field.FIELD_NAME_ADMINS, true));
+    Set<Group> updaters = member.getGroups(FieldFinder.find(Field.FIELD_NAME_UPDATERS, true));
 
     Map<Group, String> groupToRole = new TreeMap<Group, String>();
 
@@ -293,7 +290,7 @@ public class VootLogic {
     for (Group group : GrouperUtil.nonNull(admins)) {
       groupToRole.put(group, VootGroup.GroupRoles.ADMIN.toString());
     }
-
+    
     if (groupToRole.size() == 0) {
       vootGetGroupsResponse.paginate(null, start, count);
       return vootGetGroupsResponse;
