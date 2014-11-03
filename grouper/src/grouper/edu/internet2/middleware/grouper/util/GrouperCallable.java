@@ -55,6 +55,11 @@ public abstract class GrouperCallable<T> implements Callable<T> {
   
   /** loglabel */
   private String logLabel;
+
+  /**
+   * 
+   */
+  static int numberOfThreads = 0;
   
   /**
    * @see java.util.concurrent.Callable#call()
@@ -62,16 +67,22 @@ public abstract class GrouperCallable<T> implements Callable<T> {
   public final T call() throws Exception {
     
     long subStartNanos = -1;
-    if (LOG.isDebugEnabled()) {
-      subStartNanos = System.nanoTime();
-    }
     try {
+      if (LOG.isDebugEnabled()) {
+        subStartNanos = System.nanoTime();
+        synchronized (GrouperCallable.class) {
+          numberOfThreads++;
+        }
+      }
       return this.callLogicWithSessionIfExists();
     } finally {
       if (LOG.isDebugEnabled()) {
-        long nanos = System.nanoTime() - subStartNanos;
-        long millis = nanos / 1000000;
-        LOG.debug(this.logLabel + ", time in millis: " + millis);
+        synchronized (GrouperCallable.class) {
+          long nanos = System.nanoTime() - subStartNanos;
+          long millis = nanos / 1000000;
+          LOG.debug("Threads: " + numberOfThreads + ", " + this.logLabel + ", time in millis: " + millis);
+          numberOfThreads--;
+        }
       }
     }
     

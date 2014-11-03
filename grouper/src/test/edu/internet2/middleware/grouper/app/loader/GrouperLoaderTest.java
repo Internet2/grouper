@@ -94,6 +94,7 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(new GrouperLoaderTest("testLoaderTypes"));
+    //new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
     //performanceRunSetupLoaderTables();
     performanceRun();
   }
@@ -111,7 +112,7 @@ public class GrouperLoaderTest extends GrouperTest {
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
     
       
-      for (int i=0;i<10;i++) {
+      for (int i=0;i<200;i++) {
         List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
   
         for (int j=0;j<10;j++) {
@@ -254,7 +255,7 @@ public class GrouperLoaderTest extends GrouperTest {
       Group group = GroupFinder.findByName(grouperSession, groupName, false);
       if (group != null) {
         group.deleteMember(SubjectTestHelper.SUBJ0, false);
-        group.addMember(SubjectTestHelper.SUBJA, false);
+        group.addMember(SubjectTestHelper.SUBJR, false);
       }
           
     }

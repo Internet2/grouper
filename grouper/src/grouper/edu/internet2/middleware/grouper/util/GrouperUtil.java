@@ -9694,6 +9694,7 @@ public class GrouperUtil {
 
   /**
    * thread factory with daemon threads so the JVM exits
+   * might want to use GrouperCallable with this
    * @author mchyzer
    *
    */
@@ -11533,7 +11534,7 @@ public class GrouperUtil {
   private static ExecutorService executorService = Executors.newCachedThreadPool(new DaemonThreadFactory());
 
   /**
-   *
+   * might want to use GrouperCallable with this
    * @return executor service
    */
   public static ExecutorService retrieveExecutorService() {
