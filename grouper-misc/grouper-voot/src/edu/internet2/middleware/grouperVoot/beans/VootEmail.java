@@ -38,10 +38,10 @@ public class VootEmail {
 
   /**
    * Type of email. Should be a value between "home", "work", "other". e.g. 'work'
-   * @param type the tile of the email.
+   * @param type1 the tile of the email.
    */
-  public void setType(String type) {
-    this.type = type;
+  public void setType(String type1) {
+    this.type = type1;
   }
 
   /**
@@ -54,10 +54,10 @@ public class VootEmail {
 
   /**
    * Value of email e.g. john@smith.edu
-   * @param value the email address.
+   * @param value1 the email address.
    */
-  public void setValue(String value) {
-    this.value = value;
+  public void setValue(String value1) {
+    this.value = value1;
   }
   
   /**
@@ -72,8 +72,8 @@ public class VootEmail {
 
       private final String type;       
 
-      private MailTypes(String type) {
-          this.type = type;
+      private MailTypes(String type1) {
+          this.type = type1;
       }
 
       public String toString(){

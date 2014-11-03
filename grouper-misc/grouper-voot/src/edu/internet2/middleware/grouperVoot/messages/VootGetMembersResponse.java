@@ -46,27 +46,27 @@ public class VootGetMembersResponse extends VootResponse {
   /**
    * Set the results passing an array of VOOT persons.
    * 
-   * @param entry the array of VOOT persons.
+   * @param entry1 the array of VOOT persons.
    */
-  public void setEntry(VootPerson[] entry) {
-    this.entry = entry;
+  public void setEntry(VootPerson[] entry1) {
+    this.entry = entry1;
   }
 
   /**
    * Set the results by taking a slice of the elements in an array of VOOT persons.
    * 
-   * @param entry the array of VOOT persons.
+   * @param entry1 the array of VOOT persons.
    * @param start the first element in the result set (0 means start from beginning).
    * @param count the number of elements in the result set (-1 or 0 means find all).
    */
-  public void setEntry(VootPerson[] entry, int start, int count) {
+  public void setEntry(VootPerson[] entry1, int start, int count) {
     int remaining = count;
-    if (remaining < 0 || (entry.length - start) < count)
-      remaining = entry.length - start;
+    if (remaining < 0 || (entry1.length - start) < count)
+      remaining = entry1.length - start;
 
     VootPerson[] pageArray = new VootPerson[remaining];
     for (int i = 0; i < remaining; ++i) {
-      pageArray[i] = entry[i + start];
+      pageArray[i] = entry1[i + start];
     }
 
     this.entry = pageArray;

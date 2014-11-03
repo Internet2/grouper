@@ -57,10 +57,10 @@ public class VootErrorResponse {
   
   /**
    * Set the error message.
-   * @param error the error message.
+   * @param error1 the error message.
    */
-  public void setError(String error) {
-    this.error = error;
+  public void setError(String error1) {
+    this.error = error1;
   }
   
   /**
@@ -73,9 +73,9 @@ public class VootErrorResponse {
   
   /**
    * Set the error description.
-   * @param error_description the error description.
+   * @param error_description1 the error description.
    */
-  public void setError_description(String error_description) {
-    this.error_description = error_description;
+  public void setError_description(String error_description1) {
+    this.error_description = error_description1;
   }
 }

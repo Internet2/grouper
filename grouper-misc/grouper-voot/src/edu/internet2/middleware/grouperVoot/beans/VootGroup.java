@@ -68,7 +68,7 @@ public class VootGroup {
   /**
    * Set the VOOT membership role (being either "manager", "admin" or "member").
    * 
-   * @param the VOOT membership role.
+   * @param voot_membership_role1 the VOOT membership role.
    */
   public void setVoot_membership_role(String voot_membership_role1) {
     this.voot_membership_role = voot_membership_role1;
@@ -86,10 +86,10 @@ public class VootGroup {
   /**
    * Set system name (or unique ID) of the group.
    * 
-   * @param id system name of the group.
+   * @param id1 system name of the group.
    */
-  public void setId(String id) {
-    this.id = id;
+  public void setId(String id1) {
+    this.id = id1;
   }
 
   /**
@@ -106,8 +106,8 @@ public class VootGroup {
    * 
    * @param name display name of the group.
    */
-  public void setName(String name) {
-    this.name = name;
+  public void setName(String name1) {
+    this.name = name1;
   }
 
   /**
@@ -122,14 +122,14 @@ public class VootGroup {
   /**
    * Set description of the group.
    * 
-   * @param description description of the group.
+   * @param description1 description of the group.
    */
-  public void setDescription(String description) {
-    this.description = description;
+  public void setDescription(String description1) {
+    this.description = description1;
   }
   
   /**
-   * Enum to represnet group roles.
+   * Enum to represent group roles.
    * 
    * @author Andrea Biancini <andrea.biancini@gmail.com>
    */
@@ -140,8 +140,8 @@ public class VootGroup {
 
       private final String role;       
 
-      private GroupRoles(String role) {
-          this.role = role;
+      private GroupRoles(String role1) {
+          this.role = role1;
       }
 
       public String toString(){
