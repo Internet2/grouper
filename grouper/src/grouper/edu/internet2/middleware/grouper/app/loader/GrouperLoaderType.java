@@ -34,6 +34,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
@@ -94,6 +96,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -369,7 +372,7 @@ public enum GrouperLoaderType {
       
       /**
        * 
-       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#syncOneGroupMembership(String, String, String, Hib3GrouperLoaderLog, long, GrouperLoaderResultset, boolean, GrouperSession, List, List, Map, Set)
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#runJob(LoaderJobBean)
        */
       @SuppressWarnings("unchecked")
       @Override
@@ -1113,7 +1116,6 @@ public enum GrouperLoaderType {
    * @param andGroups 
    * @param groupTypes 
    * @param groupLikeString 
-   * @param groupQuery 
    * @param groupNameOverall 
    * @param hib3GrouploaderLogOverall 
    * @param statusOverall 
@@ -1123,12 +1125,12 @@ public enum GrouperLoaderType {
    * @param privsToAdd 
    * @param groupNamesFromGroupQuery if not null, this is the list of groups to sync
    */
-  public static void syncGroupList(GrouperLoaderResultset grouperLoaderResultsetOverall, long startTime,
-      GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString,
-      String groupNameOverall, Hib3GrouperLoaderLog hib3GrouploaderLogOverall,
-      GrouperLoaderStatus[] statusOverall, GrouperLoaderDb grouperLoaderDb,
-      Map<String, String> groupNameToDisplayName, Map<String, String> groupNameToDescription,
-      Map<String, Map<Privilege, List<Subject>>> privsToAdd, Set<String> groupNamesFromGroupQuery) {
+  public static void syncGroupList(final GrouperLoaderResultset grouperLoaderResultsetOverall, long startTime,
+      final GrouperSession grouperSession, final List<Group> andGroups, final List<GroupType> groupTypes, final String groupLikeString,
+      final String groupNameOverall, final Hib3GrouperLoaderLog hib3GrouploaderLogOverall,
+      final GrouperLoaderStatus[] statusOverall, final GrouperLoaderDb grouperLoaderDb,
+      final Map<String, String> groupNameToDisplayName, final Map<String, String> groupNameToDescription,
+      final Map<String, Map<Privilege, List<Subject>>> privsToAdd, final Set<String> groupNamesFromGroupQuery) {
         
     long startTimeLoadData = 0;
     try {
@@ -1277,7 +1279,7 @@ public enum GrouperLoaderType {
   
       int count=1;
       
-      long groupStartedMillis = System.currentTimeMillis();
+      final long groupStartedMillis = System.currentTimeMillis();
       
       //if we are configured to, get the group names in one fell swoop
       // && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
@@ -1287,7 +1289,7 @@ public enum GrouperLoaderType {
       
       
       //set of immediate memberships in the regsitry, key is group name, multikey by subjectId, and optionally sourceId
-      Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
+      final Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
       
       if (getMembershipsAtOnce) {
         
@@ -1357,69 +1359,51 @@ public enum GrouperLoaderType {
         groupNamesToSync.addAll(groupNames);
       }
       
-      for (String groupName : groupNamesToSync) {
+      final boolean useThreads = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.groupThreads", true);
+
+      //see when threads are done processing
+      List<Future> futures = new ArrayList<Future>();
+
+      int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.groupThreadPoolSize", 20);
+      int i=0;
+      for (final String groupName : groupNamesToSync) {
         
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
         }
-        
-        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-        try {
-          GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
-              grouperLoaderResultsetOverall, groupName);
-          //make a new log object for this one subgroup
+        if (!useThreads) {
+          syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
+              grouperSession, andGroups, groupTypes, hib3GrouploaderLogOverall,
+              statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
+              groupStartedMillis, membershipsInRegistry, groupName);
+        } else {
+          Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(new GrouperCallable<Boolean>("syncLogicForOneGroup") {
+
+            @Override
+            public Boolean callLogic() {
+              syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
+                  GrouperSession.staticGrouperSession(), andGroups, groupTypes, hib3GrouploaderLogOverall,
+                  statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
+                  groupStartedMillis, membershipsInRegistry, groupName);
+              return null;
+            }
+            });
+          futures.add(future);
           
-          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-          hib3GrouploaderLog.setJobName("subjobFor_" + groupName);
-          hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-          hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
-          hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
-  
-          hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
-          hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
-          hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
-          hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
-          hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
-  
-          hib3GrouploaderLog.store();
-          
-          //based on type, run query from the db and sync members
-          syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
-              groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
-              grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), membershipsInRegistry.get(groupName));
-          
-          long endTime = System.currentTimeMillis();
-          hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
-          hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
-          
-        } catch (Exception e) {
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-          LOG.error("Error in job for group: " + groupName, e);
+          waitForJob(futures, groupThreadPoolSize);
+
         }
-        //start next one now (so we dont lose time)
-        groupStartedMillis = System.currentTimeMillis();
-        hib3GrouploaderLog.store();
-        
-        //reconcile overall status
-        //just take the first non-success code, but error trumps all
-        GrouperLoaderStatus groupStatus = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
-        //default to error
-        groupStatus = GrouperUtil.defaultIfNull(groupStatus, GrouperLoaderStatus.ERROR);
-        if (GrouperLoaderStatus.ERROR.equals(groupStatus) 
-            || statusOverall[0] == GrouperLoaderStatus.SUCCESS) {
-          statusOverall[0] = groupStatus;
-        }
-        
-        //count all the stats
-        hib3GrouploaderLogOverall.addDeleteCount(hib3GrouploaderLog.getDeleteCount());
-        hib3GrouploaderLogOverall.addInsertCount(hib3GrouploaderLog.getInsertCount());
-        hib3GrouploaderLogOverall.addUpdateCount(hib3GrouploaderLog.getUpdateCount());
-        hib3GrouploaderLogOverall.addTotalCount(hib3GrouploaderLog.getTotalCount());
-        hib3GrouploaderLogOverall.addUnresolvableSubjectCount(hib3GrouploaderLog.getUnresolvableSubjectCount());
-        //store after each group to get progress
-        hib3GrouploaderLogOverall.store();
+
+        i++;
         count++;
+      }
+      //make sure threads are done
+      for (Future future : futures) {
+        try {
+          future.get();
+        } catch (Exception ee) {
+          throw new RuntimeException(ee);
+        }
       }
       
       //lets go through and create groups which arent there
@@ -1458,6 +1442,91 @@ public enum GrouperLoaderType {
 
     } finally {
       hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+    }
+    
+  }
+
+  /**
+   * @param grouperLoaderResultsetOverall
+   * @param grouperSession
+   * @param andGroups
+   * @param groupTypes
+   * @param hib3GrouploaderLogOverall
+   * @param statusOverall
+   * @param groupNameToDisplayName
+   * @param groupNameToDescription
+   * @param privsToAdd
+   * @param groupStartedMillis
+   * @param membershipsInRegistry
+   * @param groupName
+   */
+  private static void syncGroupLogicForOneGroup(
+      GrouperLoaderResultset grouperLoaderResultsetOverall,
+      GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes,
+      Hib3GrouperLoaderLog hib3GrouploaderLogOverall,
+      GrouperLoaderStatus[] statusOverall, Map<String, String> groupNameToDisplayName,
+      Map<String, String> groupNameToDescription,
+      Map<String, Map<Privilege, List<Subject>>> privsToAdd, long groupStartedMillis,
+      Map<String, Set<MultiKey>> membershipsInRegistry, String groupName) {
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+    try {
+      GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
+          grouperLoaderResultsetOverall, groupName);
+      //make a new log object for this one subgroup
+      
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setJobName("subjobFor_" + groupName);
+      hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+      hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
+      hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
+ 
+      hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
+      hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
+      hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
+      hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
+      hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
+ 
+      hib3GrouploaderLog.store();
+      
+      //based on type, run query from the db and sync members
+      syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
+          groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
+          grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), membershipsInRegistry.get(groupName));
+      
+      long endTime = System.currentTimeMillis();
+      hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+      hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
+      
+    } catch (Exception e) {
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      LOG.error("Error in job for group: " + groupName, e);
+    }
+    //start next one now (so we dont lose time)
+    groupStartedMillis = System.currentTimeMillis();
+    hib3GrouploaderLog.store();
+    
+    //reconcile overall status
+    //just take the first non-success code, but error trumps all
+    GrouperLoaderStatus groupStatus = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
+    //default to error
+    groupStatus = GrouperUtil.defaultIfNull(groupStatus, GrouperLoaderStatus.ERROR);
+    
+    synchronized (hib3GrouploaderLogOverall) {
+      if (GrouperLoaderStatus.ERROR.equals(groupStatus) 
+          || statusOverall[0] == GrouperLoaderStatus.SUCCESS) {
+        statusOverall[0] = groupStatus;
+      }
+      
+      //count all the stats
+      hib3GrouploaderLogOverall.addDeleteCount(hib3GrouploaderLog.getDeleteCount());
+      hib3GrouploaderLogOverall.addInsertCount(hib3GrouploaderLog.getInsertCount());
+      hib3GrouploaderLogOverall.addUpdateCount(hib3GrouploaderLog.getUpdateCount());
+      hib3GrouploaderLogOverall.addTotalCount(hib3GrouploaderLog.getTotalCount());
+      hib3GrouploaderLogOverall.addUnresolvableSubjectCount(hib3GrouploaderLog.getUnresolvableSubjectCount());
+      //store after each group to get progress
+      hib3GrouploaderLogOverall.store();
+      
     }
     
   }
@@ -1904,7 +1973,7 @@ public enum GrouperLoaderType {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
-
+    
   /**
    * @param groupName
    * @param groupDisplayNameForInsert can be null to default to group name or extension.  This is display names
@@ -2237,7 +2306,9 @@ public enum GrouperLoaderType {
       //now the currentMembers is full of members to remove, and the grouperLoaderResultset is full
       //of members to add
       //start a transaction
-      boolean useTransactions = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.transactions", false);
+      final boolean useTransactions = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.transactions", false);
+
+      final boolean useThreads = !useTransactions && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.membershipThreads", true);
       
       final int[] TOTAL_COUNT = new int[]{totalCount};
       final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG = hib3GrouploaderLog;
@@ -2249,86 +2320,74 @@ public enum GrouperLoaderType {
             throws GrouperDAOException {
           
           try {
-            int numberOfRows = membersToRemove.size();
-            int count = 1;
-            //first remove members
-            for (LoaderMemberWrapper member : membersToRemove) {
-              try {
-                
-                boolean alreadyDeleted = false;
-                
-                Subject theSubject = member.findOrGetSubject();
-                if (GrouperLoader.isDryRun()) {
-                  alreadyDeleted = !group[0].hasMember(theSubject);
-                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject));
+            //see when threads are done processing
+            List<Future> futures = new ArrayList<Future>();
+            int membershipThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.membershipThreadPoolSize", 10);
+            {
+              final int numberOfRows = membersToRemove.size();
+              final int[] count = new int[]{1};
+              //first remove members
+              int i=0;
+              for (final LoaderMemberWrapper member : membersToRemove) {
+                if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
+                  syncOneMemberDeleteMemberLogic(groupName, grouperSession,
+                    jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
+                    numberOfRows, count, member);
                 } else {
-                  //go from subject since large lists might be removed from cache
-                  alreadyDeleted = !group[0].deleteMember(theSubject, false);
-                  LOG.debug("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject) + ", alreadyDeleted? " + alreadyDeleted);
-                }
-                 
-                if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
-                  LOG.info(groupName + " removing: " + count + " of " + numberOfRows + " members" 
-                      + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));
-                }
+                  Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(new GrouperCallable<Boolean>("syncOneMemberDeleteMemberLogic") {
 
-              } catch (Exception e) {
-                GrouperUtil.injectInException(e, "Problem deleting member: " 
-                    + member + ", ");
-                throw e;
+                    @Override
+                    public Boolean callLogic() {
+                      syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
+                          jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
+                          numberOfRows, count, member);
+                      return null;
+                    }
+  
+                    });
+                  futures.add(future);
+                  
+                  waitForJob(futures, membershipThreadPoolSize);
+                }
+                
+                i++;
               }
-              count++;
               
-              if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {
-                String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, deleting members, " + count + " of " + numberOfRows + " subjects";
-                LOG.info(logStatus);
-                jobStatus[0] = logStatus;
-                HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
-                HIB3_GROUPER_LOADER_LOG.store();
-                //refresh group so it doesnt time out
-                group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
+            }
+            {
+              final int numberOfRows = subjectsToAdd.size();
+              final int[] count = new int[]{1};
+              //then add new members
+              int i=0;
+              for (final Subject subject : subjectsToAdd) {
+                if (!useThreads) {
+                  syncOneMemberAddMemberLogic(groupName, grouperSession, jobMessage,
+                      jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
+                      count, subject);
+                } else {
+                  Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(new GrouperCallable<Boolean>("syncOneMemberAddMemberLogic") {
+  
+                    public Boolean callLogic() {
+                      syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
+                          jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
+                          count, subject);
+                      return true;
+                    }
+                    });
+                  futures.add(future);
+
+                  waitForJob(futures, membershipThreadPoolSize);
+
+                }
+                i++;
               }
-              TOTAL_COUNT[0]++;
             }
             
-            numberOfRows = subjectsToAdd.size();
-            count = 1;
-            //then add new members
-            for (Subject subject : subjectsToAdd) {
-              try {
-                boolean alreadyAdded = false;
-                
-                if (GrouperLoader.isDryRun()) {
-                  alreadyAdded = !group[0].hasMember(subject);
-                  GrouperLoader.dryRunWriteLine("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject));
-                } else {
-                  alreadyAdded = !group[0].addMember(subject, false);
-                  LOG.debug("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject) + ", alreadyAdded: " + alreadyAdded);
-                }
-                
-                if (LOG.isInfoEnabled() && (count != 0 && count % 200 == 0)) {
-                  LOG.info(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
-                      + (alreadyAdded ? ", [note: was already added... weird]" : ""));
-                }
-              } catch (Exception e) {
-                GrouperUtil.injectInException(e, "Problem with " 
-                    + GrouperUtil.subjectToString(subject) + ", ");
-                throw e;
-              }
-              count++;
-              
-              if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {
-                String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, adding members, " + count + " of " + numberOfRows + " subjects";
-                LOG.info(logStatus);
-                jobStatus[0] = logStatus;
-                HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
-                HIB3_GROUPER_LOADER_LOG.store();
-                //refresh group so it doesnt time out
-                group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
-              }
-              TOTAL_COUNT[0]++;
-
+            //make sure threads are done
+            for (Future future : futures) {
+              future.get();
             }
+            
             if (grouperTransactionType != GrouperTransactionType.NONE) {
               grouperTransaction.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
             }
@@ -2363,6 +2422,45 @@ public enum GrouperLoaderType {
         hib3GrouploaderLog.store();
       } catch (Exception e) {
         //dont worry, just trying to store the log at end
+      }
+    }
+  }
+
+  /**
+   * @param futures
+   * @param membershipThreadPoolSize
+   * @param i
+   */
+  static void waitForJob(List<Future> futures, int membershipThreadPoolSize)  {
+    while (futures.size() > membershipThreadPoolSize) {
+      try {
+        futures.get(0).get();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      futures.remove(0);
+    }
+  }
+
+  /**
+   * @param futures
+   * @param membershipThreadPoolSize
+   * @param i
+   */
+  static void waitForJobs(List<Future> futures, int membershipThreadPoolSize, int i)  {
+    if (i != 0 && membershipThreadPoolSize != -1 && i % membershipThreadPoolSize == 0) {
+      //assume this is lightweight and wont cause a problem
+      Iterator<Future> futureIterator = futures.iterator();
+      while (futureIterator.hasNext()) {
+        Future<Boolean> theFuture = futureIterator.next();
+        
+        try {
+          theFuture.get();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        //dont need to keep checking
+        futureIterator.remove();
       }
     }
   }
@@ -3536,6 +3634,115 @@ public enum GrouperLoaderType {
     return GrouperUtil.enumValueOfIgnoreCase(GrouperLoaderType.class, 
         string, exceptionOnNull);
 
+  }
+
+  /**
+   * @param groupName
+   * @param grouperSession
+   * @param jobMessage
+   * @param jobStatus
+   * @param group
+   * @param TOTAL_COUNT
+   * @param HIB3_GROUPER_LOADER_LOG
+   * @param numberOfRows
+   * @param count
+   * @param member
+   */
+  private static void syncOneMemberDeleteMemberLogic(final String groupName,
+      final GrouperSession grouperSession, final StringBuilder jobMessage,
+      final String[] jobStatus, final Group[] group, final int[] TOTAL_COUNT,
+      final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG, final int numberOfRows, final int[] count,
+      final LoaderMemberWrapper member) {
+    try {
+      
+      boolean alreadyDeleted = false;
+      
+      Subject theSubject = member.findOrGetSubject();
+      if (GrouperLoader.isDryRun()) {
+        alreadyDeleted = !group[0].hasMember(theSubject);
+        synchronized (HIB3_GROUPER_LOADER_LOG) {
+          GrouperLoader.dryRunWriteLine("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject));
+        }
+      } else {
+        //go from subject since large lists might be removed from cache
+        alreadyDeleted = !group[0].deleteMember(theSubject, false);
+        LOG.debug("Group: " + groupName + " delete " + GrouperUtil.subjectToString(theSubject) + ", alreadyDeleted? " + alreadyDeleted);
+      }
+       
+      if (LOG.isInfoEnabled() && (count[0] != 0 && count[0] % 200 == 0)) {
+        LOG.info(groupName + " removing: " + count + " of " + numberOfRows + " members");
+      }
+
+    } catch (RuntimeException e) {
+      GrouperUtil.injectInException(e, "Problem deleting member: " 
+          + member + ", ");
+      throw e;
+    }
+    synchronized (HIB3_GROUPER_LOADER_LOG) {
+      count[0]++;
+    
+      if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {
+        String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, deleting members, " + count + " of " + numberOfRows + " subjects";
+        LOG.info(logStatus);
+        jobStatus[0] = logStatus;
+        HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
+        HIB3_GROUPER_LOADER_LOG.store();
+        //refresh group so it doesnt time out
+        group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
+      }
+      TOTAL_COUNT[0]++;
+    }
+  }
+
+  /**
+   * @param groupName
+   * @param grouperSession
+   * @param jobMessage
+   * @param jobStatus
+   * @param group
+   * @param TOTAL_COUNT
+   * @param HIB3_GROUPER_LOADER_LOG
+   * @param numberOfRows
+   * @param count
+   * @param subject
+   */
+  private static void syncOneMemberAddMemberLogic(final String groupName,
+      final GrouperSession grouperSession, final StringBuilder jobMessage,
+      final String[] jobStatus, final Group[] group, final int[] TOTAL_COUNT,
+      final Hib3GrouperLoaderLog HIB3_GROUPER_LOADER_LOG, final int numberOfRows,
+      final int[] count, Subject subject) {
+    try {
+      boolean alreadyAdded = false;
+      
+      if (GrouperLoader.isDryRun()) {
+        alreadyAdded = !group[0].hasMember(subject);
+        GrouperLoader.dryRunWriteLine("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject));
+      } else {
+        alreadyAdded = !group[0].addMember(subject, false);
+        LOG.debug("Group: " + groupName + " add " + GrouperUtil.subjectToString(subject) + ", alreadyAdded: " + alreadyAdded);
+      }
+      
+      if (LOG.isInfoEnabled() && (count[0] != 0 && count[0] % 200 == 0)) {
+        LOG.info(groupName + " adding: " + count + " of " + numberOfRows + " subjects"
+            + (alreadyAdded ? ", [note: was already added... weird]" : ""));
+      }
+    } catch (RuntimeException e) {
+      GrouperUtil.injectInException(e, "Problem with " 
+          + GrouperUtil.subjectToString(subject) + ", ");
+      throw e;
+    }
+    count[0]++;
+    
+    if (TOTAL_COUNT[0] != 0 && TOTAL_COUNT[0] % 500 == 0) {
+      String logStatus = groupName + " processed " + TOTAL_COUNT[0] + " records, adding members, " + count + " of " + numberOfRows + " subjects";
+      LOG.info(logStatus);
+      jobStatus[0] = logStatus;
+      HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
+      HIB3_GROUPER_LOADER_LOG.store();
+      //refresh group so it doesnt time out
+      group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
+    }
+    TOTAL_COUNT[0]++;
   }
 
 }
