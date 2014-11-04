@@ -18,6 +18,7 @@
  */
 package edu.internet2.middleware.grouperInstaller.util;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -75,6 +76,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -86,6 +91,11 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -111,6 +121,33 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperInstallerUtils  {
 
+  /**
+   * delete a file
+   * @param file
+   * @return true if delete, false if not exist
+   */
+  public static boolean fileDelete(File file) {
+    if (!file.exists()) {
+      return false;
+    }
+    if (!file.delete()) {
+      throw new RuntimeException("Couldnt delete file: " + file);
+    }
+    return true;
+  }
+  
+  /**
+   * move a file
+   * @param file
+   * @param newFile move to new file
+   */
+  public static void fileMove(File file, File newFile) {
+    fileDelete(newFile);
+    if (!file.renameTo(newFile)) {
+      throw new RuntimeException("Cant rename file " + file.getAbsolutePath() + " to file: " + newFile);
+    }
+  }
+  
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
@@ -9111,6 +9148,19 @@ public class GrouperInstallerUtils  {
   public static String theLogLevel = "WARNING";
   
   /**
+   * replace separators which are wrong os, and add last slash if not exist
+   * @param filePath
+   * @return the file path
+   */
+  public static String fileAddLastSlashIfNotExists(String filePath) {
+    filePath = filePath.replace(File.separatorChar == '/' ? '\\' : '/', File.separatorChar);
+    if (!filePath.endsWith(File.separator)) {
+      filePath = filePath + File.separatorChar;
+    }
+    return filePath;
+  }
+  
+  /**
    * @param theClass
    * @return the log
    */
@@ -9366,19 +9416,27 @@ public class GrouperInstallerUtils  {
   private static class StreamGobbler implements Runnable {
     
     /** stream to read */
-    InputStream inputStream;
+    private InputStream inputStream;
     
     /** where to put the result */
-    String resultString;
+    private String resultString;
 
     /** type of the output for logging purposes */
-    String type;
+    private String type;
     
     /** command to log */
-    String command;
+    private String command;
     
     /** if print to stdout */
-    File printToFile;
+    private File printToFile;
+
+    /** if this is out or error */
+    private boolean outOrErr;
+    
+    /**
+     * if should print stdout and stderr as received
+     */
+    private boolean printOutputErrorAsReceived;
     
     /**
      * construct
@@ -9386,12 +9444,17 @@ public class GrouperInstallerUtils  {
      * @param theType 
      * @param theCommand
      * @param thePrintToFile 
+     * @param thePrintOutputErrorAsReceived
+     * @param theOutOrErr
      */
-    StreamGobbler(InputStream is, String theType, String theCommand, File thePrintToFile) {
+    private StreamGobbler(InputStream is, String theType, String theCommand, File thePrintToFile, 
+        boolean thePrintOutputErrorAsReceived, boolean theOutOrErr) {
       this.inputStream = is;
       this.type = theType;
       this.command = theCommand;
       this.printToFile = thePrintToFile;
+      this.printOutputErrorAsReceived = thePrintOutputErrorAsReceived;
+      this.outOrErr = theOutOrErr;
     }
 
     /**
@@ -9420,7 +9483,13 @@ public class GrouperInstallerUtils  {
       
       try {
         
-        if (this.printToFile  != null) {
+        if (this.printOutputErrorAsReceived) {
+          if (this.outOrErr) {
+            copy(this.inputStream, System.out);
+          } else {
+            copy(this.inputStream, System.err);
+          }
+        } else if (this.printToFile  != null) {
           copy(this.inputStream, fileOutputStream);
           
         } else {
@@ -9536,6 +9605,33 @@ public class GrouperInstallerUtils  {
    */
   public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
       String[] envVariables, File workingDirectory, String outputFilePrefix) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, workingDirectory, outputFilePrefix, false);
+  }
+
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @param waitFor if we should wait for this process to end
+   * @param workingDirectory 
+   * @param envVariables are env vars with name=val
+   * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printOutputErrorAsReceived if should print output error as received
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
+      String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printOutputErrorAsReceived) {
+    
+    if (printOutputErrorAsReceived && !isBlank(outputFilePrefix)) {
+      throw new RuntimeException("Cant print as received and have output file prefix");
+    }
+    
     Process process = null;
 
     StringBuilder commandBuilder = new StringBuilder();
@@ -9554,8 +9650,8 @@ public class GrouperInstallerUtils  {
       if (!waitFor) {
         return new CommandResult(null, null, -1);
       }
-      outputGobbler = new StreamGobbler(process.getInputStream(), ".out", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Out.log"));
-      errorGobbler = new StreamGobbler(process.getErrorStream(), ".err", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Err.log"));
+      outputGobbler = new StreamGobbler(process.getInputStream(), ".out", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Out.log"), printOutputErrorAsReceived, true);
+      errorGobbler = new StreamGobbler(process.getErrorStream(), ".err", command, outputFilePrefix == null ? null : new File(outputFilePrefix + "Err.log"), printOutputErrorAsReceived, false);
 
       Thread outputThread = new Thread(outputGobbler);
       outputThread.setDaemon(true);
@@ -9957,8 +10053,7 @@ public class GrouperInstallerUtils  {
   public static NodeList xpathEvaluate(File xmlFile, String xpathExpression) {
     
     try {
-      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-      domFactory.setNamespaceAware(true); 
+      DocumentBuilderFactory domFactory = xmlDocumentBuilderFactory(); 
       DocumentBuilder builder = domFactory.newDocumentBuilder();
       Document doc = builder.parse(xmlFile);
       XPath xpath = XPathFactory.newInstance().newXPath();
@@ -9969,11 +10064,62 @@ public class GrouperInstallerUtils  {
       NodeList nodes = (NodeList) result;
       return nodes;
     } catch (Exception e) {
-      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'");
+      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'", e);
     }
 
   }
+
+  /**
+   * xml builder factory that doesnt go to internet to get dtd
+   * @return the factory
+   */
+  public static DocumentBuilderFactory xmlDocumentBuilderFactory() {
+    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+    domFactory.setNamespaceAware(true);
+    domFactory.setValidating(false);
+    try {
+      domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    } catch (ParserConfigurationException pce) {
+      throw new RuntimeException(pce);
+    }
+    return domFactory;
+  }
   
+  /** array for converting HTML to string */
+  private static final String[] XML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
+
+  /** array for converting HTML to string */
+  private static final String[] XML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * 
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input) {
+    return xmlEscape(input, true);
+  }
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   *
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   *
+   * @return the HTML converted string
+   */
+  public static String xmlEscape(String input, boolean isEscape) {
+    if (isEscape) {
+      return replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
+    }
+    return replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
+  }
+
   /**
    * 
    * @param xmlFile
@@ -10005,6 +10151,55 @@ public class GrouperInstallerUtils  {
   }  
 
   /**
+   * turn a map of attributes into an xml string
+   * @param elementName
+   * @param extraAttributes
+   * @param attributes
+   * @return the xml
+   */
+  public static String xmlElementToXml(String elementName, 
+      String extraAttributes, Map<String, String> attributes) {
+    
+    StringBuilder result = new StringBuilder();
+    
+    result.append("<").append(elementName).append(" ");
+    
+    if (!isBlank(extraAttributes)) {
+      result.append(extraAttributes);
+    }
+
+    for (String attributeName : attributes.keySet()) {
+      result.append(" ").append(attributeName).append("=\"");
+      String attributeValue = GrouperInstallerUtils.trimToEmpty(attributes.get(attributeName));
+      result.append(GrouperInstallerUtils.xmlEscape(attributeValue)).append("\"");
+    }
+    
+    result.append(" />");
+    
+    return result.toString();
+  }
+  
+
+  /**
+   * convert XML to string
+   * @param document
+   * @return the string of the XML
+   */
+  public static String xmlToString(Node document) {
+    try {
+      DOMSource domSource = new DOMSource(document);
+      StringWriter writer = new StringWriter();
+      StreamResult result = new StreamResult(writer);
+      TransformerFactory tf = TransformerFactory.newInstance();
+      Transformer transformer = tf.newTransformer();
+      transformer.transform(domSource, result);
+      return writer.toString();
+    } catch (Exception exception) {
+      throw new RuntimeException(exception);
+    }
+  }
+  
+  /**
    * 
    * @param xmlFile
    * @param xpathExpression
@@ -10016,5 +10211,370 @@ public class GrouperInstallerUtils  {
     String nodeValue = xpathEvaluateAttribute(xmlFile, xpathExpression, attributeName);
     Integer intValue = GrouperInstallerUtils.intValue(nodeValue, defaultValue);
     return intValue;
-  }  
+  }
+
+  /**
+   * 
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion(File jarFile) {
+    String version = jarVersion1(jarFile);
+    if (isBlank(version)) {
+
+      //hopefully this is set
+      if (tempFilePathForJars != null) {
+        
+        String jarFilePath = jarFile.getAbsolutePath();
+        jarFilePath = replace(jarFilePath, ":", "_");
+        if (jarFilePath.startsWith("/") || jarFilePath.startsWith("\\")) {
+          jarFilePath = jarFilePath.substring(1);
+        }
+        jarFilePath = tempFilePathForJars + jarFilePath;
+        File bakJarFile = new File(jarFilePath);
+        mkdirs(bakJarFile.getParentFile());
+        copyFile(jarFile, bakJarFile);
+        version = jarVersion2(bakJarFile);
+      } else {
+        throw new RuntimeException("You need to set tempFileForJars");
+      }
+      
+    }
+    return version;
+  }
+  
+  /**
+   * get the property value from version in the manifest of a jar
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion1(File jarFile) {
+    FileInputStream fileInputStream = null;
+    try {
+      fileInputStream = new FileInputStream(jarFile);
+      JarInputStream jarInputStream = new JarInputStream(fileInputStream);
+      
+      Manifest manifest = jarInputStream.getManifest();
+
+      return manifest == null ? null : manifestVersion(jarFile, manifest);
+      
+    } catch (Exception e) {
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
+      closeQuietly(fileInputStream);
+    }
+
+  }
+
+  /** set this to copy jars if the jarinputstream doesnt work, must end in File.separator, set this at the beginning of the
+   * program. 
+   */
+  public static String tempFilePathForJars = null;
+  
+  /**
+   * 
+   * @param jarFile
+   * @return the version
+   */
+  public static String jarVersion2(File jarFile) {
+    
+    InputStream manifestStream = null;  
+    try {  
+      URL manifestUrl = new URL("jar:file:" + jarFile.getCanonicalPath() + "!/META-INF/MANIFEST.MF");  
+      manifestStream = manifestUrl.openStream();  
+      Manifest manifest = new Manifest(manifestStream);  
+      return manifest == null ? null : manifestVersion(jarFile, manifest);
+    } catch (Exception e) {  
+      if (e instanceof RuntimeException) {  
+        throw (RuntimeException)e;  
+      }  
+      throw new RuntimeException(jarFile.getAbsolutePath() + ", " + e.getMessage(), e);  
+    } finally {  
+      closeQuietly(manifestStream);  
+    }  
+  }
+
+  /**
+   * split a string (e.g. file contents) into lines
+   * @param string
+   * @return the lines
+   */
+  public static String[] splitLines(String string) {
+    String newline = newlineFromFile(string);
+    String[] lines = null;
+    if ("\n".equals(newline)) {
+      lines = string.split("[\\n]");
+    } else if ("\r".equals(newline)) {
+      lines = string.split("[\\r]");
+    } else if ("\r\n".equals(newline)) {
+      lines = string.split("[\\r\\n]");
+    } else {
+      lines = string.split("[\\r\\n]+");
+    }
+    return lines;
+  }
+  
+  /**
+   * if printed cant find version, put the jar name here
+   */
+  private static Set<String> printedCantFindVersionJarName = new HashSet<String>();
+  
+  static {
+    //we know about this one, signed, cant change
+    //sqljdbc4.jar, Manifest-Version: 1.0
+    //sqljdbc4.jar, Created-By: 1.6.0_33 (Sun Microsystems Inc.)
+    printedCantFindVersionJarName.add("sqljdbc4.jar");
+  }
+  
+  /**
+   * @param jarFile
+   * @param manifest
+   * @return manifest version
+   */
+  public static String manifestVersion(File jarFile, Manifest manifest) {
+    
+    boolean printJarVersionProblemsV1 = propertiesValueBoolean("grouperInstaller.printJarVersionIssuesV1", false, false);
+    
+    String[] propertyNames = new String[]{
+        "Implementation-Version","Version"};
+    
+    Map<String, Attributes> attributeMap = manifest.getEntries();
+    String value = null;
+    for (String propertyName : propertyNames) {
+      value = manifest.getMainAttributes().getValue(propertyName);
+      if (!isBlank(value)) {
+        break;
+      }
+    }
+    if (value == null) {
+      OUTER:
+      for (Attributes attributes: attributeMap.values()) {
+        for (String propertyName : propertyNames) {
+          value = attributes.getValue(propertyName);
+          if (!isBlank(value)) {
+            break OUTER;
+          }
+        }
+      }
+    }
+    if (value == null) {
+      if (!printedCantFindVersionJarName.contains(jarFile.getName())) {
+        printedCantFindVersionJarName.add(jarFile.getName());
+        if (printJarVersionProblemsV1) {
+          System.out.println("Error: cant find version for jar: " + jarFile.getName());
+        }
+        if (printJarVersionProblemsV1) {
+          for (Attributes attributes: attributeMap.values()) {
+            for (Object key : attributes.keySet()) {
+              System.out.println(jarFile.getName() + ", " + key + ": " + attributes.getValue((Name)key));
+            }
+          }
+          Attributes attributes = manifest.getMainAttributes();
+          for (Object key : attributes.keySet()) {
+            System.out.println(jarFile.getName() + ", main " + key + ": " + attributes.getValue((Name)key));
+          }
+        }
+      }
+    }
+    return value;
+  }
+
+  /**
+   * based on file contents see what the newline type is
+   * @param fileContents
+   * @return the newline
+   */
+  public static String newlineFromFile(String fileContents) {
+    String newline = "\n";
+    if (fileContents.contains("\\r\\n")) {
+      newline = "\\r\\n";
+    }
+    if (fileContents.contains("\\n\\r")) {
+      newline = "\\n\\r";
+    }
+    if (fileContents.contains("\\r")) {
+      newline = "\\r";
+    }
+    return newline;
+  }
+
+  /**
+   * list files recursively from parent, dont include 
+   * @param parent
+   * @return set of files wont return null
+   */
+  public static List<File> fileListRecursive(File parent) {
+    List<File> results = new ArrayList<File>();
+    fileListRecursiveHelper(parent, results);
+    return results;
+  }
+
+  /**
+   * helper to add child files to a parent (
+   * @param parent
+   * @param fileList
+   */
+  private static void fileListRecursiveHelper(File parent, List<File> fileList) {
+    if (parent == null || !parent.exists() || !parent.isDirectory()) {
+      return;
+    }
+    List<File> subFiles = nonNull(toList(parent.listFiles()));
+    for (File subFile : subFiles) {
+      if (subFile.isFile()) {
+        fileList.add(subFile);
+      }
+      if (subFile.isDirectory()) {
+        fileListRecursiveHelper(subFile, fileList);
+      }
+    }
+  }
+
+  /**
+   * @param path
+   * @return the new path
+   */
+  public static String fileMassagePathsNoLeadingOrTrailing(String path) {
+    path = path.replace(File.separatorChar == '/' ? '\\' : '/', File.separatorChar);
+    if (path.startsWith(File.separator)) {
+      path = path.substring(1);
+    }
+    if (path.endsWith(File.separator)) {
+      path = path.substring(0, path.length()-1);
+    }
+    return path;
+  }
+  
+  /**
+   * Compares the contents of two files to determine if they are equal or not.
+   * <p>
+   * This method checks to see if the two files are different lengths
+   * or if they point to the same file, before resorting to byte-by-byte
+   * comparison of the contents.
+   * <p>
+   * Code origin: Avalon
+   *
+   * @param file1  the first file
+   * @param file2  the second file
+   * @return true if the content of the files are equal or they both don't
+   * exist, false otherwise
+   */
+  public static boolean contentEquals(File file1, File file2) {
+    try {
+      boolean file1Exists = file1.exists();
+      if (file1Exists != file2.exists()) {
+        return false;
+      }
+  
+      if (!file1Exists) {
+        // two not existing files are equal
+        return true;
+      }
+  
+      if (file1.isDirectory() || file2.isDirectory()) {
+        // don't want to compare directory contents
+        throw new IOException("Can't compare directories, only files");
+      }
+  
+      if (file1.length() != file2.length()) {
+        // lengths differ, cannot be equal
+        return false;
+      }
+  
+      if (file1.getCanonicalFile().equals(file2.getCanonicalFile())) {
+        // same file
+        return true;
+      }
+  
+      InputStream input1 = null;
+      InputStream input2 = null;
+      try {
+        input1 = new FileInputStream(file1);
+        input2 = new FileInputStream(file2);
+        return contentEquals(input1, input2);
+  
+      } finally {
+        closeQuietly(input1);
+        closeQuietly(input2);
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * Compare the contents of two Streams to determine if they are equal or
+   * not.
+   * <p>
+   * This method buffers the input internally using
+   * <code>BufferedInputStream</code> if they are not already buffered.
+   *
+   * @param input1  the first stream
+   * @param input2  the second stream
+   * @return true if the content of the streams are equal or they both don't
+   * exist, false otherwise
+   * @throws NullPointerException if either input is null
+   * @throws IOException if an I/O error occurs
+   */
+  public static boolean contentEquals(InputStream input1, InputStream input2)
+      throws IOException {
+    if (!(input1 instanceof BufferedInputStream)) {
+      input1 = new BufferedInputStream(input1);
+    }
+    if (!(input2 instanceof BufferedInputStream)) {
+      input2 = new BufferedInputStream(input2);
+    }
+
+    int ch = input1.read();
+    while (-1 != ch) {
+      int ch2 = input2.read();
+      if (ch != ch2) {
+        return false;
+      }
+      ch = input1.read();
+    }
+
+    int ch2 = input2.read();
+    return (ch2 == -1);
+  }
+
+  /**
+   * Compare the contents of two Readers to determine if they are equal or
+   * not.
+   * <p>
+   * This method buffers the input internally using
+   * <code>BufferedReader</code> if they are not already buffered.
+   *
+   * @param input1  the first reader
+   * @param input2  the second reader
+   * @return true if the content of the readers are equal or they both don't
+   * exist, false otherwise
+   * @throws NullPointerException if either input is null
+   * @throws IOException if an I/O error occurs
+   * @since Commons IO 1.1
+   */
+  public static boolean contentEquals(Reader input1, Reader input2)
+      throws IOException {
+    if (!(input1 instanceof BufferedReader)) {
+      input1 = new BufferedReader(input1);
+    }
+    if (!(input2 instanceof BufferedReader)) {
+      input2 = new BufferedReader(input2);
+    }
+
+    int ch = input1.read();
+    while (-1 != ch) {
+      int ch2 = input2.read();
+      if (ch != ch2) {
+        return false;
+      }
+      ch = input1.read();
+    }
+
+    int ch2 = input2.read();
+    return (ch2 == -1);
+  }
+
 }
