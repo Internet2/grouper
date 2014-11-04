@@ -7,26 +7,26 @@
                       <td colspan="7" class="table-toolbar gradient-background">
                         <div class="row-fluid">
                           <div class="span1">
-                            <label for="people-update">Update:</label>
+                            <label for="people-update">${textContainer.text['stemPrivilegesUpdateBulkLabel'] }</label>
                           </div>
                           <div class="span5">
                             <select id="people-update" class="span12" name="stemPrivilegeBatchUpdateOperation">
                               <%-- create group should be the default, so list it first --%>
-                              <option value="assign_creators">Assign the CREATE GROUP privilege</option>
-                              <option value="assign_stemmers">Assign the CREATE FOLDER privilege</option>
-                              <option value="assign_stemAttrReaders">Assign the ATTRIBUTE READ privilege</option>
-                              <option value="assign_stemAttrUpdaters">Assign the ATTRIBUTE UPDATE privilege</option>
-                              <option value="assign_all">Assign ALL privileges</option>
-                              <option value="revoke_creators">Remove the CREATE GROUP privilege</option>
-                              <option value="revoke_stemmers">Remove the CREATE FOLDER privilege</option>
-                              <option value="revoke_stemAttrReaders">Remove the ATTRIBUTE READ privilege</option>
-                              <option value="revoke_stemAttrUpdaters">Remove the ATTRIBUTE UPDATE privilege</option>
-                              <option value="revoke_all">Remove ALL privileges</option>
+                              <option value="assign_creators">${textContainer.text['groupPrivilegesAssignCreatePrivilege'] }</option>
+                              <option value="assign_stemmers">${textContainer.text['groupPrivilegesAssignStemPrivilege'] }</option>
+                              <option value="assign_stemAttrReaders">${textContainer.text['groupPrivilegesAssignStemAttributeReadPrivilege'] }</option>
+                              <option value="assign_stemAttrUpdaters">${textContainer.text['groupPrivilegesAssignStemAttributeUpdatePrivilege'] }</option>
+                              <option value="assign_all">${textContainer.text['groupPrivilegesAssignAllStemPrivilege'] }</option>
+                              <option value="revoke_creators">${textContainer.text['groupPrivilegesRevokeCreatePrivilege'] }</option>
+                              <option value="revoke_stemmers">${textContainer.text['groupPrivilegesRevokeStemPrivilege'] }</option>
+                              <option value="revoke_stemAttrReaders">${textContainer.text['groupPrivilegesRevokeStemAttributeReadPrivilege'] }</option>
+                              <option value="revoke_stemAttrUpdaters">${textContainer.text['groupPrivilegesRevokeStemAttributeUpdatePrivilege'] }</option>
+                              <option value="revoke_all">${textContainer.text['groupPrivilegesRevokeAllStemPrivilege'] }</option>
                             </select>
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-                              onclick="ajax('../app/UiV2Stem.assignPrivilegeBatch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId,stemPrivilegeFormId'}); return false;">Update selected</button>
+                              onclick="ajax('../app/UiV2Stem.assignPrivilegeBatch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId,stemPrivilegeFormId'}); return false;">${textContainer.text['stemUpdateSelectedPrivilegesButton'] }</button>
                           </div>
                         </div>
                       </td>
@@ -37,11 +37,11 @@
                           <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.privilegeCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
                         </label>
                       </th>
-                      <th class="sorted">Name</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">Create<br />folder</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">Create<br />group</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">Attribute<br />read</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">Attribute<br />update</th>
+                      <th class="sorted">${textContainer.text['privDropdownName'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStem'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colCreate'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAttributeRead'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAttributeUpdate'] }</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -79,7 +79,7 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">Actions <span class="caret"></span></a>
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['stemPrivilegeActions'] } <span class="caret"></span></a>
                             <ul class="dropdown-menu dropdown-menu-right">
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
                                 <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceStemPrivileges&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>

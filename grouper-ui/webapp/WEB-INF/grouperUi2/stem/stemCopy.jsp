@@ -4,12 +4,6 @@
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
 
             <div class="bread-header-container">
-              <%--
-              <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li class="active">Applications</li>
-              </ul>
-              --%>
               ${grouperRequestContainer.stemContainer.guiStem.breadcrumbs}
               <div class="page-header blue-gradient">
                 <h1> <i class="fa fa-folder"></i> ${grouper:escapeHtml(grouperRequestContainer.stemContainer.guiStem.guiDisplayExtension)}

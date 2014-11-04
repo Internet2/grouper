@@ -4,12 +4,7 @@
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
             <div class="bread-header-container">
-              <%--
-              <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li class="active">Applications</li>
-              </ul>
-              --%>
+
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myGroupsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['groupImportMembersBreadcrumb'] }</li>

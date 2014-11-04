@@ -2,12 +2,7 @@
 
             <!-- start group/viewGroup.jsp -->
             <div class="bread-header-container">
-              <%--
-              <ul class="breadcrumb">
-                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li class="active">${grouperRequestContainer.subjectContainer.guiSubject.shortLinkWithIcon}</li>
-              </ul>
-              --%>
+
               ${grouperRequestContainer.subjectContainer.guiSubject.breadcrumbs}
               
               <div class="page-header blue-gradient">

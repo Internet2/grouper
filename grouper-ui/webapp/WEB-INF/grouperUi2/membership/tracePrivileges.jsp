@@ -6,12 +6,6 @@
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
-                <%-- <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li><a href="#">Root </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li><a href="view-folder.html">Applications </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li><a href="view-folder.html">Wiki </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li><a href="view-group.html">Editors</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
-                <li class="active">Trace membership</li> --%>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
                     ${grouperRequestContainer.subjectContainer.guiSubject.breadcrumbBullets}
