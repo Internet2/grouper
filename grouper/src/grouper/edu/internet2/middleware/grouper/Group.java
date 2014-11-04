@@ -6277,11 +6277,13 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), this.getParentUuid(),
               ChangeLogLabels.GROUP_UPDATE.displayName.name(), this.getDisplayName(),
               ChangeLogLabels.GROUP_UPDATE.description.name(), this.getDescription()),
-          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+          GrouperUtil.toList(FIELD_NAME, FIELD_PARENT_UUID, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME),
           GrouperUtil.toList(ChangeLogLabels.GROUP_UPDATE.name.name(),
               ChangeLogLabels.GROUP_UPDATE.parentStemId.name(), 
               ChangeLogLabels.GROUP_UPDATE.description.name(), 
-              ChangeLogLabels.GROUP_UPDATE.displayExtension.name()));    
+              ChangeLogLabels.GROUP_UPDATE.displayExtension.name(),
+              ChangeLogLabels.GROUP_UPDATE.displayName.name()
+              ));    
       
     }
   }
