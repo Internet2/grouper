@@ -7426,14 +7426,79 @@ public class GrouperInstallerUtils  {
    * @param destDir  the new directory, must not be <code>null</code>
    *
    * @throws NullPointerException if source or destination is <code>null</code>
-   * @throws IOException if source or destination is invalid
-   * @throws IOException if an IO error occurs during copying
    * @since Commons IO 1.1
    */
-  public static void copyDirectory(File srcDir, File destDir) throws IOException {
-    copyDirectory(srcDir, destDir, true);
+  public static void copyDirectory(File srcDir, File destDir) {
+    try {
+      copyDirectory(srcDir, destDir, true);
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with sourceDir: " + srcDir + ", destDir: " + destDir, ioe);
+    }
   }
 
+  /**
+   * find a jar
+   * @param allJars
+   * @param fileName
+   * @return the list that matches
+   */
+  public static List<File> jarFindJar(List<File> allJars, String fileName) {
+    List<File> result = new ArrayList<File>();
+    
+    //find the passed in base file name
+    String baseFileName = jarFileBaseName(fileName);
+    
+    if (baseFileName == null) {
+      throw new RuntimeException("Why is base file name null? " + fileName);
+    }
+    
+    //loop through and find matchers
+    for (File file : allJars) {
+      
+      if (!file.getName().endsWith(".jar")) {
+        continue;
+      }
+      
+      String fileBaseFileName = jarFileBaseName(file.getName());
+      if (equals(fileBaseFileName, baseFileName)) {
+        result.add(file);
+      }
+    }
+    
+    return result;
+    
+  }
+
+  /**
+   * find a jar
+   * @param dir
+   * @param fileName
+   * @return the list that matches
+   */
+  public static List<File> jarFindJar(File dir, String fileName) {
+    return jarFindJar(toList(dir.listFiles()), fileName);
+  }
+  
+  /**
+   * if jarfile is something-1.2.3.jar, return something
+   * @param fileName
+   * @return the base file name for jar or null
+   */
+  public static String jarFileBaseName(String fileName) {
+    
+    Pattern pattern = Pattern.compile("^(.*)-[0-9].*.jar$");
+    Matcher matcher = pattern.matcher(fileName);
+    if (matcher.matches()) {
+      return matcher.group(1);
+    }
+    if (fileName.endsWith(".jar")) {
+      return fileName.substring(0, fileName.length() - ".jar".length());
+    }
+    
+    return null;
+    
+  }
+  
   /**
    * Copies a whole directory to a new location.
    * <p>
@@ -10219,28 +10284,45 @@ public class GrouperInstallerUtils  {
    * @return the version
    */
   public static String jarVersion(File jarFile) {
-    String version = jarVersion1(jarFile);
-    if (isBlank(version)) {
-
-      //hopefully this is set
-      if (tempFilePathForJars != null) {
-        
-        String jarFilePath = jarFile.getAbsolutePath();
-        jarFilePath = replace(jarFilePath, ":", "_");
-        if (jarFilePath.startsWith("/") || jarFilePath.startsWith("\\")) {
-          jarFilePath = jarFilePath.substring(1);
+    return jarVersion(jarFile, false);
+  }
+  /**
+   * 
+   * @param jarFile
+   * @param exceptionIfProblem true if should throw exception if problem, otherwise blank
+   * @return the version
+   */
+  public static String jarVersion(File jarFile, boolean exceptionIfProblem) {
+    try {
+      String version = jarVersion1(jarFile);
+      if (isBlank(version)) {
+  
+        //hopefully this is set
+        if (tempFilePathForJars != null) {
+          
+          String jarFilePath = jarFile.getAbsolutePath();
+          jarFilePath = replace(jarFilePath, ":", "_");
+          if (jarFilePath.startsWith("/") || jarFilePath.startsWith("\\")) {
+            jarFilePath = jarFilePath.substring(1);
+          }
+          jarFilePath = tempFilePathForJars + jarFilePath;
+          File bakJarFile = new File(jarFilePath);
+          mkdirs(bakJarFile.getParentFile());
+          copyFile(jarFile, bakJarFile);
+          version = jarVersion2(bakJarFile);
+        } else {
+          throw new RuntimeException("You need to set tempFileForJars");
         }
-        jarFilePath = tempFilePathForJars + jarFilePath;
-        File bakJarFile = new File(jarFilePath);
-        mkdirs(bakJarFile.getParentFile());
-        copyFile(jarFile, bakJarFile);
-        version = jarVersion2(bakJarFile);
-      } else {
-        throw new RuntimeException("You need to set tempFileForJars");
+        
       }
-      
+      return version;
+    } catch (RuntimeException e) {
+      injectInException(e, "Problem with jar: " + jarFile.getAbsolutePath());
+      if (exceptionIfProblem) {
+        throw e;
+      }
     }
-    return version;
+    return null;
   }
   
   /**
