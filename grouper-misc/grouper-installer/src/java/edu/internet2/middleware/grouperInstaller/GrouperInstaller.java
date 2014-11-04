@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
@@ -844,11 +843,52 @@ public class GrouperInstaller {
    * @param args
    */
   private void mainLogic(String[] args) {
+
     boolean install = this.grouperInstallOrUpgrade();
     if (install) {
       mainInstallLogic(args);
     } else {
       mainUpgradeLogic(args);
+    }
+    
+  }
+  /**
+   * 
+   */
+  private void reportOnConflictingJars() {
+    
+    System.out.println("\n##################################");
+    System.out.println("Looking for conflicting jars\n");
+
+    //look for conflicting jars
+    List<File> allLibraryJars = findAllLibraryFiles();
+    
+    Set<String> alreadyProcessed = new HashSet<String>();
+    
+    for (File jarFile : allLibraryJars) {
+      
+      String baseName = GrouperInstallerUtils.jarFileBaseName(jarFile.getName());
+      
+      //dont print multiple times
+      if (alreadyProcessed.contains(baseName)) {
+        continue;
+      }
+      
+      alreadyProcessed.add(baseName);
+      
+      List<File> relatedFiles = GrouperInstallerUtils.jarFindJar(allLibraryJars, jarFile.getName());
+      
+      if (GrouperInstallerUtils.length(relatedFiles) > 1) {
+        System.out.println("There is a conflicting jar: " + GrouperInstallerUtils.toStringForLog(relatedFiles));
+        System.out.println("You should probably delete one of these files (oldest one?) or consult the Grouper team.");
+        System.out.println("Press <enter> to continue...");
+        readFromStdIn();
+      }
+      
+      if (GrouperInstallerUtils.length(relatedFiles) == 0) {
+        System.out.println("Why is jar file not found??? " + jarFile.getAbsolutePath());
+      }
+      
     }
   }
   
@@ -912,6 +952,8 @@ public class GrouperInstaller {
 
     this.appToUpgrade.upgradeApp(this);
 
+    this.reportOnConflictingJars();
+    
     System.out.println("\nGrouper is upgraded from " + (this.originalGrouperJarVersion == null ? null : this.originalGrouperJarVersion) 
         + " to " + GrouperInstallerUtils.propertiesValue("grouper.version", true) +  "\n");
 
@@ -928,7 +970,7 @@ public class GrouperInstaller {
     System.out.println("\n##################################");
     System.out.println("Upgrading grouper client\n");
 
-    this.compareAndReplaceJar(this.grouperClientJar, new File(this.untarredClientDir + File.separator + "grouperClient.jar"), true);
+    this.compareAndReplaceJar(this.grouperClientJar, new File(this.untarredClientDir + File.separator + "grouperClient.jar"), true, null);
 
     this.compareUpgradePropertiesFile(this.grouperClientBasePropertiesFile, 
       new File(this.untarredClientDir + File.separator + "grouper.client.base.properties"),
@@ -1044,6 +1086,33 @@ public class GrouperInstaller {
     
   }
 
+  /**
+   * upgrade the psp
+   */
+  private void upgradePsp() {
+
+    this.upgradeApi();
+    
+    System.out.println("\n##################################");
+    System.out.println("Upgrading PSP\n");
+    
+    //copy the jars there
+    System.out.println("\n##################################");
+    System.out.println("Upgrading PSP jars\n");
+
+    this.upgradeJars(new File(this.untarredPspDir + File.separator + "lib" + File.separator + "custom" + File.separator),
+        new File(new File(this.upgradeExistingLibDirectoryString).getParentFile().getAbsolutePath() + File.separator + "custom"));
+
+    System.out.println("\n##################################");
+    System.out.println("Upgrading PSP files\n");
+
+    //copy files there (this is the conf examples)
+    this.copyFiles(this.untarredPspDir + File.separator + "conf" + File.separator,
+        this.upgradeExistingApplicationDirectoryString + "conf" + File.separator, null);
+
+  }
+
+  
   /**
    * upgrade a web.xml file
    * @param newWebXml
@@ -1297,7 +1366,7 @@ public class GrouperInstaller {
 
     this.compareAndReplaceJar(this.grouperJar, 
         new File(this.untarredApiDir + File.separator + "dist" + File.separator 
-            + "lib" + File.separator + "grouper.jar"), true);
+            + "lib" + File.separator + "grouper.jar"), true, null);
 
     System.out.println("\n##################################");
     System.out.println("Upgrading API config files\n");
@@ -1622,7 +1691,9 @@ public class GrouperInstaller {
           System.out.println("It is detected that an upgrade did not complete from version " + fileGrouperJarVersion);
           this.originalGrouperJarVersion = fileGrouperJarVersion;
         }
-      }      
+      } else {
+        GrouperInstallerUtils.writeStringToFile(this.grouperUpgradeOriginalVersionFile, this.originalGrouperJarVersion.toString());
+      }
     }
     
     return this.originalGrouperJarVersion;
@@ -1765,12 +1836,21 @@ public class GrouperInstaller {
       apiUpgradeDbVersion(false);
     }
   }
-  
+
   /**
    * upgrade jars from a directory
    * @param fromDir jars from this directory
    */
   private void upgradeJars(File fromDir) {
+    this.upgradeJars(fromDir, new File(this.upgradeExistingLibDirectoryString));
+  }
+  
+  /**
+   * upgrade jars from a directory
+   * @param fromDir jars from this directory
+   * @param toDir is where jars go if not there
+   */
+  private void upgradeJars(File fromDir, File toDir) {
 
     //for each jar in the directory
     if (!fromDir.exists() || !fromDir.isDirectory()) {
@@ -1787,16 +1867,60 @@ public class GrouperInstaller {
       if (!jarFile.getName().endsWith(".jar")) {
         continue;
       }
-
+      
       File existingJar = this.findLibraryFile(jarFile.getName(), false);
 
-      changes += this.compareAndReplaceJar(existingJar, jarFile, false) ? 1 : 0;
+      List<File> relatedJars = null;
+      
+      for (int i=0;i<10;i++) {
+        
+        if (i==9) {
+          throw new RuntimeException("Why didnt you clear out the jars??? " + GrouperInstallerUtils.toStringForLog(relatedJars));
+        }
+
+        relatedJars = GrouperInstallerUtils.jarFindJar(toDir, jarFile.getName());
+        
+        if (GrouperInstallerUtils.length(relatedJars) > 1) {
+          
+          System.out.println("There are multiple related jars for " + jarFile.getName() + ": " + GrouperInstallerUtils.toStringForLog(relatedJars));
+          System.out.println("There should be only one, remove the others, if this is a mistake, then you need to\n  rename the prefix so they are different, and report to the Grouper team");
+          System.out.println("Press <enter> to continue...");
+          readFromStdIn();
+
+        } else {
+        
+          break;
+
+        }
+          
+      }
+      
+      
+      if (existingJar == null) {
+        //see if one exists by another version
+        if (GrouperInstallerUtils.length(relatedJars) == 1) {
+          existingJar = relatedJars.get(0);
+        }
+      }
+      
+      if (existingJar != null) {
+        try {
+          //case difference
+          if (!GrouperInstallerUtils.equals(jarFile.getCanonicalFile().getName(), existingJar.getCanonicalFile().getName())) {
+            File tmpFile = new File(existingJar.getParentFile().getAbsoluteFile() + File.separator + existingJar.getName()+ ".tmp");
+            GrouperInstallerUtils.fileMove(existingJar, tmpFile);
+            existingJar = new File(existingJar.getParentFile().getAbsoluteFile() + File.separator + jarFile.getName());
+            GrouperInstallerUtils.fileMove(tmpFile, existingJar);
+          }
+        } catch (Exception e) {
+          throw new RuntimeException("Problem with file: " + jarFile, e);
+        }
+      }
+      changes += this.compareAndReplaceJar(existingJar, jarFile, false, toDir) ? 1 : 0;
 
       if (jarDir == null) {
         jarDir = existingJar.getParentFile();
       }
-      
-      //TODO see if there are conflicting jars there?
       
     }
 
@@ -2483,6 +2607,49 @@ public class GrouperInstaller {
       public void upgradeApp(GrouperInstaller grouperInstaller) {
         grouperInstaller.upgradeWs();
       }
+    }, 
+    
+    /**
+     * upgrading the UI
+     */
+    PSP {
+    
+      @Override
+      public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        //API and client are in the UI
+        if (!API.validateExistingDirectory(grouperInstaller)) {
+          return false;
+        }
+        
+        File customLibDir = new File(grouperInstaller.upgradeExistingApplicationDirectoryString + "lib" + File.separator + "custom");
+        if (!customLibDir.exists()) {
+          return false;
+        }
+
+        //see if psp jar is there
+        List<File> files = GrouperInstallerUtils.jarFindJar(customLibDir, "psp.jar");
+                
+        if (GrouperInstallerUtils.length(files) == 0) {
+          return false;
+        }
+
+        return true;
+      }
+    
+      @Override
+      public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+        API.downloadAndBuildGrouperProjects(grouperInstaller);
+        
+        //####################################
+        //download and configure psp
+        grouperInstaller.downloadAndBuildPsp();
+    
+      }
+    
+      @Override
+      public void upgradeApp(GrouperInstaller grouperInstaller) {
+        grouperInstaller.upgradePsp();
+      }
     };
 
     /**
@@ -2532,13 +2699,18 @@ public class GrouperInstaller {
    * @param existingJarFile
    * @param newJarFile
    * @param printResultIfNotUpgrade
+   * @param toDir if file not there, copy here.  If null, then go to upgrade existing lib directory string
    * @return true if upgraded, false if not
    */
-  private boolean compareAndReplaceJar(File existingJarFile, File newJarFile, boolean printResultIfNotUpgrade) {
+  private boolean compareAndReplaceJar(File existingJarFile, File newJarFile, boolean printResultIfNotUpgrade, File toDir) {
+    
+    if (toDir == null) {
+      toDir = new File(this.upgradeExistingLibDirectoryString);
+    }
     
     if (existingJarFile == null || !existingJarFile.exists()) {
       System.out.println(newJarFile.getName() + " is a new file and is being copied to the application lib dir");
-      existingJarFile = new File(this.upgradeExistingLibDirectoryString + newJarFile.getName());
+      existingJarFile = new File(toDir.getAbsoluteFile() + File.separator + newJarFile.getName());
       GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
       return true;
     }
@@ -2741,6 +2913,39 @@ public class GrouperInstaller {
     
     return null;
   }
+
+  /**
+   * lib dirs where libs might be in this.upgradeExistingApplicationDirectoryString
+   */
+  private static List<String> libDirs = GrouperInstallerUtils.toList(
+      "lib" + File.separator, 
+      "WEB-INF" + File.separator + "lib" + File.separator,
+      "lib" + File.separator + "grouper" + File.separator,
+      "lib" + File.separator + "custom" + File.separator,
+      "lib" + File.separator + "jdbcSamples" + File.separator,
+      "dist" + File.separator + "lib" + File.separator,
+      "");
+
+  /**
+   * get all library files
+   * @return the list of files
+   */
+  private List<File> findAllLibraryFiles() {
+    List<File> result = new ArrayList<File>();
+    for (String libDir : libDirs) {
+
+      File dir = new File(this.upgradeExistingApplicationDirectoryString + libDir);
+      if (dir.exists() && dir.isDirectory()) {
+        for (File file : dir.listFiles()) {
+          if (file.getName().endsWith(".jar")) {
+            result.add(file);
+          }
+        }
+      }
+      
+    }
+    return result;
+  }
   
   /**
    * find a library file on lib dir by libName
@@ -2751,48 +2956,17 @@ public class GrouperInstaller {
   private File findLibraryFile(String libName, boolean exceptionIfNotFound) {
     
     Set<String> fileNamesTried = new LinkedHashSet<String>();
-    
-    File file = new File(this.upgradeExistingApplicationDirectoryString + "lib/" + libName);
-    if (file.exists()) {
-      return file;
-    }
-    
-    fileNamesTried.add(file.getAbsolutePath());
-    
-    file = new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF/lib/" + libName);
-    if (file.exists()) {
-      return file;
-    }
 
-    fileNamesTried.add(file.getAbsolutePath());
-    
-    file = new File(this.upgradeExistingApplicationDirectoryString + "lib/grouper/" + libName);
-    if (file.exists()) {
-      return file;
-    }
+    for (String libDir : libDirs) {
 
-    fileNamesTried.add(file.getAbsolutePath());
-    
-    file = new File(this.upgradeExistingApplicationDirectoryString + "lib/jdbcSamples/" + libName);
-    if (file.exists()) {
-      return file;
+      File file = new File(this.upgradeExistingApplicationDirectoryString + libDir + libName);
+      if (file.exists()) {
+        return file;
+      }
+      
+      fileNamesTried.add(file.getAbsolutePath());
+      
     }
-
-    fileNamesTried.add(file.getAbsolutePath());
-    
-    file = new File(this.upgradeExistingApplicationDirectoryString + "dist/lib/" + libName);
-    if (file.exists()) {
-      return file;
-    }
-
-    fileNamesTried.add(file.getAbsolutePath());
-    
-    file = new File(this.upgradeExistingApplicationDirectoryString + libName);
-    if (file.exists()) {
-      return file;
-    }
-
-    fileNamesTried.add(file.getAbsolutePath());
     
     if (exceptionIfNotFound) {
       throw new RuntimeException("Cant find file, looked in: " + GrouperInstallerUtils.join(fileNamesTried.iterator(), ", "));
@@ -3011,17 +3185,12 @@ public class GrouperInstaller {
     //install psp
     System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
     if (readFromStdInBoolean(true)) {
-    	File pspDir = downloadPsp();
-    	File unzippedPspFile = unzip(pspDir.getAbsolutePath());
-        File untarredPspDir = untar(unzippedPspFile.getAbsolutePath());              
-        try {
-			GrouperInstallerUtils.copyDirectory(untarredPspDir, this.untarredApiDir);
-		} catch (IOException e) {
-			System.err.println("An error occurred : " + e.getMessage());
-			e.printStackTrace();
-		}                
+    	downloadAndBuildPsp();              
+      GrouperInstallerUtils.copyDirectory(this.untarredPspDir, this.untarredApiDir);
     }    
-    
+
+    reportOnConflictingJars();
+
     //####################################
     //success
     System.out.println("\nInstallation success!");
@@ -3030,6 +3199,18 @@ public class GrouperInstaller {
     System.out.println("\n##################################\n");
     
   }
+  /**
+   * 
+   */
+  private void downloadAndBuildPsp() {
+    File pspDir = downloadPsp();
+    File unzippedPspFile = unzip(pspDir.getAbsolutePath());
+    this.untarredPspDir = untar(unzippedPspFile.getAbsolutePath());
+  }
+  
+  /** untarred psp dir file */
+  private File untarredPspDir;
+  
   /**
    * 
    */
@@ -4528,8 +4709,6 @@ public class GrouperInstaller {
    */
   private void buildWs(boolean isInstallNotUpgrade) {
     
-    File grouperWsBuildToDir = new File(this.grouperWsBuildToDirName());
-    
     boolean rebuildWs = true;
 
     boolean defaultRebuild = GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.default.ws.rebuildIfBuilt", true, false);
@@ -5323,7 +5502,7 @@ public class GrouperInstaller {
     defaultAppToUpgrade = GrouperInstallerUtils.defaultIfBlank(defaultAppToUpgrade, AppToUpgrade.API.name().toLowerCase());
     
     for (int i=0;i<10;i++) {
-      System.out.print("What do you want to upgrade?  api, ui, ws, or client? [" + defaultAppToUpgrade + "]: ");
+      System.out.print("What do you want to upgrade?  api, ui, ws, client, or psp? [" + defaultAppToUpgrade + "]: ");
       appToUpgradeString = readFromStdIn();
       if (GrouperInstallerUtils.isBlank(appToUpgradeString)) {
         appToUpgradeString = defaultAppToUpgrade;
@@ -5331,10 +5510,10 @@ public class GrouperInstaller {
       try {
         return AppToUpgrade.valueOfIgnoreCase(appToUpgradeString, true);
       } catch (Exception e) {
-        System.out.print("Error: please enter: 'api', 'ui', 'ws', 'client', or blank for default [" + defaultAppToUpgrade + "]");
+        System.out.print("Error: please enter: 'api', 'ui', 'ws', 'client', 'psp', or blank for default [" + defaultAppToUpgrade + "]");
       }
     }
-    throw new RuntimeException("Expecting api, ui, ws, or client, but was: '" + appToUpgradeString + "'");
+    throw new RuntimeException("Expecting api, ui, ws, client, or psp but was: '" + appToUpgradeString + "'");
   }
 
   /**
