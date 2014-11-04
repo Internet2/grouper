@@ -10321,6 +10321,7 @@ public class GrouperInstallerUtils  {
       if (exceptionIfProblem) {
         throw e;
       }
+      System.out.println("Non-fatal issue with " + jarFile.getAbsolutePath() + ", " + e.getMessage() + ", assuming cant find version");
     }
     return null;
   }

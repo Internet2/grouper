@@ -3185,7 +3185,7 @@ public class GrouperInstaller {
     //install psp
     System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
     if (readFromStdInBoolean(true)) {
-    	downloadAndBuildPsp();              
+      downloadAndBuildPsp();              
       GrouperInstallerUtils.copyDirectory(this.untarredPspDir, this.untarredApiDir);
     }    
 
@@ -3360,8 +3360,8 @@ public class GrouperInstaller {
           if (!GrouperInstallerUtils.isBlank(error)) {
             System.out.println("Error: " + error);
             System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
-            		"cat " + binDirLocation + "gsh.sh" 
-            		+ " | col -b > " + binDirLocation + "gsh.sh\n");
+                "cat " + binDirLocation + "gsh.sh" 
+                + " | col -b > " + binDirLocation + "gsh.sh\n");
             System.out.println("\n" +
                 "cat " + binDirLocation + "gsh" 
                 + " | col -b > " + binDirLocation + "gsh\n");
