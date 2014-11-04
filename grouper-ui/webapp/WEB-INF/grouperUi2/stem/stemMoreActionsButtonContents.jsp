@@ -13,7 +13,7 @@
                         </c:otherwise>
                       </c:choose>
                     </c:if>
-                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">More actions <span class="caret"></span></a>
+                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['stemViewMoreActionsButton'] } <span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>

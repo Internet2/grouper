@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -67,6 +68,7 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
    * process a request from a paging tag
    * @param request
    * @param guiPaging
+   * @param queryOptions 
    * @param pagesizeDefaultProperty
    */
   public static void processRequest(HttpServletRequest request, GuiPaging guiPaging, 
@@ -219,28 +221,30 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
 
     QueryPaging queryPaging = this.guiPaging.queryPaging();
     
-    result.append("  <div class=\"pull-right\">Showing " + (queryPaging.getFirstIndexOnPage()+1) 
-        + "-" + (queryPaging.getLastIndexOnPage()+1) + " of " + this.guiPaging.getTotalRecordCount() + " &middot; ");
+    result.append("  <div class=\"pull-right\">" + GrouperUiUtils.message("paging2.showing") + " " + (queryPaging.getFirstIndexOnPage()+1) 
+        + "-" + (queryPaging.getLastIndexOnPage()+1) + " " + GrouperUiUtils.message("paging2.of") + " " + this.guiPaging.getTotalRecordCount() + " &middot; ");
 
     String javascriptEventPrefix = "ajax('";
     String javascriptEventSuffix = "', {formIds: '" + this.formName + "Id" + (StringUtils.isBlank(this.ajaxFormIds) ? "" : ("," + this.ajaxFormIds)) + "'}); return false;";
 
     if (queryPaging.isFirstPage()) {
-      result.append("First | Prev");
+      result.append(GrouperUiUtils.message("paging2.first") + " | " + GrouperUiUtils.message("paging2.prev"));
     } else {
-      result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix + this.refreshOperation + javascriptEventSuffix + "\">First</a> | ");
+      result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix + this.refreshOperation + javascriptEventSuffix + "\">" 
+          + GrouperUiUtils.message("paging2.first") + "</a> | ");
       result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix 
-          + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + (queryPaging.getPageNumber()-1) ) + javascriptEventSuffix + "\">Prev</a>");
+          + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + (queryPaging.getPageNumber()-1) ) + javascriptEventSuffix + "\">" 
+          + GrouperUiUtils.message("paging2.prev") + "</a>");
     }
     result.append(" | ");
     if (queryPaging.isLastPage()) {
-      result.append("Next | Last");
+      result.append(GrouperUiUtils.message("paging2.next") + " | " + GrouperUiUtils.message("paging2.last"));
     } else {
       result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix 
-          + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + (queryPaging.getPageNumber()+1) ) + javascriptEventSuffix + "\">Next</a>");
+          + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + (queryPaging.getPageNumber()+1) ) + javascriptEventSuffix + "\">" + GrouperUiUtils.message("paging2.next") + "</a>");
       result.append(" | ");
       result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix 
-          + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + queryPaging.getNumberOfPages() ) + javascriptEventSuffix + "\">Last</a>");
+          + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + queryPaging.getNumberOfPages() ) + javascriptEventSuffix + "\">" + GrouperUiUtils.message("paging2.last") + "</a>");
     }
     result.append("</div>\n");
     result.append("  <form class=\"form-inline form-small\" name=\"" + this.formName + "\" id=\"" + this.formName + "Id\">\n");

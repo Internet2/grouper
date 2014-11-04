@@ -37,7 +37,7 @@
                         </ul>
                       </c:when>
                       <c:otherwise>
-                        <a href="#" onclick="ajax('UiV2Main.indexColMyFavorites?col=${col}&storePref=false'); return false;">${textContainer.text['indexMyFavoritesButtonLoad'] }</a></li>
+                        <a href="#" onclick="ajax('UiV2Main.indexColMyFavorites?col=${col}&storePref=false'); return false;">${textContainer.text['indexMyFavoritesButtonLoad'] }</a>
                         <br /><br /><br /><br/>
                       </c:otherwise>
                     </c:choose>
