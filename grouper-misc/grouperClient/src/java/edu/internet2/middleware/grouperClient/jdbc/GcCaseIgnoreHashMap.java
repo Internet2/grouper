@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 
 /**
  * Map with string key which ignores key case and has some convenience methods.
+ * @author harveycg
  */
 public class GcCaseIgnoreHashMap extends LinkedHashMap<String, Object> {
 

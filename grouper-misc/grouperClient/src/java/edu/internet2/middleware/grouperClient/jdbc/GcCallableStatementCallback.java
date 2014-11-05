@@ -8,7 +8,7 @@ import java.sql.SQLException;
 /**
  * Object that gets a callableStatement back from the connection and the sql - closing it is handled within the framework.
  * @param <T> is the type of object that will be returned.
- *
+ * @author harveycg
  */
 public abstract class GcCallableStatementCallback<T> {
 

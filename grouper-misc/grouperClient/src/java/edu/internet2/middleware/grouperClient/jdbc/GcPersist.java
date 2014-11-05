@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouperClient.jdbc;
 
 /**
  * Whether fields should be persisted to the database or not.
+ * @author harveycg
  *
  */
 public enum GcPersist {

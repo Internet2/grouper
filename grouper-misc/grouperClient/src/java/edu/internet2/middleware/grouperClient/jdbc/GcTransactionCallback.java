@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouperClient.jdbc;
 /**
  * Object that gets a dbAccess object with a session in it.
  * @param <T> is the type of object that will be returned.
+ * @author harveycg
  *
  */
 public abstract class GcTransactionCallback<T> {

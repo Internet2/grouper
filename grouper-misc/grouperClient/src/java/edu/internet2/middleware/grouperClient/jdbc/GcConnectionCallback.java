@@ -7,6 +7,7 @@ import java.sql.Connection;
 /**
  * Object that gets a database connection object.
  * @param <T> is the type of object that will be returned.
+ * @author harveycg
  *
  */
 public abstract class GcConnectionCallback<T> {

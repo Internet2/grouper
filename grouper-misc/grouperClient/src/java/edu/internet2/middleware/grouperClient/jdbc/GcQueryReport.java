@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * Structure to encapsulate data about a query being executed.
+ * @author harveycg
  */
 public class GcQueryReport {
 

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 /**
  * Object that gets a resulset via callback.
  * @param <T> is the type of object that will be returned.
+ * @author harveycg
  *
  */
 public abstract class GcResultSetCallback<T> {

@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Metadata about fields that can be stored to the database.
+ * @author harveycg
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

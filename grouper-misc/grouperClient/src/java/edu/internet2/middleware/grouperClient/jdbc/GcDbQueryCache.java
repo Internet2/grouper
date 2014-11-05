@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperClient.jdbc;
 
 /**
  *
+ * @author harveycg
  */
 public class GcDbQueryCache {
 
