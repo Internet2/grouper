@@ -27,6 +27,24 @@ public class VootEmail {
   
   /** Value of email e.g. john@smith.edu */
   private String value;
+  
+  /**
+   * Method to check if an object is equal to the current object.
+   * @param otherVootEmail the other object to check
+   */
+  @Override
+  public boolean equals(Object otherVootEmail) {
+    if (otherVootEmail instanceof VootEmail) {
+      VootEmail other = (VootEmail) otherVootEmail;
+      if (!other.getType().equals(type)) return false;
+      if (!other.getValue().equals(value)) return false;
+      
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 
   /**
    * Type of email. Should be a value between "home", "work", "other". e.g. 'work'
@@ -66,18 +84,21 @@ public class VootEmail {
    * @author Andrea Biancini <andrea.biancini@gmail.com>
    */
   public enum MailTypes {
-      WORK ("work"),
-      HOME ("home"),
-      OTHER ("other");
+    /** Work type for email address */
+    WORK ("work"),
+    /** Home type for email address */
+    HOME ("home"),
+    /** Generic other type for email address */
+    OTHER ("other");
 
-      private final String type;       
+    private final String type;       
 
-      private MailTypes(String type1) {
-          this.type = type1;
-      }
+    private MailTypes(String type1) {
+      this.type = type1;
+    }
 
-      public String toString(){
-         return type;
-      }
+    public String toString(){
+       return type;
+    }
   }
 }
