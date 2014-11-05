@@ -93,10 +93,10 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new GrouperLoaderTest("testLoaderTypes"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
     //new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
     //performanceRunSetupLoaderTables();
-    performanceRun();
+    //performanceRun();
   }
 
   /**
@@ -357,6 +357,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ6));
     
+    //THIS FAILED SOMETIMES, RUN IT SEPARATELY IT WILL PASS
     Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
     assertEquals("The loader:group3", overallGroup3.getDisplayName());
     Group systemOfRecordGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);

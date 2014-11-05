@@ -1468,9 +1468,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
         //make sure user can READ the attribute
         AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
-        
+
         if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
-          attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_DEF_ATTR_READ_PRIVILEGES);
+          attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
         }
         
         AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
