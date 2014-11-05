@@ -95,7 +95,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAccessPrivileges"));
+    TestRunner.run(new ChangeLogTest("testGroups"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -4091,7 +4091,7 @@ public class ChangeLogTest extends GrouperTest {
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry");
   
-    assertEquals("Should have two in temp table", changeLogTempCount+2, newChangeLogTempCount);
+    assertEquals("Should have two in temp table", changeLogTempCount+3, newChangeLogTempCount);
     assertTrue("Should have more than one record in the change log table: " + changeLogCount + ", " + newChangeLogCount, 
         changeLogCount+1 <= newChangeLogCount);
   
