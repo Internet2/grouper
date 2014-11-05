@@ -16,10 +16,12 @@
 
 package edu.internet2.middleware.grouperVoot.beans;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -75,7 +77,30 @@ public class VootPerson {
         }
       }
     }
-
+  }
+  
+  /**
+   * Method to check if an object is equal to the current object.
+   * @param otherVootPerson the other object to check
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object otherVootPerson) {
+    if (otherVootPerson instanceof VootPerson) {
+      VootPerson other = (VootPerson) otherVootPerson;
+      if (!other.getVoot_membership_role().equals(voot_membership_role)) return false;
+      if (!other.getId().equals(id)) return false;
+      if (!other.getDisplayName().equals(displayName)) return false;
+      
+      List<VootEmail> list1 = Arrays.asList(emails);
+      List<VootEmail> list2 = Arrays.asList(other.getEmails());
+      if (!list1.containsAll(list2) || !list2.containsAll(list1)) return false;
+      
+      return true;
+    }
+    else {
+      return false;
+    }
   }
 
   /**

@@ -46,9 +46,14 @@ public abstract class VootResponse {
       this.totalResults = 0;
       this.itemsPerPage = 0;
     } else {
-      this.startIndex = start;
+      this.startIndex = (start > 0 ) ? start : 0;
       this.totalResults = resultArray.length;
-      this.itemsPerPage = count;
+      if (count > 0) {
+        this.itemsPerPage = Integer.min(count, resultArray.length - start);
+      }
+      else {
+        this.itemsPerPage = resultArray.length;
+      }
     }
   }
 
