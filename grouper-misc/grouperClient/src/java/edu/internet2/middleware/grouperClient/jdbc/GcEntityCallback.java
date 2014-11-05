@@ -4,6 +4,7 @@ package edu.internet2.middleware.grouperClient.jdbc;
 /**
  * Object that gets a call for each entity created from a resultset; save heap space.
  * @param <T> is the type of object that will be returned.
+ * @author harveycg
  *
  */
 public abstract class GcEntityCallback<T> {

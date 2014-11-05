@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 /**
  * <pre>This is our implementation of a helper to convert data to and from Oracle. It is externalized because it will likely be 
  * common that editing will need to be done on a per project basis.</pre>
+ * @author harveycg
  */
 public class GcBoundDataConversionImpl implements GcBoundDataConversion {
 

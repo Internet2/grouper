@@ -9,6 +9,7 @@ import java.sql.SQLException;
 /**
  * Object that gets a preparedStatement back from the connection and the sql - closing it is handled within the framework.
  * @param <T> is the type of object that will be returned.
+ * @author harveycg
  *
  */
 public abstract class GcPreparedStatementCallback<T> {

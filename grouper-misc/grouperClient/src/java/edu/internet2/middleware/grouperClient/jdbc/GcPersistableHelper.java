@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  *
+ * @author harveycg
  */
 public class GcPersistableHelper {
 

@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 /**
  * <pre>This is our helper to convert data to and from Oracle. It is externalized because it will likely be 
  * common that editing will need to be done on a per project basis.</pre>
+ * @author harveycg
  */
 public interface GcBoundDataConversion {
 

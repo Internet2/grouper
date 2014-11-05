@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * Map for caching some query results for x amount of time. This map checks itself every X minutes and evicts expired content.
+ * @author harveycg
  */
 public class GcDbQueryCacheMap extends java.util.HashMap<MultiKey, GcDbQueryCache> {
 
