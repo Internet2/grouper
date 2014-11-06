@@ -2182,7 +2182,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * <pre>
-   * Grouper 2.3
+   * Grouper 2.2.1
    * </pre>
    */
   V29 {
