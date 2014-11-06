@@ -1448,5 +1448,42 @@
           statistics="false"
   />
 
+  <!-- cache of recently created stem names to prevent race conditions of multiple threads creating the same stem -->
+  <cache  name="edu.internet2.middleware.grouper.Stem.stemCreatedCache"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="120"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Stem.stemLocksCache"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="120"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
+  <!-- cache of recently created member objects to prevent race conditions of multiple threads creating the same member -->
+  <cache  name="edu.internet2.middleware.grouper.MemberFinder.memberCreatedCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="120"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.MemberFinder.memberLocksCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="120"
+          timeToLiveSeconds="120"
+          overflowToDisk="false"
+          statistics="false"
+  />
 
 </ehcache>

@@ -2773,6 +2773,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    //if testing, dont think we just created this object
+    MemberFinder.memberCreatedCacheDelete(this.subjectSourceID, this.subjectID);
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_DELETE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_PRE_DELETE, false, false);
