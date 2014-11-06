@@ -2530,6 +2530,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         uuid, true);
   }
 
+  
+  /**
+   * keep a map of strings to synchronize on
+   */
+  private static Map<String, String> stemLocks = new HashMap<String, String>();
+  
+  
   /**
    * 
    * @param session
@@ -2546,88 +2553,130 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     throws  StemAddException,
             InsufficientPrivilegeException {
     
-    return (Stem)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-        new HibernateHandler() {
+    String stemName = U.constructName( Stem.this.getName(), extn );
+    
+    Stem stem = StemFinder.findByName(session.internal_getRootSession(), stemName, false, new QueryOptions().secondLevelCache(false));
 
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+    if (stem == null) {
+      
+      synchronized (Stem.class) {
+        //get the same key for name
+        if (!stemLocks.containsKey(stemName)) {
+          stemLocks.put(stemName, stemName);
+        }
+        stemName = stemLocks.get(stemName);
+      }
+      final String STEM_NAME = stemName;
+
+      synchronized(stemName) {
+        stem = (Stem)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
               throws GrouperDAOException {
-
-            hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
-
-            StopWatch sw = new StopWatch();
-            sw.start();
-            if ( !GrouperLoader.isDryRun() && !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
-              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
-                  + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
-                  + dExtn + ", uuid: " + uuid + ", subject: " + session.getSubject());
-            } 
-            GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
-            if (v.isInvalid()) {
-              String errorMessage = StringUtils.defaultString(v.getErrorMessage());
-              if (errorMessage.startsWith(AddStemValidator.STEM_ALREADY_EXISTS_ERROR_MESSAGE)) {
-                throw new StemAddAlreadyExistsException(errorMessage);
-              }
-              throw new StemAddException( errorMessage );
-            }
-            try {
-              Stem _ns = new Stem();
-              _ns.setCreatorUuid( session.getMember().getUuid() );
-              _ns.setCreateTimeLong( new Date().getTime() );
-              _ns.setDisplayExtensionDb(dExtn);
-              _ns.setDisplayNameDb( U.constructName( Stem.this.getDisplayName(), dExtn ) );
-              _ns.setExtensionDb(extn);
-              _ns.setNameDb( U.constructName( Stem.this.getName(), extn ) );
-              _ns.setParentUuid( Stem.this.getUuid() );
-              
-              v = NotNullOrEmptyValidator.validate(uuid);
-              if (v.isInvalid()) {
-                _ns.setUuid( GrouperUuid.getUuid() );
-              }
-              else {
-                _ns.setUuid(uuid);
-              }
-              
-              if (!GrouperLoader.isDryRun()) {
-                GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
-  
-  
-                if (addDefaultStemPrivileges) {
-                  _grantDefaultPrivsUponCreate(_ns);
-                }
-  
-                //fire a rule
-                RulesStemBean rulesStemBean = new RulesStemBean(_ns);
-                //fire rules directly connected to this membership remove
-                RuleEngine.fireRule(RuleCheckType.stemCreate, rulesStemBean);
-  
-                
-                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
-                      _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                      _ns.getDisplayName(), "description", _ns.getDescription());
-                  auditEntry.setDescription("Added stem: " + _ns.getName());
-                  auditEntry.saveOrUpdate(true);
-                }
-              } 
-              
-              sw.stop();
-              EventLog.info(session, M.STEM_ADD + Quote.single( _ns.getName() ), sw);
-
-              return _ns;
-            } catch (StemAddException e) {
-              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(Stem.this)
-                + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
-              GrouperUtil.injectInException(e, error);
-              throw e;
-            } catch (GrouperDAOException e) {
-              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(Stem.this)
-                + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
-              GrouperUtil.injectInException(e, error);
-              throw new StemAddException(E.CANNOT_CREATE_STEM + e.getMessage(), e);
-            }
+            return StemFinder.findByName(session.internal_getRootSession(), STEM_NAME, false, new QueryOptions().secondLevelCache(false));
           }
-    });
+        });
+        
+        if (stem == null) {
+
+          //TODO System.out.println("Creating: " + stemName);
+          try {
+  
+            stem = (Stem)HibernateSession.callbackHibernateSession(
+                GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+                new HibernateHandler() {
+  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+  
+                    hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
+  
+                    StopWatch sw = new StopWatch();
+                    sw.start();
+                    if ( !GrouperLoader.isDryRun() && !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
+                      throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
+                          + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
+                          + dExtn + ", uuid: " + uuid + ", subject: " + session.getSubject());
+                    } 
+                    GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
+                    if (v.isInvalid()) {
+                      String errorMessage = StringUtils.defaultString(v.getErrorMessage());
+                      if (errorMessage.startsWith(AddStemValidator.STEM_ALREADY_EXISTS_ERROR_MESSAGE)) {
+                        throw new StemAddAlreadyExistsException(errorMessage);
+                      }
+                      throw new StemAddException( errorMessage );
+                    }
+                    try {
+                      Stem _ns = new Stem();
+                      _ns.setCreatorUuid( session.getMember().getUuid() );
+                      _ns.setCreateTimeLong( new Date().getTime() );
+                      _ns.setDisplayExtensionDb(dExtn);
+                      _ns.setDisplayNameDb( U.constructName( Stem.this.getDisplayName(), dExtn ) );
+                      _ns.setExtensionDb(extn);
+                      _ns.setNameDb(STEM_NAME );
+                      _ns.setParentUuid( Stem.this.getUuid() );
+                      
+                      v = NotNullOrEmptyValidator.validate(uuid);
+                      if (v.isInvalid()) {
+                        _ns.setUuid( GrouperUuid.getUuid() );
+                      }
+                      else {
+                        _ns.setUuid(uuid);
+                      }
+                      
+                      if (!GrouperLoader.isDryRun()) {
+                        GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
+          
+          
+                        if (addDefaultStemPrivileges) {
+                          _grantDefaultPrivsUponCreate(_ns);
+                        }
+          
+                        //fire a rule
+                        RulesStemBean rulesStemBean = new RulesStemBean(_ns);
+                        //fire rules directly connected to this membership remove
+                        RuleEngine.fireRule(RuleCheckType.stemCreate, rulesStemBean);
+          
+                        
+                        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
+                              _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                              _ns.getDisplayName(), "description", _ns.getDescription());
+                          auditEntry.setDescription("Added stem: " + _ns.getName());
+                          auditEntry.saveOrUpdate(true);
+                        }
+                      } 
+                      
+                      sw.stop();
+                      EventLog.info(session, M.STEM_ADD + Quote.single( _ns.getName() ), sw);
+  
+                      return _ns;
+                    } catch (StemAddException e) {
+                      String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(Stem.this)
+                        + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
+                      GrouperUtil.injectInException(e, error);
+                      throw e;
+                    } catch (GrouperDAOException e) {
+                      String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(Stem.this)
+                        + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
+                      GrouperUtil.injectInException(e, error);
+                      throw new StemAddException(E.CANNOT_CREATE_STEM + e.getMessage(), e);
+                    }
+                  }
+            });
+          //} catch (RuntimeException re) {
+          //  System.out.println("Error creating: " + stemName);
+          //  re.printStackTrace();
+          //  System.exit(1);
+          } finally {
+            //TODO System.out.println("Done creating: " + stemName);
+          }
+        }
+      }
+    }
+    
+    
+    return stem;
   }
 
   /**
