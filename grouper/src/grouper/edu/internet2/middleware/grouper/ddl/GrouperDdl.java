@@ -1,18 +1,18 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
+/**
+ * Copyright 2014 Internet2
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ */
 /*
  * @author mchyzer
  * $Id: GrouperDdl.java,v 1.98 2009-12-05 06:39:07 mchyzer Exp $
@@ -2144,34 +2144,6 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
-
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
-          "group_type_of_group_idx", false, "type_of_group");
-      
-      if (!ddlVersionBean.isSqlServer()) {
-        //do 12 string indexes
-        for (int i=1;i<=12;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
-              "ON grouper_change_log_entry_temp (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
-              "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
-              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
-          
-        }
-      }
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
-          "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
-      
-      if (GrouperDdlUtils.assertTablesThere(false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true)) {
-        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_audit_entry where act_as_member_id is null and logged_in_member_id is not null");
-        if (count > 0) {
-          ddlVersionBean.getAdditionalScripts().append(
-            "update grouper_audit_entry set act_as_member_id=logged_in_member_id where act_as_member_id is null and logged_in_member_id is not null;\ncommit;\n");
-        }
-      }
       
       //create index GROUPER_FIELDS_TYPE_IDX on GROUPER_FIELDS (TYPE)
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Field.TABLE_GROUPER_FIELDS,
@@ -2206,6 +2178,51 @@ public enum GrouperDdl implements DdlVersionable {
       }
     }
   
+  },
+  
+  /**
+   * <pre>
+   * Grouper 2.2.1
+   * </pre>
+   */
+  V29 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+          "group_type_of_group_idx", false, "type_of_group");
+      
+      if (!ddlVersionBean.isSqlServer()) {
+        //do 12 string indexes
+        for (int i=1;i<=12;i++) {
+          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
+              "ON grouper_change_log_entry_temp (string" + StringUtils.leftPad(i + "", 2, '0') + "(255));\n" : null;
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP, 
+              "change_log_temp_string" + StringUtils.leftPad(i + "", 2, '0') 
+              + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
+          
+        }
+      }
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
+          "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true)) {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_audit_entry where act_as_member_id is null and logged_in_member_id is not null");
+        if (count > 0) {
+          ddlVersionBean.getAdditionalScripts().append(
+            "update grouper_audit_entry set act_as_member_id=logged_in_member_id where act_as_member_id is null and logged_in_member_id is not null;\ncommit;\n");
+        }
+      }
+    }
   };
 
   /**
