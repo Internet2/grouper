@@ -649,8 +649,12 @@ public class GroupSave {
           });
         }
       });
+      //TODO remove
+      System.out.println("Group saved: " + this.name + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
       return group;
     } catch (RuntimeException re) {
+      
+      GrouperUtil.injectInException(re, "Problem saving group: " + this.name + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
       
       Throwable throwable = re.getCause();
       if (throwable instanceof StemNotFoundException) {

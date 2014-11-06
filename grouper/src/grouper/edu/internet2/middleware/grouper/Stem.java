@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -612,6 +613,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws  StemDeleteException
    */
   public void delete() throws InsufficientPrivilegeException, StemDeleteException {
+    
+    //this is no longer recently created
+    stemCreatedCache().remove(this.name);
     
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -2534,8 +2538,42 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   /**
    * keep a map of strings to synchronize on
    */
-  private static Map<String, String> stemLocks = new HashMap<String, String>();
+  private static GrouperCache<String, String> stemLocksCache = null;
   
+  /**
+   * stem locks cache
+   * @return the cache
+   */
+  private static GrouperCache<String, String> stemLocksCache() {
+    if (stemLocksCache == null) {
+      synchronized(Stem.class) {
+        if (stemLocksCache == null) {
+          stemLocksCache = new GrouperCache<String, String>(Stem.class.getName() + ".stemLocksCache");
+        }
+      }
+    }
+    return stemLocksCache;
+  }
+  
+  /**
+   * keep track of when stem is created
+   */
+  private static GrouperCache<String, Boolean> stemCreatedCache = null;
+  
+  /**
+   * stem created cache
+   * @return the cache
+   */
+  private static GrouperCache<String, Boolean> stemCreatedCache() {
+    if (stemCreatedCache == null) {
+      synchronized(Stem.class) {
+        if (stemCreatedCache == null) {
+          stemCreatedCache = new GrouperCache<String, Boolean>(Stem.class.getName() + ".stemCreatedCache");
+        }
+      }
+    }
+    return stemCreatedCache;
+  }
   
   /**
    * 
@@ -2561,27 +2599,50 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       
       synchronized (Stem.class) {
         //get the same key for name
-        if (!stemLocks.containsKey(stemName)) {
-          stemLocks.put(stemName, stemName);
+        if (!stemLocksCache().containsKey(stemName)) {
+          stemLocksCache().put(stemName, stemName);
         }
-        stemName = stemLocks.get(stemName);
+        stemName = stemLocksCache().get(stemName);
       }
       final String STEM_NAME = stemName;
 
       synchronized(stemName) {
-        stem = (Stem)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
-          
-          public Object callback(GrouperTransaction grouperTransaction)
-              throws GrouperDAOException {
-            return StemFinder.findByName(session.internal_getRootSession(), STEM_NAME, false, new QueryOptions().secondLevelCache(false));
+        
+        //something created this recently
+        if (stemCreatedCache().get(stemName) != null) {
+
+          //wait for the transaction to finish...
+          for (int i=0;i<45;i++) {
+            stem = (Stem)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
+              
+              public Object callback(GrouperTransaction grouperTransaction)
+                  throws GrouperDAOException {
+                return StemFinder.findByName(session.internal_getRootSession(), STEM_NAME, false, new QueryOptions().secondLevelCache(false));
+              }
+            });
+            
+            if (stem != null) {
+              break;
+            }
+
+            //TODO remove
+            System.out.println("Checking: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+
+            GrouperUtil.sleep(1000);
           }
-        });
+          
+        }
+        
         
         if (stem == null) {
 
-          //TODO System.out.println("Creating: " + stemName);
+          //TODO remove
+          System.out.println("Creating: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
           try {
-  
+
+            //race conditions
+            stemCreatedCache().put(stemName, Boolean.TRUE);
+            
             stem = (Stem)HibernateSession.callbackHibernateSession(
                 GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
                 new HibernateHandler() {
@@ -2664,12 +2725,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                     }
                   }
             });
-          //} catch (RuntimeException re) {
-          //  System.out.println("Error creating: " + stemName);
-          //  re.printStackTrace();
-          //  System.exit(1);
+          } catch (RuntimeException re) {
+            System.out.println("Error creating: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+            re.printStackTrace();
+            //System.exit(1);
           } finally {
-            //TODO System.out.println("Done creating: " + stemName);
+            //TODO 
+            System.out.println("Done creating: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
           }
         }
       }
@@ -3607,7 +3669,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @throws StemNotFoundException 
    * @throws StemAddException 
    */
-  public static Stem _createStemAndParentStemsIfNotExist(GrouperSession grouperSession, String stemName, String stemDisplayNameForInserts)
+  public static Stem _createStemAndParentStemsIfNotExist(final GrouperSession grouperSession, final String stemName, String stemDisplayNameForInserts)
      throws InsufficientPrivilegeException, StemNotFoundException, StemAddException {
     //note, no need for GrouperSession inverse of control
     String[] stems = StringUtils.split(stemName, ':');
@@ -3636,9 +3698,40 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         currentName += ":" + stems[i+1];
       }
     }
-    //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
-    Stem parentStem = StemFinder.findByName(grouperSession, stemName, true);
-    return parentStem;
+    Stem parentStem = null;
+    //at this point the stem should be there (and is equal to currentStem), just to be sure, query again, do it in a loop
+    //in case there are race conditions
+    for (int i=0;i<10;i++) {
+      System.out.println("Trying to find: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+      
+      parentStem = (Stem)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
+        
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          return StemFinder.findByName(grouperSession, stemName, false, new QueryOptions().secondLevelCache(false));
+        }
+      });
+      
+      if (parentStem != null) {
+        System.out.println("Found: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+        return parentStem;
+      }
+
+      //try with tx
+      parentStem = StemFinder.findByName(grouperSession, stemName, false, new QueryOptions().secondLevelCache(false));
+      
+      if (parentStem != null) {
+        System.out.println("Found2: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+        return parentStem;
+      }
+
+      System.out.println("Sleeping: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+      GrouperUtil.sleep(1000);
+    }
+    //TODO
+    System.out.println("Broken: " + stemName + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+    System.exit(1);
+    throw new RuntimeException("Cant find stem after creating??? " + stemName);
 
   }
   

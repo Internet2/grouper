@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -660,6 +661,8 @@ public class GrouperTest extends TestCase {
   // @since   1.2.0
   protected void setUp () {
     LOG.debug("setUp");
+
+    EhcacheController.ehcacheController().flushCache();
     
     GrouperSession.stopQuietly(GrouperSession.staticGrouperSession(false));
     GrouperSession.clearGrouperSessions();
