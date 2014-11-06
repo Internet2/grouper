@@ -424,6 +424,7 @@
       <fileset dir="misc">
         <include name="*.example.*"/>
         <include name="postGrouper2_2Upgrade.gsh" />
+        <include name="postGrouper2_2_1Upgrade.gsh" />
       </fileset>
     </copy>
     
