@@ -4497,7 +4497,7 @@ public class GrouperInstaller {
           this.untarredApiDir.getAbsolutePath() + File.separator);
       
       String gsh = gshDir + "bin" + File.separator 
-          + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh");
+          + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh.sh");
       
       if (new File(gsh).exists()) {
         this.gshCommand = gsh;
@@ -4505,7 +4505,7 @@ public class GrouperInstaller {
       }
 
       gsh = gshDir + "WEB-INF" + File.separator + "bin" + File.separator 
-          + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh");
+          + (GrouperInstallerUtils.isWindows() ? "gsh.bat" : "gsh.sh");
 
       if (new File(gsh).exists()) {
         this.gshCommand = gsh;
