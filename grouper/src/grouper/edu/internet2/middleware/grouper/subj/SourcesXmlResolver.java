@@ -141,7 +141,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
   /**
    * 
-   *
+   * TODO merge this with GrouperCallable
    * @param <T>
    */
   public static abstract class LogLabelCallable<T> implements Callable<T> {

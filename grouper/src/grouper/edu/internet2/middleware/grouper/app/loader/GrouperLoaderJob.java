@@ -412,6 +412,18 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       //based on type, run query from the db and sync members
       grouperLoaderTypeEnum.runJob(loaderJobBean);
   
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperLoader.throwExceptionsv2_2_1.onJobErrors", true)) {
+        GrouperLoaderStatus grouperLoaderStatus = StringUtils.isBlank(hib3GrouploaderLog.getStatus()) ? null : 
+          GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
+        
+        if (grouperLoaderStatus == null || grouperLoaderStatus == GrouperLoaderStatus.ERROR 
+            || grouperLoaderStatus == GrouperLoaderStatus.CONFIG_ERROR) {
+          
+          throw new RuntimeException("Error in loader job: " + groupName + ", check logs: " + hib3GrouploaderLog.getJobMessage());
+          
+        }
+      }
+      
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
           LoaderHooks.METHOD_LOADER_POST_RUN, HooksLoaderBean.class, loaderJobBean, 
@@ -569,6 +581,18 @@ public class GrouperLoaderJob implements Job, StatefulJob {
 
       //based on type, run query from the db and sync members
       grouperLoaderTypeEnum.runJob(loaderJobBean);
+
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperLoader.throwExceptionsv2_2_1.onJobErrors", true)) {
+        GrouperLoaderStatus grouperLoaderStatus = StringUtils.isBlank(hib3GrouploaderLog.getStatus()) ? null : 
+          GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
+        
+        if (grouperLoaderStatus == null || grouperLoaderStatus == GrouperLoaderStatus.ERROR 
+            || grouperLoaderStatus == GrouperLoaderStatus.CONFIG_ERROR) {
+          
+          throw new RuntimeException("Error in loader job: " + groupName + ", check logs: " + hib3GrouploaderLog.getJobMessage());
+          
+        }
+      }
 
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 

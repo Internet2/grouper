@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
@@ -1365,7 +1364,7 @@ public enum GrouperLoaderType {
       List<Future> futures = new ArrayList<Future>();
 
       int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.groupThreadPoolSize", 20);
-      int i=0;
+
       for (final String groupName : groupNamesToSync) {
         
         if (LOG.isDebugEnabled()) {
@@ -1394,7 +1393,6 @@ public enum GrouperLoaderType {
 
         }
 
-        i++;
         count++;
       }
       //make sure threads are done
@@ -2429,12 +2427,11 @@ public enum GrouperLoaderType {
   /**
    * @param futures
    * @param membershipThreadPoolSize
-   * @param i
    */
   static void waitForJob(List<Future> futures, int membershipThreadPoolSize)  {
     while (futures.size() > membershipThreadPoolSize) {
       try {
-        futures.get(0).get();
+      futures.get(0).get();
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
