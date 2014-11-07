@@ -1375,7 +1375,7 @@ public enum GrouperLoaderType {
           LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
         }
         
-        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncLogicForOneGroup") {
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncLogicForOneGroup: " + groupName) {
 
           @Override
           public Void callLogic() {
@@ -2303,7 +2303,7 @@ public enum GrouperLoaderType {
               //first remove members
 
               for (final LoaderMemberWrapper member : membersToRemove) {
-                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic") {
+                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
 
                   @Override
                   public Void callLogic() {
@@ -2333,7 +2333,7 @@ public enum GrouperLoaderType {
 
               for (final Subject subject : subjectsToAdd) {
 
-                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic") {
+                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
                   
                   public Void callLogic() {
 
