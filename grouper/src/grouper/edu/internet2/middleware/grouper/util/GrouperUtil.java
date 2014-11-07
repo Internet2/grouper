@@ -73,8 +73,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11541,6 +11543,17 @@ public class GrouperUtil {
     return executorService;
   }
 
+  /**
+   * 
+   * @param executorService
+   * @param callable
+   * @return the future
+   */
+  public static GrouperFuture executorServiceSubmit(ExecutorService executorService, Callable callable) {
+    Future future = executorService.submit(callable);
+    GrouperFuture grouperFuture = new GrouperFuture(future, callable);
+    return grouperFuture;
+  }
   
   /**
    * concat two strings

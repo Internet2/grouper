@@ -649,8 +649,6 @@ public class GroupSave {
           });
         }
       });
-      //TODO remove
-      System.out.println("Group saved: " + this.name + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
       return group;
     } catch (RuntimeException re) {
       
