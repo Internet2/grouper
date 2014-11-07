@@ -374,7 +374,7 @@ public class ByObject extends HibernateDelegate {
       }
 
       try {
-        session.flush(); //TODO remove
+        session.flush();
       } catch (RuntimeException re) {
         throw re;
       }

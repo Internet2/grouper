@@ -426,7 +426,17 @@ public class MemberFinder {
           if (memberCreatedCache().get(multiKey) != null) {
 
             //wait for the transaction to finish...
-            for (int i=0;i<45;i++) {
+            for (int i=0;i<20;i++) {
+              
+              //in transaction
+              member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false);
+              
+              if (member != null) {
+
+                break;
+              }
+
+              //out of transaction
               member = (Member)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
                 
                 public Object callback(GrouperTransaction grouperTransaction)
@@ -436,11 +446,12 @@ public class MemberFinder {
               });
               
               if (member != null) {
+                
+                // if its in another transaction... wait a couple seconds for it to finish
+                GrouperUtil.sleep(2000);
+
                 break;
               }
-
-              //TODO remove
-              System.out.println("Checking: " + multiKey + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
 
               GrouperUtil.sleep(1000);
             }

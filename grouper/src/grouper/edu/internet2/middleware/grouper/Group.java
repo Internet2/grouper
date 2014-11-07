@@ -3695,12 +3695,31 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Stem getParentStem() 
     throws  IllegalStateException
   {
-    String uuid = this.getParentUuid();
+    final String uuid = this.getParentUuid();
     if (uuid == null) {
       throw new IllegalStateException("group has no parent stem");
     }
     try {
-      Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
+      //try in transaction
+      Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, false) ;
+      
+      if (parent == null) {
+        //try out of transaction
+        parent = (Stem)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            return GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true);
+          }
+        });
+        
+        if (parent != null) {
+          
+          //wait a bit for it to be available in this transaction
+          GrouperUtil.sleep(2000);
+          
+        }
+      }
       return parent;
     }
     catch (StemNotFoundException eShouldNeverHappen) {
