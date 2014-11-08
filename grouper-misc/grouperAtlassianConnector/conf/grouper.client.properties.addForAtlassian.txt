@@ -1,0 +1,108 @@
+ADD TO grouper.client.properties for atlassian
+
+################################
+## Atlassian connector settings
+################################
+
+# put a folder name that is the root for atlassian groups
+atlassian.root = 
+
+# atlassian source to use (leave blank for all sources)
+atlassian.subject.search.sourceId = 
+
+# atlassian search by id, identifier, or idOrIdentifer (idOrIdentifier is Grouper 2.0+)
+atlassian.subject.search.subjectId = identifier
+
+# full refresh at 5am
+atlassian.fullRefreshAws.quartz.cron = 0 0 5 * * ?
+
+# number of minutes to cache reads
+# defaults to 10.  Note, crank this up  to 25 hours if you are doing XMPP notifications
+atlassian.cache.minutes = 10
+
+# number of minutes to cache profile reads
+# defaults to 10
+atlassian.cache.profile.minutes = 20
+
+# each cache has a failsafe cache, so that if grouper is down, and the data has been loaded, 
+# since atlassian has been started, the stale verison of the data can be retrieved
+atlassian.cache.failsafe.hours = 48
+
+# list all sources here, and how to get the atlassian id
+atlassian.source.jdbc.sourceId = jdbc
+# should be "id" or an attribute name to get the identifier for atlassian
+atlassian.source.jdbc.idOrAttribute = loginid
+# email attribute for this source (needed if using the ProfileProvider)
+atlassian.source.jdbc.emailAttribute = EMAIL
+# should be "name" or "description" or an attribute name to get the name for atlassian (needed if using the ProfileProvider)
+atlassian.source.jdbc.nameAttribute = name
+
+#atlassian name of group which has all users in it, e.g. jira-users
+atlassian.usersGroup = jira-users
+
+# grouper group name of all users that have ever been in atlassian (profile service has access to these).  Leave blank to
+# just use the users group
+atlassian.grouperAllUsersGroup = 
+
+# if you are doing XMPP for cache clearing, set to true, and set the XMPP sections of this config
+atlassian.registerXmppListeners = false
+
+# if incremental changes come through, then dont clear now, clear sometime in the future so that multiple changes
+# cause fewer cache refreshes.  Note that changes come through the change log so that they are already buffered a little bit
+# this should probably at least be 15 seconds...
+atlassian.xmppIncrementalClearCacheSecondsInFuture = 75
+
+# if all users must be in atlassian.grouperAllUsersGroup, 
+# or if lookups of old users can be done without having to be in this group
+atlassian.requireGrouperAllUsersGroupForLookups = false
+
+# groups which should be assigned to various privileges for new groups created in confluence
+atlassian.updaters = 
+atlassian.admins = 
+atlassian.readers = 
+
+# pretend these memberships exist (e.g. to bootstrap or for users not in grouper)
+atlassian.autoadd.administrators.groupname = jira-administrators
+atlassian.autoadd.administrators.usernames = admin
+
+atlassian.autoadd.users.groupname = jira-users
+atlassian.autoadd.users.usernames = admin
+
+# users not in idm, this is needed if using the profile provider
+atlassian.autoadd.admin.user.id = admin
+atlassian.autoadd.admin.user.name = Atlassian ADMIN
+atlassian.autoadd.admin.user.email = you@yourschool.edu
+
+
+#ignore calls on this user to the web service
+atlassian.ws.users.to.ignore = admin
+
+#put a valid subject id or identifier here for testing, and that user's email and name
+atlassian.test.subjectIdOrIdentifier = 
+atlassian.test.email = 
+atlassian.test.name = 
+
+# if you are using the edu.internet2.middleware.grouperAtlassianConnector.GrouperLoggingAccessProviderWrapper
+# to log an access provider, set the underlying class here
+atlassian.logging.accessProvider.class = com.atlassian.jira.user.osuser.JiraOFBizAccessProvider
+
+# if you are using the edu.internet2.middleware.grouperAtlassianConnector.GrouperLoggingAccessProviderWrapper
+# to log an access provider, set the underlying class here
+atlassian.logging.profileProvider.class = com.atlassian.jira.user.osuser.JiraOFBizProfileProvider
+
+# if using the external authenticator, then this says if we should store the user token in session
+# as opposed to getting it from the external authentication each time
+atlassian.authentication.cacheUserToken = false
+
+# if using the external authenticator, then this is the request attribute where the principal name is
+# note, if it is REMOTE_USER, that will already be checked
+atlassian.authentication.requestPrincipalAttributeName =
+
+# if you are not in prod, and you want to backdoor as someone else, put a parameter name here (e.g. gibberish alphanumeric, or backdoorNetid)
+# and if that param is in the URL or posted to the application, it will be used.  Note, if you use this then cacheUserToken will be true
+# since this will not be in the URL for every request
+atlassian.authentication.backdoorRequestParameterName = 
+
+# if you are not in prod, and you want to backdoor as someone else, put comma separated usernames here who
+# are allowed to backdoor as someone else
+atlassian.authentication.backdoorAllowedUsers = 
