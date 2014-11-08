@@ -8,6 +8,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import javax.servlet.http.HttpServletRequest;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.GrouperUiTextConfig;
 
 
@@ -17,12 +20,21 @@ import edu.internet2.middleware.grouperClient.config.GrouperUiTextConfig;
  */
 public class GrouperNavResourceBundle extends ResourceBundle {
 
-  private GrouperUiTextConfig grouperUiTextConfig = null;
-  
   /**
    * 
    */
+  private GrouperUiTextConfig grouperUiTextConfig = null;
+  
+  /**
+   * @param locale 
+   * 
+   */
   public GrouperNavResourceBundle(Locale locale) {
+    //for some reason this isnt always the request one
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    if (httpServletRequest != null) {
+      locale = GrouperUtil.defaultIfNull(httpServletRequest.getLocale(), locale);
+    }
     this.grouperUiTextConfig = GrouperUiTextConfig.retrieveText(locale); 
   }
 
