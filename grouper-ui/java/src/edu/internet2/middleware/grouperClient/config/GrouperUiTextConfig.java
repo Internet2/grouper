@@ -175,13 +175,15 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
       
       synchronized(httpServletRequest) {
         
+        grouperUiTextConfig = (GrouperUiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+        
         if (grouperUiTextConfig == null) {
           
           Locale locale = httpServletRequest.getLocale();
           
           grouperUiTextConfig = retrieveText(locale);
           
-          httpServletRequest.setAttribute("grouperTextConfig", grouperUiTextConfig);
+          httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
         
         }        
       }
