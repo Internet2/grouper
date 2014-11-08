@@ -9,24 +9,10 @@
 	<classpathentry kind="lib" path="lib/atlassian/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/j2ee.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/atlassian-seraph-2.6.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/dist/grouperAws.jar"/>
 	<classpathentry kind="lib" path="lib/connector/quartz.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper/lib/jdbcSamples/ojdbc14.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper/lib/grouper/p6spy.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/aws-java-sdk-1.9.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/aws-java-sdk-1.9.0-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/httpclient-4.2.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/httpcore-4.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/jackson-annotations-2.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/jackson-core-2.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/jackson-databind-2.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouper-aws-changelog/lib/joda-time-2.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouperClient/dist/grouperClient.jar"/>
 	<classpathentry kind="lib" path="lib/connector/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/connector/commons-logging.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouperClient/lib/xmpp/ezmorph.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouperClient/lib/xmpp/json-lib.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouperClient/lib/xmpp/commons-lang.jar"/>
-	<classpathentry kind="lib" path="C:/Users/mchyzer/Documents/GitHub/grouper_v2_1/grouper-misc/grouperClient/lib/xmpp/commons-beanutils.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-aws-changelog"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
