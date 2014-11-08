@@ -1734,7 +1734,6 @@ public class GrouperServiceLogic {
           membershipFinder.addSource(source);
         }
         
-        Set<String> membershipIdSet = null;
         if (GrouperUtil.length(membershipIds) > 0) {
           for (String membershipId : membershipIds) { 
             membershipFinder.addMembershipId(membershipId);
@@ -1754,7 +1753,6 @@ public class GrouperServiceLogic {
                 
         Scope stemScopeEnum = stemScope == null ? null : stemScope.convertToScope();
       
-        membershipFinder.assignMembershipIds(membershipIdSet);
         membershipFinder.assignMembershipType(membershipType);
         membershipFinder.assignFieldType(fieldType);
 
