@@ -4,6 +4,12 @@
  */
 package edu.internet2.middleware.grouperClient.config;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,6 +25,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -37,6 +44,55 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
 
+  /**
+   * 
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    
+    //some code to print out accented chars, just put institutionName to have accented char
+    //make a grouper.text.fr.fr.base.properties and grouper.text.fr.fr.properties
+    //config new locale in grouper-ui.properties
+    // grouper.text.bundle.1.language = fr
+    // grouper.text.bundle.1.country = fr
+    // grouper.text.bundle.1.fileNamePrefix = grouperText/grouper.text.fr.fr
+    
+    Locale locale = new Locale("fr", "FR");
+    GrouperUiTextConfig grouperUiTextConfig = GrouperUiTextConfig.retrieveText(locale); 
+    System.out.println("1: " + grouperUiTextConfig.propertyValueString("institutionName"));
+    
+    Properties properties = GrouperUtil.propertiesFromResourceName("grouperText/grouper.text.fr.fr.properties"); 
+    
+    System.out.println("2: " + properties.get("institutionName"));
+    
+    URL url = ConfigPropertiesCascadeUtils.computeUrl("grouperText/grouper.text.fr.fr.properties", true);
+
+    InputStream inputStream = url.openStream();
+
+    String contents = ConfigPropertiesCascadeUtils.toString(inputStream, "UTF-8");
+    
+    System.out.println("3: " + contents);
+    
+    File file = new File("C:\\Users\\mchyzer\\Documents\\GitHub\\grouper_v2_2\\grouper-ui\\conf\\grouperText\\grouper.text.fr.fr.properties");
+
+    contents = GrouperUtil.readFileIntoString(file);
+    
+    System.out.println("4: " + contents);
+    
+    System.out.println("5: " + new String(contents.getBytes("UTF-8"), "ISO-8859-1"));
+
+    InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "UTF-8");
+    
+    StringWriter writer = new StringWriter();
+    IOUtils.copy(inputStreamReader, writer);
+    contents = writer.toString();
+  
+    System.out.println("6: " + contents);
+    
+    
+  }
+  
   /**
    * the name of the file on classpath, e.g. grouperText/grouper.text.en.us.properties
    */
@@ -148,7 +204,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     GrouperUiTextConfig grouperTextConfig = new GrouperUiTextConfig(textBundleBean.getFileNamePrefix() + ".properties",
           textBundleBean.getFileNamePrefix() + ".base.properties", textBundleBean.getLanguage() + "_" + textBundleBean.getCountry());
     grouperTextConfig = (GrouperUiTextConfig)grouperTextConfig.retrieveFromConfigFileOrCache();
-
+System.out.println(grouperTextConfig.propertyValueString("institutionName"));
     return grouperTextConfig;
     
   }

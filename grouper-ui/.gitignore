@@ -1,6 +1,7 @@
 .lastbuild.properties
 build.properties
 dist
+logs
 spy.log
 temp
 tomcat-context.xml

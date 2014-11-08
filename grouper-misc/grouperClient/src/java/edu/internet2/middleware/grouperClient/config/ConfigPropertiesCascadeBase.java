@@ -596,6 +596,8 @@ public abstract class ConfigPropertiesCascadeBase {
       this.contents = contents1;
     }
 
+    
+    
     /**
      * get the contents from the config file
      * @param configPropertiesCascadeBase 
@@ -604,14 +606,14 @@ public abstract class ConfigPropertiesCascadeBase {
     public String retrieveContents(ConfigPropertiesCascadeBase configPropertiesCascadeBase) {
       InputStream inputStream = null;
       try {
-            inputStream = this.configFileType.inputStream(this.configFileTypeConfig, configPropertiesCascadeBase);
-            return ConfigPropertiesCascadeUtils.toString(inputStream, "UTF-8");
+        inputStream = this.configFileType.inputStream(this.configFileTypeConfig, configPropertiesCascadeBase);
+        return ConfigPropertiesCascadeUtils.toString(inputStream, encoding());
       } catch (Exception e) {
             throw new RuntimeException("Problem reading config: '" + this.originalConfig + "'", e);
       } finally {
             ConfigPropertiesCascadeUtils.closeQuietly(inputStream);
       }
-}
+    }
 
     /**
      * 
@@ -674,6 +676,54 @@ public abstract class ConfigPropertiesCascadeBase {
     
     
     
+  }
+  
+  /**
+   * 
+   */
+  private static String encoding = null;
+  
+  /**
+   * 
+   * @return the encoding
+   */
+  static String encoding() {
+    
+    //cache this statically and never re-read this setting.  need to bounce if reset
+    if (encoding == null) {
+
+      synchronized (ConfigPropertiesCascadeBase.class) {
+      
+        if (encoding == null) {
+          String configEncodingKey = "grouperClient.config.encoding";
+          try {
+            
+            //first look in grouper.client.properties which is the default override
+            Properties properties = propertiesFromResourceName("grouper.client.properties", false, ConfigPropertiesCascadeBase.class);
+            if (properties != null && properties.contains(configEncodingKey)) {
+              encoding = properties.getProperty(configEncodingKey);
+            } else {
+              
+              //if not there look in the base file which should have this setting
+              properties = propertiesFromResourceName("grouper.client.base.properties", false, ConfigPropertiesCascadeBase.class);
+              if (properties != null && properties.contains(configEncodingKey)) {
+                encoding = properties.getProperty(configEncodingKey);
+              }
+            }
+          } catch (RuntimeException e) {
+
+            //this is a failsafe method since if we fail when reading configs it is bad
+            LOG.error("Trouble finding " + configEncodingKey, e);
+          }
+          if (GrouperClientUtils.isBlank(encoding)) {
+
+            //this is the default if nothing is set
+            encoding = "UTF-8";
+          }
+        }
+      }
+    }
+    return encoding;
   }
   
   /**
