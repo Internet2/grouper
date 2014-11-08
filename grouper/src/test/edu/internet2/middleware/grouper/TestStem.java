@@ -96,7 +96,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testDeleteWithAttrPrivs"));
+    TestRunner.run(new TestStem("testAddDuplicateChildStem"));
     //TestRunner.run(TestStem.class);
   }
 

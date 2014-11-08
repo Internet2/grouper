@@ -586,6 +586,31 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * </pre>
    * @param   extension         Stem's extension
    * @param   displayExtension  Stem' displayExtension
+   * @param uuid if creating this is the uuid
+   * @param failIfExists throws StemAddException if exists, else just return the existing stem
+   * @return  The added {@link Stem}
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemAddException 
+   */
+  public Stem addChildStem(String extension, String displayExtension, String uuid, boolean failIfExists) 
+    throws  InsufficientPrivilegeException,
+            StemAddException {
+    return internal_addChildStem(GrouperSession.staticGrouperSession(), extension, displayExtension, uuid, true, failIfExists);
+  } 
+  
+  /**
+   * Add a new stem to the registry.
+   * <pre class="eg">
+   * // Add a stem with the extension "edu" beneath this stem.
+   * try {
+   *   Stem edu = ns.addChildStem("edu", "edu domain");
+   * }
+   * catch (StemAddException e) {
+   *   // Stem not added
+   * }
+   * </pre>
+   * @param   extension         Stem's extension
+   * @param   displayExtension  Stem' displayExtension
    * @return  The added {@link Stem}
    * @throws  InsufficientPrivilegeException
    * @throws  StemAddException 
@@ -2531,7 +2556,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Stem internal_addChildStem(final String extn, final String dExtn,
       final String uuid) throws StemAddException, InsufficientPrivilegeException {
     return internal_addChildStem(GrouperSession.staticGrouperSession(), extn, dExtn,
-        uuid, true);
+        uuid, true, true);
   }
 
   
@@ -2582,12 +2607,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param dExtn
    * @param uuid
    * @param addDefaultStemPrivileges
+   * @param failIfExists 
    * @return stem
    * @throws StemAddException
    * @throws InsufficientPrivilegeException
    */
   protected Stem internal_addChildStem(final GrouperSession session, final String extn, 
-      final String dExtn, final String uuid, final boolean addDefaultStemPrivileges) 
+      final String dExtn, final String uuid, final boolean addDefaultStemPrivileges, final boolean failIfExists) 
     throws  StemAddException,
             InsufficientPrivilegeException {
     
@@ -2595,6 +2621,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     
     Stem stem = StemFinder.findByName(session.internal_getRootSession(), stemName, false, new QueryOptions().secondLevelCache(false));
 
+    if (stem != null && failIfExists) {
+      throw new StemAddAlreadyExistsException("Stem exists: " + stemName);
+    }
+    
     if (stem == null) {
       
       synchronized (Stem.class) {
@@ -2618,6 +2648,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             stem = StemFinder.findByName(session.internal_getRootSession(), STEM_NAME, false, new QueryOptions().secondLevelCache(false));
             
             if (stem != null) {
+
+              if (failIfExists) {
+                throw new StemAddAlreadyExistsException("Stem exists: " + stemName);
+              }
+              
               break;
             }
 
@@ -2631,6 +2666,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             });
             
             if (stem != null) {
+              
+              if (failIfExists) {
+                throw new StemAddAlreadyExistsException("Stem exists: " + stemName);
+              }
               
               // if its in another transaction... wait a couple seconds for it to finish
               GrouperUtil.sleep(2000);
@@ -3689,7 +3728,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         currentStem = StemFinder.findByName(grouperSession, currentName, true);
       } catch (StemNotFoundException snfe1) {
         //this isnt ideal, but just use the extension as the display extension
-        currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i]);
+        currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i], null, false);
       }
       //increment the name, dont worry if on the last one, we are done
       if (i < stems.length-1) {
@@ -3956,7 +3995,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             // now lets copy over the stems
             Stem newStem = stem.internal_addChildStem(GrouperSession
                 .staticGrouperSession(), Stem.this.getExtension(),
-                Stem.this.getDisplayExtension(), null, false);
+                Stem.this.getDisplayExtension(), null, false, true);
             
             if (privilegesOfStem) {
               newStem.internal_copyPrivilegesOfStem(GrouperSession
@@ -3970,7 +4009,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               Stem newChildStem = oldStemUuidToNewStem.get(childStem.getParentUuid())
                   .internal_addChildStem(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), childStem.getExtension(),
-                      childStem.getDisplayExtension(), null, false);
+                      childStem.getDisplayExtension(), null, false, true);
               
               if (privilegesOfStem) {
                 newChildStem.internal_copyPrivilegesOfStem(GrouperSession
@@ -4385,7 +4424,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         throw new RuntimeException("Why is there no root stem???");
       }
       Stem parent = this.getParentStem();
-      existingRecord = parent.internal_addChildStem(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, false);
+      existingRecord = parent.internal_addChildStem(GrouperSession.staticGrouperSession(), this.extension, this.displayExtension, this.uuid, false, true);
 
       if (this.idIndex != null) {
         existingRecord.assignIdIndex(this.idIndex);

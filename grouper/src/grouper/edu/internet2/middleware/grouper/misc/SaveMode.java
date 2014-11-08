@@ -181,6 +181,7 @@ public enum SaveMode {
   /**
    * if update based on SaveMode
    * @param nameToEdit 
+   * @param name 
    * @return true if this is an update
    */
   public abstract boolean isUpdate(String nameToEdit, String name);
