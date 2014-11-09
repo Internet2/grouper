@@ -2617,6 +2617,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     throws  StemAddException,
             InsufficientPrivilegeException {
     
+    if (StringUtils.isBlank(extn) || extn.contains(":")) {
+      throw new StemAddException("extension cant be blank or contain colon: '" + extn + "'");
+    }
+    
     String stemName = U.constructName( Stem.this.getName(), extn );
     
     Stem stem = StemFinder.findByName(session.internal_getRootSession(), stemName, false, new QueryOptions().secondLevelCache(false));
