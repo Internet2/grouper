@@ -49,7 +49,7 @@ public abstract class VootResponse {
       this.startIndex = (start > 0 ) ? start : 0;
       this.totalResults = resultArray.length;
       if (count > 0) {
-        this.itemsPerPage = Integer.min(count, resultArray.length - start);
+        this.itemsPerPage = Math.min(count, resultArray.length - start);
       }
       else {
         this.itemsPerPage = resultArray.length;
