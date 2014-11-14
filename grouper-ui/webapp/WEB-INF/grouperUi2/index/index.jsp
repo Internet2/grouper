@@ -74,10 +74,10 @@
                   </ul>
                 </div>
               </div>
-              <button type="button" class="btn btn-block btn-grouper last" style="cursor: default;">${textContainer.text['indexBrowseFolders'] }
+              <div class="btn btn-block btn-grouper last" style="cursor: default;">${textContainer.text['indexBrowseFolders'] }
               <i class="fa fa-refresh" style="cursor: pointer;"
                 onclick="dojoInitMenu()"
-              ></i></button>
+              ></i></div>
               <div class="accordion-inner">
                 <script>
                   $(document).ready(function(){
