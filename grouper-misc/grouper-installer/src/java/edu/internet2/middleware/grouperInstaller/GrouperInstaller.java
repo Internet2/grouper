@@ -1354,6 +1354,9 @@ public class GrouperInstaller {
    */
   private void upgradeApi() {
 
+    //make sure existing gsh is executable and dos2unix
+    gshExcutableAndDos2Unix(new File(gshCommand()).getParentFile().getAbsolutePath(), "existing");
+    
     this.runChangeLogTempToChangeLog();
 
     this.upgradeClient();
@@ -1497,9 +1500,9 @@ public class GrouperInstaller {
         //gsh 6% for (String g : HibernateSession.byHqlStatic().createQuery("select uuid from Group").listSet(String.class)) { subj = SubjectFinder.findByIdAndSource(g, "g:gsa", true); GrouperDAOFactory.getFactory().getMember().findBySubject(subj).updateMemberAttributes(subj, true); }
   
         gshCommands.append("grouperSession = GrouperSession.startRootSession();\n");
-        gshCommands.append("for (String g : HibernateSession.byHqlStatic().createQuery(\"select uuid from Group\").listSet(String.class)) { subj = SubjectFinder.findByIdAndSource(g, \"g:gsa\", true); GrouperDAOFactory.getFactory().getMember().findBySubject(subj).updateMemberAttributes(subj, true);\n");
+        gshCommands.append("for (String g : HibernateSession.byHqlStatic().createQuery(\"select uuid from Group\").listSet(String.class)) { subj = SubjectFinder.findByIdAndSource(g, \"g:gsa\", true); GrouperDAOFactory.getFactory().getMember().findBySubject(subj).updateMemberAttributes(subj, true); }\n");
   
-        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshUsdu.gsh");
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "gshGroupUsdu.gsh");
         GrouperInstallerUtils.saveStringIntoFile(gshFile, gshCommands.toString());
         
         List<String> commands = new ArrayList<String>();
@@ -3277,15 +3280,30 @@ public class GrouperInstaller {
    * @param binDirLocation which includes trailing slash
    */
   public void gshExcutableAndDos2Unix(String binDirLocation) {
+    gshExcutableAndDos2Unix(binDirLocation, null);
+  }
+  /**
+   * @param binDirLocation which includes trailing slash
+   * @param specify if specifying location
+   */
+  public void gshExcutableAndDos2Unix(String binDirLocation, String specify) {
     //lts make sure gsh is executable and in unix format
 
     if (!GrouperInstallerUtils.isWindows()) {
 
-      System.out.print("Do you want to set gsh script to executable (t|f)? [t]: ");
+      specify = GrouperInstallerUtils.trimToEmpty(specify);
+      
+      if (specify.length() > 0) {
+        specify += " ";
+      }
+      
+      System.out.print("Do you want to set " + specify + "gsh script to executable (t|f)? [t]: ");
       boolean setGshFile = readFromStdInBoolean(true);
       
       if (setGshFile) {
       
+        binDirLocation = GrouperInstallerUtils.fileAddLastSlashIfNotExists(binDirLocation);
+        
         List<String> commands = GrouperInstallerUtils.toList("chmod", "+x", 
             binDirLocation + "gsh.sh");
   
@@ -3302,22 +3320,23 @@ public class GrouperInstaller {
           System.out.println("stdout: " + commandResult.getOutputText());
         }
 
-        commands = GrouperInstallerUtils.toList("chmod", "+x", 
-            binDirLocation + "gsh");
-  
-        System.out.println("Making sure gsh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
-  
-        commandResult = GrouperInstallerUtils.execCommand(
-            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-            new File(binDirLocation), null);
-        
-        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-          System.out.println("stderr: " + commandResult.getErrorText());
+        if (new File(binDirLocation + "gsh").exists()) {
+          commands = GrouperInstallerUtils.toList("chmod", "+x", 
+              binDirLocation + "gsh");
+    
+          System.out.println("Making sure gsh is executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+    
+          commandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File(binDirLocation), null);
+          
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
         }
-        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-          System.out.println("stdout: " + commandResult.getOutputText());
-        }
-
         System.out.print("Do you want to run dos2unix on gsh.sh (t|f)? [t]: ");
         setGshFile = readFromStdInBoolean(true);
         
@@ -3340,14 +3359,15 @@ public class GrouperInstaller {
               System.out.println("stdout: " + commandResult.getOutputText());
             }
 
-            commands = GrouperInstallerUtils.toList("dos2unix", 
-                binDirLocation + "gsh");
-      
-            System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-            commandResult = GrouperInstallerUtils.execCommand(
-                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(binDirLocation), null);
-
+            if (new File(binDirLocation + "gsh").exists()) {
+              commands = GrouperInstallerUtils.toList("dos2unix", 
+                  binDirLocation + "gsh");
+        
+              System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+              commandResult = GrouperInstallerUtils.execCommand(
+                  GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                  new File(binDirLocation), null);
+            }
           } catch (Throwable t) {
             error = t.getMessage();
           }
