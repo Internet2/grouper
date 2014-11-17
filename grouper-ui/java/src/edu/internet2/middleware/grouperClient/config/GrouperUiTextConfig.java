@@ -206,7 +206,7 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
     GrouperUiTextConfig grouperTextConfig = new GrouperUiTextConfig(textBundleBean.getFileNamePrefix() + ".properties",
           textBundleBean.getFileNamePrefix() + ".base.properties", textBundleBean.getLanguage() + "_" + textBundleBean.getCountry());
     grouperTextConfig = (GrouperUiTextConfig)grouperTextConfig.retrieveFromConfigFileOrCache();
-System.out.println(grouperTextConfig.propertyValueString("institutionName"));
+
     return grouperTextConfig;
     
   }
