@@ -248,7 +248,7 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
     }
     result.append("</div>\n");
     result.append("  <form class=\"form-inline form-small\" name=\"" + this.formName + "\" id=\"" + this.formName + "Id\">\n");
-    result.append("    <label for=\"show-entries\">Show:&nbsp;</label>\n");
+    result.append("    <label for=\"show-entries\">" + GrouperUiUtils.message("paging2.show") + "&nbsp;</label>\n");
     result.append("    <select name=\"pagingTagPageSize\" id=\"show-entries\" class=\"span2\" onchange=\"" + javascriptEventPrefix + this.refreshOperation + javascriptEventSuffix + "\">\n");
 
     this.guiPaging.getPageSize();
