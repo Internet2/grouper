@@ -17,7 +17,7 @@
                 <li class="active">${textContainer.text['membershipTraceBreadcrumb']}</li>
               </ul>
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-group fa-header"> </i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                <h1> <i class="fa fa-group"> </i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
                 <br /><small>${textContainer.text['membershipTraceSubHeader']}</small></h1>
               </div>
             </div>

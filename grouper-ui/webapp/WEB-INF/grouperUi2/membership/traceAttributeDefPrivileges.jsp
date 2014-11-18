@@ -17,13 +17,13 @@
                 <li class="active">${textContainer.text['privilegesTraceBreadcrumb']}</li>
               </ul>
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-group fa-header"> </i> 
+                <h1> 
                   <c:choose>
                     <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
-                      ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
+                      <i class="fa fa-user"> </i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
                     </c:when>
                     <c:otherwise>
-                      ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.displayExtension)}
+                      <i class="fa fa-cog"> </i> ${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.displayExtension)}
                     </c:otherwise>
                   </c:choose>
                 <br /><small>

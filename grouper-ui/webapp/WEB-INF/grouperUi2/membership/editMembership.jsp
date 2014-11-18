@@ -10,7 +10,7 @@
                 <li class="active">${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}</li>
               </ul>
               <div class="page-header blue-gradient">
-                <h1> <i class="fa fa-group fa-header"> </i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
+                <h1> <i class="fa fa-user"> </i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}
                 <br /><small>${textContainer.text['membershipEditSubHeader']}</small></h1>
               </div>
             </div>
