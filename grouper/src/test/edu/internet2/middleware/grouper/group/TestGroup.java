@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.group;
+import java.util.Date;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -48,6 +49,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
@@ -58,6 +60,7 @@ import edu.internet2.middleware.grouper.entity.EntityFinder;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
@@ -74,9 +77,11 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -98,8 +103,108 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testCreateAssignTypesAttributes"));
+    TestRunner.run(new TestGroup("testAddOrEditMember"));
     //TestRunner.run(TestGroup.class);
+  }
+
+  /**
+   * 
+   */
+  public void testAddOrEditMember() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    final Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
+    
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE, false);
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    final Field field = Group.getDefaultList();
+
+    //if something changed
+    //############ dont add a non existing membership
+    final Subject subject1 = SubjectTestHelper.SUBJ1;
+    final Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject1, true);
+    boolean changed = group.addOrEditMember(subject1, false, false, null, null, true);
+    
+    assertFalse(changed);
+    
+    Membership membership = (Membership)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+
+        //see if member
+        return GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+                group.getUuid(), member1.getUuid(), field, MembershipType.IMMEDIATE.getTypeString(), false, false);
+        
+      }
+    });
+
+    assertNull(membership);
+
+    //############ set a date on a non existing membership
+    final Subject subject2 = SubjectTestHelper.SUBJ2;
+    final Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject2, true);
+    
+    Date startDate = new Date();
+    changed = group.addOrEditMember(SubjectTestHelper.SUBJ2, false, false, null, startDate, true);
+    
+    assertTrue(changed);
+    
+    membership = (Membership)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+            group.getUuid(), member2.getUuid(), field, MembershipType.IMMEDIATE.getTypeString(), false, false);
+      }
+    });
+
+    assertNotNull(membership);
+
+    //############ add a non existing membership
+    
+    final Subject subject3 = SubjectTestHelper.SUBJ3;
+    final Member member3 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject3, true);
+
+    changed = group.addOrEditMember(SubjectTestHelper.SUBJ3, false, true, null, null, true);
+    
+    assertTrue(changed);
+    
+    membership = (Membership)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+            group.getUuid(), member3.getUuid(), field, MembershipType.IMMEDIATE.getTypeString(), false, false);
+      }
+    });
+
+    assertNotNull(membership);
+
+    //############ edit an existing membership
+    
+    changed = group.addOrEditMember(SubjectTestHelper.SUBJ3, false, true, startDate, null, true);
+    
+    assertTrue(changed);
+    
+    membership = (Membership)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+        return GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+            group.getUuid(), member3.getUuid(), field, MembershipType.IMMEDIATE.getTypeString(), false, false);
+      }
+    });
+
+    assertNotNull(membership);
+    
+    assertTrue(GrouperUtil.equals(membership.getEnabledTime(), startDate));
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    
   }
   
   // Private Class Constants
