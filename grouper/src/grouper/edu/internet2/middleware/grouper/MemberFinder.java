@@ -36,16 +36,22 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.member.SearchStringEnum;
@@ -325,7 +331,56 @@ public class MemberFinder {
   public static Member internal_findOrCreateBySubject(String id, String src, String type) {
     return internal_findOrCreateBySubject(id, src, type, null, true);
   }
+
+  /**
+   * keep track of when member is created
+   */
+  private static GrouperCache<MultiKey, Boolean> memberCreatedCache = null;
   
+  /**
+   * member created cache
+   * @return the cache
+   */
+  private static GrouperCache<MultiKey, Boolean> memberCreatedCache() {
+    if (memberCreatedCache == null) {
+      synchronized (MemberFinder.class) {
+        if (memberCreatedCache == null) {
+          memberCreatedCache = new GrouperCache<MultiKey, Boolean>(MemberFinder.class.getName() + ".memberCreatedCache");
+        }
+      }
+    }
+    return memberCreatedCache;
+  }
+  
+  
+  /**
+   * keep a map of multikeys to synchronize on
+   */
+  private static GrouperCache<MultiKey, MultiKey> memberLocksCache = null;
+  
+  /**
+   * member locks cache
+   * @return the cache
+   */
+  private static GrouperCache<MultiKey, MultiKey> memberLocksCache() {
+    if (memberLocksCache == null) {
+      synchronized (MemberFinder.class) {
+        if (memberLocksCache == null) {
+          memberLocksCache = new GrouperCache<MultiKey, MultiKey>(MemberFinder.class.getName() + ".memberLocksCache");
+        }
+      }
+    }
+    return memberLocksCache;
+  }
+  /**
+   * 
+   * @param sourceId
+   * @param subjectId
+   */
+  public static void memberCreatedCacheDelete(String sourceId, String subjectId) {
+    memberCreatedCache().remove(new MultiKey(sourceId, subjectId));
+  }
+
   /**
    * find a member 
    * @param subj 
@@ -333,7 +388,7 @@ public class MemberFinder {
    * @param createIfNotExist 
    * @return the member or null
    */
-  private static Member internal_findOrCreateBySubject(Subject subj, String memberUuidIfCreate, boolean createIfNotExist) {
+  private static Member internal_findOrCreateBySubject(final Subject subj, String memberUuidIfCreate, boolean createIfNotExist) {
     
     String sourceId = null;
     if (subj instanceof LazySubject) {
@@ -346,42 +401,110 @@ public class MemberFinder {
       return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, subj.getType().getName(), true);
     }
     catch (MemberNotFoundException eMNF) {
+      
       if (createIfNotExist) {
-        Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberUuidIfCreate, false);
-        if (member != null) {
-          throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
+        
+        
+        MultiKey multiKey = new MultiKey(sourceId, subj.getId());
+        
+        synchronized (MemberFinder.class) {
+          //get the same key for name
+          if (!memberLocksCache().containsKey(multiKey)) {
+            memberLocksCache().put(multiKey, multiKey);
+          }
+          multiKey = memberLocksCache().get(multiKey);
         }
-        try {
-          Member _m = internal_createMember(subj, memberUuidIfCreate);
-          return _m;
-        } catch (RuntimeException re) {
+        
+        Member member = null;
+        
+
+        final String SOURCE_ID = sourceId;
+        
+        synchronized(multiKey) {
           
-          //dont interrupt a hook veto
-          if (re instanceof HookVeto) {
-            throw re;
+          //something created this recently
+          if (memberCreatedCache().get(multiKey) != null) {
+
+            //wait for the transaction to finish...
+            for (int i=0;i<20;i++) {
+              
+              //in transaction
+              member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false);
+              
+              if (member != null) {
+
+                break;
+              }
+
+              //out of transaction
+              member = (Member)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
+                
+                public Object callback(GrouperTransaction grouperTransaction)
+                    throws GrouperDAOException {
+                  return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), SOURCE_ID, subj.getType().getName(), false);
+                }
+              });
+              
+              if (member != null) {
+                
+                // if its in another transaction... wait a couple seconds for it to finish
+                GrouperUtil.sleep(2000);
+
+                break;
+              }
+
+              GrouperUtil.sleep(1000);
+            }
+            
           }
+
+        
           
-          //give an out switch
-          if (GrouperConfig.getPropertyBoolean("grouperDontTryCreateMemberTwiceOnException", false)) {
-            throw re;
-          }
-          
-          //GRP-903: if the same member is created on two jvms, it throws a constrain exception
-          //maybe a constraint was violated?  Try to select again?
-          try {
-            //lets wait a little bit if transactions are finishing or whatever
-            GrouperUtil.sleep(500);
-            return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, 
-                subj.getType().getName(), true, new QueryOptions().secondLevelCache(false));
-          }
-          catch (MemberNotFoundException eMNF2) {
-            //put this exception in the other one...
-            GrouperUtil.injectInException(re, "... second memberNotFoundException for subject " + GrouperUtil.subjectToString(subj) 
-                + "... " + ExceptionUtils.getFullStackTrace(eMNF2) + "...");
-            //ignore this exception...  throw the original create exception
-            throw re;
+          if (member == null) {
+            //race conditions
+            memberCreatedCache().put(multiKey, Boolean.TRUE);
+  
+            if (!StringUtils.isBlank(memberUuidIfCreate)) {
+              member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberUuidIfCreate, false);
+              if (member != null) {
+                throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
+              }
+            }
+            try {
+              Member _m = internal_createMember(subj, memberUuidIfCreate);
+              return _m;
+            } catch (RuntimeException re) {
+              
+              //dont interrupt a hook veto
+              if (re instanceof HookVeto) {
+                throw re;
+              }
+              
+              //give an out switch
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDontTryCreateMemberTwiceOnException", false)) {
+                throw re;
+              }
+              
+              //GRP-903: if the same member is created on two jvms, it throws a constrain exception
+              //maybe a constraint was violated?  Try to select again?
+              try {
+                //lets wait a little bit if transactions are finishing or whatever
+                GrouperUtil.sleep(500);
+                return GrouperDAOFactory.getFactory().getMember().findBySubject(subj.getId(), sourceId, 
+                    subj.getType().getName(), true, new QueryOptions().secondLevelCache(false));
+              }
+              catch (MemberNotFoundException eMNF2) {
+                //put this exception in the other one...
+                GrouperUtil.injectInException(re, "... second memberNotFoundException for subject " + GrouperUtil.subjectToString(subj) 
+                    + "... " + ExceptionUtils.getFullStackTrace(eMNF2) + "...");
+                //ignore this exception...  throw the original create exception
+                throw re;
+              }
+            }
           }
         }
+        
+        return member;
       }
       return null;
     }

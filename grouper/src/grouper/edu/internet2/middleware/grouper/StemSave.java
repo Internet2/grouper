@@ -33,7 +33,6 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -344,12 +343,15 @@ public class StemSave {
                 //if inserting
                 if (!isUpdate) {
                   StemSave.this.saveResultType = SaveResultType.INSERT;
-                  if (StringUtils.isBlank(uuid)) {
+                  
+                  boolean failOnExists = SAVE_MODE.equals(SaveMode.INSERT);
+                  
+                  if (StringUtils.isBlank(StemSave.this.uuid)) {
                     //if no uuid
-                    theStem = parentStem.addChildStem(extensionNew, theDisplayExtension);
+                    theStem = parentStem.addChildStem(extensionNew, theDisplayExtension, null, failOnExists);
                   } else {
                     //if uuid
-                    theStem = parentStem.internal_addChildStem(extensionNew, theDisplayExtension, uuid);
+                    theStem = parentStem.addChildStem(extensionNew, theDisplayExtension, StemSave.this.uuid, failOnExists);
                   }
                 } else {
                   //check if different so it doesnt make unneeded queries

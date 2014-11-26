@@ -36,6 +36,7 @@
     <property name="main.sourceDir" value="src" />
     <property name="main.appName" value="grouperVoot" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+    <property name="binName" value="grouper.vootBinary-${version}" />
 
     <path id="main.classpath">
       <fileset dir="${grouper.dir}/lib/grouper">
@@ -115,7 +116,6 @@
    </target>
   
   <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
-    <property name="binName" value="${main.appName}.binary-${version}" />
     <mkdir dir="dist/binary/${binName}"/>
     <copy todir="dist/binary/${binName}">    
       <fileset dir="dist">

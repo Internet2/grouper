@@ -108,7 +108,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_getChildGroups_PrivilegeArrayAndScope_emptyArray"));
+    TestRunner.run(new TestStemApi("test_alternateName"));
   }
 
   /** size before getting started */

@@ -1,0 +1,6 @@
+build
+bin
+dist
+javadoc.log
+spy.log
+test.log

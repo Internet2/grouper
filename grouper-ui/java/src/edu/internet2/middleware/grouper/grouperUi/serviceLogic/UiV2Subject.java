@@ -963,7 +963,7 @@ public class UiV2Subject {
         
       }
       
-      boolean madeChanges = group.addMember(subject, defaultPrivs, memberChecked, adminChecked, 
+      boolean madeChanges = group.addOrEditMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
           attrUpdateChecked, null, null, false);
       

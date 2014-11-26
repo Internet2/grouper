@@ -39,6 +39,7 @@ import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -96,7 +97,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testDeleteWithAttrPrivs"));
+    TestRunner.run(new TestStem("testAddChildStemWithBadExtnOrDisplayExtn"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -990,7 +991,7 @@ public class TestStem extends GrouperTest {
       s.stop();
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage());
+      Assert.fail(e.getMessage() + ", " + ExceptionUtils.getFullStackTrace(e));
     }
   } // public void testAddChildStemWithBadExtnOrDisplayExtn()
 

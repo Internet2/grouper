@@ -161,6 +161,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1077,8 +1078,39 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param endDate on membership
    * @param revokeIfUnchecked
    * @return if something was changed
+   * @deprecated use addOrEditMember instead
    */
+  @Deprecated
   public boolean addMember(final Subject subject, final boolean defaultPrivs,
+      final boolean memberChecked, 
+      final boolean adminChecked,
+      final boolean updateChecked, final boolean readChecked, final boolean viewChecked,
+      final boolean optinChecked, final boolean optoutChecked, final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked) {
+    return this.addOrEditMember(subject, defaultPrivs, memberChecked, adminChecked, updateChecked, 
+        readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, attrUpdateChecked, 
+        startDate, endDate, revokeIfUnchecked);
+  }
+
+  /**
+   * add a member to group, take into account if any default privs should be changed
+   * @param subject to add
+   * @param defaultPrivs if true, forget about all the other checked params
+   * @param memberChecked
+   * @param adminChecked
+   * @param updateChecked
+   * @param readChecked
+   * @param viewChecked
+   * @param optinChecked
+   * @param optoutChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param startDate on membership
+   * @param endDate on membership
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean addOrEditMember(final Subject subject, final boolean defaultPrivs,
       final boolean memberChecked, 
       final boolean adminChecked,
       final boolean updateChecked, final boolean readChecked, final boolean viewChecked,
@@ -1091,7 +1123,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
 
-        boolean hadChange = Group.this.addMember(subject, defaultPrivs, memberChecked, startDate, endDate, revokeIfUnchecked);
+        boolean hadChange = Group.this.addOrEditMember(subject, defaultPrivs, memberChecked, startDate, endDate, revokeIfUnchecked);
         
         if (!defaultPrivs) {
           
@@ -1174,7 +1206,24 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
     
   }
-  
+
+  /**
+   * add a member to group, take into account if any default privs should be changed
+   * @param subject to add
+   * @param defaultPrivs if true, forget about all the other checked params
+   * @param memberChecked
+   * @param startDate on membership
+   * @param endDate on membership
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   * @deprecated use addOrEditMember instead
+   */
+  @Deprecated
+  public boolean addMember(final Subject subject, final boolean defaultPrivs,
+      final boolean memberChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked) {
+    return this.addOrEditMember(subject, defaultPrivs, memberChecked, startDate, endDate, revokeIfUnchecked);
+  }
+
   /**
    * add a member to group, take into account if any default privs should be changed
    * @param subject to add
@@ -1185,7 +1234,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param revokeIfUnchecked
    * @return if something was changed
    */
-  public boolean addMember(final Subject subject, final boolean defaultPrivs,
+  public boolean addOrEditMember(final Subject subject, final boolean defaultPrivs,
       final boolean memberChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked) {
     
     return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
@@ -1199,7 +1248,50 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
         boolean hadChange = false;
         
         if (addedMember) {
-          addedMember = Group.this.internal_addMember(subject, Group.getDefaultList(), false, null, GrouperUtil.toTimestamp(startDate), 
+          
+          Field field = Group.getDefaultList();
+     
+          Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+          
+          //see if member
+          Membership membership = 
+              GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
+                  Group.this.getUuid(), member.getUuid(), field, MembershipType.IMMEDIATE.getTypeString(), false, false);
+
+          if (membership != null) {
+            if ( !Group.this.canWriteField(field) ) { 
+
+              //if the subject operated on is the subject 
+              if (SubjectHelper.eq(subject, GrouperSession.staticGrouperSession().getSubject())) {
+                
+                //if cant optin, then invalid
+                GrouperValidator v = CanOptinValidator.validate(Group.this, subject, field);
+                if (v.isInvalid()) {
+                  throw new InsufficientPrivilegeException();
+                }
+              } else {
+                throw new InsufficientPrivilegeException();
+              }
+            }
+
+            //we are already a member, lets see if the dates match up
+            boolean hasChange = false;
+            if (!GrouperUtil.equals(startDate, membership.getEnabledTime())) {
+              hasChange = true;
+              membership.setEnabledTime(startDate == null ? null : new Timestamp(startDate.getTime()));
+            }
+            if (!GrouperUtil.equals(endDate, membership.getDisabledTime())) {
+              hasChange = true;
+              membership.setDisabledTime(endDate == null ? null : new Timestamp(endDate.getTime()));
+            }
+            //if a date didnt match up, then save the membership
+            if (hasChange) {
+              GrouperDAOFactory.getFactory().getMembership().update(membership);
+            }
+            return hasChange;
+          }
+
+          addedMember = Group.this.internal_addMember(subject, field, false, null, GrouperUtil.toTimestamp(startDate), 
               GrouperUtil.toTimestamp(endDate));
           hadChange = hadChange || addedMember;
           
@@ -3695,12 +3787,31 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public Stem getParentStem() 
     throws  IllegalStateException
   {
-    String uuid = this.getParentUuid();
+    final String uuid = this.getParentUuid();
     if (uuid == null) {
       throw new IllegalStateException("group has no parent stem");
     }
     try {
-      Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
+      //try in transaction
+      Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, false) ;
+      
+      if (parent == null) {
+        //try out of transaction
+        parent = (Stem)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.NONE, new GrouperTransactionHandler() {
+          
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            return GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true);
+          }
+        });
+        
+        if (parent != null) {
+          
+          //wait a bit for it to be available in this transaction
+          GrouperUtil.sleep(2000);
+          
+        }
+      }
       return parent;
     }
     catch (StemNotFoundException eShouldNeverHappen) {

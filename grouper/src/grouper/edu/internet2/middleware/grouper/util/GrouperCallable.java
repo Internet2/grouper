@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -21,6 +22,49 @@ import edu.internet2.middleware.subject.Subject;
  */
 public abstract class GrouperCallable<T> implements Callable<T> {
 
+  
+  /**
+   * describes the callable
+   * @return the logLabel
+   */
+  public String getLogLabel() {
+    return this.logLabel;
+  }
+
+  /**
+   * note, call this in your grouper session
+   * @param callablesWithProblems
+   */
+  public static void tryCallablesWithProblems(Collection<GrouperCallable> callablesWithProblems) {
+    
+    RuntimeException problem = null;
+
+    int callablesWithProblemsCount = 0;
+    
+    for (GrouperCallable grouperCallable : GrouperUtil.nonNull(callablesWithProblems)) {
+      
+      try {
+        grouperCallable.callLogic();
+      } catch (RuntimeException re) {
+        
+        callablesWithProblemsCount++;
+        
+        if (problem == null) {
+          problem = re;
+        } else {
+          LOG.error("Problem with callable: " + grouperCallable.getLogLabel());
+        }
+      }
+      
+    }
+    
+    if (problem != null) {
+      GrouperUtil.injectInException(problem, callablesWithProblemsCount 
+          + " callables out of problem count " + callablesWithProblems.size() + " had problems running outside of threads!");
+      throw problem;
+    }
+  }
+  
   /**
    * convert exception
    * @param throwable
@@ -94,6 +138,7 @@ public abstract class GrouperCallable<T> implements Callable<T> {
    * @return computed result
    */
   public final T callLogicWithSessionIfExists() {
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
 
     //if we already have the same session open, use it

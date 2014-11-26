@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
@@ -98,6 +97,7 @@ import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -1362,79 +1362,48 @@ public enum GrouperLoaderType {
       final boolean useThreads = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.use.groupThreads", true);
 
       //see when threads are done processing
-      List<Future> futures = new ArrayList<Future>();
+      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+
+      //if there were thread problems, run those again
+      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
 
       int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.groupThreadPoolSize", 20);
-      int i=0;
+
       for (final String groupName : groupNamesToSync) {
         
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
         }
-        if (!useThreads) {
-          syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
-              grouperSession, andGroups, groupTypes, hib3GrouploaderLogOverall,
-              statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
-              groupStartedMillis, membershipsInRegistry, groupName);
-        } else {
-          Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(new GrouperCallable<Boolean>("syncLogicForOneGroup") {
+        
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncLogicForOneGroup: " + groupName) {
 
-            @Override
-            public Boolean callLogic() {
-              syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
-                  GrouperSession.staticGrouperSession(), andGroups, groupTypes, hib3GrouploaderLogOverall,
-                  statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
-                  groupStartedMillis, membershipsInRegistry, groupName);
-              return null;
-            }
-            });
+          @Override
+          public Void callLogic() {
+            syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
+                GrouperSession.staticGrouperSession(), andGroups, groupTypes, hib3GrouploaderLogOverall,
+                statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
+                groupStartedMillis, membershipsInRegistry, groupName);
+            return null;
+          }
+        };
+
+        if (!useThreads) {
+          grouperCallable.callLogic();
+        } else {
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
           futures.add(future);
           
-          waitForJob(futures, groupThreadPoolSize);
+          GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
 
         }
 
-        i++;
         count++;
       }
-      //make sure threads are done
-      for (Future future : futures) {
-        try {
-          future.get();
-        } catch (Exception ee) {
-          throw new RuntimeException(ee);
-        }
-      }
-      
-      //lets go through and create groups which arent there
-      
-      // The above code should be taking care of these group creates..
-      /*
-      for (String groupName : groupNamesFromGroupQuery) {
-        
-        Group group = GroupFinder.findByName(grouperSession, groupName, false);
-        if (group == null) {
-          
-          String groupDisplayName = groupNameToDisplayName.get(groupName);
-          groupDisplayName = StringUtils.defaultIfEmpty(groupDisplayName, groupName);
-          String groupDescription = groupNameToDescription.get(groupName);
-          
-          Group newGroup = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT)
-            .assignCreateParentStemsIfNotExist(true)
-            .assignName(groupName).assignDisplayName(groupDisplayName)
-            .assignDescription(groupDescription).save();
-          
-          for (GroupType groupType : groupTypes) {
-            try {
-              newGroup.addType(groupType, false);
-              
-            } catch (Exception se) {
-              //TODO remove this catch block in 1.5 when we have unchecked exceptions
-              throw new RuntimeException(se.getMessage(), se);
-            }
-          }
-        }
-      }*/
+
+      //wait for the rest
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
       if (LOG.isDebugEnabled()) {
         LOG.debug(groupNameOverall + ": done syncing membership");
@@ -2134,7 +2103,7 @@ public enum GrouperLoaderType {
                   if (!skipPriv && LOG.isDebugEnabled()) {
                     String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
                           + GrouperUtil.subjectToString(subject) + " already existed? " + (added == null ? null : !added);
-                    //System.out.println(logMessage);
+
                     LOG.debug(logMessage);
                   }
                 }
@@ -2321,36 +2290,39 @@ public enum GrouperLoaderType {
           
           try {
             //see when threads are done processing
-            List<Future> futures = new ArrayList<Future>();
+            List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+
+            //if there were thread problems, run those again
+            List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+
             int membershipThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.membershipThreadPoolSize", 10);
+
             {
               final int numberOfRows = membersToRemove.size();
               final int[] count = new int[]{1};
               //first remove members
-              int i=0;
-              for (final LoaderMemberWrapper member : membersToRemove) {
-                if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
-                  syncOneMemberDeleteMemberLogic(groupName, grouperSession,
-                    jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
-                    numberOfRows, count, member);
-                } else {
-                  Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(new GrouperCallable<Boolean>("syncOneMemberDeleteMemberLogic") {
 
-                    @Override
-                    public Boolean callLogic() {
-                      syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
-                          jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
-                          numberOfRows, count, member);
-                      return null;
-                    }
-  
-                    });
+              for (final LoaderMemberWrapper member : membersToRemove) {
+                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
+
+                  @Override
+                  public Void callLogic() {
+                    syncOneMemberDeleteMemberLogic(groupName, GrouperSession.staticGrouperSession(),
+                        jobMessage, jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG,
+                        numberOfRows, count, member);
+                    return null;
+                  }
+
+                };
+                if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
+                  grouperCallable.callLogic();
+                } else {
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
                   futures.add(future);
                   
-                  waitForJob(futures, membershipThreadPoolSize);
+                  GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
                 }
                 
-                i++;
               }
               
             }
@@ -2358,35 +2330,41 @@ public enum GrouperLoaderType {
               final int numberOfRows = subjectsToAdd.size();
               final int[] count = new int[]{1};
               //then add new members
-              int i=0;
+
               for (final Subject subject : subjectsToAdd) {
+
+                GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
+                  
+                  public Void callLogic() {
+
+                    syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
+                        jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
+                        count, subject);
+
+                    return null;
+                  }
+                };
+                
                 if (!useThreads) {
-                  syncOneMemberAddMemberLogic(groupName, grouperSession, jobMessage,
-                      jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
-                      count, subject);
+                  
+                  grouperCallable.callLogic();
+
                 } else {
-                  Future<Boolean> future = GrouperUtil.retrieveExecutorService().submit(new GrouperCallable<Boolean>("syncOneMemberAddMemberLogic") {
-  
-                    public Boolean callLogic() {
-                      syncOneMemberAddMemberLogic(groupName, GrouperSession.staticGrouperSession(), jobMessage,
-                          jobStatus, group, TOTAL_COUNT, HIB3_GROUPER_LOADER_LOG, numberOfRows,
-                          count, subject);
-                      return true;
-                    }
-                    });
+
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
                   futures.add(future);
 
-                  waitForJob(futures, membershipThreadPoolSize);
+                  GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
 
                 }
-                i++;
+
               }
             }
             
-            //make sure threads are done
-            for (Future future : futures) {
-              future.get();
-            }
+            //wait for the rest
+            GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+
+            GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
             
             if (grouperTransactionType != GrouperTransactionType.NONE) {
               grouperTransaction.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
@@ -2422,45 +2400,6 @@ public enum GrouperLoaderType {
         hib3GrouploaderLog.store();
       } catch (Exception e) {
         //dont worry, just trying to store the log at end
-      }
-    }
-  }
-
-  /**
-   * @param futures
-   * @param membershipThreadPoolSize
-   * @param i
-   */
-  static void waitForJob(List<Future> futures, int membershipThreadPoolSize)  {
-    while (futures.size() > membershipThreadPoolSize) {
-      try {
-        futures.get(0).get();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-      futures.remove(0);
-    }
-  }
-
-  /**
-   * @param futures
-   * @param membershipThreadPoolSize
-   * @param i
-   */
-  static void waitForJobs(List<Future> futures, int membershipThreadPoolSize, int i)  {
-    if (i != 0 && membershipThreadPoolSize != -1 && i % membershipThreadPoolSize == 0) {
-      //assume this is lightweight and wont cause a problem
-      Iterator<Future> futureIterator = futures.iterator();
-      while (futureIterator.hasNext()) {
-        Future<Boolean> theFuture = futureIterator.next();
-        
-        try {
-          theFuture.get();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-        //dont need to keep checking
-        futureIterator.remove();
       }
     }
   }

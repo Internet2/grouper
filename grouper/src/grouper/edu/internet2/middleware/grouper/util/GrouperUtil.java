@@ -73,8 +73,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6651,7 +6653,9 @@ public class GrouperUtil {
    */
   public static void saveStringIntoFile(File file, String contents) {
     try {
-      writeStringToFile(file, contents, "ISO-8859-1");
+      String encoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding", "ISO-8859-1");
+
+      writeStringToFile(file, contents, encoding);
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -6727,7 +6731,7 @@ public class GrouperUtil {
       return null;
     }
     try {
-      return readFileToString(file, "ISO-8859-1");
+      return readFileToString(file, "UTF-8");
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -6757,7 +6761,8 @@ public class GrouperUtil {
     StringWriter stringWriter = new StringWriter();
     try {
       inputStream = url.openStream();
-      copy(inputStream, stringWriter, "ISO-8859-1");
+      String encoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding", "ISO-8859-1");
+      copy(inputStream, stringWriter, encoding);
     } catch (IOException ioe) {
       throw new RuntimeException("Error reading resource: '" + resourceName + "'", ioe);
     } finally {
@@ -11541,6 +11546,17 @@ public class GrouperUtil {
     return executorService;
   }
 
+  /**
+   * 
+   * @param executorService
+   * @param callable
+   * @return the future
+   */
+  public static GrouperFuture executorServiceSubmit(ExecutorService executorService, Callable callable) {
+    Future future = executorService.submit(callable);
+    GrouperFuture grouperFuture = new GrouperFuture(future, callable);
+    return grouperFuture;
+  }
   
   /**
    * concat two strings

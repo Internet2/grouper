@@ -52,7 +52,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -60,7 +59,6 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -94,9 +92,9 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   public static void main(String[] args) {
     TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
-    //new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
-    //performanceRunSetupLoaderTables();
-    //performanceRun();
+//    new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
+//    performanceRunSetupLoaderTables();
+//    performanceRun();
   }
 
   /**
@@ -126,10 +124,9 @@ public class GrouperLoaderTest extends GrouperTest {
   
       //lets add a group which will load these
       Group loaderGroup = new GroupSave(grouperSession).assignName("loader:owner").assignCreateParentStemsIfNotExist(true).save();
+      loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true), false);
       loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
           "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
-  //    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
-  //        "addIncludeExclude");
     } finally {
       grouperSessionResult.stopQuietlyIfCreated();
     }
@@ -301,16 +298,16 @@ public class GrouperLoaderTest extends GrouperTest {
         "The loader:group 2 system of record", null);
     testDataList.add(group2meta);
     TestgrouperLoaderGroups group3meta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
-        null, "This is the third group");
+        "The loader:group3_systemOfRecord", "This is the third group");
     testDataList.add(group3meta);
     TestgrouperLoaderGroups group4meta = new TestgrouperLoaderGroups("loader:group4_systemOfRecord", 
-        null, "This is the forth group");
+        "The loader:group4_systemOfRecord", "This is the forth group");
     testDataList.add(group4meta);
     TestgrouperLoaderGroups group6meta = new TestgrouperLoaderGroups("loader:group6_systemOfRecord", 
-        null, "This is the sixth group");
+        "The loader:group6_systemOfRecord", "This is the sixth group");
     testDataList.add(group6meta);
     TestgrouperLoaderGroups group7meta = new TestgrouperLoaderGroups("loader:group7_systemOfRecord", 
-        null, "This is the seventh group");
+        "The loader:group7_systemOfRecord", "This is the seventh group");
     testDataList.add(group7meta);
     
     
@@ -328,14 +325,14 @@ public class GrouperLoaderTest extends GrouperTest {
       "select group_name, group_display_name, group_description from testgrouper_loader_groups");
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
-    
+
     Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertEquals("The loader:group 1", overallGroup1.getDisplayName());
     Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
     assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
     assertEquals("The loader:group 1 system of record", systemOfRecordGroup1.getDisplayName());
-    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
-    assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(GrouperUtil.toStringForLog(overallGroup1.getMembers()), overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(GrouperUtil.toStringForLog(overallGroup1.getMembers()), overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ2));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ3));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ4));

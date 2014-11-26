@@ -652,6 +652,8 @@ public class GroupSave {
       return group;
     } catch (RuntimeException re) {
       
+      GrouperUtil.injectInException(re, "Problem saving group: " + this.name + ", thread: " + Integer.toHexString(Thread.currentThread().hashCode()));
+      
       Throwable throwable = re.getCause();
       if (throwable instanceof StemNotFoundException) {
         throw (StemNotFoundException)throwable;
