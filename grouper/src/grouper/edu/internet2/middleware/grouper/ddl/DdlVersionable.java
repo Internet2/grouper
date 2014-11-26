@@ -75,4 +75,9 @@ public interface DdlVersionable {
    * @param ddlVersionBean has references to stuff you need
    */
   public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean);
+  
+  /**
+   * @return true if the update requires views/keys to be recreated
+   */
+  public boolean recreateViewsAndForeignKeys();
 }

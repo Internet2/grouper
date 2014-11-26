@@ -2223,6 +2223,13 @@ public enum GrouperDdl implements DdlVersionable {
         }
       }
     }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#recreateViewsAndForeignKeys()
+     */
+    public boolean recreateViewsAndForeignKeys() {
+      return false;
+    }
   };
 
   /**
@@ -13810,5 +13817,14 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemSetTable.getName(), 
         "stem_set_unq_idx", true, 
         StemSet.COLUMN_PARENT_STEM_SET_ID, StemSet.COLUMN_IF_HAS_STEM_ID, StemSet.COLUMN_THEN_HAS_STEM_ID);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#recreateViewsAndForeignKeys()
+   */
+  public boolean recreateViewsAndForeignKeys() {
+    
+    // assume true
+    return true;
   }
 }
