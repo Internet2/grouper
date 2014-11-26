@@ -2105,17 +2105,27 @@ public enum GrouperDdl implements DdlVersionable {
       if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
         legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
       
-        if (GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
-            GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null ||
-            legacyAttributesCount > 0) {
+        boolean groupTypeUuidThere = GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null;
+        boolean isNullableThere = GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null;
+        
+        if (groupTypeUuidThere || isNullableThere || legacyAttributesCount > 0) {
           needsLegacyAttributesUpgrade = true;
           
-          // drop legacy table if it happens to exist for some reason
-          if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields_legacy", true)) {
-            GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy", true);
+          boolean legacyFieldsTableThere = GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields_legacy", true);
+          
+          if (!legacyFieldsTableThere && !groupTypeUuidThere) {
+            // this isn't good.
+            throw new RuntimeException("Need to migrate legacy attributes but grouper_fields is missing grouptype_uuid!");
           }
           
-          GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_fields", "grouper_fields_legacy");
+          if (groupTypeUuidThere) {
+            // drop legacy table if it happens to exist for some reason
+            if (legacyFieldsTableThere) {
+              GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_fields_legacy", true);
+            }
+            
+            GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_fields", "grouper_fields_legacy");
+          }
         }
       }
       
