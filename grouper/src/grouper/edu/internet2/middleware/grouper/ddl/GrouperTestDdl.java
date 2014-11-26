@@ -117,5 +117,12 @@ public enum GrouperTestDdl implements DdlVersionable {
     return new String[]{"testgrouper_loader"};
   }
 
-
+  /**
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#recreateViewsAndForeignKeys()
+   */
+  public boolean recreateViewsAndForeignKeys() {
+    
+    // assume true
+    return true;
+  }
 }

@@ -413,4 +413,12 @@ public enum GrouperOrgDdl implements DdlVersionable {
     return new String[]{"grouperorgs_hierarchical"};
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#recreateViewsAndForeignKeys()
+   */
+  public boolean recreateViewsAndForeignKeys() {
+    
+    // assume true
+    return true;
+  }
 }

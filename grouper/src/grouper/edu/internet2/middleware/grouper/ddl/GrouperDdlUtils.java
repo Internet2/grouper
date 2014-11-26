@@ -527,14 +527,33 @@ public class GrouperDdlUtils {
           platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
             
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
+          
+          // see if we really need to recreate views/keys
+          boolean recreateViewsAndForeignKeys = true;
+          if (!theDropBeforeCreate && !dropOnly) {
+            boolean reallyNeedToRecreate = false;
+            for (int version = dbVersion+1; version<=javaVersion; version++) {
+              DdlVersionable v = retieveVersion(objectName, version);
+              if (v.recreateViewsAndForeignKeys()) {
+                reallyNeedToRecreate = true;
+                break;
+              }
+            }
+            
+            if (!reallyNeedToRecreate) {
+              recreateViewsAndForeignKeys = false;
+            }
+          }
   
           {
-            //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
-            DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
-            ddlVersionable.dropAllViews(tempDdlVersionBean);
-  
-            //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-            dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+            if (recreateViewsAndForeignKeys) {
+              //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
+              DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
+              ddlVersionable.dropAllViews(tempDdlVersionBean);
+    
+              //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+              dropAllForeignKeysScript(dbMetadataBean, tempDdlVersionBean);
+            }
           }
           
           // if deleting all, lets delete all:
@@ -663,59 +682,60 @@ public class GrouperDdlUtils {
             //just get the first version since we need an instance, any instance
             {
               
-              //get the latest, doesnt really matter
-              ddlVersionable = retieveVersion(objectName, javaVersion);
+              if (recreateViewsAndForeignKeys) {
+                //get the latest, doesnt really matter
+                ddlVersionable = retieveVersion(objectName, javaVersion);
+    
+                //it needs a name, just use "grouper"
+                Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                    null, null);
+                dropAllForeignKeys(oldDatabase);
+                
+                Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
+                    null, null);
+                dropAllForeignKeys(newDatabase);
+                
+                //get this to the current version, dont worry about additional scripts
+                upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, 
+                    new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+                
+                //get this to the current version, dont worry about additional scripts
+                upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, 
+                    javaVersion, new StringBuilder(), result, platform, connection, schema, sqlBuilder);
+    
+                StringBuilder additionalScripts = new StringBuilder();
+                
+                DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
+                    sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
+                
+                ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
+    
+                ////lets add table / col comments
+                //for (Table table : newDatabase.getTables()) {
+                //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+                //  for (Column column : table.getColumns()) {
+                //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+                //  }
+                //}
   
-              //it needs a name, just use "grouper"
-              Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                  null, null);
-              dropAllForeignKeys(oldDatabase);
-              
-              Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
-                  null, null);
-              dropAllForeignKeys(newDatabase);
-              
-              //get this to the current version, dont worry about additional scripts
-              upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, 
-                  new StringBuilder(), result, platform, connection, schema, sqlBuilder);
-              
-              //get this to the current version, dont worry about additional scripts
-              upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, 
-                  javaVersion, new StringBuilder(), result, platform, connection, schema, sqlBuilder);
-  
-              StringBuilder additionalScripts = new StringBuilder();
-              
-              DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
-                  sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
-              
-              ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
-  
-              ////lets add table / col comments
-              //for (Table table : newDatabase.getTables()) {
-              //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
-              //  for (Column column : table.getColumns()) {
-              //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
-              //  }
-              //}
-
-              String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
-                  newDatabase);
-              
-              script = StringUtils.trimToEmpty(script);
-              
-              String additionalScriptsString = additionalScripts.toString();
-              if (!StringUtils.isBlank(additionalScriptsString)) {
-                script += "\n" + additionalScriptsString;
-              }
-  
-              
-              if (!StringUtils.isBlank(script)) {
-                //result.append("\n-- add back all the foreign keys */\n");
-                result.append(script).append("\n");
-                //result.append("\n-- end add back all foreign keys */\n\n");
+                String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
+                    newDatabase);
+                
+                script = StringUtils.trimToEmpty(script);
+                
+                String additionalScriptsString = additionalScripts.toString();
+                if (!StringUtils.isBlank(additionalScriptsString)) {
+                  script += "\n" + additionalScriptsString;
+                }
+    
+                
+                if (!StringUtils.isBlank(script)) {
+                  //result.append("\n-- add back all the foreign keys */\n");
+                  result.append(script).append("\n");
+                  //result.append("\n-- end add back all foreign keys */\n\n");
+                }
               }
             }
-  
             
           }
         }
