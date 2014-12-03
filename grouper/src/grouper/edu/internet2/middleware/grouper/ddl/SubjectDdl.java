@@ -196,5 +196,12 @@ public enum SubjectDdl implements DdlVersionable {
     return new String[]{"subject","subjectattribute"};
   }
 
-
+  /**
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#recreateViewsAndForeignKeys()
+   */
+  public boolean recreateViewsAndForeignKeys() {
+    
+    // assume true
+    return true;
+  }
 }
