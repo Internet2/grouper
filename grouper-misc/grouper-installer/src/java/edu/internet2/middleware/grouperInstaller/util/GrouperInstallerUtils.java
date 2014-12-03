@@ -1206,7 +1206,7 @@ public class GrouperInstallerUtils  {
   /**
    * synchronize code that uses this standard formatter for dates with minutes and seconds
    */
-  final static SimpleDateFormat dateMinutesSecondsFormat = new SimpleDateFormat(
+  public final static SimpleDateFormat dateMinutesSecondsFormat = new SimpleDateFormat(
       DATE_MINUTES_SECONDS_FORMAT);
 
   /**
@@ -5505,6 +5505,24 @@ public class GrouperInstallerUtils  {
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
       boolean exceptionOnNotFound) throws RuntimeException {
     
+    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound, true);
+  
+  }
+
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   *
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionIfInvalid if there is a string, but it is invalid, if should throw exception
+   * @return the enum or null or exception if not found
+   * @throws RuntimeException if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
+      boolean exceptionOnNotFound, boolean exceptionIfInvalid) throws RuntimeException {
+
     if (!exceptionOnNotFound && isBlank(string)) {
       return null;
     }
@@ -5513,6 +5531,9 @@ public class GrouperInstallerUtils  {
         return e;
       }
     }
+    if (!exceptionIfInvalid) {
+      return null;
+    }
     StringBuilder error = new StringBuilder(
         "Cant find " + theEnumClass.getSimpleName() + " from string: '").append(string);
     error.append("', expecting one of: ");
@@ -5520,9 +5541,8 @@ public class GrouperInstallerUtils  {
       error.append(e.name()).append(", ");
     }
     throw new RuntimeException(error.toString());
-  
-  }
 
+  }
 
   /**
    * this assumes the property exists, and is a simple property
@@ -10550,17 +10570,17 @@ public class GrouperInstallerUtils  {
       if (file1Exists != file2.exists()) {
         return false;
       }
-  
+
       if (!file1Exists) {
         // two not existing files are equal
         return true;
       }
-  
+
       if (file1.isDirectory() || file2.isDirectory()) {
         // don't want to compare directory contents
         throw new IOException("Can't compare directories, only files");
       }
-  
+
       if (file1.length() != file2.length()) {
         // lengths differ, cannot be equal
         return false;
@@ -10660,4 +10680,27 @@ public class GrouperInstallerUtils  {
     return (ch2 == -1);
   }
 
+  /**
+   * get the relative paths of descendant files
+   * @param parentDir
+   * @return the relative paths of files underneath, dont start with slash
+   */
+  public static Set<String> fileDescendantRelativePaths(File parentDir) {
+    Set<String> result = new LinkedHashSet<String>();
+    List<File> descendants = fileListRecursive(parentDir);
+    for (File file : GrouperInstallerUtils.nonNull(descendants)) {
+      String descendantPath = file.getAbsolutePath();
+      String parentPath = file.getAbsolutePath();
+      if (!descendantPath.startsWith(parentPath)) {
+        throw new RuntimeException("Why doesnt descendantPath '" + descendantPath + "' start with parent path '" + parentPath + "'?");
+      }
+      descendantPath = descendantPath.substring(parentPath.length());
+      if (descendantPath.startsWith("/") || descendantPath.startsWith("\\")) {
+        descendantPath = descendantPath.substring(1);
+      }
+      result.add(descendantPath);
+    }
+    return result;
+  }
+  
 }
