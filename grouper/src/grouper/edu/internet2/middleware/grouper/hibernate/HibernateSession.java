@@ -24,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -455,24 +456,37 @@ public class HibernateSession {
    */
   @SuppressWarnings("deprecation")
   public static void _internal_hibernateSessionCatch(HibernateSession hibernateSession, Throwable e) throws GrouperDAOException {
-
-    //if there was a save point, rollback (since postgres doesnt like a failed query not rolled back)
-    if (hibernateSession != null && hibernateSession.savepoint != null) {
-      try {
-        hibernateSession.activeHibernateSession().getSession().connection().rollback(hibernateSession.savepoint);
-      } catch (SQLException sqle) {
-        throw new RuntimeException("Problem rolling back savepoint", sqle);
+    
+    try {
+      //if there was a save point, rollback (since postgres doesnt like a failed query not rolled back)
+      if (hibernateSession != null && hibernateSession.savepoint != null) {
+        try {
+          hibernateSession.activeHibernateSession().getSession().connection().rollback(hibernateSession.savepoint);
+        } catch (SQLException sqle) {
+          throw new RuntimeException("Problem rolling back savepoint", sqle);
+        }
+      }
+    } catch (RuntimeException re) {
+      //hmmm, dont die on a rollback, but put it in the original exception
+      if (!GrouperUtil.injectInException(e, "Exception rolling back savepoint in exception catch: " + ExceptionUtils.getFullStackTrace(re))) {
+        LOG.error("Error", e);
       }
     }
-    
-    
-    // maybe we didnt rollback. if new session, and exception, and not
-    // committed or rolledback,
-    // then rollback.
-    //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
-    if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
-      if (hibernateSession.immediateTransaction.isActive()) {
-        hibernateSession.immediateTransaction.rollback();
+
+    try {
+      // maybe we didnt rollback. if new session, and exception, and not
+      // committed or rolledback,
+      // then rollback.
+      //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
+      if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
+        if (hibernateSession.immediateTransaction.isActive()) {
+          hibernateSession.immediateTransaction.rollback();
+        }
+      }
+    } catch (RuntimeException re) {
+      //hmmm, dont die on a rollback, but put it in the original exception
+      if (!GrouperUtil.injectInException(e, "Exception rolling back in exception catch: " + ExceptionUtils.getFullStackTrace(re))) {
+        LOG.error("Error", e);
       }
     }
 
