@@ -2,3 +2,6 @@
 /conf/grouper.client.properties
 /conf/log4j.properties
 spy.log
+/logs
+/temp
+/grouperClientFailoverState.bin

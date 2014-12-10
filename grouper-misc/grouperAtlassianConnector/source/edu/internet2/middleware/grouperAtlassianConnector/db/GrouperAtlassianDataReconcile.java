@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouperAtlassianConnector.GrouperProfileProvider
 import edu.internet2.middleware.grouperAwsChangelog.GrouperAwsSqsListener;
 import edu.internet2.middleware.grouperAwsChangelog.GrouperSqsMessage;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
@@ -208,6 +210,44 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
   }
 
   /**
+   * directory id from cwd directory table for insternal subjects
+   */
+  private static Long directoryId;
+
+  /**
+   * get the directory id from db or config file, cache forever
+   * @return directory id
+   */
+  public static Long directoryId() {
+    Long theDirectoryId = directoryId;
+    if (theDirectoryId == null) {
+      synchronized (GrouperAtlassianDataReconcile.class) {
+        theDirectoryId = directoryId;
+        if (theDirectoryId == null) {
+          
+          // see if the properties file specifies
+          Integer directoryIdInt = GrouperClientConfig.retrieveConfig().propertyValueInt("atlassian.directoryId");
+          
+          if (directoryIdInt == null) {
+            
+            List<Long> resultList = new GcDbAccess().sql("select id from cwd_directory").selectList(Long.class);
+            
+            if (GrouperClientUtils.length(resultList) != 1) {
+              throw new RuntimeException("Cant find directory id, specify one in the grouper.client.properties "
+                  + "as atlassian.directoryId, there is not a unizue one in the cwd_directory table");
+            }
+            theDirectoryId = resultList.get(0);
+          } else {
+            theDirectoryId = new Long(directoryIdInt.intValue());
+          }
+          directoryId = theDirectoryId;
+        }
+      }
+    }
+    return theDirectoryId;
+  }
+  
+  /**
    * 
    */
   public static void listenForAwsRefreshes() {
@@ -245,7 +285,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    */
   public static void scheduleAtlassianFullRefreshJob() {
     
-    String cronString = GrouperClientUtils.propertiesValue("atlassian.fullRefreshAws.quartz.cron", false);
+    String cronString = GrouperClientConfig.retrieveConfig().propertyValueString("atlassian.fullRefreshAws.quartz.cron");
     
     //if not specified dont run
     if (GrouperClientUtils.isBlank(cronString)) {
@@ -282,7 +322,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     //atlassian requires durable jobs...
     jobDetail.setDurability(true);
 
-    boolean uniqueTriggerNames = GrouperClientUtils.propertiesValueBoolean("grouperClient.atlassian.uniqueQuartzTriggerNames", false, false);
+    boolean uniqueTriggerNames = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.atlassian.uniqueQuartzTriggerNames", false);
 
     //in old versions of quartz, the trigger group cannot be null
     String triggerName = "trigger_" + jobName;
@@ -400,7 +440,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
           continue;
         }
         
-        AtlassianCwdMembership atlassianCwdMembership = new AtlassianCwdMembership();
+        AtlassianCwdMembership atlassianCwdMembership = AtlassianCwdVersion.currentVersion().newMembership();
         atlassianCwdMembership.initNewObject();
         atlassianCwdMembership.setChildId(atlassianCwdUser.getId());
         atlassianCwdMembership.setChildName(atlassianCwdUser.getUserName());
@@ -517,7 +557,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     
     for (String groupNameToAdd : groupNamesToAddToAtlassian) {
       
-      AtlassianCwdGroup atlassianCwdGroup = new AtlassianCwdGroup();
+      AtlassianCwdGroup atlassianCwdGroup = AtlassianCwdVersion.currentVersion().newGroup();
       atlassianCwdGroup.initNewObject();
       atlassianCwdGroup.setGroupName(groupNameToAdd);
       atlassianCwdGroup.setLowerGroupName(GrouperClientUtils.defaultString(groupNameToAdd).toLowerCase());
@@ -576,7 +616,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       String email = propertySet.get(GrouperAtlassianUtils.PROPERTY_SET_EMAIL);
       String name = propertySet.get(GrouperAtlassianUtils.PROPERTY_SET_NAME);
       
-      AtlassianCwdUser atlassianCwdUser = new AtlassianCwdUser();
+      AtlassianCwdUser atlassianCwdUser = AtlassianCwdVersion.currentVersion().newUser();
       atlassianCwdUser.initNewObject();
       atlassianCwdUser.setDisplayName(name);
       atlassianCwdUser.setEmailAddress(email);
@@ -630,14 +670,14 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    */
   public void retrieveAllFromAtlassian() {
 
-    this.atlassianUsernameToUserMap = AtlassianCwdUser.retrieveUsers();
+    this.atlassianUsernameToUserMap = AtlassianCwdVersion.currentVersion().retrieveUsers();
     
-    this.atlassianGroupnameToGroupMap = AtlassianCwdGroup.retrieveGroups();
+    this.atlassianGroupnameToGroupMap = AtlassianCwdVersion.currentVersion().retrieveGroups();
 
     this.atlassianGroupAndUserToMembershipMap = new HashMap<MultiKey, AtlassianCwdMembership>();
     this.atlassianGroupnameToUserSetMap = new HashMap<String, Set<String>>();
     
-    List<AtlassianCwdMembership> memberships = AtlassianCwdMembership.retrieveMemberships();
+    List<AtlassianCwdMembership> memberships = AtlassianCwdVersion.currentVersion().retrieveMemberships();
     
     for (AtlassianCwdMembership atlassianCwdMembership : GrouperClientUtils.nonNull(memberships)) {
 
