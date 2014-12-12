@@ -21,17 +21,23 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO;
 import edu.internet2.middleware.grouper.stem.StemSet;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -250,27 +256,70 @@ public class SyncStemSets {
    */
   public long addMissingSelfStemSets() {
     showStatus("Searching for missing self stemSets");
-    Set<Object[]> stemIdsAndParentIds = GrouperDAOFactory.getFactory().getStemSet().findMissingSelfStemSets();
-    totalCount = stemIdsAndParentIds.size();
+    Set<Object[]> stemIdsAndParentIdsAndNames = GrouperDAOFactory.getFactory().getStemSet().findMissingSelfStemSets();
+    totalCount = stemIdsAndParentIdsAndNames.size();
     showStatus("Found " + totalCount + " missing self stemSets");
 
+    // order by depth
+    List<Set<Object[]>> stemIdsAndParentIdsAndNamesByDepth = new ArrayList<Set<Object[]>>();
+    for (int i = 0; i < 150; i++) {
+      stemIdsAndParentIdsAndNamesByDepth.add(new LinkedHashSet<Object[]>());
+    }
+    
+    for (Object[] stemIdAndParentIdAndName : stemIdsAndParentIdsAndNames) {
+      String name = (String)stemIdAndParentIdAndName[2];
+      int depth = name.equals(":") ? 0 : (StringUtils.countMatches(name, ":") + 1);
+      stemIdsAndParentIdsAndNamesByDepth.get(depth).add(stemIdAndParentIdAndName);
+    }
+    
+    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("stemSet.sync.useThreads", true);
+    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("stemSet.sync.threadPoolSize", 20);
+    
     try {
       reset();
       
-      if (stemIdsAndParentIds.size() > 0) {
-        for (Object[] stemIdAndParentId : stemIdsAndParentIds) {
+      if (stemIdsAndParentIdsAndNames.size() > 0) {
+        
+        for (int i = 0; i < 150; i++) {
           
-          String stemId = (String)stemIdAndParentId[0];
-          String parentId = (String)stemIdAndParentId[1];
+          Set<Object[]> currStemIdsAndParentIdsAndNames = stemIdsAndParentIdsAndNamesByDepth.get(i);
+
+          List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+          List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
           
-          if (saveUpdates) {
-            logDetail("Adding stemSets for stem: " + stemId);
-            new Hib3StemDAO().createStemSetsForStem(stemId, parentId);          
-          } else {
-            logDetail("Would be adding stemSets for stem: " + stemId);
+          for (Object[] stemIdAndParentIdAndName : currStemIdsAndParentIdsAndNames) {
+            
+            final String stemId = (String)stemIdAndParentIdAndName[0];
+            final String parentId = (String)stemIdAndParentIdAndName[1];
+            
+            GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("createStemSetsForStem") {
+              
+              @Override
+              public Void callLogic() {
+                if (saveUpdates) {
+                  logDetail("Adding stemSets for stem: " + stemId);
+                  new Hib3StemDAO().createStemSetsForStem(stemId, parentId);          
+                } else {
+                  logDetail("Would be adding stemSets for stem: " + stemId);
+                }
+                return null;
+              }
+            };
+           
+    
+            if (!useThreads){
+              grouperCallable.callLogic();
+            } else {
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+              futures.add(future);          
+              GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+            }
+            
+            processedCount++;
           }
           
-          processedCount++;
+          GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+          GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
         }
         
         if (saveUpdates) {

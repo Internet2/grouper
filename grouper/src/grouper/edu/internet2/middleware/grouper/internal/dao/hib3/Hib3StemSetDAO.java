@@ -291,10 +291,9 @@ public class Hib3StemSetDAO extends Hib3DAO implements StemSetDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.StemSetDAO#findMissingSelfStemSets()
    */
   public Set<Object[]> findMissingSelfStemSets() {
-    String sql = "select s.uuid, s.parentUuid from Stem as s " +
+    String sql = "select s.uuid, s.parentUuid, s.nameDb from Stem as s " +
       "where not exists " +
-      "(select 1 from StemSet as ss where ss.ifHasStemId = s.id and ss.depth='0') " +
-      "order by s.nameDb";
+      "(select 1 from StemSet as ss where ss.ifHasStemId = s.id and ss.depth='0')";
   
     Set<Object[]> missing = HibernateSession
       .byHqlStatic()
