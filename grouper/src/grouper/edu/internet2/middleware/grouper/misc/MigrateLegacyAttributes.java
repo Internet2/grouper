@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.misc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +32,13 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -66,6 +70,12 @@ public class MigrateLegacyAttributes {
   
   /** start time of script */
   private long startTime = 0;
+  
+  /** keep track of count of ones already migrated for each phase */
+  private long alreadyDone = 0;
+  
+  /** keep track of the count of ones needing migration for each phase */
+  private long needsMigration = 0;
   
   /** status thread */
   Thread statusThread = null;
@@ -136,8 +146,8 @@ public class MigrateLegacyAttributes {
 
       reset();
       
-      long alreadyDone = 0;
-      long needsMigration = 0;
+      alreadyDone = 0;
+      needsMigration = 0;
       
       for (String[] values : results) {
         
@@ -196,8 +206,8 @@ public class MigrateLegacyAttributes {
 
       reset();
       
-      long alreadyDone = 0;
-      long needsMigration = 0;
+      alreadyDone = 0;
+      needsMigration = 0;
       
       for (String[] values : results) {
         
@@ -258,8 +268,8 @@ public class MigrateLegacyAttributes {
 
       reset();
       
-      long alreadyDone = 0;
-      long needsMigration = 0;
+      alreadyDone = 0;
+      needsMigration = 0;
       
       for (String[] values : results) {
         
@@ -310,6 +320,9 @@ public class MigrateLegacyAttributes {
   public long migrateGroupTypeAssignments() {
     showStatus("\n\nSearching for group type assignments");
     
+    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("legacyAttributeMigration.useThreads", true);
+    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
+  
     String baseGroupTypeId = HibernateSession.bySqlStatic().select(String.class, "select id from grouper_types_legacy where name='base'", null);
 
     String sql = "select id, group_uuid, type_uuid from grouper_groups_types_legacy where type_uuid not in ('" + baseGroupTypeId + "')";
@@ -324,35 +337,57 @@ public class MigrateLegacyAttributes {
 
       reset();
       
-      long alreadyDone = 0;
-      long needsMigration = 0;
+      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
       
-      for (String[] values : results) {
+      alreadyDone = 0;
+      needsMigration = 0;
+      
+      for (final String[] values : results) {
         
-        String groupTypeAssignmentId = values[0];
-        String groupId = values[1];
-        String typeId = values[2];
-                
-        GroupType type = GroupTypeFinder.findByUuid(typeId, false);
-        Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
-
-        if (group == null) {
-          LOG.warn("Skipping groupType assignment for groupId=" + groupId + " and typeId=" + typeId + " since group could not be found.");
-        } else if (type != null && group.hasType(type)) {
-          alreadyDone++;
-        } else {
-          needsMigration++;
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("migrateGroupTypeAssignments") {
           
-          if (saveUpdates) {
-            logDetail("Migrating group type assignment.  Group=" + group.getName() + ", type="  + type.getName());
-            group.internal_addType(type, groupTypeAssignmentId, true);
-          } else {
-            logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + typeId);
+          @Override
+          public Void callLogic() {
+
+            String groupTypeAssignmentId = values[0];
+            String groupId = values[1];
+            String typeId = values[2];
+                    
+            GroupType type = GroupTypeFinder.findByUuid(typeId, false);
+            Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+
+            if (group == null) {
+              LOG.warn("Skipping groupType assignment for groupId=" + groupId + " and typeId=" + typeId + " since group could not be found.");
+            } else if (type != null && group.hasType(type)) {
+              incrementNumberDone();
+            } else {
+              incrementNumberNeedingMigration();
+              
+              if (saveUpdates) {
+                logDetail("Migrating group type assignment.  Group=" + group.getName() + ", type="  + type.getName());
+                group.internal_addType(type, groupTypeAssignmentId, true);
+              } else {
+                logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + typeId);
+              }
+            }
+            return null;
           }
+        };
+        
+        if (!useThreads){
+          grouperCallable.callLogic();
+        } else {
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          futures.add(future);          
+          GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
         }
 
         processedCount++;
       }
+      
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
       if (saveUpdates) {
         showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
@@ -376,10 +411,13 @@ public class MigrateLegacyAttributes {
   public long migrateAttributeAssignments() {
     showStatus("\n\nSearching for attribute assignments");
     
+    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("legacyAttributeMigration.useThreads", true);
+    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("legacyAttributeMigration.threadPoolSize", 20);
+    
     // cache attributes first
     String attributeSql = "select id, name from grouper_fields_legacy where type='attribute'";
     List<String[]> attributeResults = HibernateSession.bySqlStatic().listSelect(String[].class, attributeSql, null);
-    Map<String, String> fieldIdToNameMap = new HashMap<String, String>();
+    final Map<String, String> fieldIdToNameMap = new HashMap<String, String>();
     for (String[] values : attributeResults) {
       String fieldId = values[0];
       String fieldName = values[1];
@@ -398,38 +436,60 @@ public class MigrateLegacyAttributes {
 
       reset();
       
-      long alreadyDone = 0;
-      long needsMigration = 0;
+      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
       
-      for (String[] values : results) {
+      alreadyDone = 0;
+      needsMigration = 0;
+      
+      for (final String[] values : results) {
         
-        String attributeAssignmentId = values[0];
-        String groupId = values[1];
-        String attributeName = fieldIdToNameMap.get(values[2]);
-        if (attributeName == null) {
-          throw new RuntimeException("Unexpected.");
-        }
-        String attributeValue = values[3];
-                
-        Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
-
-        if (group == null) {
-          LOG.warn("Skipping attribute assignment for groupId=" + groupId + " and attributeAssignmentId=" + attributeAssignmentId + " since group could not be found.");
-        } else if (attributeValue.equals(group.getAttributesDb().get(attributeName))) {
-          alreadyDone++;
-        } else {
-          needsMigration++;
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("migrateAttributeAssignments") {
           
-          if (saveUpdates) {
-            logDetail("Migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
-            group.internal_setAttribute(attributeName, attributeValue, false, attributeAssignmentId);
-          } else {
-            logDetail("Would be migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
-          }
-        }
+          @Override
+          public Void callLogic() {
+            String attributeAssignmentId = values[0];
+            String groupId = values[1];
+            String attributeName = fieldIdToNameMap.get(values[2]);
+            if (attributeName == null) {
+              throw new RuntimeException("Unexpected.");
+            }
+            String attributeValue = values[3];
+                    
+            Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
 
+            if (group == null) {
+              LOG.warn("Skipping attribute assignment for groupId=" + groupId + " and attributeAssignmentId=" + attributeAssignmentId + " since group could not be found.");
+            } else if (attributeValue.equals(group.getAttributesDb().get(attributeName))) {
+              incrementNumberDone();
+            } else {
+              incrementNumberNeedingMigration();
+              
+              if (saveUpdates) {
+                logDetail("Migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
+                group.internal_setAttribute(attributeName, attributeValue, false, attributeAssignmentId);
+              } else {
+                logDetail("Would be migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
+              }
+            }
+            
+            return null;
+          }
+        };
+
+        if (!useThreads){
+          grouperCallable.callLogic();
+        } else {
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          futures.add(future);          
+          GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+        }
+        
         processedCount++;
       }
+      
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
       if (saveUpdates) {
         showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
@@ -534,5 +594,13 @@ public class MigrateLegacyAttributes {
       
       statusThread = null;
     }
+  }
+  
+  private synchronized void incrementNumberDone() {
+    alreadyDone++;
+  }
+  
+  private synchronized void incrementNumberNeedingMigration() {
+    needsMigration++;
   }
 }
