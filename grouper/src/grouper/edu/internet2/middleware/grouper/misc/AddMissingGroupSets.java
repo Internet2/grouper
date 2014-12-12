@@ -30,10 +30,12 @@
 package edu.internet2.middleware.grouper.misc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -44,11 +46,14 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -152,13 +157,20 @@ public class AddMissingGroupSets {
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
     int batchSize = getBatchSize();
 
+    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("groupSet.sync.useThreads", true);
+    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
+    
     try {
       reset();
-    Iterator<Object[]> groupsAndFieldsIter = groupsAndFields.iterator();
-    while (groupsAndFieldsIter.hasNext()) {
-      Object[] groupAndField = groupsAndFieldsIter.next();
-      Group group = (Group)groupAndField[0];
-      Field field = (Field)groupAndField[1];
+      
+      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+      
+      Iterator<Object[]> groupsAndFieldsIter = groupsAndFields.iterator();
+      while (groupsAndFieldsIter.hasNext()) {
+        Object[] groupAndField = groupsAndFieldsIter.next();
+        Group group = (Group)groupAndField[0];
+        Field field = (Field)groupAndField[1];
       
         GroupSet groupSet = new GroupSet();
         groupSet.setId(GrouperUuid.getUuid());
@@ -180,13 +192,33 @@ public class AddMissingGroupSets {
 
         if (batch.size() % batchSize == 0 || !groupsAndFieldsIter.hasNext()) {
           if (saveUpdates) {
-            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);
+            final Set<GroupSet> theBatch = new LinkedHashSet<GroupSet>(batch);
+            
+            GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("addMissingSelfGroupSetsForGroups") {
+              
+              @Override
+              public Void callLogic() {
+                GrouperDAOFactory.getFactory().getGroupSet().saveBatch(theBatch);
+                return null;
+              }
+            };
+            
+            if (!useThreads){
+              grouperCallable.callLogic();
+            } else {
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+              futures.add(future);          
+              GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+            }
           }
           batch.clear();
         }
         
         processedCount++;
       }
+      
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
       if (groupsAndFields.size() > 0 && saveUpdates) {
         showStatus("Done making " + totalCount + " updates");
@@ -259,13 +291,20 @@ public class AddMissingGroupSets {
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
     int batchSize = getBatchSize();
 
+    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("groupSet.sync.useThreads", true);
+    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
+    
     try {
       reset();
-    Iterator<Object[]> stemsAndFieldsIter = stemsAndFields.iterator();
-    while (stemsAndFieldsIter.hasNext()) {
-      Object[] stemAndField = stemsAndFieldsIter.next();
-      Stem stem = (Stem)stemAndField[0];
-      Field field = (Field)stemAndField[1];
+      
+      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+      
+      Iterator<Object[]> stemsAndFieldsIter = stemsAndFields.iterator();
+      while (stemsAndFieldsIter.hasNext()) {
+        Object[] stemAndField = stemsAndFieldsIter.next();
+        Stem stem = (Stem)stemAndField[0];
+        Field field = (Field)stemAndField[1];
       
         String stemName = null;
         if (stem.isRootStem()) {
@@ -289,13 +328,33 @@ public class AddMissingGroupSets {
 
         if (batch.size() % batchSize == 0 || !stemsAndFieldsIter.hasNext()) {
           if (saveUpdates) {
-            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);
+            final Set<GroupSet> theBatch = new LinkedHashSet<GroupSet>(batch);
+            
+            GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("addMissingSelfGroupSetsForStems") {
+              
+              @Override
+              public Void callLogic() {
+                GrouperDAOFactory.getFactory().getGroupSet().saveBatch(theBatch);
+                return null;
+              }
+            };
+            
+            if (!useThreads){
+              grouperCallable.callLogic();
+            } else {
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+              futures.add(future);          
+              GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+            }
           }
           batch.clear();
         }
         
         processedCount++;
       }
+      
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
       if (stemsAndFields.size() > 0 && saveUpdates) {
         showStatus("Done making " + totalCount + " updates");
@@ -504,36 +563,63 @@ public class AddMissingGroupSets {
     Set<GroupSet> batch = new LinkedHashSet<GroupSet>();
     int batchSize = getBatchSize();
 
+    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("groupSet.sync.useThreads", true);
+    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("groupSet.sync.threadPoolSize", 20);
+    
     try {
       reset();
-    Iterator<Object[]> attrDefsAndFieldsIter = attrDefsAndFields.iterator();
-    while (attrDefsAndFieldsIter.hasNext()) {
-      Object[] attrDefAndField = attrDefsAndFieldsIter.next();
-      AttributeDef attributeDef = (AttributeDef)attrDefAndField[0];
-      Field field = (Field)attrDefAndField[1];
       
-      GroupSet groupSet = new GroupSet();
-      groupSet.setId(GrouperUuid.getUuid());
-      groupSet.setCreatorId(attributeDef.getCreatorId());
-      groupSet.setCreateTime(attributeDef.getCreatedOnDb());
-      groupSet.setDepth(0);
-      groupSet.setMemberAttrDefId(attributeDef.getId());
-      groupSet.setOwnerAttrDefId(attributeDef.getId());
-      groupSet.setParentId(groupSet.getId());
-      groupSet.setFieldId(field.getUuid());
+      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+      
+      Iterator<Object[]> attrDefsAndFieldsIter = attrDefsAndFields.iterator();
+      while (attrDefsAndFieldsIter.hasNext()) {
+        Object[] attrDefAndField = attrDefsAndFieldsIter.next();
+        AttributeDef attributeDef = (AttributeDef)attrDefAndField[0];
+        Field field = (Field)attrDefAndField[1];
+      
+        GroupSet groupSet = new GroupSet();
+        groupSet.setId(GrouperUuid.getUuid());
+        groupSet.setCreatorId(attributeDef.getCreatorId());
+        groupSet.setCreateTime(attributeDef.getCreatedOnDb());
+        groupSet.setDepth(0);
+        groupSet.setMemberAttrDefId(attributeDef.getId());
+        groupSet.setOwnerAttrDefId(attributeDef.getId());
+        groupSet.setParentId(groupSet.getId());
+        groupSet.setFieldId(field.getUuid());
       
         batch.add(groupSet);
         logDetail("Adding self groupSet for " + attributeDef.getName() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !attrDefsAndFieldsIter.hasNext()) {
           if (saveUpdates) {
-            GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);      
+            final Set<GroupSet> theBatch = new LinkedHashSet<GroupSet>(batch);
+            
+            GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("addMissingSelfGroupSetsForAttrDefs") {
+              
+              @Override
+              public Void callLogic() {
+                GrouperDAOFactory.getFactory().getGroupSet().saveBatch(theBatch);
+                return null;
+              }
+            };
+            
+            if (!useThreads){
+              grouperCallable.callLogic();
+            } else {
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+              futures.add(future);          
+              GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+            }
           }
           batch.clear();
         }
         
         processedCount++;
       }
+      
+      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
       
       if (attrDefsAndFields.size() > 0 && saveUpdates) {
         showStatus("Done making " + totalCount + " updates");
