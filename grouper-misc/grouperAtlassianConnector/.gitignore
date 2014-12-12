@@ -2,3 +2,4 @@
 /conf/grouper.client.properties
 /conf/log4j.properties
 spy.log
+/build.properties
