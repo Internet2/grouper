@@ -7370,6 +7370,33 @@ public class GrouperInstallerUtils  {
   }
   
   /**
+   * create a file, throw exception if doesnt work (unless already exists)
+   * @param fileToCreate
+   * @return if created
+   */
+  public static boolean fileCreate(File fileToCreate) {
+    
+    if (fileToCreate.exists() && fileToCreate.isFile()) {
+      return false;
+    }
+    
+    if (fileToCreate.exists() && !fileToCreate.isFile()) {
+      throw new RuntimeException("Trying to create file and it doesnt exist: " + fileToCreate.getAbsolutePath());
+    }
+    
+    try {
+      if (!fileToCreate.createNewFile()) {
+        throw new RuntimeException("Cant create file: " + fileToCreate);
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException("Cant create file: " + fileToCreate.getAbsolutePath(), ioe);
+    }
+
+    return true;
+    
+  }
+  
+  /**
    * get the value from the argMap, throw exception if not there and required
    * @param argMap
    * @param argMapNotUsed 
@@ -10578,7 +10605,7 @@ public class GrouperInstallerUtils  {
 
       if (file1.isDirectory() || file2.isDirectory()) {
         // don't want to compare directory contents
-        throw new IOException("Can't compare directories, only files");
+        throw new IOException("Can't compare directories, only files: " + file1.getAbsolutePath() + ", " + file2.getAbsolutePath());
       }
 
       if (file1.length() != file2.length()) {
@@ -10690,7 +10717,7 @@ public class GrouperInstallerUtils  {
     List<File> descendants = fileListRecursive(parentDir);
     for (File file : GrouperInstallerUtils.nonNull(descendants)) {
       String descendantPath = file.getAbsolutePath();
-      String parentPath = file.getAbsolutePath();
+      String parentPath = parentDir.getAbsolutePath();
       if (!descendantPath.startsWith(parentPath)) {
         throw new RuntimeException("Why doesnt descendantPath '" + descendantPath + "' start with parent path '" + parentPath + "'?");
       }
