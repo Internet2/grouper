@@ -838,7 +838,7 @@ public class GrouperInstaller {
     if (!buildPropertiesFile.exists()) {
       File buildPropertiesTemplateFile = new File(this.untarredUiDir.getAbsolutePath() + File.separator + "build.properties.template");
       System.out.println("Copying file: " + buildPropertiesTemplateFile.getAbsolutePath() + " to file: " + buildPropertiesFile);
-      GrouperInstallerUtils.copyFile(buildPropertiesTemplateFile, buildPropertiesFile);
+      GrouperInstallerUtils.copyFile(buildPropertiesTemplateFile, buildPropertiesFile, true);
     }
     
     //set the grouper property
@@ -880,9 +880,9 @@ public class GrouperInstaller {
     install {
 
       @Override
-      public void logic() {
+      public void logic(GrouperInstaller grouperInstaller) {
         
-        new GrouperInstaller().mainInstallLogic();
+        grouperInstaller.mainInstallLogic();
 
       }
     },
@@ -891,9 +891,9 @@ public class GrouperInstaller {
     upgrade {
 
       @Override
-      public void logic() {
+      public void logic(GrouperInstaller grouperInstaller) {
         
-        new GrouperInstaller().mainUpgradeLogic();
+        grouperInstaller.mainUpgradeLogic();
 
       }
     },
@@ -902,17 +902,18 @@ public class GrouperInstaller {
     patch {
 
       @Override
-      public void logic() {
+      public void logic(GrouperInstaller grouperInstaller) {
         
-        new GrouperInstaller().mainPatchLogic();
+        grouperInstaller.mainPatchLogic();
 
       }
     };
 
     /**
      * run the logic for the installer function
+     * @param grouperInstaller
      */
-    public abstract void logic();
+    public abstract void logic(GrouperInstaller grouperInstaller);
     
     /**
      * convert a string to the enum
@@ -932,7 +933,7 @@ public class GrouperInstaller {
 
     this.grouperInstallerMainFunction = this.grouperInstallerMainFunction();
     
-    this.grouperInstallerMainFunction.logic();
+    this.grouperInstallerMainFunction.logic(this);
     
   }
   
@@ -1445,7 +1446,7 @@ public class GrouperInstaller {
           boolean removeLegacy = readFromStdInBoolean(true);
           if (removeLegacy) {
             File backupLegacy = bakFile(legacyPropertiesFile);
-            GrouperInstallerUtils.copyFile(legacyPropertiesFile, backupLegacy);
+            GrouperInstallerUtils.copyFile(legacyPropertiesFile, backupLegacy, true);
             GrouperInstallerUtils.fileDelete(legacyPropertiesFile);
             System.out.println("File as removed.  Backup path: " + backupLegacy.getAbsolutePath());
           }
@@ -1537,7 +1538,7 @@ public class GrouperInstaller {
         //insert
         insertCount++;
         relativeFilePathsChangedAndIfInsert.put(relativePath, true);
-        GrouperInstallerUtils.copyFile(fileToCopyFrom, fileToCopyTo);
+        GrouperInstallerUtils.copyFile(fileToCopyFrom, fileToCopyTo, false);
         
       }
     }
@@ -2208,16 +2209,16 @@ public class GrouperInstaller {
 
     //lets backup the example and regular file
     File ehcacheBakFile = bakFile(this.ehcacheFile);
-    GrouperInstallerUtils.copyFile(this.ehcacheFile, ehcacheBakFile);
+    GrouperInstallerUtils.copyFile(this.ehcacheFile, ehcacheBakFile, true);
 
     boolean mergeFiles = true;
     
     if (this.ehcacheExampleFile != null) {
       File ehcacheExampleBakFile = bakFile(this.ehcacheExampleFile);
   
-      GrouperInstallerUtils.copyFile(this.ehcacheExampleFile, ehcacheExampleBakFile);
+      GrouperInstallerUtils.copyFile(this.ehcacheExampleFile, ehcacheExampleBakFile, true);
     } else {
-      GrouperInstallerUtils.copyFile(newEhcacheExample, this.ehcacheFile);
+      GrouperInstallerUtils.copyFile(newEhcacheExample, this.ehcacheFile, true);
       mergeFiles = false;
     }
 
@@ -2260,7 +2261,7 @@ public class GrouperInstaller {
       boolean fileExists = existingFile.exists();
       if (fileExists) {
         bakFile = bakFile(existingFile);
-        GrouperInstallerUtils.copyFile(existingFile, bakFile);
+        GrouperInstallerUtils.copyFile(existingFile, bakFile, true);
         if (printDetails) {
           System.out.println("Backing up: " + existingFile.getAbsolutePath() + " to: " + bakFile.getAbsolutePath());
         }
@@ -2268,7 +2269,7 @@ public class GrouperInstaller {
       if (printDetails) {
         System.out.println("Copying " + (fileExists ? "new file" : "upgraded file") + ": " + newFile.getAbsolutePath() + " to: " + existingFile.getAbsolutePath());
       }
-      GrouperInstallerUtils.copyFile(newFile, existingFile);
+      GrouperInstallerUtils.copyFile(newFile, existingFile, false);
       return bakFile;
       
     }
@@ -2346,7 +2347,7 @@ public class GrouperInstaller {
         
         GrouperInstallerUtils.fileMove(existingBasePropertiesFile, bakBasePropertiesFile);
         
-        GrouperInstallerUtils.copyFile(newBasePropertiesFile, existingBasePropertiesFile);
+        GrouperInstallerUtils.copyFile(newBasePropertiesFile, existingBasePropertiesFile, true);
 
       }
       
@@ -2360,7 +2361,7 @@ public class GrouperInstaller {
       if (existingBasePropertiesFile == null) {
         existingBasePropertiesFile = new File(this.upgradeExistingClassesDirectoryString + newBasePropertiesFile.getName());
       }
-      GrouperInstallerUtils.copyFile(newBasePropertiesFile, existingBasePropertiesFile);
+      GrouperInstallerUtils.copyFile(newBasePropertiesFile, existingBasePropertiesFile, true);
     }
     
     // if there is an example there, it can be removed
@@ -2428,7 +2429,7 @@ public class GrouperInstaller {
           System.out.println(existingPropertiesFile.getName() + " had redundant properties removed after being backed up to " 
               + bakPropertiesFile.getAbsolutePath());
 
-          GrouperInstallerUtils.copyFile(existingPropertiesFile, bakPropertiesFile);
+          GrouperInstallerUtils.copyFile(existingPropertiesFile, bakPropertiesFile, true);
           
           removeRedundantProperties(existingPropertiesFile, duplicateConfigPropertyNames);
           
@@ -3062,11 +3063,10 @@ public class GrouperInstaller {
 
     Map<String, Set<String>> installedPatchDependencies = new HashMap<String, Set<String>>();
     
-    OUTER: for (int i=0;i<1000;i++) {
+    for (int i=1000;i>=0;i--) {
       
       //grouper_v2_2_1_api_patch_0.state
       String keyBase = "grouper_v" + grouperVersion + "_" + thisAppToRevert.name().toLowerCase() + "_patch_" + i;
-      System.out.println("\n################ Checking patch " + keyBase);
       String key = keyBase + ".state";
 
       patchNumberToNameBase.put(i, keyBase);
@@ -3075,6 +3075,8 @@ public class GrouperInstaller {
 
       if (!GrouperInstallerUtils.isBlank(value)) {
         
+        System.out.println("\n################ Checking patch " + keyBase);
+
         GrouperInstallerPatchStatus grouperInstallerPatchStatus = GrouperInstallerPatchStatus.valueOfIgnoreCase(value, true, true);
         
         switch (grouperInstallerPatchStatus) {
@@ -3108,6 +3110,13 @@ public class GrouperInstaller {
             throw new RuntimeException("Not expecting: " + grouperInstallerPatchStatus);
         }
 
+      } else {
+        continue;
+      }
+
+      if (!this.patchesInstalled.contains(keyBase)) {
+        System.out.println("\n");
+        continue;
       }
 
       //lets see if it exists on the server
@@ -3115,11 +3124,8 @@ public class GrouperInstaller {
       
       //if no more patches
       if (patchUntarredDir == null) {
-        break OUTER;
-      }
-
-      if (!this.patchesInstalled.contains(keyBase)) {
-        System.out.println("\n");
+        System.out.print("Error: cant find directory for patch: " + keyBase + ", press <enter> to continue");
+        readFromStdIn();
         continue;
       }
 
@@ -3253,7 +3259,7 @@ public class GrouperInstaller {
             
             if (oldFileInPatch.exists() && oldFileInPatch.isFile()) {
               System.out.println("Reverting file: " + newFileInGrouper.getAbsolutePath());
-              GrouperInstallerUtils.copyFile(oldFileInPatch, newFileInGrouper);
+              GrouperInstallerUtils.copyFile(oldFileInPatch, newFileInGrouper, false);
             } else {
               System.out.println("Reverting (deleting) file: " + newFileInGrouper.getAbsolutePath());
               GrouperInstallerUtils.fileDelete(newFileInGrouper);
@@ -3570,7 +3576,7 @@ public class GrouperInstaller {
               GrouperInstallerUtils.mkdirs(oldFileInGrouper.getParentFile());
             }
             System.out.println("Applying file: " + oldFileInGrouper.getAbsolutePath());
-            GrouperInstallerUtils.copyFile(newFileInPatch, oldFileInGrouper);
+            GrouperInstallerUtils.copyFile(newFileInPatch, oldFileInGrouper, false);
           }
         }
       }
@@ -3816,7 +3822,7 @@ public class GrouperInstaller {
     if (existingJarFile == null || !existingJarFile.exists()) {
       System.out.println(newJarFile.getName() + " is a new file and is being copied to the application lib dir");
       existingJarFile = new File(toDir.getAbsoluteFile() + File.separator + newJarFile.getName());
-      GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
+      GrouperInstallerUtils.copyFile(newJarFile, existingJarFile, true);
       return true;
     }
 
@@ -3844,7 +3850,7 @@ public class GrouperInstaller {
 
       GrouperInstallerUtils.fileMove(existingJarFile, bakJarFile);
       
-      GrouperInstallerUtils.copyFile(newJarFile, existingJarFile);
+      GrouperInstallerUtils.copyFile(newJarFile, existingJarFile, true);
       
       return true;
     }
@@ -4926,8 +4932,8 @@ public class GrouperInstaller {
       
       //lets copy the new example to both the example and the configured ehcache file
       //assume this is already backed up
-      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile);
-      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheFile);
+      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile, true);
+      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheFile, true);
 
       //now lets do our edits
       if (GrouperInstallerUtils.length(diskStoreDifferences) > 0) {
@@ -5198,7 +5204,7 @@ public class GrouperInstaller {
       
       //lets copy the new example to both the example and the configured ehcache file
       //assume this is already backed up
-      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile);
+      GrouperInstallerUtils.copyFile(newEhcacheExampleFile, existingEhcacheExampleFile, true);
 
       //this is the new existing ehcache file
       existingEhcacheExampleDoc = builder.parse(existingEhcacheExampleFile);
