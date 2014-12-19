@@ -90,10 +90,14 @@
         <include name="**/*.java"/>      <!-- source -->
       </fileset>
       <fileset dir="${main.confDir}">
-        <include name="*.properties"/>      <!-- sample config -->
+        <include name="*.properties"/>                      <!-- example config -->
+        <exclude name="grouper.installer.properties"/>      <!-- actual config comes from misc -->
       </fileset>
       <fileset dir="${basedir}">
-        <include name="README.txt"/>      <!-- sample config -->
+        <include name="README.txt"/>      
+      </fileset>
+      <fileset dir="misc">
+        <include name="grouper.installer.properties"/>      <!-- default and base config -->
       </fileset>
     </copy>
   </target>
