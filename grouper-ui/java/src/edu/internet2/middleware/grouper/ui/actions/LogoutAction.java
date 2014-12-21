@@ -40,15 +40,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Top level Strut's action which invalidates HttpSession and sets cookie 
@@ -155,34 +161,69 @@ public class LogoutAction extends GrouperCapableAction {
 			if(!mediaLogged) LOG.info("logout.cookies-to-delete not present in media.properties");
 		}
 		mediaLogged=true;
-		String[] cookieNames = cookiesToDelete.split("( |,)");
-		if(cookieNames.length==1 && cookieNames[0].equals("none")) {
-			//do nothing
-		}else {
-			Cookie[] cookies = request.getCookies();
-			if(cookies!=null) {
-				for(Cookie c : cookies) {
-					for(String name : cookieNames) {
-						try {
-							if((cookieNames.length==1 && "all".equals(name)) || c.getName().equals(name) || c.getName().matches(name)) {
-								c.setMaxAge(0);
-								response.addCookie(c);
-								break;
-							}
-						}catch(Exception e) {
-							LOG.error("Error matching " + c.getName() + " with " + name,e);
-						}
-					}
-				}
-			}
+		String[] cookieNames = null;
+		if (!StringUtils.isBlank(cookiesToDelete)) {
+		  if (cookiesToDelete.contains(",")){
+		    cookieNames = GrouperUtil.splitTrim(cookiesToDelete, ",");
+		  } else if (cookiesToDelete.contains("|")) {
+        cookieNames = GrouperUtil.splitTrim(cookiesToDelete, "|");
+		  } else {
+		    cookieNames = GrouperUtil.splitTrim(cookiesToDelete, " ");
+		  }
+	    if(cookieNames.length!=1 || !cookieNames[0].equals("none")) {
+	      Cookie[] cookies = request.getCookies();
+	      if(cookies!=null) {
+	        for(Cookie c : cookies) {
+	          for(String name : cookieNames) {
+	            try {
+	              if((cookieNames.length==1 && "all".equals(name)) || c.getName().equals(name) || c.getName().matches(name)) {
+	                c.setMaxAge(0);
+	                c.setPath("/");
+	                c.setValue("");
+	                response.addCookie(c);
+	                break;
+	              }
+	            }catch(Exception e) {
+	              LOG.error("Error matching " + c.getName() + " with " + name,e);
+	            }
+	          }
+	        }
+	      }
+	    }
 		}
+
+		{
+		  //logic from lite ui
+		  
+      //see if cookies
+      String cookiePrefix = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.logout.cookie.prefix");
+      if (!StringUtils.isBlank(cookiePrefix)) {
+        String[] cookiePrefixes = GrouperUtil.splitTrim(cookiePrefix, ",");
+        for (String theCookiePrefix : cookiePrefixes) {
+          GrouperUiUtils.removeCookiesByPrefix(theCookiePrefix);
+        }
+      }
+  
+      //custom logic
+      GrouperUiCustomizer.instance().logout();
+		}
+		
 		LOG.info("User logged out");
 		session.invalidate();
 		SessionInitialiser.init(request);
-		String m = request.getAuthType();
+		
+		//CH: 2014/12/21: I dont know what this is
 		Cookie cookie = new Cookie("_grouper_loggedOut", "true");
 		response.addCookie(cookie);
 		request.setAttribute("loggedOut", Boolean.TRUE);
+		
+		//see if redirect
+    String logoutRedirect = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.logout.redirectToUrl");
+		
+    if (!StringUtils.isBlank(logoutRedirect)) {
+      response.sendRedirect(logoutRedirect);
+    }
+    
 		return mapping.findForward(FORWARD_Index);
 	}
 }
