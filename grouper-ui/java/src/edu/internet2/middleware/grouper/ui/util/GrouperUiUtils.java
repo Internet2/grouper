@@ -1134,6 +1134,7 @@ public class GrouperUiUtils {
       cookie.setMaxAge(0);
       //note: this is needed for websec cookies... is it for all cookies?
       cookie.setPath("/");
+      cookie.setValue("");
       httpServletResponse.addCookie(cookie);
       
       if (httpServletResponse.isCommitted()) {
