@@ -32,6 +32,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -49,6 +50,8 @@ import org.apache.struts.action.ActionMapping;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
@@ -142,7 +145,24 @@ public class LogoutAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session,GrouperSession grouperSession)
 			throws Exception {
-		String user = SessionInitialiser.getAuthUser(session);
+	  
+		if (!logoutLogic(request, response, session, false)) {
+		  return null;
+		}
+    
+		return mapping.findForward(FORWARD_Index);
+	}
+
+  /**
+   * @param request
+   * @param response
+   * @param session
+   * @param ajax if ajax call
+   * @return true if ok, false if redirected
+   */
+  public static boolean logoutLogic(HttpServletRequest request, HttpServletResponse response,
+      HttpSession session, boolean ajax) {
+    String user = SessionInitialiser.getAuthUser(session);
 		if (user == null)
 			user = "";
 		if("BASIC".equals(request.getAuthType())) {
@@ -209,21 +229,33 @@ public class LogoutAction extends GrouperCapableAction {
 		}
 		
 		LOG.info("User logged out");
-		session.invalidate();
+		if (session != null) {
+	    session.invalidate();
+		}
 		SessionInitialiser.init(request);
 		
 		//CH: 2014/12/21: I dont know what this is
 		Cookie cookie = new Cookie("_grouper_loggedOut", "true");
 		response.addCookie(cookie);
 		request.setAttribute("loggedOut", Boolean.TRUE);
-		
-		//see if redirect
+
+    //see if redirect
     String logoutRedirect = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.logout.redirectToUrl");
-		
-    if (!StringUtils.isBlank(logoutRedirect)) {
-      response.sendRedirect(logoutRedirect);
-    }
     
-		return mapping.findForward(FORWARD_Index);
-	}
+    if (!StringUtils.isBlank(logoutRedirect)) {
+      if (ajax) {
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '../../logout.do'"));
+      } else {
+        try {
+          response.sendRedirect(logoutRedirect);
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

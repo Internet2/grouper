@@ -27,6 +27,8 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.ui.actions.LogoutAction;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -60,18 +62,11 @@ public class Misc {
    * @param response
    */
   public void logout(HttpServletRequest request, HttpServletResponse response) {
-    
-    //see if cookies
-    String cookiePrefix = GrouperUiConfig.retrieveConfig().propertyValueString("grouperUi.logout.cookie.prefix");
-    if (!StringUtils.isBlank(cookiePrefix)) {
-      String[] cookiePrefixes = GrouperUtil.splitTrim(cookiePrefix, ",");
-      for (String theCookiePrefix : cookiePrefixes) {
-        GrouperUiUtils.removeCookiesByPrefix(theCookiePrefix);
-      }
-    }
 
-    //custom logic
-    GrouperUiCustomizer.instance().logout();
+    if (!LogoutAction.logoutLogic(request, response, request.getSession(false), true)) {
+      //not sure why this would happen, we are in ajax
+      //throw new ControllerDone();
+    }
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
