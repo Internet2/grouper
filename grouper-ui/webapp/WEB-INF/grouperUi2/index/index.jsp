@@ -21,8 +21,11 @@
               </form>
             </div>
             <div class="navbar-text pull-right">${textContainer.text['indexLoggedInAs'] } 
-              ${guiSettings.loggedInSubject.shortLink} &middot; 
-              <a href="../../logout.do" class="navbar-link">${textContainer.text['indexLogoutLink']}</a> 
+              ${guiSettings.loggedInSubject.shortLink} 
+              <c:if test="${mediaMap['logout.link.show']=='true'}">
+                &middot; 
+                <a href="../../logout.do" class="navbar-link">${textContainer.text['indexLogoutLink']}</a> 
+              </c:if>
               <%-- MCH 20140406: not sure what to do with help... 
               &middot; <a href="#" class="navbar-link">Help</a> --%>
              </div>
