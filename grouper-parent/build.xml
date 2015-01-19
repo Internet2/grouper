@@ -27,6 +27,35 @@
         <ant antfile="../grouper-ui/dist/grouper/WEB-INF/build.xml" target="deploy" useNativeBasedir="true"/>
     </target>
 
+    <target name="hsql-start">
+		<java fork="true" spawn="false" maxmemory="160M" dir=".." classname="org.hsqldb.Server">
+	        <classpath>
+         	  	<pathelement location="../grouper/lib/jdbcSamples/hsqldb.jar"/>
+         	</classpath>
+	        <arg value="--database.0" />
+	        <arg value="file:hsql/grouperHSQL" />
+	        <arg value="--dbname.0" />
+	        <arg value="grouper" />
+	        <arg value="--address" />
+	        <arg value="localhost" />
+	        <arg value="--port" />
+	        <arg value="9001" />
+        </java>
+    </target>
+
+    <target name="hsql-destroy">
+		<java fork="true" spawn="false" maxmemory="160M" dir=".." classname="org.hsqldb.util.SqlTool">
+	        <classpath>
+         	  	<pathelement location="../grouper/lib/jdbcSamples/hsqldb.jar"/>
+         	</classpath>
+         	<arg value="--rcFile" />
+            <arg value="./grouper/lib/jdbcSamples/hsqldb.rc" />
+            <arg value="--sql" />
+            <arg value="shutdown compact;" />
+            <arg value="grouper" />
+        </java>
+    </target>
+
     <target name="all" depends="grouper, grouper-ws, grouper-client, subject, grouper-ui" />
     
 </project>
