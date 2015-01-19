@@ -19,7 +19,8 @@ Grouper releases can be downloaded from [here](https://spaces.internet2.edu/disp
 ## Documentation
 
 * Grouper wiki is available [here](https://spaces.internet2.edu/display/Grouper/Grouper+Wiki+Home).
-* API documentation is available [here](http://internet2.github.io/grouper/)
+* API documentation is available [here](http://internet2.github.io/grouper/).
+* Issue tracking system is available [here](https://bugs.internet2.edu/jira/browse/GRP).
 
 ## Build [![Build Status](https://api.travis-ci.org/Internet2/grouper.png)](http://travis-ci.org/Internet2/grouper)
 
