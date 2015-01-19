@@ -40,9 +40,9 @@
   <target name="deploy" depends="undeploy,init" >
     <!-- Create the distribution directory -->
     <delete file="${war}.war"/>
-	<jar jarfile="${war}.war" basedir="${dist}"/>    
-  	<copy file="${war}.war" todir="${domain}"/>
-   <delete file="${war}.war"/>
+    <jar jarfile="${war}.war" basedir="${dist}"/>    
+    <copy file="${war}.war" todir="${domain}"/>
+    <delete file="${war}.war"/>
     <!-- Create the distribution directory -->
    <delete dir="${dist}"/>
 
