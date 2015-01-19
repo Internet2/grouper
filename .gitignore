@@ -32,3 +32,6 @@ grouper-misc/grouperClient/misc/README.txt
 
 subject/dist/
 subject/doc/
+**/build/dist/**/*.jar
+grouper-ws/grouper-ws/build/*
+grouper-ws/grouper-ws/webapp/WEB-INF/lib/*
