@@ -30,6 +30,8 @@
 
 package edu.internet2.middleware.grouper.subj;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.subject.LazySource;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -53,14 +55,55 @@ public class UnresolvableSubject extends SubjectImpl {
   private Source subjectSource = null;
 
   /**
+   * string to label unresolvable
+   */
+  private String unresolvableString = null;
+  
+  /**
+   * string to label unresolvable
+   * @return the unresolvableString
+   */
+  public String getUnresolvableString() {
+    return this.unresolvableString;
+  }
+
+  /**
    * 
    * @param subjectId
    * @param subjectTypeId
    * @param sourceId
    */
   public UnresolvableSubject(String subjectId, String subjectTypeId, String sourceId) {
-    super(subjectId, "Unresolvable:" + subjectId, "Unresolvable:" + subjectId,
+    this(subjectId, subjectTypeId, sourceId, "Unresolvable");
+  }
+
+  /**
+   * format an id and unresolvable string with a colon
+   * @param unresolvableString
+   * @param id
+   * @return the string
+   */
+  private static String formatUnresolvableString(String unresolvableString, String id) {
+    if (!StringUtils.isBlank(id)) {
+      return unresolvableString + ": " + id;
+    }
+    return unresolvableString;
+  }
+  
+  /**
+   * 
+   * @param subjectId
+   * @param subjectTypeId
+   * @param sourceId
+   * @param theUnresolvableString string to be before the subject id
+   */
+  public UnresolvableSubject(String subjectId, String subjectTypeId, 
+      String sourceId, String theUnresolvableString) {
+    //note, if you change this "Unresolvable:", you need to change it in the UI too where it is subsituted
+    super(subjectId, formatUnresolvableString(theUnresolvableString, subjectId), 
+        formatUnresolvableString(theUnresolvableString, subjectId),
         subjectTypeId, sourceId);
+    this.unresolvableString = theUnresolvableString;
   }
 
   /**

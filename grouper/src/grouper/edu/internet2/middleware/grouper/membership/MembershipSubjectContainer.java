@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -731,7 +732,7 @@ public class MembershipSubjectContainer {
   
   /**
    * convert memberships into membership subject containers
-   * @param membershipResults
+   * @param memberships
    * @param fields
    * @param includeInheritedPrivileges
    * @return the containers per user
@@ -782,6 +783,12 @@ public class MembershipSubjectContainer {
         for (String memberId : memberIdToSubjectBean.keySet()) {
           SubjectBean subjectBean = memberIdToSubjectBean.get(memberId);
           Subject subject = subjectBeanToSubject.get(subjectBean);
+
+          //20150119: CH: GRP-1100 grouper new ui not showing unresolvable subjects correctly
+          if (subject == null) {
+            subject = new UnresolvableSubject(subjectBean.getId(), null, subjectBean.getSourceId());  
+          }
+          
           memberIdToSubject.put(memberId, subject);
         }
       }

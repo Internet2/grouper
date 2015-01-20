@@ -217,6 +217,7 @@ public class LazySubject implements Subject {
             );
         return subject;
       } catch (SubjectNotFoundException snfe) {
+        //dont change this unless you change the UI code too
         error[0] = this.member.getSubjectId() + " entity not found";
       } catch (SourceUnavailableException eSU) {
         error[0] = this.member.getSubjectId() + " source unavailable "
