@@ -29,18 +29,14 @@
  */
 package edu.internet2.middleware.grouper.ui.tags;
 
-import java.io.IOException;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import org.apache.commons.lang.StringUtils;
 
-import javax.enterprise.deploy.model.J2eeApplicationObject;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.strutsel.taglib.utils.EvalHelper;
-
-import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import java.io.IOException;
 
 /**
  * <pre>

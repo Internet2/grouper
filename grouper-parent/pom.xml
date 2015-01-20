@@ -35,6 +35,7 @@
         <module>../grouper</module>
         <module>../grouper-misc/grouper-shib</module>
         <module>../grouper-misc/grouperScim</module>
+        <module>../grouper-ui</module>
     </modules>
 
     <properties>
