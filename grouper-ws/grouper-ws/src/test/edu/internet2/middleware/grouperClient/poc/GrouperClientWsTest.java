@@ -2083,10 +2083,10 @@ public class GrouperClientWsTest extends GrouperTest {
     Pattern pattern = null;
     Matcher matcher = null;
     try {
-      systemOut.println("Umlaut: ä");
+      systemOut.println("Umlaut: Ã¼");
       //try with name with slash
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupSaveWs --name=aStem:newGroup0ä", " "));
+          "--operation=groupSaveWs --name=aStem:newGroup0Ã¼", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -2095,14 +2095,14 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(systemOut);
 
       outputLines = GrouperClientUtils.splitTrim(output, "\n");
-//ä
+
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
 
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_INSERTED", matcher.group(1));
-      assertEquals("aStem:newGroup0ä", matcher.group(2));
+      assertEquals("aStem:newGroup0ï¿½", matcher.group(2));
       
       // ##########################
       //try with name with slash

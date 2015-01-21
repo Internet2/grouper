@@ -31,7 +31,7 @@
     <name>Grouper UI</name>
     <description>Internet2 Groups Management User Interface</description>
     <artifactId>grouper-ui</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
@@ -345,25 +345,6 @@
                             <sources>
                                 <source>srcPoc</source>
                             </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- copy conf/*.properties to conf/* -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <property name="runtime-classpath" refid="maven.runtime.classpath" />
-                                <ant target="dist" inheritRefs="true" />
-                            </tasks>
                         </configuration>
                     </execution>
                 </executions>
