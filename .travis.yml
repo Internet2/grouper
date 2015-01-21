@@ -20,11 +20,11 @@ jdk:
 before_script:
 - cd grouper-parent
 install:
+- cd grouper-parent
 - mvn install -Dmaven.javadoc.skip=true -DskipTests=true -B -V -q 
 script:
 - mvn clean package -DskipTests=true
 before_install:
-- cd grouper-parent
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh
 after_success:
