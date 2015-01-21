@@ -19,6 +19,8 @@ jdk:
 - oraclejdk8
 before_script:
 - cd grouper-parent
+install:
+- mvn install -Dmaven.javadoc.skip=true -DskipTests=true -B -V -q 
 script:
 - mvn clean package -DskipTests=true
 before_install:
