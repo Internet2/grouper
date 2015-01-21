@@ -24,6 +24,7 @@ install:
 script:
 - mvn clean package -DskipTests=true
 before_install:
+- cd grouper-parent
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh
 after_success:
