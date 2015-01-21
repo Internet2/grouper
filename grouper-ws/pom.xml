@@ -37,7 +37,7 @@
         <module>grouper-ws</module>
         <module>grouper-ws-java-generated-client</module>
         <module>grouper-ws-java-manual-client</module>
-        <!--<module>grouper-ws-test</module>-->
+        <module>grouper-ws-test</module>
     </modules>
 	
     <dependencies>
