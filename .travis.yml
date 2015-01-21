@@ -16,7 +16,6 @@ jdk:
 - oraclejdk7
 - openjdk6
 - openjdk7
-- oraclejdk8
 install:
 - mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q 
 script:
@@ -26,7 +25,6 @@ before_install:
 - ./travis/init-travis-build.sh
 after_success:
 - mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura
-- cd ..
 - chmod -R 777 travis/javadocs-ghpages.sh
 - travis/javadocs-ghpages.sh
 env:
