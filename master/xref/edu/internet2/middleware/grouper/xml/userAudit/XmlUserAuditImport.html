@@ -1,0 +1,507 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>XmlUserAuditImport xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../apidocs/edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditImport.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_javadoccomment"> * Copyright 2014 Internet2</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_javadoccomment"> * Licensed under the Apache License, Version 2.0 (the "License");</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_javadoccomment"> * you may not use this file except in compliance with the License.</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_javadoccomment"> * You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> *   <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Unless required by applicable law or agreed to in writing, software</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * distributed under the License is distributed on an "AS IS" BASIS,</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * See the License for the specific language governing permissions and</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> * limitations under the License.</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * @author mchyzer</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> * $Id: XmlUserAuditImport.java,v 1.3 2009-09-02 05:57:26 mchyzer Exp $</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouper.xml.userAudit;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.File;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.collections.keyvalue.MultiKey;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.lang.StringUtils;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> org.apache.commons.logging.Log;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> org.dom4j.DocumentException;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> org.dom4j.Element;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> org.dom4j.ElementHandler;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">import</strong> org.dom4j.ElementPath;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> org.dom4j.io.SAXReader;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> org.hibernate.Session;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <strong class="jxr_keyword">import</strong> com.thoughtworks.xstream.XStream;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> com.thoughtworks.xstream.io.xml.Dom4JReader;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.Member;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.MemberFinder;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.audit.AuditEntry;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.audit.AuditType;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.AuditControl;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.hibernate.HibernateSession;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouper.util.GrouperUtil;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.subject.provider.SubjectImpl;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditImport.html">XmlUserAuditImport</a> {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">   * logger </em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>    @SuppressWarnings(<span class="jxr_string">"unused"</span>)
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Log LOG = GrouperUtil.getLog(XmlUserAuditImport.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">   * @param args</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlUserAuditImport.html">XmlUserAuditImport</a>().readUserAudits(<strong class="jxr_keyword">new</strong> File(<span class="jxr_string">"c:/temp/export.xml"</span>));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>    }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">   * version of grouper which exported the export file</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>    <strong class="jxr_keyword">private</strong> String importFileVersion = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>    
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>    <em class="jxr_javadoccomment">/** count of members/audits/types who have the same uuid in import file and DB */</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> existingCount = 0;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>    
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>    <em class="jxr_javadoccomment">/** count of members/audits/types arent in the existing DB (will have the same uuid */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> newCount = 0;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>    
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>    <em class="jxr_javadoccomment">/** count of members/audits/types in import file */</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> totalCount = 0;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>    
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>    <em class="jxr_javadoccomment">/** count of members/audits/types are in the DB under a different UUID, so there is a translation */</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>    <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> changeCount = 0;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>    
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>    <em class="jxr_javadoccomment">/** xstream object which does the object conversion */</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>    <strong class="jxr_keyword">private</strong> XStream xStream = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>    <em class="jxr_javadoccomment">/** all members in registry from uuid to xml member object (uuid, subjectId, sourceId) */</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>    <strong class="jxr_keyword">private</strong> Map&lt;String, XmlMember&gt; allMembersInRegistry = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>    
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>    <em class="jxr_javadoccomment">/** all members in the registry from multikey(sourceId/subjectId) to xmlSubject */</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>    <strong class="jxr_keyword">private</strong> Map&lt;MultiKey, XmlMember&gt; allMembersInRegistryBySubject = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>    
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>   <em class="jxr_javadoccomment">/** map from file uuid to registry uuid if there was a change */</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; memberIdTranslation = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>   
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>   <em class="jxr_javadoccomment">/** list of all types in the DB before import */</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>   <strong class="jxr_keyword">private</strong> Set&lt;AuditType&gt; allAuditTypesInDb = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>   
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>   <em class="jxr_javadoccomment">/** if there is a translation of audit type, then this is the old and new uuid */</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, String&gt; auditTypeTranslation = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>   
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>   <em class="jxr_javadoccomment">/** grouper's hibernate session */</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>   <em class="jxr_javadoccomment">/** session (hib object) */</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>   <strong class="jxr_keyword">private</strong> Session session = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>   
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">   * @param importFile </em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> readUserAudits(<strong class="jxr_keyword">final</strong> File importFile) {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>   
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>   
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>           <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>               <strong class="jxr_keyword">throws</strong> <a href="../../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>   
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>               
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>               xStream = XmlUserAuditExport.xstream();
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>               
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>               XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.hibernateSession = hibernateHandlerBean.getHibernateSession();
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>               XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.session = hibernateSession.getSession();
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>               
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>               SAXReader reader = <strong class="jxr_keyword">new</strong> SAXReader();
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>               
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>               reader.addHandler( <span class="jxr_string">"/userAudits"</span>, 
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                         Element userAudit = path.getCurrent();
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                         XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.importFileVersion = userAudit.attributeValue(<span class="jxr_string">"version"</span>);
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                         XmlUserAuditExport.logInfoAndPrintToScreen(
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                             <span class="jxr_string">"userAudit import: reading document: "</span> + GrouperUtil.fileCanonicalPath(importFile) 
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                              + <span class="jxr_string">", version: "</span> + XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.importFileVersion);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                       }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                         <em class="jxr_comment">//we done!</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                       }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                   }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>               );
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>               reader.addHandler( <span class="jxr_string">"/userAudits/xmlMembers"</span>, 
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>                           clearCounts();    
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>                           initMembers();
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                       }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                           <em class="jxr_comment">// process a ROW element</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                           Element row = path.getCurrent();
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>           
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>                           <em class="jxr_comment">// prune the tree</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>                           row.detach();
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                           logInfoAndPrintCounts(<span class="jxr_string">"members"</span>);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                       }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                   }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>               );
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>               reader.addHandler( <span class="jxr_string">"/userAudits/xmlMembers/XmlMember"</span>, 
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                           <em class="jxr_comment">// do nothing here...    </em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>                       }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                           <em class="jxr_comment">// process a ROW element</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                           Element row = path.getCurrent();
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>           
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                           <em class="jxr_comment">// prune the tree</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>                           row.detach();
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>                           <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlMember.html">XmlMember</a> xmlMemberFromFile = (XmlMember)xStream.unmarshal(<strong class="jxr_keyword">new</strong> Dom4JReader(row));
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                           
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                           XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.processXmlMemberFromFile(xmlMemberFromFile);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                           
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>                       }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                   }
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>               );
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>               <em class="jxr_comment">//outer audit types element</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>               reader.addHandler( <span class="jxr_string">"/userAudits/xmlAuditTypes"</span>, 
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>                         clearCounts();    
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>                         <em class="jxr_comment">//get all xml audit type from the DB</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                         XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.allAuditTypesInDb = GrouperDAOFactory.getFactory().getAuditType().findAll();
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>                         XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.auditTypeTranslation = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;();
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>                         
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>                       }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                           <em class="jxr_comment">// process a ROW element</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                           Element row = path.getCurrent();
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>           
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                           <em class="jxr_comment">// prune the tree</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                           row.detach();
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> 
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>                           logInfoAndPrintCounts(<span class="jxr_string">"auditTypes"</span>);
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>                       }
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>                   }
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>               );
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>               <em class="jxr_comment">//inner audit type element</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>               reader.addHandler( <span class="jxr_string">"/userAudits/xmlAuditTypes/XmlAuditType"</span>, 
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>                           <em class="jxr_comment">// do nothing here...    </em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>                       }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>                           <em class="jxr_comment">// process a ROW element</em>
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>                           Element row = path.getCurrent();
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>           
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>                           <em class="jxr_comment">// prune the tree</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                           row.detach();
+<a class="jxr_linenumber" name="L223" href="#L223">223</a> 
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                           <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditType.html">XmlAuditType</a> xmlAuditTypeFromFile = (XmlAuditType)xStream.unmarshal(<strong class="jxr_keyword">new</strong> Dom4JReader(row));
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                           
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>                           XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.processXmlAuditTypeFromFile(xmlAuditTypeFromFile);
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>                           
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>                       }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>                   }
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>               );
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>               <em class="jxr_comment">//outer audit entries element</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>               reader.addHandler( <span class="jxr_string">"/userAudits/xmlAuditEntries"</span>, 
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>                         clearCounts();
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                         
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>                       }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>                           <em class="jxr_comment">// process a ROW element</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>                           Element row = path.getCurrent();
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>           
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>                           <em class="jxr_comment">// prune the tree</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>                           row.detach();
+<a class="jxr_linenumber" name="L245" href="#L245">245</a> 
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                           logInfoAndPrintCounts(<span class="jxr_string">"auditEntries"</span>);
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>                       }
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>                   }
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>               );
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> 
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>               <em class="jxr_comment">//inner audit entry element</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>               reader.addHandler( <span class="jxr_string">"/userAudits/xmlAuditEntries/XmlAuditEntry"</span>, 
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>                   <strong class="jxr_keyword">new</strong> ElementHandler() {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onStart(ElementPath path) {
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                           <em class="jxr_comment">// do nothing here...    </em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                       }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>                       <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> onEnd(ElementPath path) {
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                           <em class="jxr_comment">// process a ROW element</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                           Element row = path.getCurrent();
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>           
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                           <em class="jxr_comment">// prune the tree</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>                           row.detach();
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                           <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditEntry.html">XmlAuditEntry</a> xmlAuditEntryFromFile = (XmlAuditEntry)xStream.unmarshal(<strong class="jxr_keyword">new</strong> Dom4JReader(row));
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                           
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                           XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.processXmlAuditEntryFromFile(xmlAuditEntryFromFile);
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                           
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                       }
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>                   }
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>               );
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>               reader.read(importFile);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             } <strong class="jxr_keyword">catch</strong> (DocumentException de) {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>               <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem reading file: "</span> + GrouperUtil.fileCanonicalPath(importFile));
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>             }
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>           }
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     });
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>   }
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> 
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">   * init members from db</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> initMembers() {
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     <em class="jxr_comment">//lets cache the current members in the DB</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     allMembersInRegistry = XmlMember.retrieveAllMembers(session);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">if</strong> (LOG.isInfoEnabled()) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>       LOG.info(<span class="jxr_string">"userAudit import: Read in "</span> + allMembersInRegistry.size() + <span class="jxr_string">" members into cache"</span>);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <em class="jxr_comment">//lets make a reverse lookup too based on sourceId and subjectId</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     allMembersInRegistryBySubject = <strong class="jxr_keyword">new</strong> HashMap&lt;MultiKey, XmlMember&gt;();
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <strong class="jxr_keyword">for</strong> (XmlMember xmlMember : allMembersInRegistry.values()) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>       
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>       allMembersInRegistryBySubject.put(<strong class="jxr_keyword">new</strong> MultiKey(xmlMember.getSourceId(), xmlMember.getSubjectId()), xmlMember);
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>       
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     }
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>     <strong class="jxr_keyword">if</strong> (LOG.isInfoEnabled()) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>       LOG.info(<span class="jxr_string">"userAudit import: Created reverse lookup member cache"</span>);
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>     
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <em class="jxr_comment">//map from old member id to new member id</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     memberIdTranslation = <strong class="jxr_keyword">new</strong> HashMap&lt;String, String&gt;();
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>   }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>   
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">   * @param xmlMemberFromFile</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processXmlMemberFromFile(<a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlMember.html">XmlMember</a> xmlMemberFromFile) {
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <strong class="jxr_keyword">this</strong>.totalCount++;
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>     
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlMember.html">XmlMember</a> xmlMemberInDb = allMembersInRegistry.get(xmlMemberFromFile.getUuid());
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>     
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>     <strong class="jxr_keyword">if</strong> (xmlMemberInDb != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>       LOG.debug(<span class="jxr_string">"userAudit import: read existing member: "</span> + xmlMemberFromFile.toString());
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>       XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.existingCount++;
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     }
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     xmlMemberInDb = allMembersInRegistryBySubject.get(
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">new</strong> MultiKey(xmlMemberFromFile.getSourceId(), xmlMemberFromFile.getSubjectId()));
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>     
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <strong class="jxr_keyword">if</strong> (xmlMemberInDb != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>       <em class="jxr_comment">//change in uuid</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>       LOG.debug(<span class="jxr_string">"userAudit import: read member with changed uuid: "</span> 
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>           + xmlMemberFromFile.toString() + <span class="jxr_string">", to uuid: "</span> + xmlMemberInDb.getUuid());
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>       
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>       XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.changeCount++;
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>       memberIdTranslation.put(xmlMemberFromFile.getUuid(), xmlMemberInDb.getUuid());
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     }
+<a class="jxr_linenumber" name="L337" href="#L337">337</a> 
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.newCount++;
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>     
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>     <em class="jxr_comment">//this is a new member</em>
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     LOG.debug(<span class="jxr_string">"userAudit import: read new member: "</span> 
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         + xmlMemberFromFile.toString());
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <a href="../../../../../../edu/internet2/middleware/subject/provider/SubjectImpl.html">SubjectImpl</a> simpleSubject = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/subject/provider/SubjectImpl.html">SubjectImpl</a>(
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         xmlMemberFromFile.getSubjectId(), xmlMemberFromFile.getSubjectId(), 
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         xmlMemberFromFile.getSubjectId(), SubjectTypeEnum.PERSON.getName(), xmlMemberFromFile.getSourceId());
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>     <a href="../../../../../../edu/internet2/middleware/grouper/Member.html">Member</a> member = MemberFinder.internal_findBySubject(simpleSubject, xmlMemberFromFile.getUuid(), <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>  
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">if</strong> (!StringUtils.equals(member.getUuid(), xmlMemberFromFile.getUuid())) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why is member uuid not inserted??? "</span> + xmlMemberFromFile);
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>   }
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> <em class="jxr_javadoccomment">   * @param xmlAuditTypeFromFile</em>
+<a class="jxr_linenumber" name="L356" href="#L356">356</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processXmlAuditTypeFromFile(<a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditType.html">XmlAuditType</a> xmlAuditTypeFromFile) {
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditTypeInDb = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">for</strong> (AuditType auditType : <strong class="jxr_keyword">this</strong>.allAuditTypesInDb) {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>       
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>       <strong class="jxr_keyword">if</strong> (StringUtils.equals(xmlAuditTypeFromFile.getId(), auditType.getId())) {
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         auditTypeInDb = auditType;
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>       }
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>       
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>       <strong class="jxr_keyword">if</strong> (StringUtils.equals(xmlAuditTypeFromFile.getAuditCategory(), auditType.getAuditCategory())
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>           &amp;&amp; StringUtils.equals(xmlAuditTypeFromFile.getActionName(), auditType.getActionName())) {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         auditTypeInDb = auditType;
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>       }
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>       
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>     }
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>     
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditType.html">AuditType</a> auditTypeFromFile = xmlAuditTypeFromFile.toAuditType();
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>   
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     GrouperUtil.substituteStrings(<strong class="jxr_keyword">this</strong>.memberIdTranslation, auditTypeFromFile);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.totalCount++;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <em class="jxr_comment">//if new entry</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <strong class="jxr_keyword">if</strong> (auditTypeInDb == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>       LOG.debug(<span class="jxr_string">"userAudit import: read new auditType: "</span> + auditTypeFromFile.toStringDeep()); 
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>       GrouperDAOFactory.getFactory().getAuditType().saveOrUpdate(auditTypeFromFile);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>       XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.newCount++;
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>     }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>     <em class="jxr_comment">//see if translating</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     <strong class="jxr_keyword">boolean</strong> translatingId = !StringUtils.equals(auditTypeFromFile.getId(), auditTypeInDb.getId());
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>     <strong class="jxr_keyword">if</strong> (translatingId) {
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>       <strong class="jxr_keyword">this</strong>.auditTypeTranslation.put(auditTypeFromFile.getId(), auditTypeInDb.getId());
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>     
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     <strong class="jxr_keyword">if</strong> (auditTypeFromFile.equalsDeep(auditTypeInDb)) {
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>       XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.existingCount++;
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>       <strong class="jxr_keyword">if</strong> (!translatingId) {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <em class="jxr_comment">//they are equal, let it be</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>         LOG.debug(<span class="jxr_string">"userAudit import: auditType exists in DB: "</span> + auditTypeFromFile); 
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>       }
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>       
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>       <em class="jxr_comment">//they are equal except for id</em>
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>       LOG.debug(<span class="jxr_string">"userAudit import: auditType exists in DB with different UUID: "</span> + auditTypeFromFile 
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>           + <span class="jxr_string">", new id: "</span> + auditTypeInDb.getId()); 
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>       
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>     }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>   
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>     <em class="jxr_comment">//at this point, it exists, but its not the same</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.changeCount++;
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>     LOG.debug(<span class="jxr_string">"userAudit import: auditType exists in DB but is different, will be: "</span> + auditTypeFromFile); 
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>     
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>     auditTypeFromFile.setId(auditTypeInDb.getId());
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     auditTypeFromFile.setHibernateVersionNumber(auditTypeInDb.getHibernateVersionNumber());
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     GrouperDAOFactory.getFactory().getAuditType().saveOrUpdate(auditTypeFromFile);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>   }
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">   * @param xmlAuditEntryFromFile</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processXmlAuditEntryFromFile(<a href="../../../../../../edu/internet2/middleware/grouper/xml/userAudit/XmlAuditEntry.html">XmlAuditEntry</a> xmlAuditEntryFromFile) {
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> 
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a> auditEntryInDb = GrouperDAOFactory.getFactory().getAuditEntry()
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>       .findById(xmlAuditEntryFromFile.getId(), false);
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <a href="../../../../../../edu/internet2/middleware/grouper/audit/AuditEntry.html">AuditEntry</a> auditEntryFromFile = xmlAuditEntryFromFile.toAuditEntry();
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>     <strong class="jxr_keyword">boolean</strong> newMemberId = GrouperUtil.substituteStrings(<strong class="jxr_keyword">this</strong>.memberIdTranslation, auditEntryFromFile);
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.totalCount++;
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>     
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>     <em class="jxr_comment">//if new entry</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <strong class="jxr_keyword">if</strong> (auditEntryInDb == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>       LOG.debug(<span class="jxr_string">"userAudit import: read new auditEntry: "</span> + auditEntryFromFile.toStringDeep()); 
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>       GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(auditEntryFromFile);
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>       XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.newCount++;
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     }
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>     
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>     <strong class="jxr_keyword">if</strong> (auditEntryFromFile.equalsDeep(auditEntryInDb)) {
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>       <em class="jxr_comment">//they are equal, let it be</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>       XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.existingCount++;
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>       LOG.debug(<span class="jxr_string">"userAudit import: auditEntry exists in DB: "</span> + auditEntryFromFile); 
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>       
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.changeCount++;
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>       
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     <em class="jxr_comment">//lets see if the auditType changed</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>     String newAuditTypeId = <strong class="jxr_keyword">this</strong>.auditTypeTranslation.get(auditEntryFromFile.getAuditTypeId());
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">boolean</strong> needsNewAuditTypeId = !StringUtils.isBlank(newAuditTypeId);
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     <strong class="jxr_keyword">if</strong> (needsNewAuditTypeId) {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>       auditEntryFromFile.setAuditTypeId(newAuditTypeId);
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     }
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     <em class="jxr_comment">//see if there are member uuids to change</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <em class="jxr_comment">//they are equal except for id</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     LOG.debug(<span class="jxr_string">"userAudit import: auditEntry exists in DB with same UUID and different values "</span> +
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     		<span class="jxr_string">"(typeChange? "</span> + (needsNewAuditTypeId ? <span class="jxr_string">"T"</span> : <span class="jxr_string">"F"</span>) + <span class="jxr_string">", memberIdChange? "</span> 
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     		+ (newMemberId ? <span class="jxr_string">"T"</span> : <span class="jxr_string">"F"</span>) + <span class="jxr_string">"): "</span> + auditEntryFromFile); 
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     auditEntryFromFile.setId(auditEntryInDb.getId());
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     auditEntryFromFile.setHibernateVersionNumber(auditEntryInDb.getHibernateVersionNumber());
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>     GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(auditEntryFromFile);
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>     
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>   }
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> 
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> clearCounts() {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.changeCount = 0;    
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.newCount = 0;    
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.existingCount = 0;    
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.totalCount = 0;
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>   }
+<a class="jxr_linenumber" name="L481" href="#L481">481</a> 
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">   * @param label</em>
+<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> logInfoAndPrintCounts(String label) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>     XmlUserAuditExport.logInfoAndPrintToScreen(
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <span class="jxr_string">"userAudit import: completed with "</span> + StringUtils.rightPad(label + <span class="jxr_string">":"</span>, 13) + <span class="jxr_string">" total: "</span> 
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         + XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.totalCount + <span class="jxr_string">", new: "</span> 
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         + XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.newCount + <span class="jxr_string">", existing: "</span> 
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         + XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.existingCount + <span class="jxr_string">", changed: "</span>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         + XmlUserAuditImport.<strong class="jxr_keyword">this</strong>.changeCount);
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>   }
+<a class="jxr_linenumber" name="L493" href="#L493">493</a> 
+<a class="jxr_linenumber" name="L494" href="#L494">494</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2015 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+</body>
+</html>
