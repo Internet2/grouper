@@ -1,7 +1,7 @@
 #!/bin/bash
 
 invokeJavadoc=false
-grouperDocsDirectory="/tmp/grouper-parent"
+grouperDocsDirectory="/tmp"
 
 # Only invoke the javadoc deployment process
 # for the first job in the build matrix, so as
@@ -20,7 +20,7 @@ if [ "$invokeJavadoc" == true ]; then
   
   echo -e "Invoking Maven to generate the site documentation...\n"
   echo "Current working directory is $PWD"
-  mvn -f ./grouper-parent -Dlicense.skip=true -DskipTests=true site site:deploy -q -ff -B
+  mvn -f ./grouper-parent -Dlicense.skip=true -DskipTests=true site site:deploy -ff -B
   
   echo -e "Copying the generated docs over from $grouperDocsDirectory...\n"
   cp -R $grouperDocsDirectory $HOME/javadoc-latest
