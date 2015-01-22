@@ -49,24 +49,13 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
+        <sourceDirectory>src/java-manual-client</sourceDirectory>
 
         <resources>
             <resource>
                 <directory>conf</directory>
             </resource>
         </resources>
-        
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <fork>true</fork>
-                    <meminitial>128m</meminitial>
-                    <maxmem>256m</maxmem>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
 </project>

@@ -34,7 +34,7 @@
     <packaging>jar</packaging>
 
     <build>
-        <sourceDirectory>src</sourceDirectory>
+        <sourceDirectory>src/grouper-ws</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
         
         <resources>
@@ -45,13 +45,25 @@
 
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <fork>true</fork>
-                    <meminitial>128m</meminitial>
-                    <maxmem>256m</maxmem>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals><goal>add-source</goal></goals>
+                        <configuration>
+                            <sources>
+                                <source>src/grouper-ws_v1_6</source>
+                                <source>src/grouper-ws_v2_0</source>
+                                <source>src/grouper-ws_v2_1</source>
+                                <source>src/grouper-ws_v2_2</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
+
         </plugins>
     </build>
 

@@ -45,19 +45,9 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+    
     <build>
         <testSourceDirectory>src/test</testSourceDirectory>
-        
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <fork>true</fork>
-                    <meminitial>128m</meminitial>
-                    <maxmem>256m</maxmem>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 
 </project>
