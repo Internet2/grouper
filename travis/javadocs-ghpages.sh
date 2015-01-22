@@ -35,6 +35,7 @@ if [ "$invokeJavadoc" == true ]; then
   echo "Current working directory is $PWD"
 
   echo -e "Removing javadocs...\n"
+  mkdir -p ./2.2.x
   git rm -rf ./2.2.x/** > /dev/null
 
   echo -e "Copying new javadocs...\n"
