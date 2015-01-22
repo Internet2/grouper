@@ -40,11 +40,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -211,15 +214,65 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   }
 
   /**
+   * some source Id that isnt a normal grouper one
+   */
+  private static String sourceId = null;
+  
+  /**
+   * 
+   * @return a source id
+   */
+  public static String someSourceId() {
+    if (sourceId == null) {
+      synchronized (GuiSubject.class) {
+        if (sourceId == null) {
+          //pick one at random?
+          String theSourceId = "g:gsa";
+          
+          for (Source source : SourceManager.getInstance().getSources()) {
+            if (!"g:gsa".equals(source.getId())
+                && !"grouperEntities".equals(source.getId())
+                && !"grouperExternal".equals(source.getId())
+                && !"g:isa".equals(source.getId())) {
+              theSourceId = source.getId();
+              break;
+            }
+          }
+          sourceId = theSourceId;
+          
+        }
+      }
+    }
+    return sourceId;
+  }
+  
+  /**
    * init screen labels
    */
   private void initScreenLabels() {
     
     if (this.subject == null) {
-      return;
+
+      //unresolvable
+      this.subject = new UnresolvableSubject("", null, someSourceId());
+      
     }
     
     if (this.screenLabelLong == null && this.screenLabelShort == null) {
+      
+      if (this.subject instanceof UnresolvableSubject) {
+        String unresolvableSubjectString = TextContainer.retrieveFromRequest().getText().get("guiUnresolvableSubject");
+        if (!StringUtils.equals(unresolvableSubjectString, ((UnresolvableSubject)this.subject).getUnresolvableString())) {
+          //we want to use the unresolvable string from the externalized text file in the UI
+          this.subject = new UnresolvableSubject(this.subject.getId(), this.subject.getTypeName(), this.subject.getSourceId(), unresolvableSubjectString);
+        }
+        
+        //convert from lazy subject error to an unresolvable
+      } else if (this.subject != null && this.subject.getName() != null && this.subject.getName().contains(" entity not found")) {
+        String unresolvableSubjectString = TextContainer.retrieveFromRequest().getText().get("guiUnresolvableSubject");
+        this.subject = new UnresolvableSubject(this.subject.getId(), this.subject.getTypeName(), this.subject.getSourceId(), unresolvableSubjectString);
+      }
+
       
       
       String screenLabel = GrouperUiUtils.convertSubjectToLabelLong(this.subject);
