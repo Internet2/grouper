@@ -462,6 +462,11 @@
             <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <site>
+          <id>grouper-site</id>
+          <name>grouper staging site documentation</name>
+          <url>file:${project.site.deployDirectory}</url>
+        </site>
     </distributionManagement>
 
     <build>
