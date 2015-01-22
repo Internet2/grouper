@@ -39,7 +39,7 @@ if [ "$invokeJavadoc" == true ]; then
   git rm -rf ./2.2.x/** > /dev/null
 
   echo -e "Copying new javadocs...\n"
-  cp -Rf $HOME/javadoc-latest ./2.2.x
+  cp -Rf $HOME/javadoc-latest/** ./2.2.x
   echo -e "Adding changes to the index...\n"
   git add -f . > /dev/null
   echo -e "Committing changes...\n"
