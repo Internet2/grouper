@@ -30,6 +30,7 @@
 	<property name="dist.dir" value="dist" />
 	<property name="doc.dir" value="doc" />
 	<property name="javadoc.dir" value="${doc.dir}/api" />
+	<property name="grouper.client.dir" value="../grouper-misc/grouperClient/dist" />
 
 	<property name="distname" value="subject" />
 	<property name="jarfile" value="${dist.dir}/${distname}.jar"/>
@@ -42,9 +43,13 @@
 		<pathelement path="${classpath}" />
 		<pathelement location="${conf.dir}" />
 		<pathelement location="${build.dir}" />
+
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar" />
 		</fileset>
+	    <fileset dir="${grouper.client.dir}">
+	      <include name="**/grouperClient.jar" />
+	    </fileset>
 	</path>
 
 

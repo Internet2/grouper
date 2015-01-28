@@ -1,0 +1,4 @@
+urlid grouper
+url jdbc:hsqldb:hsql://localhost:9001
+username sa
+password

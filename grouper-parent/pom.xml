@@ -35,13 +35,15 @@
         <module>../grouper</module>
         <module>../grouper-misc/grouper-shib</module>
         <module>../grouper-misc/grouperScim</module>
+        <module>../grouper-ui</module>
+        <module>../grouper-ws</module>
     </modules>
 
     <properties>
         <!-- Build Settings -->
         <project.site.deployDirectory>/tmp/grouper-parent</project.site.deployDirectory>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>Cp1252</project.reporting.outputEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         
@@ -575,8 +577,8 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <site>
-          <id>cas-site</id>
-          <name>CAS Staging Site Documentation</name>
+          <id>grouper-site</id>
+          <name>grouper staging site documentation</name>
           <url>file:${project.site.deployDirectory}</url>
         </site>
     </distributionManagement>
@@ -791,6 +793,10 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <minmemory>128m</minmemory>
+                            <maxmemory>1g</maxmemory>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -850,14 +856,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
                 <version>${maven-jxr-plugin.version}</version>
-              </plugin>
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-                <configuration>
-                  <targetJdk>${maven.compiler.target}</targetJdk>
-                </configuration>
               </plugin>
               <plugin>
                 <groupId>org.codehaus.mojo</groupId>
