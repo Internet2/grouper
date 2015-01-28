@@ -34,18 +34,12 @@ package edu.internet2.middleware.grouper.filter;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 

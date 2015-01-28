@@ -29,7 +29,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.AttributeDefNamePicker;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

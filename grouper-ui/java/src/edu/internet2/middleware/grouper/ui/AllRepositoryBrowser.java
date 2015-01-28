@@ -43,10 +43,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.subject.Subject;
-
-
 
 /**
  * Implementation of RepositoryBrowser responsible for 'All' browse mode

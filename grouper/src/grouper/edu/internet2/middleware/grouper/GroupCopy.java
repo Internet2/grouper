@@ -20,8 +20,6 @@ package edu.internet2.middleware.grouper;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /**
  * Use this class to copy a group to another stem.

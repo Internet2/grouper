@@ -55,7 +55,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpException;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.util.EncodingUtil;
 
 /**

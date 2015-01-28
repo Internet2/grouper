@@ -26,8 +26,6 @@
  */
 package edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.core;
 
-import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStreamException;
-
 /**
  * JDK1.3 friendly exception that retains cause.
  * @deprecated since 1.3, use {@link XStreamException} instead

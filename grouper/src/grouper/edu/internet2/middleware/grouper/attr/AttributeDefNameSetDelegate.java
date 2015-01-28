@@ -23,16 +23,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
-
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
-
 
 /**
  * delegate the attribute def name set

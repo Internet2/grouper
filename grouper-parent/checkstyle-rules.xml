@@ -24,9 +24,6 @@
   <!-- TreeWalker module checks -->
   <module name="TreeWalker">
     <property name="tabWidth" value="4"/>
-    <module name="IllegalImport">
-      <property name="severity" value="error"/>
-    </module>
     <module name="RedundantImport">
       <property name="severity" value="error"/>
     </module>

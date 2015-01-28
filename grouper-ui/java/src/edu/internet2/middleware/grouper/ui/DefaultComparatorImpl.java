@@ -34,14 +34,12 @@ package edu.internet2.middleware.grouper.ui;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.ui.actions.PopulateGroupSummaryAction;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.subject.Subject;

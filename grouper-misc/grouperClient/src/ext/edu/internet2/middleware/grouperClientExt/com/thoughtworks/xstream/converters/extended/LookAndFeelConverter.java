@@ -31,12 +31,9 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper
 
 import javax.swing.LookAndFeel;
 
-import java.io.NotSerializableException;
-
-
 /**
  * A converter for Swing LookAndFeel implementations. The JDK's implementations are serializable
- * for historical reasons but will throw a {@link NotSerializableException} in their writeObject
+ * for historical reasons but will throw a {@link java.io.NotSerializableException} in their writeObject
  * method. Therefore XStream will use an implementation based on the ReflectionConverter.
  * 
  * @author J&ouml;rg Schaible
