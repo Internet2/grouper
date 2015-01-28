@@ -33,6 +33,10 @@
     <artifactId>morphString</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <cs.dir>${project.parent.basedir}</cs.dir>
+    </properties>
+
     <dependencies>
         <!-- Compile Dependencies -->
 

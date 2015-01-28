@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -46,13 +45,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 

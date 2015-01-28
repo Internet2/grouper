@@ -40,7 +40,6 @@ package edu.internet2.middleware.subject.provider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;

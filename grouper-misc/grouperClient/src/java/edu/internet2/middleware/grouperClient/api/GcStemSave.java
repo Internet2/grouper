@@ -24,7 +24,6 @@ import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
-import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestStemSaveRequest;

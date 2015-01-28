@@ -47,7 +47,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryException;
 import edu.internet2.middleware.subject.SearchPageResult;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;

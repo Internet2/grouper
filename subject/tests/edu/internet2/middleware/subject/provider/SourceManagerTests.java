@@ -18,9 +18,6 @@ package edu.internet2.middleware.subject.provider;
 import java.util.Collection;
 import java.util.Iterator;
 
-import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
-import edu.internet2.middleware.subject.provider.SourceManager;
-
 import junit.framework.*;
 
 /**

@@ -20,9 +20,7 @@
 package edu.internet2.middleware.grouperClient.ws;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,7 +50,6 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.C
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Header;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpException;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpStatus;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.UsernamePasswordCredentials;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.auth.AuthScope;

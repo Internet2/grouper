@@ -33,6 +33,10 @@
     <artifactId>grouperClient</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <cs.dir>${project.parent.basedir}</cs.dir>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>joda-time</groupId>
