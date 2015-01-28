@@ -18,8 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_0;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 /**

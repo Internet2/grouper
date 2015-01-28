@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.sql.Timestamp;
 
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +33,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.PermissionAssignOperation;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;

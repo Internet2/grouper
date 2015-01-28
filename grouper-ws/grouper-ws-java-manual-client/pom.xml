@@ -33,6 +33,10 @@
     <artifactId>grouper-ws-manual-client</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <cs.dir>${project.parent.basedir}/../grouper-parent</cs.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -20,8 +20,6 @@ package edu.internet2.middleware.grouper.ws.soap_v2_1;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ws.WsResultCode;
-
 /**
  * result metadata (if success, result code, etc) for one result
  * (each ws call can have one or many result metadatas)

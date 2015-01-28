@@ -15,11 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_2;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 

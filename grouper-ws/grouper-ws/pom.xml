@@ -34,6 +34,10 @@
     <packaging>jar</packaging>
     <version>2.3.0-SNAPSHOT</version>
 
+    <properties>
+        <cs.dir>${project.parent.basedir}/../grouper-parent</cs.dir>
+    </properties>
+
     <build>
         <sourceDirectory>src/grouper-ws</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
