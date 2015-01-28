@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.subject.LazySource;
 import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 

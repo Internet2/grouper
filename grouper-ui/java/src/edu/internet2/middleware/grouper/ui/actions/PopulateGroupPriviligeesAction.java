@@ -32,7 +32,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +50,11 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Strut's action which retrieves and makes available subjects with 

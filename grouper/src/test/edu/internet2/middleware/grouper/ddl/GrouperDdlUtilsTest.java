@@ -21,7 +21,6 @@ package edu.internet2.middleware.grouper.ddl;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 

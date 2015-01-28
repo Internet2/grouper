@@ -19,10 +19,6 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
-import java.util.HashSet;
-import java.util.Set;
-
-
 /**
  * we want the millis since 1970, though we also want to go down to microsecond, not millis.
  * we do this by seeing if we get repeated millis, and if so, then check nanos, and if same, 

@@ -48,7 +48,6 @@ import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**

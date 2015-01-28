@@ -26,7 +26,6 @@ import java.util.Set;
 
 import bsh.CallStack;
 import bsh.Interpreter;
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.exception.SchemaException;

@@ -15,7 +15,6 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.RoleNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;

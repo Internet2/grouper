@@ -33,7 +33,6 @@
 package edu.internet2.middleware.grouper.subj;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +42,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.entity.EntitySubject;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -244,7 +242,7 @@ public class GrouperSubject extends SubjectImpl {
     
     super(g.getUuid(), g.getName(), null, 
         g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectTypeEnum.APPLICATION.getName() : SubjectTypeEnum.GROUP.getName(), 
-            g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectFinder.internal_getEntitySourceAdapter(true).getId() : SubjectFinder.internal_getGSA().getId(), 
+            g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectFinder.internal_getEntitySourceAdapter(true).getId() : SubjectFinder.internal_getGSA().getId(),
                 null);
     
     this.group = g;

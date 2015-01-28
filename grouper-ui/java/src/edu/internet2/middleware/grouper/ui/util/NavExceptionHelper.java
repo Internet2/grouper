@@ -36,9 +36,6 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

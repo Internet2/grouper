@@ -31,15 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-
 
 /** 
  * Grouper configuration information.

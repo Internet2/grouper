@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
-import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

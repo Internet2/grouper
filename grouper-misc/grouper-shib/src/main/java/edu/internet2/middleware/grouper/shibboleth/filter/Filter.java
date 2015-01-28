@@ -29,7 +29,6 @@
 
 package edu.internet2.middleware.grouper.shibboleth.filter;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 /**

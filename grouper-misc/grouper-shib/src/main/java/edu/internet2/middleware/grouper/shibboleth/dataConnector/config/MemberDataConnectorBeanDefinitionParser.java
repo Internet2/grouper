@@ -39,7 +39,6 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.MemberDataConnector;
 
 /** Spring bean definition parser for configuring a {@link MemberDataConnector}. */
 public class MemberDataConnectorBeanDefinitionParser extends BaseGrouperDataConnectorBeanDefinitionParser {

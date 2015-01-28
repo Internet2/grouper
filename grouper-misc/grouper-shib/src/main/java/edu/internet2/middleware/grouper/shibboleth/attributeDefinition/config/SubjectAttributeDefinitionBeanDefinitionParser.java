@@ -33,7 +33,6 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.SubjectAttributeDefinition;
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 
 /** Spring bean definition parser for configuring a {@link SubjectAttributeDefinition}. */

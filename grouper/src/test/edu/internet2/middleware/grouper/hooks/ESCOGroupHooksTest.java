@@ -34,7 +34,6 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.hooks.examples.ESCOAttributeHooks;
 import edu.internet2.middleware.grouper.hooks.examples.ESCOGroupHooks;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

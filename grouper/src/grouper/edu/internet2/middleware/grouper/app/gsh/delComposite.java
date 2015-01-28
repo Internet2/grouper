@@ -23,7 +23,6 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
-import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;

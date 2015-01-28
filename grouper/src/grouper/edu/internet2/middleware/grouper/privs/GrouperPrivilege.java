@@ -19,7 +19,6 @@
  */
 package edu.internet2.middleware.grouper.privs;
 
-import java.util.Collection;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.subject.Subject;

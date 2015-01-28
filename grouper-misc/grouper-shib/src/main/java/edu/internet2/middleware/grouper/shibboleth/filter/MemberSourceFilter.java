@@ -39,7 +39,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.subject.Source;
 
 /**
  * Selects {@link Member}s from a {@link Source}.

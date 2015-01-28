@@ -26,7 +26,6 @@ import java.util.Set;
 import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find all {@link Subject} sources.

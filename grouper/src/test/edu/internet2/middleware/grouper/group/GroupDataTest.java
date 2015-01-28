@@ -27,9 +27,6 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
-
 
 /**
  *

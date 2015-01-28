@@ -23,7 +23,6 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import bsh.CallStack;
 import bsh.Interpreter;
-import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;

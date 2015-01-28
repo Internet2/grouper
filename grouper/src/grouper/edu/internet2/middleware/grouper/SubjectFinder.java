@@ -72,7 +72,6 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 
 /**

@@ -27,7 +27,6 @@ import edu.internet2.middleware.grouper.permissions.limits.LimitElUtils;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBase;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitDocumentation;
-import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitInterface;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

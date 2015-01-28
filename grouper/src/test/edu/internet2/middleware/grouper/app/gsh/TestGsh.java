@@ -41,7 +41,6 @@ import java.util.Properties;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
-import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
