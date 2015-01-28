@@ -29,8 +29,6 @@
 
 package edu.internet2.middleware.grouper.shibboleth.util;
 
-import edu.internet2.middleware.subject.Subject;
-
 /** Defines a {@link Subject} id and source. */
 public class SubjectIdentifier extends AbstractIdentifier {
 

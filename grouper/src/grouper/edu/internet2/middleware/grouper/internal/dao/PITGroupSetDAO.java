@@ -23,7 +23,6 @@ import java.sql.Timestamp;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.group.GroupSet;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroupSet;
 

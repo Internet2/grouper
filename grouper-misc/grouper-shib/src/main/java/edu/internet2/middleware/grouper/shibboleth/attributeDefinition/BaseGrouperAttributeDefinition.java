@@ -35,7 +35,6 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.AttributeResolutionException;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.AttributeDefinition;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.attributeDefinition.BaseAttributeDefinition;
 
 /** An {@link AttributeDefinition} which returns attributes from Grouper objects. */

@@ -21,8 +21,6 @@ package edu.internet2.middleware.subject;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Set;
-
 
 /**
  * linked hash map with case insensitive matching and tolower attribute names (e.g. for keyset)
@@ -51,7 +49,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
   
   /**
-   * @see Set#add(Object)
+   * @see {@link java.util.Set#add(Object)}
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -63,7 +61,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
 
   /**
-   * @see Set#addAll(Collection)
+   * @see {@link java.util.Set#addAll(Collection)}
    */
   @Override
   public boolean addAll(Collection<? extends E> c) {
@@ -78,7 +76,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
 
   /**
-   * @see Set#containsAll(Collection)
+   * @see {@link java.util.Set#containsAll(Collection)}
    */
   @Override
   public boolean containsAll(Collection<?> c) {
@@ -92,7 +90,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
 
   /**
-   * @see Set#retainAll(Collection)
+   * @see {@link java.util.Set#retainAll(Collection)}
    */
   @Override
   public boolean retainAll(Collection<?> c) {
@@ -108,7 +106,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
 
   /**
-   * @see Set#contains(Object)
+   * @see {@link java.util.Set#contains(Object)}
    */
   @Override
   public boolean contains(Object o) {
@@ -119,7 +117,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
 
   /**
-   * @see Set#remove(Object)
+   * @see {@link java.util.Set#remove(Object)}
    */
   @Override
   public boolean remove(Object o) {
@@ -130,7 +128,7 @@ public class SubjectCaseInsensitiveSetImpl<E> extends LinkedHashSet<E> implement
   }
 
   /**
-   * @see Set#removeAll(Collection)
+   * @see {@link java.util.Set#removeAll(Collection)}
    */
   @Override
   public boolean removeAll(Collection<?> c) {

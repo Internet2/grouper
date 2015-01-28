@@ -27,7 +27,6 @@
 package edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.basic;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.ConversionException;

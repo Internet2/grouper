@@ -32,14 +32,9 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
-import java.util.Set;
-
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Wraps a Subject - allows non persistent values to be stored for the UI and

@@ -30,12 +30,10 @@
 package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
-import edu.internet2.middleware.grouper.shibboleth.dataConnector.BaseGrouperDataConnector;
 
 /**
  * Selects {@link Group}s by attribute name and value.

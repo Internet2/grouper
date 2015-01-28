@@ -51,7 +51,6 @@ import edu.internet2.middleware.grouper.shibboleth.dataConnector.field.Privilege
 import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
 import edu.internet2.middleware.grouper.shibboleth.util.AttributeIdentifier;
 import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.BaseDataConnector;
-import edu.internet2.middleware.shibboleth.common.attribute.resolver.provider.dataConnector.DataConnector;
 
 /** A {@link DataConnector} which returns Grouper objects. */
 public abstract class BaseGrouperDataConnector<T> extends BaseDataConnector {

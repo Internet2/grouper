@@ -33,8 +33,6 @@
 package edu.internet2.middleware.grouper.subj;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.subj.SubjectResolver;
-import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;

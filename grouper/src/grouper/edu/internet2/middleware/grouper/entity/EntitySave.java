@@ -21,12 +21,6 @@ package edu.internet2.middleware.grouper.entity;
 
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GroupModifyException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.StemAddException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;

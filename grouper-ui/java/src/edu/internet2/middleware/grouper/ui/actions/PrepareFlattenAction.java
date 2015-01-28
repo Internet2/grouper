@@ -32,10 +32,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
-
-
-import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -43,13 +39,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
-
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Low level Strut's action which acts as a controller to do any necessary setup 

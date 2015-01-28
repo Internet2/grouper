@@ -25,13 +25,18 @@
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-ws-parent</artifactId>
         <version>2.3.0-SNAPSHOT</version>
-        <relativePath>../grouper-ws</relativePath>
+        <relativePath>../../grouper-ws</relativePath>
     </parent>
 
     <name>Grouper WS</name>
     <description>Internet2 Groups Management WS Core</description>
     <artifactId>grouper-ws</artifactId>
     <packaging>jar</packaging>
+    <version>2.3.0-SNAPSHOT</version>
+
+    <properties>
+        <cs.dir>${project.parent.basedir}/../grouper-parent</cs.dir>
+    </properties>
 
     <build>
         <sourceDirectory>src/grouper-ws</sourceDirectory>

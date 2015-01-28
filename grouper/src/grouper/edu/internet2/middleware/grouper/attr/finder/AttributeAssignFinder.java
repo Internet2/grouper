@@ -19,16 +19,10 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 

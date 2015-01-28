@@ -33,8 +33,6 @@
 
 package edu.internet2.middleware.grouper.exception;
 
-import edu.internet2.middleware.grouper.exception.GrouperException;
-
 
 /**
  * Exception thrown when an operation cannot be performed.

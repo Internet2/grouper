@@ -22,7 +22,6 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.audit.AuditType;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 
 
 /**

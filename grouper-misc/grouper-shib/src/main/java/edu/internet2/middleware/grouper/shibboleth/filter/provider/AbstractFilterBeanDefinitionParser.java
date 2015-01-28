@@ -31,8 +31,6 @@ package edu.internet2.middleware.grouper.shibboleth.filter.provider;
 
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 
-import edu.internet2.middleware.grouper.shibboleth.filter.Filter;
-
 /** Spring bean definition parser for configuring a {@link Filter}. */
 public abstract class AbstractFilterBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 

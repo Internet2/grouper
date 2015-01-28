@@ -24,9 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
 import edu.internet2.middleware.grouper.hooks.AttributeDefHooks;
-
 
 /**
  *

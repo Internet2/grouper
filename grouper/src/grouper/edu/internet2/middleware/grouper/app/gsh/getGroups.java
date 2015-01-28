@@ -25,7 +25,6 @@ import java.util.Set;
 
 import bsh.CallStack;
 import bsh.Interpreter;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;

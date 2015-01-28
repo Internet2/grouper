@@ -28,11 +28,8 @@ package edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.conve
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.SingleValueConverter;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.core.util.ThreadSafePropertyEditor;
 
-import java.beans.PropertyEditor;
-
-
 /**
- * A SingleValueConverter that can utilize a {@link PropertyEditor} implementation used for a
+ * A SingleValueConverter that can utilize a {@link java.beans.PropertyEditor} implementation used for a
  * specific type. The converter ensures that the editors can be used concurrently.
  * 
  * @author Jukka Lindstr&ouml;m

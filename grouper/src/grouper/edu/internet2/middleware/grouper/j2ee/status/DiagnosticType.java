@@ -17,7 +17,6 @@ package edu.internet2.middleware.grouper.j2ee.status;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;

@@ -19,7 +19,6 @@
  */
 package edu.internet2.middleware.grouper.ws.rest.member;
 
-import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 

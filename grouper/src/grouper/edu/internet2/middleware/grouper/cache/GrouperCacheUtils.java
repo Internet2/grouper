@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import net.sf.ehcache.CacheManager;

@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;

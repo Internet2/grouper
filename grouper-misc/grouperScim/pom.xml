@@ -32,6 +32,10 @@
         <relativePath>../../grouper-parent</relativePath>
   </parent>
 
+  <properties>
+      <cs.dir>${project.parent.basedir}</cs.dir>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.wso2.charon</groupId>

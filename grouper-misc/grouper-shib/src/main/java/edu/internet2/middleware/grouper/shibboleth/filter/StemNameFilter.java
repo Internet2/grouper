@@ -30,7 +30,6 @@
 package edu.internet2.middleware.grouper.shibboleth.filter;
 
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.filter.StemNameExactFilter;
 
 /**
  * Selects a {@link Stem} by exact name.

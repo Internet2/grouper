@@ -39,7 +39,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import edu.internet2.middleware.grouper.shibboleth.attributeDefinition.FilteredNameAttributeDefinition;
 import edu.internet2.middleware.grouper.shibboleth.config.GrouperNamespaceHandler;
 import edu.internet2.middleware.shibboleth.common.config.SpringConfigurationUtils;
 import edu.internet2.middleware.shibboleth.common.config.attribute.resolver.attributeDefinition.BaseAttributeDefinitionBeanDefinitionParser;

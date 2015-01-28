@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -61,7 +60,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.MenuFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 

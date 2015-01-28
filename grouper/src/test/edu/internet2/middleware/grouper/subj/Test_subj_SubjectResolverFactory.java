@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.subj;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 
 
 /**

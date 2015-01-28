@@ -22,12 +22,9 @@
 
 package edu.internet2.middleware.grouper.app.gsh;
 import java.io.File;
-import java.util.Properties;
 
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.morphString.Morph;
 
 import bsh.CallStack;
 import bsh.Interpreter;

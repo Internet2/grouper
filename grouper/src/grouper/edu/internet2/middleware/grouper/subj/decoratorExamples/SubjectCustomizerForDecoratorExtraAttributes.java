@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionResult;
-import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
 import edu.internet2.middleware.grouper.subj.SubjectCustomizerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;

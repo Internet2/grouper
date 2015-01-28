@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
-import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
 import edu.internet2.middleware.grouper.subj.SubjectCustomizerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;

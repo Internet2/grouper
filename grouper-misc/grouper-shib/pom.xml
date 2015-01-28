@@ -51,6 +51,7 @@
     <properties>
         <!-- location of grouper api distribution -->
         <grouper.dir>../grouper</grouper.dir>
+        <cs.dir>${project.parent.basedir}</cs.dir>
     </properties>
 
     <dependencies>

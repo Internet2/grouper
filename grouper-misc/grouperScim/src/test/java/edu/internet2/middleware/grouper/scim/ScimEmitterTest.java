@@ -18,10 +18,8 @@ package edu.internet2.middleware.grouper.scim;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import org.apache.wink.client.ClientWebException;
-import org.wso2.charon.core.client.SCIMClient;
 
 /**
  *

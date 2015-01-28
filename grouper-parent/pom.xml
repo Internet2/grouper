@@ -46,6 +46,7 @@
         <project.reporting.outputEncoding>Cp1252</project.reporting.outputEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
+        <cs.dir>${project.basedir}</cs.dir>
         
         <!-- Plugin Versions -->
         <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
@@ -64,8 +65,10 @@
         <maven-projectinfo-reports-plugin.version>2.7</maven-projectinfo-reports-plugin.version>
         <maven-taglist-plugin.version>2.4</maven-taglist-plugin.version>
         <maven-versions-plugin.version>2.1</maven-versions-plugin.version>
+        <maven-checkstyle-plugin.version>2.13</maven-checkstyle-plugin.version>
 
         <!-- Dependency Versions -->
+        <checkstyle.version>6.1</checkstyle.version>
         <json.version>20140107</json.version>
         <charon.version>1.0.0</charon.version>
         <wink.client.version>1.4</wink.client.version>
@@ -663,6 +666,33 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-checkstyle-plugin</artifactId>
+	            <version>${maven-checkstyle-plugin.version}</version>
+	            <configuration>
+	                <consoleOutput>true</consoleOutput>
+	                <configLocation>${cs.dir}/checkstyle-rules.xml</configLocation>
+	                <failsOnError>true</failsOnError>
+	                <includeTestSourceDirectory>true</includeTestSourceDirectory>
+	            </configuration>
+	            <executions>
+	                <execution>
+	                   <id>checkstyle</id>
+	                   <goals>
+	                       <goal>checkstyle</goal>
+	                   </goals>
+	                   <phase>compile</phase>
+	                </execution>
+	            </executions>
+	            <dependencies>
+	               <dependency>
+	                  <groupId>com.puppycrawl.tools</groupId>
+	                  <artifactId>checkstyle</artifactId>
+	                  <version>${checkstyle.version}</version>
+	               </dependency>
+	            </dependencies>
+	      	</plugin>
         </plugins>
 
         <pluginManagement>

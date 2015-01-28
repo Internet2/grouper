@@ -18,7 +18,6 @@ package edu.internet2.middleware.grouper.shibboleth.dataConnector.field;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class BaseField {

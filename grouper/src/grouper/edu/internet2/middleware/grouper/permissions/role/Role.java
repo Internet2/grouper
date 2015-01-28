@@ -19,8 +19,6 @@
  */
 package edu.internet2.middleware.grouper.permissions.role;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignGroupDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;

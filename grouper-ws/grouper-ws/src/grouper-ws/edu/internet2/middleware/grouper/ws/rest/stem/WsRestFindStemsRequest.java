@@ -19,7 +19,6 @@
  */
 package edu.internet2.middleware.grouper.ws.rest.stem;
 
-import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;

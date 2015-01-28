@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.cfg;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 
