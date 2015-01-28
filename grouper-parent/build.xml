@@ -7,7 +7,7 @@
 
     <target name="grouper-ws">
         <echo message="Compiling grouper-ws..." />
-        <ant antfile="../../grouper/grouper-ws/grouper-ws/build.xml" target="dev" useNativeBasedir="true"/>
+        <ant antfile="../../grouper/grouper-ws/grouper-ws/build.xml" target="dist" useNativeBasedir="true"/>
     </target>
 
     <target name="grouper-client">
