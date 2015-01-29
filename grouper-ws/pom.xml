@@ -32,6 +32,7 @@
     <description>Internet2 Groups Management WS Parent</description>
     <artifactId>grouper-ws-parent</artifactId>
     <packaging>pom</packaging>
+    <version>2.3.0-SNAPSHOT</version>
 	
 	<modules>
         <module>grouper-ws</module>

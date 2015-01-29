@@ -25,13 +25,14 @@
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-ws-parent</artifactId>
         <version>2.3.0-SNAPSHOT</version>
-        <relativePath>../grouper-ws</relativePath>
+        <relativePath>../../grouper-ws</relativePath>
     </parent>
 
     <name>Grouper WS Manual Client</name>
     <description>Internet2 Groups Management WS Manual Client</description>
     <artifactId>grouper-ws-manual-client</artifactId>
     <packaging>jar</packaging>
+    <version>2.3.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
