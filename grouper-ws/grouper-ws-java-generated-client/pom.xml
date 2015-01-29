@@ -25,19 +25,27 @@
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-ws-parent</artifactId>
         <version>2.3.0-SNAPSHOT</version>
-        <relativePath>../grouper-ws</relativePath>
+        <relativePath>../../grouper-ws</relativePath>
     </parent>
 
     <name>Grouper WS Generated Client</name>
     <description>Internet2 Groups Management WS Generated Client</description>
     <artifactId>grouper-ws-java-generated-client</artifactId>
     <packaging>jar</packaging>
+    <version>2.3.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>grouper-ws</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ws-test-interface</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/grouperWsTestInterfaces.jar</systemPath>
         </dependency>
     </dependencies>
     
