@@ -42,8 +42,8 @@
     <properties>
         <!-- Build Settings -->
         <project.site.deployDirectory>/tmp/grouper-parent</project.site.deployDirectory>
-        <project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>Cp1252</project.reporting.outputEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         
