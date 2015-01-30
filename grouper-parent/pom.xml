@@ -39,6 +39,7 @@
         <module>../grouper-ws</module>
         <module>../grouper-misc/grouper-installer</module>
         <module>../grouper-misc/grouper-voot</module>
+        <module>../grouper-misc/grouperActivemq</module>
     </modules>
 
     <properties>
