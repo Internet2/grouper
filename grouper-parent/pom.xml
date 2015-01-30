@@ -38,6 +38,7 @@
         <module>../grouper-ui</module>
         <module>../grouper-ws</module>
         <module>../grouper-misc/grouper-installer</module>
+        <module>../grouper-misc/grouper-voot</module>
     </modules>
 
     <properties>
