@@ -2082,6 +2082,16 @@ public class GrouperClientWsTest extends GrouperTest {
     String[] outputLines = null;
     Pattern pattern = null;
     Matcher matcher = null;
+    
+    /**
+    * Note that the following test uses some UTF-8
+    * encoded characters (i.e. äöüß) that are more commonly used
+    * by European-based languages such as German and
+    * French. If you do not see these properly in your
+    * development environment and/or editor and if they
+    * show up as question marks for you, please ensure
+    * the file encoding is correctly indicated as UTF-8.
+    **/
     try {
       systemOut.println("Umlaut: äöüß");
       //try with name with slash
