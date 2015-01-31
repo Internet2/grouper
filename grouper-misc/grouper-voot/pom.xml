@@ -72,10 +72,10 @@
 	<testSourceDirectory>test</testSourceDirectory>
 	<resources>
 	    <resource>
-	        <directory>misc</directory>
-          <includes>
+        <directory>misc</directory>
+        <includes>
             <include>**/*</include>
-          </includes>
+        </includes>
 	    </resource>
 	</resources>
 	<plugins>

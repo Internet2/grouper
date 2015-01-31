@@ -55,10 +55,10 @@
         </exclusions>
     </dependency>
     <dependency>
-		<groupId>org.apache.activemq</groupId>
-		<artifactId>activemq-core</artifactId>
-		<version>5.7.0</version>
-	</dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-core</artifactId>
+      <version>5.7.0</version>
+    </dependency>
 
   </dependencies>
     
@@ -66,18 +66,18 @@
 	<sourceDirectory>source</sourceDirectory>
 	<testSourceDirectory>test</testSourceDirectory>
 	<resources>
-	    <resource>
-	        <directory>conf</directory>
-          <includes>
-            <include>**/*</include>
-          </includes>
-	    </resource>
-	    <resource>
-	        <directory>misc</directory>
-          <includes>
-            <include>**/*</include>
-          </includes>
-	    </resource>
+    <resource>
+      <directory>conf</directory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </resource>
+    <resource>
+      <directory>misc</directory>
+      <includes>
+          <include>**/*</include>
+      </includes>
+    </resource>
 	</resources>
 	<plugins>
 	    <plugin>
