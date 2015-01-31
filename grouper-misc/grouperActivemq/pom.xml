@@ -68,15 +68,15 @@
 	<resources>
 	    <resource>
 	        <directory>conf</directory>
-	        <includes>
-	  			<include>**/*</include>
-			</includes>
+          <includes>
+            <include>**/*</include>
+          </includes>
 	    </resource>
 	    <resource>
 	        <directory>misc</directory>
-	        <includes>
-	  			<include>**/*</include>
-			</includes>
+          <includes>
+            <include>**/*</include>
+          </includes>
 	    </resource>
 	</resources>
 	<plugins>
