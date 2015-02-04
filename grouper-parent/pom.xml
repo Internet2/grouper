@@ -22,7 +22,8 @@
 
     <properties>
         <!-- Build Settings -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.site.deployDirectory>/tmp/grouper-parent</project.site.deployDirectory>
+        <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         
@@ -462,6 +463,11 @@
             <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <site>
+          <id>grouper-site</id>
+          <name>grouper staging site documentation</name>
+          <url>file:${project.site.deployDirectory}</url>
+        </site>
     </distributionManagement>
 
     <build>
