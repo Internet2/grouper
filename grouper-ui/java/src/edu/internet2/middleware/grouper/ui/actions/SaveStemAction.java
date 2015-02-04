@@ -223,7 +223,8 @@ public class SaveStemAction extends GrouperCapableAction {
 			
 			try{
 				stem = parentStem.addChildStem((String) stemForm.get("stemName"),(String) stemForm.get("stemDisplayName"));
-				stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
+				//CH 2015/01/01 when creating a folder, the creator only needs and only should get the stem priv
+				//stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
 			}catch(StemAddException e) {
 			  setTransactionRollback(true);
 					request.setAttribute("message", new Message(
