@@ -354,8 +354,9 @@ public enum RuleThenEnum {
     
     /**
      * 
-     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(RuleDefinition, RuleEngine, RulesBean, StringBuilder)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
         RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
@@ -378,6 +379,8 @@ public enum RuleThenEnum {
       Stem stem = group.getParentStem();
       
       Set<Subject> creators = stem.getCreators();
+
+      creators.addAll(GrouperUtil.nonNull(stem.getStemmers()));
       
       Set<Subject> creatorsAreNonWheelGroups = new HashSet<Subject>();
 
@@ -478,6 +481,7 @@ public enum RuleThenEnum {
      * 
      * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
         RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
@@ -500,6 +504,8 @@ public enum RuleThenEnum {
       Stem stem = attributeDef.getParentStem();
       
       Set<Subject> creators = stem.getCreators();
+
+      creators.addAll(GrouperUtil.nonNull(stem.getStemmers()));
       
       Set<Subject> creatorsAreNonWheelGroups = new HashSet<Subject>();
 

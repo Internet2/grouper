@@ -38,7 +38,7 @@
 <c:if test="${browsePrivs.stem}"> 
 <html:link page="/populateCreateStem.do"><grouper:message key="stems.action.create"/></html:link>
 </c:if>
-<c:if test="${browsePrivs.create}"> 
+<c:if test="${browsePrivs.create || browsePrivs.stem}"> 
 <html:link page="/populateCreateGroup.do" ><grouper:message key="groups.action.create"/></html:link>
 </c:if>
 <c:if test="${showStemMovesCopies}">
