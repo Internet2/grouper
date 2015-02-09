@@ -1259,7 +1259,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   Group.this.getUuid(), member.getUuid(), field, MembershipType.IMMEDIATE.getTypeString(), false, false);
 
           if (membership != null) {
-            if ( !Group.this.canWriteField(field) ) { 
+            
+            if ( !Group.this.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), field.getWritePrivilege(), false)) { 
 
               //if the subject operated on is the subject 
               if (SubjectHelper.eq(subject, GrouperSession.staticGrouperSession().getSubject())) {

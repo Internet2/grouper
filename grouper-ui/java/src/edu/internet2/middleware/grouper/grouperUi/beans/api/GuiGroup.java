@@ -562,10 +562,25 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     return this.group.hasAdmin(SubjectFinder.findAllSubject());
   }
 
+
+  /**
+   * if the logged in user can update (or inherit), dont check security
+   * @return true
+   */
+  public boolean isCanUpdate() {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    return this.group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false);
+
+  }
+
   /**
    * if the logged in user has update
    * @return true
+   * @deprecated use isCanUpdate instead probably
    */
+  @Deprecated
   public boolean isHasUpdate() {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
