@@ -37,7 +37,7 @@
                 
                 
                 <form class="form-horizontal" name="inviteFormName" id="inviteFormId">
-                  <c:if test="grouperRequestContainer.inviteExternalContainer.allowInviteByIdentifier">
+                  <c:if test="${grouperRequestContainer.inviteExternalContainer.allowInviteByIdentifier}">
                     <div class="control-group">
                       <label for="external-invite-options" class="control-label">${textContainer.text['inviteExternalLabelInviteBy']}</label>
                       <div class="controls">
@@ -85,7 +85,7 @@
                       </div>
                     </div>
                   </div>
-                  <c:if test="grouperRequestContainer.inviteExternalContainer.allowInviteByIdentifier">
+                  <c:if test="${grouperRequestContainer.inviteExternalContainer.allowInviteByIdentifier}">
                     <div class="invite-external-id-container hide">
                       <div class="control-group">
                         <label for="external-invite-ids" class="control-label">${textContainer.text['inviteExternalLabelUserIds']}</label>

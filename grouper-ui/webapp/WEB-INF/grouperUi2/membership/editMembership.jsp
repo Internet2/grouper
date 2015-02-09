@@ -97,7 +97,7 @@
                         value="${grouperRequestContainer.membershipGuiContainer.directGuiMembership.endDateLabel }" id="member-end-date"><span class="help-block">${textContainer.text['membershipEditLabelEndDateSubtext'] }</span>
                     </div>
                   </div>
-                  <c:if test="grouperRequestContainer.groupContainer.canAdmin">
+                  <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['membershipEditLabelDirectPrivileges'] }</label>
                       <div class="controls">

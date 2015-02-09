@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.membership.MembershipContainer;
 
 
@@ -34,7 +36,21 @@ public class GuiMembershipContainer {
     super();
     this.membershipContainer = membershipContainer;
   }
+
+  /**
+   * 
+   */
+  private GuiGroup guiGroupOwner;
   
-  
+  /**
+   * 
+   * @return the gui group container
+   */
+  public GuiGroup getGuiGroupOwner() {
+    if (this.guiGroupOwner == null && !StringUtils.isBlank(this.membershipContainer.getImmediateMembership().getOwnerGroupId())) {
+      this.guiGroupOwner = new GuiGroup(this.membershipContainer.getImmediateMembership().getOwnerGroup());
+    }
+    return this.guiGroupOwner;
+  }
   
 }
