@@ -62,7 +62,6 @@ public class LoaderLdapElUtils {
   /**
    * convert from uid=someapp,ou=people,dc=myschool,dc=edu to someapp and allow groups
    * @param dn full dn
-   * @param allowGroups if groups are allowed
    * @param groupSuffix group suffix e.g. ,OU=Groups,DC=dev,DC=umontreal,DC=ca
    * @param groupPrefix group prefix e.g. umontreal:adgroups: 
    * if null then no prefix
