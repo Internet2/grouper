@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.cache;
 
 
 /**
- * Cache statistics interface
+ * Cache statistics interface.
  * @author  blair christensen.
  * @version $Id: CacheStats.java,v 1.2 2007-08-27 15:53:52 blair Exp $
  * @since   1.2.1
