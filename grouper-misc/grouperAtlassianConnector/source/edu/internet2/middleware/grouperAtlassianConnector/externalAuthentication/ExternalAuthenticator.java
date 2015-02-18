@@ -51,20 +51,19 @@ public class ExternalAuthenticator extends DefaultAuthenticator implements Atlas
    */
   @Override
   public Principal getUser(HttpServletRequest request, HttpServletResponse response) {
-    return getUser(this, request, response, "jira", DefaultAuthenticator.LOGGED_IN_KEY, null);
+    return getUser(this, request, "jira", DefaultAuthenticator.LOGGED_IN_KEY, null);
   }
 
   /**
    * @param atlassianGetUserable 
    * @param request 
-   * @param response 
    * @param authenticatorType 
    * @param userAttributeName 
    * @param logoutAttributeName 
    * @return principal
    */
   public static Principal getUser(AtlassianGetUserable atlassianGetUserable, 
-      HttpServletRequest request, HttpServletResponse response, 
+      HttpServletRequest request, 
       String authenticatorType, String userAttributeName, String logoutAttributeName) {
 
     Map<String, Object> debugMap = new HashMap<String, Object>();

@@ -6,3 +6,5 @@ spy.log
 /logs
 /temp
 /grouperClientFailoverState.bin
+/lib/grouper
+/dist
