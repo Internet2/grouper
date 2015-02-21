@@ -2,8 +2,15 @@
 
                     <!-- start group/groupMoreActionsButtonContents.jsp -->
 
-                    <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }</a>
-                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
+                    <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
+                      
+                      <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }</a>
+                      
+                    </c:if>
+                    <div class="btn-group btn-block">
+                    
+                      <a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
+  
                       <ul class="dropdown-menu dropdown-menu-right">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>

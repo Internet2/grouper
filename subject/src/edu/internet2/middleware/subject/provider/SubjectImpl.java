@@ -296,7 +296,8 @@ public class SubjectImpl implements Subject {
     for (String attributeName : virtualAttributes.keySet()) {
       
       String el = virtualAttributes.get(attributeName);
-      String value =  SubjectUtils.substituteExpressionLanguage(el, variableMap);
+      //TODO dont warn on null values
+      String value =  SubjectUtils.substituteExpressionLanguage(el, variableMap, true);
       Set<String> valueSet = new HashSet<String>();
       valueSet.add(value);
       subject.getAttributes(false).put(attributeName, valueSet);

@@ -1950,6 +1950,18 @@ public class SubjectUtils {
    */
   @SuppressWarnings("unchecked")
   public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
+    return substituteExpressionLanguage(stringToParse, variableMap, false);
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @param lenient
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap, boolean lenient) {
     if (isBlank(stringToParse)) {
       return stringToParse;
     }
@@ -1984,6 +1996,11 @@ public class SubjectUtils {
         //this is the result of the evaluation
         Object o = e.evaluate(jc);
   
+        //we dont want "null" in the result I think...
+        if (o == null && lenient) {
+          o = "";
+        }
+
         if (o == null) {
           log.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
               + toStringForLog(variableMap.keySet()));
