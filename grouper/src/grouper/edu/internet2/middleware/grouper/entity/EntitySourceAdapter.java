@@ -47,6 +47,15 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  */
 public class EntitySourceAdapter extends GrouperSourceAdapter {
 
+  /**
+   * return the entity source id
+   * @return the source id for the entity source
+   */
+  public static String entitySourceId() {
+    //note, what if they name it differently in the sources.xml????   dont do that :)
+    return "grouperEntities";
+  }
+
   /** instance */
   private static EntitySourceAdapter instance = null;
 

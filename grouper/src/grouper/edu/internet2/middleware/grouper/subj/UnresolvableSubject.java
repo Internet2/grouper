@@ -32,6 +32,9 @@ package edu.internet2.middleware.grouper.subj;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.LazySource;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -104,6 +107,17 @@ public class UnresolvableSubject extends SubjectImpl {
         formatUnresolvableString(theUnresolvableString, subjectId),
         subjectTypeId, sourceId);
     this.unresolvableString = theUnresolvableString;
+    
+    if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), sourceId)
+        || StringUtils.equals(EntitySourceAdapter.entitySourceId(), sourceId)) {
+      
+     //the user does not have view on this group or entity!
+     this.getAttributes().put("displayExtension", GrouperUtil.toSet(formatUnresolvableString(theUnresolvableString, subjectId)));
+     this.getAttributes().put("displayName", GrouperUtil.toSet(formatUnresolvableString(theUnresolvableString, subjectId)));
+      
+    }
+
+    
   }
 
   /**
