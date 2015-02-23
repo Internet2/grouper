@@ -900,7 +900,10 @@ public class MembershipPathGroup {
     if (isAttributeDef && !this.ownerAttributeDef.getPrivilegeDelegate().canHavePrivilege(callingSubject, AttributeDefPrivilege.ATTR_ADMIN.toString(), false)) {
       return;
     }
-    if (isGroup && !this.ownerGroup.canHavePrivilege(callingSubject, AccessPrivilege.ADMIN.toString(), false)) {
+    if (isGroup && field.isGroupAccessField() && !this.ownerGroup.canHavePrivilege(callingSubject, AccessPrivilege.ADMIN.toString(), false)) {
+      return;
+    }
+    if (isGroup && field.isGroupListField() && !this.ownerGroup.canHavePrivilege(callingSubject, AccessPrivilege.READ.toString(), false)) {
       return;
     }
     if (isStem && !this.ownerStem.canHavePrivilege(callingSubject, NamingPrivilege.STEM.toString(), false)) {

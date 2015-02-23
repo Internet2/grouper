@@ -49,13 +49,13 @@
                             ${textContainer.text[grouper:concat2('groupMembershipAssignType_',guiMembershipContainer.membershipContainer.membershipAssignType)] }
                           </td>
                           <td>
-                            <c:if test="${grouperRequestContainer.groupContainer.canUpdate
+                            <c:if test="${grouperRequestContainer.groupContainer.canRead
                                 || (guiMembershipContainer.membershipContainer.membershipAssignType.immediate && grouperRequestContainer.groupContainer.canUpdate)
                                 || guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate
                                 || guiMembershipSubjectContainer.guiSubject.group}">
                               <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupViewActionsButton'] } <span class="caret"></span></a>
                                 <ul class="dropdown-menu dropdown-menu-right">
-                                  <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
+                                  <c:if test="${grouperRequestContainer.groupContainer.canRead}">
                                     <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
                                   </c:if>
                                   <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate && grouperRequestContainer.groupContainer.canUpdate}">
