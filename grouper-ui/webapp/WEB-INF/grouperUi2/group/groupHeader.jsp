@@ -42,7 +42,7 @@
                     </div>
                     <div id="add-block-container" class="well hide">
                       <c:choose>
-                        <c:when test="${grouperRequestContainer.groupContainer.guiGroup.group.hasComposite}">
+                        <c:when test="${!defaultMemberUnchecked && grouperRequestContainer.groupContainer.guiGroup.group.hasComposite}">
                           ${textContainer.text['groupCompositeCantAddMembersToComposite']}
                         </c:when>
                         <c:otherwise>
@@ -75,9 +75,12 @@
                               <div id="add-members-privileges" class="control-group hide">
                                 <label class="control-label" ${defaultMemberUnchecked ? '' : 'style="display:none"' } >${textContainer.text['groupViewAssignThesePrivileges']}</label>
                                 <div class="controls">
-                                  <label class="checkbox inline">
-                                    <input type="checkbox" name="privileges_members" value="true" ${defaultMemberUnchecked ? '' : 'checked="checked" '} />${textContainer.text['priv.memberUpper']}
-                                  </label>
+                                  <%-- dont show member if its a composite --%>
+                                  <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.group.hasComposite}">
+                                    <label class="checkbox inline">
+                                      <input type="checkbox" name="privileges_members" value="true" ${defaultMemberUnchecked ? '' : 'checked="checked" '} />${textContainer.text['priv.memberUpper']}
+                                    </label>
+                                  </c:if>
                                   <label class="checkbox inline">
                                     <%--
                                     <input type="checkbox" name="privileges_admins" value="true" 
