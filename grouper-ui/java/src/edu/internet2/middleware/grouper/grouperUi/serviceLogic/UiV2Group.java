@@ -2406,7 +2406,7 @@ public class UiV2Group {
         return;
       }
   
-      Set<String> membershipsIds = new HashSet<String>();
+      final Set<String> membershipsIds = new HashSet<String>();
       
       for (int i=0;i<1000;i++) {
         String membershipId = request.getParameter("membershipRow_" + i + "[]");
@@ -2420,34 +2420,56 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupMembershipsRemoveNoSubjectSelects")));
         return;
       }
-      int successes = 0;
-      int failures = 0;
+      final int[] successes = new int[]{0};
+      final int[] failures = new int[]{0};
       
-      int count=0;
-      for (String membershipId : membershipsIds) {
-        try {
-          Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
+      final int[] count = new int[]{0};
+      
+      //subject has update, so this operation as root in case removing affects the membership
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+          for (String membershipId : membershipsIds) {
+            try {
+              Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
 
-          Member member = membership.getMember();
-          group.deleteMember(member, false);
+              Member member = membership.getMember();
+              group.deleteMember(member, false);
+              
+              if (count[0]++ < 5 && group.hasView(loggedInSubject)) {
+                GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+                    loggedInSubject, member);
 
-          if (count++ < 5) {
-            GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-                loggedInSubject, member);
-
+              }
+              
+              successes[0]++;
+            } catch (Exception e) {
+              LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
+              failures[0]++;
+            }
           }
           
-          successes++;
-        } catch (Exception e) {
-          LOG.warn("Error with membership: " + membershipId + ", user: " + loggedInSubject, e);
-          failures++;
+          if (group.hasView(loggedInSubject)) {
+            GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+              loggedInSubject, group);
+          }
+          
+          return null;
         }
+      });
+      
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setSuccessCount(successes[0]);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures[0]);
+
+
+      if (!group.hasUpdate(loggedInSubject) || !group.hasRead(loggedInSubject)) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain')"));
+      } else {
+        filterHelper(request, response, group);
       }
-
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setSuccessCount(successes);
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures);
-
-      if (failures > 0) {
+      
+      //put this after redirect
+      if (failures[0] > 0) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersErrors")));
       } else {
@@ -2455,10 +2477,6 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses")));
       }
       
-      filterHelper(request, response, group);
-
-      GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-          loggedInSubject, group);
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
