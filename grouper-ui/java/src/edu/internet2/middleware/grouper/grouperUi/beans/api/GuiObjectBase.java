@@ -111,7 +111,16 @@ public abstract class GuiObjectBase {
       return TextContainer.retrieveFromRequest().getText().get("guiStemNotApplicable");
     }
     
-    String parentStemName = GrouperUtil.parentStemNameFromName(grouperObject.getDisplayName());
+    String displayName = grouperObject.getDisplayName();
+    
+    String cantViewPrefix = TextContainer.retrieveFromRequest().getText().get("guiCantViewPrefix");
+    
+    //if we cant see the group or entity
+    if (displayName.startsWith(cantViewPrefix)) {
+      return "";
+    }
+    
+    String parentStemName = GrouperUtil.parentStemNameFromName(displayName);
     
     if (StringUtils.isBlank(parentStemName) || StringUtils.equals(":", parentStemName)) {
       return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");

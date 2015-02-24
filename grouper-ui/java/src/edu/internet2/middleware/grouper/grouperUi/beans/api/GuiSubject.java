@@ -27,14 +27,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.entity.EntitySourceAdapter;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -260,20 +261,52 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
     
     if (this.screenLabelLong == null && this.screenLabelShort == null) {
       
+      boolean convertToUnresolvableSubject = false;
+      String unresolvableSubjectString = TextContainer.retrieveFromRequest().getText().get("guiUnresolvableSubject");
+      
       if (this.subject instanceof UnresolvableSubject) {
-        String unresolvableSubjectString = TextContainer.retrieveFromRequest().getText().get("guiUnresolvableSubject");
         if (!StringUtils.equals(unresolvableSubjectString, ((UnresolvableSubject)this.subject).getUnresolvableString())) {
           //we want to use the unresolvable string from the externalized text file in the UI
-          this.subject = new UnresolvableSubject(this.subject.getId(), this.subject.getTypeName(), this.subject.getSourceId(), unresolvableSubjectString);
+          convertToUnresolvableSubject = true;
         }
         
         //convert from lazy subject error to an unresolvable
       } else if (this.subject != null && this.subject.getName() != null && this.subject.getName().contains(" entity not found")) {
-        String unresolvableSubjectString = TextContainer.retrieveFromRequest().getText().get("guiUnresolvableSubject");
-        this.subject = new UnresolvableSubject(this.subject.getId(), this.subject.getTypeName(), this.subject.getSourceId(), unresolvableSubjectString);
+        convertToUnresolvableSubject = true;
       }
 
+      if (convertToUnresolvableSubject) {
+        
+        this.subject = new UnresolvableSubject(this.subject.getId(), this.subject.getTypeName(), this.subject.getSourceId(), unresolvableSubjectString);
+
+      }
+
+      boolean isUnresolvableGroup = false;
       
+      
+      if (this.subject instanceof UnresolvableSubject) {
+        if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), this.subject.getSourceId())
+            || StringUtils.equals(EntitySourceAdapter.entitySourceId(), this.subject.getSourceId())) {
+          
+          isUnresolvableGroup = true;
+          
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(this.subject.getId());
+          String extensionName = null;
+          if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), this.subject.getSourceId())) {
+            extensionName = TextContainer.retrieveFromRequest().getText().get("guiGroupCantView");
+          } else {
+            extensionName = TextContainer.retrieveFromRequest().getText().get("guiEntityCantView");
+          }
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getCommonRequestContainer().setSubjectId(null);
+
+          //the user does not have view on this group or entity!
+          Map<String, Set<String>> subjectAttributes = this.subject.getAttributes();
+          subjectAttributes.put("displayExtension", GrouperUtil.toSet(StringUtils.abbreviate(extensionName, 33)));
+          subjectAttributes.put("displayName", GrouperUtil.toSet(extensionName));
+          ((UnresolvableSubject) this.subject).setDescription(extensionName);
+          ((UnresolvableSubject) this.subject).setAttributes(subjectAttributes);
+        }
+      }
       
       String screenLabel = GrouperUiUtils.convertSubjectToLabelLong(this.subject);
             
@@ -314,6 +347,17 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
           }
           if (group == null) {
             group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.subject.getId(), false);
+          }
+          if (group == null) {
+            group = new Group();
+            group.setId(this.subject.getId());
+            String cantFindGroupName = this.subject.getAttributeValue("displayName");
+            String cantFindGroupExtension = this.subject.getAttributeValue("displayExtension");
+            group.setNameDb(cantFindGroupName);
+            group.setDisplayNameDb(cantFindGroupName);
+            group.setExtensionDb(cantFindGroupExtension);
+            group.setDisplayExtensionDb(cantFindGroupExtension);
+            group.setDescriptionDb(cantFindGroupName);
           }
         }
         

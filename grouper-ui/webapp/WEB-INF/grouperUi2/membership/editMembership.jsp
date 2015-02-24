@@ -97,7 +97,7 @@
                         value="${grouperRequestContainer.membershipGuiContainer.directGuiMembership.endDateLabel }" id="member-end-date"><span class="help-block">${textContainer.text['membershipEditLabelEndDateSubtext'] }</span>
                     </div>
                   </div>
-                  <c:if test="grouperRequestContainer.groupContainer.canAdmin">
+                  <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                     <div class="control-group">
                       <label class="control-label">${textContainer.text['membershipEditLabelDirectPrivileges'] }</label>
                       <div class="controls">
@@ -128,7 +128,11 @@
                     </div>
                   </c:if>
                   <input type="hidden" name="backTo" value="${grouperRequestContainer.membershipGuiContainer.editMembershipFromSubject ? 'subject' : 'group' }" />
-                  <div class="form-actions"><a href="#" onclick="ajax('../app/UiV2Membership.saveMembership', {formIds: 'editMembershipFormId'}); return false;" class="btn btn-primary">${textContainer.text['membershipEditSaveButton'] }</a> 
+                  <div class="form-actions">
+                  
+                    <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
+                      <a href="#" onclick="ajax('../app/UiV2Membership.saveMembership', {formIds: 'editMembershipFormId'}); return false;" class="btn btn-primary">${textContainer.text['membershipEditSaveButton'] }</a> 
+                    </c:if>
                     <c:choose>
                       <c:when test="${grouperRequestContainer.membershipGuiContainer.editMembershipFromSubject}">
                         <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}');"
@@ -139,8 +143,12 @@
                            class="btn">${textContainer.text['membershipEditCancelButton']}</a>
                       </c:otherwise>
                     </c:choose>
-                    <a href="#" onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${grouperRequestContainer.subjectContainer.guiSubject.memberId}&field=members&backTo=membership');"
-                       class="btn">${textContainer.text['membershipEditTraceButton']}</a>
+                    <c:if test="${grouperRequestContainer.membershipGuiContainer.guiMembershipSubjectContainer.guiMembershipContainers['members'].membershipContainer.membershipAssignType.nonImmediate}">
+                    
+                      <a href="#" onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${grouperRequestContainer.subjectContainer.guiSubject.memberId}&field=members&backTo=membership');"
+                         class="btn">${textContainer.text['membershipEditTraceButton']}</a>
+
+                    </c:if>
                   </div>                  
                 </form>
               </div>
