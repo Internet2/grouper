@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -83,17 +84,11 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
    */
   @GcPersistableField
   private Long childUserId;
-  
-  /**
-   * parent name
-   */
-  private String parentName;
 
   /**
    * @param parentName1 the parentName to set
    */
   public void setParentName(String parentName1) {
-    this.parentName = parentName1;
   }
 
   /**
@@ -104,16 +99,10 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
   }
 
   /**
-   * child name
-   */
-  private String childName;
-  
-  /**
    * child_name col
    * @param childName1 the childName to set
    */
   public void setChildName(String childName1) {
-    this.childName = childName1;
   }
   
   /**
@@ -132,7 +121,13 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
     this.childUserId = childId1;
   }
 
-
+  /**
+   * child_id col
+   * @return child id
+   */
+  public Long getChildId() {
+    return this.childUserId;
+  }
 
   /**
    * @see java.lang.Object#toString()
@@ -172,7 +167,12 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
    * store this record insert or update
    */
   public void store() {
-    new GcDbAccess().storeToDatabase(this);
+    try {
+      new GcDbAccess().storeToDatabase(this);
+    } catch (RuntimeException re) {
+      GrouperClientUtils.injectInException(re, this.toString());
+      throw re;
+    }
   }
 
   /**
@@ -199,7 +199,7 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
    * @see edu.internet2.middleware.grouperAtlassianConnector.db.AtlassianCwdMembership#getParentName()
    */
   public String getParentName() {
-    return this.parentName;
+    return this.parentId == null ? null : this.parentId.toString();
   }
 
 
@@ -207,7 +207,7 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
    * @see edu.internet2.middleware.grouperAtlassianConnector.db.AtlassianCwdMembership#getChildName()
    */
   public String getChildName() {
-    return this.childName;
+    return this.childUserId == null ? null : this.childUserId.toString();
   }
 
   

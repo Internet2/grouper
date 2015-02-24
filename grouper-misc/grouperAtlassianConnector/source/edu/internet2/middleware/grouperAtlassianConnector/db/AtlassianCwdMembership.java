@@ -84,6 +84,12 @@ public interface AtlassianCwdMembership extends GcSqlAssignPrimaryKey {
   public void setChildId(Long childId1);
 
   /**
+   * child_id col
+   * @return the child id
+   */
+  public Long getChildId();
+
+  /**
    * @see java.lang.Object#toString()
    */
   @Override

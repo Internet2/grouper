@@ -14,7 +14,9 @@
 	<classpathentry kind="lib" path="lib/connector/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/confluence-5.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/atlassian-user-3.0.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper-aws-changelog"/>
+	<classpathentry kind="lib" path="lib/atlassian/atlassian-event-2.3.5.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/spring-context-2.5.6.SEC03.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-aws-changelog"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

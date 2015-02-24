@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouperAtlassianConnector.db.v1.AtlassianCwdUser
 import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianCwdGroupV2;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianCwdMembershipV2;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianCwdUserV2;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianUserMappingV2;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -53,6 +54,21 @@ public enum AtlassianCwdVersion {
     public List<AtlassianCwdMembership> retrieveMemberships() {
       return AtlassianCwdMembershipV1.retrieveMemberships();
     }
+
+    @Override
+    public Map<String, AtlassianUserMapping> retrieveUserMappings() {
+      return null;
+    }
+
+    @Override
+    public boolean doUserMappings() {
+      return false;
+    }
+
+    @Override
+    public AtlassianUserMapping newUserMapping() {
+      return null;
+    }
 },
   
   /** v2 is the newer version from confluence */
@@ -87,13 +103,40 @@ public enum AtlassianCwdVersion {
     public List<AtlassianCwdMembership> retrieveMemberships() {
       return AtlassianCwdMembershipV2.retrieveMemberships();
     }
+
+    @Override
+    public boolean doUserMappings() {
+      return true;
+    }
+
+    @Override
+    public Map<String, AtlassianUserMapping> retrieveUserMappings() {
+      return AtlassianUserMappingV2.retrieveUserMappings();
+    }
+
+    @Override
+    public AtlassianUserMapping newUserMapping() {
+      return new AtlassianUserMappingV2();
+    }
   };
 
+  /**
+   * if we should worry about user mappings
+   * @return true if yes, false if no
+   */
+  public abstract boolean doUserMappings();
+  
   /**
    * retrieve users
    * @return the map of users
    */
   public abstract Map<String, AtlassianCwdUser> retrieveUsers();
+  
+  /**
+   * retrieve user mappings
+   * @return the map of usermappings
+   */
+  public abstract Map<String, AtlassianUserMapping> retrieveUserMappings();
   
   /**
    * retrieve memberships
@@ -118,6 +161,12 @@ public enum AtlassianCwdVersion {
    * @return new group
    */
   public abstract AtlassianCwdGroup newGroup();
+  
+  /**
+   * new user mapping
+   * @return new user mapping
+   */
+  public abstract AtlassianUserMapping newUserMapping();
   
   /**
    * new user
