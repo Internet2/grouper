@@ -15,6 +15,21 @@
         <ant antfile="../../grouper/grouper-misc/grouperClient/build.xml" target="build" useNativeBasedir="true"/>
     </target>
 
+    <target name="grouper-installer">
+        <echo message="Compiling grouper-installer..." />
+        <ant antfile="../../grouper/grouper-misc/grouper-installer/build.xml" target="distBinary" useNativeBasedir="true"/>
+    </target>
+
+    <target name="grouper-voot">
+        <echo message="Compiling grouper-voot..." />
+        <ant antfile="../../grouper/grouper-misc/grouper-voot/build.xml" target="distBinary" useNativeBasedir="true"/>
+    </target>
+
+    <target name="grouper-amq">
+        <echo message="Compiling grouper-amq..." />
+        <ant antfile="../../grouper/grouper-misc/grouperActivemq/build.xml" target="build" useNativeBasedir="true"/>
+    </target>
+
     <target name="subject">
         <echo message="Compiling subject..." />
         <ant antfile="../../grouper/subject/build.xml" target="dist" useNativeBasedir="true"/>
@@ -27,6 +42,6 @@
         <ant antfile="../grouper-ui/dist/grouper/WEB-INF/build.xml" target="deploy" useNativeBasedir="true"/>
     </target>
 
-    <target name="all" depends="grouper, grouper-ws, grouper-client, subject, grouper-ui" />
+    <target name="all" depends="grouper, grouper-ws, grouper-client, subject, grouper-ui, grouper-installer, grouper-voot, grouper-amq" />
     
 </project>
