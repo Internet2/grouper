@@ -35,3 +35,4 @@ subject/doc/
 **/build/dist/**/*.jar
 grouper-ws/grouper-ws/build/*
 grouper-ws/grouper-ws/webapp/WEB-INF/lib/*
+grouper-misc/grouperActivemq/dist2/

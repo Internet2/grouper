@@ -39,6 +39,10 @@
       <fileset dir="libCompile">
         <include name="**/*.jar" />
       </fileset>
+      <fileset dir="${grouperClient.dir}">
+        <include name="**/*.jar" />
+      </fileset>
+
     </path>
 
   </target>
