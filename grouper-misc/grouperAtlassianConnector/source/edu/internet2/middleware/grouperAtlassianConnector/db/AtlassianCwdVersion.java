@@ -7,6 +7,9 @@ package edu.internet2.middleware.grouperAtlassianConnector.db;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.grouperAtlassianConnector.db.v0.AtlassianCwdGroupV0;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v0.AtlassianCwdMembershipV0;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v0.AtlassianCwdUserV0;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v1.AtlassianCwdGroupV1;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v1.AtlassianCwdMembershipV1;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v1.AtlassianCwdUserV1;
@@ -23,6 +26,56 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public enum AtlassianCwdVersion {
 
+  
+  /** v0 is the older version from confluence (e.g. 3.4.5) */
+  V0 {
+
+    @Override
+    public Map<String, AtlassianCwdUser> retrieveUsers() {
+      return AtlassianCwdUserV0.retrieveUsers();
+    }
+
+    @Override
+    public AtlassianCwdMembership newMembership() {
+      return new AtlassianCwdMembershipV0();
+    }
+
+    @Override
+    public AtlassianCwdGroup newGroup() {
+      return new AtlassianCwdGroupV0();
+    }
+
+    @Override
+    public AtlassianCwdUser newUser() {
+      return new AtlassianCwdUserV0();
+    }
+
+    @Override
+    public Map<String, AtlassianCwdGroup> retrieveGroups() {
+      return AtlassianCwdGroupV0.retrieveGroups();
+    }
+    @Override
+    public List<AtlassianCwdMembership> retrieveMemberships() {
+      return AtlassianCwdMembershipV0.retrieveMemberships();
+    }
+
+    @Override
+    public Map<String, AtlassianUserMapping> retrieveUserMappings() {
+      return null;
+    }
+
+    @Override
+    public boolean doUserMappings() {
+      return false;
+    }
+
+    @Override
+    public AtlassianUserMapping newUserMapping() {
+      return null;
+    }
+},
+  
+  
   /** v1 is the older version from jira */
   V1 {
 

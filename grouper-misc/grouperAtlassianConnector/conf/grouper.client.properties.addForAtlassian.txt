@@ -7,7 +7,7 @@ ADD TO grouper.client.properties for atlassian
 # put a folder name that is the root for atlassian groups
 atlassian.root = 
 
-# V1 for recent jira, V2 for recent confluence
+# V0 for old confluence (e.g. 3.4.5), V1 for recent jira, V2 for recent confluence
 atlassian.cwd.version = V2
 
 # directory id to use for inserts.  note, you can generally leave this blank unless there

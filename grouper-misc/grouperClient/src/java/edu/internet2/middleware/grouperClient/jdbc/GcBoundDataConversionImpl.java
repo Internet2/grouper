@@ -143,15 +143,15 @@ public class GcBoundDataConversionImpl implements GcBoundDataConversion {
     }
 
     try{
-      if (value instanceof BigDecimal){
+      if (value instanceof Number) {
         if (clazz == int.class || clazz == Integer.class){
-          value = ((BigDecimal)value).intValue();
+          value = ((Number)value).intValue();
         } else if (clazz == double.class || clazz == Double.class){
-          value = ((BigDecimal)value).doubleValue();
+          value = ((Number)value).doubleValue();
         } else if (clazz == long.class || clazz == Long.class){
-          value = ((BigDecimal)value).longValue();
+          value = ((Number)value).longValue();
         } else if (clazz == String.class){
-          value = ((BigDecimal)value).toString();
+          value = ((Number)value).toString();
         } else {
           throw new RuntimeException("Not expecting value: " + value.getClass());
         }
