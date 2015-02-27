@@ -26,11 +26,7 @@
                           </div>
                           <div class="span4">
                             <button type="submit" class="btn" 
-<<<<<<< master
-                              onclick="ajax('../app/UiV2Stem.assignPrivilegeBatch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId,stemPrivilegeFormId'}); return false;">${textContainer.text['stemPrivilegesUpdateSelected'] }</button>
-=======
                               onclick="ajax('../app/UiV2Stem.assignPrivilegeBatch?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId,stemPagingPrivilegesFormPageNumberId,stemPrivilegeFormId'}); return false;">${textContainer.text['stemUpdateSelectedPrivilegesButton'] }</button>
->>>>>>> 995233f GRP-1065: some grouper ui text not externalized
                           </div>
                         </div>
                       </td>
