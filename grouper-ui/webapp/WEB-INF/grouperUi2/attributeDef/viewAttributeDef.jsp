@@ -42,4 +42,5 @@
                 </div>                
               </div>
             </div>
+            <script>dojoInitMenu();</script>
             <!-- end attributeDef/viewAttributeDef.jsp -->

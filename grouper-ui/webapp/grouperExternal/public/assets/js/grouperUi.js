@@ -633,7 +633,45 @@ function dojoInitMenu() {
       }
     }
   }, "folderTree"); // make sure you have a target HTML element with this id
-  folderTree.startup();
+
+    var itemId = null;
+    var uri = new URI(location.href);
+    uri.search(function(data) {
+        if (data.stemId != undefined) {
+            itemId = data.stemId;
+        }
+        if (data.groupId != undefined) {
+            itemId = data.groupId;
+        }
+        if (data.attributeDefId != undefined) {
+            itemId = data.attributeDefId;
+        }
+
+    });
+
+    if (itemId != null) {
+        folderTree.autoExpand=true;
+    }
+
+    folderTree.startup();
+
+    folderTree.onLoadDeferred.then(function() {
+        var selectedNode = null;
+        if (itemId != null) {
+            var array = folderTree.getNodesByItem(itemId);
+            for (index = 0; index < array.length; index++) {
+                selectedNode = array[index];
+                selectedNode.setSelected(true);
+
+                var parent = selectedNode.getParent();
+                var sibling = parent.getNextSibling();
+                while (sibling != null) {
+                    sibling.collapse();
+                    sibling = sibling.getNextSibling();
+                }
+            }
+        }
+    });
 
 }
 

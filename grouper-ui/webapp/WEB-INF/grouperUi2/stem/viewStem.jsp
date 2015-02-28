@@ -32,3 +32,4 @@
                 </div>
               </div>
             </div>
+            <script>dojoInitMenu();</script>

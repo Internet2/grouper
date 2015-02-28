@@ -16,6 +16,7 @@
   </c:forTokens>
 </c:if>
 
+<script src="../../grouperExternal/public/assets/js/URI.js"></script>
 <script src="../../grouperExternal/public/OwaspJavaScriptServlet"></script>
 
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
