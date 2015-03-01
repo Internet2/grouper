@@ -135,6 +135,32 @@ public class GrouperInstallerUtils  {
     }
     return true;
   }
+
+  /**
+   * Deletes a file, never throwing an exception.
+   * <p>
+   * The difference between File.delete() and this method are:
+   * <ul>
+   * <li>No exceptions are thrown when a file or directory cannot be deleted.</li>
+   * </ul>
+   *
+   * @param file  file to delete, can be <code>null</code>
+   * @return <code>true</code> if the file was deleted, otherwise
+   * <code>false</code>
+   *
+   * @since Commons IO 1.4
+   */
+  public static boolean deleteQuietly(File file) {
+    if (file == null) {
+      return false;
+    }
+
+    try {
+      return file.delete();
+    } catch (Exception e) {
+      return false;
+    }
+  }
   
   /**
    * move a file
@@ -144,7 +170,12 @@ public class GrouperInstallerUtils  {
   public static void fileMove(File file, File newFile) {
     fileDelete(newFile);
     if (!file.renameTo(newFile)) {
-      throw new RuntimeException("Cant rename file " + file.getAbsolutePath() + " to file: " + newFile);
+      copyFile( file, newFile );
+      if (!file.delete()) {
+        deleteQuietly(newFile);
+        throw new RuntimeException("Could not native Java rename, and failed to delete original file '" + file +
+                "' after copy to '" + newFile + "'");
+      }
     }
   }
   
