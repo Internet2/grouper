@@ -1640,7 +1640,7 @@ public class GrouperInstaller {
 
     //patch it
     this.patchApi();
-    
+
     System.out.println("\n##################################");
     System.out.println("Upgrading DB (registry)\n");
 
@@ -3301,14 +3301,9 @@ public class GrouperInstaller {
     }
     
     Properties patchesExistingProperties = patchExistingProperties();
-    
-    String grouperVersion = this.grouperVersionOfJar().toString();
 
-    //if we are upgrading, this is a little different
-    if (this.grouperInstallerMainFunction == GrouperInstallerMainFunction.upgrade) {
-      grouperVersion = this.version;
-    }
-    
+    String grouperVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+
     grouperVersion = GrouperInstallerUtils.replace(grouperVersion, ".", "_");
 
     Map<Integer, String> patchNumberToNameBase = new LinkedHashMap<Integer, String>();
@@ -3608,7 +3603,10 @@ public class GrouperInstaller {
       urlToDownload += "/";
     }
     urlToDownload += "release/";
-    urlToDownload += this.grouperVersionOfJar().toString() + "/patches/" + patchName + ".tar.gz";
+    
+    String grouperVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+
+    urlToDownload +=  grouperVersion + "/patches/" + patchName + ".tar.gz";
 
     File patchFile = new File(this.grouperTarballDirectoryString + patchName + ".tar.gz");
     
