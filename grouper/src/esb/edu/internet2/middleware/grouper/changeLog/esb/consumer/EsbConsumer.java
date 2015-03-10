@@ -533,7 +533,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
           }
         } else {
           if (LOG.isDebugEnabled()) {
-            debugMap.put("unsupportedEvant", event.getType());
+            debugMap.put("unsupportedEvent", event.getType());
           }
         }
 
