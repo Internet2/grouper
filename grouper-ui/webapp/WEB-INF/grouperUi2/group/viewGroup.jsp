@@ -64,4 +64,5 @@
 
               </div>
             </div>
+            <script>dojoInitMenu();</script>
             <!-- end group/viewGroup.jsp -->
