@@ -1646,7 +1646,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
       } else if (!StringUtils.isBlank(this.ownerStemId)) {
         
-        Stem ownerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.id, true);
+        Stem ownerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), this.ownerStemId, true);
         attributeAssignResult = ownerStem.getAttributeDelegate()
           .internal_assignAttributeHelper(theAttributeAssignAction.getName(), theAttributeDefName, true, this.id, PermissionAllowed.fromDisallowedBoolean(this.disallowed));
 
