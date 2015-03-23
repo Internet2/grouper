@@ -1,26 +1,21 @@
+<!-- ./webapp/WEB-INF/grouperUi2/index/indexStemsImanage.jsp -->
+
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
                     <!-- start indexStemsImanage.jsp -->
-                    <h4>${textContainer.text['indexStemsImanageStemsImanage'] }</h4>
+                    <%-- HJ 20150319
+                    <h4>My folders</h4>
+                    --%>
+                    <h4>${textContainer.text['myStemsTitle'] }</h4>
 
+                    <ul class="unstyled list-widget">
+                      <c:forEach items="${grouperRequestContainer.indexContainer.guiStemsUserManagesAbbreviated}" var="guiStem">
+                        <li>
+                        ${guiStem.shortLinkWithIconAndPath }
+                        </li>
+                      </c:forEach>
+                    </ul>
 
-                    <c:choose>
-                      <c:when test="${grouperRequestContainer.indexContainer.stemsImanageRetrieved}">
-                        <ul class="unstyled list-widget">
-                          <c:forEach items="${grouperRequestContainer.indexContainer.guiStemsUserManagesAbbreviated}" var="guiStem">
-                            <li>
-                            ${guiStem.shortLinkWithIconAndPath }
-                            </li>
-                          </c:forEach>
-                        </ul>
-                      </c:when>
-                      <c:otherwise>
-                        <a href="#" onclick="ajax('UiV2Main.indexColStemsImanage?col=${col}&storePref=false'); return false;">${textContainer.text['indexStemsImanageStemsImanageLoad'] }</a></li>
-                        <br /><br /><br /><br/>
-                      </c:otherwise>
-                    </c:choose>
-
-
-                    
-                    <p><strong><a href="#" 
+                    <p><strong><a href="#"
                   onclick="return guiV2link('operation=UiV2MyStems.myStems');">${textContainer.text['indexMyStemsViewAllStems'] }</a>  </strong></p>
                     <!-- end indexStemsImanage.jsp -->
+~
