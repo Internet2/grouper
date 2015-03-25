@@ -2082,11 +2082,21 @@ public class GrouperClientWsTest extends GrouperTest {
     String[] outputLines = null;
     Pattern pattern = null;
     Matcher matcher = null;
+    
+    /**
+    * Note that the following test uses some UTF-8
+    * encoded characters (i.e. äöüß) that are more commonly used
+    * by European-based languages such as German and
+    * French. If you do not see these properly in your
+    * development environment and/or editor and if they
+    * show up as question marks for you, please ensure
+    * the file encoding is correctly indicated as UTF-8.
+    **/
     try {
-      systemOut.println("Umlaut: �");
+      systemOut.println("Umlaut: äöüß");
       //try with name with slash
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupSaveWs --name=aStem:newGroup0�", " "));
+          "--operation=groupSaveWs --name=aStem:newGroup0äöüß", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
@@ -2095,14 +2105,14 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(systemOut);
 
       outputLines = GrouperClientUtils.splitTrim(output, "\n");
-//�
+//äöüß
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
 
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_INSERTED", matcher.group(1));
-      assertEquals("aStem:newGroup0�", matcher.group(2));
+      assertEquals("aStem:newGroup0äöüß", matcher.group(2));
 
       // ##########################
       //try with name with slash
@@ -12606,7 +12616,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
         .compile("^Index\\: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), " +
-        		"values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
+            "values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
 
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -34963,7 +34973,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // match: ^Index: (\d+), \: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
       Pattern pattern = Pattern
         .compile("^Index\\: (\\d+), itemIndex: (\\d+)\\: attributeAssignType\\: (.+), owner\\: (.+), attributeDefNameName\\: (.+), action\\: (.+), " +
-        		"values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
+            "values\\: (.+), enabled\\: (T|F), id\\: (.+), changed\\: (T|F), deleted\\: (T|F), valuesChanged\\: (T|F)$");
       String outputLine = outputLines[0];
 
       Matcher matcher = pattern.matcher(outputLines[0]);
