@@ -17,6 +17,10 @@ import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianCwdGrou
 import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianCwdMembershipV2;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianCwdUserV2;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v2.AtlassianUserMappingV2;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianCwdGroupV3;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianCwdMembershipV3;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianCwdUserV3;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianUserMappingV3;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -171,7 +175,57 @@ public enum AtlassianCwdVersion {
     public AtlassianUserMapping newUserMapping() {
       return new AtlassianUserMappingV2();
     }
-  };
+  },
+  /** v3 is the newer version from jira (e.g. 6.3.1) */
+  V3 {
+
+    @Override
+    public Map<String, AtlassianCwdUser> retrieveUsers() {
+      return AtlassianCwdUserV3.retrieveUsers();
+    }
+
+    @Override
+    public AtlassianCwdMembership newMembership() {
+      return new AtlassianCwdMembershipV3();
+    }
+
+    @Override
+    public AtlassianCwdGroup newGroup() {
+      return new AtlassianCwdGroupV3();
+    }
+
+    @Override
+    public AtlassianCwdUser newUser() {
+      return new AtlassianCwdUserV3();
+    }
+
+    @Override
+    public Map<String, AtlassianCwdGroup> retrieveGroups() {
+      return AtlassianCwdGroupV3.retrieveGroups();
+    }
+
+    @Override
+    public List<AtlassianCwdMembership> retrieveMemberships() {
+      return AtlassianCwdMembershipV3.retrieveMemberships();
+    }
+
+    @Override
+    public boolean doUserMappings() {
+      return true;
+    }
+
+    @Override
+    public Map<String, AtlassianUserMapping> retrieveUserMappings() {
+      return AtlassianUserMappingV3.retrieveUserMappings();
+    }
+
+    @Override
+    public AtlassianUserMapping newUserMapping() {
+      return new AtlassianUserMappingV3();
+    }
+  }
+  
+  ;
 
   /**
    * if we should worry about user mappings
