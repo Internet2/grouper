@@ -772,22 +772,34 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     List<AtlassianCwdMembership> memberships = AtlassianCwdVersion.currentVersion().retrieveMemberships();
     
     for (AtlassianCwdMembership atlassianCwdMembership : GrouperClientUtils.nonNull(memberships)) {
+      
+      Long parentId = atlassianCwdMembership.getParentId();
+      if (parentId == null) {
+        AtlassianCwdGroup parentGroup = this.atlassianGroupnameToGroupMap.get(atlassianCwdMembership.getParentName());
+        parentId = parentGroup.getId();
+      }
 
+      Long childId = atlassianCwdMembership.getChildId();
+      if (childId == null) {
+        AtlassianCwdUser childUser = this.atlassianUsernameToUserMap.get(atlassianCwdMembership.getChildName());
+        childId = childUser.getId();
+      }
+      
       //keep this in a map to lookup the membership
       this.atlassianGroupAndUserToMembershipMap.put(
-          new MultiKey(atlassianCwdMembership.getParentId(), atlassianCwdMembership.getChildId()),
+          new MultiKey(parentId, childId),
           atlassianCwdMembership);
 
       //keep a set of usernames for this group
-      Set<Long> userIds = this.atlassianGroupToUserSetMap.get(atlassianCwdMembership.getParentId());
+      Set<Long> userIds = this.atlassianGroupToUserSetMap.get(parentId);
       if (userIds == null) {
         
         userIds = new HashSet<Long>();
-        this.atlassianGroupToUserSetMap.put(atlassianCwdMembership.getParentId(), userIds);
+        this.atlassianGroupToUserSetMap.put(parentId, userIds);
         
       }
       
-      userIds.add(atlassianCwdMembership.getChildId());
+      userIds.add(childId);
     }
   
   }

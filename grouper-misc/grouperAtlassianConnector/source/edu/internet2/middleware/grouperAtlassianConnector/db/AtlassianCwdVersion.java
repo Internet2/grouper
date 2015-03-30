@@ -21,6 +21,9 @@ import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianCwdGrou
 import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianCwdMembershipV3;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianCwdUserV3;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianUserMappingV3;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v4.AtlassianCwdGroupV4;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v4.AtlassianCwdMembershipV4;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v4.AtlassianCwdUserV4;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -222,6 +225,54 @@ public enum AtlassianCwdVersion {
     @Override
     public AtlassianUserMapping newUserMapping() {
       return new AtlassianUserMappingV3();
+    }
+  }, 
+
+  /** v4 is the older version from jira (e.g. 4.2.1) */
+  V4 {
+
+    @Override
+    public Map<String, AtlassianCwdUser> retrieveUsers() {
+      return AtlassianCwdUserV4.retrieveUsers();
+    }
+
+    @Override
+    public AtlassianCwdMembership newMembership() {
+      return new AtlassianCwdMembershipV4();
+    }
+  
+    @Override
+    public AtlassianCwdGroup newGroup() {
+      return new AtlassianCwdGroupV4();
+    }
+  
+    @Override
+    public AtlassianCwdUser newUser() {
+      return new AtlassianCwdUserV4();
+    }
+  
+    @Override
+    public Map<String, AtlassianCwdGroup> retrieveGroups() {
+      return AtlassianCwdGroupV4.retrieveGroups();
+    }
+    @Override
+    public List<AtlassianCwdMembership> retrieveMemberships() {
+      return AtlassianCwdMembershipV4.retrieveMemberships();
+    }
+  
+    @Override
+    public Map<String, AtlassianUserMapping> retrieveUserMappings() {
+      return null;
+    }
+  
+    @Override
+    public boolean doUserMappings() {
+      return false;
+    }
+  
+    @Override
+    public AtlassianUserMapping newUserMapping() {
+      return null;
     }
   }
   

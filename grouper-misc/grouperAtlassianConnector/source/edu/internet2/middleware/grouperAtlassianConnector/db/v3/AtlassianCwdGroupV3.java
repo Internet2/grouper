@@ -284,7 +284,7 @@ public class AtlassianCwdGroupV3 implements AtlassianCwdGroup {
    */
   @Override
   public String toString() {
-    return "AtlassianCwdGroupV1 [id=" + this.id + ", groupName=" + this.groupName + ", active=" + this.active
+    return "AtlassianCwdGroupV3 [id=" + this.id + ", groupName=" + this.groupName + ", active=" + this.active
         + ", updatedDate=" + this.updatedDate + ", directoryId=" + this.directoryId + ", lowerGroupName="
         + this.lowerGroupName + ", createdDate=" + this.createdDate + ", lowerDescription="
         + this.lowerDescription + ", description=" + this.description + ", groupType=" + this.groupType

@@ -173,5 +173,5 @@ public class AtlassianCwdMembershipV0 implements AtlassianCwdMembership {
    */
   public void setLowerChildName(String lowerChildName1) {
   }
-  
+
 }
