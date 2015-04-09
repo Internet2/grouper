@@ -6,7 +6,13 @@
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span10">
-                    <h1><i class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}</h1>
+                    <h1><i class="fa fa-group"></i> ${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+                    <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
+                      <c:if test="${grouperRequestContainer.groupContainer.guiGroup.attrDefNameGrouperLoaderLdap || grouperRequestContainer.groupContainer.guiGroup.attrDefNameGrouperLoader}">
+                        <a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"><img class="brand" src="../../grouperExternal/public/assets/images/update.png" alt="Update"></a>
+                      </c:if>
+                    </c:if>
+                    </h1>
                     <div id="member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>

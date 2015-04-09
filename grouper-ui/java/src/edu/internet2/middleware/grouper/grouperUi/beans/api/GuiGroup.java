@@ -33,10 +33,13 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -647,5 +650,35 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    */
   public boolean isGrantAllAttrUpdate() {
     return this.group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+  }
+  
+  /**
+   * if an attribute GrouperLoaderLdap is assigned to this group
+   * @return true
+   */
+  public boolean hasAttrDefNameGrouperLoaderLdap() {
+    boolean hasAttrLdap = false;
+    //on retrouve d'abord l'AttrDefName qui nous interesse
+    AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false); 
+    //On vérifie que l'attribute loader LDAP est bien affecté
+    if(grouperLoaderLdapName != null) {
+	  hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoaderLdapName);
+    }
+    return hasAttrLdap;
+  }
+
+  /**
+   * if an attribute GrouperLoader SQL is assigned to this group
+   * @return true
+   */
+  public boolean hasAttrDefNameGrouperLoader() {
+    boolean hasAttrLdap = false;
+    //on retrouve d'abord l'AttrDefName qui nous interesse
+    AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false); 
+    //On vérifie que l'attribute loader LDAP est bien affecté
+    if(grouperLoader != null) {
+	  hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoader);
+    }
+    return hasAttrLdap;
   }
 }
