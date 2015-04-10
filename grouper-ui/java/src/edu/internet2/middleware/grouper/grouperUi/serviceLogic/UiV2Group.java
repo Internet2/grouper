@@ -4206,7 +4206,8 @@ public class UiV2Group {
   }
   
   /**
-   * update a loader group
+   * force grouperLoader to update this loader group
+   * don't throw exception, display success or error message directly on New Ui screen
    * @param request
    * @param response
    */
@@ -4217,6 +4218,8 @@ public class UiV2Group {
     GrouperSession grouperSession = null;
 
     Group group = null;
+    
+    String result = "";
 
     try {
 
@@ -4233,6 +4236,7 @@ public class UiV2Group {
       try {
         result = GrouperLoader.runJobOnceForGroup(grouperSession, group);
       } catch(Exception e) {
+    	//lets show an error message on the new screen  
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
         TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateError") + "<br />" + e.getMessage()));
         return; 
@@ -4240,9 +4244,8 @@ public class UiV2Group {
 
       //lets show a success message on the new screen
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-      TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateSucces")));
+      TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateSucces") + "<br />" + result));
 
-      //On force la mise à jour de l'affichage
       filterHelper(request, response, group);
 
     } finally {

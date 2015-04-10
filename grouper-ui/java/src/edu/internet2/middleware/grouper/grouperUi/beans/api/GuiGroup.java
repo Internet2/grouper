@@ -653,14 +653,15 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   }
   
   /**
-   * if an attribute GrouperLoaderLdap is assigned to this group
-   * @return true
+   * test if an attribute GrouperLoaderLdap is assigned to this group
+   * @return true if an attribute GrouperLoaderLdap is assigned.
+   * return false if not
    */
   public boolean hasAttrDefNameGrouperLoaderLdap() {
     boolean hasAttrLdap = false;
-    //on retrouve d'abord l'AttrDefName qui nous interesse
+    //first, get the attribute def name
     AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false); 
-    //On vérifie que l'attribute loader LDAP est bien affecté
+    //check if the attribute def name is assigned to this group
     if(grouperLoaderLdapName != null) {
 	  hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoaderLdapName);
     }
@@ -668,14 +669,15 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   }
 
   /**
-   * if an attribute GrouperLoader SQL is assigned to this group
-   * @return true
+   * test if an attribute GrouperLoader SQL is assigned to this group
+   * @return true if an attribute GrouperLoader SQL is assigned.
+   * return false if not
    */
   public boolean hasAttrDefNameGrouperLoader() {
     boolean hasAttrLdap = false;
-    //on retrouve d'abord l'AttrDefName qui nous interesse
+    //first, get the attribute def name
     AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false); 
-    //On vérifie que l'attribute loader LDAP est bien affecté
+    //check if the attribute def name is assigned to this group
     if(grouperLoader != null) {
 	  hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoader);
     }
