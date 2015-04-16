@@ -1143,7 +1143,7 @@ public class GrouperServiceLogic {
             }
             
             Stem stem = null;
-            if (wsStemLookup != null) {
+            if (wsStemLookup != null && !wsStemLookup.blank()) {
               wsStemLookup.retrieveStemIfNeeded(session, true);
               stem = wsStemLookup.retrieveStem();
             }
