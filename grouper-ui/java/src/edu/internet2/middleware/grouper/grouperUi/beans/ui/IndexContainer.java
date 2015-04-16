@@ -981,7 +981,14 @@ public class IndexContainer {
     this.myServicesGuiPaging = myServicesGuiPaging1;
   }
 
-  
-  
-  
+  /**
+   * Decide if the browser folder/group pane should auto-select
+   * the currently selected object in the view.
+   */
+  public boolean isMenuRefreshOnView() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", true);
+  }
+
+
+
 }
