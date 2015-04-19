@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -4203,5 +4204,54 @@ public class UiV2Group {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+  /**
+   * force grouperLoader to update this loader group
+   * don't throw exception, display success or error message directly on New Ui screen
+   * @param request
+   * @param response
+   */
+  public void updateLoaderGroup(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+    
+    String result = "";
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      try {
+        result = GrouperLoader.runJobOnceForGroup(grouperSession, group);
+      } catch(Exception e) {
+    	//lets show an error message on the new screen  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+        TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateError") + "<br />" + e.getMessage()));
+        return; 
+      }
+
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateSucces") + "<br />" + result));
+
+      filterHelper(request, response, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
 
 }

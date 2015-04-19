@@ -33,10 +33,13 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -647,5 +650,37 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    */
   public boolean isGrantAllAttrUpdate() {
     return this.group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+  }
+  
+  /**
+   * test if an attribute GrouperLoaderLdap is assigned to this group
+   * @return true if an attribute GrouperLoaderLdap is assigned.
+   * return false if not
+   */
+  public boolean hasAttrDefNameGrouperLoaderLdap() {
+    boolean hasAttrLdap = false;
+    //first, get the attribute def name
+    AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false); 
+    //check if the attribute def name is assigned to this group
+    if(grouperLoaderLdapName != null) {
+	  hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoaderLdapName);
+    }
+    return hasAttrLdap;
+  }
+
+  /**
+   * test if an attribute GrouperLoader SQL is assigned to this group
+   * @return true if an attribute GrouperLoader SQL is assigned.
+   * return false if not
+   */
+  public boolean hasAttrDefNameGrouperLoader() {
+    boolean hasAttrLdap = false;
+    //first, get the attribute def name
+    AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false); 
+    //check if the attribute def name is assigned to this group
+    if(grouperLoader != null) {
+	  hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoader);
+    }
+    return hasAttrLdap;
   }
 }
