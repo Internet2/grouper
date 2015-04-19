@@ -18,6 +18,15 @@
                 </ul>
 
                 <p class="lead">${textContainer.text['thisGroupsMembershipsDescription'] }</p>
+
+                <c:if test="${mediaMap['uiV2.group.show.compositeAndFactors']=='true' && grouperRequestContainer.groupContainer.guiGroup.group.composite }" >
+
+                  <div class="compositeInfo">${textContainer.text['groupLabelCompositeFactorMainPanel'] }<br />
+                    <div class="compositeFactors">${grouperRequestContainer.groupContainer.guiGroup.compositeFactorOfOtherGroupsText}</div>
+                  </div>
+
+                </c:if>
+
                 <form class="form-inline form-small form-filter" id="groupFilterFormId">
                   <div class="row-fluid">
                     <div class="span1">
