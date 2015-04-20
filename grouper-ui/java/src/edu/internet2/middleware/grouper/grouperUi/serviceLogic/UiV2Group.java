@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -419,6 +420,7 @@ public class UiV2Group {
    * the filter button was pressed, or paging or sorting, or view Group or something
    * @param request
    * @param response
+   * @param group
    */
   private void filterHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
     
@@ -480,10 +482,9 @@ public class UiV2Group {
     DojoComboLogic.logic(request, response, new DojoComboQueryLogicBase<Subject>() {
 
       /**
-       * 
        */
       @Override
-      public Subject lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+      public Subject lookup(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
 
         //when we refer to subjects in the dropdown, we will use a sourceId / subject tuple
         
@@ -509,12 +510,12 @@ public class UiV2Group {
        * 
        */
       @Override
-      public Collection<Subject> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+      public Collection<Subject> search(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         
-        Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+        Group group = UiV2Group.retrieveGroupHelper(localRequest, AccessPrivilege.UPDATE, false).getGroup();
         String stemName = null;
         if (group == null) {
-          Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
+          Stem stem = UiV2Stem.retrieveStemHelper(localRequest, true, false, false).getStem();
           stemName = stem == null ? null : stem.getName();
         } else {
           stemName = group.getParentStemName();
@@ -534,7 +535,7 @@ public class UiV2Group {
       /**
        * 
        * @param t
-       * @return
+       * @return source with id
        */
       @Override
       public String retrieveId(GrouperSession grouperSession, Subject t) {
@@ -562,7 +563,7 @@ public class UiV2Group {
        * 
        */
       @Override
-      public String initialValidationError(HttpServletRequest request, GrouperSession grouperSession) {
+      public String initialValidationError(HttpServletRequest localRequest, GrouperSession grouperSession) {
 
         //MCH 20140316
         //Group group = retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
@@ -1245,6 +1246,7 @@ public class UiV2Group {
    * the filter button was pressed for privileges, or paging or sorting, or view Group privileges or something
    * @param request
    * @param response
+   * @param group 
    */
   private void filterPrivilegesHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
     
@@ -2340,6 +2342,7 @@ public class UiV2Group {
    * or paging or sorting, or view Group or something
    * @param request
    * @param response
+   * @param group 
    */
   private void filterThisGroupsMembershipsHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
     
@@ -2556,6 +2559,7 @@ public class UiV2Group {
    * or paging or sorting, or view Group or something
    * @param request
    * @param response
+   * @param group 
    */
   private void filterThisGroupsGroupPrivilegesHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
 
@@ -2846,6 +2850,7 @@ public class UiV2Group {
    * or paging or sorting, or view Group or something
    * @param request
    * @param response
+   * @param group 
    */
   private void filterThisGroupsStemPrivilegesHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
   
@@ -3162,6 +3167,7 @@ public class UiV2Group {
    * or paging or sorting
    * @param request
    * @param response
+   * @param group 
    */
   private void filterThisGroupsAttributeDefPrivilegesHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
   
@@ -3470,7 +3476,7 @@ public class UiV2Group {
        * 
        */
       @Override
-      public Group lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+      public Group lookup(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
         Group theGroup = new GroupFinder().assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES)
             .assignSubject(loggedInSubject).assignCompositeOwner(false)
@@ -3482,7 +3488,7 @@ public class UiV2Group {
        * 
        */
       @Override
-      public Collection<Group> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+      public Collection<Group> search(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
         int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
@@ -3494,7 +3500,7 @@ public class UiV2Group {
       /**
        * 
        * @param t
-       * @return
+       * @return id
        */
       @Override
       public String retrieveId(GrouperSession grouperSession, Group t) {
@@ -3558,6 +3564,7 @@ public class UiV2Group {
    * the audit filter button was pressed, or paging or sorting, or view audits or something
    * @param request
    * @param response
+   * @param group 
    */
   private void viewAuditsHelper(HttpServletRequest request, HttpServletResponse response, Group group) {
     
@@ -3933,7 +3940,7 @@ public class UiV2Group {
        * 
        */
       @Override
-      public Group lookup(HttpServletRequest request, GrouperSession grouperSession, String query) {
+      public Group lookup(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
         Group theGroup = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
             .assignSubject(loggedInSubject)
@@ -3945,7 +3952,7 @@ public class UiV2Group {
        * 
        */
       @Override
-      public Collection<Group> search(HttpServletRequest request, GrouperSession grouperSession, String query) {
+      public Collection<Group> search(HttpServletRequest localRequest, GrouperSession grouperSession, String query) {
         Subject loggedInSubject = grouperSession.getSubject();
         int groupComboSize = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.groupComboboxResultSize", 200);
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, groupComboSize);
@@ -3957,7 +3964,7 @@ public class UiV2Group {
       /**
        * 
        * @param t
-       * @return
+       * @return id
        */
       @Override
       public String retrieveId(GrouperSession grouperSession, Group t) {
@@ -4199,6 +4206,87 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, rightFactorGroup);
     
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * force grouperLoader to update this loader group
+   * don't throw exception, display success or error message directly on New Ui screen
+   * @param request
+   * @param response
+   */
+  public void updateLoaderGroup(HttpServletRequest request, HttpServletResponse response) {
+
+    if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.allowGroupAdminsToRefreshLoaderJobs", true)) {
+      throw new RuntimeException("Cant refresh loader groups from UI due to config param uiV2.group.allowGroupAdminsToRefreshLoaderJobs set to false");
+    }
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+
+    String result = "";
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      try {
+        final Group GROUP = group;
+        result = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          public Object callback(GrouperSession rootGrouperSession) throws GrouperSessionException {
+            return GrouperLoader.runJobOnceForGroup(rootGrouperSession, GROUP);
+          }
+        });
+         
+      } catch (Exception e) {
+
+        LOG.error("Error running loader job from ui for group: " + group.getName(), e);
+        
+        //lets show an error message on the new screen  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateError") + "<br />"
+                + e.getMessage()));
+        return;
+      }
+
+      result = StringUtils.trimToEmpty(result);
+      //see if we can translate this
+      // loader ran successfully, inserted 2 memberships, deleted 0 memberships, total membership count: 2
+      Pattern pattern = Pattern.compile("^loader ran successfully, inserted (\\d+) memberships, deleted (\\d+) memberships, total membership count: (\\d+)$");
+      
+      Matcher matcher = pattern.matcher(result);
+      
+      if (matcher.matches()) {
+
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountAdded(GrouperUtil.intValue(matcher.group(1)));
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountRemoved(GrouperUtil.intValue(matcher.group(2)));
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountTotal(GrouperUtil.intValue(matcher.group(3)));
+        
+        result = TextContainer.retrieveFromRequest().getText().get("groupRunLoaderProcessResult");
+        
+      }
+      
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateSuccess") + "<br />"
+              + result));
+
+      filterHelper(request, response, group);
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
