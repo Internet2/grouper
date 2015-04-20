@@ -291,6 +291,71 @@ public class GroupContainer {
   }
   
   /**
+   * number of members added
+   */
+  private int countAdded;
+
+  /**
+   * number of members removed
+   */
+  private int countRemoved;
+  
+  /**
+   * number of members
+   */
+  private int countTotal;
+
+  /**
+   * number of members
+   * @return the countTotal
+   */
+  public int getCountTotal() {
+    return this.countTotal;
+  }
+  
+  /**
+   * number of members
+   * @param countTotal1 the countTotal to set
+   */
+  public void setCountTotal(int countTotal1) {
+    this.countTotal = countTotal1;
+  }
+
+  /**
+   * number of members added
+   * @return the countAdded
+   */
+  public int getCountAdded() {
+    return this.countAdded;
+  }
+
+  
+  /**
+   * number of members added
+   * @param countAdded1 the countAdded to set
+   */
+  public void setCountAdded(int countAdded1) {
+    this.countAdded = countAdded1;
+  }
+  
+  /**
+   * number of members removed
+   * @return the countRemoved
+   */
+  public int getCountRemoved() {
+    return this.countRemoved;
+  }
+
+  
+  /**
+   * number of members removed
+   * @param countRemoved1 the countRemoved to set
+   */
+  public void setCountRemoved(int countRemoved1) {
+    this.countRemoved = countRemoved1;
+  }
+
+  /**
    * when searching for subjects to add to the group, list them here
    */
   private Set<GuiSubject> guiSubjectsAddMember;
@@ -437,6 +502,9 @@ public class GroupContainer {
     return this.canAdmin;
   }
 
+  /**
+   * if direct member
+   */
   private Boolean directMember;
   
   /**
@@ -597,8 +665,12 @@ public class GroupContainer {
     return this.privilegeGuiPaging;
   }
 
-  public void setGuiPaging(GuiPaging guiPaging) {
-    this.guiPaging = guiPaging;
+  /**
+   * paging
+   * @param guiPaging1
+   */
+  public void setGuiPaging(GuiPaging guiPaging1) {
+    this.guiPaging = guiPaging1;
   }
 
   /**
@@ -628,11 +700,11 @@ public class GroupContainer {
 
   /**
    * assign the membership containers
-   * @param guiMembershipSubjectContainers
+   * @param guiMembershipSubjectContainers1
    */
   public void setGuiMembershipSubjectContainers(
-      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers) {
-    this.guiMembershipSubjectContainers = guiMembershipSubjectContainers;
+      Set<GuiMembershipSubjectContainer> guiMembershipSubjectContainers1) {
+    this.guiMembershipSubjectContainers = guiMembershipSubjectContainers1;
   }
 
   /**
