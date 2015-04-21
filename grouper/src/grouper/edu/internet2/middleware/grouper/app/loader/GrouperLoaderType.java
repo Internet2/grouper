@@ -2154,6 +2154,8 @@ public enum GrouperLoaderType {
         
       }
       
+      int originalGroupSize = currentMembers.size();
+      
       //now lets remove data from each since the member is there and is supposed to be there
       Iterator<LoaderMemberWrapper> iterator = currentMembers.iterator();
       
@@ -2262,6 +2264,16 @@ public enum GrouperLoaderType {
       
       //here are members to remove
       final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
+      
+      // GRP-1130
+      if(shouldAbort(originalGroupSize, membersToRemove.size())) {
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        hib3GrouploaderLog.insertJobMessage("Can't remove "+membersToRemove.size()+" members from "+theGroup.getName()+" unless loader.failsafe.minGroupSize or loader.failsafe.maxPercentRemove properties are changed.");
+        hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+        hib3GrouploaderLog.store();
+        return;
+      } 
+      
       numberOfRows = currentMembers.size();
       count = 1;
       //first remove members
@@ -2402,6 +2414,12 @@ public enum GrouperLoaderType {
         //dont worry, just trying to store the log at end
       }
     }
+  }
+
+
+  private static boolean shouldAbort(final int originalGroupSize, final int membersToRemoveSize) {
+    return originalGroupSize > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.minGroupSize")
+        && ((membersToRemoveSize * 100)/originalGroupSize)  > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.maxPercentRemove");
   }
 
   /**
