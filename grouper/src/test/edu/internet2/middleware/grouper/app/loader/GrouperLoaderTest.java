@@ -1477,6 +1477,96 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
   
   }
+  
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortWithoutChangingMemberships() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+  
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_IDENTIFIER from testgrouper_loader");
+    
+    loaderGroup.addMember(SubjectTestHelper.SUBJ0);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ1);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ2);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ3);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ4);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ5);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ6);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ7);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ8);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ9);
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      // Loader failed and group still has all the subjects.
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ7));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ8));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ9));
+    }
+    
+  }
+  
+  /**
+   * loader job should empty the group due to the values set in loader.failsafe.maxPercentRemove
+   * and loader.failsafe.minGroupSize
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldEmptyTheGroup() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+  
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_IDENTIFIER from testgrouper_loader");
+    
+    loaderGroup.addMember(SubjectTestHelper.SUBJ0);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ1);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ2);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ3);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ4);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ5);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ6);
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+  
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    
+  }
 
   /**
    * loader job should abort when it is trying to remove more number of members than
