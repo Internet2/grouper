@@ -10,3 +10,13 @@
 .grouperUiTooltip {
   /*white-space: nowrap; */
 }
+
+.compositeInfo {
+  margin-bottom: 1.3em;
+}
+
+.compositeInfo .compositeFactors {
+  
+  padding-left: 3em;
+  
+}
