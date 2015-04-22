@@ -981,7 +981,17 @@ public class IndexContainer {
     this.myServicesGuiPaging = myServicesGuiPaging1;
   }
 
-  
-  
-  
+  /**
+   * Should the admin ui link the displayed under quick links?
+   */
+  public boolean isAdminUIQuickLinkDisplayed() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", true);
+  }
+
+  /**
+   * Should the lite ui link the displayed under quick links?
+   */
+  public boolean isLiteUIQuickLinkDisplayed() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.liteui", true);
+  }
 }
