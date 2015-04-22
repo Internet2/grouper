@@ -1126,20 +1126,31 @@ public class UiV2Group {
       }
       
       int changes = 0;
-      
-      Privilege[] privileges = assignAll ? (assign ? new Privilege[]{  
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_ADMINS)} : new Privilege[]{  
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_ADMINS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_GROUP_ATTR_READERS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_GROUP_ATTR_UPDATERS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_OPTOUTS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_READERS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_VIEWERS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_UPDATERS),
-          AccessPrivilege.listToPriv(Field.FIELD_NAME_OPTINS)
-          } ) : (readersUpdaters ? new Privilege[]{AccessPrivilege.listToPriv(Field.FIELD_NAME_READERS),
-              AccessPrivilege.listToPriv(Field.FIELD_NAME_UPDATERS)
-          } : new Privilege[]{AccessPrivilege.listToPriv(fieldName)});
+
+      Privilege[] privileges = null;
+      if (assignAll) {
+        if (assign) {
+          privileges = new Privilege[]{AccessPrivilege.listToPriv(Field.FIELD_NAME_ADMINS)};
+        } else {
+          privileges = new Privilege[]{
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_GROUP_ATTR_READERS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_GROUP_ATTR_UPDATERS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_OPTOUTS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_READERS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_VIEWERS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_UPDATERS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_OPTINS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_ADMINS)
+          };
+        }
+      } else {
+        if (readersUpdaters) {
+          privileges = new Privilege[]{AccessPrivilege.listToPriv(Field.FIELD_NAME_READERS),
+                  AccessPrivilege.listToPriv(Field.FIELD_NAME_UPDATERS)};
+        } else {
+          privileges = new Privilege[]{AccessPrivilege.listToPriv(fieldName)};
+        }
+      }
       
       int count = 0;
       for (Member member : members) {
@@ -1174,8 +1185,12 @@ public class UiV2Group {
         
       }
       guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
-  
-      filterPrivilegesHelper(request, response, group);
+
+      if (group.hasAdmin(loggedInSubject)) {
+        filterPrivilegesHelper(request, response, group);
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain')"));
+      }
   
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
