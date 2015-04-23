@@ -72,10 +72,14 @@
                   onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesButton'] }</a></li>
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
-                
-                  <li><a id="adminiu-link" href="../../populateAllGroups.do">${textContainer.text['ui-lite.fromInvite-admin-link'] }</a></li>
-                  <li><a id="liteiu-link" href="../../grouperUi/appHtml/grouper.html?operation=Misc.index">${textContainer.text['ui-lite.fromInvite-link'] }</a></li>
 
+                  <c:if test="${grouperRequestContainer.indexContainer.adminUIQuickLinkDisplayed=='true'}">
+                  	<li><a id="adminiu-link" href="../../populateAllGroups.do">${textContainer.text['ui-lite.fromInvite-admin-link'] }</a></li>
+                  </c:if>
+                  <c:if test="${grouperRequestContainer.indexContainer.liteUIQuickLinkDisplayed=='true'}">
+                  	<li><a id="liteiu-link" href="../../grouperUi/appHtml/grouper.html?operation=Misc.index">${textContainer.text['ui-lite.fromInvite-link'] }</a></li>
+                  </c:if>
+                  
                   </ul>
                 </div>
               </div>
@@ -87,18 +91,6 @@
                 <script>
                   $(document).ready(function(){
                     dojoInitMenu();
-                    var showLiteUILink = ${grouperRequestContainer.indexContainer.liteUIQuickLinkDisplayed};
-                    if (showLiteUILink) {
-                      $("#liteiu-link").show();
-                    } else {
-                      $("#liteiu-link").hide();
-                    }
-                    var showAdminUILink = ${grouperRequestContainer.indexContainer.adminUIQuickLinkDisplayed};
-                    if (showAdminUILink) {
-                      $("#adminiu-link").show();
-                    } else {
-                      $("#adminiu-link").hide();
-                    }
                   });
                 </script>
                 <div id="folderTreeContainerId">
