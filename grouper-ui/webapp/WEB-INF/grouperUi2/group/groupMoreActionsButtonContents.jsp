@@ -79,8 +79,8 @@
                           </c:if>
                         </c:if>
 
-                        <li class="divider"></li>
                         <c:if test="${grouperRequestContainer.groupContainer.showMenuLinkToAdminUi}">
+                          <li class="divider"></li>
                           <li><a href="../../populateGroupSummary.do?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"
                               >${textContainer.text['groupViewAdminUiButton'] }</a></li>
                         </c:if>
@@ -88,4 +88,3 @@
                     </div>
 
                     <!-- end group/groupMoreActionsButtonContents.jsp -->
-                    
