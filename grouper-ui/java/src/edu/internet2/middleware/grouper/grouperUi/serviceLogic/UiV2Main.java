@@ -24,6 +24,7 @@ import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -169,15 +170,20 @@ public class UiV2Main extends UiServiceLogicBase {
       GrouperObjectFinderType grouperObjectFinderType = GrouperObjectFinderType.valueOfIgnoreCase(filterType, true);
       grouperObjectFinder.addGrouperObjectFinderType(grouperObjectFinderType);
     }
-    
-    Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
-    
-    indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));
-    
-    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-    
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsId", 
-        "/WEB-INF/grouperUi2/index/searchContents.jsp"));
+
+    try {
+      Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
+
+      indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));
+
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsId",
+              "/WEB-INF/grouperUi2/index/searchContents.jsp"));
+    } catch (SubjectTooManyResults e) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("searchTooManyResults")));
+    }
 
   }
 
