@@ -34,6 +34,7 @@ package edu.internet2.middleware.grouper;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -684,6 +685,24 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
       LOG.debug("searchPaging for: " + searchValue);
     }
     return searchHelper(searchValue, true);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributes()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributes() {
+    
+    if (this.subjectIdentifierAttributes == null) {
+      synchronized(GrouperSourceAdapter.class) {
+        if (this.subjectIdentifierAttributes == null) {
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          temp.put(0, "name");
+          this.subjectIdentifierAttributes = temp;
+        }
+      }
+    }
+    
+    return this.subjectIdentifierAttributes;
   }
 }
 

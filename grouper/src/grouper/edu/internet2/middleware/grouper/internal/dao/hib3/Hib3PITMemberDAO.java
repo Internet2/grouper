@@ -169,7 +169,8 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
     Set<Member> members = HibernateSession
       .byHqlStatic()
       .createQuery("select m from Member m where " +
-          "not exists (select 1 from PITMember pit where m.uuid = pit.sourceId and m.subjectIdDb = pit.subjectId and m.subjectSourceIdDb = pit.subjectSourceId and m.subjectTypeId = pit.subjectTypeId) " +
+          "not exists (select 1 from PITMember pit where m.uuid = pit.sourceId and m.subjectIdDb = pit.subjectId and m.subjectSourceIdDb = pit.subjectSourceId and m.subjectTypeId = pit.subjectTypeId" +
+          "             and ((m.subjectIdentifier0 is null and pit.subjectIdentifier0 is null) or (m.subjectIdentifier0 = pit.subjectIdentifier0))) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = m.uuid " +
           "    and type.actionName='addMember' and type.changeLogCategory='member' and type.id=temp.changeLogTypeId) " +

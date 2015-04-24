@@ -64,8 +64,11 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogId;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -89,6 +92,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.membership.MembershipType;
@@ -247,6 +251,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** old uuid id col for id conversion */
   public static final String COLUMN_OLD_MEMBER_UUID = "old_member_uuid";
   
+  /** subjectIdentifier0 */
+  public static final String COLUMN_SUBJECT_IDENTIFIER0 = "subject_identifier0";
+  
   /** sortString0 */
   public static final String COLUMN_SORT_STRING0 = "sort_string0";
 
@@ -312,6 +319,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** constant for field name for: subjectTypeID */
   public static final String FIELD_SUBJECT_TYPE_ID = "subjectTypeID";
 
+  /** constant for field name for: subjectIdentifier0 */
+  public static final String FIELD_SUBJECT_IDENTIFIER0 = "subjectIdentifier0";
+  
   /** constant for field name for: sortString0 */
   public static final String FIELD_SORT_STRING0 = "sortString0";
 
@@ -355,7 +365,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
-      FIELD_NAME, FIELD_DESCRIPTION);
+      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0);
 
   /**
    * fields which are included in clone method
@@ -365,7 +375,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID,
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
-      FIELD_NAME, FIELD_DESCRIPTION);
+      FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -398,6 +408,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /**  */
   private String  subjectTypeID;
+  
+  /** subject identfier */
+  private String subjectIdentifier0;
   
   /** string that can be used to sort results */
   private String sortString0;
@@ -2785,7 +2798,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         ChangeLogLabels.MEMBER_DELETE.id.name(), this.getUuid(), 
         ChangeLogLabels.MEMBER_DELETE.subjectId.name(), this.getSubjectIdDb(), 
         ChangeLogLabels.MEMBER_DELETE.subjectSourceId.name(), this.getSubjectSourceIdDb(),
-        ChangeLogLabels.MEMBER_DELETE.subjectTypeId.name(), this.getSubjectTypeId()).save();
+        ChangeLogLabels.MEMBER_DELETE.subjectTypeId.name(), this.getSubjectTypeId(),
+        ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0.name(), this.getSubjectIdentifier0()).save();
   }
 
   /**
@@ -2806,7 +2820,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         ChangeLogLabels.MEMBER_ADD.id.name(), this.getUuid(), 
         ChangeLogLabels.MEMBER_ADD.subjectId.name(), this.getSubjectIdDb(), 
         ChangeLogLabels.MEMBER_ADD.subjectSourceId.name(), this.getSubjectSourceIdDb(),
-        ChangeLogLabels.MEMBER_ADD.subjectTypeId.name(), this.getSubjectTypeId()).save();
+        ChangeLogLabels.MEMBER_ADD.subjectTypeId.name(), this.getSubjectTypeId(),
+        ChangeLogLabels.MEMBER_ADD.subjectIdentifier0.name(), this.getSubjectIdentifier0()).save();
   }
 
   /**
@@ -2827,12 +2842,14 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             ChangeLogLabels.MEMBER_UPDATE.id.name(), this.getUuid(), 
             ChangeLogLabels.MEMBER_UPDATE.subjectId.name(), this.getSubjectIdDb(), 
             ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name(), this.getSubjectSourceIdDb(),
-            ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name(), this.getSubjectTypeId()),
-        GrouperUtil.toList("subjectId", "subjectSourceId", "subjectTypeId"),
+            ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name(), this.getSubjectTypeId(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), this.getSubjectIdentifier0()),
+        GrouperUtil.toList("subjectId", "subjectSourceId", "subjectTypeId", "subjectIdentifier0"),
         GrouperUtil.toList(
             ChangeLogLabels.MEMBER_UPDATE.subjectId.name(),
             ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name(),
-            ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name()));    
+            ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name()));    
   }
 
   /**
@@ -3771,6 +3788,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (!StringUtils.equals(this.subjectTypeID, other.subjectTypeID)) {
       return true;
     }
+    if (!StringUtils.equals(this.subjectIdentifier0, other.subjectIdentifier0)) {
+      return true;
+    }
     if (!StringUtils.equals(this.sortString0, other.sortString0)) {
       return true;
     }
@@ -3834,6 +3854,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     existingRecord.subjectID = this.subjectID;
     existingRecord.subjectSourceID = this.subjectSourceID;
     existingRecord.subjectTypeID = this.subjectTypeID;
+    existingRecord.subjectIdentifier0 = this.subjectIdentifier0;
     existingRecord.sortString0 = this.sortString0;
     existingRecord.sortString1 = this.sortString1;
     existingRecord.sortString2 = this.sortString2;
@@ -3904,6 +3925,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     xmlExportMember.setSubjectType(this.getSubjectTypeId());
     xmlExportMember.setUuid(this.getUuid());
     
+    xmlExportMember.setSubjectIdentifier0(this.getSubjectIdentifier0());
     xmlExportMember.setSortString0(this.getSortString0());
     xmlExportMember.setSortString1(this.getSortString1());
     xmlExportMember.setSortString2(this.getSortString2());
@@ -3948,6 +3970,21 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     
   }
 
+  
+  /**
+   * @return the subjectIdentifier0
+   */
+  public String getSubjectIdentifier0() {
+    return subjectIdentifier0;
+  }
+  
+  /**
+   * @param subjectIdentifier0 the subjectIdentifier0 to set
+   */
+  public void setSubjectIdentifier0(String subjectIdentifier0) {
+    this.subjectIdentifier0 = subjectIdentifier0;
+  }
+  
   
   /**
    * @return the sortString0
@@ -4145,6 +4182,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @param storeChanges if there are changes, should they be saved to the database?
    */
   public void updateMemberAttributes(Subject subject, boolean storeChanges) {
+    this.subjectIdentifier0 = null;
     this.sortString0 = null;
     this.sortString1 = null;
     this.sortString2 = null;
@@ -4158,6 +4196,11 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
     this.name = GrouperUtil.isEmpty(subject.getName()) ? null : subject.getName();
     this.description = GrouperUtil.isEmpty(subject.getDescription()) ? null : subject.getDescription();
+    
+    Map<Integer, String> subjectIdentifierAttributes = subject.getSource().getSubjectIdentifierAttributes();
+    if (subjectIdentifierAttributes.containsKey(0)) {
+      this.subjectIdentifier0 = subject.getAttributeValue(subjectIdentifierAttributes.get(0), false);
+    }
     
     Map<Integer, String> sortAttributes = subject.getSource().getSortAttributes();
     if (sortAttributes.containsKey(0)) {
@@ -4216,6 +4259,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       }
     }
         
+    if (GrouperUtil.isEmpty(this.subjectIdentifier0)) {
+      this.subjectIdentifier0 = null;
+    }
+
     this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : GrouperUtil.truncateAscii(this.sortString0, 50);
     this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : GrouperUtil.truncateAscii(this.sortString1, 50);
     this.sortString2 = GrouperUtil.isEmpty(this.sortString2) ? null : GrouperUtil.truncateAscii(this.sortString2, 50);
@@ -4245,13 +4292,35 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   throws GrouperDAOException {
                 String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
                   "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
-                  "search_string3 = ?, search_string4 = ?, name = ?, description = ? where id = ?";
+                  "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ? where id = ?";
                 List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
                     Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
                     Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 
-                    Member.this.name, Member.this.description,
+                    Member.this.name, Member.this.description, Member.this.subjectIdentifier0,
                     Member.this.getUuid());
                 hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars);
+                
+                // if subject identifier is changing, we're sending that to the change log
+                if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0)) {
+                  String oldValue = Member.this.dbVersion().getSubjectIdentifier0();
+                  String newValue = Member.this.getSubjectIdentifier0();
+                  ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
+                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                  List<Object> bindVars2 = GrouperUtil.toList(
+                      (Object)GrouperUuid.getUuid(), 
+                      changeLogType.getId(),
+                      ChangeLogId.changeLogId(),
+                      Member.this.getId(),
+                      Member.this.getSubjectId(),
+                      Member.this.getSubjectSourceId(),
+                      Member.this.getSubjectTypeId(),
+                      Member.this.getSubjectIdentifier0(),
+                      "subjectIdentifier0",
+                      oldValue,
+                      newValue);
+                  hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2);
+                }
+                
                 hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
                 return null;
               }

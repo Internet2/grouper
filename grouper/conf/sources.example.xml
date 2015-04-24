@@ -248,6 +248,12 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
        <param-value>LOGINID</param-value>
      </init-param>
 
+     <!-- subject identifier to store in grouper's member table -->
+     <init-param>
+       <param-name>subjectIdentifierAttribute0</param-name>
+       <param-value>LOGINID</param-value>
+     </init-param>
+
      <search>
          <searchType>searchSubject</searchType>
          <param>
@@ -693,6 +699,12 @@ where
     <attribute>uid</attribute>
     <attribute>department</attribute>
     <attribute>exampleEduRegId</attribute>
+
+    <!- - subject identifier to store in grouper's member table - - >
+    <init-param>
+      <param-name>subjectIdentifierAttribute0</param-name>
+      <param-value>uid</param-value>
+    </init-param>
    
   </source>
 -->

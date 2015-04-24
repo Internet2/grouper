@@ -425,7 +425,10 @@ public class ChangeLogLabels {
     memberId,
     
     /** field id */
-    fieldId;
+    fieldId,
+    
+    /** subjectIdentifier0 */
+    subjectIdentifier0;
   };
 
   /** labels for a membership update */
@@ -495,7 +498,10 @@ public class ChangeLogLabels {
     fieldId,
     
     /** subjectName */
-    subjectName;
+    subjectName,
+    
+    /** subjectIdentifier0 */
+    subjectIdentifier0;
   };
   
   /**
@@ -624,7 +630,10 @@ public class ChangeLogLabels {
     subjectSourceId,
     
     /** subjectTypeId */
-    subjectTypeId;
+    subjectTypeId,
+    
+    /** subjectIdentifier0 */
+    subjectIdentifier0;
   };
   
   /**
@@ -642,7 +651,10 @@ public class ChangeLogLabels {
     subjectSourceId,
     
     /** subjectTypeId */
-    subjectTypeId;
+    subjectTypeId,
+    
+    /** subjectIdentifier0 */
+    subjectIdentifier0;
   };
   
   /**
@@ -661,6 +673,9 @@ public class ChangeLogLabels {
     
     /** subjectTypeId */
     subjectTypeId,
+    
+    /** subjectIdentifier0 */
+    subjectIdentifier0,
     
     /** property which changed */
     propertyChanged, 

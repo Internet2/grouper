@@ -1305,6 +1305,44 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   public void setSubjectAttributeColToName(Map<String, String> subjectAttributeColToName1) {
     this.subjectAttributeColToName = subjectAttributeColToName1;
   }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributes()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributes() {
+    
+    if (this.subjectIdentifierAttributes == null) {
+      synchronized(JDBCSourceAdapter2.class) {
+        if (this.subjectIdentifierAttributes == null) {
+          
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 1; i++) {
+            String value = getInitParam("subjectIdentifierAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }        
+          }
+                    
+          // if we still don't have anything..
+          if (temp.size() == 0) {
+            for (String identifierCol : SubjectUtils.nonNull(subjectIdentifierCols)) {
+              // check if this column is mapped to an attribute
+              String attribute = subjectAttributeColToName.get(identifierCol);
+              if (attribute != null) {
+                temp.put(0, attribute);
+                break;
+              }
+            }
+          }
+          
+          this.subjectIdentifierAttributes = temp;
+        }
+      }
+    }
+    
+    return this.subjectIdentifierAttributes;
+  }
 
 //  /**
 //   * 

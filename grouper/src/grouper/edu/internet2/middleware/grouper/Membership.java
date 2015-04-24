@@ -2873,7 +2873,8 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
-          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName()).save();
+          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName(),
+          ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0.name(), this.getMember().getSubjectIdentifier0()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
           ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getImmediateMembershipId(),
@@ -2950,7 +2951,8 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_DELETE.subjectName.name(), subjectName,
-          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
+          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0.name(), this.getMember().getSubjectIdentifier0()).save();
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
           ChangeLogLabels.PRIVILEGE_DELETE.id.name(), this.getImmediateMembershipId(),

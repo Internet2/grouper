@@ -307,6 +307,8 @@ public abstract class BaseSourceAdapter implements Source {
   /** internal attributes. */
   protected Set<String> internalAttributes = new SubjectCaseInsensitiveSetImpl<String>();
   
+  protected Map<Integer, String> subjectIdentifierAttributes = null;
+  
   protected Map<Integer, String> sortAttributes = null;
   
   protected Map<Integer, String> searchAttributes = null;
@@ -568,6 +570,13 @@ public abstract class BaseSourceAdapter implements Source {
   }
   
   /**
+   * @param subjectIdentifierAttributes
+   */
+  public void setSubjectIdentifierAttributes(Map<Integer, String> subjectIdentifierAttributes) {
+    this.subjectIdentifierAttributes = subjectIdentifierAttributes;
+  }
+  
+  /**
    * @param sortAttributes
    */
   public void setSortAttributes(Map<Integer, String> sortAttributes) {
@@ -582,18 +591,49 @@ public abstract class BaseSourceAdapter implements Source {
   }
   
   /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributes()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributes() {
+    
+    if (this.subjectIdentifierAttributes == null) {
+      synchronized(BaseSourceAdapter.class) {
+        if (this.subjectIdentifierAttributes == null) {
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 1; i++) {
+            String value = getInitParam("subjectIdentifierAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }        
+          }
+          
+          this.subjectIdentifierAttributes = temp;
+        }
+      }
+    }
+    
+    return this.subjectIdentifierAttributes;
+  }
+  
+  /**
    * @see edu.internet2.middleware.subject.Source#getSortAttributes()
    */
   public Map<Integer, String> getSortAttributes() {
     
     if (this.sortAttributes == null) {
-      this.sortAttributes = new LinkedHashMap<Integer, String>();
-      
-      for (int i = 0; i < 5; i++) {
-        String value = getInitParam("sortAttribute" + i);
-        if (value != null) {
-          this.sortAttributes.put(i, value.toLowerCase());
-        }        
+      synchronized(BaseSourceAdapter.class) {
+        if (this.sortAttributes == null) {
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 5; i++) {
+            String value = getInitParam("sortAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }        
+          }
+          
+          this.sortAttributes = temp;
+        }
       }
     }
     
@@ -606,13 +646,19 @@ public abstract class BaseSourceAdapter implements Source {
   public Map<Integer, String> getSearchAttributes() {
     
     if (this.searchAttributes == null) {
-      this.searchAttributes = new LinkedHashMap<Integer, String>();
-      
-      for (int i = 0; i < 5; i++) {
-        String value = getInitParam("searchAttribute" + i);
-        if (value != null) {
-          this.searchAttributes.put(i, value.toLowerCase());
-        }        
+      synchronized(BaseSourceAdapter.class) {
+        if (this.searchAttributes == null) {
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 5; i++) {
+            String value = getInitParam("searchAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }        
+          }
+          
+          this.searchAttributes = temp;
+        }
       }
     }
     

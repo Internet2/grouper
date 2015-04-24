@@ -231,6 +231,10 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
         this.addInitParam("searchAttribute" + i, "searchAttribute" + i);
       }
     }
+    
+    this.addInitParam("subjectVirtualAttribute_0_subjectIdentifierAttribute0", "${subject.id}");
+    this.addInternalAttribute("subjectIdentifierAttribute0");
+    this.addInitParam("subjectIdentifierAttribute0", "subjectIdentifierAttribute0");
   } // public void init()
 
   /**

@@ -2240,6 +2240,30 @@ public enum GrouperDdl implements DdlVersionable {
     public boolean recreateViewsAndForeignKeys() {
       return false;
     }
+  },
+
+
+  /**
+   * <pre>
+   * Grouper 2.3.0
+   * </pre>
+   */
+  V30 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
+      
+      Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
+    }
   };
 
   /**
@@ -4815,6 +4839,10 @@ public enum GrouperDdl implements DdlVersionable {
             "type of subject, e.g. person");
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SUBJECT_IDENTIFIER0, 
+            "subject identifier of the subject");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           Member.TABLE_GROUPER_MEMBERS,  Member.COLUMN_SORT_STRING0, 
             "string that can be used to sort results");
       
@@ -4885,6 +4913,11 @@ public enum GrouperDdl implements DdlVersionable {
           PITMember.TABLE_GROUPER_PIT_MEMBERS, 
           PITMember.COLUMN_SUBJECT_ID, 
             "subject id is the id from the subject source");
+      
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          PITMember.TABLE_GROUPER_PIT_MEMBERS, 
+          PITMember.COLUMN_SUBJECT_IDENTIFIER0, 
+            "subject identifier of the subject");
   
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           PITMember.TABLE_GROUPER_PIT_MEMBERS,  
@@ -10559,6 +10592,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_TYPE, 
           Types.VARCHAR, "255", false, true);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, 
+          Types.VARCHAR, "255", false, false);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_ACTIVE,
           Types.VARCHAR, "1", false, true);
       
@@ -11726,6 +11762,8 @@ public enum GrouperDdl implements DdlVersionable {
   private static void addMemberAttributes(Database database, DdlVersionBean ddlVersionBean) {
     Table membersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, Member.TABLE_GROUPER_MEMBERS);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
+
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING0, Types.VARCHAR, "50", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING1, Types.VARCHAR, "50", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING2, Types.VARCHAR, "50", false, false);

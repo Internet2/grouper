@@ -1312,4 +1312,35 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     return aggregateSql;
   }
   
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributes()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributes() {
+    
+    if (this.subjectIdentifierAttributes == null) {
+      synchronized(JDBCSourceAdapter.class) {
+        if (this.subjectIdentifierAttributes == null) {
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 1; i++) {
+            String value = getInitParam("subjectIdentifierAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }        
+          }
+          
+          // if we still don't have anything..
+          if (temp.size() == 0) {
+            if (this.identifierAttributes != null && this.identifierAttributes.size() > 0) {
+              temp.put(0, this.identifierAttributes.get(0));
+            }
+          }
+          
+          this.subjectIdentifierAttributes = temp;
+        }
+      }
+    }
+    
+    return this.subjectIdentifierAttributes;
+  }
 }
