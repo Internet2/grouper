@@ -32,4 +32,4 @@
                 </div>
               </div>
             </div>
-            <script>dojoInitMenu();</script>
+            <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>

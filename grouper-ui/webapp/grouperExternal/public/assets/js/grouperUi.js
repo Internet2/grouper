@@ -535,7 +535,7 @@ function dojoUnregisterWidget(id) {
 }
 
 /** init the left tree menu */
-function dojoInitMenu() {
+function dojoInitMenu(autoSelectNode) {
 
   if ((typeof folderMenuStore != 'undefined') && (folderMenuStore != null)) {
     if (typeof folderMenuStore.destroyRecursive != 'undefined') {
@@ -634,9 +634,10 @@ function dojoInitMenu() {
     }
   }, "folderTree"); // make sure you have a target HTML element with this id
 
-  var itemId = null;
-  var uri = new URI(location.href);
-  uri.search(function(data) {
+  if (autoSelectNode) {
+    var itemId = null;
+    var uri = new URI(location.href);
+    uri.search(function (data) {
       if (data.stemId != undefined) {
         itemId = data.stemId;
       }
@@ -647,32 +648,34 @@ function dojoInitMenu() {
         itemId = data.attributeDefId;
       }
 
-  });
+    });
 
-  if (itemId != null) {
-    folderTree.autoExpand=true;
+    if (itemId != null) {
+      folderTree.autoExpand = true;
+    }
   }
 
   folderTree.startup();
 
-  folderTree.onLoadDeferred.then(function() {
-    var selectedNode = null;
-    if (itemId != null) {
-      var array = folderTree.getNodesByItem(itemId);
-      for (index = 0; index < array.length; index++) {
-        selectedNode = array[index];
-        selectedNode.setSelected(true);
+  if (autoSelectNode) {
+    folderTree.onLoadDeferred.then(function () {
+      var selectedNode = null;
+      if (itemId != null) {
+        var array = folderTree.getNodesByItem(itemId);
+        for (index = 0; index < array.length; index++) {
+          selectedNode = array[index];
+          selectedNode.setSelected(true);
 
-        var parent = selectedNode.getParent();
-        var sibling = parent.getNextSibling();
-        while (sibling != null) {
-          sibling.collapse();
-          sibling = sibling.getNextSibling();
+          var parent = selectedNode.getParent();
+          var sibling = parent.getNextSibling();
+          while (sibling != null) {
+            sibling.collapse();
+            sibling = sibling.getNextSibling();
+          }
         }
       }
-    }
-  });
-
+    });
+  }
 }
 
 //function dojoClearTree(theTree, theStore) {
