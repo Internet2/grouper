@@ -5,6 +5,7 @@
                   <input type="hidden" name="groupRefreshPart" value="thisGroupsMemberships" /> 
                 </form> 
 
+                <form id="groupsToDeleteFormId">
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
@@ -23,7 +24,6 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <form id="groupsToDeleteFormId">
                       <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.groupContainer.guiMembershipSubjectContainers}" 
                         var="guiMembershipSubjectContainer" >
@@ -72,9 +72,9 @@
                         </tr>
                         <c:set var="i" value="${i+1}" />
                       </c:forEach>
-                    </form>
                   </tbody>
                 </table>
+                </form>
                 <div class="data-table-bottom gradient-background">
                   <grouper:paging2 guiPaging="${grouperRequestContainer.groupContainer.guiPaging}" formName="groupPagingForm" ajaxFormIds="groupFilterFormId"
                     refreshOperation="../app/UiV2Group.filterThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}" />

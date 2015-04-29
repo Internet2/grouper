@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.membership.MembershipContainer;
 
 
@@ -30,11 +31,11 @@ public class GuiMembershipContainer {
 
   /**
    * construct
-   * @param membershipContainer
+   * @param membershipContainer1
    */
-  public GuiMembershipContainer(MembershipContainer membershipContainer) {
+  public GuiMembershipContainer(MembershipContainer membershipContainer1) {
     super();
-    this.membershipContainer = membershipContainer;
+    this.membershipContainer = membershipContainer1;
   }
 
   /**
@@ -47,9 +48,22 @@ public class GuiMembershipContainer {
    * @return the gui group container
    */
   public GuiGroup getGuiGroupOwner() {
-    if (this.guiGroupOwner == null && !StringUtils.isBlank(this.membershipContainer.getImmediateMembership().getOwnerGroupId())) {
-      this.guiGroupOwner = new GuiGroup(this.membershipContainer.getImmediateMembership().getOwnerGroup());
+
+    if (this.guiGroupOwner == null) {
+
+      if (this.membershipContainer != null) {
+
+        Membership immediateMembership = this.membershipContainer.getImmediateMembership();
+
+        if (immediateMembership != null) {
+          if (!StringUtils.isBlank(immediateMembership.getOwnerGroupId())) {
+            this.guiGroupOwner = new GuiGroup(immediateMembership.getOwnerGroup());
+          
+          }
+        }
+      }
     }
+    
     return this.guiGroupOwner;
   }
   
