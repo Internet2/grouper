@@ -70,7 +70,15 @@
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewAuditButton'] }</a></li>
+                          
+                          <c:if test="${mediaMap['uiV2.group.allowGroupAdminsToRefreshLoaderJobs']=='true' }" >
+                            <c:if test="${grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoaderLdap || grouperRequestContainer.groupContainer.guiGroup.hasAttrDefNameGrouperLoader}">
+                              <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                                >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
+                            </c:if>
+                          </c:if>
                         </c:if>
+
                         <li class="divider"></li>
                         <c:if test="${grouperRequestContainer.groupContainer.showMenuLinkToAdminUi}">
                           <li><a href="../../populateGroupSummary.do?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"

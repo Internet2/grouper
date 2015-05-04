@@ -33,10 +33,13 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -115,9 +118,9 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
           result.append("<br />\n");
         }
         
-        Group group = composite.getOwnerGroup();
+        Group theGroup = composite.getOwnerGroup();
 
-        GuiGroup guiGroup = new GuiGroup(group);
+        GuiGroup guiGroup = new GuiGroup(theGroup);
         result.append(guiGroup.getCompositeOwnerText());
         
       } catch (GroupNotFoundException gnfe) {
@@ -260,6 +263,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
+  @Override
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -275,6 +279,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   /**
    * @see java.lang.Object#hashCode()
    */
+  @Override
   public int hashCode() {
     return new HashCodeBuilder()
       .append( this.group )
@@ -293,9 +298,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   /**
    * 
    * @param groups
-   * @param configMax
-   * @param max
-   * @return
+   * @return groups
    */
   public static Set<GuiGroup> convertFromGroups(Set<Group> groups) {
     return convertFromGroups(groups, null, -1);
@@ -305,8 +308,8 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    * 
    * @param groups
    * @param configMax
-   * @param max
-   * @return
+   * @param defaultMax
+   * @return groups
    */
   public static Set<GuiGroup> convertFromGroups(Set<Group> groups, String configMax, int defaultMax) {
     Set<GuiGroup> tempGroups = new LinkedHashSet<GuiGroup>();
@@ -362,6 +365,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   /**
    * 
    * @param showIcon
+   * @param showPath 
    * @return the link
    */
   private String shortLinkHelper(boolean showIcon, boolean showPath) {
@@ -647,5 +651,46 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
    */
   public boolean isGrantAllAttrUpdate() {
     return this.group.hasGroupAttrUpdate(SubjectFinder.findAllSubject());
+  }
+
+  /**
+   * test if an attribute GrouperLoaderLdap is assigned to this group
+   * @return true if an attribute GrouperLoaderLdap is assigned.
+   * return false if not
+   */
+  public boolean isHasAttrDefNameGrouperLoaderLdap() {
+
+    boolean hasAttrLdap = false;
+    
+    //first, get the attribute def name
+    AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+    
+    //check if the attribute def name is assigned to this group
+    if (grouperLoaderLdapName != null) {
+      hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoaderLdapName);
+    }
+    
+    return hasAttrLdap;
+  }
+
+  /**
+   * test if an attribute GrouperLoader SQL is assigned to this group
+   * @return true if an attribute GrouperLoader SQL is assigned.
+   * return false if not
+   */
+  public boolean isHasAttrDefNameGrouperLoader() {
+    boolean hasAttrLdap = false;
+
+    //first, get the attribute def name
+    AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false);
+    
+    //check if the attribute def name is assigned to this group
+    if (grouperLoader != null) {
+      hasAttrLdap = this.group.getAttributeDelegate().hasAttribute(grouperLoader);
+    }
+    
+    return hasAttrLdap;
   }
 }
