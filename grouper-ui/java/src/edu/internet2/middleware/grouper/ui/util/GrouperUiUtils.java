@@ -23,7 +23,6 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -66,8 +65,13 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.j2ee.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -91,6 +95,45 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GrouperUiUtils {
 
+  /**
+   * handle a veto, maybe put a message on screen if this is a veto
+   * @param guiResponseJs
+   * @param cause
+   * @return true if handling veto
+   */
+  public static boolean vetoHandle(GuiResponseJs guiResponseJs, Throwable cause) {
+
+    Throwable causeCause = cause == null ? null : cause.getCause();
+
+    Throwable causeCauseCause = causeCause == null ? null : causeCause.getCause();
+
+    HookVeto hookVeto = (cause instanceof HookVeto) ? (HookVeto)cause : null;
+
+    hookVeto = ((hookVeto == null) && (causeCause instanceof HookVeto)) ? (HookVeto)causeCause : hookVeto;
+
+    hookVeto = ((hookVeto == null) && (causeCauseCause instanceof HookVeto)) ? (HookVeto)causeCauseCause : hookVeto;
+
+    if (hookVeto != null) {
+
+      String messageToScreen = TextContainer.textOrNull(hookVeto.getReasonKey());
+
+      //make sure the key is in there
+      if (StringUtils.isEmpty(messageToScreen)) {
+        messageToScreen = hookVeto.getReason();
+      }
+
+      if (!StringUtils.isBlank(messageToScreen)) {
+
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            messageToScreen));
+
+        return true;
+      }
+
+    }
+    return false;
+  }
+  
   /**
    * if search string valid
    * @param searchString
@@ -1609,6 +1652,7 @@ public class GrouperUiUtils {
    * convert a date to a string using the standard web service pattern
    * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
    * 
+   * @param locale
    * @param date
    * @return the string, or null if the date is null
    */

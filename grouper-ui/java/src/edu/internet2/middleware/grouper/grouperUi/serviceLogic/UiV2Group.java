@@ -1586,10 +1586,15 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("groupCreateInsufficientPrivileges")));
         return;
-  
+
+        
       } catch (Exception sde) {
         
         LOG.warn("Error creating group: " + SubjectHelper.getPretty(loggedInSubject) + ", " + group, sde);
+        
+        if (GrouperUiUtils.vetoHandle(guiResponseJs, sde)) {
+          return;
+        }
         
         //dont change screens
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
@@ -1742,11 +1747,11 @@ public class UiV2Group {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-  
+
     GrouperSession grouperSession = null;
-  
+
     Group group = null;
-  
+
     try {
   
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -1841,7 +1846,11 @@ public class UiV2Group {
       } catch (Exception sde) {
         
         LOG.warn("Error edit group: " + SubjectHelper.getPretty(loggedInSubject) + ", " + group, sde);
-        
+
+        if (GrouperUiUtils.vetoHandle(guiResponseJs, sde)) {
+          return;
+        }
+
         //dont change screens
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("groupEditError") 
