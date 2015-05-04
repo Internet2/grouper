@@ -1670,7 +1670,11 @@ public class UiV2Stem {
       } catch (Exception sde) {
         
         LOG.warn("Error creating stem: " + SubjectHelper.getPretty(loggedInSubject) + ", " + stem, sde);
-        
+
+        if (GrouperUiUtils.vetoHandle(guiResponseJs, sde)) {
+          return;
+        }
+
         //dont change screens
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemCreateError") 
@@ -1818,7 +1822,11 @@ public class UiV2Stem {
       } catch (Exception sde) {
         
         LOG.warn("Error edit stem: " + SubjectHelper.getPretty(loggedInSubject) + ", " + stem, sde);
-        
+
+        if (GrouperUiUtils.vetoHandle(guiResponseJs, sde)) {
+          return;
+        }
+
         //dont change screens
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("stemEditError") 
