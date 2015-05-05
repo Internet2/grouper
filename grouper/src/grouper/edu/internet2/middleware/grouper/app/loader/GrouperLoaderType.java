@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
@@ -2153,6 +2152,8 @@ public enum GrouperLoaderType {
         }
         
       }
+
+      int originalGroupSize = currentMembers.size();
       
       //now lets remove data from each since the member is there and is supposed to be there
       Iterator<LoaderMemberWrapper> iterator = currentMembers.iterator();
@@ -2262,6 +2263,20 @@ public enum GrouperLoaderType {
       
       //here are members to remove
       final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
+   
+      // GRP-1130
+      if(shouldAbortDueToTooManyMembersRemoved(originalGroupSize, membersToRemove.size())) {
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        hib3GrouploaderLog.insertJobMessage("Can't remove "
+            + membersToRemove.size() + " members from " + theGroup.getName() + " (originalGroupSize: "
+            + originalGroupSize + ") "
+            + " unless loader.failsafe.use is false, or loader.failsafe.minGroupSize "
+            + " or loader.failsafe.maxPercentRemove properties are changed.");
+        hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+        hib3GrouploaderLog.store();
+        return;
+      } 
+      
       numberOfRows = currentMembers.size();
       count = 1;
       //first remove members
@@ -2404,6 +2419,24 @@ public enum GrouperLoaderType {
     }
   }
 
+  /**
+   * see if too many members are being removed and if we should abort this job
+   * @param originalGroupSize
+   * @param membersToRemoveSize
+   * @return true if should abort
+   */
+  private static boolean shouldAbortDueToTooManyMembersRemoved(final int originalGroupSize, final int membersToRemoveSize) {
+    
+    //maybe dont use this feature
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.failsafe.use", false)) {
+      return false;
+    }
+    
+    //must be a group of a minimum size, and not so many members removed
+    return originalGroupSize >= GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.minGroupSize")
+        && ((membersToRemoveSize * 100)/originalGroupSize)  > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.maxPercentRemove");
+  }
+  
   /**
    * get an attribute value, or null, or a default if exists
    * @param attributeAssign
