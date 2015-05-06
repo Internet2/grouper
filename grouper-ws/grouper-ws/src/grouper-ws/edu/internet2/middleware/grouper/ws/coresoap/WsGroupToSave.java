@@ -32,13 +32,15 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupCopy;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupMove;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -416,6 +418,88 @@ public class WsGroupToSave {
     }
     
     return group;
+  }
+
+  /**
+   * move this group
+   * 
+   * @param grouperSession
+   *            to save
+   * @param toStem
+   * @param moveAssignAlternateName
+   * @return the group that was moved
+   */
+  public Group move(GrouperSession grouperSession, Stem toStem, Boolean moveAssignAlternateName) {
+
+    Group group = null;
+              
+    this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
+
+    Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
+
+    GroupMove groupMove = new GroupMove(groupLookedup, toStem);
+
+    if (moveAssignAlternateName != null) {
+      groupMove.assignAlternateName(moveAssignAlternateName);
+    }
+    
+    groupMove.save();
+    group = GroupFinder.findByName(grouperSession, toStem.getName() + Stem.DELIM + groupLookedup.getExtension(), true);
+    
+    this.saveResultType = SaveResultType.INSERT;
+    
+    return group;
+  }
+
+  /**
+   * copy this group
+   * 
+   * @param grouperSession
+   *            to save
+   * @param toStem
+   * @param copyPrivilegesOfGroup 
+   * @param copyGroupAsPrivilege 
+   * @param copyListMembersOfGroup 
+   * @param copyListGroupAsMember 
+   * @param copyAttributes 
+   * @param moveAssignAlternateName
+   * @return the group that was moved
+   */
+  public Group copy(GrouperSession grouperSession, Stem toStem, Boolean copyPrivilegesOfGroup,
+      Boolean copyGroupAsPrivilege, Boolean copyListMembersOfGroup, 
+      Boolean copyListGroupAsMember, Boolean copyAttributes) {
+
+    Group group = null;
+
+    this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
+
+    Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
+
+    GroupCopy groupCopy = new GroupCopy(groupLookedup, toStem);
+
+    if (copyPrivilegesOfGroup != null) {
+      groupCopy.copyPrivilegesOfGroup(copyPrivilegesOfGroup);
+    }
+    if (copyGroupAsPrivilege != null) {
+      groupCopy.copyGroupAsPrivilege(copyGroupAsPrivilege);
+    }
+    if (copyListMembersOfGroup != null) {
+      groupCopy.copyListMembersOfGroup(copyListMembersOfGroup);
+    }
+    if (copyListGroupAsMember != null) {
+      groupCopy.copyListGroupAsMember(copyListGroupAsMember);
+    }
+    if (copyAttributes != null) {
+      groupCopy.copyAttributes(copyAttributes);
+    }
+    
+    groupCopy.save();
+    group = GroupFinder.findByName(grouperSession, toStem.getName() + Stem.DELIM + groupLookedup.getExtension(), true);
+    
+    this.saveResultType = SaveResultType.INSERT;
+    
+    return group;
+
   }
 
   /**
