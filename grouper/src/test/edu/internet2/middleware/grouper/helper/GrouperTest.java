@@ -761,6 +761,7 @@ public class GrouperTest extends TestCase {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.minGroupSize", "8");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.maxPercentRemove", "20");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
 
     setupConfigs();
     
