@@ -4028,7 +4028,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                 .findAllChildGroups(Stem.this, Stem.Scope.SUB)) {
               Group newChild = child.internal_copy(oldStemUuidToNewStem.get(child
                   .getParentUuid()), privilegesOfGroup, groupAsPrivilege,
-                  listMembersOfGroup, listGroupAsMember, attributes, false, false, false);
+                  listMembersOfGroup, listGroupAsMember, attributes, false, false, false, null, null);
               oldGroupUuidToNewGroup.put(child.getUuid(), newChild);
               
               Composite oldComposite = GrouperDAOFactory.getFactory().getComposite()
