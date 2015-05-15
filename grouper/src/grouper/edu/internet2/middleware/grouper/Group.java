@@ -6586,6 +6586,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param composite
    * @param addDefaultGroupPrivileges
    * @param checkSecurity true to check that user can do this operation, false to ignore
+   * @param extension
+   * @param displayExtension
    * @return group
    * @throws GroupAddException
    * @throws InsufficientPrivilegeException
@@ -6593,7 +6595,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   protected Group internal_copy(final Stem stem, final boolean privilegesOfGroup,
       final boolean groupAsPrivilege, final boolean listMembersOfGroup,
       final boolean listGroupAsMember, final boolean attributes, final boolean composite,
-      final boolean addDefaultGroupPrivileges, final boolean checkSecurity)
+      final boolean addDefaultGroupPrivileges, final boolean checkSecurity, 
+      final String extension, final String displayExtension)
       throws GroupAddException, InsufficientPrivilegeException {
     
     return (Group)HibernateSession.callbackHibernateSession(
@@ -6646,22 +6649,24 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             }
             
                 Group newGroup = null;
+                String theExtension = extension == null ? Group.this.getExtension() : extension;
+                String theDisplayExtension = displayExtension == null ? Group.this.getDisplayExtensionDb() : displayExtension;
                 
                 try {
-                  newGroup = stem.internal_addChildGroup(Group.this.getExtension(),
-                      Group.this.getDisplayExtensionDb(), null, Group.this
+                  newGroup = stem.internal_addChildGroup(theExtension,
+                      theDisplayExtension, null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
                       addDefaultGroupPrivileges, Group.this.typeOfGroup, checkSecurity);
                 } catch (GroupAddException e) {
                   Group test = GroupFinder.findByName(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), stem.getName()
-                      + Stem.DELIM + Group.this.getExtension(), false);
+                      + Stem.DELIM + theExtension, false);
                   if (test == null) {
                     throw e;
                   }
                   
                   // if the group already exists in the new stem, lets append ".#" to the extension.
-                  String newGroupExtension = Group.this.getExtensionDb() + ".2";
+                  String newGroupExtension = theExtension + ".2";
                   int extensionCount = 2;
                   boolean notFound = false;
                   while (notFound == false) {
@@ -6670,7 +6675,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                         + Stem.DELIM + newGroupExtension, false);
                     if (foundGroup != null) {
                       extensionCount++;
-                      newGroupExtension = Group.this.getExtensionDb() + "."
+                      newGroupExtension = theExtension + "."
                           + extensionCount;
                     } else {
                       notFound = true;
@@ -6678,7 +6683,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   }
                   
                   newGroup = stem.internal_addChildGroup(newGroupExtension,
-                      Group.this.getDisplayExtensionDb(), null, Group.this
+                      theDisplayExtension, null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
                 addDefaultGroupPrivileges, Group.this.typeOfGroup, checkSecurity);
                 }

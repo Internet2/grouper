@@ -20,8 +20,6 @@ package edu.internet2.middleware.grouper;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /**
  * Use this class to copy a group to another stem.
@@ -44,6 +42,10 @@ public class GroupCopy {
   private boolean listGroupAsMember = true;
 
   private boolean attributes = true;
+  
+  private String extension = null;
+  
+  private String displayExtension = null;
 
   /**
    * Create a new instance of this class if you would like to specify
@@ -106,6 +108,26 @@ public class GroupCopy {
     this.attributes = value;
     return this;
   }
+  
+  /**
+   * Optionally set a new extension for the group.
+   * @param value
+   * @return GroupCopy
+   */
+  public GroupCopy setExtension(String value) {
+    this.extension = value;
+    return this;
+  }
+  
+  /**
+   * Optionally set a new display extension for the group.
+   * @param value
+   * @return GroupCopy
+   */
+  public GroupCopy setDisplayExtension(String value) {
+    this.displayExtension = value;
+    return this;
+  }
 
   /**
    * Copy the group using the options set in this class.
@@ -118,6 +140,6 @@ public class GroupCopy {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
 
     return group.internal_copy(stem, privilegesOfGroup, groupAsPrivilege,
-        listMembersOfGroup, listGroupAsMember, attributes, true, true, true);
+        listMembersOfGroup, listGroupAsMember, attributes, true, true, true, extension, displayExtension);
   }
 }

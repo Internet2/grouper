@@ -107,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_minimum_as_nonadmin_insufficient_privileges"));
+    TestRunner.run(new Test_api_Group("test_copy_same_stem"));
   }
   
   private Group           top_group, child_group;
@@ -1054,6 +1054,70 @@ public class Test_api_Group extends GrouperTest {
     verify_copy(r, newGroup, false, false, false, false, false);
     
     r.rs.stop();
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_new_extension() {
+    Group newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
+    
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
+
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.3"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_new_display_extension() {
+    Group newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:child group"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+    
+    newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:child group.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+
+    newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:child group.3"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_new_extension_and_display_extension() {
+    Group newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+    
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.3"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_same_stem() {
+    Group newGroup = new GroupCopy(child_group, child).save();
+    assertTrue(newGroup.getName().equals("top:child:child group.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child:child group display name"));
+    
+    newGroup = new GroupCopy(child_group, child).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:child:new extension"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child:child group display name"));
   }
   
   /**
