@@ -2110,6 +2110,14 @@ public class UiV2Group {
         parentFolderId = request.getParameter("parentFolderComboNameDisplay");
       }
       
+      if (StringUtils.isBlank(extension)) {
+        extension = group.getExtension();
+      }
+      
+      if (StringUtils.isBlank(displayExtension)) {
+        displayExtension = group.getDisplayExtension();
+      }
+      
       final Stem parentFolder = StringUtils.isBlank(parentFolderId) ? null : new StemFinder()
           .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignSubject(loggedInSubject)
@@ -2133,7 +2141,9 @@ public class UiV2Group {
             .copyListGroupAsMember(copyListMembershipsInOtherGroups)
             .copyListMembersOfGroup(copyListMemberships)
             .copyPrivilegesOfGroup(copyGroupPrivileges)
-            .copyGroupAsPrivilege(copyPrivsInOtherGroups).save();
+            .copyGroupAsPrivilege(copyPrivsInOtherGroups)
+            .setDisplayExtension(displayExtension)
+            .setExtension(extension).save();
   
       } catch (InsufficientPrivilegeException ipe) {
         
@@ -2143,25 +2153,6 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupCopyInsufficientPrivileges")));
         return;
   
-      }
-  
-      boolean changed = false;
-      
-      //see if we are changing the extension
-      if (!StringUtils.equals(newGroup.getExtension(), extension)) {
-        newGroup.setExtension(extension, false);
-        changed = true;
-      }
-      
-      //see if we are changing the display extension
-      if (!StringUtils.equals(newGroup.getDisplayExtension(), displayExtension)) {
-        newGroup.setDisplayExtension(displayExtension);
-        changed = true;
-      }
-  
-      //save it if we need to
-      if (changed) {
-        newGroup.store();
       }
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + newGroup.getId() + "')"));
