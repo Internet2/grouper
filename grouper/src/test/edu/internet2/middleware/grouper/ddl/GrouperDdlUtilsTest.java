@@ -19,17 +19,31 @@
  */
 package edu.internet2.middleware.grouper.ddl;
 
+import org.apache.commons.logging.Log;
+
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * tests
  */
 public class GrouperDdlUtilsTest extends GrouperTest {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperDdlUtilsTest.class);
 
   /**
    * @param name
@@ -42,9 +56,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    GrouperTest.setupTests();
+    //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testIdUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("testDdl"));
   }
 
   /**
@@ -57,6 +71,79 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(SubjectDdl.V1);
     assertNotNull(dbMetadataBean);
     
+  }
+
+  /**
+   * 
+   */
+  public void testDdl() {
+
+    GrouperDdlUtils.deleteUtfDdls();
+
+    try {
+      Hib3GrouperDdl hib3GrouperDdl = (Hib3GrouperDdl)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          Hib3GrouperDdl hib3GrouperDdl = GrouperDdlUtils.storeDdl(hibernateHandlerBean.getHibernateSession(), GrouperUuid.getUuid(), 
+              "grouperUtf_abc", "");
+          hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
+          return hib3GrouperDdl;
+        }
+      });
+  
+      Hib3GrouperDdl number2 = GrouperDdlUtils.retrieveDdlByIdFromDatabase(hib3GrouperDdl.getId());
+      
+      if (number2 == null) {
+        throw new RuntimeException("Not by id!");
+      }
+      
+      number2 = GrouperDdlUtils.retrieveDdlByNameFromDatabase(hib3GrouperDdl.getObjectName());
+  
+      if (number2 == null) {
+        throw new RuntimeException("Not by id!");
+      }
+      
+      GrouperDdlUtils.deleteDdlById(hib3GrouperDdl.getId());
+  
+      number2 = GrouperDdlUtils.retrieveDdlByIdFromDatabase(hib3GrouperDdl.getId());
+      
+      if (number2 != null) {
+        throw new RuntimeException("cant delete!");
+      }
+  
+      hib3GrouperDdl = (Hib3GrouperDdl)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          Hib3GrouperDdl hib3GrouperDdl = GrouperDdlUtils.storeDdl(hibernateHandlerBean.getHibernateSession(), GrouperUuid.getUuid(), 
+              "grouperUtf_abc", "");
+          hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
+          return hib3GrouperDdl;
+        }
+      });
+  
+      
+      number2 = GrouperDdlUtils.retrieveDdlByIdFromDatabase(hib3GrouperDdl.getId());
+      
+      if (number2 == null) {
+        throw new RuntimeException("Not by id!");
+      }
+      
+      GrouperDdlUtils.deleteUtfDdls();
+  
+      number2 = GrouperDdlUtils.retrieveDdlByIdFromDatabase(hib3GrouperDdl.getId());
+      
+      if (number2 != null) {
+        throw new RuntimeException("cant deleteall!");
+      }
+    } finally {
+      try {
+        //GrouperDdlUtils.deleteUtfDdls();
+      } catch (RuntimeException re) {
+        LOG.error("error", re);
+      }
+    }
   }
   
   /**
