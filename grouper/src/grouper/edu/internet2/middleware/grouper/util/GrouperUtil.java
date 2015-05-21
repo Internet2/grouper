@@ -6653,7 +6653,7 @@ public class GrouperUtil {
    */
   public static void saveStringIntoFile(File file, String contents) {
     try {
-      String encoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding", "ISO-8859-1");
+      String encoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding", "UTF-8");
 
       writeStringToFile(file, contents, encoding);
     } catch (IOException ioe) {
@@ -6761,7 +6761,7 @@ public class GrouperUtil {
     StringWriter stringWriter = new StringWriter();
     try {
       inputStream = url.openStream();
-      String encoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding", "ISO-8859-1");
+      String encoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding", "UTF-8");
       copy(inputStream, stringWriter, encoding);
     } catch (IOException ioe) {
       throw new RuntimeException("Error reading resource: '" + resourceName + "'", ioe);
