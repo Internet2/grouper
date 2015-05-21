@@ -329,6 +329,8 @@ public class GrouperStartup {
 
     boolean detectUtf8Problems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.utf8.problems", true);
 
+    boolean detectUtf8FileProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.utf8.file.problems", true);
+    
     boolean detectCaseSensitiveProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.db.caseSensitive.problems", true);
 
     boolean utfProblems = false;
@@ -342,7 +344,7 @@ public class GrouperStartup {
     final String id = GrouperUuid.getUuid();
     final String name = "grouperUtf_" + GrouperUuid.getUuid();
     
-    if (detectUtf8Problems && !utfProblems) {
+    if (detectUtf8FileProblems && !utfProblems) {
       String theStringFromFile = null;
       try {
         theStringFromFile = GrouperUtil.readResourceIntoString("grouperUtf8.txt", false);
@@ -356,16 +358,24 @@ public class GrouperStartup {
       if (!utfProblems && !StringUtils.equals(theStringFromFile, someUtfString)) {
         String error = "Error: Cannot properly read UTF string from resource: grouperUtf8.txt: '" + theStringFromFile
             + "'";
-        
+
         String fileEncoding = System.getProperty("file.encoding");
         if (fileEncoding == null || !fileEncoding.toLowerCase().startsWith("utf")) {
           error += ", make sure you pass in the JVM switch -Dfile.encoding=utf-8 (currently is '" 
               + fileEncoding + "')";
         }
-        
+
+        fileEncoding = GrouperConfig.retrieveConfig().propertyValueString("grouper.default.fileEncoding");
+        if (fileEncoding == null || !fileEncoding.toLowerCase().startsWith("utf")) {
+          error += ", make sure you have grouper.default.fileEncoding set to UTF-8 in the grouper.properties (or leave it out since the default should be UTF-8)";
+        }
+
         LOG.error(error);
         System.out.println(error);
         utfProblems = true;
+      }
+      if (!utfProblems & GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.display.utf8.success.message", false)) {
+        System.out.println("Grouper can read UTF characters correctly from files");
       }
     }
 
