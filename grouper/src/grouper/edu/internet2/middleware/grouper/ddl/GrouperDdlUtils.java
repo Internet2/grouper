@@ -1816,7 +1816,7 @@ public class GrouperDdlUtils {
    * @param id
    */
   public static void deleteDdlById(final String id) {
-    HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where id = '" + id + "'");
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where id = ?", GrouperUtil.toListObject(id));
   }
 
   /**
