@@ -235,7 +235,13 @@ public class UiV2Main extends UiServiceLogicBase {
       
       //un-url-encrypt
       if (StringUtils.equals("root", folderQueryString)) {
-        stem = StemFinder.findRootStem(grouperSession);
+    	  // GRP-1107 browse starting from stem configured by property: default.browse.stem, otherwise from root.
+    	  String defaultBrowseStem = GrouperUiConfig.retrieveConfig().propertyValueString("default.browse.stem", null);
+          if (!StringUtils.isBlank(defaultBrowseStem)) {
+        	  stem = StemFinder.findByName(grouperSession, defaultBrowseStem, true);
+          } else {
+        	  stem = StemFinder.findRootStem(grouperSession);
+          }
       } else {
         int lastSlash = folderQueryString.lastIndexOf('/');
         String stemId = null;

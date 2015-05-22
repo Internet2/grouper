@@ -124,6 +124,16 @@
                       
                     </div>
                     <p>${grouper:escapeHtml(grouperRequestContainer.groupContainer.guiGroup.group.description)}</p>
+                    <c:if test="${grouperRequestContainer.groupContainer.canRead && mediaMap['uiV2.group.show.compositeFactors']=='true'}">
+                      <table class="table table-condensed">
+                        <tbody>
+                          <tr>
+                            <td><strong>${textContainer.text['groupLabelCompositeFactors'] }</strong></td>
+                            <td>${grouperRequestContainer.groupContainer.guiGroup.compositeFactorOfOtherGroupsText}</td>
+                          </tr>
+                        </tbody>
+                      </table>		
+                    </c:if>
                     <div id="groupDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">
                         <tbody>
