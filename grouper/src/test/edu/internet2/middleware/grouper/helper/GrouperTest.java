@@ -758,6 +758,10 @@ public class GrouperTest extends TestCase {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.builtin.createAs.public", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.use.nestedTransactions", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.minGroupSize", "8");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.failsafe.maxPercentRemove", "20");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
 
     setupConfigs();
     

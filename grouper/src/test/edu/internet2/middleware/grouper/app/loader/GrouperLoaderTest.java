@@ -1629,6 +1629,52 @@ public class GrouperLoaderTest extends GrouperTest {
     
   }
   
+  /**
+   * loader should delete the group even when it is being used when the property
+   * loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup is set to true
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDeletesGroupEvenWhenItIsUsedInAnotherGroup() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(group1subj0);
+
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
+        "addIncludeExclude");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    
+    Group overallGroup = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+    assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
+    
+    HibernateSession.byObjectStatic().delete(testDataList);
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().
+        put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "true");
+    // now lets use a group in another group
+    Group anotherGroup = Group.saveGroup(this.grouperSession, "aStem:anotherGroup", null, 
+        "aStem:anotherGroup", null, null, null, true);
+    anotherGroup.addMember(SubjectFinder.findById(overallGroup.getUuid(), true));
+    
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%_systemOfRecord");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    
+    assertNull(GroupFinder.findByName(this.grouperSession, "loader:group1", false));
+    
+  }
+  
   
 //  /**
 //   * test the loader to make sure you can apply security to include/exclude
