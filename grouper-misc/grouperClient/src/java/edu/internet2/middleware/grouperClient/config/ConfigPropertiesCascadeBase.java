@@ -1290,18 +1290,24 @@ public abstract class ConfigPropertiesCascadeBase {
     }
     
     String extraError = "";
-    try {
-      
-      
-      Class<?> theClass = ConfigPropertiesCascadeUtils.forName(value);
-      if (classType.isAssignableFrom(theClass)) {
-        return true;
+    for (String classValue : value.split(",")) {
+      try {
+        
+        Class<?> theClass = ConfigPropertiesCascadeUtils.forName(classValue.trim());
+        if (classType.isAssignableFrom(theClass)) {
+        } else {
+          extraError += " does not derive from class: " + classType.getSimpleName();
+        }
+        
+      } catch (Exception e) {
+        extraError = ", " + ConfigPropertiesCascadeUtils.getFullStackTrace(e);
       }
-      extraError = " does not derive from class: " + classType.getSimpleName();
-      
-    } catch (Exception e) {
-      extraError = ", " + ConfigPropertiesCascadeUtils.getFullStackTrace(e);
+    }  
+
+    if (extraError.isEmpty()) {
+      return true;
     }
+
     String error = "Cant process property " + key + " in resource: " + this.getMainConfigClasspath() + ", the current" +
         " value is '" + value + "', which should be of type: " 
         + classType.getName() + extraError;
