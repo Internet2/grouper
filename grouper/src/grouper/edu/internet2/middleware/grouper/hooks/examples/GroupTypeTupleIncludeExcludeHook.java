@@ -952,7 +952,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           //get any membership
           Set<Membership> memberships = GrouperDAOFactory.getFactory()
             .getMembership().findAllImmediateByMember(member.getUuid(), false);
-          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
               "loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", false) && memberships.size() > 0) {
             String message = "Not deleting group: " + overallName + " since used in " 
               + memberships.size() + " immediate memberships";
