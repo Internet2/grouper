@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -951,7 +952,8 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           //get any membership
           Set<Membership> memberships = GrouperDAOFactory.getFactory()
             .getMembership().findAllImmediateByMember(member.getUuid(), false);
-          if (memberships.size() > 0) {
+          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+              "loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", false) && memberships.size() > 0) {
             String message = "Not deleting group: " + overallName + " since used in " 
               + memberships.size() + " immediate memberships";
             LOG.debug(message);
