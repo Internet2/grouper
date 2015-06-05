@@ -474,7 +474,8 @@ public class UiV2GroupImport {
       String bulkAddOption = request.getParameter("bulkAddOptions");
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
-      Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+      final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+
       String fileName = null;
       if (StringUtils.equals(bulkAddOption, "import")) {
 
@@ -599,6 +600,9 @@ public class UiV2GroupImport {
       Map<String, String> reportByGroupName = new HashMap<String, String>();
       groupImportContainer.setReportForGroupNameMap(reportByGroupName);
 
+      int totalAdded = 0;
+      int totalDeleted = 0;
+      
       Iterator<Group> groupIterator = groups.iterator();
 
       boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
@@ -747,6 +751,9 @@ public class UiV2GroupImport {
         groupImportContainer.setGroupCountOriginal(existingCount);
         groupImportContainer.setGroupCountNew(newSize);
         
+        totalAdded += addedCount;
+        totalDeleted += deletedCount;
+        
         report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSummary")).append("\n");
         report.append(TextContainer.retrieveFromRequest().getText().get("groupImportReportSuccess")).append("\n");
         
@@ -768,12 +775,11 @@ public class UiV2GroupImport {
 
         GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
             loggedInSubject, group);
-
         
-        if (StringUtils.equals(bulkAddOption, "import")) {
-          auditImport(group.getUuid(), group.getName(), fileName, addedCount, deletedCount);
-        }
-        
+      }
+      
+      if (StringUtils.equals(bulkAddOption, "import")) {
+    	  auditImport(subjectSet.size(), fileName, totalAdded, totalDeleted);
       }
       
       //show the report screen
@@ -795,19 +801,19 @@ public class UiV2GroupImport {
 
   }
   
-    private void auditImport(final String groupId, final String groupName, final String fileName,
-			final int countAdded, final int countDeleted) {
+    private void auditImport(final int totalSubjects, final String fileName,
+			final int totalAdded, final int totalDeleted) {
       HibernateSession.callbackHibernateSession(
 		    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
 			    new HibernateHandler() {
 				    public Object callback(HibernateHandlerBean hibernateHandlerBean)
 					    throws GrouperDAOException {
 						  
-						AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_IMPORT, "file", fileName, "totalAdded", 
-								String.valueOf(countAdded), "groupId", groupId, "groupName", groupName, "totalDeleted", String.valueOf(countDeleted));
+						AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.IMPORT, "file", fileName, "totalAdded", 
+						    String.valueOf(totalAdded), "totalDeleted", String.valueOf(totalDeleted));
 						  
-						String description = "Added : " + countAdded + " subjects "
-								  + "  and deleted "+countDeleted + " subjects in group ."+groupName;
+						String description = "Found : " + totalSubjects + " subjects in : " + fileName 
+								  + " file. \n Added  "+totalAdded+" and deleted "+totalDeleted + " subjects.";
 						auditEntry.setDescription(description);
 						auditEntry.saveOrUpdate(true);
 						  
