@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
@@ -57,6 +59,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -207,6 +215,7 @@ public class SimpleMembershipUpdateImportExport {
         writer.writeNext(entries);
       }      
       writer.close();
+      auditExport(memberData.size(), groupExtensionFileName);
  
     } catch (NoSessionException se) {
       throw se;
@@ -335,7 +344,8 @@ public class SimpleMembershipUpdateImportExport {
         writer.writeNext(entries);
       }      
       writer.close();
-            
+      
+      auditExport(memberData.size(), groupExtensionFileName);
   
       throw new ControllerDone();
     } catch (NoSessionException se) {
@@ -348,6 +358,26 @@ public class SimpleMembershipUpdateImportExport {
     }
     
   }
+
+	private static void auditExport(final int exportSize, final String groupExtensionFileName) {
+		HibernateSession.callbackHibernateSession(
+	          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+	    	      new HibernateHandler() {
+	    	          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+	    	              throws GrouperDAOException {
+	    	        	  
+	    	        	  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CSV_EXPORT, "exportSize", String.valueOf(exportSize)
+	    	        			  , "file", groupExtensionFileName);
+	    	                    
+	    	              String description = "exported : " + exportSize + " subjects in : " + groupExtensionFileName 
+	    	                  + " file.";
+	    	              auditEntry.setDescription(description);
+	    	              auditEntry.saveOrUpdate(true);
+	    	        	  
+	    	        	  return null;
+	    	          }
+	      });
+	}	
   
   /**
    * export all immediate subjects as subject ids
