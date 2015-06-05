@@ -600,6 +600,12 @@ public class GuiAuditEntry {
           this.setupAttributeDef();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_UPDATE");
+
+        case CSV_EXPORT:
+        	
+        	this.setupExportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_CSV_EXPORT");
+        	
         case ENTITY_ADD:
           
           this.setupEntity();
@@ -755,6 +761,10 @@ public class GuiAuditEntry {
           this.setupGroup();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
+          
+        case IMPORT:
+        	this.setupImportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_IMPORT");
         
         case MEMBER_CHANGE_SUBJECT:
           
@@ -1078,14 +1088,13 @@ public class GuiAuditEntry {
 	  this.file = file;
   }
   
-
   public int getImportTotalAdded() {
-	return importTotalAdded;
+  	return importTotalAdded;
   }
 
 
   public int getImportTotalDeleted() {
-	return importTotalDeleted;
+	  return importTotalDeleted;
   }
 
 }
