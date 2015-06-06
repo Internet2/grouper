@@ -264,6 +264,10 @@ public class GuiAuditEntry {
    */
   private String file;
   
+  private int importTotalAdded;
+  
+  private int importTotalDeleted;
+  
   /**
    * default constructor
    */
@@ -1073,8 +1077,6 @@ public class GuiAuditEntry {
 	  this.file = file;
   }
   
-  private int importTotalAdded;
-  private int importTotalDeleted;
 
   public int getImportTotalAdded() {
 	return importTotalAdded;

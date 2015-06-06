@@ -474,7 +474,7 @@ public class UiV2GroupImport {
       String bulkAddOption = request.getParameter("bulkAddOptions");
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
-      final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+      Set<Subject> subjectSet = new LinkedHashSet<Subject>();
       String fileName = null;
       if (StringUtils.equals(bulkAddOption, "import")) {
 
