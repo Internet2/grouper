@@ -466,9 +466,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * @param attributes
      */
     private Subject createSubject( Attributes attributes) {
-        String name = "";
         String subjectID = "";
-        String description = "";
 
         if (attributes==null) {
            log.error("Ldap createSubject called with null attributes.");
@@ -484,26 +482,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             if (this.subjectIDFormatToLowerCase) {
             	subjectID = subjectID.toLowerCase();
             }
-            attribute = attributes.get(nameAttributeName);
-            if (attribute == null) {
-                if (log.isDebugEnabled()) {
-                log.debug("No immediate value for attribute \"" + nameAttributeName + "\". Will look later.");
-                }
-            } else {
-                name = (String) attribute.get();
-            }
-            attribute = attributes.get(descriptionAttributeName);
-            if (attribute == null) {
-                if (log.isDebugEnabled()) {
-                  log.debug("No immediate value for attribute \"" + descriptionAttributeName + "\". Will look later.");
-                }
-            } else {
-                description   = (String) attribute.get();
-            }
         } catch (NamingException ex) {
             log.error("LDAP Naming Except: " + ex.getMessage(), ex);
         }
-        LdapSubject subject = new LdapSubject(subjectID,  name, description, this.getSubjectType().getName(), this.getId());
+        LdapSubject subject = new LdapSubject(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
  
         // add the attributes
 
@@ -564,10 +546,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 // special case the basic ones
                 //if (attrName.equals(subjectIDAttributeName)) continue;  // already have
                 //if (attrName.equals(nameAttributeName)) continue; // already have
-                if (attrName.equals(descriptionAttributeName)) {
+                /*if (attrName.equals(descriptionAttributeName)) {
                    subject.setDescription((String)attr.get());
                    //continue;
-                }
+                }*/
                    
                 Set<String> values = new HashSet<String>();
                 for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {

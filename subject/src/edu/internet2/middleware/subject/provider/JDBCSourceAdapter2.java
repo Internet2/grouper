@@ -1067,14 +1067,10 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
     subjectID = retrieveString(resultSet, this.subjectIdCol, "subjectIdCol", query,
         resultSetMetaData);
-    name = retrieveString(resultSet, this.nameCol, "nameCol", query, resultSetMetaData);
-    if (!StringUtils.isBlank(this.descriptionCol)) {
-      description = retrieveString(resultSet, this.descriptionCol, "descriptionCol",
-          query, resultSetMetaData);
-    }
+
     Map attributes = loadAttributes(resultSet, query, resultSetMetaData);
-    subject = new SubjectImpl(subjectID, name, description, this.getSubjectType().getName(), this.getId(),
-        attributes);
+    subject = new SubjectImpl(subjectID, null, null, this.getSubjectType().getName(), this.getId(),
+        attributes, this.nameCol, this.descriptionCol);
     
     if (resultIdentifierToSubject != null) {
       boolean foundValue = false;
@@ -1130,6 +1126,14 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         index++;
       }
     }
+    
+    String name = retrieveString(resultSet, this.nameCol, "nameCol", query, resultSetMetaData);
+    attributes.put(this.nameCol, new JdbcSubjectAttributeSet(name));
+    if (!StringUtils.isBlank(this.descriptionCol)) {
+      String description = retrieveString(resultSet, this.descriptionCol, "descriptionCol", query, resultSetMetaData);
+      attributes.put(this.descriptionCol, new JdbcSubjectAttributeSet(description));
+    }
+    
     //caller should not change this
     //return Collections.unmodifiableMap(attributes);
     
