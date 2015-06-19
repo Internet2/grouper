@@ -411,21 +411,15 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    * @return subject
    */
   private Subject createSubject(ResultSet rs, String sql) {
-    String name1 = "";
     String subjectID = "";
-    String description = "";
     Subject subject = null;
     try {
       subjectID = retrieveString(rs, this.subjectIDAttributeName,
           "SubjectID_AttributeType", sql);
-      name1 = retrieveString(rs, this.nameAttributeName, "Name_AttributeType", sql);
-      if (!this.descriptionAttributeName.equals("")) {
-        description = retrieveString(rs, this.descriptionAttributeName,
-            "Description_AttributeType", sql);
-      }
+
       Map<String, Set<String>> attributes1 = loadAttributes(rs);
-      subject = new SubjectImpl(subjectID, name1, description, this.getSubjectType().getName(),
-          this.getId(), attributes1);
+      subject = new SubjectImpl(subjectID, null, null, this.getSubjectType().getName(),
+          this.getId(), attributes1, this.nameAttributeName, this.descriptionAttributeName);
     } catch (SQLException ex) {
       throw new SourceUnavailableException("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
     }

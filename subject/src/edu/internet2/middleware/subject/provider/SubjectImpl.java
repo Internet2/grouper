@@ -101,12 +101,6 @@ public class SubjectImpl implements Subject {
   private String id;
 
   /** */
-  private String name;
-
-  /** */
-  private String description;
-
-  /** */
   private String typeName;
 
   
@@ -130,9 +124,21 @@ public class SubjectImpl implements Subject {
   /** sourceId */
   private String sourceId;
   
+  /** nameAttribute */
+  private String nameAttribute;
+  
+  /** descriptionAttribute */
+  private String descriptionAttribute;
+  
+  /** nameOverride */
+  private String nameOverride;
+  
+  /** descriptionOverride */
+  private String descriptionOverride;
+  
   /** */
   private Map<String, Set<String>> attributes = null;
-
+  
   /**
    * Constructor called by SourceManager.  Will create an empty map for attributes
    * @param id1 
@@ -158,10 +164,50 @@ public class SubjectImpl implements Subject {
   public SubjectImpl(String id1, String name1, String description1, String typeName1,
       String sourceId1, Map<String, Set<String>> attributes1) {
     this.id = id1;
-    this.name = name1;
+    this.nameOverride = name1;
     this.typeName = typeName1;
-    this.description = description1;
+    this.descriptionOverride = description1;
     this.sourceId = sourceId1;
+    this.setAttributes(attributes1);
+  }
+
+  /**
+   * Constructor called by SourceManager.  Will create an empty map for attributes
+   * @param id1 
+   * @param name1 
+   * @param description1 
+   * @param typeName1 
+   * @param sourceId1 
+   * @param nameAttribute1 
+   * @param descriptionAttribute1 
+   */
+  public SubjectImpl(String id1, String name1, String description1, String typeName1,
+      String sourceId1, String nameAttribute1, String descriptionAttribute1) {
+    this(id1, name1, description1, typeName1, sourceId1, new SubjectCaseInsensitiveMapImpl<String, Set<String>>(), 
+        nameAttribute1, descriptionAttribute1);
+  }
+
+  /**
+   * Constructor called by SourceManager.
+   * @param id1 
+   * @param name1 
+   * @param description1 
+   * @param typeName1 
+   * @param sourceId1 
+   * @param attributes1 
+   * @param nameAttribute1 
+   * @param descriptionAttribute1 
+   */
+  public SubjectImpl(String id1, String name1, String description1, String typeName1,
+      String sourceId1, Map<String, Set<String>> attributes1,
+      String nameAttribute1, String descriptionAttribute1) {
+    this.id = id1;
+    this.typeName = typeName1;
+    this.sourceId = sourceId1;
+    this.nameAttribute = nameAttribute1;
+    this.descriptionAttribute = descriptionAttribute1;
+    this.nameOverride = name1;
+    this.descriptionOverride = description1;
     this.setAttributes(attributes1);
   }
 
@@ -183,14 +229,42 @@ public class SubjectImpl implements Subject {
    * {@inheritDoc}
    */
   public String getName() {
-    return this.name;
+    
+    if (nameOverride != null) {
+      return nameOverride;
+    }
+    
+    if (StringUtils.isBlank(nameAttribute)) {
+      return null;
+    }
+    
+    if (attributes != null && attributes.containsKey(nameAttribute) && attributes.get(nameAttribute).size() > 0) {
+      return attributes.get(nameAttribute).iterator().next();
+    }
+    
+    // ok in case it's a virtual attribute and hasn't been init'ed
+    return getAttributeValue(nameAttribute, false);
   }
 
   /**
    * {@inheritDoc}
    */
   public String getDescription() {
-    return this.description;
+    
+    if (descriptionOverride != null) {
+      return descriptionOverride;
+    }
+    
+    if (StringUtils.isBlank(descriptionAttribute)) {
+      return null;
+    }
+    
+    if (attributes != null && attributes.containsKey(descriptionAttribute) && attributes.get(descriptionAttribute).size() > 0) {
+      return attributes.get(descriptionAttribute).iterator().next();
+    }
+    
+    // ok in case it's a virtual attribute and hasn't been init'ed
+    return getAttributeValue(descriptionAttribute, false);
   }
 
   /**
@@ -512,24 +586,6 @@ public class SubjectImpl implements Subject {
 
   
   /**
-   * @param name1 the name to set
-   */
-  public void setName(String name1) {
-    this.name = name1;
-  }
-
-
-  
-  /**
-   * @param description1 the description to set
-   */
-  public void setDescription(String description1) {
-    this.description = description1;
-  }
-
-
-  
-  /**
    * @param typeName1 the typeName to set
    */
   public void setTypeName(String typeName1) {
@@ -655,6 +711,38 @@ public class SubjectImpl implements Subject {
       return values.iterator().next();
     }
     return null;
+  }
+
+  
+  /**
+   * @return the nameOverride
+   */
+  public String getNameOverride() {
+    return nameOverride;
+  }
+
+  
+  /**
+   * @param nameOverride the nameOverride to set
+   */
+  public void setName(String nameOverride) {
+    this.nameOverride = nameOverride;
+  }
+
+  
+  /**
+   * @return the descriptionOverride
+   */
+  public String getDescriptionOverride() {
+    return descriptionOverride;
+  }
+
+  
+  /**
+   * @param descriptionOverride the descriptionOverride to set
+   */
+  public void setDescription(String descriptionOverride) {
+    this.descriptionOverride = descriptionOverride;
   }
 
   

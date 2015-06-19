@@ -242,10 +242,10 @@ public class GrouperSubject extends SubjectImpl {
   public GrouperSubject(Group g) 
     throws  SourceUnavailableException {
     
-    super(g.getUuid(), g.getName(), null, 
+    super(g.getUuid(), null, null,
         g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectTypeEnum.APPLICATION.getName() : SubjectTypeEnum.GROUP.getName(), 
             g.getTypeOfGroup() == TypeOfGroup.entity ? SubjectFinder.internal_getEntitySourceAdapter(true).getId() : SubjectFinder.internal_getGSA().getId(), 
-                null);
+                null, "name", null);
     
     this.group = g;
     

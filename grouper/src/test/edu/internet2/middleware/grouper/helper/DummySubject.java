@@ -41,7 +41,7 @@ public class DummySubject extends SubjectImpl {
    * @param sourceId
    */
   public DummySubject(String theSubjectId, String sourceId) {
-    super(theSubjectId, theSubjectId, theSubjectId, SubjectTypeEnum.PERSON.getName(), sourceId, null);
+    super(theSubjectId, null, null, SubjectTypeEnum.PERSON.getName(), sourceId, null, "name", "description");
   }
   
   /**

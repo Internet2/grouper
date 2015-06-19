@@ -58,9 +58,9 @@ public class LdapSubject extends SubjectImpl {
     * @param sourceId
     */
    protected LdapSubject(String id, String name, String description,
-   		String type, String sourceId) {
+      String type, String sourceId) {
                 super(id, name, description, type, sourceId);
-   	log.debug("LdapSubject Name = "  + name);
+    log.debug("LdapSubject Name = "  + name);
    }
 
    /*
@@ -72,8 +72,41 @@ public class LdapSubject extends SubjectImpl {
     * @param attributes
     */
    protected LdapSubject(String id, String name, String description,
-   		String type, String sourceId, Map<String, Set<String>> attributes) {
+      String type, String sourceId, Map<String, Set<String>> attributes) {
                 super(id, name, description, type, sourceId, attributes);
+        }
+
+   
+   /*
+    * @param id
+    * @param name
+    * @param description
+    * @param typeName
+    * @param sourceId
+    * @param nameAttribute
+    * @param descriptionAttribute
+    */
+   protected LdapSubject(String id, String name, String description,
+   		String type, String sourceId,
+   		String nameAttribute, String descriptionAttribute) {
+                super(id, name, description, type, sourceId, nameAttribute, descriptionAttribute);
+   	log.debug("LdapSubject Id = "  + id);
+   }
+
+   /*
+    * @param id
+    * @param name
+    * @param description
+    * @param typeName
+    * @param sourceId
+    * @param attributes
+    * @param nameAttribute
+    * @param descriptionAttribute
+    */
+   protected LdapSubject(String id, String name, String description,
+   		String type, String sourceId, Map<String, Set<String>> attributes,
+   		String nameAttribute, String descriptionAttribute) {
+                super(id, name, description, type, sourceId, attributes, nameAttribute, descriptionAttribute);
         }
 
   /* have we tried to get all the attributes */
