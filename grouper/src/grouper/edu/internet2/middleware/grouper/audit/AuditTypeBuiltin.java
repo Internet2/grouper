@@ -448,6 +448,14 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   XML_IMPORT(new AuditType("importExport", "import", null, "fileName", "subjectId")),
   
   /**
+   * export to csv
+   */
+  CSV_EXPORT(new AuditType("importExport", "export", null, "exportSize", "file")),
+  
+  
+  IMPORT(new AuditType("importExport", "import", null, "file", "totalAdded", "totalDeleted")),
+  
+  /**
    * copy a group to another stem
    */
   GROUP_COPY(new AuditType("group", "copy", "attributes", "oldGroupId", "oldGroupName", "newGroupId", "newGroupName", 
