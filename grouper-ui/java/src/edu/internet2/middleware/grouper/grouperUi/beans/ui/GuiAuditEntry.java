@@ -254,6 +254,20 @@ public class GuiAuditEntry {
    */
   private GuiMember guiMember;
   
+  /** 
+   * export size for the audit
+   */
+  private int exportSize;
+  
+  /**
+   * file name for import and export
+   */
+  private String file;
+  
+  private int importTotalAdded;
+  
+  private int importTotalDeleted;
+  
   /**
    * default constructor
    */
@@ -586,7 +600,12 @@ public class GuiAuditEntry {
           this.setupAttributeDef();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_UPDATE");
-        
+          
+        case CSV_EXPORT:
+        	
+        	this.setupExportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_CSV_EXPORT");
+        	
         case ENTITY_ADD:
           
           this.setupEntity();
@@ -742,6 +761,10 @@ public class GuiAuditEntry {
           this.setupGroup();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
+          
+        case IMPORT:
+        	this.setupImportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_IMPORT");
         
         case MEMBER_CHANGE_SUBJECT:
           
@@ -1030,4 +1053,38 @@ public class GuiAuditEntry {
     
   }
   
+  private void setupExportProperties() {
+	int exportSize = Integer.valueOf(this.auditEntry.retrieveStringValue("exportSize"));
+	String file = this.auditEntry.retrieveStringValue("file");
+	this.file = file;
+	this.exportSize = exportSize;
+  }
+  
+  public int getExportSize() {
+	return exportSize;
+  }
+  
+  public String getFile() {
+	return file;
+ }
+
+  private void setupImportProperties() {
+	  int added = Integer.valueOf(this.auditEntry.retrieveStringValue("totalAdded"));
+	  int deleted = Integer.valueOf(this.auditEntry.retrieveStringValue("totalDeleted"));
+	  String file = this.auditEntry.retrieveStringValue("file");
+	  this.importTotalAdded = added;
+	  this.importTotalDeleted = deleted;
+	  this.file = file;
+  }
+  
+
+  public int getImportTotalAdded() {
+	return importTotalAdded;
+  }
+
+
+  public int getImportTotalDeleted() {
+	return importTotalDeleted;
+  }
+
 }
