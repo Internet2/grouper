@@ -51,7 +51,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testEntityAdd"));
+    TestRunner.run(new TestMemberAttributes("testVirtualAttributeInDescription"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -1213,5 +1213,61 @@ public class TestMemberAttributes extends GrouperTest {
   public void testEntityAdd() {
     Group testEntity = new GroupSave(grouperSession).assignName("etc:entity").assignTypeOfGroup(TypeOfGroup.entity).save();
     assertEquals(testEntity.getName(), testEntity.toMember().getSubjectIdentifier0());
+  }
+
+  /**
+   *
+   */
+  public void testVirtualAttributeInName() {
+    
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectVirtualAttribute_1_namev", "${subject.getAttributeValue('EMAIL').replace('@', '%')}");
+    source.addInitParam("Name_AttributeType", "namev");
+    ExpirableCache.clearAll();
+    source.init();
+    
+    Subject subj = SubjectFinder.findById("test.subject.0", true);
+    edu.grantPriv(subj, NamingPrivilege.CREATE);
+
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
+    
+    assertEquals("test.subject.0%somewhere.someSchool.edu", subj.getName());
+    
+    assertEquals(subj.getName(), member.getName());
+    assertEquals(subj.getDescription(), member.getDescription());
+    
+    // reset the state
+    source.removeInitParam("subjectVirtualAttribute_1_namev");
+    source.addInitParam("Name_AttributeType", "name");
+    ExpirableCache.clearAll();
+    source.init();
+  }
+  
+  /**
+   * 
+   */
+  public void testVirtualAttributeInDescription() {
+    
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectVirtualAttribute_1_descriptionv", "${subject.getAttributeValue('EMAIL').replace('@', '%')}");
+    source.addInitParam("Description_AttributeType", "descriptionv");
+    ExpirableCache.clearAll();
+    source.init();
+    
+    Subject subj = SubjectFinder.findById("test.subject.0", true);
+    edu.grantPriv(subj, NamingPrivilege.CREATE);
+
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
+    
+    assertEquals("test.subject.0%somewhere.someSchool.edu", subj.getDescription());
+    
+    assertEquals(subj.getName(), member.getName());
+    assertEquals(subj.getDescription(), member.getDescription());
+    
+    // reset the state
+    source.removeInitParam("subjectVirtualAttribute_1_descriptionv");
+    source.addInitParam("Description_AttributeType", "description");
+    ExpirableCache.clearAll();
+    source.init();
   }
 }

@@ -684,6 +684,14 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     if (StringUtils.isBlank(this.nameCol) && StringUtils.isBlank(this.nameAttributeName)) {
       throw new SourceUnavailableException("Neither nameCol nor Name_AttributeType defined, source: " + this.getId());
     }
+    
+    if (!StringUtils.isBlank(this.nameCol) && !StringUtils.isBlank(this.nameAttributeName)) {
+      throw new SourceUnavailableException("Cannot specify both nameCol and Name_AttributeType, source: " + this.getId());
+    }
+    
+    if (!StringUtils.isBlank(this.descriptionCol) && !StringUtils.isBlank(this.descriptionAttributeName)) {
+      throw new SourceUnavailableException("Cannot specify both descriptionCol and Description_AttributeType, source: " + this.getId());
+    }
 
     //    <param-name>lowerSearchCol</param-name>
     this.lowerSearchCol = props.getProperty("lowerSearchCol");
