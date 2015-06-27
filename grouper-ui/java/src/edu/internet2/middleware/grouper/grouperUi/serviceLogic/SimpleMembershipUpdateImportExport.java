@@ -346,7 +346,6 @@ public class SimpleMembershipUpdateImportExport {
       writer.close();
       
       auditExport(group.getUuid(), group.getName(), memberData.size(), groupExtensionFileName);
-
       throw new ControllerDone();
     } catch (NoSessionException se) {
       throw se;
