@@ -129,6 +129,19 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    */
   MEMBERSHIP_GROUP_DELETE(new AuditType("membership", "deleteGroupMembership", null, "id", 
       "fieldId", "fieldName", "memberId", "membershipType", "groupId", "groupName")),
+      
+ /**
+  * export group membership     
+  */
+  MEMBERSHIP_GROUP_EXPORT(new AuditType("membership", "exportMembership", null, "groupId", "groupName", 
+      "exportSize", "file")),
+      
+  /**
+   * import group membership     
+   */
+  MEMBERSHIP_GROUP_IMPORT(new AuditType("membership", "importMembership", null, "groupId", "groupName", 
+      "file", "totalAdded", "totalDeleted")),
+     
 
   /**
    * add group privilege
@@ -446,14 +459,6 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * import from xml
    */
   XML_IMPORT(new AuditType("importExport", "import", null, "fileName", "subjectId")),
-  
-  /**
-   * export to csv
-   */
-  CSV_EXPORT(new AuditType("importExport", "export", null, "exportSize", "file")),
-  
-  
-  IMPORT(new AuditType("importExport", "import", null, "file", "totalAdded", "totalDeleted")),
   
   /**
    * copy a group to another stem

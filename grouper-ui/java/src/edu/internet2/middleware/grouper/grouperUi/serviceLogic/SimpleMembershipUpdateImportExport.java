@@ -215,7 +215,7 @@ public class SimpleMembershipUpdateImportExport {
         writer.writeNext(entries);
       }      
       writer.close();
-      auditExport(memberData.size(), groupExtensionFileName);
+      auditExport(group.getUuid(), group.getName(), memberData.size(), groupExtensionFileName);
  
     } catch (NoSessionException se) {
       throw se;
@@ -345,7 +345,7 @@ public class SimpleMembershipUpdateImportExport {
       }      
       writer.close();
       
-      auditExport(memberData.size(), groupExtensionFileName);
+      auditExport(group.getUuid(), group.getName(), memberData.size(), groupExtensionFileName);
   
       throw new ControllerDone();
     } catch (NoSessionException se) {
@@ -359,17 +359,18 @@ public class SimpleMembershipUpdateImportExport {
     
   }
 
-	private static void auditExport(final int exportSize, final String groupExtensionFileName) {
+	private static void auditExport(final String groupId, final String groupName, final int exportSize, final String groupExtensionFileName) {
 		HibernateSession.callbackHibernateSession(
 	          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
 	    	      new HibernateHandler() {
 	    	          public Object callback(HibernateHandlerBean hibernateHandlerBean)
 	    	              throws GrouperDAOException {
 	    	        	  
-	    	        	  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CSV_EXPORT, "exportSize", String.valueOf(exportSize)
-	    	        			  , "file", groupExtensionFileName);
+	    	        	  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_EXPORT, 
+	    	        			  "exportSize", String.valueOf(exportSize), "groupId", groupId,
+	    	        			  "groupName", groupName, "file", groupExtensionFileName);
 	    	                    
-	    	              String description = "exported : " + exportSize + " subjects in : " + groupExtensionFileName 
+	    	              String description = "exported : " + exportSize + " subjects from "+groupName + " in : " + groupExtensionFileName 
 	    	                  + " file.";
 	    	              auditEntry.setDescription(description);
 	    	              auditEntry.saveOrUpdate(true);
