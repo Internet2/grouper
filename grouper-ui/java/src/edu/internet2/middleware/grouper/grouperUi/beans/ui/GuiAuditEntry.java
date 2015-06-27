@@ -255,6 +255,20 @@ public class GuiAuditEntry {
   private GuiMember guiMember;
   
   /**
+   * export size for the audit
+   */
+  private int exportSize;
+  
+  /**
+   * file name for import and export
+   */
+  private String file;
+  
+  private int importTotalAdded;
+  
+  private int importTotalDeleted;
+  
+  /**
    * default constructor
    */
   public GuiAuditEntry() {
@@ -586,7 +600,6 @@ public class GuiAuditEntry {
           this.setupAttributeDef();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_UPDATE");
-        
         case ENTITY_ADD:
           
           this.setupEntity();
@@ -778,7 +791,18 @@ public class GuiAuditEntry {
           this.setupMember();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_UPDATE");
-        
+          
+        case MEMBERSHIP_GROUP_EXPORT:
+        	
+        	this.setupGroup();
+        	this.setupExportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_EXPORT");
+        	
+        case MEMBERSHIP_GROUP_IMPORT:
+        	this.setupGroup();
+        	this.setupImportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_IMPORT");
+        	
         case PRIVILEGE_GROUP_ADD:
           
           this.setupGroup();
@@ -1030,4 +1054,38 @@ public class GuiAuditEntry {
     
   }
   
+  private void setupExportProperties() {
+	int exportSize = Integer.valueOf(this.auditEntry.retrieveStringValue("exportSize"));
+	String file = this.auditEntry.retrieveStringValue("file");
+	this.file = file;
+	this.exportSize = exportSize;
+  }
+  
+  public int getExportSize() {
+	return exportSize;
+  }
+  
+  public String getFile() {
+	return file;
+ }
+
+  private void setupImportProperties() {
+	  int added = Integer.valueOf(this.auditEntry.retrieveStringValue("totalAdded"));
+	  int deleted = Integer.valueOf(this.auditEntry.retrieveStringValue("totalDeleted"));
+	  String file = this.auditEntry.retrieveStringValue("file");
+	  this.importTotalAdded = added;
+	  this.importTotalDeleted = deleted;
+	  this.file = file;
+  }
+  
+
+  public int getImportTotalAdded() {
+	return importTotalAdded;
+  }
+
+
+  public int getImportTotalDeleted() {
+	return importTotalDeleted;
+  }
+
 }

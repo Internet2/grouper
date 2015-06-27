@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
@@ -56,6 +58,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupImportContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.SimpleMembershipUpdateImportExport.GrouperImportException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
@@ -467,7 +475,7 @@ public class UiV2GroupImport {
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
       Set<Subject> subjectSet = new LinkedHashSet<Subject>();
-      
+      String fileName = null;
       if (StringUtils.equals(bulkAddOption, "import")) {
 
         GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)request;
@@ -485,7 +493,7 @@ public class UiV2GroupImport {
         Reader reader = null;
         reader = new InputStreamReader(importCsvFile.getInputStream());
         
-        String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
+        fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
 
         try {
           subjectSet.addAll(SimpleMembershipUpdateImportExport.parseCsvImportFile(reader, fileName, new ArrayList<String>(), 
@@ -761,6 +769,11 @@ public class UiV2GroupImport {
         GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
             loggedInSubject, group);
 
+        
+        if (StringUtils.equals(bulkAddOption, "import")) {
+          auditImport(group.getUuid(), group.getName(), fileName, addedCount, deletedCount);
+        }
+        
       }
       
       //show the report screen
@@ -781,6 +794,28 @@ public class UiV2GroupImport {
     }
 
   }
+  
+    private void auditImport(final String groupId, final String groupName, final String fileName,
+			final int countAdded, final int countDeleted) {
+      HibernateSession.callbackHibernateSession(
+		    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+			    new HibernateHandler() {
+				    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+					    throws GrouperDAOException {
+						  
+						AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_IMPORT, "file", fileName, "totalAdded", 
+								String.valueOf(countAdded), "groupId", groupId, "groupName", groupName, "totalDeleted", String.valueOf(countDeleted));
+						  
+						String description = "Added : " + countAdded + " subjects "
+								  + "  and deleted "+countDeleted + " subjects in group ."+groupName;
+						auditEntry.setDescription(description);
+						auditEntry.saveOrUpdate(true);
+						  
+						return null;
+					  }
+      });
+    }
+  
   
   /**
    * get an error line
