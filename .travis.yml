@@ -18,9 +18,9 @@ jdk:
 - openjdk6
 - openjdk7
 install:
-- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q 
+- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=false -Dlicense.skip=true -B -V -q 
 script:
-- mvn -f ./grouper-parent clean package -DskipTests=true -Dlicense.skip=true
+- mvn -f ./grouper-parent clean package -DskipTests=false -Dlicense.skip=true
 before_install:
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh
