@@ -12,6 +12,7 @@ branches:
   - master
   - GROUPER_2_1_BRANCH
   - GROUPER_2_2_BRANCH
+  - GRP-1138
 jdk:
 - oraclejdk7
 - openjdk6
