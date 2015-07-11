@@ -1,4 +1,5 @@
 build.properties
 conf/grouper-ws.properties
 webapp/WEB-INF/classes
+webapp/WEB-INF/lib
 spy.log
