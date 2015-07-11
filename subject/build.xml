@@ -25,6 +25,7 @@
 		<pathelement path="${classpath}" />
 		<pathelement location="${conf.dir}" />
 		<pathelement location="${build.dir}" />
+    <fileset file="../grouper-misc/grouperClient/dist/grouperClient.jar" />
 		<fileset dir="${lib.dir}">
 			<include name="**/*.jar" />
 		</fileset>
