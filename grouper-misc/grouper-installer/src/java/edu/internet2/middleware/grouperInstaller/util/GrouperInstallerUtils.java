@@ -32,7 +32,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.PushbackInputStream;
-import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -129,10 +128,11 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 public class GrouperInstallerUtils  {
 
   public static void main(String[] args) {
-//    tar(new File("C:\\Users\\mchyzer\\Downloads\\jtar-1.1\\org\\xeustechnologies"),
-//        new File("c:\\temp\\test.tar"));
-    gzip(new File("c:\\temp\\test.tar"), new File("c:\\temp\\test.tar.gz"));
+    tar(new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_19"),
+        new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_19.tar"));
+    //gzip(new File("c:\\temp\\test.tar"), new File("c:\\temp\\test.tar.gz"));
   }
+  
   
   /**
    * delete a file
@@ -9411,6 +9411,9 @@ public class GrouperInstallerUtils  {
       tarFile.createNewFile();
       TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(new FileOutputStream(tarFile));
       
+      //we need long file support
+      tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+      
       for (File file : fileListRecursive(directory)) {
         if (file.isFile()) {
           String relativePath = fileRelativePath(directory, file);
@@ -9423,7 +9426,7 @@ public class GrouperInstallerUtils  {
 
       tarArchiveOutputStream.close();
     } catch (Exception e) {
-      throw new RuntimeException("Error creating tar: " + tarFile.getAbsolutePath() + ", from dir: " + directory.getAbsolutePath());
+      throw new RuntimeException("Error creating tar: " + tarFile.getAbsolutePath() + ", from dir: " + directory.getAbsolutePath(), e);
     }
   }
 

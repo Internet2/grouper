@@ -1427,8 +1427,9 @@ public class GrouperInstaller {
         }
         
         //note the old file will be in the patch's new directory
-        File oldFile = new File(currentPatchDir.getAbsolutePath() + File.separator + indexFileToAdd.getPatchFileType().getDirName()
-            + File.separator + GrouperInstallerUtils.replace(indexFileToAdd.getPath(), "/", File.separator));
+        File oldFile = new File(currentPatchDir.getAbsolutePath() + File.separator 
+            + "new" + File.separator + indexFileToAdd.getPatchFileType().getDirName()
+            + File.separator + GrouperInstallerUtils.replace(indexFileToAdd.getRelativePath(), "/", File.separator));
         if (oldFile.exists() && oldFile.isFile()) {
 
           if (GrouperInstallerUtils.contentEquals(indexFileToAdd.getFile(), oldFile)) {
@@ -1865,6 +1866,12 @@ public class GrouperInstaller {
         this.patchCreateProcessFiles(theIndexOfFiles, 
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ui"),
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ui" 
+                + File.separator + "conf"),
+            PatchFileType.clazz);
+        
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ui"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ui" 
                 + File.separator + "temp" + File.separator + "jarBin"),
             PatchFileType.clazz);
         
@@ -1893,6 +1900,12 @@ public class GrouperInstaller {
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ws" + File.separator + "grouper-ws"),
             new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ws" + File.separator + "grouper-ws" 
                 + File.separator + "build" + File.separator + "grouper-ws"),
+            PatchFileType.clazz);
+        
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ws" + File.separator + "grouper-ws"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-ws" + File.separator + "grouper-ws" 
+                + File.separator + "conf"),
             PatchFileType.clazz);
         
         // we need to get all the source folders except test, note, each release adds another
