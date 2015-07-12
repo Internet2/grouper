@@ -19,6 +19,7 @@
 package edu.internet2.middleware.grouperInstaller.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -31,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.PushbackInputStream;
+import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -50,6 +52,7 @@ import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.CodeSource;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -88,6 +91,8 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -106,6 +111,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.LogFactory;
@@ -121,6 +128,12 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperInstallerUtils  {
 
+  public static void main(String[] args) {
+//    tar(new File("C:\\Users\\mchyzer\\Downloads\\jtar-1.1\\org\\xeustechnologies"),
+//        new File("c:\\temp\\test.tar"));
+    gzip(new File("c:\\temp\\test.tar"), new File("c:\\temp\\test.tar.gz"));
+  }
+  
   /**
    * delete a file
    * @param file
@@ -5149,6 +5162,22 @@ public class GrouperInstallerUtils  {
   }
 
   /**
+   * Unconditionally close a <code>ZipFile</code>.
+   * Equivalent to {@link ZipFile#close()}, except any exceptions will be ignored.
+   * @param input A (possibly null) ZipFile
+   */
+  public static void closeQuietly(ZipFile input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
    * Unconditionally close an <code>OutputStream</code>.
    * Equivalent to {@link OutputStream#close()}, except any exceptions will be ignored.
    * @param output A (possibly null) OutputStream
@@ -9371,6 +9400,87 @@ public class GrouperInstallerUtils  {
     
   }
 
+  /**
+   * turn a directory and contents into a tar file
+   * @param directory
+   * @param tarFile
+   */
+  public static void tar(File directory, File tarFile) {
+
+    try {
+      tarFile.createNewFile();
+      TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(new FileOutputStream(tarFile));
+      
+      for (File file : fileListRecursive(directory)) {
+        if (file.isFile()) {
+          String relativePath = fileRelativePath(directory, file);
+          TarArchiveEntry entry = new TarArchiveEntry(file, relativePath);
+          tarArchiveOutputStream.putArchiveEntry(entry);
+          copy(new FileInputStream(file), tarArchiveOutputStream);
+          tarArchiveOutputStream.closeArchiveEntry();
+        }
+      }
+
+      tarArchiveOutputStream.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Error creating tar: " + tarFile.getAbsolutePath() + ", from dir: " + directory.getAbsolutePath());
+    }
+  }
+
+  /**
+   * 
+   * @param inputFile
+   * @param outputFile
+   */
+  public static void gzip(File inputFile, File outputFile) {
+    GZIPOutputStream gzipOutputStream = null;
+    
+    try {
+      
+      outputFile.createNewFile();
+
+      gzipOutputStream = new GZIPOutputStream(
+        new BufferedOutputStream(new FileOutputStream(outputFile)));
+
+      copy(new FileInputStream(inputFile), gzipOutputStream);
+    } catch (Exception e) {
+      throw new RuntimeException("Error creating gzip from " + inputFile.getAbsolutePath() + " to " + outputFile.getAbsolutePath());
+    } finally {
+      closeQuietly(gzipOutputStream);
+    }
+
+  }
+  
+  /**
+   * 
+   * @param file
+   * @return the hex sha1
+   */
+  public static String fileSha1(File file) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA1");
+      FileInputStream fis = new FileInputStream(file);
+      byte[] dataBytes = new byte[1024];
+   
+      int nread = 0; 
+   
+      while ((nread = fis.read(dataBytes)) != -1) {
+        md.update(dataBytes, 0, nread);
+      };
+   
+      byte[] mdbytes = md.digest();
+   
+      //convert the byte to hex format
+      StringBuffer sb = new StringBuffer("");
+      for (int i = 0; i < mdbytes.length; i++) {
+        sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+      }
+      return sb.toString();
+    } catch (Exception e) {
+      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath());
+    }
+  }
+
   /** override map for properties */
   private static Map<String, String> grouperInstallerOverrideMap = new LinkedHashMap<String, String>();
 
@@ -9398,6 +9508,15 @@ public class GrouperInstallerUtils  {
     return properties;
   }
 
+  /**
+   * if the properties contains a key
+   * @param key
+   * @return true or false
+   */
+  public static boolean propertiesContainsKey(String key) {
+    return grouperInstallerProperties().containsKey(key);
+  }
+  
   /**
    * get a property and validate required from grouper.installer.properties
    * @param key 
@@ -10760,5 +10879,25 @@ public class GrouperInstallerUtils  {
     }
     return result;
   }
-  
+
+  /**
+   * get the relative path of descendant file
+   * @param parentDir
+   * @param file
+   * @return the relative path of file underneath, dont start with slash
+   */
+  public static String fileRelativePath(File parentDir, File file) {
+    
+    String descendantPath = file.getAbsolutePath();
+    String parentPath = parentDir.getAbsolutePath();
+    if (!descendantPath.startsWith(parentPath)) {
+      throw new RuntimeException("Why doesnt descendantPath '" + descendantPath + "' start with parent path '" + parentPath + "'?");
+    }
+    descendantPath = descendantPath.substring(parentPath.length());
+    if (descendantPath.startsWith("/") || descendantPath.startsWith("\\")) {
+      descendantPath = descendantPath.substring(1);
+    }
+    return descendantPath;
+  }
+
 }
