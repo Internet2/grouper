@@ -601,11 +601,6 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_UPDATE");
           
-        case CSV_EXPORT:
-        	
-        	this.setupExportProperties();
-        	return TextContainer.retrieveFromRequest().getText().get("audits_CSV_EXPORT");
-        	
         case ENTITY_ADD:
           
           this.setupEntity();
@@ -762,9 +757,6 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
           
-        case IMPORT:
-        	this.setupImportProperties();
-        	return TextContainer.retrieveFromRequest().getText().get("audits_IMPORT");
         
         case MEMBER_CHANGE_SUBJECT:
           
@@ -801,7 +793,18 @@ public class GuiAuditEntry {
           this.setupMember();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_UPDATE");
-        
+          
+        case MEMBERSHIP_GROUP_EXPORT:
+        	
+        	this.setupGroup();
+        	this.setupExportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_EXPORT");
+        	
+        case MEMBERSHIP_GROUP_IMPORT:
+        	this.setupGroup();
+        	this.setupImportProperties();
+        	return TextContainer.retrieveFromRequest().getText().get("audits_MEMBERSHIP_GROUP_IMPORT");
+        	
         case PRIVILEGE_GROUP_ADD:
           
           this.setupGroup();
