@@ -5815,13 +5815,8 @@ public class GrouperInstaller {
     //####################################
     //install psp
     System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
-<<<<<<< master
-    if (readFromStdInBoolean(true)) {
-      downloadAndBuildPsp();              
-=======
     if (readFromStdInBoolean(true, "grouperInstaller.autorun.installPsp")) {
     	downloadAndBuildPsp();              
->>>>>>> 6870978 GRP-1145, GRP-1149, GRP-1150: patching enhancements
       GrouperInstallerUtils.copyDirectory(this.untarredPspDir, this.untarredApiDir);
 
       //####################################
