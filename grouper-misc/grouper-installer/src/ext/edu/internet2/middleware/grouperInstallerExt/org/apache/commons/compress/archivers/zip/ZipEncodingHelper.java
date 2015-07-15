@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -36,13 +21,16 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.Charsets;
 
 /**
  * Static helper functions for robustly encoding filenames in zip files. 
  */
-abstract class ZipEncodingHelper {
+public abstract class ZipEncodingHelper {
 
     /**
      * A class, which holds the high characters of a simple encoding
@@ -80,7 +68,8 @@ abstract class ZipEncodingHelper {
     private static final Map<String, SimpleEncodingHolder> simpleEncodings;
 
     static {
-        simpleEncodings = new HashMap<String, SimpleEncodingHolder>();
+        Map<String, SimpleEncodingHolder> se =
+            new HashMap<String, SimpleEncodingHolder>();
 
         char[] cp437_high_chars =
             new char[] { 0x00c7, 0x00fc, 0x00e9, 0x00e2, 0x00e4, 0x00e0,
@@ -108,11 +97,11 @@ abstract class ZipEncodingHelper {
 
         SimpleEncodingHolder cp437 = new SimpleEncodingHolder(cp437_high_chars);
 
-        simpleEncodings.put("CP437",cp437);
-        simpleEncodings.put("Cp437",cp437);
-        simpleEncodings.put("cp437",cp437);
-        simpleEncodings.put("IBM437",cp437);
-        simpleEncodings.put("ibm437",cp437);
+        se.put("CP437", cp437);
+        se.put("Cp437", cp437);
+        se.put("cp437", cp437);
+        se.put("IBM437", cp437);
+        se.put("ibm437", cp437);
 
         char[] cp850_high_chars =
             new char[] { 0x00c7, 0x00fc, 0x00e9, 0x00e2, 0x00e4, 0x00e0,
@@ -140,11 +129,12 @@ abstract class ZipEncodingHelper {
 
         SimpleEncodingHolder cp850 = new SimpleEncodingHolder(cp850_high_chars);
 
-        simpleEncodings.put("CP850",cp850);
-        simpleEncodings.put("Cp850",cp850);
-        simpleEncodings.put("cp850",cp850);
-        simpleEncodings.put("IBM850",cp850);
-        simpleEncodings.put("ibm850",cp850);
+        se.put("CP850", cp850);
+        se.put("Cp850", cp850);
+        se.put("cp850", cp850);
+        se.put("IBM850", cp850);
+        se.put("ibm850", cp850);
+        simpleEncodings = Collections.unmodifiableMap(se);
     }
 
     /**
@@ -206,11 +196,6 @@ abstract class ZipEncodingHelper {
     static final String UTF8 = "UTF8";
 
     /**
-     * variant name of the encoding UTF-8 used for comparisions.
-     */
-    private static final String UTF_DASH_8 = "utf-8";
-
-    /**
      * name of the encoding UTF-8
      */
     static final ZipEncoding UTF8_ZIP_ENCODING = new FallbackZipEncoding(UTF8);
@@ -218,13 +203,13 @@ abstract class ZipEncodingHelper {
     /**
      * Instantiates a zip encoding.
      * 
-     * @param name The name of the zip encoding. Specify <code>null</code> for
+     * @param name The name of the zip encoding. Specify {@code null} for
      *             the platform's default encoding.
      * @return A zip encoding for the given encoding name.
      */
-    static ZipEncoding getZipEncoding(String name) {
+    public static ZipEncoding getZipEncoding(String name) {
  
-        // fallback encoding is good enough for utf-8.
+        // fallback encoding is good enough for UTF-8.
         if (isUTF8(name)) {
             return UTF8_ZIP_ENCODING;
         }
@@ -250,15 +235,24 @@ abstract class ZipEncodingHelper {
     }
 
     /**
-     * Whether a given encoding - or the platform's default encoding
-     * if the parameter is null - is UTF-8.
+     * Returns whether a given encoding is UTF-8. If the given name is null, then check the platform's default encoding.
+     * 
+     * @param charsetName
+     *            If the given name is null, then check the platform's default encoding.
      */
-    static boolean isUTF8(String encoding) {
-        if (encoding == null) {
+    static boolean isUTF8(String charsetName) {
+        if (charsetName == null) {
             // check platform's default encoding
-            encoding = System.getProperty("file.encoding");
+            charsetName = System.getProperty("file.encoding");
         }
-        return UTF8.equalsIgnoreCase(encoding)
-            || UTF_DASH_8.equalsIgnoreCase(encoding);
+        if (Charsets.UTF_8.name().equalsIgnoreCase(charsetName)) {
+            return true;
+        }
+        for (String alias : Charsets.UTF_8.aliases()) {
+            if (alias.equalsIgnoreCase(charsetName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

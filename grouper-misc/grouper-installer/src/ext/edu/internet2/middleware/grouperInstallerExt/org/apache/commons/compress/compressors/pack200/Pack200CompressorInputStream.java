@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -53,7 +38,7 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  * return 0.</p>
  *
  * @NotThreadSafe
- * @since Apache Commons Compress 1.3
+ * @since 1.3
  */
 public class Pack200CompressorInputStream extends CompressorInputStream {
     private final InputStream originalInput;
@@ -174,31 +159,26 @@ public class Pack200CompressorInputStream extends CompressorInputStream {
         jarOut.close();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int read() throws IOException {
         return streamBridge.getInput().read();
     }
 
-    /** {@inheritDoc} */
     @Override
     public int read(byte[] b) throws IOException {
         return streamBridge.getInput().read(b);
     }
 
-    /** {@inheritDoc} */
     @Override
     public int read(byte[] b, int off, int count) throws IOException {
         return streamBridge.getInput().read(b, off, count);
     }
 
-    /** {@inheritDoc} */
     @Override
     public int available() throws IOException {
         return streamBridge.getInput().available();
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean markSupported() {
         try {
@@ -208,7 +188,6 @@ public class Pack200CompressorInputStream extends CompressorInputStream {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void mark(int limit) {
         try {
@@ -218,13 +197,11 @@ public class Pack200CompressorInputStream extends CompressorInputStream {
         }
     }
 
-    /** {@inheritDoc} */
     @Override
     public void reset() throws IOException {
         streamBridge.getInput().reset();
     }
 
-    /** {@inheritDoc} */
     @Override
     public long skip(long count) throws IOException {
         return streamBridge.getInput().skip(count);

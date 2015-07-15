@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -33,9 +18,9 @@
 package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipException;
 
 /**
@@ -53,8 +38,10 @@ public class ExtraFieldUtils {
     private static final Map<ZipShort, Class<?>> implementations;
 
     static {
-        implementations = new HashMap<ZipShort, Class<?>>();
+        implementations = new ConcurrentHashMap<ZipShort, Class<?>>();
         register(AsiExtraField.class);
+        register(X5455_ExtendedTimestamp.class);
+        register(X7875_NewUnix.class);
         register(JarMarker.class);
         register(UnicodePathExtraField.class);
         register(UnicodeCommentExtraField.class);
@@ -82,12 +69,12 @@ public class ExtraFieldUtils {
     }
 
     /**
-     * Create an instance of the approriate ExtraField, falls back to
+     * Create an instance of the appropriate ExtraField, falls back to
      * {@link UnrecognizedExtraField UnrecognizedExtraField}.
      * @param headerId the header identifier
-     * @return an instance of the appropiate ExtraField
+     * @return an instance of the appropriate ExtraField
      * @exception InstantiationException if unable to instantiate the class
-     * @exception IllegalAccessException if not allowed to instatiate the class
+     * @exception IllegalAccessException if not allowed to instantiate the class
      */
     public static ZipExtraField createExtraField(ZipShort headerId)
         throws InstantiationException, IllegalAccessException {
@@ -137,9 +124,8 @@ public class ExtraFieldUtils {
      * @return an array of ExtraFields
      * @throws ZipException on error
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
-    @SuppressWarnings("fallthrough")
     public static ZipExtraField[] parse(byte[] data, boolean local,
                                         UnparseableExtraField onUnparseableData)
         throws ZipException {
@@ -148,7 +134,7 @@ public class ExtraFieldUtils {
         LOOP:
         while (start <= data.length - WORD) {
             ZipShort headerId = new ZipShort(data, start);
-            int length = (new ZipShort(data, start + 2)).getValue();
+            int length = new ZipShort(data, start + 2).getValue();
             if (start + WORD + length > data.length) {
                 switch(onUnparseableData.getKey()) {
                 case UnparseableExtraField.THROW_KEY:
@@ -190,11 +176,11 @@ public class ExtraFieldUtils {
                 }
                 v.add(ze);
             } catch (InstantiationException ie) {
-                throw new ZipException(ie.getMessage());
+                throw (ZipException) new ZipException(ie.getMessage()).initCause(ie);
             } catch (IllegalAccessException iae) {
-                throw new ZipException(iae.getMessage());
+                throw (ZipException) new ZipException(iae.getMessage()).initCause(iae);
             }
-            start += (length + WORD);
+            start += length + WORD;
         }
 
         ZipExtraField[] result = new ZipExtraField[v.size()];
@@ -213,8 +199,8 @@ public class ExtraFieldUtils {
             lastIsUnparseableHolder ? data.length - 1 : data.length;
 
         int sum = WORD * regularExtraFieldCount;
-        for (int i = 0; i < data.length; i++) {
-            sum += data[i].getLocalFileDataLength().getValue();
+        for (ZipExtraField element : data) {
+            sum += element.getLocalFileDataLength().getValue();
         }
 
         byte[] result = new byte[sum];
@@ -224,13 +210,18 @@ public class ExtraFieldUtils {
                              0, result, start, 2);
             System.arraycopy(data[i].getLocalFileDataLength().getBytes(),
                              0, result, start + 2, 2);
+            start += WORD;
             byte[] local = data[i].getLocalFileDataData();
-            System.arraycopy(local, 0, result, start + WORD, local.length);
-            start += (local.length + WORD);
+            if (local != null) {
+                System.arraycopy(local, 0, result, start, local.length);
+                start += local.length;
+            }
         }
         if (lastIsUnparseableHolder) {
             byte[] local = data[data.length - 1].getLocalFileDataData();
-            System.arraycopy(local, 0, result, start, local.length);
+            if (local != null) {
+                System.arraycopy(local, 0, result, start, local.length);
+            }
         }
         return result;
     }
@@ -247,8 +238,8 @@ public class ExtraFieldUtils {
             lastIsUnparseableHolder ? data.length - 1 : data.length;
 
         int sum = WORD * regularExtraFieldCount;
-        for (int i = 0; i < data.length; i++) {
-            sum += data[i].getCentralDirectoryLength().getValue();
+        for (ZipExtraField element : data) {
+            sum += element.getCentralDirectoryLength().getValue();
         }
         byte[] result = new byte[sum];
         int start = 0;
@@ -257,13 +248,18 @@ public class ExtraFieldUtils {
                              0, result, start, 2);
             System.arraycopy(data[i].getCentralDirectoryLength().getBytes(),
                              0, result, start + 2, 2);
+            start += WORD;
             byte[] local = data[i].getCentralDirectoryData();
-            System.arraycopy(local, 0, result, start + WORD, local.length);
-            start += (local.length + WORD);
+            if (local != null) {
+                System.arraycopy(local, 0, result, start, local.length);
+                start += local.length;
+            }
         }
         if (lastIsUnparseableHolder) {
             byte[] local = data[data.length - 1].getCentralDirectoryData();
-            System.arraycopy(local, 0, result, start, local.length);
+            if (local != null) {
+                System.arraycopy(local, 0, result, start, local.length);
+            }
         }
         return result;
     }
@@ -272,7 +268,7 @@ public class ExtraFieldUtils {
      * "enum" for the possible actions to take if the extra field
      * cannot be parsed.
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public static final class UnparseableExtraField {
         /**

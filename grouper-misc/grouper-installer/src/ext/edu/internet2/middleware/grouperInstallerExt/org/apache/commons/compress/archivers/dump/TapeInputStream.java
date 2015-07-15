@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -41,6 +26,7 @@ import java.util.Arrays;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
 
 /**
  * Filter stream that mimics a physical tape drive capable of compressing
@@ -52,7 +38,7 @@ class TapeInputStream extends FilterInputStream {
     private byte[] blockBuffer = new byte[DumpArchiveConstants.TP_SIZE];
     private int currBlkIdx = -1;
     private int blockSize = DumpArchiveConstants.TP_SIZE;
-    private int recordSize = DumpArchiveConstants.TP_SIZE;
+    private static final int recordSize = DumpArchiveConstants.TP_SIZE;
     private int readOffset = DumpArchiveConstants.TP_SIZE;
     private boolean isCompressed = false;
     private long bytesRead = 0;
@@ -252,6 +238,8 @@ class TapeInputStream extends FilterInputStream {
     public byte[] readRecord() throws IOException {
         byte[] result = new byte[recordSize];
 
+        // the read implementation will loop internally as long as
+        // input is available
         if (-1 == read(result, 0, result.length)) {
             throw new ShortFileException();
         }
@@ -348,16 +336,9 @@ class TapeInputStream extends FilterInputStream {
      */
     private boolean readFully(byte[] b, int off, int len)
         throws IOException {
-        int count = 0;
-
-        while (count < len) {
-            int n = in.read(b, off + count, len - count);
-
-            if (n == -1) {
-                throw new ShortFileException();
-            }
-
-            count += n;
+        int count = IOUtils.readFully(in, b, off, len);
+        if (count < len) {
+            throw new ShortFileException();
         }
 
         return true;

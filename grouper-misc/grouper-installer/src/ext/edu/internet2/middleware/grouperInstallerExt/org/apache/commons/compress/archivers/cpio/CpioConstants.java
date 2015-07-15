@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -53,7 +38,7 @@ public interface CpioConstants {
     final int MAGIC_OLD_BINARY = 070707;
 
     // These FORMAT_ constants are internal to the code
-    
+
     /** write/read a CPIOArchiveEntry in the new format */
     final short FORMAT_NEW = 1;
 
@@ -75,7 +60,7 @@ public interface CpioConstants {
     /*
      * Constants for the MODE bits
      */
-    
+
     /** Mask for all file type bits. */
     final int S_IFMT   = 0170000;
 
@@ -145,7 +130,6 @@ public interface CpioConstants {
 
     /** Permits others to execute the file or to search the directory */
     final int C_IXOTH  = 0000001;
-    
 
     /** The special trailer marker */
     final String CPIO_TRAILER = "TRAILER!!!";
@@ -153,7 +137,7 @@ public interface CpioConstants {
     /**
      * The default block size.
      * 
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     final int BLOCK_SIZE = 512;
 }

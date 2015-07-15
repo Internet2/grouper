@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -32,6 +17,7 @@
  */
 package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
 import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.BYTE_MASK;
@@ -41,9 +27,10 @@ import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.co
  * rules for the big endian byte order of ZIP files.
  * @Immutable
  *
- * @since Apache Commons Compress 1.2
+ * @since 1.2
  */
-public final class ZipEightByteInteger {
+public final class ZipEightByteInteger implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private static final int BYTE_1 = 1;
     private static final int BYTE_1_MASK = 0xFF00;

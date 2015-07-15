@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -48,6 +33,7 @@ import java.util.zip.ZipException;
 
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
 
 import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.DATA_DESCRIPTOR_MIN_VERSION;
 import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.DWORD;
@@ -77,7 +63,7 @@ import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.co
  * uncompressed size information is required before {@link
  * #putArchiveEntry(ArchiveEntry)} can be called.</p>
  *
- * <p>As of Apache Commons Compress it transparently supports Zip64
+ * <p>As of Apache Commons Compress 1.3 it transparently supports Zip64
  * extensions and thus individual entries and archives larger than 4
  * GB or with more than 65536 entries in most cases but explicit
  * control is provided via {@link #setUseZip64}.  If the stream can not
@@ -124,11 +110,13 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
 
     /**
      * General purpose flag, which indicates that filenames are
-     * written in utf-8.
+     * written in UTF-8.
      * @deprecated use {@link GeneralPurposeBit#UFT8_NAMES_FLAG} instead
      */
     @Deprecated
     public static final int EFS_FLAG = GeneralPurposeBit.UFT8_NAMES_FLAG;
+
+    private static final byte[] EMPTY = new byte[0];
 
     /**
      * Current entry.
@@ -223,7 +211,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
     protected final Deflater def = new Deflater(level, true);
 
     /**
-     * This buffer servers as a Deflater.
+     * This buffer serves as a Deflater.
      *
      */
     private final byte[] buf = new byte[BUFFER_SIZE];
@@ -254,7 +242,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
     /**
      * Whether anything inside this archive has used a ZIP64 feature.
      *
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     private boolean hasUsedZip64 = false;
 
@@ -282,14 +270,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
             _raf = new RandomAccessFile(file, "rw");
             _raf.setLength(0);
         } catch (IOException e) {
-            if (_raf != null) {
-                try {
-                    _raf.close();
-                } catch (IOException inner) { // NOPMD
-                    // ignore
-                }
-                _raf = null;
-            }
+            IOUtils.closeQuietly(_raf);
+            _raf = null;
             o = new FileOutputStream(file);
         }
         out = o;
@@ -406,7 +388,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      * size and data is written to a non-seekable stream - in this
      * case the default is {@link Zip64Mode#Never Never}.</p>
      *
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     public void setUseZip64(Zip64Mode mode) {
         zip64Mode = mode;
@@ -425,7 +407,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
         }
 
         if (entry != null) {
-            throw new IOException("This archives contains unclosed entries.");
+            throw new IOException("This archive contains unclosed entries.");
         }
 
         cdOffset = written;
@@ -459,7 +441,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
         }
 
         if (!entry.hasWritten) {
-            write(new byte[0], 0, 0);
+            write(EMPTY, 0, 0);
         }
 
         flushDeflater();
@@ -749,12 +731,15 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      *
      * <p>May return false if it is set up to use encryption or a
      * compression method that hasn't been implemented yet.</p>
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     @Override
     public boolean canWriteEntryData(ArchiveEntry ae) {
         if (ae instanceof ZipArchiveEntry) {
-            return ZipUtil.canHandleEntryData((ZipArchiveEntry) ae);
+            ZipArchiveEntry zae = (ZipArchiveEntry) ae;
+            return zae.getMethod() != ZipMethod.IMPLODING.getCode()
+                && zae.getMethod() != ZipMethod.UNSHRINKING.getCode()
+                && ZipUtil.canHandleEntryData(zae);
         }
         return false;
     }
@@ -768,6 +753,9 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      */
     @Override
     public void write(byte[] b, int offset, int length) throws IOException {
+        if (entry == null) {
+            throw new IllegalStateException("No current entry");
+        }
         ZipUtil.checkRequestedFeatures(entry.entry);
         entry.hasWritten = true;
         if (entry.entry.getMethod() == DEFLATED) {
@@ -951,7 +939,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
         written += SHORT;
 
         // file name
-        writeOut(name.array(), name.arrayOffset(), name.limit());
+        writeOut(name.array(), name.arrayOffset(),
+                 name.limit() - name.position());
         written += name.limit();
 
         // extra field
@@ -974,7 +963,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
             ze.addExtraField(new UnicodePathExtraField(ze.getName(),
                                                        name.array(),
                                                        name.arrayOffset(),
-                                                       name.limit()));
+                                                       name.limit()
+                                                       - name.position()));
         }
 
         String comm = ze.getComment();
@@ -988,7 +978,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
                 ze.addExtraField(new UnicodeCommentExtraField(comm,
                                                               commentB.array(),
                                                               commentB.arrayOffset(),
-                                                              commentB.limit())
+                                                              commentB.limit()
+                                                              - commentB.position())
                                  );
             }
         }
@@ -1122,7 +1113,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
         written += WORD;
 
         // file name
-        writeOut(name.array(), name.arrayOffset(), name.limit());
+        writeOut(name.array(), name.arrayOffset(),
+                 name.limit() - name.position());
         written += name.limit();
 
         // extra field
@@ -1130,7 +1122,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
         written += extra.length;
 
         // file comment
-        writeOut(commentB.array(), commentB.arrayOffset(), commentB.limit());
+        writeOut(commentB.array(), commentB.arrayOffset(),
+                 commentB.limit() - commentB.position());
         written += commentB.limit();
     }
 
@@ -1196,7 +1189,8 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
         // ZIP file comment
         ByteBuffer data = this.zipEncoding.encode(comment);
         writeOut(ZipShort.getBytes(data.limit()));
-        writeOut(data.array(), data.arrayOffset(), data.limit());
+        writeOut(data.array(), data.arrayOffset(),
+                 data.limit() - data.position());
     }
 
     private static final byte[] ONE = ZipLong.getBytes(1L);
@@ -1205,7 +1199,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      * Writes the &quot;ZIP64 End of central dir record&quot; and
      * &quot;ZIP64 End of central dir locator&quot;.
      * @throws IOException on error
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     protected void writeZip64CentralDirectory() throws IOException {
         if (zip64Mode == Zip64Mode.Never) {
@@ -1353,7 +1347,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      * Get the existing ZIP64 extended information extra field or
      * create a new one and add it to the entry.
      *
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     private Zip64ExtendedInformationExtraField
         getZip64Extra(ZipArchiveEntry ze) {
@@ -1385,7 +1379,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      * Is there a ZIP64 extended information extra field for the
      * entry?
      *
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     private boolean hasZip64Extra(ZipArchiveEntry ze) {
         return ze.getExtraField(Zip64ExtendedInformationExtraField
@@ -1398,7 +1392,7 @@ public class ZipArchiveOutputStream extends ArchiveOutputStream {
      * unknown size that gets written to a non-seekable stream the
      * change the default to Never.
      *
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     private Zip64Mode getEffectiveZip64Mode(ZipArchiveEntry ze) {
         if (zip64Mode != Zip64Mode.AsNeeded

@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -39,15 +24,9 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress
  * <p>Stores the UTF-8 version of the file name field as stored in the 
  * local header and central directory header.</p>
  *
- * <pre>
- *         Value         Size        Description
- *         -----         ----        -----------
- * (UPath) 0x7075        Short       tag for this extra block type ("up")
- *         TSize         Short       total data size for this block
- *         Version       1 byte      version of this extra field, currently 1
- *         NameCRC32     4 bytes     File Name Field CRC32 Checksum
- *         UnicodeName   Variable    UTF-8 version of the entry File Name
- * </pre>
+ * @see <a href="http://www.pkware.com/documents/casestudies/APPNOTE.TXT">PKWARE
+ * APPNOTE.TXT, section 4.6.9</a>
+ *
  * @NotThreadSafe super-class is not thread-safe
  */
 public class UnicodePathExtraField extends AbstractUnicodeExtraField {
@@ -82,7 +61,6 @@ public class UnicodePathExtraField extends AbstractUnicodeExtraField {
         super(name, bytes);
     }
 
-    /** {@inheritDoc} */
     public ZipShort getHeaderId() {
         return UPATH_ID;
     }

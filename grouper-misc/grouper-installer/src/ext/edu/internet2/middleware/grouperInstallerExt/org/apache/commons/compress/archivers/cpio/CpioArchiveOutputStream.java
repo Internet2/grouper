@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -36,25 +21,27 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
-
 
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipEncoding;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipEncodingHelper;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.ArchiveUtils;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.CharsetNames;
 
 /**
  * CPIOArchiveOutputStream is a stream for writing CPIO streams. All formats of
  * CPIO are supported (old ASCII, old binary, new portable format and the new
  * portable format with CRC).
- * <p/>
- * <p/>
- * An entry can be written by creating an instance of CpioArchiveEntry and fill
+ *
+ * <p>An entry can be written by creating an instance of CpioArchiveEntry and fill
  * it with the necessary values and put it into the CPIO stream. Afterwards
  * write the contents of the file into the CPIO stream. Either close the stream
- * by calling finish() or put a next entry into the cpio stream.
- * <p/>
- * <code><pre>
+ * by calling finish() or put a next entry into the cpio stream.</p>
+ *
+ * <pre>
  * CpioArchiveOutputStream out = new CpioArchiveOutputStream(
  *         new FileOutputStream(new File("test.cpio")));
  * CpioArchiveEntry entry = new CpioArchiveEntry();
@@ -66,13 +53,13 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  * out.putArchiveEntry(entry);
  * out.write(testContents.getBytes());
  * out.close();
- * </pre></code>
- * <p/>
- * Note: This implementation should be compatible to cpio 2.5
+ * </pre>
+ *
+ * <p>Note: This implementation should be compatible to cpio 2.5</p>
  * 
- * This class uses mutable fields and is not considered threadsafe.
+ * <p>This class uses mutable fields and is not considered threadsafe.</p>
  * 
- * based on code from the jRPM project (jrpm.sourceforge.net)
+ * <p>based on code from the jRPM project (jrpm.sourceforge.net)</p>
  */
 public class CpioArchiveOutputStream extends ArchiveOutputStream implements
         CpioConstants {
@@ -103,8 +90,14 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
     private long nextArtificalDeviceAndInode = 1;
 
     /**
-     * Construct the cpio output stream with a specified format and a
-     * blocksize of {@link CpioConstants#BLOCK_SIZE BLOCK_SIZE}.
+     * The encoding to use for filenames and labels.
+     */
+    private final ZipEncoding encoding;
+
+    /**
+     * Construct the cpio output stream with a specified format, a
+     * blocksize of {@link CpioConstants#BLOCK_SIZE BLOCK_SIZE} and
+     * using ASCII as the file name encoding.
      * 
      * @param out
      *            The cpio stream
@@ -112,11 +105,12 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
      *            The format of the stream
      */
     public CpioArchiveOutputStream(final OutputStream out, final short format) {
-        this(out, format, BLOCK_SIZE);
+        this(out, format, BLOCK_SIZE, CharsetNames.US_ASCII);
     }
 
     /**
-     * Construct the cpio output stream with a specified format
+     * Construct the cpio output stream with a specified format using
+     * ASCII as the file name encoding.
      * 
      * @param out
      *            The cpio stream
@@ -124,11 +118,32 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
      *            The format of the stream
      * @param blockSize
      *            The block size of the archive.
-     *            
-     * @since Apache Commons Compress 1.1
+     * 
+     * @since 1.1
      */
     public CpioArchiveOutputStream(final OutputStream out, final short format,
                                    final int blockSize) {
+        this(out, format, blockSize, CharsetNames.US_ASCII);
+    }        
+
+    /**
+     * Construct the cpio output stream with a specified format using
+     * ASCII as the file name encoding.
+     * 
+     * @param out
+     *            The cpio stream
+     * @param format
+     *            The format of the stream
+     * @param blockSize
+     *            The block size of the archive.
+     * @param encoding
+     *            The encoding of file names to write - use null for
+     *            the platform's default.
+     * 
+     * @since 1.6
+     */
+    public CpioArchiveOutputStream(final OutputStream out, final short format,
+                                   final int blockSize, final String encoding) {
         this.out = out;
         switch (format) {
         case FORMAT_NEW:
@@ -142,17 +157,33 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
         }
         this.entryFormat = format;
         this.blockSize = blockSize;
+        this.encoding = ZipEncodingHelper.getZipEncoding(encoding);
     }
 
     /**
      * Construct the cpio output stream. The format for this CPIO stream is the
-     * "new" format
+     * "new" format using ASCII encoding for file names
      * 
      * @param out
      *            The cpio stream
      */
     public CpioArchiveOutputStream(final OutputStream out) {
         this(out, FORMAT_NEW);
+    }
+
+    /**
+     * Construct the cpio output stream. The format for this CPIO stream is the
+     * "new" format.
+     * 
+     * @param out
+     *            The cpio stream
+     * @param encoding
+     *            The encoding of file names to write - use null for
+     *            the platform's default.
+     * @since 1.6
+     */
+    public CpioArchiveOutputStream(final OutputStream out, String encoding) {
+        this(out, FORMAT_NEW, BLOCK_SIZE, encoding);
     }
 
     /**
@@ -232,6 +263,8 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
             writeBinaryLong(MAGIC_OLD_BINARY, 2, swapHalfWord);
             writeOldBinaryEntry(e, swapHalfWord);
             break;
+        default:
+            throw new IOException("unknown format " + e.getFormat());
         }
     }
 
@@ -332,7 +365,7 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
     /*(non-Javadoc)
      * 
      * @see
-     * org.apache.commons.compress.archivers.ArchiveOutputStream#closeArchiveEntry
+     * edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveOutputStream#closeArchiveEntry
      * ()
      */
     @Override
@@ -471,7 +504,7 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
 
     private void writeAsciiLong(final long number, final int length,
             final int radix) throws IOException {
-        StringBuffer tmp = new StringBuffer();
+        StringBuilder tmp = new StringBuilder();
         String tmpStr;
         if (radix == 16) {
             tmp.append(Long.toHexString(number));
@@ -501,10 +534,11 @@ public class CpioArchiveOutputStream extends ArchiveOutputStream implements
      * @throws IOException if the string couldn't be written
      */
     private void writeCString(final String str) throws IOException {
-        byte[] b = ArchiveUtils.toAsciiBytes(str);
-        out.write(b);
+        ByteBuffer buf = encoding.encode(str);
+        final int len = buf.limit() - buf.position();
+        out.write(buf.array(), buf.arrayOffset(), len);
         out.write('\0');
-        count(b.length + 1);
+        count(len + 1);
     }
 
     /**

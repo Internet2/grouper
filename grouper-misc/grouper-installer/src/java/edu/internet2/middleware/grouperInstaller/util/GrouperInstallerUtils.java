@@ -128,11 +128,10 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 public class GrouperInstallerUtils  {
 
   public static void main(String[] args) {
-    tar(new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_19"),
-        new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_19.tar"));
+    tar(new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_17"),
+        new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_17.tar"));
     //gzip(new File("c:\\temp\\test.tar"), new File("c:\\temp\\test.tar.gz"));
   }
-  
   
   /**
    * delete a file
@@ -9399,24 +9398,35 @@ public class GrouperInstallerUtils  {
     return new GrouperInstallerLog(theLog);
     
   }
-
   /**
    * turn a directory and contents into a tar file
    * @param directory
    * @param tarFile
    */
   public static void tar(File directory, File tarFile) {
+    tar(directory, tarFile, true);
+  }
+
+  /**
+   * turn a directory and contents into a tar file
+   * @param directory
+   * @param includeDirectoryInTarPath true if should include the dirname in the tar file
+   * @param tarFile
+   */
+  public static void tar(File directory, File tarFile, boolean includeDirectoryInTarPath) {
 
     try {
       tarFile.createNewFile();
       TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(new FileOutputStream(tarFile));
       
       //we need long file support
-      tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+      tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
       
       for (File file : fileListRecursive(directory)) {
         if (file.isFile()) {
-          String relativePath = fileRelativePath(directory, file);
+          String relativePath = (includeDirectoryInTarPath ? (directory.getName() + File.separator) : "") + fileRelativePath(directory, file);
+          //lets do back slashes
+          relativePath = replace(relativePath, "\\", "/");
           TarArchiveEntry entry = new TarArchiveEntry(file, relativePath);
           tarArchiveOutputStream.putArchiveEntry(entry);
           copy(new FileInputStream(file), tarArchiveOutputStream);

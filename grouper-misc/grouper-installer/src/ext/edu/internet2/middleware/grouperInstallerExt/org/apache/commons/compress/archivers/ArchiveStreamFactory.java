@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -38,24 +23,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ar.ArArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ar.ArArchiveOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.arj.ArjArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.dump.DumpArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.jar.JarArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.jar.JarArchiveOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
 
 /**
- * <p>Factory to create Archive[In|Out]putStreams from names or the first bytes of
- * the InputStream. In order add other implementations you should extend
+ * Factory to create Archive[In|Out]putStreams from names or the first bytes of
+ * the InputStream. In order to add other implementations, you should extend
  * ArchiveStreamFactory and override the appropriate methods (and call their
- * implementation from super of course).</p>
+ * implementation from super of course).
  * 
  * Compressing a ZIP-File:
  * 
@@ -91,52 +78,90 @@ public class ArchiveStreamFactory {
 
     /**
      * Constant used to identify the AR archive format.
-     * @since Commons Compress 1.1
+     * @since 1.1
      */
     public static final String AR = "ar";
     /**
+     * Constant used to identify the ARJ archive format.
+     * @since 1.6
+     */
+    public static final String ARJ = "arj";
+    /**
      * Constant used to identify the CPIO archive format.
-     * @since Commons Compress 1.1
+     * @since 1.1
      */
     public static final String CPIO = "cpio";
     /**
      * Constant used to identify the Unix DUMP archive format.
-     * @since Commons Compress 1.3
+     * @since 1.3
      */
     public static final String DUMP = "dump";
     /**
      * Constant used to identify the JAR archive format.
-     * @since Commons Compress 1.1
+     * @since 1.1
      */
     public static final String JAR = "jar";
     /**
      * Constant used to identify the TAR archive format.
-     * @since Commons Compress 1.1
+     * @since 1.1
      */
     public static final String TAR = "tar";
     /**
      * Constant used to identify the ZIP archive format.
-     * @since Commons Compress 1.1
+     * @since 1.1
      */
     public static final String ZIP = "zip";
+    /**
+     * Constant used to identify the 7z archive format.
+     * @since 1.8
+     */
+    public static final String SEVEN_Z = "7z";
+
+    /**
+     * Entry encoding, null for the default.
+     */
+    private String entryEncoding = null;
+
+    /**
+     * Returns the encoding to use for arj, zip, dump, cpio and tar
+     * files, or null for the default.
+     *
+     * @return entry encoding, or null
+     * @since 1.5
+     */
+    public String getEntryEncoding() {
+        return entryEncoding;
+    }
+
+    /**
+     * Sets the encoding to use for arj, zip, dump, cpio and tar files. Use null for the default.
+     * 
+     * @param entryEncoding the entry encoding, null uses the default.
+     * @since 1.5
+     */
+    public void setEntryEncoding(String entryEncoding) {
+        this.entryEncoding = entryEncoding;
+    }
 
     /**
      * Create an archive input stream from an archiver name and an input stream.
      * 
-     * @param archiverName the archive name, i.e. "ar", "zip", "tar", "jar", "dump" or "cpio"
+     * @param archiverName the archive name, i.e. "ar", "arj", "zip", "tar", "jar", "dump" or "cpio"
      * @param in the input stream
      * @return the archive input stream
      * @throws ArchiveException if the archiver name is not known
+     * @throws StreamingNotSupportedException if the format cannot be
+     * read from a stream
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
     public ArchiveInputStream createArchiveInputStream(
             final String archiverName, final InputStream in)
             throws ArchiveException {
-        
+
         if (archiverName == null) {
             throw new IllegalArgumentException("Archivername must not be null.");
         }
-        
+
         if (in == null) {
             throw new IllegalArgumentException("InputStream must not be null.");
         }
@@ -144,22 +169,48 @@ public class ArchiveStreamFactory {
         if (AR.equalsIgnoreCase(archiverName)) {
             return new ArArchiveInputStream(in);
         }
+        if (ARJ.equalsIgnoreCase(archiverName)) {
+            if (entryEncoding != null) {
+                return new ArjArchiveInputStream(in, entryEncoding);
+            } else {
+                return new ArjArchiveInputStream(in);
+            }
+        }
         if (ZIP.equalsIgnoreCase(archiverName)) {
-            return new ZipArchiveInputStream(in);
+            if (entryEncoding != null) {
+                return new ZipArchiveInputStream(in, entryEncoding);
+            } else {
+                return new ZipArchiveInputStream(in);
+            }
         }
         if (TAR.equalsIgnoreCase(archiverName)) {
-            return new TarArchiveInputStream(in);
+            if (entryEncoding != null) {
+                return new TarArchiveInputStream(in, entryEncoding);
+            } else {
+                return new TarArchiveInputStream(in);
+            }
         }
         if (JAR.equalsIgnoreCase(archiverName)) {
             return new JarArchiveInputStream(in);
         }
         if (CPIO.equalsIgnoreCase(archiverName)) {
-            return new CpioArchiveInputStream(in);
+            if (entryEncoding != null) {
+                return new CpioArchiveInputStream(in, entryEncoding);
+            } else {
+                return new CpioArchiveInputStream(in);
+            }
         }
         if (DUMP.equalsIgnoreCase(archiverName)) {
-            return new DumpArchiveInputStream(in);
+            if (entryEncoding != null) {
+                return new DumpArchiveInputStream(in, entryEncoding);
+            } else {
+                return new DumpArchiveInputStream(in);
+            }
         }
-        
+        if (SEVEN_Z.equalsIgnoreCase(archiverName)) {
+            throw new StreamingNotSupportedException(SEVEN_Z);
+        }
+
         throw new ArchiveException("Archiver: " + archiverName + " not found.");
     }
 
@@ -170,6 +221,8 @@ public class ArchiveStreamFactory {
      * @param out the output stream
      * @return the archive output stream
      * @throws ArchiveException if the archiver name is not known
+     * @throws StreamingNotSupportedException if the format cannot be
+     * written to a stream
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
     public ArchiveOutputStream createArchiveOutputStream(
@@ -186,16 +239,31 @@ public class ArchiveStreamFactory {
             return new ArArchiveOutputStream(out);
         }
         if (ZIP.equalsIgnoreCase(archiverName)) {
-            return new ZipArchiveOutputStream(out);
+            ZipArchiveOutputStream zip = new ZipArchiveOutputStream(out);
+            if (entryEncoding != null) {
+                zip.setEncoding(entryEncoding);
+            }
+            return zip;
         }
         if (TAR.equalsIgnoreCase(archiverName)) {
-            return new TarArchiveOutputStream(out);
+            if (entryEncoding != null) {
+                return new TarArchiveOutputStream(out, entryEncoding);
+            } else {
+                return new TarArchiveOutputStream(out);
+            }
         }
         if (JAR.equalsIgnoreCase(archiverName)) {
             return new JarArchiveOutputStream(out);
         }
         if (CPIO.equalsIgnoreCase(archiverName)) {
-            return new CpioArchiveOutputStream(out);
+            if (entryEncoding != null) {
+                return new CpioArchiveOutputStream(out, entryEncoding);
+            } else {
+                return new CpioArchiveOutputStream(out);
+            }
+        }
+        if (SEVEN_Z.equalsIgnoreCase(archiverName)) {
+            throw new StreamingNotSupportedException(SEVEN_Z);
         }
         throw new ArchiveException("Archiver: " + archiverName + " not found.");
     }
@@ -208,6 +276,8 @@ public class ArchiveStreamFactory {
      * @param in the input stream
      * @return the archive input stream
      * @throws ArchiveException if the archiver name is not known
+     * @throws StreamingNotSupportedException if the format cannot be
+     * read from a stream
      * @throws IllegalArgumentException if the stream is null or does not support mark
      */
     public ArchiveInputStream createArchiveInputStream(final InputStream in)
@@ -223,22 +293,30 @@ public class ArchiveStreamFactory {
         final byte[] signature = new byte[12];
         in.mark(signature.length);
         try {
-            int signatureLength = in.read(signature);
+            int signatureLength = IOUtils.readFully(in, signature);
             in.reset();
             if (ZipArchiveInputStream.matches(signature, signatureLength)) {
-                return new ZipArchiveInputStream(in);
+                if (entryEncoding != null) {
+                    return new ZipArchiveInputStream(in, entryEncoding);
+                } else {
+                    return new ZipArchiveInputStream(in);
+                }
             } else if (JarArchiveInputStream.matches(signature, signatureLength)) {
                 return new JarArchiveInputStream(in);
             } else if (ArArchiveInputStream.matches(signature, signatureLength)) {
                 return new ArArchiveInputStream(in);
             } else if (CpioArchiveInputStream.matches(signature, signatureLength)) {
                 return new CpioArchiveInputStream(in);
+            } else if (ArjArchiveInputStream.matches(signature, signatureLength)) {
+                return new ArjArchiveInputStream(in);
+            } else if (SevenZFile.matches(signature, signatureLength)) {
+                throw new StreamingNotSupportedException(SEVEN_Z);
             }
 
             // Dump needs a bigger buffer to check the signature;
             final byte[] dumpsig = new byte[32];
             in.mark(dumpsig.length);
-            signatureLength = in.read(dumpsig);
+            signatureLength = IOUtils.readFully(in, dumpsig);
             in.reset();
             if (DumpArchiveInputStream.matches(dumpsig, signatureLength)) {
                 return new DumpArchiveInputStream(in);
@@ -247,20 +325,32 @@ public class ArchiveStreamFactory {
             // Tar needs an even bigger buffer to check the signature; read the first block
             final byte[] tarheader = new byte[512];
             in.mark(tarheader.length);
-            signatureLength = in.read(tarheader);
+            signatureLength = IOUtils.readFully(in, tarheader);
             in.reset();
             if (TarArchiveInputStream.matches(tarheader, signatureLength)) {
-                return new TarArchiveInputStream(in);
+                if (entryEncoding != null) {
+                    return new TarArchiveInputStream(in, entryEncoding);
+                } else {
+                    return new TarArchiveInputStream(in);
+                }
             }
             // COMPRESS-117 - improve auto-recognition
-            try {
-                TarArchiveInputStream tais = new TarArchiveInputStream(new ByteArrayInputStream(tarheader));
-                tais.getNextEntry();
-                return new TarArchiveInputStream(in);
-            } catch (Exception e) { // NOPMD
-                // can generate IllegalArgumentException as well as IOException
-                // autodetection, simply not a TAR
-                // ignored
+            if (signatureLength >= 512) {
+                TarArchiveInputStream tais = null;
+                try {
+                    tais = new TarArchiveInputStream(new ByteArrayInputStream(tarheader));
+                    // COMPRESS-191 - verify the header checksum
+                    if (tais.getNextTarEntry().isCheckSumOK()) {
+                        return new TarArchiveInputStream(in);
+                    }
+                } catch (Exception e) { // NOPMD
+                    // can generate IllegalArgumentException as well
+                    // as IOException
+                    // autodetection, simply not a TAR
+                    // ignored
+                } finally {
+                    IOUtils.closeQuietly(tais);
+                }
             }
         } catch (IOException e) {
             throw new ArchiveException("Could not use reset and mark operations.", e);
@@ -268,4 +358,5 @@ public class ArchiveStreamFactory {
 
         throw new ArchiveException("No Archiver found for the stream signature");
     }
+
 }
