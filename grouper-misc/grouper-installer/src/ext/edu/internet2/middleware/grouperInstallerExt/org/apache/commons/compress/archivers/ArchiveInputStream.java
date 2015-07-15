@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -54,9 +39,9 @@ import java.io.InputStream;
  */
 public abstract class ArchiveInputStream extends InputStream {
 
-    private byte[] SINGLE = new byte[1];
+    private final byte[] SINGLE = new byte[1];
     private static final int BYTE_MASK = 0xFF;
-    
+
     /** holds the number of bytes read in this stream */
     private long bytesRead = 0;
 
@@ -64,7 +49,7 @@ public abstract class ArchiveInputStream extends InputStream {
      * Returns the next Archive Entry in this Stream.
      *
      * @return the next entry,
-     *         or <code>null</code> if there are no more entries
+     *         or {@code null} if there are no more entries
      * @throws IOException if the next entry could not be read
      */
     public abstract ArchiveEntry getNextEntry() throws IOException;
@@ -96,7 +81,7 @@ public abstract class ArchiveInputStream extends InputStream {
         int num = read(SINGLE, 0, 1);
         return num == -1 ? -1 : SINGLE[0] & BYTE_MASK;
     }
-    
+
     /**
      * Increments the counter of already read bytes.
      * Doesn't increment if the EOF has been hit (read == -1)
@@ -112,24 +97,24 @@ public abstract class ArchiveInputStream extends InputStream {
      * Doesn't increment if the EOF has been hit (read == -1)
      * 
      * @param read the number of bytes read
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     protected void count(long read) {
         if (read != -1) {
             bytesRead = bytesRead + read;
         }
     }
-    
+
     /**
      * Decrements the counter of already read bytes.
      * 
      * @param pushedBack the number of bytes pushed back.
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     protected void pushedBackBytes(long pushedBack) {
         bytesRead -= pushedBack;
     }
-    
+
     /**
      * Returns the current number of bytes read from this stream.
      * @return the number of read bytes
@@ -144,7 +129,7 @@ public abstract class ArchiveInputStream extends InputStream {
     /**
      * Returns the current number of bytes read from this stream.
      * @return the number of read bytes
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public long getBytesRead() {
         return bytesRead;
@@ -152,15 +137,18 @@ public abstract class ArchiveInputStream extends InputStream {
 
     /**
      * Whether this stream is able to read the given entry.
-     *
-     * <p>Some archive formats support variants or details that are
-     * not supported (yet).</p>
-     *
-     * <p>This implementation always returns true.
-     *
-     * @since Apache Commons Compress 1.1
+     * 
+     * <p>
+     * Some archive formats support variants or details that are not supported (yet).
+     * </p>
+     * 
+     * @param archiveEntry
+     *            the entry to test
+     * @return This implementation always returns true.
+     * 
+     * @since 1.1
      */
-    public boolean canReadEntryData(ArchiveEntry ae) {
+    public boolean canReadEntryData(ArchiveEntry archiveEntry) {
         return true;
     }
 

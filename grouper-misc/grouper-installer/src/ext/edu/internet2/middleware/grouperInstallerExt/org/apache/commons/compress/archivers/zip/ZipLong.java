@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -32,6 +17,8 @@
  */
 package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip;
 
+import java.io.Serializable;
+
 import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.BYTE_MASK;
 import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.WORD;
 
@@ -40,7 +27,8 @@ import static edu.internet2.middleware.grouperInstallerExt.org.apache.commons.co
  * rules for the big endian byte order of ZIP files.
  * @Immutable
  */
-public final class ZipLong implements Cloneable {
+public final class ZipLong implements Cloneable, Serializable {
+    private static final long serialVersionUID = 1L;
 
     //private static final int BYTE_BIT_SIZE = 8;
 
@@ -65,17 +53,38 @@ public final class ZipLong implements Cloneable {
     public static final ZipLong LFH_SIG = new ZipLong(0X04034B50L);
 
     /**
-     * Data Descriptor signature
-     * @since Apache Commons Compress 1.1
+     * Data Descriptor signature.
+     *
+     * <p>Actually, PKWARE uses this as marker for split/spanned
+     * archives and other archivers have started to use it as Data
+     * Descriptor signature (as well).</p>
+     * @since 1.1
      */
     public static final ZipLong DD_SIG = new ZipLong(0X08074B50L);
 
     /**
      * Value stored in size and similar fields if ZIP64 extensions are
      * used.
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     static final ZipLong ZIP64_MAGIC = new ZipLong(ZipConstants.ZIP64_MAGIC);
+
+    /**
+     * Marks ZIP archives that were supposed to be split or spanned
+     * but only needed a single segment in then end (so are actually
+     * neither split nor spanned).
+     *
+     * <p>This is the "PK00" prefix found in some archives.</p>
+     * @since 1.5
+     */
+    public static final ZipLong SINGLE_SEGMENT_SPLIT_MARKER =
+        new ZipLong(0X30304B50L);
+
+    /**
+     * Archive extra data record signature.
+     * @since 1.5
+     */
+    public static final ZipLong AED_SIG = new ZipLong(0X08064B50L);
 
     /**
      * Create instance from a number.

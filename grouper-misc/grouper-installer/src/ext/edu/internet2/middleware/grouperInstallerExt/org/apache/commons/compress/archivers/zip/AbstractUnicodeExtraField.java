@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -37,6 +22,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.zip.CRC32;
 import java.util.zip.ZipException;
 
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.CharsetNames;
+
 /**
  * A common base class for Unicode extra information extra fields.
  * @NotThreadSafe
@@ -51,7 +38,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
 
     /**
      * Assemble as unicode extension from the name/comment and
-     * encoding of the orginal zip entry.
+     * encoding of the original zip entry.
      * 
      * @param text The file name or comment.
      * @param bytes The encoded of the filename or comment in the zip
@@ -67,7 +54,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
         nameCRC32 = crc32.getValue();
 
         try {
-            unicodeName = text.getBytes("UTF-8");
+            unicodeName = text.getBytes(CharsetNames.UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("FATAL: UTF-8 encoding not supported.", e);
         }
@@ -75,7 +62,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
 
     /**
      * Assemble as unicode extension from the name/comment and
-     * encoding of the orginal zip entry.
+     * encoding of the original zip entry.
      * 
      * @param text The file name or comment.
      * @param bytes The encoded of the filename or comment in the zip
@@ -115,7 +102,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
     }
 
     /**
-     * @return The utf-8 encoded name.
+     * @return The UTF-8 encoded name.
      */
     public byte[] getUnicodeName() {
         byte[] b = null;
@@ -127,7 +114,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
     }
 
     /**
-     * @param unicodeName The utf-8 encoded name to set.
+     * @param unicodeName The UTF-8 encoded name to set.
      */
     public void setUnicodeName(byte[] unicodeName) {
         if (unicodeName != null) {
@@ -140,7 +127,6 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
         data = null;
     }
 
-    /** {@inheritDoc} */
     public byte[] getCentralDirectoryData() {
         if (data == null) {
             this.assembleData();
@@ -153,25 +139,21 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
         return b;
     }
 
-    /** {@inheritDoc} */
     public ZipShort getCentralDirectoryLength() {
         if (data == null) {
             assembleData();
         }
-        return new ZipShort(data.length);
+        return new ZipShort(data != null ? data.length : 0);
     }
 
-    /** {@inheritDoc} */
     public byte[] getLocalFileDataData() {
         return getCentralDirectoryData();
     }
 
-    /** {@inheritDoc} */
     public ZipShort getLocalFileDataLength() {
         return getCentralDirectoryLength();
     }
 
-    /** {@inheritDoc} */
     public void parseFromLocalFileData(byte[] buffer, int offset, int length)
         throws ZipException {
 

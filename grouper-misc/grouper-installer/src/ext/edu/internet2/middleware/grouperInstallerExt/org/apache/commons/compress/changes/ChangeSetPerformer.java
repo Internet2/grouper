@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -35,14 +20,16 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipFile;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
 
 /**
@@ -56,7 +43,7 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  */
 public class ChangeSetPerformer {
     private final Set<Change> changes;
-    
+
     /**
      * Constructs a ChangeSetPerformer with the changes from this ChangeSet
      * @param changeSet the ChangeSet which operations are used for performing
@@ -64,7 +51,7 @@ public class ChangeSetPerformer {
     public ChangeSetPerformer(final ChangeSet changeSet) {
         changes = changeSet.getChanges();
     }
-    
+
     /**
      * Performs all changes collected in this ChangeSet on the input stream and
      * streams the result to the output stream. Perform may be called more than once.
@@ -82,10 +69,52 @@ public class ChangeSetPerformer {
      */
     public ChangeSetResults perform(ArchiveInputStream in, ArchiveOutputStream out)
             throws IOException {
+        return perform(new ArchiveInputStreamIterator(in), out);
+    }
+
+    /**
+     * Performs all changes collected in this ChangeSet on the ZipFile and
+     * streams the result to the output stream. Perform may be called more than once.
+     * 
+     * This method finishes the stream, no other entries should be added
+     * after that.
+     * 
+     * @param in
+     *            the ZipFile to perform the changes on
+     * @param out
+     *            the resulting OutputStream with all modifications
+     * @throws IOException
+     *             if an read/write error occurs
+     * @return the results of this operation
+     * @since 1.5
+     */
+    public ChangeSetResults perform(ZipFile in, ArchiveOutputStream out)
+            throws IOException {
+        return perform(new ZipFileIterator(in), out);
+    }
+
+    /**
+     * Performs all changes collected in this ChangeSet on the input entries and
+     * streams the result to the output stream.
+     * 
+     * This method finishes the stream, no other entries should be added
+     * after that.
+     * 
+     * @param entryIterator
+     *            the entries to perform the changes on
+     * @param out
+     *            the resulting OutputStream with all modifications
+     * @throws IOException
+     *             if an read/write error occurs
+     * @return the results of this operation
+     */
+    private ChangeSetResults perform(ArchiveEntryIterator entryIterator,
+                                     ArchiveOutputStream out)
+            throws IOException {
         ChangeSetResults results = new ChangeSetResults();
-        
+
         Set<Change> workingSet = new LinkedHashSet<Change>(changes);
-        
+
         for (Iterator<Change> it = workingSet.iterator(); it.hasNext();) {
             Change change = it.next();
 
@@ -96,8 +125,8 @@ public class ChangeSetPerformer {
             }
         }
 
-        ArchiveEntry entry = null;
-        while ((entry = in.getNextEntry()) != null) {
+        while (entryIterator.hasNext()) {
+            ArchiveEntry entry = entryIterator.next();
             boolean copy = true;
 
             for (Iterator<Change> it = workingSet.iterator(); it.hasNext();) {
@@ -125,11 +154,11 @@ public class ChangeSetPerformer {
             if (copy
                 && !isDeletedLater(workingSet, entry)
                 && !results.hasBeenAdded(entry.getName())) {
-                copyStream(in, out, entry);
+                copyStream(entryIterator.getInputStream(), out, entry);
                 results.addedFromStream(entry.getName());
             }
         }
-        
+
         // Adds files which hasn't been added from the original and do not have replace mode on
         for (Iterator<Change> it = workingSet.iterator(); it.hasNext();) {
             Change change = it.next();
@@ -191,5 +220,58 @@ public class ChangeSetPerformer {
         out.putArchiveEntry(entry);
         IOUtils.copy(in, out);
         out.closeArchiveEntry();
+    }
+
+    /**
+     * Used in perform to abstract out getting entries and streams for
+     * those entries.
+     *
+     * <p>Iterator#hasNext is not allowed to throw exceptions that's
+     * why we can't use Iterator&lt;ArchiveEntry&gt; directly -
+     * otherwise we'd need to convert exceptions thrown in
+     * ArchiveInputStream#getNextEntry.</p>
+     */
+    interface ArchiveEntryIterator {
+        boolean hasNext() throws IOException;
+        ArchiveEntry next();
+        InputStream getInputStream() throws IOException;
+    }
+
+    private static class ArchiveInputStreamIterator
+        implements ArchiveEntryIterator {
+        private final ArchiveInputStream in;
+        private ArchiveEntry next;
+        ArchiveInputStreamIterator(ArchiveInputStream in) {
+            this.in = in;
+        }
+        public boolean hasNext() throws IOException {
+            return (next = in.getNextEntry()) != null;
+        }
+        public ArchiveEntry next() {
+            return next;
+        }
+        public InputStream getInputStream() {
+            return in;
+        }
+    }
+
+    private static class ZipFileIterator
+        implements ArchiveEntryIterator {
+        private final ZipFile in;
+        private final Enumeration<ZipArchiveEntry> nestedEnum;
+        private ZipArchiveEntry current;
+        ZipFileIterator(ZipFile in) {
+            this.in = in;
+            nestedEnum = in.getEntriesInPhysicalOrder();
+        }
+        public boolean hasNext() {
+            return nestedEnum.hasMoreElements();
+        }
+        public ArchiveEntry next() {
+            return current = nestedEnum.nextElement();
+        }
+        public InputStream getInputStream() throws IOException {
+            return in.getInputStream(current);
+        }
     }
 }

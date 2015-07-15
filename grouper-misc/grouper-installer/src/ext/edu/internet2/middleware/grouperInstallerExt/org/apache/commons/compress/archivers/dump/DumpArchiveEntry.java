@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -38,7 +23,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
 
 /**
@@ -130,6 +114,7 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  * #define EXT2_XATTR_MAGIC        0xEA020000  // block EA
  * #define EXT2_XATTR_MAGIC2       0xEA020001  // in inode EA
  * </pre>
+ * <p>
  * The fields in <b>bold</b> are the same for all blocks. (This permitted
  * multiple dumps to be written to a single tape.)
  * </p>
@@ -147,7 +132,7 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  *
  * //
  * // This is the new (4.4) BSD inode structure
- * // copied from the FreeBSD 2.0 <ufs/ufs/dinode.h> include file
+ * // copied from the FreeBSD 2.0 &lt;ufs/ufs/dinode.h&gt; include file
  * //
  * struct new_bsd_inode {
  *   __u16       di_mode;           // file type, standard Unix permissions
@@ -170,6 +155,7 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  *   __s32       di_spare[2];       // unused
  * };
  * </pre>
+ * <p>
  * It is important to note that the header DOES NOT have the name of the
  * file. It can't since hard links mean that you may have multiple filenames
  * for a single physical file. You must read the contents of the directory
@@ -179,16 +165,16 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  * <p>
  * The C structure that indicates if a specific block is a real block
  * that contains data or is a sparse block that is not persisted to the
- * disk is:
+ * disk is:</p>
  * <pre>
  * #define TP_BSIZE    1024
  * #define TP_NINDIR   (TP_BSIZE/2)
  *
  * union u_data {
- *   char    s_addrs[TP_NINDIR]; // 1 => data; 0 => hole in inode
+ *   char    s_addrs[TP_NINDIR]; // 1 =&gt; data; 0 =&gt; hole in inode
  *   int32_t s_inos[TP_NINOS];   // table of first inode on each volume
  * } u_data;
- * </pre></p>
+ * </pre>
  *
  * @NotThreadSafe
  */
@@ -206,10 +192,10 @@ public class DumpArchiveEntry implements ArchiveEntry {
     /**
      * Currently unused
      */
-    private DumpArchiveSummary summary = null;
+    private final DumpArchiveSummary summary = null;
 
     // this information is available from standard index.
-    private TapeSegmentHeader header = new TapeSegmentHeader();
+    private final TapeSegmentHeader header = new TapeSegmentHeader();
     private String simpleName;
     private String originalName;
 
@@ -539,7 +525,7 @@ public class DumpArchiveEntry implements ArchiveEntry {
         private int ino;
         private int count;
         private int holes;
-        private byte[] cdata = new byte[512]; // map of any 'holes'
+        private final byte[] cdata = new byte[512]; // map of any 'holes'
 
         public DumpArchiveConstants.SEGMENT_TYPE getType() {
             return type;
@@ -602,7 +588,6 @@ public class DumpArchiveEntry implements ArchiveEntry {
         this.name = name;
     }
 
-    /** {@inheritDoc} */
     public Date getLastModifiedDate() {
         return new Date(mtime);
     }
@@ -765,7 +750,7 @@ public class DumpArchiveEntry implements ArchiveEntry {
         CHRDEV(2),
         FIFO(1),
         UNKNOWN(15);
-    	
+
         private int code;
 
         private TYPE(int code) {
@@ -784,7 +769,7 @@ public class DumpArchiveEntry implements ArchiveEntry {
             return type;
         }
     }
-    
+
     public enum PERMISSION {
         SETUID(04000),
         SETGUI(02000),
@@ -798,7 +783,7 @@ public class DumpArchiveEntry implements ArchiveEntry {
         WORLD_READ(00004),
         WORLD_WRITE(00002),
         WORLD_EXEC(00001);
-    	
+
         private int code;
 
         private PERMISSION(int code) {

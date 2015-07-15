@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -33,8 +18,10 @@
  */
 package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.dump;
 
+import java.io.IOException;
 import java.util.Date;
 
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipEncoding;
 
 /**
  * This class represents identifying information about a Dump archive volume.
@@ -56,15 +43,15 @@ public class DumpArchiveSummary {
     private int firstrec;
     private int ntrec;
 
-    DumpArchiveSummary(byte[] buffer) {
+    DumpArchiveSummary(byte[] buffer, ZipEncoding encoding) throws IOException {
         dumpDate = 1000L * DumpArchiveUtil.convert32(buffer, 4);
         previousDumpDate = 1000L * DumpArchiveUtil.convert32(buffer, 8);
         volume = DumpArchiveUtil.convert32(buffer, 12);
-        label = new String(buffer, 676, DumpArchiveConstants.LBLSIZE).trim();
+        label = DumpArchiveUtil.decode(encoding, buffer, 676, DumpArchiveConstants.LBLSIZE).trim();
         level = DumpArchiveUtil.convert32(buffer, 692);
-        filesys = new String(buffer, 696, DumpArchiveConstants.NAMELEN).trim();
-        devname = new String(buffer, 760, DumpArchiveConstants.NAMELEN).trim();
-        hostname = new String(buffer, 824, DumpArchiveConstants.NAMELEN).trim();
+        filesys = DumpArchiveUtil.decode(encoding, buffer, 696, DumpArchiveConstants.NAMELEN).trim();
+        devname = DumpArchiveUtil.decode(encoding, buffer, 760, DumpArchiveConstants.NAMELEN).trim();
+        hostname = DumpArchiveUtil.decode(encoding, buffer, 824, DumpArchiveConstants.NAMELEN).trim();
         flags = DumpArchiveUtil.convert32(buffer, 888);
         firstrec = DumpArchiveUtil.convert32(buffer, 892);
         ntrec = DumpArchiveUtil.convert32(buffer, 896);

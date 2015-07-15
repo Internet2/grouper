@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -40,7 +25,7 @@ import java.util.zip.ZipException;
  * Adds Unix file permission and UID/GID fields as well as symbolic
  * link handling.
  *
- * <p>This class uses the ASi extra field in the format:
+ * <p>This class uses the ASi extra field in the format:</p>
  * <pre>
  *         Value         Size            Description
  *         -----         ----            -----------
@@ -53,9 +38,8 @@ import java.util.zip.ZipException;
  *         GID           Short           group ID
  *         (var.)        variable        symbolic link filename
  * </pre>
- * taken from appnote.iz (Info-ZIP note, 981119) found at <a
+ * <p>taken from appnote.iz (Info-ZIP note, 981119) found at <a
  * href="ftp://ftp.uu.net/pub/archiving/zip/doc/">ftp://ftp.uu.net/pub/archiving/zip/doc/</a></p>
-
  *
  * <p>Short is two bytes and Long is four bytes in big endian byte and
  * word order, device numbers are currently not supported.</p>

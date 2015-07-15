@@ -1,7 +1,7 @@
 <!-- $Id: package.html,v 1.1 2008-11-30 10:57:19 mchyzer Exp $ -->
 <html>
    <head>
-      <title>Package Documentation for org.apache.commons.httpclient</title>
+      <title>Package Documentation for edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient</title>
       <meta name="author" content="Jeff Dever">
    </head>
    <body>
@@ -20,17 +20,17 @@
          The basis for the abstraction is provided by three types:
       </p>
       <ul><dl>
-         <dt>{@link org.apache.commons.httpclient.HttpConnection}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpConnection}</dt>
          <dd>
             represents a network connection to some HTTP host.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.HttpMethod}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpMethod}</dt>
          <dd>
             represents a request to be made over some
-            {@link org.apache.commons.httpclient.HttpConnection}
+            {@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpConnection}
             and contains the server's response.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.HttpState}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpState}</dt>
          <dd>
             contains the HTTP attributes that may persist from
             request to request, such as cookies and authentication
@@ -41,29 +41,29 @@
          and several simple bean-style classes:
       </p>
       <ul><dl>
-         <dt>{@link org.apache.commons.httpclient.Cookie}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.Cookie}</dt>
          <dd>
             represents HTTP cookie.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.Credentials}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.Credentials}</dt>
          <dd>
             an interface representing a set of authentication credentials.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.Header}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.Header}</dt>
          <dd>
             represents an HTTP request or response header.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.HeaderElement}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HeaderElement}</dt>
          <dd>
             represents a single element of a multi-part header.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.UsernamePasswordCredentials}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.UsernamePasswordCredentials}</dt>
          <dd>
             a username and password pair.
          </dd>
       </dl></ul>
       <p>
-         {@link org.apache.commons.httpclient.HttpClient} provides a
+         {@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpClient} provides a
          simple "user-agent" implementation that will suffice for many
          applications, but whose use is not required.
       </p>
@@ -72,27 +72,27 @@
          useful when extending the framework:
       </p>
       <ul><dl>
-         <dt>{@link org.apache.commons.httpclient.HttpMethodBase}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpMethodBase}</dt>
          <dd>
             an abstract base implementation of <tt>HttpMethod</tt>,
             which may be extended to create new method types or
             to support additional protocol HTTP features.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.HttpStatus}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpStatus}</dt>
          <dd>
             an enumeration of HttpStatus codes.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.ChunkedOutputStream}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.ChunkedOutputStream}</dt>
          <dd>
             an {@link java.io.OutputStream} wrapper supporting the "chunked"
             transfer encoding.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.ChunkedInputStream}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.ChunkedInputStream}</dt>
          <dd>
             an {@link java.io.InputStream} wrapper supporting the "chunked"
             transfer encoding.
          </dd>
-         <dt>{@link org.apache.commons.httpclient.util.URIUtil}</dt>
+         <dt>{@link edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.util.URIUtil}</dt>
          <dd>
             provides utilities for encoding and decoding URI's in the
             <tt>%HH</tt> format.

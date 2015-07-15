@@ -1639,7 +1639,7 @@ public class GrouperInstaller {
 
         File oldFile = new File(patchDir.getAbsolutePath() + File.separator + "old" + File.separator
             + currentIndexFile.getPatchFileType().getDirName() + File.separator
-            + GrouperInstallerUtils.replace(currentIndexFile.getPath(), "/", File.separator));
+            + GrouperInstallerUtils.replace(currentIndexFile.getRelativePath(), "/", File.separator));
         
         GrouperInstallerUtils.mkdirs(oldFile.getParentFile());
         

@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -36,7 +21,6 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
 
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -70,10 +54,10 @@ public class ArArchiveOutputStream extends ArchiveOutputStream {
     /**
      * Set the long file mode.
      * This can be LONGFILE_ERROR(0) or LONGFILE_BSD(1).
-     * This specifies the treatment of long file names (names >= 16).
+     * This specifies the treatment of long file names (names &gt;= 16).
      * Default is LONGFILE_ERROR.
      * @param longFileMode the mode to use
-     * @since Apache Commons Compress 1.3
+     * @since 1.3
      */
     public void setLongFileMode(int longFileMode) {
         this.longFileMode = longFileMode;
@@ -85,7 +69,6 @@ public class ArArchiveOutputStream extends ArchiveOutputStream {
         return header.length;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void closeArchiveEntry() throws IOException {
         if(finished) {
@@ -94,13 +77,12 @@ public class ArArchiveOutputStream extends ArchiveOutputStream {
         if (prevEntry == null || !haveUnclosedEntry){
             throw new IOException("No current entry to close");
         }
-        if ((entryOffset % 2) != 0) {
+        if (entryOffset % 2 != 0) {
             out.write('\n'); // Pad byte
         }
         haveUnclosedEntry = false;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void putArchiveEntry( final ArchiveEntry pEntry ) throws IOException {
         if(finished) {
@@ -165,7 +147,7 @@ public class ArArchiveOutputStream extends ArchiveOutputStream {
         }
 
         offset = fill(offset, 16, ' ');
-        final String m = "" + (pEntry.getLastModified());
+        final String m = "" + pEntry.getLastModified();
         if (m.length() > 12) {
             throw new IOException("modified too long");
         }
@@ -231,7 +213,6 @@ public class ArArchiveOutputStream extends ArchiveOutputStream {
         prevEntry = null;
     }
 
-    /** {@inheritDoc} */
     @Override
     public ArchiveEntry createArchiveEntry(File inputFile, String entryName)
             throws IOException {
@@ -241,7 +222,6 @@ public class ArArchiveOutputStream extends ArchiveOutputStream {
         return new ArArchiveEntry(inputFile, entryName);
     }
 
-    /** {@inheritDoc} */
     @Override
     public void finish() throws IOException {
         if(haveUnclosedEntry) {

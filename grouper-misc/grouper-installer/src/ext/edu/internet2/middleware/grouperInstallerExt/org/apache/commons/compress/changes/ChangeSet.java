@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -70,7 +55,7 @@ public final class ChangeSet {
     public void deleteDir(final String dirName) {
         addDeletion(new Change(dirName, Change.TYPE_DELETE_DIR));
     }
-    
+
     /**
      * Adds a new archive entry to the archive.
      * 
@@ -82,7 +67,7 @@ public final class ChangeSet {
     public void add(final ArchiveEntry pEntry, final InputStream pInput) {
         this.add(pEntry, pInput, true);
     }
-    
+
     /**
      * Adds a new archive entry to the archive.
      * If replace is set to true, this change will replace all other additions
@@ -93,7 +78,7 @@ public final class ChangeSet {
      * @param pInput
      *            the datastream to add
      * @param replace
-     *            indicates the this change should replace existing entries            
+     *            indicates the this change should replace existing entries
      */
     public void add(final ArchiveEntry pEntry, final InputStream pInput, final boolean replace) {
         addAddition(new Change(pEntry, pInput, replace));
@@ -106,7 +91,7 @@ public final class ChangeSet {
      *            the change which should result in an addition
      */
     private void addAddition(Change pChange) {
-        if (Change.TYPE_ADD != pChange.type() ||    
+        if (Change.TYPE_ADD != pChange.type() ||
             pChange.getInput() == null) {
             return;
         }
@@ -133,7 +118,7 @@ public final class ChangeSet {
         }
         changes.add(pChange);
     }
-    
+
     /**
      * Adds an delete change.
      * 
@@ -142,18 +127,22 @@ public final class ChangeSet {
      */
     private void addDeletion(Change pChange) {
         if ((Change.TYPE_DELETE != pChange.type() &&
-            Change.TYPE_DELETE_DIR != pChange.type()) ||    
+            Change.TYPE_DELETE_DIR != pChange.type()) ||
             pChange.targetFile() == null) {
             return;
         }
         String source = pChange.targetFile();
 
-        if (!changes.isEmpty()) {
+        if (source != null && !changes.isEmpty()) {
             for (Iterator<Change> it = changes.iterator(); it.hasNext();) {
                 Change change = it.next();
                 if (change.type() == Change.TYPE_ADD
                         && change.getEntry() != null) {
                     String target = change.getEntry().getName();
+
+                    if (target == null) {
+                        continue;
+                    }
 
                     if (Change.TYPE_DELETE == pChange.type() && source.equals(target)) {
                         it.remove();

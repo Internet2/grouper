@@ -195,7 +195,7 @@ public class Log4JLogger implements Log, Serializable {
      * level, the message will be logged at the <code>DEBUG</code> level.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#trace(Object)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#trace(Object)
      */
     public void trace(Object message) {
         getLogger().log(FQCN, traceLevel, message, null );
@@ -209,7 +209,7 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#trace(Object, Throwable)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#trace(Object, Throwable)
      */
     public void trace(Object message, Throwable t) {
         getLogger().log(FQCN, traceLevel, message, t );
@@ -220,7 +220,7 @@ public class Log4JLogger implements Log, Serializable {
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#debug(Object)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#debug(Object)
      */
     public void debug(Object message) {
         getLogger().log(FQCN, Priority.DEBUG, message, null );
@@ -231,7 +231,7 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#debug(Object, Throwable)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#debug(Object, Throwable)
      */
     public void debug(Object message, Throwable t) {
         getLogger().log(FQCN, Priority.DEBUG, message, t );
@@ -242,7 +242,7 @@ public class Log4JLogger implements Log, Serializable {
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#info(Object)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#info(Object)
      */
     public void info(Object message) {
         getLogger().log(FQCN, Priority.INFO, message, null );
@@ -254,7 +254,7 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#info(Object, Throwable)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#info(Object, Throwable)
      */
     public void info(Object message, Throwable t) {
         getLogger().log(FQCN, Priority.INFO, message, t );
@@ -265,7 +265,7 @@ public class Log4JLogger implements Log, Serializable {
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#warn(Object)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#warn(Object)
      */
     public void warn(Object message) {
         getLogger().log(FQCN, Priority.WARN, message, null );
@@ -277,7 +277,7 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#warn(Object, Throwable)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#warn(Object, Throwable)
      */
     public void warn(Object message, Throwable t) {
         getLogger().log(FQCN, Priority.WARN, message, t );
@@ -288,7 +288,7 @@ public class Log4JLogger implements Log, Serializable {
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#error(Object)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#error(Object)
      */
     public void error(Object message) {
         getLogger().log(FQCN, Priority.ERROR, message, null );
@@ -300,7 +300,7 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#error(Object, Throwable)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#error(Object, Throwable)
      */
     public void error(Object message, Throwable t) {
         getLogger().log(FQCN, Priority.ERROR, message, t );
@@ -311,7 +311,7 @@ public class Log4JLogger implements Log, Serializable {
      * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#fatal(Object)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#fatal(Object)
      */
     public void fatal(Object message) {
         getLogger().log(FQCN, Priority.FATAL, message, null );
@@ -323,7 +323,7 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#fatal(Object, Throwable)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log#fatal(Object, Throwable)
      */
     public void fatal(Object message, Throwable t) {
         getLogger().log(FQCN, Priority.FATAL, message, t );

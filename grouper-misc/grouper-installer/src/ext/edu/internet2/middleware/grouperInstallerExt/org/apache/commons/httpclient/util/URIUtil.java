@@ -563,7 +563,7 @@ public class URIUtil {
      * The basic and internal utility for URI escape and character encoding and
      * decoding.
      * 
-     * @deprecated use org.apache.commons.codec.net.URLCodec
+     * @deprecated use edu.internet2.middleware.grouperInstallerExt.org.apache.commons.codec.net.URLCodec
      */
     protected static class Coder extends URI {
 
@@ -578,7 +578,7 @@ public class URIUtil {
          * 
          * @throws URIException if the charset is not supported
          * 
-         * @deprecated use org.apache.commons.codec.net.URLCodec
+         * @deprecated use edu.internet2.middleware.grouperInstallerExt.org.apache.commons.codec.net.URLCodec
          */
         public static char[] encode(String unescapedComponent, BitSet allowed, String charset) 
             throws URIException {
@@ -596,7 +596,7 @@ public class URIUtil {
          * 
          * @throws URIException if the charset is not supported
          * 
-         * @deprecated use org.apache.commons.codec.net.URLCodec
+         * @deprecated use edu.internet2.middleware.grouperInstallerExt.org.apache.commons.codec.net.URLCodec
          */
         public static String decode(char[] escapedComponent, String charset)
             throws URIException {
