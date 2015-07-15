@@ -19,7 +19,7 @@
                 </ul>
                 <p class="lead">${textContainer.text['myGroupsMembershipsDescription'] }</p>
                 <form class="form-inline form-filter" id="myGroupsForm"
-                    onsubmit="ajax('../app/UiV2MyGroups.myGroupsMemberhipsSubmit', {formIds: 'myGroupsForm, myGroupsPagingFormId'}); return false;">
+                    onsubmit="ajax('../app/UiV2MyGroups.myGroupsMembershipsSubmit', {formIds: 'myGroupsForm, myGroupsPagingFormId'}); return false;">
                   <div class="row-fluid">
                     <div class="span1">
                       <label for="myGroupsFilterId" style="white-space: nowrap;">${textContainer.text['myGroupsFilterFor'] }</label>
@@ -35,5 +35,6 @@
                 <div id="myGroupsResultsId">
                 </div>
               </div>
+            </div>
 
 
