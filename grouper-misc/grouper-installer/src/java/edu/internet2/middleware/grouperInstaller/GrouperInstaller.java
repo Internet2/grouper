@@ -1414,7 +1414,7 @@ public class GrouperInstaller {
       String currentPatchName = GrouperInstallerUtils.substringBeforeLast(patchName, "_") + "_" + i;
       
       File currentPatchDir = new File(this.grouperTarballDirectoryString + currentPatchName);
-      
+
       Iterator<GrouperInstallerIndexFile> iterator = grouperInstallerIndexFilesToAddToPatch.iterator();
       
       while (iterator.hasNext()) {
@@ -1505,7 +1505,9 @@ public class GrouperInstaller {
 
       //look for the old file
       GrouperInstallerIndexFile currentIndexFileFromTag = indexOfTagFiles.get(currentIndexFile.getPath());
-
+      if (currentIndexFileFromTag == null) {
+        currentIndexFileFromTag = indexOfTagFiles.get(currentIndexFile.getRelativePath());
+      }
       if (currentIndexFileFromTag != null) {
         if (currentIndexFileFromTag.isHasMultipleFilesByPath()) {
           throw new RuntimeException("Why multiple paths???? " + currentIndexFile + ", " + currentIndexFile.getPath());
@@ -1958,9 +1960,11 @@ public class GrouperInstaller {
     }
     
     //print out files for debugging
-//    for (String key : indexOfFiles.keySet()) {
-//      System.out.println(key + " -> " + indexOfFiles.get(key));
-//    }
+    //for (String key : theIndexOfFiles.keySet()) {
+    //  if (key.toLowerCase().contains("mygroupsmemberships")) {
+    //    System.out.println(key + " -> " + theIndexOfFiles.get(key));
+    //  }
+    //}
 
     System.out.println("\nDone creating file index to make patches from " + theSourceDir.getAbsolutePath() + "... found " + theIndexOfFiles.size() + " files\n");
 
