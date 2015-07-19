@@ -44,10 +44,37 @@ $Id: sources.example.xml,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
      </init-param>
   
     The first virtual attribute is accessible via: subject.getAttributeValue("loginIdLfNameLoginId");
-  
+
     you can set these c3p0 settings: maxConnectionAge (seconds), testConnectionOnCheckout (true|false), 
        preferredTestQuery (e.g. select 1 from dual), idleConnectionTestPeriod (seconds)
-  
+
+
+     <init-param> 
+       <param-name>findSubjectByIdOnCheckConfig</param-name> 
+       <param-value>true|false</param-value> 
+     </init-param> 
+     <init-param> 
+       <param-name>subjectIdToFindOnCheckConfig</param-name> 
+       <param-value>someSubjectIdWhichMightExistOrWhatever</param-value> 
+     </init-param> 
+
+     <init-param> 
+       <param-name>findSubjectByIdentifiedOnCheckConfig</param-name> 
+       <param-value>true|false</param-value> 
+     </init-param> 
+     <init-param> 
+       <param-name>subjectIdentifierToFindOnCheckConfig</param-name> 
+       <param-value>someSubjectIdentifierWhichMightExistOrWhatever</param-value> 
+     </init-param> 
+
+     <init-param> 
+       <param-name>findSubjectByStringOnCheckConfig</param-name> 
+       <param-value>true|false</param-value> 
+     </init-param> 
+     <init-param> 
+       <param-name>stringToFindOnCheckConfig</param-name> 
+       <param-value>someStringWhichMightExistOrWhatever</param-value> 
+     </init-param>
    -->
   
   <!-- 
