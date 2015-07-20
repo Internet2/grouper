@@ -127,6 +127,10 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperInstallerUtils  {
 
+  /**
+   * 
+   * @param args
+   */
   public static void main(String[] args) {
     tar(new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_17"),
         new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_17.tar"));
@@ -8232,6 +8236,88 @@ public class GrouperInstallerUtils  {
     return false;
   }
 
+  /**
+   * every 5 seconds print a status dot to system out, and newline at end.  After 20, newline
+   * @param runnable runnable to run
+   * @param printProgress if print progress during thread
+   */
+  public static void threadRunWithStatusDots(final Runnable runnable, boolean printProgress) {
+    
+    if (!printProgress) {
+      runnable.run();
+      return;
+    }
+    
+    try {
+      final Exception[] theException = new Exception[1];
+  
+      Runnable wrappedRunnable = new Runnable() {
+  
+        public void run() {
+          try {
+            
+            runnable.run();
+            
+          } catch (Exception e) {
+            theException[0] = e;
+          }
+        }
+        
+      };
+
+      Thread thread = new Thread(wrappedRunnable);
+
+      thread.start();
+
+      long start = System.currentTimeMillis();
+      
+      boolean wroteProgress = false;
+      
+      int dotCount = 0;
+      
+      while (true) {
+        
+        if (thread.isAlive()) {
+          if (System.currentTimeMillis() - start > 5000) {
+            
+            wroteProgress = true;
+            System.out.print(".");
+            dotCount++;
+            start = System.currentTimeMillis();
+            
+            if (dotCount % 40 == 0) {
+              System.out.println("");
+            }
+            
+          } else {
+            
+            GrouperInstallerUtils.sleep(500);
+            
+          }
+        } else {
+          if (wroteProgress) {
+            //start with a newline
+            System.out.println("");
+          }
+          break;
+        }
+      }
+
+      //probably dont need this
+      thread.join();
+      
+      if (theException[0] != null) {
+        throw theException[0];
+      }
+  
+    } catch (Exception exception) {
+      if (exception instanceof RuntimeException) {
+        throw (RuntimeException)exception;
+      }
+      throw new RuntimeException(exception);
+    }
+    
+  }
   
   /**
    * make sure a value is int in properties
@@ -9677,11 +9763,12 @@ public class GrouperInstallerUtils  {
    * you want if you are using quotes)
    * 
    * @param command
+   * @param printProgress if dots for progress should be used
    * @return the result of the command
    */
-  public static CommandResult execCommand(String command) {
+  public static CommandResult execCommand(String command, boolean printProgress) {
     String[] args = splitTrim(command, " ");
-    return execCommand(args);
+    return execCommand(args, printProgress);
   }
 
   /**
@@ -9790,10 +9877,11 @@ public class GrouperInstallerUtils  {
    * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
    * </pre>
    * @param arguments are the commands
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command.
    */
-  public static CommandResult execCommand(String[] arguments) {
-    return execCommand(arguments, true);
+  public static CommandResult execCommand(String[] arguments, boolean printProgress) {
+    return execCommand(arguments, true, printProgress);
   }
   
   /**
@@ -9803,9 +9891,10 @@ public class GrouperInstallerUtils  {
    * </pre>
    * @param command to execute
    * @param arguments are the commands
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command.
    */
-  public static CommandResult execCommand(String command, String[] arguments) {
+  public static CommandResult execCommand(String command, String[] arguments, boolean printProgress) {
     
     List<String> args = new ArrayList<String>();
     args.add(command);
@@ -9813,7 +9902,7 @@ public class GrouperInstallerUtils  {
       args.add(argument);
     }
     
-    return execCommand(toArray(args, String.class), true);
+    return execCommand(toArray(args, String.class), true, printProgress);
   }
   
   /**
@@ -9839,10 +9928,11 @@ public class GrouperInstallerUtils  {
    * @param arguments are the commands
    * @param exceptionOnExitValueNeZero if this is set to false, the 
    * results of the call will be returned regardless of the exit status
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
-  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero) {
-    return execCommand(arguments, exceptionOnExitValueNeZero, true);
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, true, printProgress);
   }
 
   /**
@@ -9856,10 +9946,11 @@ public class GrouperInstallerUtils  {
    * @param exceptionOnExitValueNeZero if this is set to false, the 
    * results of the call will be returned regardless of the exit status
    * @param waitFor if we should wait for this process to end
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
-  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor) {
-    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, null,  null, null);
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, null,  null, null, printProgress);
   }
 
   /**
@@ -9876,11 +9967,51 @@ public class GrouperInstallerUtils  {
    * @param workingDirectory 
    * @param envVariables are env vars with name=val
    * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
   public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
-      String[] envVariables, File workingDirectory, String outputFilePrefix) {
-    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, workingDirectory, outputFilePrefix, false);
+      String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, workingDirectory, outputFilePrefix, false, printProgress);
+  }
+
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @param waitFor if we should wait for this process to end
+   * @param workingDirectory 
+   * @param envVariables are env vars with name=val
+   * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printOutputErrorAsReceived if should print output error as received
+   * @param printProgress if dots for progress should be used
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(final String[] arguments, final boolean exceptionOnExitValueNeZero, final boolean waitFor, 
+      final String[] envVariables, final File workingDirectory, final String outputFilePrefix, 
+      final boolean printOutputErrorAsReceived, boolean printProgress) {
+    
+    final CommandResult[] result = new CommandResult[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = execCommandHelper(arguments, exceptionOnExitValueNeZero, waitFor, 
+            envVariables, workingDirectory, outputFilePrefix, printOutputErrorAsReceived);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, printProgress);
+
+    return result[0];
+
+    
   }
 
   /**
@@ -9900,7 +10031,7 @@ public class GrouperInstallerUtils  {
    * @param printOutputErrorAsReceived if should print output error as received
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
-  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
+  private static CommandResult execCommandHelper(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
       String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printOutputErrorAsReceived) {
     
     if (printOutputErrorAsReceived && !isBlank(outputFilePrefix)) {

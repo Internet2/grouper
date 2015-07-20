@@ -189,19 +189,7 @@ public class GrouperInstaller {
    * @param autorunUseLocalFilePropertiesKey key in properties file to automatically fill in a value if download exists, default true
    */
   private static void downloadFile(String url, String localFileName, String autorunUseLocalFilePropertiesKey) {
-    downloadFile(url, localFileName, false, autorunUseLocalFilePropertiesKey);
-  }
-
-  /**
-   * download a file, delete the local file if it exists
-   * @param url
-   * @param localFileName
-   * @param allow404
-   * @param autorunUseLocalFilePropertiesKey key in properties file to automatically fill in a value if download exists, default true
-   * @return true if downloaded, false if not
-   */
-  private static boolean downloadFile(String url, String localFileName, boolean allow404, String autorunUseLocalFilePropertiesKey) {
-    return downloadFile(url, localFileName, allow404, null, autorunUseLocalFilePropertiesKey);
+    downloadFile(url, localFileName, false, null, autorunUseLocalFilePropertiesKey);
   }
 
   /**
@@ -213,12 +201,38 @@ public class GrouperInstaller {
    * @param autorunUseLocalFilePropertiesKey key in properties file to automatically fill in a value if download exists, default true
    * @return true if downloaded, false if not
    */
-  private static boolean downloadFile(String url, String localFileName, boolean allow404, 
+  private static boolean downloadFile(final String url, final String localFileName, final boolean allow404, 
+      final String prefixFor404, final String autorunUseLocalFilePropertiesKey) {
+
+    final boolean[] result = new boolean[1];
+    
+    Runnable runnable = new Runnable() {
+      
+      public void run() {
+        result[0] = downloadFileHelper(url, localFileName, allow404, prefixFor404, autorunUseLocalFilePropertiesKey);
+      }
+    };
+    
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
+    
+    return result[0];
+  }
+  
+  /**
+   * download a file, delete the local file if it exists
+   * @param url
+   * @param localFileName
+   * @param allow404
+   * @param prefixFor404 print message prefix if 404
+   * @param autorunUseLocalFilePropertiesKey key in properties file to automatically fill in a value if download exists, default true
+   * @return true if downloaded, false if not
+   */
+  private static boolean downloadFileHelper(String url, String localFileName, boolean allow404, 
       String prefixFor404, String autorunUseLocalFilePropertiesKey) {
     
     boolean useLocalFile = false;
 
-    File localFile = new File(localFileName);
+    final File localFile = new File(localFileName);
 
     if (localFile.exists()) {
       System.out.print("File exists: " + localFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
@@ -237,7 +251,7 @@ public class GrouperInstaller {
     GetMethod getMethod = new GetMethod(url);
     try {
       int result = httpClient.executeMethod(getMethod);
-
+      
       if (allow404 && result == 404) {
         if (GrouperInstallerUtils.isBlank(prefixFor404)) {
           prefixFor404 = "File not found: ";
@@ -265,8 +279,9 @@ public class GrouperInstaller {
       
       FileOutputStream fileOutputStream = new FileOutputStream(localFile);
 
+
       GrouperInstallerUtils.copy(inputStream, fileOutputStream);
-      
+
       return true;
 
     } catch (Exception exception) {
@@ -275,7 +290,7 @@ public class GrouperInstaller {
       throw new RuntimeException(errorMessage, exception);
     }
   }
-  
+
   /**
    * @param args
    */
@@ -284,8 +299,11 @@ public class GrouperInstaller {
     GrouperInstaller grouperInstaller = new GrouperInstaller();
     grouperInstaller.mainLogic();
 
+//    GrouperInstaller.downloadFile("https://github.com/Internet2/grouper/archive/GROUPER_2_2_BRANCH.zip",
+//        "C:\\app\\grouperInstallerTarballDir\\GROUPER_2_2_BRANCH.zip", false, null, 
+//        "grouperInstaller.autorun.createPatchDownloadSourceUseLocalIfExist", true
+//        );
 
-    
 //    GrouperInstaller grouperInstaller = new GrouperInstaller();
 //
 //    grouperInstaller.upgradeExistingApplicationDirectoryString = "C:\\app\\grouper_2_1_installer\\grouper.ui-2.1.5\\dist\\grouper\\";
@@ -420,7 +438,7 @@ public class GrouperInstaller {
         + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, this.untarredUiDir, null);
+        true, true, null, this.untarredUiDir, null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -511,7 +529,7 @@ public class GrouperInstaller {
       try {
         CommandResult commandResult = GrouperInstallerUtils.execCommand(
             attempt, 
-            new String[]{"-version"});
+            new String[]{"-version"}, true);
         String shResult = commandResult.getOutputText();
         if (GrouperInstallerUtils.isBlank(shResult)) {
           shResult = commandResult.getErrorText();
@@ -535,7 +553,7 @@ public class GrouperInstaller {
     try {
       CommandResult commandResult = GrouperInstallerUtils.execCommand(
           this.shCommand, 
-          new String[]{"-version"});
+          new String[]{"-version"}, true);
       String shResult = commandResult.getOutputText();
       if (GrouperInstallerUtils.isBlank(shResult)) {
         shResult = commandResult.getErrorText();
@@ -715,7 +733,7 @@ public class GrouperInstaller {
       try {
         CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
             true, true, null, 
-            new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+            new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null, true);
         
         if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
           System.out.println("stderr: " + commandResult.getErrorText());
@@ -738,7 +756,7 @@ public class GrouperInstaller {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
               true, true, null, 
               new File(GrouperInstaller.this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), 
-              GrouperInstaller.this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "catalina");
+              GrouperInstaller.this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "catalina", true);
         }
       });
       thread.setDaemon(true);
@@ -2166,7 +2184,7 @@ public class GrouperInstaller {
         + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, new File(pspDir.getAbsolutePath() + File.separator + "psp-parent"), null);
+        true, true, null, new File(pspDir.getAbsolutePath() + File.separator + "psp-parent"), null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -2216,7 +2234,7 @@ public class GrouperInstaller {
         + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, grouperApiDir, null);
+        true, true, null, grouperApiDir, null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -2266,7 +2284,7 @@ public class GrouperInstaller {
         + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, subjectApiDir, null);
+        true, true, null, subjectApiDir, null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -2314,7 +2332,7 @@ public class GrouperInstaller {
         + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, clientDir, null);
+        true, true, null, clientDir, null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -3141,7 +3159,7 @@ public class GrouperInstaller {
 
         CommandResult commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-          new File(this.gshCommand()).getParentFile(), null);
+          new File(this.gshCommand()).getParentFile(), null, true);
 
         if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
           System.out.println("stderr: " + commandResult.getErrorText());
@@ -3349,7 +3367,7 @@ public class GrouperInstaller {
 
     CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-        new File(this.gshCommand()).getParentFile(), null);
+        new File(this.gshCommand()).getParentFile(), null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
       System.out.println("stdout: " + commandResult.getOutputText());
@@ -5992,7 +6010,7 @@ public class GrouperInstaller {
   
         CommandResult commandResult = GrouperInstallerUtils.execCommand(
             GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-            new File(binDirLocation), null);
+            new File(binDirLocation), null, true);
         
         if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
           System.out.println("stderr: " + commandResult.getErrorText());
@@ -6009,7 +6027,7 @@ public class GrouperInstaller {
     
           commandResult = GrouperInstallerUtils.execCommand(
               GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-              new File(binDirLocation), null);
+              new File(binDirLocation), null, true);
           
           if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
             System.out.println("stderr: " + commandResult.getErrorText());
@@ -6031,7 +6049,7 @@ public class GrouperInstaller {
           try {
             commandResult = GrouperInstallerUtils.execCommand(
                 GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(binDirLocation), null);
+                new File(binDirLocation), null, true);
 
             if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
               System.out.println("stderr: " + commandResult.getErrorText());
@@ -6047,7 +6065,7 @@ public class GrouperInstaller {
               System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
               commandResult = GrouperInstallerUtils.execCommand(
                   GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                  new File(binDirLocation), null);
+                  new File(binDirLocation), null, true);
             }
           } catch (Throwable t) {
             error = t.getMessage();
@@ -6165,7 +6183,7 @@ public class GrouperInstaller {
     
           CommandResult commandResult = GrouperInstallerUtils.execCommand(
               GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-              new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+              new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null, true);
           
           if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
             System.out.println("stderr: " + commandResult.getErrorText());
@@ -6194,7 +6212,7 @@ public class GrouperInstaller {
       
             CommandResult commandResult = GrouperInstallerUtils.execCommand(
                 GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null);
+                new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null, true);
             
             if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
               System.out.println("stderr: " + commandResult.getErrorText());
@@ -7065,7 +7083,7 @@ public class GrouperInstaller {
       
       CommandResult commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-          this.untarredApiDir, null);
+          this.untarredApiDir, null, true);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -7113,7 +7131,7 @@ public class GrouperInstaller {
       
       CommandResult commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-          this.untarredApiDir, null);
+          this.untarredApiDir, null, true);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -7172,7 +7190,7 @@ public class GrouperInstaller {
       
       CommandResult commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-          this.untarredApiDir, null);
+          this.untarredApiDir, null, true);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -7213,7 +7231,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
               true, true, null, GrouperInstaller.this.untarredApiDir, 
-              GrouperInstaller.this.grouperTarballDirectoryString + "grouperLoader");
+              GrouperInstaller.this.grouperTarballDirectoryString + "grouperLoader", true);
         }
       });
       thread.setDaemon(true);
@@ -7339,7 +7357,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class),
               true, true, null, null, 
-              GrouperInstaller.this.grouperTarballDirectoryString + "hsqlDb");
+              GrouperInstaller.this.grouperTarballDirectoryString + "hsqlDb", true);
         }
       });
       thread.setDaemon(true);
@@ -7490,7 +7508,7 @@ public class GrouperInstaller {
         + convertCommandsIntoCommand(commands) + "\n");
     
     CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, new File(this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws"), null);
+        true, true, null, new File(this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws"), null, true);
     
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -7709,7 +7727,7 @@ public class GrouperInstaller {
 
     CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-        this.untarredApiDir, null);
+        this.untarredApiDir, null, true);
 
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -7755,7 +7773,7 @@ public class GrouperInstaller {
 
     CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-       new File(this.gshCommand()).getParentFile(), null);
+       new File(this.gshCommand()).getParentFile(), null, true);
 
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -7783,7 +7801,8 @@ public class GrouperInstaller {
     command.addAll(GrouperInstallerUtils.splitTrimToList(
         "grouperClient.jar --operation=getMembersWs --groupNames=etc:webServiceClientUsers", " "));
             
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class), true, true, null, this.untarredClientDir, null);
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class), 
+        true, true, null, this.untarredClientDir, null, true);
 
     if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
       System.out.println("stderr: " + commandResult.getErrorText());
@@ -8030,7 +8049,7 @@ public class GrouperInstaller {
   private static void validateJavaVersion() {
     CommandResult commandResult = GrouperInstallerUtils.execCommand(
         GrouperInstallerUtils.javaCommand(), 
-        new String[]{"-version"});
+        new String[]{"-version"}, true);
     String javaResult = commandResult.getOutputText();
     if (GrouperInstallerUtils.isBlank(javaResult)) {
       javaResult = commandResult.getErrorText();
@@ -8043,7 +8062,7 @@ public class GrouperInstaller {
     try {
       commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.javaCommand() + "c", 
-          new String[]{"-version"});
+          new String[]{"-version"}, true);
       javaResult = commandResult.getOutputText();
       if (GrouperInstallerUtils.isBlank(javaResult)) {
         javaResult = commandResult.getErrorText();
@@ -8492,7 +8511,29 @@ public class GrouperInstaller {
    * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
    * @return the directory where the files are (assuming has a single dir the same name as the archive)
    */
-  private static File untar(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
+  private static File untar(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
+    final File[] result = new File[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = untarHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
+
+    return result[0];
+
+  }
+
+  /**
+   * untar a file to a dir
+   * @param fileName
+   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @return the directory where the files are (assuming has a single dir the same name as the archive)
+   */
+  private static File untarHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
     if (!fileName.endsWith(".tar")) {
       throw new RuntimeException("File doesnt end in .tar: " + fileName);
     }
@@ -8594,7 +8635,29 @@ public class GrouperInstaller {
    * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
    * @return the unzipped file
    */
-  private static File unzipFromZip(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
+  private static File unzipFromZip(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
+    final File[] result = new File[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = unzipFromZipHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
+
+    return result[0];
+
+  }
+
+  /**
+   * unzip a file, this is for .zip files
+   * @param fileName
+   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @return the unzipped file
+   */
+  private static File unzipFromZipHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
 
     if (!fileName.endsWith(".zip")) {
       throw new RuntimeException("File doesnt end in .zip: " + fileName);
@@ -8650,14 +8713,36 @@ public class GrouperInstaller {
     return unzippedDir;
 
   }
-  
+
   /**
    * unzip a file to another file, this is for .gz files
    * @param fileName
    * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
    * @return the unzipped file
    */
-  private static File unzip(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
+  private static File unzip(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
+    final File[] result = new File[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = unzipHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
+
+    return result[0];
+
+  }
+
+  /**
+   * unzip a file to another file, this is for .gz files
+   * @param fileName
+   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @return the unzipped file
+   */
+  private static File unzipHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
     if (!fileName.endsWith(".gz")) {
       throw new RuntimeException("File doesnt end in .gz: " + fileName);
     }
