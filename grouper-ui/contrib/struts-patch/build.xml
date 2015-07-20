@@ -13,7 +13,7 @@
 		  	  	<!-- leverage the class path used for the core UI -->
 		  	  	<path refid="ui.class.path"/>	
 		  	  
-		  	  <javac 
+		  	  <javac  source="1.6" target="1.6"
 			    srcdir="java/src"
                 destdir="${webapp.class.folder}"
                 classpathref="ui.class.path.for.run"

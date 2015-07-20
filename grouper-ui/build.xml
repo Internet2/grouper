@@ -626,7 +626,8 @@
 	-->
 	<target name="-compileGrouper" if="grouper.compile.api">
 		<echo message="Compiling the Grouper api"/>
-		<javac srcdir="${grouper.folder}/src/grouper" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true"/>
+		<javac srcdir="${grouper.folder}/src/grouper" source="1.6" target="1.6" 
+		   destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true"/>
 		<copy todir="${webapp.class.folder}">
 			<fileset dir="${grouper.folder}/src/grouper">
 				<include name="**/*.xml"/>

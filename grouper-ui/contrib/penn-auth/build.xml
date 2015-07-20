@@ -20,6 +20,7 @@
       </fileset>
     </path>
     <javac srcdir="java/src" destdir="${webapp.class.folder}" classpathref="contrib.class.path" 
+      source="1.6" target="1.6"
       debuglevel="${debug.level}" debug="true" />
     <!-- make site specific jar files available to webapp -->
     <copy toDir="${webapp.folder}/WEB-INF/lib" overwrite="true">

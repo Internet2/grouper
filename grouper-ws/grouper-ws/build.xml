@@ -384,24 +384,24 @@
 	<!-- ## End From axis
 	############################################### -->
 	<target name="compile">
-		<javac srcdir="${basedir}/src/grouper-ws" 
+		<javac srcdir="${basedir}/src/grouper-ws" source="1.6" target="1.6"
 		  destdir="${build.dir.grouper-ws}" 
 		  classpathref="ws.class.path" debug="true">
 		</javac>
 		<!-- add each versioned soap source transfer objects here -->
-    <javac srcdir="${basedir}/src/grouper-ws_v1_6" 
+    <javac srcdir="${basedir}/src/grouper-ws_v1_6" source="1.6" target="1.6"
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>
-    <javac srcdir="${basedir}/src/grouper-ws_v2_0" 
+    <javac srcdir="${basedir}/src/grouper-ws_v2_0"  source="1.6" target="1.6"
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>
-    <javac srcdir="${basedir}/src/grouper-ws_v2_1" 
+    <javac srcdir="${basedir}/src/grouper-ws_v2_1"  source="1.6" target="1.6"
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>
-    <javac srcdir="${basedir}/src/grouper-ws_v2_2" 
+    <javac srcdir="${basedir}/src/grouper-ws_v2_2"  source="1.6" target="1.6"
       destdir="${build.dir.grouper-ws}" 
       classpathref="ws.class.path" debug="true">
     </javac>
@@ -700,6 +700,7 @@
 	       </path>
 
 	      <javac srcdir="${generated.client.project.dir}/src" 
+	         source="1.6" target="1.6"
 	         destdir="${build.dir.grouper-ws-soap-client}" 
 	         classpathref="generated.client.class.path" debug="true">
 	         <!-- compilerarg value="-Xlint:deprecation" / -->
