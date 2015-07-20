@@ -75,6 +75,7 @@ import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
 import edu.vt.middleware.ldap.pool.LdapPool;
+import edu.vt.middleware.ldap.pool.LdapPoolConfig;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
@@ -167,6 +168,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
    
       log.debug("ldap initializeLdap");
       LdapConfig ldapConfig = null;
+      LdapPoolConfig ldapPoolConfig = null;
       String cafile = (String)props.get("pemCaFile");
       String certfile = (String)props.get("pemCertFile");
       String keyfile = (String)props.get("pemKeyFile");
@@ -233,6 +235,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             cafile = (String)props.get("pemCaFile");
             certfile = (String)props.get("pemCertFile");
             keyfile = (String)props.get("pemKeyFile");
+            
+            //GRP-1151
+            ldapPoolConfig = new LdapPoolConfig();
+            ldapPoolConfig.setEnvironmentProperties(properties);
          } catch (FileNotFoundException e) {
             log.error("ldap properties not found: " + e, e);
             throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "' not found!");
@@ -287,7 +293,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
      
       try {
-         ldapPool = new SoftLimitLdapPool(factory);
+         ldapPool = new SoftLimitLdapPool(ldapPoolConfig != null ? ldapPoolConfig : new LdapPoolConfig(), factory);
          ldapPool.initialize();
          initialized = true;
       } catch (Exception e) {
