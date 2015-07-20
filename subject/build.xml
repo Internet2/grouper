@@ -187,7 +187,7 @@
 	</target>
 	
 	<target name="compile-tests" depends="compile">
-		<javac
+		<javac  source="1.6" target="1.6"
 			srcdir="${test.dir}"
 			destdir="${build.dir}"
 			includes="**/*.java"
