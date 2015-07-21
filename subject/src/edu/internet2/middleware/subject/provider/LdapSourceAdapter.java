@@ -53,8 +53,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -73,9 +73,12 @@ import edu.internet2.middleware.subject.SubjectUtils;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
+import edu.vt.middleware.ldap.pool.CompareLdapValidator;
+import edu.vt.middleware.ldap.pool.ConnectLdapValidator;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
 import edu.vt.middleware.ldap.pool.LdapPool;
 import edu.vt.middleware.ldap.pool.LdapPoolConfig;
+import edu.vt.middleware.ldap.pool.LdapValidator;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
@@ -293,11 +296,38 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
      
       try {
-         ldapPool = new SoftLimitLdapPool(ldapPoolConfig != null ? ldapPoolConfig : new LdapPoolConfig(), factory);
+
+        String ldapValidator = props.getProperty("VTLDAP_VALIDATOR");
+
+        //if we are validating, we need a validator
+        // https://code.google.com/p/vt-middleware/wiki/vtldapPooling#Validation
+        if (StringUtils.equalsIgnoreCase(ldapValidator, CompareLdapValidator.class.getSimpleName())) {
+          
+          String validationDn = props.getProperty("VTLDAP_VALIDATOR_COMPARE_DN");
+          String validationSearchFilterString = props.getProperty("VTLDAP_VALIDATOR_COMPARE_SEARCH_FILTER_STRING");
+          factory.setLdapValidator(
+              new CompareLdapValidator(
+                validationDn, new SearchFilter(validationSearchFilterString))); // perform a simple compare
+          
+        } else if (StringUtils.equalsIgnoreCase(ldapValidator, ConnectLdapValidator.class.getSimpleName())) {
+          //this is the default, why not
+          factory.setLdapValidator(
+              new ConnectLdapValidator()); // perform a simple connect
+
+        } else if (!StringUtils.isBlank(ldapValidator)) {
+          //get the class
+          Class<LdapValidator<Ldap>> validatorClass = SubjectUtils.forName(ldapValidator);
+          LdapValidator<Ldap> validator = SubjectUtils.newInstance(validatorClass);
+          factory.setLdapValidator(validator);
+        }
+        
+        ldapPool = new SoftLimitLdapPool(ldapPoolConfig != null ? ldapPoolConfig : new LdapPoolConfig(), factory);
+         
+         
          ldapPool.initialize();
          initialized = true;
       } catch (Exception e) {
-         log.error("Error creating ldappool = " + e);
+         log.error("Error creating ldappool = " + e, e);
       }
       log.debug("ldap initialize done");
    }

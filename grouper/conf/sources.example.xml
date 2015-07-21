@@ -584,6 +584,19 @@ where
       <param-name>Description_AttributeType</param-name>
       <param-value>description</param-value>
     </init-param>
+
+    <init-param>
+      <param-name>VTLDAP_VALIDATOR</param-name>
+      <param-value>ConnectLdapValidator|CompareLdapValidator</param-value>
+    </init-param>
+    <init-param>
+      <param-name>VTLDAP_VALIDATOR_COMPARE_DN</param-name>
+      <param-value>ou=People,dc=vt,dc=edu</param-value>
+    </init-param>
+    <init-param>
+      <param-name>VTLDAP_VALIDATOR_COMPARE_SEARCH_FILTER_STRING</param-name>
+      <param-value>ou=People</param-value>
+    </init-param>
     
     /// Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE 
     /// For filter use 
