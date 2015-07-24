@@ -168,6 +168,11 @@ public class GrouperContext {
     //divide nanos by 1000 to get micros
     auditEntry.setDurationMicroseconds((System.nanoTime() - grouperInnerContext.startedNanos)/1000);
     auditEntry.setQueryCount(grouperInnerContext.queryCount);
+    
+    if (StringUtils.isBlank(auditEntry.getGrouperEngine())) {
+      auditEntry.setGrouperEngine(grouperInnerContext.grouperEngine);
+    }
+    
   }
   
   /**
@@ -195,6 +200,66 @@ public class GrouperContext {
    */
   private static ThreadLocal<GrouperContext> currentInnerContext = 
     new ThreadLocal<GrouperContext>();
+
+  /**
+   * internal use only, current inner context
+   * @return current inner context
+   */
+  public static GrouperContext internal_retrieveCurrentInnerContext() {
+    return currentInnerContext.get();
+  }
+  
+  /**
+   * internal use only, set current inner context
+   * @param newCurrentInnerContext current inner context
+   */
+  public static void internal_assignCurrentInnerContext(GrouperContext newCurrentInnerContext) {
+    if (newCurrentInnerContext == null) { 
+      currentInnerContext.remove();
+    } else {
+      currentInnerContext.set(newCurrentInnerContext);
+    }
+  }
+  
+  /**
+   * internal use only, current outer context
+   * @return current outer context
+   */
+  public static GrouperContext internal_retrieveCurrentOuterContext() {
+    return currentOuterContext.get();
+  }
+  
+  /**
+   * internal use only, set current outer context
+   * @param newCurrentOuterContext current outer context
+   */
+  public static void internal_assignCurrentOuterContext(GrouperContext newCurrentOuterContext) {
+    if (newCurrentOuterContext == null) { 
+      currentOuterContext.remove();
+    } else {
+      currentOuterContext.set(newCurrentOuterContext);
+    }
+  }
+  
+  /**
+   * internal use only, default context
+   * @return default context
+   */
+  public static GrouperContext internal_retrieveDefaultContext() {
+    return defaultContext.get();
+  }
+  
+  /**
+   * internal use only, set default context
+   * @param newDefaultContext default context
+   */
+  public static void internal_assignDefaultContext(GrouperContext newDefaultContext) {
+    if (newDefaultContext == null) { 
+      defaultContext.remove();
+    } else {
+      defaultContext.set(newDefaultContext);
+    }
+  }
   
   /**
    * retrieve current context id

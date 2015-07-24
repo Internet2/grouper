@@ -22,6 +22,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public abstract class GrouperCallable<T> implements Callable<T> {
 
+  /**
+   * store the state of thread locals that need to propagate to threads
+   */
+  private GrouperThreadLocalState grouperThreadLocalState = new GrouperThreadLocalState();
   
   /**
    * describes the callable
@@ -32,7 +36,7 @@ public abstract class GrouperCallable<T> implements Callable<T> {
   }
 
   /**
-   * note, call this in your grouper session
+   * note, call this in your grouper session, this runs in current thread
    * @param callablesWithProblems
    */
   public static void tryCallablesWithProblems(Collection<GrouperCallable> callablesWithProblems) {
@@ -111,6 +115,11 @@ public abstract class GrouperCallable<T> implements Callable<T> {
   public final T call() throws Exception {
     
     long subStartNanos = -1;
+    
+    //store the old
+    GrouperThreadLocalState oldGrouperThreadLocalState = new GrouperThreadLocalState();
+    oldGrouperThreadLocalState.storeCurrentThreadLocals();
+    
     try {
       if (LOG.isDebugEnabled()) {
         subStartNanos = System.nanoTime();
@@ -118,6 +127,8 @@ public abstract class GrouperCallable<T> implements Callable<T> {
           numberOfThreads++;
         }
       }
+      //propagate thread locals
+      this.grouperThreadLocalState.assignCurrentThreadLocals();
       return this.callLogicWithSessionIfExists();
     } finally {
       if (LOG.isDebugEnabled()) {
@@ -128,6 +139,8 @@ public abstract class GrouperCallable<T> implements Callable<T> {
           numberOfThreads--;
         }
       }
+      //assign the old thread local state, shouldnt really matter since thread if going back in pool
+      oldGrouperThreadLocalState.assignCurrentThreadLocals();
     }
     
   }
@@ -170,6 +183,8 @@ public abstract class GrouperCallable<T> implements Callable<T> {
   public GrouperCallable(String theLogLabel, GrouperSession theGrouperSession) {
     this.logLabel = theLogLabel;
     this.grouperSessionSubject = theGrouperSession == null ? null : theGrouperSession.getSubject();
+    //keep track of important thread locals
+    this.grouperThreadLocalState.storeCurrentThreadLocals();
   }
 
   /**
@@ -180,6 +195,8 @@ public abstract class GrouperCallable<T> implements Callable<T> {
     this.logLabel = theLogLabel;
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
     this.grouperSessionSubject = grouperSession == null ? null : grouperSession.getSubject();
+    //keep track of important thread locals
+    this.grouperThreadLocalState.storeCurrentThreadLocals();
   }
 
 }
