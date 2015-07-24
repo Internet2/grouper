@@ -228,6 +228,8 @@ public class Privilege implements Serializable {
   /** */
   private static final Privilege              STEM_ATTR_READ    = new Privilege("stemAttrRead"  );
   /** */
+  private static final Privilege              STEM_ADMIN    = new Privilege("stemAdmin"  );
+  /** */
   private static final Privilege              STEM_ATTR_UPDATE    = new Privilege("stemAttrUpdate"  );
   /** */
   private static final Set<Privilege>         NAMING  = new LinkedHashSet<Privilege>();
@@ -314,6 +316,10 @@ public class Privilege implements Serializable {
     
     if (this.equals(STEM)) {
       return NamingPrivilege.STEM_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_ADMIN)) {
+      return NamingPrivilege.ADMIN_PRIVILEGES;
     }
     
     if (this.equals(CREATE)) {
@@ -408,6 +414,10 @@ public class Privilege implements Serializable {
       return NamingPrivilege.STEM_IMPLIED_PRIVILEGES;
     }
     
+    if (this.equals(STEM_ADMIN)) {
+      return NamingPrivilege.STEM_ADMIN_IMPLIED_PRIVILEGES;
+    }
+    
     if (this.equals(CREATE)) {
       return NamingPrivilege.CREATE_IMPLIED_PRIVILEGES;
     }
@@ -471,7 +481,9 @@ public class Privilege implements Serializable {
     PRIVS.put(  READ.toString().toLowerCase()   , READ    );
     ACCESS.add( READ                        );
     PRIVS.put(  STEM.toString().toLowerCase()   , STEM    );
-    NAMING.add( STEM                        );
+    //NAMING.add( STEM                        );
+    PRIVS.put(STEM_ADMIN.toString().toLowerCase(), STEM_ADMIN);
+    NAMING.add(STEM_ADMIN);
     PRIVS.put(  SYSTEM.toString().toLowerCase() , SYSTEM  );
     PRIVS.put(  UPDATE.toString().toLowerCase() , UPDATE  );
     ACCESS.add( UPDATE                      );
@@ -654,7 +666,7 @@ public class Privilege implements Serializable {
    * @return if naming (stem)
    */
   public static boolean isNaming(Privilege p) {
-    if (NAMING.contains(p)) {
+    if (NAMING.contains(p) || p == Privilege.STEM) {
       return true;
     }
     return false;

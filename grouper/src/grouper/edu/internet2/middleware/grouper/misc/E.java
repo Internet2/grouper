@@ -69,6 +69,7 @@ public class E {
   public static final String CANNOT_REALIZE_INTERFACE  = "cannot realize interface ";
   public static final String CANNOT_SET_SUBJECTID      = "subject cannot setSubjectId()";
   public static final String CANNOT_STEM               = "subject cannot STEM";
+  public static final String CANNOT_STEM_ADMIN         = "subject cannot STEM_ADMIN";
   public static final String CANNOT_UPDATE             = "subject cannot UPDATE";
   public static final String CANNOT_VIEW               = "subject cannot VIEW";
   public static final String CANNOT_READ               = "subject cannot READ";

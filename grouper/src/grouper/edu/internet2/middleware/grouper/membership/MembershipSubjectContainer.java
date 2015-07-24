@@ -187,20 +187,20 @@ public class MembershipSubjectContainer {
 
     for (Stem stem : stems) {
 
-      boolean grouperAllHasStem = stem.hasStem(SubjectFinder.findAllSubject());
-      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM.getName()), grouperAllHasStem);
+      boolean grouperAllHasStemAdmin = stem.hasStemAdmin(SubjectFinder.findAllSubject());
+      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ADMIN.getName()), grouperAllHasStemAdmin);
       
-      boolean grouperAllHasCreate = grouperAllHasStem || stem.hasCreate(SubjectFinder.findAllSubject());
+      boolean grouperAllHasCreate = grouperAllHasStemAdmin || stem.hasCreate(SubjectFinder.findAllSubject());
       stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.CREATE.getName()), grouperAllHasCreate);
 
-      boolean grouperAllHasAttrRead = grouperAllHasStem || grouperAllHasCreate || stem.hasStemAttrRead(SubjectFinder.findAllSubject());
+      boolean grouperAllHasAttrRead = grouperAllHasStemAdmin || grouperAllHasCreate || stem.hasStemAttrRead(SubjectFinder.findAllSubject());
       stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_READ.getName()), grouperAllHasAttrRead);
 
-      boolean grouperAllHasAttrUpdate = grouperAllHasStem || grouperAllHasCreate || stem.hasStemAttrUpdate(SubjectFinder.findAllSubject());
+      boolean grouperAllHasAttrUpdate = grouperAllHasStemAdmin || grouperAllHasCreate || stem.hasStemAttrUpdate(SubjectFinder.findAllSubject());
       stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_UPDATE.getName()), grouperAllHasAttrUpdate);
     }
     
-    Set<String> stemFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_STEMMERS, Field.FIELD_NAME_CREATORS, 
+    Set<String> stemFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_STEM_ADMINS, Field.FIELD_NAME_CREATORS, 
         Field.FIELD_NAME_STEM_ATTR_READERS, Field.FIELD_NAME_STEM_ATTR_UPDATERS);
     
     Subject rootSubject = SubjectFinder.findRootSubject();
@@ -210,7 +210,7 @@ public class MembershipSubjectContainer {
       
       Stem stem = membershipSubjectContainer.getStemOwner();
       
-      boolean grouperAllHasStem = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM.getName()));
+      boolean grouperAllHasStemAdmin = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ADMIN.getName()));
       boolean grouperAllHasCreate = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.CREATE.getName()));
       boolean grouperAllHasAttrRead = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_READ.getName()));
       boolean grouperAllHasAttrUpdate = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_UPDATE.getName()));
@@ -230,31 +230,31 @@ public class MembershipSubjectContainer {
         boolean isEveryEntity = SubjectHelper.eq(everyEntitySubject, membershipSubjectContainer.getSubject());
         
         //see what the subject has
-        boolean subjectHasStemEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS) != null
-            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS).getMembershipAssignType().isNonImmediate()
-            || (isEveryEntity ? false : grouperAllHasStem);
+        boolean subjectHasStemAdminEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ADMINS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ADMINS).getMembershipAssignType().isNonImmediate()
+            || (isEveryEntity ? false : grouperAllHasStemAdmin);
 
-        boolean subjectHasStem = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEMMERS) != null 
-            || subjectHasStemEffective || grouperAllHasStem;
+        boolean subjectHasStemAdmin = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ADMINS) != null 
+            || subjectHasStemAdminEffective || grouperAllHasStemAdmin;
         
         boolean subjectHasCreateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS).getMembershipAssignType().isNonImmediate()
-            || subjectHasStem || (isEveryEntity ? false : grouperAllHasCreate);
+            || subjectHasStemAdmin || (isEveryEntity ? false : grouperAllHasCreate);
         
         boolean subjectHasCreate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_CREATORS) != null 
             || subjectHasCreateEffective || grouperAllHasCreate;
         
         boolean subjectHasAttrReadEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS).getMembershipAssignType().isNonImmediate()
-            || subjectHasCreate || subjectHasStem || (isEveryEntity ? false : grouperAllHasAttrRead);
+            || subjectHasCreate || subjectHasStemAdmin || (isEveryEntity ? false : grouperAllHasAttrRead);
         
         boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
-            || subjectHasCreate || subjectHasStem  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
+            || subjectHasCreate || subjectHasStemAdmin  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
 
         //if the subject has an effective stem priv, add it in
-        if (subjectHasStemEffective) {
-          membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEMMERS, MembershipAssignType.EFFECTIVE);
+        if (subjectHasStemAdminEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_ADMINS, MembershipAssignType.EFFECTIVE);
         }
         if (subjectHasCreateEffective) {
           membershipSubjectContainer.addMembership(Field.FIELD_NAME_CREATORS, MembershipAssignType.EFFECTIVE);

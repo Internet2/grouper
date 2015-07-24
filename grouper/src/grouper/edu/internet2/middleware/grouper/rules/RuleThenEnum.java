@@ -681,14 +681,14 @@ public enum RuleThenEnum {
       boolean result = false;
       
       boolean hasCreate = false;
-      boolean hasStem = false;
+      boolean hasStemAdmin = false;
       
       
       //if we found a group to use, or if user is wheel or root
       if (stemmersAreNonWheelGroups.size() > 0 || PrivilegeHelper.isWheelOrRoot(subjectUnderlyingSession)) {
         
         //unassign the subject as stem
-        hasStem = createdStem.revokePriv(subjectUnderlyingSession, NamingPrivilege.STEM, false);
+        hasStemAdmin = createdStem.revokePriv(subjectUnderlyingSession, NamingPrivilege.STEM_ADMIN, false);
         hasCreate = createdStem.revokePriv(subjectUnderlyingSession, NamingPrivilege.CREATE, false);
         
         result = true;
@@ -697,8 +697,8 @@ public enum RuleThenEnum {
       
       //assign create/stem for the groups which have create
       for (Subject creatorNonWheelGroup : stemmersAreNonWheelGroups) {
-        if (hasStem) {
-          createdStem.grantPriv(creatorNonWheelGroup, NamingPrivilege.STEM, false);
+        if (hasStemAdmin) {
+          createdStem.grantPriv(creatorNonWheelGroup, NamingPrivilege.STEM_ADMIN, false);
         }
         if (hasCreate) {
           createdStem.grantPriv(creatorNonWheelGroup, NamingPrivilege.CREATE, false);
@@ -832,7 +832,7 @@ public enum RuleThenEnum {
           return e.getMessage();
         }
         if (!Privilege.isNaming(privilege)) {
-          return "Privilege '" + privilegeString + "' must be a naming privilege, e.g. stem, create";
+          return "Privilege '" + privilegeString + "' must be a naming privilege, e.g. stemAdmin, create";
         }
       }
       return null;

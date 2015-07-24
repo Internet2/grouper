@@ -81,7 +81,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
           canStemAttrRead[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
         }
         if (!canStemAttrRead[0]) {
-          canStemAttrRead[0] = PrivilegeHelper.canStem(AttributeAssignStemDelegate.this.stem, subject);
+          canStemAttrRead[0] = PrivilegeHelper.canStemAdmin(AttributeAssignStemDelegate.this.stem, subject);
         }
         return null;
       }
@@ -94,7 +94,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
     
     if (!canStemAttrRead[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot create/stem/stemAttrRead in stem " + stem.getName());
+          + " cannot create/stemAdmin/stemAttrRead in stem " + stem.getName());
     }
   
   }
@@ -135,7 +135,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
           canStemAttrUpdate[0] = PrivilegeHelper.canCreate(rootSession, AttributeAssignStemDelegate.this.stem, subject);
         }
         if (!canStemAttrUpdate[0]) {
-          canStemAttrUpdate[0] = PrivilegeHelper.canStem(AttributeAssignStemDelegate.this.stem, subject);
+          canStemAttrUpdate[0] = PrivilegeHelper.canStemAdmin(AttributeAssignStemDelegate.this.stem, subject);
         }
         return null;
       }
@@ -148,7 +148,7 @@ public class AttributeAssignStemDelegate extends AttributeAssignBaseDelegate {
 
     if (!canStemAttrUpdate[0]) {
       throw new InsufficientPrivilegeException("Subject " + GrouperUtil.subjectToString(subject) 
-          + " cannot create/stem/stemAttrUpdate in stem " + stem.getName());
+          + " cannot create/stemAdmin/stemAttrUpdate in stem " + stem.getName());
     }
 
   }

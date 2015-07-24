@@ -336,7 +336,7 @@ public class GrouperCheckConfig {
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("groups.create.grant.all.groupAttrRead", true);
 
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.create", true);
-    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stem", true);
+    GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stemAdmin", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stemAttrRead", true);
     GrouperConfig.retrieveConfig().assertPropertyValueBoolean("stems.create.grant.all.stemAttrUpdate", true);
 

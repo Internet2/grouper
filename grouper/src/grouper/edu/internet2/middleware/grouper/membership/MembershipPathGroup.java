@@ -268,16 +268,16 @@ public class MembershipPathGroup {
     privGroup.grantPriv(memberSubject, AccessPrivilege.VIEW, false);
 
     privStem.grantPriv(SubjectFinder.findAllSubject(), NamingPrivilege.STEM_ATTR_READ, false);
-    privStem.grantPriv(sessionSubject2, NamingPrivilege.STEM, false);
-    privStem.grantPriv(sessionSubject3, NamingPrivilege.STEM, false);
-    privStem.grantPriv(sessionSubject4, NamingPrivilege.STEM, false);
+    privStem.grantPriv(sessionSubject2, NamingPrivilege.STEM_ADMIN, false);
+    privStem.grantPriv(sessionSubject3, NamingPrivilege.STEM_ADMIN, false);
+    privStem.grantPriv(sessionSubject4, NamingPrivilege.STEM_ADMIN, false);
     
     privAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject2, AttributeDefPrivilege.ATTR_READ, false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject3, AttributeDefPrivilege.ATTR_ADMIN, false);
     privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject4, AttributeDefPrivilege.ATTR_READ, false);
     
-    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM, false);
+    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM_ADMIN, false);
     privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
     privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
 
@@ -906,7 +906,7 @@ public class MembershipPathGroup {
     if (isGroup && field.isGroupListField() && !this.ownerGroup.canHavePrivilege(callingSubject, AccessPrivilege.READ.toString(), false)) {
       return;
     }
-    if (isStem && !this.ownerStem.canHavePrivilege(callingSubject, NamingPrivilege.STEM.toString(), false)) {
+    if (isStem && !this.ownerStem.canHavePrivilege(callingSubject, NamingPrivilege.STEM_ADMIN.toString(), false)) {
       return;
     }
     

@@ -993,7 +993,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       throw new IllegalArgumentException(E.STEM_NULL);
     }
     try {
-      return PrivilegeHelper.canStem( ns, this.getSubject() );
+      return PrivilegeHelper.canStemAdmin( ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -2080,7 +2080,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.STEM );
+      privs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.STEM_ADMIN );
     }
     catch (SubjectNotFoundException eSNF) {
       LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
@@ -2099,7 +2099,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * @return  Boolean true if the member has the privilege.
    */
   public boolean hasStem(Stem ns) {
-    return this._hasPriv(ns, NamingPrivilege.STEM);
+    return this._hasPriv(ns, NamingPrivilege.STEM_ADMIN);
   } // public boolean hasStem(ns)
 
   /**
@@ -3064,6 +3064,31 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   /**
+   * Can this {@link Member} <b>STEM_ADMIN</b> on this {@link Stem}.
+   * <pre class="eg">
+   * boolean rv = m.canStemAdmin(stem);
+   * </pre>
+   * @param   stem   Check privileges on this {@link Stem}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link Stem}
+   * @since   1.0
+   */
+  public boolean canStemAdmin(Stem stem) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(stem);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canStemAdmin( GrouperSession.staticGrouperSession(), stem, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
    * Can this {@link Member} <b>STEM_ATTR_UPDATE</b> on this {@link Stem}.
    * <pre class="eg">
    * boolean rv = m.canStemAttrUpdate(stem);
@@ -3311,6 +3336,21 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   } 
   
   /**
+   * Report whether this member has STEM_ADMIN on the specified stem.
+   * <pre class="eg">
+   * // Check whether this member has STEM_ADMIN on the specified stem.
+   * if (m.hasStemAdmin(stem)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   stem   Test for privilege on this {@link Stem}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasStemAdmin(Stem stem) {
+    return this._hasPriv(stem, NamingPrivilege.STEM_ADMIN);
+  } 
+  
+  /**
    * Report whether this member has ATTR_DEF_ATTR_READ on the specified attributeDef.
    * <pre class="eg">
    * // Check whether this member has ATTR_DEF_ATTR_READ on the specified attributeDef.
@@ -3470,6 +3510,29 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     try {
       stems = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege(
                 this.getSubject(), NamingPrivilege.STEM_ATTR_READ
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  }
+  
+  /**
+   * Get stems where this member has the STEM_ADMIN privilege.
+   * <pre class="eg">
+   * Set<Stem> results = m.hasStemAdmin();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasStemAdmin() 
+    throws  GrouperException
+  {
+    Set<Stem> stems = new LinkedHashSet<Stem>();
+    try {
+      stems = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege(
+                this.getSubject(), NamingPrivilege.STEM_ADMIN
               );
     }
     catch (SubjectNotFoundException eSNF) {

@@ -60,11 +60,14 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
 
   /** can create stems in this stem */
   public static final Privilege STEM    = Privilege.getInstance("stem");
+  
+  /** can admin stem */
+  public static final Privilege STEM_ADMIN    = Privilege.getInstance("stemAdmin");
 
   /** any of these constitutes STEM on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> STEM_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM));
+      GrouperUtil.toSet(STEM, STEM_ADMIN));
   
 
   /** can read attributes on this stem */
@@ -73,14 +76,18 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
   /** any of these constitutes STEM_ATTR_READ on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> STEM_ATTR_READ_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM_ATTR_READ, STEM));
+      GrouperUtil.toSet(STEM_ATTR_READ, STEM, STEM_ADMIN));
   
   /** can update attributes on this stem */
   public static final Privilege STEM_ATTR_UPDATE    = Privilege.getInstance("stemAttrUpdate");
 
   /** these privileges are implied by STEM  */
   public static Set<Privilege> STEM_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_READ, STEM_ATTR_UPDATE));
+      GrouperUtil.toSet(STEM, STEM_ADMIN, CREATE, STEM_ATTR_READ, STEM_ATTR_UPDATE));
+  
+  /** these privileges are implied by STEM_ADMIN  */
+  public static Set<Privilege> STEM_ADMIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM, STEM_ADMIN, CREATE, STEM_ATTR_READ, STEM_ATTR_UPDATE));
   
   /** these privileges are implied by CREATE  */
   public static Set<Privilege> CREATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
@@ -98,37 +105,37 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
   /** any of these constitutes STEM_ATTR_UPDATE on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> STEM_ATTR_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM_ATTR_UPDATE, STEM));
+      GrouperUtil.toSet(STEM_ATTR_UPDATE, STEM, STEM_ADMIN));
 
   /** any of these constitutes CREATE on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(CREATE, STEM));
+      GrouperUtil.toSet(CREATE, STEM, STEM_ADMIN));
   
   /** ALL
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ALL_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(CREATE, STEM, STEM_ATTR_READ, STEM_ATTR_UPDATE));
+      GrouperUtil.toSet(CREATE, STEM_ADMIN, STEM, STEM_ATTR_READ, STEM_ATTR_UPDATE));
   
   /** any of these constitutes STEM_ATTR_READ on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_READ));
+      GrouperUtil.toSet(STEM_ADMIN, STEM, CREATE, STEM_ATTR_READ));
   
   /** any of these constitutes STEM_ATTR_UPDATE on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_UPDATE));
+      GrouperUtil.toSet(STEM_ADMIN, STEM, CREATE, STEM_ATTR_UPDATE));
 
   /** any of these constitutes ADMIN on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ADMIN_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM));
+      GrouperUtil.toSet(STEM, STEM_ADMIN));
 
   /** any of these constitutes some sort of ADMIN on a stem
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ALL_ADMIN_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM, CREATE, STEM_ATTR_UPDATE, STEM_ATTR_READ));
+      GrouperUtil.toSet(STEM, STEM_ADMIN, CREATE, STEM_ATTR_UPDATE, STEM_ATTR_READ));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
@@ -136,6 +143,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
   static {
     list2priv.put( Field.FIELD_NAME_CREATORS,  NamingPrivilege.CREATE);
     list2priv.put( Field.FIELD_NAME_STEMMERS,  NamingPrivilege.STEM);
+    list2priv.put( Field.FIELD_NAME_STEM_ADMINS,  NamingPrivilege.STEM_ADMIN);
     list2priv.put( Field.FIELD_NAME_STEM_ATTR_READERS,  NamingPrivilege.STEM_ATTR_READ);
     list2priv.put( Field.FIELD_NAME_STEM_ATTR_UPDATERS,  NamingPrivilege.STEM_ATTR_UPDATE);
   }
@@ -145,7 +153,8 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
 
   static {
     priv2list.put(  NamingPrivilege.CREATE , Field.FIELD_NAME_CREATORS    );
-    priv2list.put(  NamingPrivilege.STEM , Field.FIELD_NAME_STEMMERS    );
+    priv2list.put(  NamingPrivilege.STEM , Field.FIELD_NAME_STEM_ADMINS    );
+    priv2list.put(  NamingPrivilege.STEM_ADMIN , Field.FIELD_NAME_STEM_ADMINS    );
     priv2list.put(  NamingPrivilege.STEM_ATTR_READ , Field.FIELD_NAME_STEM_ATTR_READERS    );
     priv2list.put(  NamingPrivilege.STEM_ATTR_UPDATE , Field.FIELD_NAME_STEM_ATTR_UPDATERS    );
   }

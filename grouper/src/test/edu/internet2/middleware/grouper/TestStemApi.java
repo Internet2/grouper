@@ -971,7 +971,7 @@ public class TestStemApi extends GrouperTest {
     this.top_new = this.root.addChildStem("top new", "top new display name");
     
     top.grantPriv(a, NamingPrivilege.STEM);
-    top_new.grantPriv(a, NamingPrivilege.CREATE);
+    top_new.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
     top.grantPriv(b, NamingPrivilege.CREATE);
     top_new.grantPriv(b, NamingPrivilege.STEM);
     top.grantPriv(c, NamingPrivilege.STEM);

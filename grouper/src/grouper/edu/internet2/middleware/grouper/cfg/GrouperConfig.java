@@ -269,7 +269,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
   
   public static final String ROOT_NAME          = "GrouperSysAdmin";
   public static final String SCGAC         = "stems.create.grant.all.create";
-  public static final String SCGAS         = "stems.create.grant.all.stem";
+  public static final String SCGASA        = "stems.create.grant.all.stemAdmin";
   public static final String SCGASAR       = "stems.create.grant.all.stemAttrRead";
   public static final String SCGASAU       = "stems.create.grant.all.stemAttrUpdate";
   public static final String SCII          = "subjects.cache.id.interface";
