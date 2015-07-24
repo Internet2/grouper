@@ -2263,6 +2263,27 @@ public enum GrouperDdl implements DdlVersionable {
       
       Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
+      
+      // stem privilege changing to stemAdmin
+      if (GrouperDdlUtils.assertTablesThere(false, false, Field.TABLE_GROUPER_FIELDS, true)) {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where name='stemmers'");
+        if (count > 0) {
+          ddlVersionBean.getAdditionalScripts().append(
+            "update grouper_fields set read_privilege='stemAdmin' where read_privilege='stem';\n" +
+            "update grouper_fields set write_privilege='stemAdmin' where write_privilege='stem';\n" +
+            "update grouper_fields set name='stemAdmins' where name='stemmers';\n" +
+            "commit;\n");
+        }
+      }
+      
+      if (GrouperDdlUtils.assertTablesThere(false, false, PITField.TABLE_GROUPER_PIT_FIELDS, true)) {
+        int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_pit_fields where name='stemmers'");
+        if (count > 0) {
+          ddlVersionBean.getAdditionalScripts().append(
+            "update grouper_pit_fields set name='stemAdmins' where name='stemmers';\n" +
+            "commit;\n");
+        }
+      }
     }
   };
 

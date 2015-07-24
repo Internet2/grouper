@@ -1558,7 +1558,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot read custom list members of group.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    stemmers.setReadPrivilege(NamingPrivilege.STEM);
+    stemmers.setReadPrivilege(NamingPrivilege.STEM_ADMIN);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(stemmers);
     top.revokePriv(child_group.toSubject(), NamingPrivilege.STEM);
     child_group.addType(type1);
