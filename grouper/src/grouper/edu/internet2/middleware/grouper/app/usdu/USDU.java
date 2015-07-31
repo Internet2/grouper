@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
@@ -304,6 +305,11 @@ public class USDU {
       InsufficientPrivilegeException, GroupNotFoundException, MemberDeleteException, MemberNotFoundException,
       RevokePrivilegeException, SchemaException, SourceUnavailableException, StemNotFoundException {
 
+    int maxAllowed = GrouperConfig.retrieveConfig().propertyValueInt("usdu.failsafe.maxUnresolvableSubjects", 200);
+    if (delete && unresolvables.size() > maxAllowed) {
+      throw new RuntimeException("Found too many unresolvable subjects: " + unresolvables.size() + ". Maximum allowed: " + maxAllowed);
+    }
+    
     Set<Field> fields = getMemberFields();
 
     for (Member member : unresolvables) {
@@ -537,7 +543,7 @@ public class USDU {
     } catch (SubjectNotUniqueException e) {
     	return false;
     }catch (SourceUnavailableException e) {
-    	return false;
+    	return true;
     }
   }
 

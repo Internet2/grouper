@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
@@ -228,6 +229,81 @@ public class TestUSDU extends GrouperTest {
 
     } catch (Exception e) {
       T.e(e);
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void testFailsafe() {
+
+    try {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.failsafe.maxUnresolvableSubjects", "1");
+
+      LOG.info("testFailsafe");
+
+      R r = R.populateRegistry(1, 6, 2);
+
+      Group gA = r.getGroup("a", "a");
+      Group gB = r.getGroup("a", "b");
+      Group gC = r.getGroup("a", "c");
+      Group gD = r.getGroup("a", "d");
+      Group gE = r.getGroup("a", "e");
+      Group gF = r.getGroup("a", "f");
+
+      Subject subjA = SubjectFinder.findById("a", true);
+      Subject subjB = SubjectFinder.findById("b", true);
+
+      gA.addMember(subjA);
+      gA.addMember(subjB);
+      gB.addMember(gA.toSubject());
+      gC.addCompositeMember(CompositeType.UNION, gA, gD);
+      gE.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
+      gF.addCompositeMember(CompositeType.COMPLEMENT, gA, gD);
+
+      assertTrue(gA.hasMember(subjA));
+      assertTrue(gB.hasMember(subjA));
+      assertTrue(gC.hasMember(subjA));
+      assertTrue(gE.hasMember(subjA));
+      assertTrue(gF.hasMember(subjA));
+      assertTrue(gA.hasMember(subjB));
+      assertTrue(gB.hasMember(subjB));
+      assertTrue(gC.hasMember(subjB));
+      assertTrue(gE.hasMember(subjB));
+      assertTrue(gF.hasMember(subjB));
+
+      deleteSubject(subjA);
+      deleteSubject(subjB);
+
+      Set<Member> unresolvables = USDU.getUnresolvableMembers(r.getSession(), null);
+
+      assertTrue(unresolvables.size() == 2);
+
+      try {
+        USDU.resolveMembers(unresolvables, true);
+        fail("Should have had an exception.");
+      } catch (Exception e) {
+        // good
+      }
+
+      assertTrue(gA.hasMember(subjA));
+      assertTrue(gB.hasMember(subjA));
+      assertTrue(gC.hasMember(subjA));
+      assertTrue(gE.hasMember(subjA));
+      assertTrue(gF.hasMember(subjA));
+
+      assertTrue(gA.hasMember(subjB));
+      assertTrue(gB.hasMember(subjB));
+      assertTrue(gC.hasMember(subjB));
+      assertTrue(gE.hasMember(subjB));
+      assertTrue(gF.hasMember(subjB));
+      
+      assertEquals(2, USDU.getUnresolvableMembers(r.getSession(), null).size());
+
+    } catch (Exception e) {
+      T.e(e);
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.failsafe.maxUnresolvableSubjects", "200");
     }
   }
 }
