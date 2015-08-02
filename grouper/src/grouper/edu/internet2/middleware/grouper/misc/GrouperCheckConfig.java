@@ -520,19 +520,48 @@ public class GrouperCheckConfig {
         }
         i++;
       }
-      boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
-      if (useWheel) {
-        String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
-        if (StringUtils.isBlank(wheelName) && wasInCheckConfig) {
-          String error = "grouper.properties property groups.wheel.group should not be blank if groups.wheel.use is true";
-          System.err.println("Grouper error: " + error);
-          LOG.warn(error);
-        } else {
-          checkGroup(grouperSession, wheelName, wasInCheckConfig, null, wasInCheckConfig, null, "system administrators with all privileges", 
-              "wheel group from grouper.properties key: groups.wheel.group", null);
+      {
+        boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
+        if (useWheel) {
+          String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
+          if (StringUtils.isBlank(wheelName) && wasInCheckConfig) {
+            String error = "grouper.properties property groups.wheel.group should not be blank if groups.wheel.use is true";
+            System.err.println("Grouper error: " + error);
+            LOG.warn(error);
+          } else {
+            checkGroup(grouperSession, wheelName, wasInCheckConfig, null, wasInCheckConfig, null, "system administrators with all privileges", 
+                "wheel group from grouper.properties key: groups.wheel.group", null);
+          }
         }
-      }
-      
+      }      
+      {
+        boolean useViewonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
+        if (useViewonlyWheel) {
+          String wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
+          if (StringUtils.isBlank(wheelViewonlyName) && wasInCheckConfig) {
+            String error = "grouper.properties property groups.wheel.viewonly.group should not be blank if groups.wheel.viewonly.use is true";
+            System.err.println("Grouper error: " + error);
+            LOG.warn(error);
+          } else {
+            checkGroup(grouperSession, wheelViewonlyName, wasInCheckConfig, null, wasInCheckConfig, null, "system administrators with view privileges", 
+                "viewonly wheel group from grouper.properties key: groups.wheel.viewonly.group", null);
+          }
+        }
+      }      
+      {
+        boolean useReadonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false);
+        if (useReadonlyWheel) {
+          String wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
+          if (StringUtils.isBlank(wheelReadonlyName) && wasInCheckConfig) {
+            String error = "grouper.properties property groups.wheel.readonly.group should not be blank if groups.wheel.readonly.use is true";
+            System.err.println("Grouper error: " + error);
+            LOG.warn(error);
+          } else {
+            checkGroup(grouperSession, wheelReadonlyName, wasInCheckConfig, null, wasInCheckConfig, null, "system administrators with read privileges", 
+                "readonly wheel group from grouper.properties key: groups.wheel.readonly.group", null);
+          }
+        }
+      }      
       // security.stem.groupAllowedToMoveStem
       String allowedGroupName = "security.stem.groupAllowedToMoveStem";
       String groupAllowedToMoveStem = GrouperConfig.retrieveConfig().propertyValueString(allowedGroupName);
