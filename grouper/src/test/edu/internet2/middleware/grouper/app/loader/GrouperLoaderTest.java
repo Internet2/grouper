@@ -91,7 +91,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderShouldAbortWithoutChangingMemberships"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderDisplayNameChangeForRequireInGroups"));
 //    new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
@@ -1541,10 +1541,6 @@ public class GrouperLoaderTest extends GrouperTest {
   @SuppressWarnings("deprecation")
   public void testLoaderShouldEmptyTheGroup() throws Exception {
     
-    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
-  
-    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
-  
     //lets add a group which will load these
     Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
         "loader:owner",null, null, null, true);
@@ -1569,6 +1565,137 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    
+  }
+  
+  
+  /**
+   * loader job should change the display name of the group where type is addIncludeExclude.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDisplayNameChangeForAddIncludeExclueGroup() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(group1subj0);
+
+    TestgrouperLoaderGroups group1meta = new TestgrouperLoaderGroups("loader:group1_systemOfRecord", 
+        "The loader:group 1 system of record", "This is the first group");
+    testDataList.add(group1meta);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader2:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
+        "addIncludeExclude");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+    assertEquals("The loader:group 1", overallGroup1.getDisplayName());
+    Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
+    assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
+    assertEquals("The loader:group 1 system of record", systemOfRecordGroup1.getDisplayName());
+    
+    Group group1Includes = GroupFinder.findByName(this.grouperSession, "loader:group1_includes", true);
+    assertNotNull(group1Includes);
+    assertEquals("The loader:group 1 includes", group1Includes.getDisplayName());
+    
+    Group group1Excludes = GroupFinder.findByName(this.grouperSession, "loader:group1_excludes", true);
+    assertNotNull(group1Excludes);
+    assertEquals("The loader:group 1 excludes", group1Excludes.getDisplayName());
+    
+    Group group1SystemOfRecordIncludes = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecordAndIncludes", true);
+    assertNotNull(group1SystemOfRecordIncludes);
+    assertEquals("The loader:group 1 system of record and includes", group1SystemOfRecordIncludes.getDisplayName());
+    
+    
+    group1meta = new TestgrouperLoaderGroups("loader:group1_systemOfRecord",
+        "The loader:group 2 system of record", "This is the first group");
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(group1meta);
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
+    assertEquals("The loader:group 2", overallGroup1.getDisplayName());
+    systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
+    assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
+    assertEquals("The loader:group 2 system of record", systemOfRecordGroup1.getDisplayName());
+    
+    group1Includes = GroupFinder.findByName(this.grouperSession, "loader:group1_includes", true);
+    assertNotNull(group1Includes);
+    assertEquals("The loader:group 2 includes", group1Includes.getDisplayName());
+    
+    group1Excludes = GroupFinder.findByName(this.grouperSession, "loader:group1_excludes", true);
+    assertNotNull(group1Excludes);
+    assertEquals("The loader:group 2 excludes", group1Excludes.getDisplayName());
+    
+    group1SystemOfRecordIncludes = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecordAndIncludes", true);
+    assertNotNull(group1SystemOfRecordIncludes);
+    assertEquals("The loader:group 2 system of record and includes", group1SystemOfRecordIncludes.getDisplayName());
+    
+  }
+  
+  /**
+   * loader job should change the display name of the group where type is requireInGroups.
+   * @throws Exception
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderDisplayNameChangeForRequireInGroups() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader groupsubj0 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(groupsubj0);
+
+    TestgrouperLoaderGroups groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+        "loader:group 3 system of record", "This is the third group");
+    testDataList.add(groupMeta);
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader1:owner1",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
+        "requireInGroups");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    Group overallGroup = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
+    assertEquals("loader:group 3", overallGroup.getDisplayName());
+    Group systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    assertEquals("This is the third group", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
+    
+    
+    groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord",
+        "loader:group 4 system of record", "This is the fourth group");
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(groupMeta);
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
+    assertEquals("This is the fourth group", systemOfRecordGroup.getDescription());
+    assertEquals("loader:group 4 system of record", systemOfRecordGroup.getDisplayName());
+    overallGroup = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
+    assertEquals("group 4", overallGroup.getDisplayExtension());
     
   }
    
