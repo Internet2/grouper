@@ -73,6 +73,24 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   /** wheel group */
   private Group wheelGroup;
 
+  /** if use readonly wheel group */
+  private boolean useReadonlyWheel = false;
+
+  /** wheel readonly group */
+  private Group wheelReadonlyGroup;
+
+  /** only log this once... */
+  private static boolean loggedWheelReadonlyGroupMissing = false;
+
+  /** if use viewonly wheel group */
+  private boolean useViewonlyWheel = false;
+
+  /** wheel viewonly group */
+  private Group wheelViewonlyGroup;
+
+  /** only log this once... */
+  private static boolean loggedWheelViewonlyGroupMissing = false;
+
   /** wheel session */
   private GrouperSession wheelSession = null;
 
@@ -89,36 +107,109 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   public WheelAttrDefResolver(AttributeDefResolver resolver) {
     super(resolver);
 
-    // TODO 20070816 this is ugly
-    String useWheelString = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_USE_WHEEL_GROUP);
-    this.useWheel = Boolean.valueOf(useWheelString).booleanValue();
-    // TODO 20070816 and this is even worse
-    if (this.useWheel) {
-      String wheelName = null;
-      try {
-        wheelName = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_WHEEL_GROUP);
-        this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
-        this.wheelGroup = GroupFinder.findByName(
-            this.wheelSession,
-            wheelName, true
-            );
-      } catch (Exception e) {
-
-        String error = "Initialisation error with wheel group name '" + wheelName
-            + "': " + e.getClass().getSimpleName()
-            + "\n" + ExceptionUtils.getFullStackTrace(e);
-
-        //only log this once as error, dont log if checking config
-        if (!loggedWheelGroupMissing && !GrouperCheckConfig.inCheckConfig) {
-          //OK, so wheel group does not exist. Not fatal...
-          LOG.error(error);
-          loggedWheelGroupMissing = true;
-        } else {
-          LOG.debug(error);
+    {
+      // TODO 20070816 this is ugly
+      String useWheelString = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_USE_WHEEL_GROUP);
+      this.useWheel = Boolean.valueOf(useWheelString).booleanValue();
+      // TODO 20070816 and this is even worse
+      if (this.useWheel) {
+        String wheelName = null;
+        try {
+          wheelName = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_WHEEL_GROUP);
+          this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
+          this.wheelGroup = GroupFinder.findByName(
+              this.wheelSession,
+              wheelName, true
+              );
+        } catch (Exception e) {
+  
+          String error = "Initialisation error with wheel group name '" + wheelName
+              + "': " + e.getClass().getSimpleName()
+              + "\n" + ExceptionUtils.getFullStackTrace(e);
+  
+          //only log this once as error, dont log if checking config
+          if (!loggedWheelGroupMissing && !GrouperCheckConfig.inCheckConfig) {
+            //OK, so wheel group does not exist. Not fatal...
+            LOG.error(error);
+            loggedWheelGroupMissing = true;
+          } else {
+            LOG.debug(error);
+          }
+          this.useWheel = false;
         }
-        this.useWheel = false;
       }
     }
+    
+    {
+      // TODO 20070816 this is ugly
+      String useWheelViewonlyString = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.use");
+      this.useViewonlyWheel = Boolean.valueOf(useWheelViewonlyString).booleanValue();
+      // TODO 20070816 and this is even worse
+      if (this.useViewonlyWheel) {
+        String wheelViewonlyName = null;
+        try {
+          wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
+          if (this.wheelSession == null) {
+            this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
+          }
+          this.wheelViewonlyGroup = GroupFinder.findByName(
+              this.wheelSession,
+              wheelViewonlyName, true
+              );
+        } catch (Exception e) {
+  
+          String error = "Initialisation error with wheel viewonly group name '" + wheelViewonlyName
+              + "': " + e.getClass().getSimpleName()
+              + "\n" + ExceptionUtils.getFullStackTrace(e);
+  
+          //only log this once as error, dont log if checking config
+          if (!loggedWheelViewonlyGroupMissing && !GrouperCheckConfig.inCheckConfig) {
+            //OK, so wheel group does not exist. Not fatal...
+            LOG.error(error);
+            loggedWheelViewonlyGroupMissing = true;
+          } else {
+            LOG.debug(error);
+          }
+          this.useViewonlyWheel = false;
+        }
+      }
+    }
+
+    {
+      // TODO 20070816 this is ugly
+      String useWheelReadonlyString = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.use");
+      this.useReadonlyWheel = Boolean.valueOf(useWheelReadonlyString).booleanValue();
+      // TODO 20070816 and this is even worse
+      if (this.useReadonlyWheel) {
+        String wheelReadonlyName = null;
+        try {
+          wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
+          if (this.wheelSession == null) {
+            this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
+          }
+          this.wheelReadonlyGroup = GroupFinder.findByName(
+              this.wheelSession,
+              wheelReadonlyName, true
+              );
+        } catch (Exception e) {
+  
+          String error = "Initialisation error with wheel readonly group name '" + wheelReadonlyName
+              + "': " + e.getClass().getSimpleName()
+              + "\n" + ExceptionUtils.getFullStackTrace(e);
+  
+          //only log this once as error, dont log if checking config
+          if (!loggedWheelReadonlyGroupMissing && !GrouperCheckConfig.inCheckConfig) {
+            //OK, so wheel group does not exist. Not fatal...
+            LOG.error(error);
+            loggedWheelReadonlyGroupMissing = true;
+          } else {
+            LOG.debug(error);
+          }
+          this.useReadonlyWheel = false;
+        }
+      }
+    }
+    
   }
 
   /**
@@ -128,23 +219,78 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   public Set<AttributeDefPrivilege> getPrivileges(AttributeDef attributeDef, Subject subject)
       throws IllegalArgumentException {
     //Get any user privs
-    Set<AttributeDefPrivilege> accessPrivs = super.getDecoratedResolver().getPrivileges(attributeDef,
+    Set<AttributeDefPrivilege> attributeDefPrivs = super.getDecoratedResolver().getPrivileges(attributeDef,
         subject);
 
     //Add any due to Wheel.
     if (this.isAndUseWheel(subject)) {
-      Set<Privilege> privs = Privilege.getAccessPrivs();
+      Set<Privilege> privs = Privilege.getAttributeDefPrivs();
       AttributeDefPrivilege ap = null;
       for (Privilege p : privs) {
         //Not happy about the klass but will do for now in the absence of a GrouperSession
         if (!p.equals(AttributeDefPrivilege.ATTR_OPTIN) && !p.equals(AttributeDefPrivilege.ATTR_OPTOUT)) {
           ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
               p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
-          accessPrivs.add(ap);
+          attributeDefPrivs.add(ap);
+        }
+      }
+    } else if (this.isAndUseWheelReadonly(subject)) {
+      Set<Privilege> privs = Privilege.getAttributeDefPrivs();
+      AttributeDefPrivilege ap = null;
+      for (Privilege p : privs) {
+        //Not happy about the klass but will do for now in the absence of a GrouperSession
+        if (p.equals(AttributeDefPrivilege.ATTR_READ) || p.equals(AttributeDefPrivilege.ATTR_VIEW)
+            || p.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ)) {
+          ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
+              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
+          attributeDefPrivs.add(ap);
+        }
+      }
+    } else if (this.isAndUseWheelViewonly(subject)) {
+      Set<Privilege> privs = Privilege.getAttributeDefPrivs();
+      AttributeDefPrivilege ap = null;
+      for (Privilege p : privs) {
+        //Not happy about the klass but will do for now in the absence of a GrouperSession
+        if (p.equals(AttributeDefPrivilege.ATTR_VIEW)) {
+          ap = new AttributeDefPrivilege(attributeDef, subject, SubjectFinder.findRootSubject(),
+              p, GrouperConfig.retrieveConfig().propertyValueString("privileges.attributeDef.interface"), false, null);
+          attributeDefPrivs.add(ap);
         }
       }
     }
-    return accessPrivs;
+    return attributeDefPrivs;
+  }
+
+  /**
+   * 
+   * @param subject
+   * @return true if this is wheel and if using wheel viewonly
+   */
+  private boolean isAndUseWheelViewonly(Subject subject) {
+    if (this.getGrouperSession().isConsiderIfWheelMember()) {
+      if (this.useViewonlyWheel) {
+        if (isWheelViewonlyMember(subject)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param subject
+   * @return true if this is wheel and if using wheel readonly
+   */
+  private boolean isAndUseWheelReadonly(Subject subject) {
+    if (this.getGrouperSession().isConsiderIfWheelMember()) {
+      if (this.useReadonlyWheel) {
+        if (isWheelReadonlyMember(subject)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
@@ -178,6 +324,18 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
 
       }
     }
+    if (this.isAndUseWheelReadonly(subject)) {
+      if (AttributeDefPrivilege.ATTR_READ.equals(privilege)
+          || AttributeDefPrivilege.ATTR_VIEW.equals(privilege)
+          || AttributeDefPrivilege.ATTR_DEF_ATTR_READ.equals(privilege)) {
+        return true;
+      }
+    }
+    if (this.isAndUseWheelViewonly(subject)) {
+      if (AttributeDefPrivilege.ATTR_VIEW.equals(privilege)) {
+        return true;
+      }
+    }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.hasPrivilege(attributeDef, subject, privilege);
   }
@@ -193,6 +351,24 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   }
 
   /**
+   * Retrieve boolean from cache for viewonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  Cached return value or null.
+   */
+  private Boolean getFromIsWheelViewonlyMemberCache(Subject subj) {
+    return WheelCache.getFromIsWheelViewonlyMemberCache(subj);
+  }
+
+  /**
+   * Retrieve boolean from cache for readonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  Cached return value or null.
+   */
+  private Boolean getFromIsWheelReadonlyMemberCache(Subject subj) {
+    return WheelCache.getFromIsWheelReadonlyMemberCache(subj);
+  }
+
+  /**
    * Put boolean into cache for <code>isWheelMember(...)</code>.
    * @param subj 
    * @param rv 
@@ -200,6 +376,24 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
    */
   private void putInHasPrivilegeCache(Subject subj, Boolean rv) {
     WheelCache.putInHasPrivilegeCache(subj, rv);
+  }
+
+  /**
+   * Put boolean into cache for viewonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @param rv 
+   */
+  private void putInHasViewonlyPrivilegeCache(Subject subj, Boolean rv) {
+    WheelCache.putInViewonlyHasPrivilegeCache(subj, rv);
+  }
+
+  /**
+   * Put boolean into cache for readonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @param rv 
+   */
+  private void putInHasReadonlyPrivilegeCache(Subject subj, Boolean rv) {
+    WheelCache.putInReadonlyHasPrivilegeCache(subj, rv);
   }
 
   /**
@@ -227,6 +421,54 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   }
 
   /**
+   * Put boolean into cache for viewonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  if wheel member
+   */
+  private boolean isWheelViewonlyMember(final Subject subj) {
+    Boolean rv = getFromIsWheelViewonlyMemberCache(subj);
+    if (rv == null) {
+
+      rv = (Boolean) GrouperSession.callbackGrouperSession(this.wheelSession,
+          new GrouperSessionHandler() {
+
+            public Object callback(GrouperSession grouperSession)
+                throws GrouperSessionException {
+              return WheelAttrDefResolver.this.wheelViewonlyGroup != null 
+                  && WheelAttrDefResolver.this.wheelViewonlyGroup.hasMember(subj);
+            }
+                    });
+
+      putInHasViewonlyPrivilegeCache(subj, rv);
+    }
+    return rv;
+  }
+
+  /**
+   * Put boolean into cache for readonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  if wheel member
+   */
+  private boolean isWheelReadonlyMember(final Subject subj) {
+    Boolean rv = getFromIsWheelReadonlyMemberCache(subj);
+    if (rv == null) {
+
+      rv = (Boolean) GrouperSession.callbackGrouperSession(this.wheelSession,
+          new GrouperSessionHandler() {
+
+            public Object callback(GrouperSession grouperSession)
+                throws GrouperSessionException {
+              return WheelAttrDefResolver.this.wheelReadonlyGroup != null 
+                  && WheelAttrDefResolver.this.wheelReadonlyGroup.hasMember(subj);
+            }
+                    });
+
+      putInHasReadonlyPrivilegeCache(subj, rv);
+    }
+    return rv;
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
@@ -244,6 +486,15 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
     if (this.isAndUseWheel(subject)) {
       return attributeDefs;
     }
+    if (this.isAndUseWheelViewonly(subject) && privInSet != null && privInSet.contains(AttributeDefPrivilege.ATTR_VIEW)) {
+      return attributeDefs;
+    }
+    if (this.isAndUseWheelReadonly(subject) && privInSet != null 
+        && (privInSet.contains(AttributeDefPrivilege.ATTR_VIEW)
+            || privInSet.contains(AttributeDefPrivilege.ATTR_READ)
+            || privInSet.contains(AttributeDefPrivilege.ATTR_DEF_ATTR_READ))) {
+      return attributeDefs;
+    }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.postHqlFilterAttrDefs(attributeDefs, subject, privInSet);
 
@@ -259,6 +510,15 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
     if (this.isAndUseWheel(subject)) {
       return false;
     }
+    if (this.isAndUseWheelViewonly(subject) && privInSet != null && privInSet.contains(AttributeDefPrivilege.ATTR_VIEW)) {
+      return false;
+    }
+    if (this.isAndUseWheelReadonly(subject) && privInSet != null 
+        && (privInSet.contains(AttributeDefPrivilege.ATTR_VIEW)
+            || privInSet.contains(AttributeDefPrivilege.ATTR_READ)
+            || privInSet.contains(AttributeDefPrivilege.ATTR_DEF_ATTR_READ))) {
+      return false;
+    }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
     return decoratedResolver.hqlFilterAttrDefsWhereClause(subject, hqlQuery, hqlTables, hqlWhereClause,
         attributeDefColumn, privInSet);
@@ -272,7 +532,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
       Set<AttributeAssign> attributeAssigns) {
 
     //Wheel can see all attribute assigns
-    if (this.isAndUseWheel(subject)) {
+    if (this.isAndUseWheel(subject) || this.isAndUseWheelReadonly(subject)) {
       return attributeAssigns;
     }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
@@ -285,7 +545,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   public Set<PITAttributeAssign> postHqlFilterPITAttributeAssigns(Subject subject,
       Set<PITAttributeAssign> pitAttributeAssigns) {
 
-    if (this.isAndUseWheel(subject)) {
+    if (this.isAndUseWheel(subject) || this.isAndUseWheelReadonly(subject)) {
       return pitAttributeAssigns;
     }
     
@@ -299,7 +559,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
   public Set<PermissionEntry> postHqlFilterPermissions(Subject subject,
       Set<PermissionEntry> permissionsEntries) {
     //Wheel can see all memberships
-    if (this.isAndUseWheel(subject)) {
+    if (this.isAndUseWheel(subject) || this.isAndUseWheelReadonly(subject)) {
       return permissionsEntries;
     }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
@@ -315,6 +575,16 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
 
     //Wheel can see all groups
     if (this.isAndUseWheel(subject)) {
+      return false;
+    }
+    if (this.isAndUseWheelViewonly(subject) && privilege != null 
+        && privilege.equals(AttributeDefPrivilege.ATTR_VIEW)) {
+      return false;
+    }
+    if (this.isAndUseWheelReadonly(subject) && privilege != null 
+        && (privilege.equals(AttributeDefPrivilege.ATTR_VIEW)
+            || privilege.equals(AttributeDefPrivilege.ATTR_READ)
+            || privilege.equals(AttributeDefPrivilege.ATTR_DEF_ATTR_READ))) {
       return false;
     }
     AttributeDefResolver decoratedResolver = super.getDecoratedResolver();
