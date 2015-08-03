@@ -31,19 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.excludeDescription;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.excludeDisplayExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.excludeExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.includeDescription;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.includeDisplayExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.includeExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.overallDescription;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordAndIncludesDescription;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordAndIncludesDisplayExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordAndIncludesExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordDescription;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordDisplayExtensionSuffix;
-import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix;
+
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.*;
 
 import java.sql.Timestamp;
 import java.util.Collection;
