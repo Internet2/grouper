@@ -15,6 +15,9 @@ atlassian.cwd.version = V2
 # are two entries in cwd_directory
 atlassian.directoryId =
 
+#do not remove this user from the database
+atlassian.users.do.not.remove = admin
+
 # atlassian source to use (leave blank for all sources)
 atlassian.subject.search.sourceId = 
 
