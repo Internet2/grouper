@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %p [%c] - &lt;%m&gt;%n"/>
+        </layout>
+    </appender>
+
+    <logger name="edu.internet2.middleware.changelogconsumer.googleapps" additivity="false">
+        <level value="TRACE" />
+        <appender-ref ref="console" />
+    </logger>
+
+    <logger name="edu.internet2.middleware" >
+        <level value="WARN" />
+        <appender-ref ref="console" />
+    </logger>
+
+    <logger name="edu.internet2.middleware.subject.provider">
+        <level value="FATAL" />
+        <appender-ref ref="console" />
+    </logger>
+
+    <logger name="edu.internet2.middleware.grouper.cfg">
+        <level value="FATAL" />
+        <appender-ref ref="console" />
+    </logger>
+
+    <root>
+        <level value="FATAL" />
+        <appender-ref ref="console" />
+    </root>
+</log4j:configuration>
