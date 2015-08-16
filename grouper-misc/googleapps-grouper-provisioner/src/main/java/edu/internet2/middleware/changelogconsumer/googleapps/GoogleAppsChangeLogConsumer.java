@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import java.io.IOException;
 import java.util.*;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -378,23 +379,30 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
         if (syncAttribute.getId().equalsIgnoreCase(attributeDefNameId)) {
 
             if (AttributeAssignType.valueOf(assignType) == AttributeAssignType.group) {
+                String groupName = null;
                 final edu.internet2.middleware.grouper.Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerId, false);
-
+                if (group != null) {
+                    groupName = group.getName();
+                } else {
+                    groupName = PITGroupFinder.findBySourceId(ownerId, true).iterator().next().getName();
+                }
                 try {
-                    connector.deleteGooGroup(group);
+                    connector.deleteGooGroupByName(groupName);
                 } catch (IOException e) {
                     LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group add: {}", new Object[] {consumerName, toString(changeLogEntry), e});
                 }
 
             } else if (AttributeAssignType.valueOf(assignType) == AttributeAssignType.stem) {
                 final Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerId, false);
-                final Set<edu.internet2.middleware.grouper.Group> groups = stem.getChildGroups(Scope.SUB);
-
-                for (edu.internet2.middleware.grouper.Group group : groups) {
-                    try {
-                        connector.deleteGooGroup(group);
-                    } catch (IOException e) {
-                        LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group add, continuing: {}", new Object[] {consumerName, toString(changeLogEntry), e});
+                if (stem != null){
+                    final Set<edu.internet2.middleware.grouper.Group> groups = stem.getChildGroups(Scope.SUB);
+                    
+                    for (edu.internet2.middleware.grouper.Group group : groups) {
+                        try {
+                            connector.deleteGooGroup(group);
+                        } catch (IOException e) {
+                            LOG.error("Google Apps Consumer '{}' - Change log entry '{}' Error processing group add, continuing: {}", new Object[] {consumerName, toString(changeLogEntry), e});
+                        }
                     }
                 }
             }
