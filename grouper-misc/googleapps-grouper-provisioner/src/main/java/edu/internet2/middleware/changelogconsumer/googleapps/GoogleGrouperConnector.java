@@ -371,6 +371,7 @@ public class GoogleGrouperConnector {
 
             Groups gs = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
             gs.setArchiveOnly("true");
+            gs.setWhoCanPostMessage("NONE_CAN_POST");
             GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, gs);
 
             recentlyManipulatedObjectsList.add(groupKey);
