@@ -325,6 +325,9 @@ public class GoogleGrouperConnector {
         for (edu.internet2.middleware.grouper.Member member : members) {
             if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
                 Subject subject = fetchGrouperSubject(member.getSubjectSourceId(), member.getSubjectId());
+                if (subject == null) {
+                    continue;
+                }
                 String userKey = addressFormatter.qualifySubjectAddress(subject.getId());
                 User user = fetchGooUser(userKey);
 
