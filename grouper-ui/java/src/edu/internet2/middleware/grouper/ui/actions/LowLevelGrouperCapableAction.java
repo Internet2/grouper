@@ -143,8 +143,14 @@ public abstract class LowLevelGrouperCapableAction
   			
   	    //are we acting as self or wheel?
   	    if (grouperSession != null) {
-    	    grouperSession.setConsiderIfWheelMember(
-    	        Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember")));
+  	      
+	        if (isWheelGroupMember(session)) {
+	          grouperSession.setConsiderIfWheelMember(Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember")));
+	        } else {
+	          // we'll set this back to the default
+	          grouperSession.setConsiderIfWheelMember(true);
+	        }
+  	      
   	    }	    
   	    try {
   			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
