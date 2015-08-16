@@ -147,10 +147,10 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "googleGroupCacheValidityPeriod", 30);
         LOG.debug("Google Apps Consumer - Setting googleGroupCacheValidityPeriod to {}", googleGroupCacheValidity);
 
-        prefillGoogleCachesForConsumer = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(PARAMETER_NAMESPACE + "prefillGoogleCachesForConsumer", false);
+        prefillGoogleCachesForConsumer = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "prefillGoogleCachesForConsumer", false);
         LOG.debug("Google Apps Consumer - Setting prefillGoogleCachesForConsumer to {}", prefillGoogleCachesForConsumer);
 
-        prefillGoogleCachesForFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(PARAMETER_NAMESPACE + "prefillGoogleCachesForFullSync", false);
+        prefillGoogleCachesForFullSync = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "prefillGoogleCachesForFullSync", false);
         LOG.debug("Google Apps Consumer - Setting prefillGoogleCachesForFullSync to {}", prefillGoogleCachesForFullSync);
 
         handleDeletedGroup =
@@ -246,13 +246,13 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "includeInGlobalAddressList", "true"));
         LOG.debug("Google Apps Consumer - Setting includeInGlobalAddressList to {}", defaultGroupSettings.getIncludeInGlobalAddressList());
 
-        retryOnError = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(PARAMETER_NAMESPACE + "retryOnError", false);
+        retryOnError = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "retryOnError", false);
         LOG.debug("Google Apps Consumer - Setting retryOnError to {}", retryOnError);
 
-        googleGroupFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString(PARAMETER_NAMESPACE + "googleGroupFilter", ".*");
+        googleGroupFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "googleGroupFilter", ".*");
         LOG.debug("Google Apps Consumer - Setting googleGroupFilter to {}", googleGroupFilter);
 
-        ignoreExtraGoogleMembers = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(PARAMETER_NAMESPACE + "ignoreExtraGoogleMembers", true);
+        ignoreExtraGoogleMembers = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "ignoreExtraGoogleMembers", true);
         LOG.debug("Google Apps Consumer - Setting ignoreExtraGoogleMembers to {}", ignoreExtraGoogleMembers);
 
     }
