@@ -276,6 +276,9 @@ public class GoogleAppsFullSync {
             LOG.info("Google Apps Consume '{}' Full Sync - Creating missing user/member ({}) from extra group ({}).", new Object[]{consumerName, member.getEmail(), group.getName()});
             if (!dryRun) {
                 Subject subject = connector.fetchGrouperSubject(member.getGrouperMember().getSubjectSourceId(), member.getGrouperMember().getSubjectId());
+                if (subject == null) {
+                    continue;
+                }
                 User user = connector.fetchGooUser(member.getEmail());
 
                 if (user == null) {
