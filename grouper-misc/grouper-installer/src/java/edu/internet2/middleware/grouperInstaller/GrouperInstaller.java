@@ -758,7 +758,7 @@ public class GrouperInstaller {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
               true, true, null, 
               new File(GrouperInstaller.this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), 
-              GrouperInstaller.this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "catalina", true);
+              GrouperInstaller.this.untarredTomcatDir.getAbsolutePath() + File.separator + "logs" + File.separator + "catalina", false);
         }
       });
       thread.setDaemon(true);
@@ -7233,7 +7233,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
               true, true, null, GrouperInstaller.this.untarredApiDir, 
-              GrouperInstaller.this.grouperTarballDirectoryString + "grouperLoader", true);
+              GrouperInstaller.this.grouperTarballDirectoryString + "grouperLoader", false);
         }
       });
       thread.setDaemon(true);
@@ -7359,7 +7359,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class),
               true, true, null, null, 
-              GrouperInstaller.this.grouperTarballDirectoryString + "hsqlDb", true);
+              GrouperInstaller.this.grouperTarballDirectoryString + "hsqlDb", false, false);
         }
       });
       thread.setDaemon(true);
@@ -8786,8 +8786,6 @@ public class GrouperInstaller {
 
     String unzippedFileName = fileName.substring(0, fileName.length() - ".gz".length());
     File unzippedFile = new File(unzippedFileName);
-
-    System.out.println("Unzipping: " + fileName);
 
     GzipCompressorInputStream gzipCompressorInputStream = null;
     FileOutputStream fileOutputStream = null;
