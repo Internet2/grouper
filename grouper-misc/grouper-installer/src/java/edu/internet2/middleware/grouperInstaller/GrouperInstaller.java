@@ -204,6 +204,23 @@ public class GrouperInstaller {
   private static boolean downloadFile(final String url, final String localFileName, final boolean allow404, 
       final String prefixFor404, final String autorunUseLocalFilePropertiesKey) {
 
+    boolean useLocalFile = false;
+
+    final File localFile = new File(localFileName);
+
+    if (localFile.exists()) {
+      System.out.print("File exists: " + localFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
+      useLocalFile = readFromStdInBoolean(true, autorunUseLocalFilePropertiesKey);
+    }
+    
+    if (useLocalFile) {
+      return true;
+    }
+
+    if (allow404 && GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.useLocalFilesOnlyForDevelopment", false, false)) {
+      return false;
+    }
+
     final boolean[] result = new boolean[1];
     
     Runnable runnable = new Runnable() {
@@ -229,24 +246,9 @@ public class GrouperInstaller {
    */
   private static boolean downloadFileHelper(String url, String localFileName, boolean allow404, 
       String prefixFor404, String autorunUseLocalFilePropertiesKey) {
-    
-    boolean useLocalFile = false;
 
     final File localFile = new File(localFileName);
 
-    if (localFile.exists()) {
-      System.out.print("File exists: " + localFile.getAbsolutePath() + ", should we use the local file (t|f)? [t]: ");
-      useLocalFile = readFromStdInBoolean(true, autorunUseLocalFilePropertiesKey);
-    }
-    
-    if (useLocalFile) {
-      return true;
-    }
-
-    if (allow404 && GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.useLocalFilesOnlyForDevelopment", false, false)) {
-      return false;
-    }
-    
     HttpClient httpClient = new HttpClient();
     GetMethod getMethod = new GetMethod(url);
     try {
@@ -8512,28 +8514,7 @@ public class GrouperInstaller {
    * @return the directory where the files are (assuming has a single dir the same name as the archive)
    */
   private static File untar(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
-    final File[] result = new File[1];
-    
-    Runnable runnable = new Runnable() {
 
-      public void run() {
-        result[0] = untarHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
-      }
-    };
-
-    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
-
-    return result[0];
-
-  }
-
-  /**
-   * untar a file to a dir
-   * @param fileName
-   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
-   * @return the directory where the files are (assuming has a single dir the same name as the archive)
-   */
-  private static File untarHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
     if (!fileName.endsWith(".tar")) {
       throw new RuntimeException("File doesnt end in .tar: " + fileName);
     }
@@ -8564,9 +8545,41 @@ public class GrouperInstaller {
       unzippedParent = unzippedParent.substring(0, unzippedParent.length()-1);
     }
     
+
+    final File[] result = new File[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = untarHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
+
+    return result[0];
+
+  }
+
+  /**
+   * untar a file to a dir
+   * @param fileName
+   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @return the directory where the files are (assuming has a single dir the same name as the archive)
+   */
+  private static File untarHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
     TarArchiveInputStream tarArchiveInputStream = null;
     
+    String untarredFileName = fileName.substring(0, fileName.length() - ".tar".length());
+    
+    File untarredFile = new File(untarredFileName);
+    String unzippedParent = untarredFile.getParentFile().getAbsolutePath();
+    if (unzippedParent.endsWith(File.separator)) {
+      unzippedParent = unzippedParent.substring(0, unzippedParent.length()-1);
+    }
+
     try {
+
       tarArchiveInputStream = new TarArchiveInputStream(new FileInputStream(fileName));
       
       while (true) {
@@ -8636,28 +8649,6 @@ public class GrouperInstaller {
    * @return the unzipped file
    */
   private static File unzipFromZip(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
-    final File[] result = new File[1];
-    
-    Runnable runnable = new Runnable() {
-
-      public void run() {
-        result[0] = unzipFromZipHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
-      }
-    };
-
-    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
-
-    return result[0];
-
-  }
-
-  /**
-   * unzip a file, this is for .zip files
-   * @param fileName
-   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
-   * @return the unzipped file
-   */
-  private static File unzipFromZipHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
 
     if (!fileName.endsWith(".zip")) {
       throw new RuntimeException("File doesnt end in .zip: " + fileName);
@@ -8682,6 +8673,33 @@ public class GrouperInstaller {
     }
 
     System.out.println("Unzipping: " + fileName);
+
+    final File[] result = new File[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = unzipFromZipHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, true);
+
+    return result[0];
+
+  }
+
+  /**
+   * unzip a file, this is for .zip files
+   * @param fileName
+   * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @return the unzipped file
+   */
+  private static File unzipFromZipHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
+
+    String unzippedFileName = fileName.substring(0, fileName.length() - ".zip".length());
+
+    File unzippedDir = new File(unzippedFileName);
 
     ZipFile zipFile = null;
     try {
@@ -8721,6 +8739,28 @@ public class GrouperInstaller {
    * @return the unzipped file
    */
   private static File unzip(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
+
+    if (!fileName.endsWith(".gz")) {
+      throw new RuntimeException("File doesnt end in .gz: " + fileName);
+    }
+    String unzippedFileName = fileName.substring(0, fileName.length() - ".gz".length());
+    
+    File unzippedFile = new File(unzippedFileName);
+    if (unzippedFile.exists()) {
+      
+      System.out.print("Unzipped file exists: " + unzippedFileName + ", use unzipped file (t|f)? [t]: ");
+      boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
+      if (useUnzippedFile) {
+        return unzippedFile;
+      }
+      System.out.println("Deleting: " + unzippedFileName);
+      if (!unzippedFile.delete()) {
+        throw new RuntimeException("Cant delete file: " + unzippedFileName);
+      }
+    }
+
+    System.out.println("Unzipping: " + fileName);
+    
     final File[] result = new File[1];
     
     Runnable runnable = new Runnable() {
@@ -8743,27 +8783,12 @@ public class GrouperInstaller {
    * @return the unzipped file
    */
   private static File unzipHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
-    if (!fileName.endsWith(".gz")) {
-      throw new RuntimeException("File doesnt end in .gz: " + fileName);
-    }
+
     String unzippedFileName = fileName.substring(0, fileName.length() - ".gz".length());
-    
     File unzippedFile = new File(unzippedFileName);
-    if (unzippedFile.exists()) {
-      
-      System.out.print("Unzipped file exists: " + unzippedFileName + ", use unzipped file (t|f)? [t]: ");
-      boolean useUnzippedFile = readFromStdInBoolean(true, autorunPropertiesKeyIfFileExistsUseLocal);
-      if (useUnzippedFile) {
-        return unzippedFile;
-      }
-      System.out.println("Deleting: " + unzippedFileName);
-      if (!unzippedFile.delete()) {
-        throw new RuntimeException("Cant delete file: " + unzippedFileName);
-      }
-    }
 
     System.out.println("Unzipping: " + fileName);
-    
+
     GzipCompressorInputStream gzipCompressorInputStream = null;
     FileOutputStream fileOutputStream = null;
     try {
