@@ -7687,8 +7687,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   private boolean groupExistsAsMemberInOverallGroup(String groupName) {
     
     // find overall group and it must not be null
+    if (!groupName.endsWith(systemOfRecordExtensionSuffix())) {
+      return false;
+    }
     String overallGroupName = groupName.substring(0, groupName.length() - systemOfRecordExtensionSuffix().length());
-    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), overallGroupName, false);
+    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), overallGroupName, false, 
+        new QueryOptions().secondLevelCache(false));
     
     boolean found = false;
     if (overallGroup != null) {
@@ -7711,12 +7715,15 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     
     // find overall group and it must not be null
     String overallGroupName = groupName.substring(0, groupName.length() - systemOfRecordExtensionSuffix().length());
-    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), overallGroupName, false);
+    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), overallGroupName, false, 
+        new QueryOptions().secondLevelCache(false));
     
     boolean found = false;
     // system of record must be in one of the composite members.
-    if (overallGroup != null && overallGroup.getComposite(false) != null) {
-      return overallGroup.hasMember(this.toSubject());
+    Composite composite = overallGroup != null ? overallGroup.getComposite(false) : null;
+    if (composite != null) {
+      return composite.getLeftGroup().hasMember(this.toSubject());
+
     }
     
     return found;
@@ -7756,7 +7763,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   private void changeDisplayPropertiesForOverallGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
     
-    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), oldDisplayProperties.name, false);
+    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), oldDisplayProperties.name, false, 
+        new QueryOptions().secondLevelCache(false));
     
     if (overallGroup != null && !overallGroup.getUuid().equals(this.getUuid())) {
       
@@ -7794,7 +7802,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   private void changeDisplayPropertiesForSystemForRecordGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
     
-    Group systemOfRecordGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), oldDisplayProperties.name+systemOfRecordExtensionSuffix(), false);
+    Group systemOfRecordGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+        oldDisplayProperties.name+systemOfRecordExtensionSuffix(), false, 
+        new QueryOptions().secondLevelCache(false));
     
     if (systemOfRecordGroup != null && !systemOfRecordGroup.getUuid().equals(this.getUuid()) && 
         systemOfRecordGroup.getDisplayExtension().endsWith(systemOfRecordDisplayExtensionSuffix())) {
@@ -7835,7 +7845,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   private void changeDisplayPropertiesForIncludeGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
     
-    Group includeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), oldDisplayProperties.name+includeExtensionSuffix(), false);
+    Group includeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+        oldDisplayProperties.name+includeExtensionSuffix(), false, 
+        new QueryOptions().secondLevelCache(false));
     if (includeGroup != null && !includeGroup.getUuid().equals(this.getUuid()) && 
         includeGroup.getDisplayExtension().endsWith(includeDisplayExtensionSuffix())) {
       
@@ -7874,7 +7886,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   private void changeDisplayPropertiesForExcludeGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
         
-    Group excludeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), oldDisplayProperties.name+excludeExtensionSuffix(), false);
+    Group excludeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+        oldDisplayProperties.name+excludeExtensionSuffix(), false, 
+        new QueryOptions().secondLevelCache(false));
     if (excludeGroup != null && !excludeGroup.getUuid().equals(this.getUuid()) && 
         excludeGroup.getDisplayExtension().endsWith(excludeDisplayExtensionSuffix())) {
       
@@ -7914,7 +7928,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   private void changeDisplayPropertiesForSystemOfRecordIncludesGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
     
     Group systemOfRecordAndIncludes  = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
-                                                     oldDisplayProperties.name+systemOfRecordAndIncludesExtensionSuffix(), false);
+                                                     oldDisplayProperties.name+systemOfRecordAndIncludesExtensionSuffix(), false, 
+                                                     new QueryOptions().secondLevelCache(false));
     if (systemOfRecordAndIncludes != null && !systemOfRecordAndIncludes.getUuid().equals(this.getUuid()) && 
         systemOfRecordAndIncludes.getDisplayExtension().endsWith(systemOfRecordAndIncludesDisplayExtensionSuffix())) {
       
