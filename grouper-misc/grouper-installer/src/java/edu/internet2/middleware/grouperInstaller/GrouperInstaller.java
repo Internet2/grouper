@@ -8572,6 +8572,11 @@ public class GrouperInstaller {
     
     String untarredFileName = fileName.substring(0, fileName.length() - ".tar".length());
     
+    //ant has -bin which is annoying
+    if (untarredFileName.endsWith("-bin")) {
+      untarredFileName = untarredFileName.substring(0, untarredFileName.length() - "-bin".length());
+    }
+
     File untarredFile = new File(untarredFileName);
     String unzippedParent = untarredFile.getParentFile().getAbsolutePath();
     if (unzippedParent.endsWith(File.separator)) {
