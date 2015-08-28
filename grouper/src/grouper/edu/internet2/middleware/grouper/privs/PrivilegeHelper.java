@@ -1145,8 +1145,7 @@ public class PrivilegeHelper {
 
         case stem:
           if (!PrivilegeHelper.canStemAttrRead(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject()) &&
-              !PrivilegeHelper.canStemAdmin(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject()) &&
-              !PrivilegeHelper.canCreate(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject())) {
+              !PrivilegeHelper.canStemAdmin(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject())) {
             return false;
           }
           break;

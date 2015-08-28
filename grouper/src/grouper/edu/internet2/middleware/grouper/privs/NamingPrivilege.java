@@ -120,12 +120,12 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
   /** any of these constitutes STEM_ATTR_READ on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM_ADMIN, STEM, CREATE, STEM_ATTR_READ));
+      GrouperUtil.toSet(STEM_ADMIN, STEM, STEM_ATTR_READ));
   
   /** any of these constitutes STEM_ATTR_UPDATE on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_UPDATE_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM_ADMIN, STEM, CREATE, STEM_ATTR_UPDATE));
+      GrouperUtil.toSet(STEM_ADMIN, STEM, STEM_ATTR_UPDATE));
 
   /** any of these constitutes ADMIN on a stem
    * note, keep most common/likely privs toward the front  */
