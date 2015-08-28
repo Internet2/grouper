@@ -31,7 +31,7 @@
                         <option value="groupAttrRead">${textContainer.text['thisGroupsPrivilegesPriv_groupAttrRead'] }</option>
                         <option value="groupAttrUpdate">${textContainer.text['thisGroupsPrivilegesPriv_groupAttrUpdate'] }</option>
                         <%-- option value="create">${textContainer.text['thisGroupsPrivilegesPriv_create'] }</option>
-                        <option value="stem">${textContainer.text['thisGroupsPrivilegesPriv_stem'] }</option>
+                        <option value="stemAdmin">${textContainer.text['thisGroupsPrivilegesPriv_stemAdmin'] }</option>
                         <option value="stemAttrRead">${textContainer.text['thisGroupsPrivilegesPriv_stemAttrRead'] }</option>
                         <option value="stemAttrUpdate">${textContainer.text['thisGroupsPrivilegesPriv_stemAttrUpdate'] }</option>
                         <option value="attrAdmin">${textContainer.text['thisGroupsPrivilegesPriv_attrAdmin'] }</option>

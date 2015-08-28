@@ -224,11 +224,11 @@ public class XmlExportField {
     
     field.setContextId(this.contextId);
     field.setHibernateVersionNumber(this.hibernateVersionNumber);
-    field.setName(this.name);
-    field.setReadPrivilege(this.readPrivilege);
+    field.setName("stemmers".equals(this.name) ? "stemAdmins" : this.name);
+    field.setReadPrivilege("stem".equals(this.readPrivilege) ? "stemAdmin" : this.readPrivilege);
     field.setTypeString(this.type);
     field.setUuid(this.uuid);
-    field.setWritePrivilege(this.writePrivilege);
+    field.setWritePrivilege("stem".equals(this.writePrivilege) ? "stemAdmin" : this.writePrivilege);
     
     return field;
   }

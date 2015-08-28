@@ -129,7 +129,7 @@ public class UiV2MyStems {
       
     } else if (StringUtils.equals("createStems", stemFilterType)) {
       
-      stemFinder.addPrivilege(NamingPrivilege.STEM);
+      stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
     } else if (StringUtils.equals("attributeRead", stemFilterType)) {
       
       stemFinder.assignPrivileges(NamingPrivilege.ATTRIBUTE_READ_PRIVILEGES);
@@ -291,7 +291,7 @@ public class UiV2MyStems {
         
       } else if (StringUtils.equals("createStems", stemFilterType)) {
         
-        stemFinder.addPrivilege(NamingPrivilege.STEM);
+        stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
       
       } else if (StringUtils.equals("attributeRead", stemFilterType)) {
         
@@ -457,7 +457,7 @@ public class UiV2MyStems {
         
       } else if (StringUtils.equals("createStems", stemFilterType)) {
         
-        stemFinder.addPrivilege(NamingPrivilege.STEM);
+        stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES);
       
       } else if (StringUtils.equals("attributeRead", stemFilterType)) {
         

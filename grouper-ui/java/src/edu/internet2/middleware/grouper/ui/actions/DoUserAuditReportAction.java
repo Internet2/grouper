@@ -407,7 +407,7 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			infoKey ="audit.query.info.actions-on";
 			Group group = GroupFinder.findByUuid(grouperSession, groupId,true);
 			entity = group.getDisplayExtension();
-		}else if(!isEmpty(stemId) && (privs.containsKey("create") || privs.containsKey("stem"))) {
+		}else if(!isEmpty(stemId) && (privs.containsKey("create") || privs.containsKey("stemAdmin"))) {
 			query=query.addAuditTypeFieldValue("stemId", stemId);
 			infoKey ="audit.query.info.actions-on";
 			Stem stem = StemFinder.findByUuid(grouperSession, stemId,true);

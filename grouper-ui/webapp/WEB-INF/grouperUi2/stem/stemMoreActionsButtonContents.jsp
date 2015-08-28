@@ -44,7 +44,7 @@
 
                           <li class="divider"></li>
                         </c:if>
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                        <c:if test="${grouperRequestContainer.stemContainer.canCreateStems }">
                           <li><a href="#"
                           onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
 

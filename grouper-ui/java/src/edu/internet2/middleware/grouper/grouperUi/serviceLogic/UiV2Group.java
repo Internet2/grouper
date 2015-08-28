@@ -2997,7 +2997,7 @@ public class UiV2Group {
   
       Stem parentStem = StemFinder.findByUuid(grouperSession, parentStemId, false);
       
-      if (parentStem == null || !parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false)) {
+      if (parentStem == null || !parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToAdminAnotherStem")));
         filterThisGroupsGroupPrivilegesHelper(request, response, group);
@@ -3090,7 +3090,7 @@ public class UiV2Group {
           
           Stem parentStem = StemFinder.findByUuid(grouperSession, parentStemId, false);
           
-          if (parentStem != null && parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false)) {
+          if (parentStem != null && parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
             parentStems.add(parentStem);
           }
         }
@@ -3108,8 +3108,8 @@ public class UiV2Group {
       int changes = 0;
       
       Privilege[] privileges = assignAll ? (assign ? new Privilege[]{  
-          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS)} : new Privilege[]{  
-            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS),
+          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ADMINS)} : new Privilege[]{  
+            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ADMINS),
             NamingPrivilege.listToPriv(Field.FIELD_NAME_CREATORS),
             NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_READERS),
             NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_UPDATERS)

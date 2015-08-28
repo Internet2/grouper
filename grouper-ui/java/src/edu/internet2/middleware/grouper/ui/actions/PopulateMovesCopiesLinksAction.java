@@ -67,7 +67,7 @@ public class PopulateMovesCopiesLinksAction extends GrouperCapableAction {
     // now lets see which links we should populate
     Set<Privilege> privs = new LinkedHashSet<Privilege>();
     if (stem.hasStem(grouperSession.getSubject())) {
-      privs.add(NamingPrivilege.STEM);
+      privs.add(NamingPrivilege.STEM_ADMIN);
     }
     if (stem.hasCreate(grouperSession.getSubject())) {
       privs.add(NamingPrivilege.CREATE);

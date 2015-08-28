@@ -28,7 +28,7 @@
                     <div class="span4">
                       <select id="people-filter" class="span12" name="privilegeField">
                         <option value="">${textContainer.text['groupFilterAllStems'] }</option>
-                        <option value="stem">${textContainer.text['thisGroupsPrivilegesPriv_stem'] }</option>
+                        <option value="stemAdmin">${textContainer.text['thisGroupsPrivilegesPriv_stemAdmin'] }</option>
                         <option value="create">${textContainer.text['thisGroupsPrivilegesPriv_create'] }</option>
                         <option value="stemAttrRead">${textContainer.text['thisGroupsPrivilegesPriv_stemAttrRead'] }</option>
                         <option value="stemAttrUpdate">${textContainer.text['thisGroupsPrivilegesPriv_stemAttrUpdate'] }</option>

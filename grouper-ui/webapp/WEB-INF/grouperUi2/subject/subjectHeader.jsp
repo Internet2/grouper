@@ -141,7 +141,7 @@
                             <label class="control-label">${textContainer.text['subjectViewAssignThesePrivileges']}</label>
                             <div class="controls">
                               <label class="checkbox inline">
-                                <input type="checkbox" name="privileges_stemmers" value="true" />${textContainer.text['priv.stemmersUpper']}
+                                <input type="checkbox" name="privileges_stemAdmins" value="true" />${textContainer.text['priv.stemAdminsUpper']}
                               </label>
                               <label class="checkbox inline">
                                 <input type="checkbox" name="privileges_creators" value="true" />${textContainer.text['priv.creatorsUpper']}

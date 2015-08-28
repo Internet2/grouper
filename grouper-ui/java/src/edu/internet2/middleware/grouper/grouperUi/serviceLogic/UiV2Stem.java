@@ -196,7 +196,7 @@ public class UiV2Stem {
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
     StemFinder stemFinder = new StemFinder().assignScope(searchString).assignSplitScope(true)
-        .addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
+        .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignSubject(loggedInSubject)
         .assignQueryOptions(queryOptions);
     
     //set of stems that match, and what memberships each subject has
@@ -329,7 +329,7 @@ public class UiV2Stem {
           query = ":";
         }
         
-        Stem theStem = new StemFinder().addPrivilege(NamingPrivilege.STEM).assignSubject(loggedInSubject)
+        Stem theStem = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignSubject(loggedInSubject)
             .assignFindByUuidOrName(true).assignScope(query).findStem();
         return theStem;
       }
@@ -355,7 +355,7 @@ public class UiV2Stem {
 
         }
 
-        return stemFinder.addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
+        return stemFinder.assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).assignScope(query).assignSubject(loggedInSubject)
             .assignSplitScope(true).assignQueryOptions(queryOptions).findStems();
       }
 
@@ -452,7 +452,7 @@ public class UiV2Stem {
         parentFolderId = request.getParameter("parentFolderComboNameDisplay");
       }
       
-      final Stem parentFolder = StringUtils.isBlank(parentFolderId) ? null : new StemFinder().addPrivilege(NamingPrivilege.STEM)
+      final Stem parentFolder = StringUtils.isBlank(parentFolderId) ? null : new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
@@ -728,9 +728,9 @@ public class UiV2Stem {
       int changes = 0;
       
       Privilege[] privileges = assignAll ? (assign ? new Privilege[]{
-          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS)} : new Privilege[]{
+          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ADMINS)} : new Privilege[]{
           NamingPrivilege.listToPriv(Field.FIELD_NAME_CREATORS),
-          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS),
+          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ADMINS),
           NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_READERS),
           NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_UPDATERS)
           } ) : new Privilege[]{NamingPrivilege.listToPriv(fieldName)};
@@ -1306,7 +1306,7 @@ public class UiV2Stem {
       
       boolean moveChangeAlternateNames = GrouperUtil.booleanValue(request.getParameter("moveChangeAlternateNames[]"), false);
       
-      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM)
+      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM_ADMIN)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
       
@@ -1598,7 +1598,7 @@ public class UiV2Stem {
         return;
       }
       
-      final Stem parentFolder = new StemFinder().addPrivilege(NamingPrivilege.STEM)
+      final Stem parentFolder = new StemFinder().assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES)
           .assignSubject(loggedInSubject)
           .assignScope(parentFolderId).assignFindByUuidOrName(true).findStem();
   
@@ -2130,12 +2130,12 @@ public class UiV2Stem {
         return;
       }      
 
-      boolean stemmersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemmers[]"), false);
+      boolean stemAdminsChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAdmins[]"), false);
       boolean creatorsChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
       boolean stemAttrReadersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
       boolean stemAttrUpdatersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
 
-      if (!stemmersChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked) {
+      if (!stemAdminsChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#stemPrivsErrorId",
             TextContainer.retrieveFromRequest().getText().get("stemAddMemberPrivRequired")));
@@ -2144,7 +2144,7 @@ public class UiV2Stem {
       }
 
       
-      boolean madeChanges = stem.grantPrivs(subject, stemmersChecked, creatorsChecked, stemAttrReadersChecked, stemAttrUpdatersChecked, false);
+      boolean madeChanges = stem.grantPrivs(subject, stemAdminsChecked, creatorsChecked, stemAttrReadersChecked, stemAttrUpdatersChecked, false);
 
       if (madeChanges) {
 
