@@ -520,6 +520,17 @@ public class GoogleGrouperConnector {
 
         }
 
+    public void removeGooMembership(String groupKey, String subjectEmail) throws IOException {
+      recentlyManipulatedObjectsList.delayIfNeeded(subjectEmail);
+      GoogleAppsSdkUtils.removeGroupMember(directoryClient, groupKey, subjectEmail);
+      recentlyManipulatedObjectsList.add(subjectEmail);
+
+      if (properties.shouldDeprovisionUsers()) {
+          //FUTURE: check if the user has other memberships and if not, initiate the removal here.
+      }
+
+      }
+    
     public Group updateGooGroup(String groupKey, Group group) throws IOException {
         recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
         final Group gooGroup = GoogleAppsSdkUtils.updateGroup(directoryClient, groupKey, group);

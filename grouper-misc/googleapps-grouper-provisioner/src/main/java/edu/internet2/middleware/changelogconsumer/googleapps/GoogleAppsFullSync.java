@@ -319,7 +319,7 @@ public class GoogleAppsFullSync {
             LOG.info("Google Apps Consume '{}' Full Sync - Removing extra member ({}) from matched group ({})", new Object[]{consumerName, member.getEmail(), group.getName()});
             if (!dryRun) {
                 try {
-                    connector.removeGooMembership(group.getName(), member.getGrouperMember().getSubject());
+                    connector.removeGooMembership(group.getName(), member.getEmail());
                 } catch (IOException e) {
                     LOG.warn("Google Apps Consume '{}' - Error removing membership ({}) from Google Group ({}): {}", new Object[]{consumerName, member.getEmail(), group.getName(), e.getMessage()});
                 }
