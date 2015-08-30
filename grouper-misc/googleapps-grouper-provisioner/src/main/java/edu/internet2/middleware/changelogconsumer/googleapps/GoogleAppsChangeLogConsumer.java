@@ -656,7 +656,7 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
             try {
                 String role = connector.determineRole(member, grouperGroup);
                 if (role != null) {
-                  connector.createGooMember(grouperGroup, member.getSubject(), role);
+                  connector.updateGooMember(grouperGroup, member.getSubject(), role);
                 }
             } catch (IOException e) {
                 LOG.debug("Google Apps Consumer '{}' - Change log entry '{}' Error processing privilege add: {}", new Object[]{consumerName,
