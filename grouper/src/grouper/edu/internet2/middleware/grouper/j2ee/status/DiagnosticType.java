@@ -163,11 +163,17 @@ public enum DiagnosticType {
           for (Group group : groupSet) {
             
             String grouperLoaderType = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_TYPE, false, false);
+
+            String jobName = null;
+            GrouperLoaderType grouperLoaderTypeEnum = null;
             
-            GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
-    
-            String jobName = grouperLoaderTypeEnum.name() + "__" + group.getName() + "__" + group.getUuid();
-            
+            try {
+              grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
+
+              jobName = grouperLoaderTypeEnum.name() + "__" + group.getName() + "__" + group.getUuid();
+            } catch (Exception e) {
+              throw new RuntimeException("Error getting grouper loader metadata for loader job configured in group: " + group.getName(), e);
+            }
             //diagnosticsTasks.add(new DiagnosticLoaderJobTest("SQL_SIMPLE__penn:sas:query:faculty:adjunct_faculty__707d94fa3aaa4ef88051a144b74bac77", GrouperLoaderType.SQL_SIMPLE));
             //diagnosticsTasks.add(new DiagnosticLoaderJobTest("SQL_GROUP_LIST__penn:community:student:loader:studentPrimaryGroups__93750690c3474b41b349bbd196167d3e", GrouperLoaderType.SQL_GROUP_LIST));
             
