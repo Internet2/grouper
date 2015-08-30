@@ -25,6 +25,7 @@ import edu.internet2.middleware.changelogconsumer.googleapps.utils.ComparableGro
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.ComparableMemberItem;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.GoogleAppsSyncProperties;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import java.io.IOException;
@@ -32,7 +33,9 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -219,9 +222,20 @@ public class GoogleAppsFullSync {
 
                 //Retrieve Membership
                 ArrayList<ComparableMemberItem> grouperMembers = new ArrayList<ComparableMemberItem>();
-                for (edu.internet2.middleware.grouper.Member member : item.getGrouperGroup().getMembers()) {
+                Set<edu.internet2.middleware.grouper.Member> members = new LinkedHashSet<edu.internet2.middleware.grouper.Member>();
+                members.addAll(item.getGrouperGroup().getMembers());
+                for (Subject subj : item.getGrouperGroup().getUpdaters()) {
+                  members.add(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false));
+                }
+                for (Subject subj : item.getGrouperGroup().getAdmins()) {
+                  members.add(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false));
+                }
+                for (edu.internet2.middleware.grouper.Member member : members) {
                     if (member.getSubjectType() == SubjectTypeEnum.PERSON) {
+                      String role = connector.determineRole(member, item.getGrouperGroup());
+                      if (role != null) {
                         grouperMembers.add(new ComparableMemberItem(connector.getAddressFormatter().qualifySubjectAddress(member.getSubjectId()), member));
+                      }
                     }
                 }
 
