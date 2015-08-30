@@ -685,6 +685,11 @@ public class IndexContainer {
    * paging for my favorites
    */
   private GuiPaging myFavoritesGuiPaging = null;
+  
+  /**
+   * paging for my activity
+   */
+  private GuiPaging myActivityGuiPaging = null;
 
   /**
    * gui object favorite results from my favorites
@@ -724,6 +729,46 @@ public class IndexContainer {
    */
   public void setMyFavoritesGuiPaging(GuiPaging myFavoritesGuiPaging1) {
     this.myFavoritesGuiPaging = myFavoritesGuiPaging1;
+  }
+  
+  /**
+   * paging for my activity
+   * @return activity paging
+   */
+  public GuiPaging getMyActivityGuiPaging() {
+    if (this.myActivityGuiPaging == null) {
+      this.myActivityGuiPaging = new GuiPaging();
+    }
+    return this.myActivityGuiPaging;
+  }
+
+  /**
+   * paging for my activity
+   * @param myActivityGuiPaging1
+   */
+  public void setMyActivityGuiPaging(GuiPaging myActivityGuiPaging1) {
+    this.myActivityGuiPaging = myActivityGuiPaging1;
+  }
+  
+  /**
+   * gui audit entries
+   */
+  private Set<GuiAuditEntry> guiAuditEntries = null;
+  
+  /**
+   * gui audit entries from my activity
+   * @return favorites
+   */
+  public Set<GuiAuditEntry> getGuiAuditEntries() {
+    return this.guiAuditEntries;
+  }
+
+  /**
+   * gui audit entries from my acitvity
+   * @param guiAuditEntries
+   */
+  public void setGuiAuditEntries(Set<GuiAuditEntry> guiAuditEntries) {
+    this.guiAuditEntries = guiAuditEntries;
   }
 
   /**

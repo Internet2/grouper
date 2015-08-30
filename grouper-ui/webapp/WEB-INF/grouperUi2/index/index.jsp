@@ -72,6 +72,8 @@
                   onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesButton'] }</a></li>
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
+                     <li><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.myActivity');">${textContainer.text['indexMyActivityButton'] }</a></li>
                     <li><a href="../../populateAllGroups.do">${textContainer.text['ui-lite.fromInvite-admin-link'] }</a></li>
                     <li><a href="../../grouperUi/appHtml/grouper.html?operation=Misc.index">${textContainer.text['ui-lite.fromInvite-link'] }</a></li>
                   </ul>
