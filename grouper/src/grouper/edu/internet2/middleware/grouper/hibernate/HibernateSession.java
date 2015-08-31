@@ -80,7 +80,26 @@ public class HibernateSession {
   
   /** threadlocal to store if we are in readonly mode */
   private static ThreadLocal<Boolean> threadlocalReadonly = new ThreadLocal<Boolean>();
+    
+  /**
+   * @return the internal_threadlocalReadonly
+   */
+  public static Boolean internal_retrieveThreadlocalReadonly() {
+    return threadlocalReadonly.get();
+  }
+
   
+  /**
+   * @param internal_threadlocalReadonly the internal_threadlocalReadonly to set
+   */
+  public static void internal_assignThreadlocalReadonly(Boolean internal_threadlocalReadonly) {
+    if (internal_threadlocalReadonly == null) {
+      threadlocalReadonly.remove();
+    } else {
+      threadlocalReadonly.set(internal_threadlocalReadonly);
+    }
+  }
+
   /**
    * if readonly by threadlocal or config param
    * @return true if readonly

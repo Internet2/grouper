@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -32,6 +17,8 @@
  */
 package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip;
 
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,15 +27,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.zip.ZipException;
 
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
-
 /**
  * Extension that adds better handling of extra fields and provides
  * access to the internal and external file attributes.
  *
  * <p>The extra data is expected to follow the recommendation of
- * {@link <a href="http://www.pkware.com/documents/casestudies/APPNOTE.TXT">
- * APPNOTE.txt</a>}:</p>
+ * <a href="http://www.pkware.com/documents/casestudies/APPNOTE.TXT">APPNOTE.TXT</a>:</p>
  * <ul>
  *   <li>the extra byte array consists of a sequence of extra fields</li>
  *   <li>each extra fields starts by a two byte header id followed by
@@ -65,12 +49,13 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
  * @NotThreadSafe
  */
 public class ZipArchiveEntry extends java.util.zip.ZipEntry
-    implements ArchiveEntry, Cloneable {
+    implements ArchiveEntry {
 
     public static final int PLATFORM_UNIX = 3;
     public static final int PLATFORM_FAT  = 0;
     private static final int SHORT_MASK = 0xFFFF;
     private static final int SHORT_SHIFT = 16;
+    private static final byte[] EMPTY = new byte[0];
 
     /**
      * The {@link java.util.zip.ZipEntry} base class only supports
@@ -200,7 +185,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      *
      * @return compression method
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     @Override
     public int getMethod() {
@@ -212,7 +197,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      *
      * @param method compression method
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     @Override
     public void setMethod(int method) {
@@ -282,11 +267,23 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
     }
 
     /**
+     * Returns true if this entry represents a unix symlink,
+     * in which case the entry's content contains the target path
+     * for the symlink.
+     *
+     * @since 1.5
+     * @return true if the entry represents a unix symlink, false otherwise.
+     */
+    public boolean isUnixSymlink() {
+        return (getUnixMode() & UnixStat.LINK_FLAG) == UnixStat.LINK_FLAG;
+    }
+
+    /**
      * Platform specification to put into the &quot;version made
      * by&quot; part of the central file header.
      *
      * @return PLATFORM_FAT unless {@link #setUnixMode setUnixMode}
-     * has been called, in which case PLATORM_UNIX will be returned.
+     * has been called, in which case PLATFORM_UNIX will be returned.
      */
     public int getPlatform() {
         return platform;
@@ -306,11 +303,11 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      */
     public void setExtraFields(ZipExtraField[] fields) {
         extraFields = new LinkedHashMap<ZipShort, ZipExtraField>();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i] instanceof UnparseableExtraFieldData) {
-                unparseableExtra = (UnparseableExtraFieldData) fields[i];
+        for (ZipExtraField field : fields) {
+            if (field instanceof UnparseableExtraFieldData) {
+                unparseableExtra = (UnparseableExtraFieldData) field;
             } else {
-                extraFields.put(fields[i].getHeaderId(), fields[i]);
+                extraFields.put(field.getHeaderId(), field);
             }
         }
         setExtra();
@@ -331,7 +328,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      * exists.
      * @return an array of the extra fields
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public ZipExtraField[] getExtraFields(boolean includeUnparseable) {
         if (extraFields == null) {
@@ -406,7 +403,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
     /**
      * Removes unparseable extra field data.
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public void removeUnparseableExtraFieldData() {
         if (unparseableExtra == null) {
@@ -433,7 +430,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      *
      * @return null if no such field exists.
      *
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public UnparseableExtraFieldData getUnparseableExtraFieldData() {
         return unparseableExtra;
@@ -491,7 +488,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      */
     public byte[] getLocalFileDataExtra() {
         byte[] extra = getExtra();
-        return extra != null ? extra : new byte[0];
+        return extra != null ? extra : EMPTY;
     }
 
     /**
@@ -525,6 +522,10 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      * @param name the name to use
      */
     protected void setName(String name) {
+        if (name != null && getPlatform() == PLATFORM_FAT
+            && name.indexOf("/") == -1) {
+            name = name.replace('\\', '/');
+        }
         this.name = name;
     }
 
@@ -558,7 +559,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      * the guessed or configured encoding
      * @param rawName the bytes originally read as name from the
      * archive
-     * @since Apache Commons Compress 1.2
+     * @since 1.2
      */
     protected void setName(String name, byte[] rawName) {
         setName(name);
@@ -572,7 +573,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
      * <p>This method will return null if this instance has not been
      * read from an archive.</p>
      *
-     * @since Apache Commons Compress 1.2
+     * @since 1.2
      */
     public byte[] getRawName() {
         if (rawName != null) {
@@ -599,7 +600,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
 
     /**
      * The "general purpose bit" field.
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public GeneralPurposeBit getGeneralPurposeBit() {
         return gpb;
@@ -607,7 +608,7 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
 
     /**
      * The "general purpose bit" field.
-     * @since Apache Commons Compress 1.1
+     * @since 1.1
      */
     public void setGeneralPurposeBit(GeneralPurposeBit b) {
         gpb = b;
@@ -626,21 +627,21 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
         if (extraFields == null) {
             setExtraFields(f);
         } else {
-            for (int i = 0; i < f.length; i++) {
+            for (ZipExtraField element : f) {
                 ZipExtraField existing;
-                if (f[i] instanceof UnparseableExtraFieldData) {
+                if (element instanceof UnparseableExtraFieldData) {
                     existing = unparseableExtra;
                 } else {
-                    existing = getExtraField(f[i].getHeaderId());
+                    existing = getExtraField(element.getHeaderId());
                 }
                 if (existing == null) {
-                    addExtraField(f[i]);
+                    addExtraField(element);
                 } else {
                     if (local) {
-                        byte[] b = f[i].getLocalFileDataData();
+                        byte[] b = element.getLocalFileDataData();
                         existing.parseFromLocalFileData(b, 0, b.length);
                     } else {
-                        byte[] b = f[i].getCentralDirectoryData();
+                        byte[] b = element.getCentralDirectoryData();
                         existing.parseFromCentralDirectoryData(b, 0, b.length);
                     }
                 }
@@ -649,7 +650,6 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
         }
     }
 
-    /** {@inheritDoc} */
     public Date getLastModifiedDate() {
         return new Date(getTime());
     }
@@ -678,13 +678,13 @@ public class ZipArchiveEntry extends java.util.zip.ZipEntry
         String myComment = getComment();
         String otherComment = other.getComment();
         if (myComment == null) {
-            if (otherComment != null) {
-                return false;
-            }
-        } else if (!myComment.equals(otherComment)) {
-            return false;
+            myComment = "";
+        }
+        if (otherComment == null) {
+            otherComment = "";
         }
         return getTime() == other.getTime()
+            && myComment.equals(otherComment)
             && getInternalAttributes() == other.getInternalAttributes()
             && getPlatform() == other.getPlatform()
             && getExternalAttributes() == other.getExternalAttributes()

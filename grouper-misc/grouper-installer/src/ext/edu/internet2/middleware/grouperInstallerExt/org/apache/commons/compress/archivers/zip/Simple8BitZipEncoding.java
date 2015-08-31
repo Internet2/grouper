@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -123,8 +108,8 @@ class Simple8BitZipEncoding implements ZipEncoding {
 
         byte code = 127;
 
-        for (int i = 0; i < this.highChars.length; ++i) {
-            temp.add(new Simple8BitChar(++code, this.highChars[i]));
+        for (char highChar : this.highChars) {
+            temp.add(new Simple8BitChar(++code, highChar));
         }
 
         Collections.sort(temp);
@@ -167,7 +152,7 @@ class Simple8BitZipEncoding implements ZipEncoding {
      * @param bb The byte buffer to write to.
      * @param c The character to encode.
      * @return Whether the given unicode character is covered by this encoding.
-     *         If <code>false</code> is returned, nothing is pushed to the
+     *         If {@code false} is returned, nothing is pushed to the
      *         byte buffer. 
      */
     public boolean pushEncodedChar(ByteBuffer bb, char c) {
@@ -188,7 +173,7 @@ class Simple8BitZipEncoding implements ZipEncoding {
     /**
      * @param c A unicode character in the range from 0x0080 to 0x7f00
      * @return A Simple8BitChar, if this character is covered by this encoding.
-     *         A <code>null</code> value is returned, if this character is not
+     *         A {@code null} value is returned, if this character is not
      *         covered by this encoding.
      */
     private Simple8BitChar encodeHighChar(char c) {

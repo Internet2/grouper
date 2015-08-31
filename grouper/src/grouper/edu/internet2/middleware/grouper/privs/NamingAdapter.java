@@ -79,7 +79,7 @@ public interface NamingAdapter {
   /**
    * Get all subjects with this privilege on this stem.
    * <pre class="eg">
-   * Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
+   * Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM_ADMIN);
    * </pre>
    * @param   s     Get privileges within this session context.
    * @param   ns    Get privileges on this stem.
@@ -95,7 +95,7 @@ public interface NamingAdapter {
    * <pre class="eg">
    * try {
    *   Set isStemmer = np.getStemsWhereSubjectHasPriv(
-   *     s, subj, NamingPrivilege.STEM
+   *     s, subj, NamingPrivilege.STEM_ADMIN
    *   );
    * }
    * catch (SchemaException eS) {
@@ -129,7 +129,7 @@ public interface NamingAdapter {
    * Grant the privilege to the subject on this stem.
    * <pre class="eg">
    * try {
-   *   np.grantPriv(s, ns, subj, NamingPrivilege.STEM);
+   *   np.grantPriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (GrantPrivilegeException e0) {
    *   // Unable to grant the privilege
@@ -157,7 +157,7 @@ public interface NamingAdapter {
    * Check whether the subject has this privilege on this stem.
    * <pre class="eg">
    * try {
-   *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM);
+   *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (SchemaException e) {
    *   // Invalid privilege
@@ -177,7 +177,7 @@ public interface NamingAdapter {
    * Revoke this privilege from everyone on this stem.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, NamingPrivilege.STEM);
+   *   np.revokePriv(s, ns, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to revoke the privilege
@@ -203,7 +203,7 @@ public interface NamingAdapter {
    * Revoke the privilege from the subject on this stem.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, subj, NamingPrivilege.STEM);
+   *   np.revokePriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to grant the privilege

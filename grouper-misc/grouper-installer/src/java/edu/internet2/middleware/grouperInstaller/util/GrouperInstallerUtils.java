@@ -19,6 +19,7 @@
 package edu.internet2.middleware.grouperInstaller.util;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -50,6 +51,7 @@ import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.CodeSource;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -88,6 +90,8 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -106,6 +110,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpMethodBase;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.LogFactory;
@@ -121,6 +127,16 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.i
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperInstallerUtils  {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    tar(new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_17"),
+        new File("C:\\app\\grouperInstallerTarballDir\\grouper_v2_2_1_ui_patch_17.tar"));
+    //gzip(new File("c:\\temp\\test.tar"), new File("c:\\temp\\test.tar.gz"));
+  }
+  
   /**
    * delete a file
    * @param file
@@ -5149,6 +5165,22 @@ public class GrouperInstallerUtils  {
   }
 
   /**
+   * Unconditionally close a <code>ZipFile</code>.
+   * Equivalent to {@link ZipFile#close()}, except any exceptions will be ignored.
+   * @param input A (possibly null) ZipFile
+   */
+  public static void closeQuietly(ZipFile input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
    * Unconditionally close an <code>OutputStream</code>.
    * Equivalent to {@link OutputStream#close()}, except any exceptions will be ignored.
    * @param output A (possibly null) OutputStream
@@ -8204,6 +8236,88 @@ public class GrouperInstallerUtils  {
     return false;
   }
 
+  /**
+   * every 5 seconds print a status dot to system out, and newline at end.  After 20, newline
+   * @param runnable runnable to run
+   * @param printProgress if print progress during thread
+   */
+  public static void threadRunWithStatusDots(final Runnable runnable, boolean printProgress) {
+    
+    if (!printProgress) {
+      runnable.run();
+      return;
+    }
+    
+    try {
+      final Exception[] theException = new Exception[1];
+  
+      Runnable wrappedRunnable = new Runnable() {
+  
+        public void run() {
+          try {
+            
+            runnable.run();
+            
+          } catch (Exception e) {
+            theException[0] = e;
+          }
+        }
+        
+      };
+
+      Thread thread = new Thread(wrappedRunnable);
+
+      thread.start();
+
+      long start = System.currentTimeMillis();
+      
+      boolean wroteProgress = false;
+      
+      int dotCount = 0;
+      
+      while (true) {
+        
+        if (thread.isAlive()) {
+          if (System.currentTimeMillis() - start > 5000) {
+            
+            wroteProgress = true;
+            System.out.print(".");
+            dotCount++;
+            start = System.currentTimeMillis();
+            
+            if (dotCount % 40 == 0) {
+              System.out.println("");
+            }
+            
+          } else {
+            
+            GrouperInstallerUtils.sleep(500);
+            
+          }
+        } else {
+          if (wroteProgress) {
+            //start with a newline
+            System.out.println("");
+          }
+          break;
+        }
+      }
+
+      //probably dont need this
+      thread.join();
+      
+      if (theException[0] != null) {
+        throw theException[0];
+      }
+  
+    } catch (Exception exception) {
+      if (exception instanceof RuntimeException) {
+        throw (RuntimeException)exception;
+      }
+      throw new RuntimeException(exception);
+    }
+    
+  }
   
   /**
    * make sure a value is int in properties
@@ -9370,6 +9484,101 @@ public class GrouperInstallerUtils  {
     return new GrouperInstallerLog(theLog);
     
   }
+  /**
+   * turn a directory and contents into a tar file
+   * @param directory
+   * @param tarFile
+   */
+  public static void tar(File directory, File tarFile) {
+    tar(directory, tarFile, true);
+  }
+
+  /**
+   * turn a directory and contents into a tar file
+   * @param directory
+   * @param includeDirectoryInTarPath true if should include the dirname in the tar file
+   * @param tarFile
+   */
+  public static void tar(File directory, File tarFile, boolean includeDirectoryInTarPath) {
+
+    try {
+      tarFile.createNewFile();
+      TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(new FileOutputStream(tarFile));
+      
+      //we need long file support
+      tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+      
+      for (File file : fileListRecursive(directory)) {
+        if (file.isFile()) {
+          String relativePath = (includeDirectoryInTarPath ? (directory.getName() + File.separator) : "") + fileRelativePath(directory, file);
+          //lets do back slashes
+          relativePath = replace(relativePath, "\\", "/");
+          TarArchiveEntry entry = new TarArchiveEntry(file, relativePath);
+          tarArchiveOutputStream.putArchiveEntry(entry);
+          copy(new FileInputStream(file), tarArchiveOutputStream);
+          tarArchiveOutputStream.closeArchiveEntry();
+        }
+      }
+
+      tarArchiveOutputStream.close();
+    } catch (Exception e) {
+      throw new RuntimeException("Error creating tar: " + tarFile.getAbsolutePath() + ", from dir: " + directory.getAbsolutePath(), e);
+    }
+  }
+
+  /**
+   * 
+   * @param inputFile
+   * @param outputFile
+   */
+  public static void gzip(File inputFile, File outputFile) {
+    GZIPOutputStream gzipOutputStream = null;
+    
+    try {
+      
+      outputFile.createNewFile();
+
+      gzipOutputStream = new GZIPOutputStream(
+        new BufferedOutputStream(new FileOutputStream(outputFile)));
+
+      copy(new FileInputStream(inputFile), gzipOutputStream);
+    } catch (Exception e) {
+      throw new RuntimeException("Error creating gzip from " + inputFile.getAbsolutePath() + " to " + outputFile.getAbsolutePath());
+    } finally {
+      closeQuietly(gzipOutputStream);
+    }
+
+  }
+  
+  /**
+   * 
+   * @param file
+   * @return the hex sha1
+   */
+  public static String fileSha1(File file) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA1");
+      FileInputStream fis = new FileInputStream(file);
+      byte[] dataBytes = new byte[1024];
+   
+      int nread = 0; 
+   
+      while ((nread = fis.read(dataBytes)) != -1) {
+        md.update(dataBytes, 0, nread);
+      };
+   
+      byte[] mdbytes = md.digest();
+   
+      //convert the byte to hex format
+      StringBuffer sb = new StringBuffer("");
+      for (int i = 0; i < mdbytes.length; i++) {
+        sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+      }
+      return sb.toString();
+    } catch (Exception e) {
+      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath());
+    }
+  }
 
   /** override map for properties */
   private static Map<String, String> grouperInstallerOverrideMap = new LinkedHashMap<String, String>();
@@ -9398,6 +9607,15 @@ public class GrouperInstallerUtils  {
     return properties;
   }
 
+  /**
+   * if the properties contains a key
+   * @param key
+   * @return true or false
+   */
+  public static boolean propertiesContainsKey(String key) {
+    return grouperInstallerProperties().containsKey(key);
+  }
+  
   /**
    * get a property and validate required from grouper.installer.properties
    * @param key 
@@ -9545,11 +9763,12 @@ public class GrouperInstallerUtils  {
    * you want if you are using quotes)
    * 
    * @param command
+   * @param printProgress if dots for progress should be used
    * @return the result of the command
    */
-  public static CommandResult execCommand(String command) {
+  public static CommandResult execCommand(String command, boolean printProgress) {
     String[] args = splitTrim(command, " ");
-    return execCommand(args);
+    return execCommand(args, printProgress);
   }
 
   /**
@@ -9658,10 +9877,11 @@ public class GrouperInstallerUtils  {
    * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
    * </pre>
    * @param arguments are the commands
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command.
    */
-  public static CommandResult execCommand(String[] arguments) {
-    return execCommand(arguments, true);
+  public static CommandResult execCommand(String[] arguments, boolean printProgress) {
+    return execCommand(arguments, true, printProgress);
   }
   
   /**
@@ -9671,9 +9891,10 @@ public class GrouperInstallerUtils  {
    * </pre>
    * @param command to execute
    * @param arguments are the commands
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command.
    */
-  public static CommandResult execCommand(String command, String[] arguments) {
+  public static CommandResult execCommand(String command, String[] arguments, boolean printProgress) {
     
     List<String> args = new ArrayList<String>();
     args.add(command);
@@ -9681,7 +9902,7 @@ public class GrouperInstallerUtils  {
       args.add(argument);
     }
     
-    return execCommand(toArray(args, String.class), true);
+    return execCommand(toArray(args, String.class), true, printProgress);
   }
   
   /**
@@ -9707,10 +9928,11 @@ public class GrouperInstallerUtils  {
    * @param arguments are the commands
    * @param exceptionOnExitValueNeZero if this is set to false, the 
    * results of the call will be returned regardless of the exit status
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
-  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero) {
-    return execCommand(arguments, exceptionOnExitValueNeZero, true);
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, true, printProgress);
   }
 
   /**
@@ -9724,10 +9946,11 @@ public class GrouperInstallerUtils  {
    * @param exceptionOnExitValueNeZero if this is set to false, the 
    * results of the call will be returned regardless of the exit status
    * @param waitFor if we should wait for this process to end
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
-  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor) {
-    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, null,  null, null);
+  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, null,  null, null, printProgress);
   }
 
   /**
@@ -9744,11 +9967,51 @@ public class GrouperInstallerUtils  {
    * @param workingDirectory 
    * @param envVariables are env vars with name=val
    * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printProgress if dots for progress should be used
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
   public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
-      String[] envVariables, File workingDirectory, String outputFilePrefix) {
-    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, workingDirectory, outputFilePrefix, false);
+      String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, workingDirectory, outputFilePrefix, false, printProgress);
+  }
+
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @param waitFor if we should wait for this process to end
+   * @param workingDirectory 
+   * @param envVariables are env vars with name=val
+   * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printOutputErrorAsReceived if should print output error as received
+   * @param printProgress if dots for progress should be used
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(final String[] arguments, final boolean exceptionOnExitValueNeZero, final boolean waitFor, 
+      final String[] envVariables, final File workingDirectory, final String outputFilePrefix, 
+      final boolean printOutputErrorAsReceived, boolean printProgress) {
+    
+    final CommandResult[] result = new CommandResult[1];
+    
+    Runnable runnable = new Runnable() {
+
+      public void run() {
+        result[0] = execCommandHelper(arguments, exceptionOnExitValueNeZero, waitFor, 
+            envVariables, workingDirectory, outputFilePrefix, printOutputErrorAsReceived);
+      }
+    };
+
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, printProgress);
+
+    return result[0];
+
+    
   }
 
   /**
@@ -9768,7 +10031,7 @@ public class GrouperInstallerUtils  {
    * @param printOutputErrorAsReceived if should print output error as received
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
-  public static CommandResult execCommand(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
+  private static CommandResult execCommandHelper(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
       String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printOutputErrorAsReceived) {
     
     if (printOutputErrorAsReceived && !isBlank(outputFilePrefix)) {
@@ -10760,5 +11023,25 @@ public class GrouperInstallerUtils  {
     }
     return result;
   }
-  
+
+  /**
+   * get the relative path of descendant file
+   * @param parentDir
+   * @param file
+   * @return the relative path of file underneath, dont start with slash
+   */
+  public static String fileRelativePath(File parentDir, File file) {
+    
+    String descendantPath = file.getAbsolutePath();
+    String parentPath = parentDir.getAbsolutePath();
+    if (!descendantPath.startsWith(parentPath)) {
+      throw new RuntimeException("Why doesnt descendantPath '" + descendantPath + "' start with parent path '" + parentPath + "'?");
+    }
+    descendantPath = descendantPath.substring(parentPath.length());
+    if (descendantPath.startsWith("/") || descendantPath.startsWith("\\")) {
+      descendantPath = descendantPath.substring(1);
+    }
+    return descendantPath;
+  }
+
 }

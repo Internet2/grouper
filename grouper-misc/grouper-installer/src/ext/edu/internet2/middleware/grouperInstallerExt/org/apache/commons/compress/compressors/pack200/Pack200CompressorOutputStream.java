@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -41,12 +26,13 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Pack200;
 
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.CompressorOutputStream;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
 
 /**
  * An output stream that compresses using the Pack200 format.
  * 
  * @NotThreadSafe
- * @since Apache Commons Compress 1.3
+ * @since 1.3
  */
 public class Pack200CompressorOutputStream extends CompressorOutputStream {
     private boolean finished = false;
@@ -96,23 +82,16 @@ public class Pack200CompressorOutputStream extends CompressorOutputStream {
         properties = props;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void write(int b) throws IOException {
         streamBridge.write(b);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void write(byte[] b) throws IOException {
         streamBridge.write(b);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void write(byte[] b, int from, int length) throws IOException {
         streamBridge.write(b, from, length);
@@ -142,12 +121,8 @@ public class Pack200CompressorOutputStream extends CompressorOutputStream {
                        originalOutput);
                 success = true;
             } finally {
-                if (!success && ji != null) {
-                    try {
-                        ji.close();
-                    } catch (IOException ex) { // NOPMD
-                        // swallow so original exception isn't masked
-                    }
+                if (!success) {
+                    IOUtils.closeQuietly(ji);
                 }
             }
         }

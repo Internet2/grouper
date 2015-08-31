@@ -103,7 +103,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetPermissionAssignsPIT"));
+    TestRunner.run(new GrouperClientWsTest("testStemSaveMoveCopy"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -2069,6 +2069,243 @@ public class GrouperClientWsTest extends GrouperTest {
 
   }
 
+  /**
+   * @throws Exception
+   */
+  public void testGroupSaveMoveCopy() throws Exception {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroupToCopy").save();
+
+    Group group = GroupFinder.findByName(grouperSession, "test:stemDestination:testGroupToCopy", false);
+    
+    if (group != null) {
+      group.delete();
+    }
+    
+    Stem toStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:stemDestination").save();
+    
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+      //try with name with slash
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=groupSaveWs --name=test:testGroupToCopy --paramName0=moveOrCopy --paramValue0=copy "
+          + "--paramName1=moveOrCopyToStemName --paramValue1=test:stemDestination "
+          + "--paramName2=copyPrivilegesOfGroup --paramValue2=true "
+          + "--paramName3=copyGroupAsPrivilege --paramValue3=true "
+          + "--paramName4=copyListMembersOfGroup --paramValue4=true "
+          + "--paramName5=copyListGroupAsMember --paramValue5=true "
+          + "--paramName6=copyAttributes --paramValue6=true "
+          + "  ", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      systemOut.println(output);
+      
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("SUCCESS_INSERTED", matcher.group(1));
+      //doesnt work
+      //      assertEquals("test:stemDestination:testGroupToCopy", matcher.group(2));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveOrCopy")
+              && GrouperClientWs.mostRecentRequest.contains("copy"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveOrCopyToStemName")
+              && GrouperClientWs.mostRecentRequest.contains("test:stemDestination"));
+
+      group = GroupFinder.findByName(grouperSession, "test:stemDestination:testGroupToCopy", false, new QueryOptions().secondLevelCache(false));
+      
+      assertTrue(group != null);
+      
+      // #####################################################
+      // run again, with move
+
+      group = GroupFinder.findByName(grouperSession, "test:stemDestination:testGroupToCopy", true, new QueryOptions().secondLevelCache(false));
+      
+      if (group != null) {
+        group.delete();
+      }
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=groupSaveWs --name=test:testGroupToCopy --paramName0=moveOrCopy --paramValue0=move "
+          + "--paramName1=moveOrCopyToStemUuid --paramValue1=" + toStem.getUuid() + " "
+          + "--paramName2=moveAssignAlternateName --paramValue2=false", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("SUCCESS_INSERTED", matcher.group(1));
+
+      //doesnt work
+      //      assertEquals("test:stemDestination:testGroupToCopy", matcher.group(2));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveOrCopy")
+              && GrouperClientWs.mostRecentRequest.contains("move"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveAssignAlternateName")
+              && GrouperClientWs.mostRecentRequest.contains(toStem.getUuid()));
+
+      group = GroupFinder.findByName(grouperSession, "test:stemDestination:testGroupToCopy", false, new QueryOptions().secondLevelCache(false));
+      
+      assertTrue(group != null);
+
+      group = GroupFinder.findByName(grouperSession, "test:testGroupToCopy", false, new QueryOptions().secondLevelCache(false));
+      
+      assertTrue(group == null);
+
+    } finally {
+      
+    }
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testStemSaveMoveCopy() throws Exception {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testStemToCopy").save();
+
+    Stem stemToCopy = StemFinder.findByName(grouperSession, "test:stemDestination:testStemToCopy", false);
+    
+    if (stemToCopy != null) {
+      stemToCopy.delete();
+    }
+    
+    Stem toStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:stemDestination").save();
+    
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+      //try with name with slash
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=stemSaveWs --name=test:testStemToCopy --paramName0=moveOrCopy --paramValue0=copy "
+          + "--paramName1=moveOrCopyToStemName --paramValue1=test:stemDestination "
+          + "--paramName2=copyPrivilegesOfGroup --paramValue2=true "
+          + "--paramName3=copyGroupAsPrivilege --paramValue3=true "
+          + "--paramName4=copyListMembersOfGroup --paramValue4=true "
+          + "--paramName5=copyListGroupAsMember --paramValue5=true "
+          + "--paramName6=copyAttributes --paramValue6=true "
+          + "--paramName7=copyPrivilegesOfStem --paramValue7=true"
+          + "  ", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      systemOut.println(output);
+      
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("SUCCESS_INSERTED", matcher.group(1));
+      //doesnt work
+      //      assertEquals("test:stemDestination:testStemToCopy", matcher.group(2));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveOrCopy")
+              && GrouperClientWs.mostRecentRequest.contains("copy"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveOrCopyToStemName")
+              && GrouperClientWs.mostRecentRequest.contains("test:stemDestination"));
+
+      stemToCopy = StemFinder.findByName(grouperSession, "test:stemDestination:testStemToCopy", false, new QueryOptions().secondLevelCache(false));
+      
+      assertTrue(stemToCopy != null);
+      
+      // #####################################################
+      // run again, with move
+
+      stemToCopy = StemFinder.findByName(grouperSession, "test:stemDestination:testStemToCopy", true, new QueryOptions().secondLevelCache(false));
+      
+      if (stemToCopy != null) {
+        stemToCopy.delete();
+      }
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=stemSaveWs --name=test:testStemToCopy --paramName0=moveOrCopy --paramValue0=move "
+          + "--paramName1=moveOrCopyToStemUuid --paramValue1=" + toStem.getUuid() + " "
+          + "--paramName2=moveAssignAlternateName --paramValue2=false", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("SUCCESS_INSERTED", matcher.group(1));
+
+      //doesnt work
+      //      assertEquals("test:stemDestination:testStemToCopy", matcher.group(2));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveOrCopy")
+              && GrouperClientWs.mostRecentRequest.contains("move"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("moveAssignAlternateName")
+              && GrouperClientWs.mostRecentRequest.contains(toStem.getUuid()));
+
+      stemToCopy = StemFinder.findByName(grouperSession, "test:stemDestination:testStemToCopy", false, new QueryOptions().secondLevelCache(false));
+      
+      assertTrue(stemToCopy != null);
+
+      stemToCopy = StemFinder.findByName(grouperSession, "test:testStemToCopy", false, new QueryOptions().secondLevelCache(false));
+      
+      assertTrue(stemToCopy == null);
+
+    } finally {
+      
+    }
+  }
+  
   /**
    * @throws Exception
    */

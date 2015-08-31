@@ -30,7 +30,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -106,7 +105,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
   // STATIC //
   static {
     priv2list.put(  NamingPrivilege.CREATE, Field.FIELD_NAME_CREATORS  );
-    priv2list.put(  NamingPrivilege.STEM  , Field.FIELD_NAME_STEMMERS  );
+    priv2list.put(  NamingPrivilege.STEM_ADMIN  , Field.FIELD_NAME_STEM_ADMINS  );
     priv2list.put(  NamingPrivilege.STEM_ATTR_READ  , Field.FIELD_NAME_STEM_ATTR_READERS  );
     priv2list.put(  NamingPrivilege.STEM_ATTR_UPDATE  , Field.FIELD_NAME_STEM_ATTR_UPDATERS  );
   } // static
@@ -130,8 +129,8 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
    * Get all stems where this subject has this privilege.
    * <pre class="eg">
    * try {
-   *   Set isStemmer = np.getStemsWhereSubjectHasPriv(
-   *     s, subj, NamingPrivilege.STEM
+   *   Set isStemAdmin = np.getStemsWhereSubjectHasPriv(
+   *     s, subj, NamingPrivilege.STEM_ADMIN
    *   );
    * }
    * catch (SchemaException e0) {
@@ -272,7 +271,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
    * Check whether the subject has this privilege on this stem.
    * <pre class="eg">
    * try {
-   *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM);
+   *   np.hasPriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (SchemaException e) {
    *   // Invalid privilege
@@ -386,7 +385,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
    * Revoke this privilege from everyone on this stem.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, NamingPrivilege.STEM);
+   *   np.revokePriv(s, ns, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (InsufficientPrivilegeException eIP) {
    *   // Not privileged to revoke the privilege
@@ -427,7 +426,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
    * Revoke the privilege from the subject on this stem.
    * <pre class="eg">
    * try {
-   *   np.revokePriv(s, ns, subj, NamingPrivilege.STEM);
+   *   np.revokePriv(s, ns, subj, NamingPrivilege.STEM_ADMIN);
    * }
    * catch (InsufficientPrivilegeException e0) {
    *   // Not privileged to grant the privilege

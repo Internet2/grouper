@@ -1652,7 +1652,7 @@ public class MultiThreadedHttpConnectionManager implements HttpConnectionManager
         }
 
         /* (non-Javadoc)
-         * @see org.apache.commons.httpclient.HttpConnection#print(java.lang.String, java.lang.String)
+         * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpConnection#print(java.lang.String, java.lang.String)
          */
         public void print(String data, String charset) throws IOException, IllegalStateException {
             if (hasConnection()) {
@@ -1663,7 +1663,7 @@ public class MultiThreadedHttpConnectionManager implements HttpConnectionManager
         }
 
         /* (non-Javadoc)
-         * @see org.apache.commons.httpclient.HttpConnection#printLine(java.lang.String, java.lang.String)
+         * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpConnection#printLine(java.lang.String, java.lang.String)
          */
         public void printLine(String data, String charset)
             throws IOException, IllegalStateException {
@@ -1675,7 +1675,7 @@ public class MultiThreadedHttpConnectionManager implements HttpConnectionManager
         }
 
         /* (non-Javadoc)
-         * @see org.apache.commons.httpclient.HttpConnection#setSocketTimeout(int)
+         * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpConnection#setSocketTimeout(int)
          */
         public void setSocketTimeout(int timeout) throws SocketException, IllegalStateException {
             if (hasConnection()) {

@@ -690,7 +690,7 @@ public class IndexContainer {
    * paging for my activity
    */
   private GuiPaging myActivityGuiPaging = null;
-
+  
   /**
    * gui object favorite results from my favorites
    */
@@ -1026,7 +1026,26 @@ public class IndexContainer {
     this.myServicesGuiPaging = myServicesGuiPaging1;
   }
 
-  
-  
-  
+  /**
+   * Decide if the browser folder/group pane should auto-select
+   * the currently selected object in the view.
+   */
+  public boolean isMenuRefreshOnView() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.refresh.menu.on.view", true);
+  }
+
+  /**
+   * Should the admin ui link the displayed under quick links?
+   */
+  public boolean isAdminUIQuickLinkDisplayed() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", true);
+  }
+
+  /**
+   * Should the lite ui link the displayed under quick links?
+   */
+  public boolean isLiteUIQuickLinkDisplayed() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.liteui", true);
+  }
+
 }

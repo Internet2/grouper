@@ -1,9 +1,11 @@
+<!-- ./webapp/WEB-INF/grouperUi2/stem/stemMoreActionsButtonContents.jsp -->
+
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
                     <!-- start stem/stemMoreActionsButtonContents.jsp -->
 
                     <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
-                      <%-- on the privs tab, show the add member button --%>            
+                      <%-- on the privs tab, show the add member button --%>
                       <c:choose>
                         <c:when test="${grouperRequestContainer.stemContainer.showAddMember}">
                           <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['stemViewMoreActionsAddMembers'] }</a>
@@ -13,40 +15,49 @@
                         </c:otherwise>
                       </c:choose>
                     </c:if>
-                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['stemViewMoreActionsButton'] } <span class="caret"></span></a>
+                    <%-- HJ 20150319 
+                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">More actions<span class="caret"></span></a>
+                    --%>
+                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['stemViewMoreActionsButton'] }<span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>
                           <c:when test="${grouperRequestContainer.stemContainer.favorite}">
-                            <li><a href="#" 
-                            onclick="ajax('../app/UiV2Stem.removeFromMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" 
-                            >${textContainer.text['stemViewMoreActionsRemoveFromMyFavorites'] }</a></li>
+                            <li><a href="#"
+                            onclick="ajax('../app/UiV2Stem.removeFromMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                            <%-- HJ 20150319 
+                            >Remove from my favorites</a></li>
+                            --%>
+                            >${textContainer.text['stemViewMoreActionsRemoveFromMyFavorites']}</a></li>
                           </c:when>
                           <c:otherwise>
-                            <li><a href="#" 
-                            onclick="ajax('../app/UiV2Stem.addToMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;" 
-                            >${textContainer.text['stemViewMoreActionsAddToMyFavorites'] }</a></li>
+                            <li><a href="#"
+                            onclick="ajax('../app/UiV2Stem.addToMyFavorites?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                            <%-- HJ 20150319 
+                            >Add to my favorites</a></li>
+                            --%>
+                            >${textContainer.text['stemViewMoreActionsAddToMyFavorites']}</a></li>
                           </c:otherwise>
                         </c:choose>
 
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canCreateGroups }">
 
                           <li class="divider"></li>
-                        </c:if>  
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
-                          <li><a href="#" 
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.stemContainer.canCreateStems }">
+                          <li><a href="#"
                           onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
 
-                        </c:if>  
+                        </c:if>
                         <c:if test="${grouperRequestContainer.stemContainer.canCreateGroups }">
 
-                          <li><a href="#" 
+                          <li><a href="#"
                             onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a></li>
 
-                        </c:if>  
+                        </c:if>
 
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
-  
+
                           <li class="divider"></li>
 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
@@ -66,4 +77,3 @@
                       </ul>
                     </div>
 
-                    

@@ -700,6 +700,11 @@ public class ChangeLogTempToEntity {
     String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectId);
     String subjectSourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectSourceId);
     String subjectTypeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId);
+    String subjectIdentifier0 = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectIdentifier0);
+    if (GrouperUtil.isEmpty(subjectIdentifier0)) {
+      subjectIdentifier0 = null;
+    }
+    
     Long time = changeLogEntry.getCreatedOnDb();
 
     PITMember existing = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(id, false);
@@ -713,6 +718,7 @@ public class ChangeLogTempToEntity {
     pitMember.setSubjectId(subjectId);
     pitMember.setSubjectSourceId(subjectSourceId);
     pitMember.setSubjectTypeId(subjectTypeId);
+    pitMember.setSubjectIdentifier0(subjectIdentifier0);
     pitMember.setActiveDb("T");
     pitMember.setStartTimeDb(time);
 
@@ -735,7 +741,8 @@ public class ChangeLogTempToEntity {
 
     if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectId") ||
         changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectSourceId") ||
-        changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectTypeId")) {
+        changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectTypeId") ||
+        changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectIdentifier0")) {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectId.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name());
@@ -746,6 +753,11 @@ public class ChangeLogTempToEntity {
       pitMember.setSubjectId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
       pitMember.setSubjectSourceId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
       pitMember.setSubjectTypeId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      String subjectIdentifier0 = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0);
+      if (GrouperUtil.isEmpty(subjectIdentifier0)) {
+        subjectIdentifier0 = null;
+      }
+      pitMember.setSubjectIdentifier0(subjectIdentifier0);
       pitMember.setContextId(contextId);
       pitMember.saveOrUpdate();
     }

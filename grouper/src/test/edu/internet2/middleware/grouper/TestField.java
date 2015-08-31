@@ -139,7 +139,7 @@ public class TestField extends TestCase {
     FieldHelper.testField( 
       (Field) iter.next()   , 
       Field.FIELD_NAME_CREATORS            , FieldType.NAMING,
-      NamingPrivilege.STEM  , NamingPrivilege.STEM
+      NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
     );
     FieldHelper.testField( 
         (Field) iter.next()   , 
@@ -173,19 +173,19 @@ public class TestField extends TestCase {
     );
     FieldHelper.testField( 
         (Field) iter.next()   , 
+        Field.FIELD_NAME_STEM_ADMINS            , FieldType.NAMING,
+        NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
         Field.FIELD_NAME_STEM_ATTR_READERS          , FieldType.NAMING,
-        NamingPrivilege.STEM  , NamingPrivilege.STEM
+        NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
       );
     FieldHelper.testField( 
         (Field) iter.next()   , 
         Field.FIELD_NAME_STEM_ATTR_UPDATERS            , FieldType.NAMING,
-        NamingPrivilege.STEM  , NamingPrivilege.STEM
+        NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
       );
-    FieldHelper.testField( 
-      (Field) iter.next()   , 
-      Field.FIELD_NAME_STEMMERS            , FieldType.NAMING,
-      NamingPrivilege.STEM  , NamingPrivilege.STEM
-    );
     FieldHelper.testField( 
       (Field) iter.next()   , 
       Field.FIELD_NAME_UPDATERS            , FieldType.ACCESS,

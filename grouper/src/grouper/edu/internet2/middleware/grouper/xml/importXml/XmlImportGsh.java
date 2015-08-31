@@ -130,6 +130,13 @@ public class XmlImportGsh {
       xmlImportMain.processXml(file);
       
       
+    } catch (Exception e) {      
+      if (GrouperUtil.getFullStackTrace(e).contains("groupTypeUuid")) {
+        System.err.println("ERROR: It appears you are trying to import an XML file that was exported from Grouper 2.1 or before. " +
+        		"This is not supported.  Please upgrade instead using the procedure documented in the release notes.");
+      } else {
+        throw new RuntimeException(e);
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

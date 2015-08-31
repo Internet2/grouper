@@ -237,6 +237,7 @@ public class XmlExportMember {
     member.setSubjectSourceId(this.sourceId);
     member.setSubjectTypeId(this.subjectType);
     member.setUuid(this.uuid);
+    member.setSubjectIdentifier0(this.subjectIdentifier0);
     member.setSortString0(this.sortString0);
     member.setSortString1(this.sortString1);
     member.setSortString2(this.sortString2);
@@ -312,6 +313,9 @@ public class XmlExportMember {
   
   /** contextId */
   private String contextId;
+  
+  /** subjectIdentifier0 */
+  private String subjectIdentifier0;
   
   /** string that can be used to sort results */
   private String sortString0;
@@ -466,7 +470,21 @@ public class XmlExportMember {
   }
   
   
+  /**
+   * @return the subjectIdentifier0
+   */
+  public String getSubjectIdentifier0() {
+    return subjectIdentifier0;
+  }
+  
+  /**
+   * @param subjectIdentifier0 the subjectIdentifier0 to set
+   */
+  public void setSubjectIdentifier0(String subjectIdentifier0) {
+    this.subjectIdentifier0 = subjectIdentifier0;
+  }
 
+  
   
   /**
    * @return the sortString0

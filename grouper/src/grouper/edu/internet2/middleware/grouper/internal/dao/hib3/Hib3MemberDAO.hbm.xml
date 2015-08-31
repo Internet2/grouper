@@ -103,6 +103,8 @@
 
     <property name="contextId" column="context_id"/>
 
+    <property name="subjectIdentifier0" column="subject_identifier0"/>
+
     <property name="sortString0" column="sort_string0"/>
     <property name="sortString1" column="sort_string1"/>
     <property name="sortString2" column="sort_string2"/>

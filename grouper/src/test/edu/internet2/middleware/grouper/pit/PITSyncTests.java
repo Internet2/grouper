@@ -40,7 +40,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -119,7 +122,7 @@ public class PITSyncTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITSyncTests("testNotifications"));
+    TestRunner.run(new PITSyncTests("testSubjectIdentifierUpdate"));
   }
 
   
@@ -583,6 +586,7 @@ public class PITSyncTests extends GrouperTest {
       assertEquals(((Group)role).toMember().getSubjectId(), pitMember.getSubjectId());
       assertEquals(((Group)role).toMember().getSubjectSourceId(), pitMember.getSubjectSourceId());
       assertEquals(((Group)role).toMember().getSubjectTypeId(), pitMember.getSubjectTypeId());
+      assertEquals(((Group)role).toMember().getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
       assertEquals("T", pitMember.getActiveDb());
       assertTrue(pitMember.getStartTimeDb().longValue() > startTime);
       assertTrue(pitMember.getStartTimeDb().longValue() < endTime);
@@ -882,6 +886,7 @@ public class PITSyncTests extends GrouperTest {
       assertEquals(newMember1.getSubjectId(), pitMember.getSubjectId());
       assertEquals(newMember1.getSubjectSourceId(), pitMember.getSubjectSourceId());
       assertEquals(newMember1.getSubjectTypeId(), pitMember.getSubjectTypeId());
+      assertEquals(newMember1.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
       assertEquals("F", pitMember.getActiveDb());
       assertTrue(pitMember.getStartTimeDb().longValue() < startTime);
       assertTrue(pitMember.getEndTimeDb().longValue() > startTime);
@@ -1052,6 +1057,7 @@ public class PITSyncTests extends GrouperTest {
       assertEquals(newMember1.getSubjectId(), pitMember.getSubjectId());
       assertEquals(newMember1.getSubjectSourceId(), pitMember.getSubjectSourceId());
       assertEquals(newMember1.getSubjectTypeId(), pitMember.getSubjectTypeId());
+      assertEquals(newMember1.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
       assertEquals("T", pitMember.getActiveDb());
       assertTrue(pitMember.getStartTimeDb().longValue() > startTime);
       assertTrue(pitMember.getStartTimeDb().longValue() < endTime);
@@ -1379,5 +1385,73 @@ public class PITSyncTests extends GrouperTest {
     
     newPitGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set");
     assertEquals(pitGroupSetCount, newPitGroupSetCount);
+  }
+  
+  /**
+   * 
+   */
+  public void testSubjectIdentifierUpdate() {
+    new SyncPITTables().showResults(false).syncAllPITTables();
+    grouperSession = GrouperSession.startRootSession();
+    addData();
+    ChangeLogTempToEntity.convertRecords();
+
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getId(), true);
+    assertEquals("id.test.subject.1", member.getSubjectIdentifier0());
+    assertEquals("id.test.subject.1", pitMember.getSubjectIdentifier0());
+    
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+
+    // ok now put a bad value in the db.
+    HibernateSession.byHqlStatic().createQuery("update Member set subject_identifier0='bad' where subject_identifier0='id.test.subject.1'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("update PITMember set subject_identifier0='bad' where subject_identifier0='id.test.subject.1'").executeUpdate();
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+
+    // sync still good
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    assertEquals(0, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp"));
+
+    // now correct it in members table
+    member.updateMemberAttributes(SubjectTestHelper.SUBJ1, true);
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    // sync still good
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    assertEquals(1, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp"));
+    
+    // confirm change log entry
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertEquals(member.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+    assertEquals("subjectIdentifier0", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+    assertEquals("bad", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+    assertEquals("id.test.subject.1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    
+    // delete the change log so it becomes a bad member
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+
+    // now fix
+    assertEquals(1, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
+    // and verify
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getId(), true);
+    assertEquals("id.test.subject.1", member.getSubjectIdentifier0());
+    assertEquals("id.test.subject.1", pitMember.getSubjectIdentifier0());
   }
 }

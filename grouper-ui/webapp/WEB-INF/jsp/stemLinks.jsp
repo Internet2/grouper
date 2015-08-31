@@ -17,7 +17,7 @@
 
 <br/>
 <div class="linkButton">
-<c:if test="${browsePrivs.stem && !empty currentLocation.id}">
+<c:if test="${browsePrivs.stemAdmin && !empty currentLocation.id}">
 <div style="margin-bottom: 10px;">
   <tiles:insert definition="selectStemPrivilegeDef"/>
 </div>
@@ -25,27 +25,27 @@
 <c:if test="${!currentLocation.isRootStem}">
 <html:link page="/addSavedStem.do" name="saveStemParams"><grouper:message key="saved-stems.add.stem" /></html:link>
 </c:if>
-<c:if test="${browsePrivs.stem && !empty currentLocation.id}">
+<c:if test="${browsePrivs.stemAdmin && !empty currentLocation.id}">
 <html:link page="/populateEditStem.do"><grouper:message key="stems.action.edit"/></html:link>
 </c:if>
 
 
 
 
-<c:if test="${!stemHasChildren && browsePrivs.stem}"> 
+<c:if test="${!stemHasChildren && browsePrivs.stemAdmin}"> 
 <html:link page="/deleteStem.do?${csrf:token()}" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message key="stems.action.delete" /></html:link>
 </c:if>
-<c:if test="${browsePrivs.stem}"> 
+<c:if test="${browsePrivs.create || browsePrivs.stemAdmin}"> 
 <html:link page="/populateCreateStem.do"><grouper:message key="stems.action.create"/></html:link>
 </c:if>
-<c:if test="${browsePrivs.create || browsePrivs.stem}"> 
+<c:if test="${browsePrivs.create || browsePrivs.stemAdmin}"> 
 <html:link page="/populateCreateGroup.do" ><grouper:message key="groups.action.create"/></html:link>
 </c:if>
 <c:if test="${showStemMovesCopies}">
 <html:link page="/populateMovesCopiesLinks.do" name="stemMovesCopiesParams"><grouper:message key="stems.action.movesandcopies"/></html:link>
 </c:if>
 
-<c:if test="${browsePrivs.stem || browsePrivs.create}"> 
+<c:if test="${browsePrivs.stemAdmin || browsePrivs.create}"> 
 <jsp:useBean id="auditParams" class="java.util.HashMap" scope="page"></jsp:useBean>
 		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
 		<c:set target="${auditParams}" property="stemId" value="${currentLocation.id}"/>

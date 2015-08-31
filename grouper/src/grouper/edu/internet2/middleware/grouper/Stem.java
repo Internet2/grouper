@@ -654,8 +654,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             StopWatch sw = new StopWatch();
             sw.start();
             GrouperSession.validate(GrouperSession.staticGrouperSession());
-            if ( !PrivilegeHelper.canStem( Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", " + Stem.this.getName());
+            if ( !PrivilegeHelper.canStemAdmin( Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+              throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN + ", " + Stem.this.getName());
             }
             DeleteStemValidator v = DeleteStemValidator.validate(Stem.this);
             if (v.isInvalid()) {
@@ -1175,8 +1175,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public void addAlternateName(String alternateName) {
     
-    if (!PrivilegeHelper.canStem(this, GrouperSession.staticGrouperSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    if (!PrivilegeHelper.canStemAdmin(this, GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN);
     }
     
     // verify that if the property security.stem.groupAllowedToRenameStem is set,
@@ -1226,8 +1226,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public boolean deleteAlternateName(String alternateName) {
     
-    if (!PrivilegeHelper.canStem(this, GrouperSession.staticGrouperSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    if (!PrivilegeHelper.canStemAdmin(this, GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN);
     }
     
     // verify that if the property security.stem.groupAllowedToRenameStem is set,
@@ -1267,7 +1267,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public Set getStemmers() 
     throws  GrouperException
   {
-    return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM);
+    return getStemAdmins();
+  } 
+  
+  /**
+   * Get subjects with STEM_ADMIN privilege on this stem.
+   * <pre class="eg">
+   * Set stemAdmins = ns.getStemAdmins();
+   * </pre>
+   * @return  Set of {@link Subject} objects
+   * @throws  GrouperException
+   */
+  public Set getStemAdmins() 
+    throws  GrouperException
+  {
+    return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM_ADMIN);
   } 
   
   /**
@@ -1497,11 +1511,27 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    *   // Does not have STEM
    * } 
    * </pre>
-   * @param   subj  heck whether this subject has STEM.
+   * @param   subj  check whether this subject has STEM.
    * @return  Boolean true if the subject has STEM.
    */
   public boolean hasStem(Subject subj) {
-    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM);
+    return hasStemAdmin(subj);
+  } 
+  
+  /**
+   * Check whether a member has the STEM_ADMIN privilege on this stem.
+   * <pre class="eg">
+   * if (ns.hasStemAdmin(subj)) {
+   *   // Has STEM_ADMIN
+   * }
+   *   // Does not have STEM_ADMIN
+   * } 
+   * </pre>
+   * @param   subj  check whether this subject has STEM_ADMIN.
+   * @return  Boolean true if the subject has STEM_ADMIN.
+   */
+  public boolean hasStemAdmin(Subject subj) {
+    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM_ADMIN);
   } 
  
   /**
@@ -1512,8 +1542,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public boolean hasPrivilege(Subject subject, String privilegeOrListName) {
     if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getName()) 
-        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())) {
-      return this.hasStem(subject);
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ADMIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ADMIN.getListName())) {
+      return this.hasStemAdmin(subject);
     }
     if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getName()) 
         || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
@@ -1781,8 +1813,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( !PrivilegeHelper.canStem( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    if ( !PrivilegeHelper.canStemAdmin( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN);
     }
     try {
       this.setDescriptionDb(value);
@@ -1922,8 +1954,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         throw new StemModifyException( nv.getErrorMessage() );
       }
     }
-    if ( !PrivilegeHelper.canStem( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    if ( !PrivilegeHelper.canStemAdmin( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN);
     }
     try {
       this.setDisplayExtensionDb(value);
@@ -2021,8 +2053,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         throw new StemModifyException( nv.getErrorMessage() );
       }
     }
-    if ( !PrivilegeHelper.canStem( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    if ( !PrivilegeHelper.canStemAdmin( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN);
     }
     
     // verify that if the property security.stem.groupAllowedToRenameStem is set,
@@ -2703,8 +2735,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
                   StopWatch sw = new StopWatch();
                   sw.start();
-                  if ( !GrouperLoader.isDryRun() && !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
-                    throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
+                  if ( !GrouperLoader.isDryRun() && !PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), Stem.this, session.getSubject())) {
+                    throw new InsufficientPrivilegeException(E.CANNOT_CREATE + ", "
                         + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
                         + dExtn + ", uuid: " + uuid + ", subject: " + session.getSubject());
                   } 
@@ -2898,7 +2930,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   {
     try {
       GrouperSession.staticGrouperSession().internal_getRootSession().getNamingResolver().grantPrivilege(
-        ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM, null
+        ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, null
       );
 
       // Now optionally grant other privs
@@ -2906,7 +2938,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
       );
       this._grantOptionalPrivUponCreate(
-        ns, NamingPrivilege.STEM, GrouperConfig.SCGAS
+        ns, NamingPrivilege.STEM_ADMIN, GrouperConfig.SCGASA
       );
       this._grantOptionalPrivUponCreate(
           ns, NamingPrivilege.STEM_ATTR_READ, GrouperConfig.SCGASAR
@@ -3144,7 +3176,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
               try {
                 Stem.this.revokePriv(NamingPrivilege.CREATE);
-                Stem.this.revokePriv(NamingPrivilege.STEM);
+                Stem.this.revokePriv(NamingPrivilege.STEM_ADMIN);
                 Stem.this.revokePriv(NamingPrivilege.STEM_ATTR_READ);
                 Stem.this.revokePriv(NamingPrivilege.STEM_ATTR_UPDATE);
                 return null;
@@ -3878,15 +3910,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             }
 
             // verify that the subject has stem privileges to the stem
-            if (!PrivilegeHelper.canStem(Stem.this, GrouperSession.staticGrouperSession()
+            if (!PrivilegeHelper.canStemAdmin(Stem.this, GrouperSession.staticGrouperSession()
                 .getSubject())) {
-              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ": " + Stem.this.getName());
+              throw new InsufficientPrivilegeException(E.CANNOT_STEM_ADMIN + ": " + Stem.this.getName());
             }
 
             // verify that the subject can create stems in the stem where this stem will be moved to.
-            if (!PrivilegeHelper.canStem(stem, GrouperSession.staticGrouperSession()
+            if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), stem, GrouperSession.staticGrouperSession()
                 .getSubject())) {
-              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ": " + stem.getName());
+              throw new InsufficientPrivilegeException(E.CANNOT_CREATE + ": " + stem.getName());
             }
             
             // verify that if the property security.stem.groupAllowedToMoveStem is set,
@@ -4028,7 +4060,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
                 .findAllChildGroups(Stem.this, Stem.Scope.SUB)) {
               Group newChild = child.internal_copy(oldStemUuidToNewStem.get(child
                   .getParentUuid()), privilegesOfGroup, groupAsPrivilege,
-                  listMembersOfGroup, listGroupAsMember, attributes, false, false, false);
+                  listMembersOfGroup, listGroupAsMember, attributes, false, false, false, null, null);
               oldGroupUuidToNewGroup.put(child.getUuid(), newChild);
               
               Composite oldComposite = GrouperDAOFactory.getFactory().getComposite()
@@ -4688,12 +4720,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     if (secure) {
-      PrivilegeHelper.dispatch(grouperSession, this, grouperSession.getSubject(), NamingPrivilege.STEM);
+      PrivilegeHelper.dispatch(grouperSession, this, grouperSession.getSubject(), NamingPrivilege.STEM_ADMIN);
     }
     
     if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getName()) 
-        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())) {
-      return PrivilegeHelper.canStem(grouperSession, this, subject);
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM.getListName())
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ADMIN.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ADMIN.getListName())) {
+      return PrivilegeHelper.canStemAdmin(grouperSession, this, subject);
     }
     if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getName()) 
         || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
@@ -4715,14 +4749,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * grant privs to stem
    * @param subject to add
    * @param createChecked
-   * @param stemChecked
+   * @param stemAdminChecked
    * @param attrReadChecked
    * @param attrUpdateChecked
    * @param revokeIfUnchecked
    * @return if something was changed
    */
   public boolean grantPrivs(final Subject subject,
-      final boolean stemChecked,
+      final boolean stemAdminChecked,
       final boolean createChecked, final boolean attrReadChecked,
       final boolean attrUpdateChecked, final boolean revokeIfUnchecked) {
     
@@ -4735,11 +4769,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         boolean hadChange = false;
         
         //see if add or remove
-        if (stemChecked) {
-          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM, false);
+        if (stemAdminChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM_ADMIN, false);
         } else {
           if (revokeIfUnchecked) {
-            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM, false);
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM_ADMIN, false);
           }
         }
 

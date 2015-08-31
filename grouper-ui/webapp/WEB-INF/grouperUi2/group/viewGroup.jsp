@@ -21,6 +21,14 @@
                   <c:when test="${grouperRequestContainer.groupContainer.canRead}">
 
                     <p class="lead">${textContainer.text['groupViewMembersDescription'] }</p>
+                    
+                    <c:if test="${mediaMap['uiV2.group.show.compositeAndFactors']=='true' && grouperRequestContainer.groupContainer.guiGroup.group.hasComposite}" >
+
+                      <p class="compositeInfo">${textContainer.text['groupLabelCompositeOwnerMainPanel'] }
+                      ${grouperRequestContainer.groupContainer.guiGroup.compositeOwnerText}</p>
+                      
+                    </c:if>
+                    
                     <form class="form-inline form-small form-filter" id="groupFilterFormId">
                       <div class="row-fluid">
                         <div class="span1">
@@ -64,5 +72,7 @@
 
               </div>
             </div>
-            <script>dojoInitMenu();</script>
+
+            <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
+
             <!-- end group/viewGroup.jsp -->

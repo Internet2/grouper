@@ -119,6 +119,8 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_UPDATE, "memberId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, "memberId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_EXPORT, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_IMPORT, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_ADD, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_ADD, "memberId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_UPDATE, "groupId");

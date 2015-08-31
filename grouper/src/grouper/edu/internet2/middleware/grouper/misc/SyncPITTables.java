@@ -1067,6 +1067,7 @@ public class SyncPITTables {
         pitMember.setSubjectId(member.getSubjectIdDb());
         pitMember.setSubjectSourceId(member.getSubjectSourceIdDb());
         pitMember.setSubjectTypeId(member.getSubjectTypeId());
+        pitMember.setSubjectIdentifier0(member.getSubjectIdentifier0());
         
         if (!GrouperUtil.isEmpty(member.getContextId())) {
           pitMember.setContextId(member.getContextId());

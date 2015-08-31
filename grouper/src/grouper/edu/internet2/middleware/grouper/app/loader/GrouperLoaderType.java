@@ -23,6 +23,7 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -34,9 +35,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -54,6 +55,9 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
@@ -2006,6 +2010,32 @@ public enum GrouperLoaderType {
       String groupExtension = StringUtils.isBlank(groupDisplayNameForInsert) ? GrouperUtil.extensionFromName(groupName) : 
         GrouperUtil.extensionFromName(groupDisplayNameForInsert);
       
+      //https://bugs.internet2.edu/jira/browse/GRP-1091
+      String[] displayNameChangesAllowedUnder = GrouperUtil.splitTrim(GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.allowStemDisplayNameChangesUnderStems", ""), ",");
+      if (!ArrayUtils.isEmpty(displayNameChangesAllowedUnder) && !StringUtils.isBlank(groupDisplayNameForInsert) 
+            && groupName.contains(":") && groupDisplayNameForInsert.contains(":")) {
+        String[] stems = groupName.split(":");
+        String[] displayNamesStems = groupDisplayNameForInsert.split(":");
+        if (stems.length == displayNamesStems.length) {
+          String stemName = "";
+          String displayName = "";
+          for(int i=0; i<stems.length; i++) {
+            stemName = stemName.equals("") ? stems[i]: (stemName+":"+stems[i]);
+            displayName = displayName.equals("") ? displayNamesStems[i]: (displayName+":"+displayNamesStems[i]);
+            Stem stem = StemFinder.findByName(grouperSession, stemName, false);
+            if (stem != null && !stem.getDisplayName().equals(displayName) && isChangeAllowed(displayNameChangesAllowedUnder, stemName)) {
+              StemSave stemSave = new StemSave(grouperSession)
+              .assignUuid(stem.getId())
+              .assignName(stem.getName())
+              .assignSaveMode(SaveMode.UPDATE)
+              .assignDisplayName(displayName)
+              .assignDisplayExtension(displayNamesStems[i]);
+              stem = stemSave.save();
+            }
+          }
+        }
+      }
+      
       Group theGroup = null;
       if (groupList) {
         GroupSave groupSave = new GroupSave(grouperSession);
@@ -2153,6 +2183,8 @@ public enum GrouperLoaderType {
         }
         
       }
+
+      int originalGroupSize = currentMembers.size();
       
       //now lets remove data from each since the member is there and is supposed to be there
       Iterator<LoaderMemberWrapper> iterator = currentMembers.iterator();
@@ -2262,6 +2294,20 @@ public enum GrouperLoaderType {
       
       //here are members to remove
       final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
+   
+      // GRP-1130
+      if(shouldAbortDueToTooManyMembersRemoved(originalGroupSize, membersToRemove.size())) {
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        hib3GrouploaderLog.insertJobMessage("Can't remove "
+            + membersToRemove.size() + " members from " + theGroup.getName() + " (originalGroupSize: "
+            + originalGroupSize + ") "
+            + " unless loader.failsafe.use is false, or loader.failsafe.minGroupSize "
+            + " or loader.failsafe.maxPercentRemove properties are changed.");
+        hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+        hib3GrouploaderLog.store();
+        return;
+      } 
+      
       numberOfRows = currentMembers.size();
       count = 1;
       //first remove members
@@ -2403,7 +2449,37 @@ public enum GrouperLoaderType {
       }
     }
   }
+  
+  private static boolean isChangeAllowed(String[] changeAllowedUnder, String stemNameToBeChanged) {
+    for(String stemUnderWhichChangeAllowed: changeAllowedUnder) {
+      String stemUnderWhichChangeAllowedNoSpace = stemUnderWhichChangeAllowed.trim();
+      if ( (stemNameToBeChanged.length() - stemUnderWhichChangeAllowedNoSpace.length() > 2)  
+          && (stemNameToBeChanged.startsWith(stemUnderWhichChangeAllowedNoSpace))  
+          && (stemNameToBeChanged.charAt(stemUnderWhichChangeAllowedNoSpace.length()) == ':') ) { 
+            return true;
+      }
+    }
+    return false;
+  }
 
+  /**
+   * see if too many members are being removed and if we should abort this job
+   * @param originalGroupSize
+   * @param membersToRemoveSize
+   * @return true if should abort
+   */
+  private static boolean shouldAbortDueToTooManyMembersRemoved(final int originalGroupSize, final int membersToRemoveSize) {
+    
+    //maybe dont use this feature
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.failsafe.use", false)) {
+      return false;
+    }
+    
+    //must be a group of a minimum size, and not so many members removed
+    return originalGroupSize >= GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.minGroupSize")
+        && ((membersToRemoveSize * 100)/originalGroupSize)  > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.maxPercentRemove");
+  }
+  
   /**
    * get an attribute value, or null, or a default if exists
    * @param attributeAssign

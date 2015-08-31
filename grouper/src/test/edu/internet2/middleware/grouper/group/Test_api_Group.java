@@ -107,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_minimum_as_nonadmin_insufficient_privileges"));
+    TestRunner.run(new Test_api_Group("test_copy_same_stem"));
   }
   
   private Group           top_group, child_group;
@@ -1059,6 +1059,70 @@ public class Test_api_Group extends GrouperTest {
   /**
    * 
    */
+  public void test_copy_new_extension() {
+    Group newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
+    
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
+
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.3"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_new_display_extension() {
+    Group newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:child group"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+    
+    newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:child group.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+
+    newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:child group.3"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_new_extension_and_display_extension() {
+    Group newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+    
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+
+    newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
+    assertTrue(newGroup.getName().equals("top:new extension.3"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_same_stem() {
+    Group newGroup = new GroupCopy(child_group, child).save();
+    assertTrue(newGroup.getName().equals("top:child:child group.2"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child:child group display name"));
+    
+    newGroup = new GroupCopy(child_group, child).setExtension("new extension").save();
+    assertTrue(newGroup.getName().equals("top:child:new extension"));
+    assertTrue(newGroup.getDisplayName().equals("top display name:child:child group display name"));
+  }
+  
+  /**
+   * 
+   */
   public void test_copy_role_with_members() {
     Stem stem1 = root.addChildStem("stem1", "stem1");
     Stem stem2 = root.addChildStem("stem2", "stem2");
@@ -1494,7 +1558,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot read custom list members of group.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    stemmers.setReadPrivilege(NamingPrivilege.STEM);
+    stemmers.setReadPrivilege(NamingPrivilege.STEM_ADMIN);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(stemmers);
     top.revokePriv(child_group.toSubject(), NamingPrivilege.STEM);
     child_group.addType(type1);

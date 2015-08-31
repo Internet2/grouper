@@ -237,7 +237,17 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
       System.out.println("Property: testAutoReload: " + ConfigPropertiesOverrideHasHierarchy.retrieveConfig().propertyValueString("testAutoReload", null));
       GrouperClientUtils.sleep(1000);
     }
-    
   }
+
+    /**
+     *
+     */
+    public void testHooks() {
+      assertFalse("non-existing single class", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks1", Object.class, true));
+      assertFalse("non-existing multiple classes", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks2", Object.class, true));
+      assertTrue("Existing matching type class", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks3", Object.class, true));
+      assertTrue("Existing matching type classes", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks4", Object.class, true));
+      assertTrue("Existing matching type classes with whitespace in config", ConfigPropertiesHooks.retrieveConfig().assertPropertyValueClass("grouper.group.hooks5", Object.class, true));
+    }
   
 }

@@ -53,8 +53,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -73,8 +73,12 @@ import edu.internet2.middleware.subject.SubjectUtils;
 import edu.vt.middleware.ldap.Ldap;
 import edu.vt.middleware.ldap.LdapConfig;
 import edu.vt.middleware.ldap.SearchFilter;
+import edu.vt.middleware.ldap.pool.CompareLdapValidator;
+import edu.vt.middleware.ldap.pool.ConnectLdapValidator;
 import edu.vt.middleware.ldap.pool.DefaultLdapFactory;
 import edu.vt.middleware.ldap.pool.LdapPool;
+import edu.vt.middleware.ldap.pool.LdapPoolConfig;
+import edu.vt.middleware.ldap.pool.LdapValidator;
 import edu.vt.middleware.ldap.pool.SoftLimitLdapPool;
 
 /**
@@ -167,6 +171,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
    
       log.debug("ldap initializeLdap");
       LdapConfig ldapConfig = null;
+      LdapPoolConfig ldapPoolConfig = null;
       String cafile = (String)props.get("pemCaFile");
       String certfile = (String)props.get("pemCertFile");
       String keyfile = (String)props.get("pemKeyFile");
@@ -233,6 +238,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             cafile = (String)props.get("pemCaFile");
             certfile = (String)props.get("pemCertFile");
             keyfile = (String)props.get("pemKeyFile");
+            
+            //GRP-1151
+            ldapPoolConfig = new LdapPoolConfig();
+            ldapPoolConfig.setEnvironmentProperties(properties);
          } catch (FileNotFoundException e) {
             log.error("ldap properties not found: " + e, e);
             throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "' not found!");
@@ -287,11 +296,38 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
       DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
      
       try {
-         ldapPool = new SoftLimitLdapPool(factory);
+
+        String ldapValidator = props.getProperty("VTLDAP_VALIDATOR");
+
+        //if we are validating, we need a validator
+        // https://code.google.com/p/vt-middleware/wiki/vtldapPooling#Validation
+        if (StringUtils.equalsIgnoreCase(ldapValidator, CompareLdapValidator.class.getSimpleName())) {
+          
+          String validationDn = props.getProperty("VTLDAP_VALIDATOR_COMPARE_DN");
+          String validationSearchFilterString = props.getProperty("VTLDAP_VALIDATOR_COMPARE_SEARCH_FILTER_STRING");
+          factory.setLdapValidator(
+              new CompareLdapValidator(
+                validationDn, new SearchFilter(validationSearchFilterString))); // perform a simple compare
+          
+        } else if (StringUtils.equalsIgnoreCase(ldapValidator, ConnectLdapValidator.class.getSimpleName())) {
+          //this is the default, why not
+          factory.setLdapValidator(
+              new ConnectLdapValidator()); // perform a simple connect
+
+        } else if (!StringUtils.isBlank(ldapValidator)) {
+          //get the class
+          Class<LdapValidator<Ldap>> validatorClass = SubjectUtils.forName(ldapValidator);
+          LdapValidator<Ldap> validator = SubjectUtils.newInstance(validatorClass);
+          factory.setLdapValidator(validator);
+        }
+        
+        ldapPool = new SoftLimitLdapPool(ldapPoolConfig != null ? ldapPoolConfig : new LdapPoolConfig(), factory);
+         
+         
          ldapPool.initialize();
          initialized = true;
       } catch (Exception e) {
-         log.error("Error creating ldappool = " + e);
+         log.error("Error creating ldappool = " + e, e);
       }
       log.debug("ldap initialize done");
    }
@@ -466,9 +502,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      * @param attributes
      */
     private Subject createSubject( Attributes attributes) {
-        String name = "";
         String subjectID = "";
-        String description = "";
 
         if (attributes==null) {
            log.error("Ldap createSubject called with null attributes.");
@@ -484,26 +518,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             if (this.subjectIDFormatToLowerCase) {
             	subjectID = subjectID.toLowerCase();
             }
-            attribute = attributes.get(nameAttributeName);
-            if (attribute == null) {
-                if (log.isDebugEnabled()) {
-                log.debug("No immediate value for attribute \"" + nameAttributeName + "\". Will look later.");
-                }
-            } else {
-                name = (String) attribute.get();
-            }
-            attribute = attributes.get(descriptionAttributeName);
-            if (attribute == null) {
-                if (log.isDebugEnabled()) {
-                  log.debug("No immediate value for attribute \"" + descriptionAttributeName + "\". Will look later.");
-                }
-            } else {
-                description   = (String) attribute.get();
-            }
         } catch (NamingException ex) {
             log.error("LDAP Naming Except: " + ex.getMessage(), ex);
         }
-        LdapSubject subject = new LdapSubject(subjectID,  name, description, this.getSubjectType().getName(), this.getId());
+        LdapSubject subject = new LdapSubject(subjectID, null, null, this.getSubjectType().getName(), this.getId(), nameAttributeName, descriptionAttributeName);
  
         // add the attributes
 
@@ -564,10 +582,10 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 // special case the basic ones
                 //if (attrName.equals(subjectIDAttributeName)) continue;  // already have
                 //if (attrName.equals(nameAttributeName)) continue; // already have
-                if (attrName.equals(descriptionAttributeName)) {
+                /*if (attrName.equals(descriptionAttributeName)) {
                    subject.setDescription((String)attr.get());
                    //continue;
-                }
+                }*/
                    
                 Set<String> values = new HashSet<String>();
                 for (NamingEnumeration<?> en = attr.getAll(); en.hasMore(); ) {

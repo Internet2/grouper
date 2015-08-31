@@ -34,7 +34,7 @@
     			<span class="checkbox"><input type="checkbox" name="privileges" 
 				value="create" id="privCreate" <c:out value="${createChecked}"/>/>&#160;<label for="privCreate"><grouper:message key="priv.create"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" 
-				value="stem" id="privStem" <c:out value="${stemChecked}"/>/>&#160;<label for="privStem"><grouper:message key="priv.stem"/></label></span>
+				value="stemAdmin" id="privStemAdmin" <c:out value="${stemAdminChecked}"/>/>&#160;<label for="privStemAdmin"><grouper:message key="priv.stemAdmin"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" 
 				value="stemAttrRead" id="privStemAttrRead" <c:out value="${stemAttrReadChecked}"/>/>&#160;<label for="privStemAttrRead"><grouper:message key="priv.stemAttrRead"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" 

@@ -72,7 +72,7 @@ public class TestXml extends GrouperTest {
 
   public static void main(String[] args) {
     //TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
-    TestRunner.run(new TestXml("testUpdateOkNamingPrivsInReplaceMode"));
+    TestRunner.run(new TestXml("testFullExportFullImportFullNamingPrivs"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestXml.class);

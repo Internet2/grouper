@@ -281,7 +281,7 @@ public class PrivilegeHelper {
   public static boolean canStemAttrRead(GrouperSession s, Stem stem, Subject subj) {
     NamingResolver resolver = s.getNamingResolver();
     return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_READ)
-        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM);
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ADMIN);
   } 
   
   /**
@@ -293,7 +293,7 @@ public class PrivilegeHelper {
   public static boolean canStemAttrUpdate(GrouperSession s, Stem stem, Subject subj) {
     NamingResolver resolver = s.getNamingResolver();
     return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_UPDATE)
-        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM);
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ADMIN);
   } 
 
   /**
@@ -346,7 +346,7 @@ public class PrivilegeHelper {
     // TODO 20070820 deprecate
     // TODO 20070820 perform query for all privs and compare internally
     return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.CREATE)
-        || s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
+        || s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM_ADMIN);
   } 
 
   /**
@@ -465,7 +465,16 @@ public class PrivilegeHelper {
   public static boolean canStem(Stem ns, Subject subj) {
     // TODO 20070820 deprecate
     // TODO 20070820 perform query for all privs and compare internally
-    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
+    return canStemAdmin(ns, subj);
+  } 
+  
+  /**
+   * @param ns
+   * @param subj
+   * @return can stem admin
+   */
+  public static boolean canStemAdmin(Stem ns, Subject subj) {
+    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM_ADMIN);
   } 
   
   /**
@@ -479,7 +488,17 @@ public class PrivilegeHelper {
   public static boolean canStem(GrouperSession s, Stem ns, Subject subj) {
     // TODO 20070820 deprecate
     // TODO 20070820 perform query for all privs and compare internally
-    return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
+    return canStemAdmin(s, ns, subj);
+  } 
+  
+  /**
+   * @param s
+   * @param ns
+   * @param subj
+   * @return can stem admin
+   */
+  public static boolean canStemAdmin(GrouperSession s, Stem ns, Subject subj) {
+    return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM_ADMIN);
   } 
 
   /**
@@ -761,10 +780,10 @@ public class PrivilegeHelper {
         msg = E.CANNOT_CREATE;
       }
     }
-    else if (priv.equals(NamingPrivilege.STEM))   {
-      rv = PrivilegeHelper.canStem(ns, subj);
+    else if (priv.equals(NamingPrivilege.STEM) || priv.equals(NamingPrivilege.STEM_ADMIN))   {
+      rv = PrivilegeHelper.canStemAdmin(ns, subj);
       if (!rv) {
-        msg = E.CANNOT_STEM;
+        msg = E.CANNOT_STEM_ADMIN;
       }
     }
     else if (priv.equals(NamingPrivilege.STEM_ATTR_READ))   {
@@ -1126,8 +1145,7 @@ public class PrivilegeHelper {
 
         case stem:
           if (!PrivilegeHelper.canStemAttrRead(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject()) &&
-              !PrivilegeHelper.canStem(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject()) &&
-              !PrivilegeHelper.canCreate(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject())) {
+              !PrivilegeHelper.canStemAdmin(grouperSession, attributeAssign.getOwnerStem(), grouperSession.getSubject())) {
             return false;
           }
           break;

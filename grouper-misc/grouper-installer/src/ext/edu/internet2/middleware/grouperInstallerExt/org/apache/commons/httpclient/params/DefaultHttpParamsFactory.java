@@ -69,7 +69,7 @@ public class DefaultHttpParamsFactory implements HttpParamsFactory {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.commons.httpclient.params.HttpParamsFactory#getDefaultParams()
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.params.HttpParamsFactory#getDefaultParams()
      */
     public synchronized HttpParams getDefaultParams() {
         if (httpParams == null) {

@@ -58,6 +58,7 @@ import org.apache.ddlutils.platform.SqlBuilder;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
+import org.hibernate.ObjectNotFoundException;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -1477,6 +1478,7 @@ public class GrouperDdlUtils {
           LOG.info("Current java version for ddl '" + objectName + "' is " + ddlJavaVersion);
         }
       } catch (Exception e) {
+
         //just log, maybe the table isnt there
         LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.  " +
         		"info level logging will show underlying reason." + e.getMessage());
@@ -1791,7 +1793,110 @@ public class GrouperDdlUtils {
     return 0;
     
   }
-  
+
+  /**
+   * @param id
+   * @return the ddl
+   */
+  public static Hib3GrouperDdl retrieveDdlByIdFromDatabase(final String id) {
+    try {
+      return HibernateSession.byObjectStatic().load(Hib3GrouperDdl.class, id);
+    } catch (ObjectNotFoundException onfe) {
+      return null;
+    } catch (GrouperDAOException gde) {
+      if (gde.getCause() != null && gde.getCause() instanceof ObjectNotFoundException) {
+        return null;
+      }
+      throw gde;
+    }
+    
+  }
+
+  /**
+   * @param id
+   */
+  public static void deleteDdlById(final String id) {
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where id = ?", GrouperUtil.toListObject(id));
+  }
+
+  /**
+   * delete all utf ddls
+   */
+  public static void deleteUtfDdls() {
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where object_name like 'grouperUtf%'");
+  }
+
+  /**
+   * retrieve a DDL by name
+   * @param objectName
+   * @return the ddl or null
+   */
+  public static Hib3GrouperDdl retrieveDdlByNameFromDatabase(String objectName) {
+    
+    Hib3GrouperDdl hib3GrouperDdl = HibernateSession.byHqlStatic().createQuery(
+        "select theHib3GrouperDdl from Hib3GrouperDdl as theHib3GrouperDdl where objectName = :theObjectName")
+        .setCacheable(false)
+        .setString("theObjectName", objectName).uniqueResult(Hib3GrouperDdl.class);
+
+    return hib3GrouperDdl;
+    
+  }
+
+  /**
+   * store and read a utf string, but dont commit it so its doesnt stay in the database
+   * @param someUtfString
+   * @param id
+   * @param name
+   * @return the ddl if it is found
+   */
+  public static Hib3GrouperDdl storeAndReadUtfString(final String someUtfString,
+      final String id, final String name) {
+    Hib3GrouperDdl grouperDdl = (Hib3GrouperDdl)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Hib3GrouperDdl grouperDdl = storeDdl(hibernateHandlerBean.getHibernateSession(), 
+            id, name, someUtfString);
+
+        hibernateHandlerBean.getHibernateSession().getSession().flush();
+        
+        grouperDdl = hibernateHandlerBean.getHibernateSession().byObject().load(Hib3GrouperDdl.class, id);
+        
+        hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
+        return grouperDdl;
+      }
+
+    });
+    return grouperDdl;
+  }
+
+  /**
+   * @param someUtfString
+   * @param id
+   * @param name
+   * @param hibernateSession
+   * @return the object
+   */
+  public static Hib3GrouperDdl storeDdl(HibernateSession hibernateSession, 
+      final String id,
+      final String name, final String someUtfString) {
+    //try to store to database
+    Hib3GrouperDdl grouperDdl = new Hib3GrouperDdl();
+    
+    grouperDdl.setId(id);
+    grouperDdl.setObjectName(name);
+    grouperDdl.setHistory(someUtfString);
+    
+    hibernateSession.bySql().executeSql(
+        "insert into grouper_ddl (id, object_name, " +
+        "history, db_version) values (?, ?, ?, 0)", GrouperUtil.toListObject(
+            id, name, someUtfString));
+    
+    return grouperDdl;
+  }
+
   /**
    * get all the ddls, put grouper at the front
    * @return the ddls
@@ -1800,6 +1905,16 @@ public class GrouperDdlUtils {
   public static List<Hib3GrouperDdl> retrieveDdlsFromDb() {
 
     List<Hib3GrouperDdl> grouperDdls = HibernateSession.byCriteriaStatic().list(Hib3GrouperDdl.class, null); 
+
+    Iterator<Hib3GrouperDdl> iterator = grouperDdls.iterator();
+
+    //dont look at utf entries if there are any
+    while (iterator.hasNext()) {
+      Hib3GrouperDdl hib3GrouperDdl = iterator.next();
+      if (hib3GrouperDdl.getObjectName() != null && hib3GrouperDdl.getObjectName().toLowerCase().startsWith("grouperutf_")) {
+        iterator.remove();
+      }
+    }
 
     //move the grouper one to the front
     if (grouperDdls != null) {

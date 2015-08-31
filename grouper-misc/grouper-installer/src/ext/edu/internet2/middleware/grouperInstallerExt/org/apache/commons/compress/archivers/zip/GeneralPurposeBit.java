@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one or more
  *  contributor license agreements.  See the NOTICE file distributed with
@@ -35,14 +20,34 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress
 /**
  * Parser/encoder for the "general purpose bit" field in ZIP's local
  * file and central directory headers.
- * @since Apache Commons Compress 1.1
+ * 
+ * @since 1.1
  * @NotThreadSafe
  */
 public final class GeneralPurposeBit {
+
     /**
      * Indicates that the file is encrypted.
      */
     private static final int ENCRYPTION_FLAG = 1 << 0;
+
+    /**
+     * Indicates the size of the sliding dictionary used by the compression method 6 (imploding).
+     * <ul>
+     *   <li>0: 4096 bytes</li>
+     *   <li>1: 8192 bytes</li>
+     * </ul>
+     */
+    private static final int SLIDING_DICTIONARY_SIZE_FLAG = 1 << 1;
+
+    /**
+     * Indicates the number of Shannon-Fano trees used by the compression method 6 (imploding).
+     * <ul>
+     *   <li>0: 2 trees (lengths, distances)</li>
+     *   <li>1: 3 trees (literals, lengths, distances)</li>
+     * </ul>
+     */
+    private static final int NUMBER_OF_SHANNON_FANO_TREES_FLAG = 1 << 2;
 
     /**
      * Indicates that a data descriptor stored after the file contents
@@ -56,7 +61,7 @@ public final class GeneralPurposeBit {
     private static final int STRONG_ENCRYPTION_FLAG = 1 << 6;
 
     /**
-     * Indicates that filenames are written in utf-8.
+     * Indicates that filenames are written in UTF-8.
      *
      * <p>The only reason this is public is that {@link
      * ZipArchiveOutputStream#EFS_FLAG} was public in Apache Commons
@@ -68,6 +73,8 @@ public final class GeneralPurposeBit {
     private boolean dataDescriptorFlag = false;
     private boolean encryptionFlag = false;
     private boolean strongEncryptionFlag = false;
+    private int slidingDictionarySize;
+    private int numberOfShannonFanoTrees;
 
     public GeneralPurposeBit() {
     }
@@ -134,6 +141,20 @@ public final class GeneralPurposeBit {
     }
 
     /**
+     * Returns the sliding dictionary size used by the compression method 6 (imploding).
+     */
+    int getSlidingDictionarySize() {
+        return slidingDictionarySize;
+    }
+
+    /**
+     * Returns the number of trees used by the compression method 6 (imploding).
+     */
+    int getNumberOfShannonFanoTrees() {
+        return numberOfShannonFanoTrees;
+    }
+
+    /**
      * Encodes the set bits in a form suitable for ZIP archives.
      */
     public byte[] encode() {
@@ -150,6 +171,7 @@ public final class GeneralPurposeBit {
 
     /**
      * Parses the supported flags from the given archive data.
+     * 
      * @param data local file header or a central directory entry.
      * @param offset offset at which the general purpose bit starts
      */
@@ -158,9 +180,10 @@ public final class GeneralPurposeBit {
         GeneralPurposeBit b = new GeneralPurposeBit();
         b.useDataDescriptor((generalPurposeFlag & DATA_DESCRIPTOR_FLAG) != 0);
         b.useUTF8ForNames((generalPurposeFlag & UFT8_NAMES_FLAG) != 0);
-        b.useStrongEncryption((generalPurposeFlag & STRONG_ENCRYPTION_FLAG)
-                              != 0);
+        b.useStrongEncryption((generalPurposeFlag & STRONG_ENCRYPTION_FLAG) != 0);
         b.useEncryption((generalPurposeFlag & ENCRYPTION_FLAG) != 0);
+        b.slidingDictionarySize = (generalPurposeFlag & SLIDING_DICTIONARY_SIZE_FLAG) != 0 ? 8192 : 4096;
+        b.numberOfShannonFanoTrees = (generalPurposeFlag & NUMBER_OF_SHANNON_FANO_TREES_FLAG) != 0 ? 3 : 2;
         return b;
     }
 

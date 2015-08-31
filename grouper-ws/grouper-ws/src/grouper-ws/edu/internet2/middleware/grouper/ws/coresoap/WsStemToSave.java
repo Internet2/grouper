@@ -27,6 +27,9 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemCopy;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
@@ -168,6 +171,93 @@ public class WsStemToSave {
     
     return stem;
   }
+
+  /**
+   * move this stem
+   * 
+   * @param grouperSession
+   *            to save
+   * @param toStem
+   * @param moveAssignAlternateName
+   * @return the stem that was moved
+   */
+  public Stem move(GrouperSession grouperSession, Stem toStem, Boolean moveAssignAlternateName) {
+
+    Stem stem = null;
+              
+    this.getWsStemLookup().retrieveStemIfNeeded(grouperSession, true);
+
+    Stem stemLookedup = this.getWsStemLookup().retrieveStem();
+
+    StemMove stemMove = new StemMove(stemLookedup, toStem);
+
+    if (moveAssignAlternateName != null) {
+      stemMove.assignAlternateName(moveAssignAlternateName);
+    }
+    
+    stemMove.save();
+    stem = StemFinder.findByName(grouperSession, toStem.getName() + Stem.DELIM + stemLookedup.getExtension(), true);
+    
+    this.saveResultType = SaveResultType.INSERT;
+    
+    return stem;
+  }
+
+  /**
+   * copy this stem
+   * 
+   * @param grouperSession
+   *            to save
+   * @param toStem
+   * @param copyPrivilegesOfGroup 
+   * @param copyGroupAsPrivilege 
+   * @param copyListMembersOfGroup 
+   * @param copyListGroupAsMember 
+   * @param copyAttributes 
+   * @param moveAssignAlternateName
+   * @param copyPrivilegesOfStem
+   * @return the group that was moved
+   */
+  public Stem copy(GrouperSession grouperSession, Stem toStem, Boolean copyPrivilegesOfGroup,
+      Boolean copyGroupAsPrivilege, Boolean copyListMembersOfGroup, 
+      Boolean copyListGroupAsMember, Boolean copyAttributes, Boolean copyPrivilegesOfStem) {
+
+    Stem stem = null;
+
+    this.getWsStemLookup().retrieveStemIfNeeded(grouperSession, true);
+
+    Stem stemLookedup = this.getWsStemLookup().retrieveStem();
+
+    StemCopy stemCopy = new StemCopy(stemLookedup, toStem);
+
+    if (copyPrivilegesOfGroup != null) {
+      stemCopy.copyPrivilegesOfGroup(copyPrivilegesOfGroup);
+    }
+    if (copyGroupAsPrivilege != null) {
+      stemCopy.copyGroupAsPrivilege(copyGroupAsPrivilege);
+    }
+    if (copyListMembersOfGroup != null) {
+      stemCopy.copyListMembersOfGroup(copyListMembersOfGroup);
+    }
+    if (copyListGroupAsMember != null) {
+      stemCopy.copyListGroupAsMember(copyListGroupAsMember);
+    }
+    if (copyAttributes != null) {
+      stemCopy.copyAttributes(copyAttributes);
+    }
+    if (copyPrivilegesOfStem != null) {
+      stemCopy.copyPrivilegesOfStem(copyPrivilegesOfStem);
+    }
+    
+    stemCopy.save();
+    stem = StemFinder.findByName(grouperSession, toStem.getName() + Stem.DELIM + stemLookedup.getExtension(), true);
+    
+    this.saveResultType = SaveResultType.INSERT;
+    
+    return stem;
+
+  }
+
 
   /**
    * if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)

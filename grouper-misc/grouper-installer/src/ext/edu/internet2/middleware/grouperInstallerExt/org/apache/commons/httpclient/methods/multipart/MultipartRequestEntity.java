@@ -173,14 +173,14 @@ public class MultipartRequestEntity implements RequestEntity {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.commons.httpclient.methods.RequestEntity#writeRequest(java.io.OutputStream)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.methods.RequestEntity#writeRequest(java.io.OutputStream)
      */
     public void writeRequest(OutputStream out) throws IOException {
         Part.sendParts(out, parts, getMultipartBoundary());
     }
 
     /* (non-Javadoc)
-     * @see org.apache.commons.httpclient.methods.RequestEntity#getContentLength()
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.methods.RequestEntity#getContentLength()
      */
     public long getContentLength() {
         try {
@@ -192,7 +192,7 @@ public class MultipartRequestEntity implements RequestEntity {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.commons.httpclient.methods.RequestEntity#getContentType()
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.methods.RequestEntity#getContentType()
      */
     public String getContentType() {
         StringBuffer buffer = new StringBuffer(MULTIPART_FORM_CONTENT_TYPE);

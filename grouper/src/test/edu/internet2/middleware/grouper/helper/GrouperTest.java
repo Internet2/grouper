@@ -80,7 +80,6 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Grouper-specific JUnit assertions.
@@ -758,6 +757,7 @@ public class GrouperTest extends TestCase {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.builtin.createAs.public", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("ddlutils.use.nestedTransactions", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
 
     setupConfigs();
     

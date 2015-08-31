@@ -17,12 +17,14 @@ package edu.internet2.middleware.grouper.member;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -49,7 +51,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testPersonMember"));
+    TestRunner.run(new TestMemberAttributes("testVirtualAttributeInDescription"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -162,6 +164,9 @@ public class TestMemberAttributes extends GrouperTest {
     assertFalse(subj.getAttributes().containsKey("searchAttribute0"));
     assertTrue(subj.getAttributes(false).containsKey("searchAttribute0"));
     
+    // verify subject identifier
+    assertEquals(subj.getAttributeValue("LOGINID"), member.getSubjectIdentifier0());
+    
     // verify that an update will work
     member.setSortString0("bogus");
     member.setSortString1(null);
@@ -204,9 +209,11 @@ public class TestMemberAttributes extends GrouperTest {
     source.addInitParam("searchAttribute3", "searchAttribute3");
     source.addInitParam("subjectVirtualAttribute_4_searchAttribute4", "test8");
     source.addInitParam("searchAttribute4", "searchAttribute4");
+    source.addInitParam("subjectIdentifierAttribute0", "lfname");
     ExpirableCache.clearAll();
     source.setSearchAttributes(null);
     source.setSortAttributes(null);
+    source.setSubjectIdentifierAttributes(null);
     
     Subject subj = SubjectFinder.findById("test.subject.0", true);
     edu.grantPriv(subj, NamingPrivilege.CREATE);
@@ -225,6 +232,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertEquals("test6", member.getSearchString2());
     assertEquals("test7", member.getSearchString3());
     assertEquals("test8", member.getSearchString4());
+    assertEquals(subj.getAttributeValue("lfname"), member.getSubjectIdentifier0());
     
     // reset the state
     source.removeInitParam("subjectVirtualAttribute_2_sortAttribute2");
@@ -241,9 +249,11 @@ public class TestMemberAttributes extends GrouperTest {
     source.removeInitParam("searchAttribute3");
     source.removeInitParam("subjectVirtualAttribute_4_searchAttribute4");
     source.removeInitParam("searchAttribute4");
+    source.removeInitParam("subjectIdentifierAttribute0");
     ExpirableCache.clearAll();
     source.setSearchAttributes(null);
     source.setSortAttributes(null);
+    source.setSubjectIdentifierAttributes(null);
   }
   
   /**
@@ -264,7 +274,8 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
-    
+    assertEquals(GrouperConfig.ROOT, member.getSubjectIdentifier0());
+
     edu.grantPriv(SubjectFinder.findAllSubject(), NamingPrivilege.CREATE);
     member = GrouperDAOFactory.getFactory().getMember().findBySubject(GrouperConfig.ALL, true);
     assertEquals(GrouperConfig.ALL_NAME, member.getName());
@@ -280,7 +291,8 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
-    
+    assertEquals(GrouperConfig.ALL, member.getSubjectIdentifier0());
+
     // verify internal attributes
     assertFalse(SubjectFinder.findAllSubject().getAttributes().containsKey("searchAttribute0"));
     assertTrue(SubjectFinder.findAllSubject().getAttributes(false).containsKey("searchAttribute0"));
@@ -352,6 +364,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
+    assertEquals(group.getName(), member.getSubjectIdentifier0());
     
     // verify internal attributes
     assertFalse(group.toSubject().getAttributes().containsKey("searchAttribute0"));
@@ -513,6 +526,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
+    assertEquals(group.getName(), member.getSubjectIdentifier0());
   }
   
   /**
@@ -543,6 +557,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
+    assertEquals(group.getName(), member.getSubjectIdentifier0());
   }
   
   /**
@@ -575,6 +590,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
+    assertEquals(group.getName(), member.getSubjectIdentifier0());
   }
 
   /**
@@ -607,6 +623,7 @@ public class TestMemberAttributes extends GrouperTest {
     assertNull(member.getSearchString2());
     assertNull(member.getSearchString3());
     assertNull(member.getSearchString4());
+    assertEquals(group.getName(), member.getSubjectIdentifier0());
   }
   
   /**
@@ -1188,5 +1205,69 @@ public class TestMemberAttributes extends GrouperTest {
     ExpirableCache.clearAll();
     source.setSearchAttributes(null);
     source.setSortAttributes(null);
+  }
+  
+  /**
+   * 
+   */
+  public void testEntityAdd() {
+    Group testEntity = new GroupSave(grouperSession).assignName("etc:entity").assignTypeOfGroup(TypeOfGroup.entity).save();
+    assertEquals(testEntity.getName(), testEntity.toMember().getSubjectIdentifier0());
+  }
+
+  /**
+   *
+   */
+  public void testVirtualAttributeInName() {
+    
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectVirtualAttribute_1_namev", "${subject.getAttributeValue('EMAIL').replace('@', '%')}");
+    source.addInitParam("Name_AttributeType", "namev");
+    ExpirableCache.clearAll();
+    source.init();
+    
+    Subject subj = SubjectFinder.findById("test.subject.0", true);
+    edu.grantPriv(subj, NamingPrivilege.CREATE);
+
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
+    
+    assertEquals("test.subject.0%somewhere.someSchool.edu", subj.getName());
+    
+    assertEquals(subj.getName(), member.getName());
+    assertEquals(subj.getDescription(), member.getDescription());
+    
+    // reset the state
+    source.removeInitParam("subjectVirtualAttribute_1_namev");
+    source.addInitParam("Name_AttributeType", "name");
+    ExpirableCache.clearAll();
+    source.init();
+  }
+  
+  /**
+   * 
+   */
+  public void testVirtualAttributeInDescription() {
+    
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectVirtualAttribute_1_descriptionv", "${subject.getAttributeValue('EMAIL').replace('@', '%')}");
+    source.addInitParam("Description_AttributeType", "descriptionv");
+    ExpirableCache.clearAll();
+    source.init();
+    
+    Subject subj = SubjectFinder.findById("test.subject.0", true);
+    edu.grantPriv(subj, NamingPrivilege.CREATE);
+
+    Member member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
+    
+    assertEquals("test.subject.0%somewhere.someSchool.edu", subj.getDescription());
+    
+    assertEquals(subj.getName(), member.getName());
+    assertEquals(subj.getDescription(), member.getDescription());
+    
+    // reset the state
+    source.removeInitParam("subjectVirtualAttribute_1_descriptionv");
+    source.addInitParam("Description_AttributeType", "description");
+    ExpirableCache.clearAll();
+    source.init();
   }
 }

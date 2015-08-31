@@ -118,7 +118,7 @@ public class TestStemIntegration extends GrouperTest {
     }
     catch (InsufficientPrivilegeException eIP) {
       assertTrue(true);
-      assertEquals( E.CANNOT_STEM, eIP.getMessage() );
+      assertEquals( E.CANNOT_STEM_ADMIN, eIP.getMessage() );
     }
     catch (Exception e) {
       unexpectedException(e);

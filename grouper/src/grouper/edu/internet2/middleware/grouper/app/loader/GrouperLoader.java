@@ -1313,11 +1313,34 @@ public class GrouperLoader {
    */
   private static ThreadLocal<GrouperLoaderDryRunBean> threadLocalGrouperLoaderDryRun = new ThreadLocal<GrouperLoaderDryRunBean>();
   
+  
+  
+  
+  /**
+   * @return the threadLocalGrouperLoaderDryRun
+   */
+  public static GrouperLoaderDryRunBean internal_retrieveThreadLocalGrouperLoaderDryRun() {
+    return threadLocalGrouperLoaderDryRun.get();
+  }
+
+  
+  /**
+   * @param theThreadLocalGrouperLoaderDryRun the threadLocalGrouperLoaderDryRun to set
+   */
+  public static void internal_assignThreadLocalGrouperLoaderDryRun(
+      GrouperLoaderDryRunBean theThreadLocalGrouperLoaderDryRun) {
+    if (theThreadLocalGrouperLoaderDryRun == null) {
+      threadLocalGrouperLoaderDryRun.remove();
+    } else {
+      threadLocalGrouperLoaderDryRun.set(theThreadLocalGrouperLoaderDryRun);
+    }
+  }
+
   /**
    * bean holds where the logging goes, and if there, then it means we are in dry run mode
    *
    */
-  private static class GrouperLoaderDryRunBean {
+  public static class GrouperLoaderDryRunBean {
     
     /**
      * filewriter for output

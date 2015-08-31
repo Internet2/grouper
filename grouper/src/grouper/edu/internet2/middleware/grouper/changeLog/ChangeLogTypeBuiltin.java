@@ -96,7 +96,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_ADD.groupId, 
       ChangeLogLabels.MEMBERSHIP_ADD.groupName,
       ChangeLogLabels.MEMBERSHIP_ADD.memberId,
-      ChangeLogLabels.MEMBERSHIP_ADD.fieldId)),
+      ChangeLogLabels.MEMBERSHIP_ADD.fieldId,
+      ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0)),
   
   /**
    * update membership
@@ -126,7 +127,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBERSHIP_DELETE.groupName,
       ChangeLogLabels.MEMBERSHIP_DELETE.memberId,
       ChangeLogLabels.MEMBERSHIP_DELETE.fieldId,
-      ChangeLogLabels.MEMBERSHIP_DELETE.subjectName)),
+      ChangeLogLabels.MEMBERSHIP_DELETE.subjectName,
+      ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0)),
 
   /**
    * add privilege
@@ -276,7 +278,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_ADD.id,
       ChangeLogLabels.MEMBER_ADD.subjectId,
       ChangeLogLabels.MEMBER_ADD.subjectSourceId,
-      ChangeLogLabels.MEMBER_ADD.subjectTypeId)),
+      ChangeLogLabels.MEMBER_ADD.subjectTypeId,
+      ChangeLogLabels.MEMBER_ADD.subjectIdentifier0)),
       
   /**
    * member add
@@ -286,6 +289,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_UPDATE.subjectId,
       ChangeLogLabels.MEMBER_UPDATE.subjectSourceId,
       ChangeLogLabels.MEMBER_UPDATE.subjectTypeId,
+      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0,
       ChangeLogLabels.MEMBER_UPDATE.propertyChanged,
       ChangeLogLabels.MEMBER_UPDATE.propertyOldValue,
       ChangeLogLabels.MEMBER_UPDATE.propertyNewValue)),
@@ -297,7 +301,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_DELETE.id,
       ChangeLogLabels.MEMBER_DELETE.subjectId,
       ChangeLogLabels.MEMBER_DELETE.subjectSourceId,
-      ChangeLogLabels.MEMBER_DELETE.subjectTypeId)),
+      ChangeLogLabels.MEMBER_DELETE.subjectTypeId,
+      ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0)),
       
   /**
    * member change subject

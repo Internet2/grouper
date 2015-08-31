@@ -132,7 +132,7 @@ public class GrouperHelper {
     superPrivs.put("groupAttrRead", Boolean.TRUE);
     superPrivs.put("groupAttrUpdate", Boolean.TRUE);
 		superPrivs.put("create", Boolean.TRUE);
-    superPrivs.put("stem", Boolean.TRUE);
+    superPrivs.put("stemAdmin", Boolean.TRUE);
     superPrivs.put("stemAttrRead", Boolean.TRUE);
     superPrivs.put("stemAttrUpdate", Boolean.TRUE);
 		//superPrivs.put("OPTIN", Boolean.TRUE);
@@ -149,7 +149,7 @@ public class GrouperHelper {
 	//CH 20080324 change for UI from:  "STEM", "CREATE" 
 	//private static String[] stemPrivs = {"Create Group", "Create Folder"};
 	//GB 20080415 changed back, but UI looks up display name now for select options 
-	private static String[] stemPrivs = {"create", "stem", "stemAttrRead", "stemAttrUpdate"};
+	private static String[] stemPrivs = {"create", "stemAdmin", "stemAttrRead", "stemAttrUpdate"};
 	public static void main(String args[]) throws Exception{
 		Subject subj = SubjectFinder.findById("GrouperSystem", true);
 		GrouperSession s = GrouperSession.start(subj);
@@ -455,7 +455,7 @@ public class GrouperHelper {
 		if("GrouperSystem".equals(s.getSubject().getId())
 				||isActiveWheelGroupMember) {
 			privs = new HashMap();
-			privs.put("stem",Boolean.TRUE);
+			privs.put("stemAdmin",Boolean.TRUE);
 			if(groupOrStem!=null && groupOrStem.isStem()&& !"".equals(groupOrStem.getStem().getName())) {
 				privs.put("create",Boolean.TRUE);
 			}
@@ -1750,7 +1750,7 @@ public class GrouperHelper {
 			stem.store();
 
 			stem.grantPriv(s.getSubject(),Privilege.getInstance("create"));
-			stem.grantPriv(s.getSubject(),Privilege.getInstance("stem"));
+			stem.grantPriv(s.getSubject(),Privilege.getInstance("stemAdmin"));
 			sysSession.stop();
 		}
 		return stem;
@@ -2117,7 +2117,7 @@ public class GrouperHelper {
     if(privilege.equals("groupAttrRead")) return member.hasGroupAttrRead();
     if(privilege.equals("groupAttrUpdate")) return member.hasGroupAttrUpdate();
 		if(privilege.equals("create")) return member.hasCreate();
-		if(privilege.equals("stem")) return member.hasStem();
+		if(privilege.equals("stemAdmin")) return member.hasStemAdmin();
     if(privilege.equals("stemAttrRead")) return member.hasStemAttrRead();
     if(privilege.equals("stemAttrUpdate")) return member.hasStemAttrUpdate();
 		return new HashSet();
@@ -2150,7 +2150,7 @@ public class GrouperHelper {
 	public static Set getStemsWhereMemberHasPriv(Member member,String privilege) {
 
 		if(privilege.equals("create")) return member.hasCreate();
-		if(privilege.equals("stem")) return member.hasStem();
+		if(privilege.equals("stemAdmin")) return member.hasStemAdmin();
     if(privilege.equals("stemAttrRead")) return member.hasStemAttrRead();
     if(privilege.equals("stemAttrUpdate")) return member.hasStemAttrUpdate();
 		return new HashSet();
@@ -2163,7 +2163,7 @@ public class GrouperHelper {
 	 * @return Set of subjects with a specified Nmaing privilege for a specified stem
 	 */
 	public static Set getSubjectsWithPriv(Stem stem,String privilege) {
-		if(privilege.equals("stem")) return stem.getStemmers();
+		if(privilege.equals("stemAdmin")) return stem.getStemAdmins();
 		if(privilege.equals("create")) return stem.getCreators();
     if(privilege.equals("stemAttrRead")) return stem.getStemAttrReaders();
     if(privilege.equals("stemAttrUpdate")) return stem.getStemAttrUpdaters();
@@ -3129,7 +3129,7 @@ public class GrouperHelper {
       return false;
     }
 
-    if (privs.contains(NamingPrivilege.STEM)) {
+    if (privs.contains(NamingPrivilege.STEM_ADMIN)) {
       return true;
     }
 
@@ -3150,7 +3150,7 @@ public class GrouperHelper {
       return false;
     }
 
-    if (privs.contains(NamingPrivilege.STEM)) {
+    if (privs.contains(NamingPrivilege.STEM_ADMIN)) {
       return true;
     }
 
@@ -3171,7 +3171,7 @@ public class GrouperHelper {
       return false;
     }
 
-    if (privs.contains(NamingPrivilege.STEM)) {
+    if (privs.contains(NamingPrivilege.STEM_ADMIN)) {
       return true;
     }
 

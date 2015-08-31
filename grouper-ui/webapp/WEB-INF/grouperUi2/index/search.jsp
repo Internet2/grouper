@@ -1,8 +1,16 @@
+<!-- ./webapp/WEB-INF/grouperUi2/index/index.jsp -->
+
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
             <div class="bread-header-container">
+              <%--
               <ul class="breadcrumb">
-                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['guiBreadcrumbsHomeLabel'] } </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li><a href="index.html">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
+                <li class="active">Search Results</li>
+              </ul>
+              --%>
+              <ul class="breadcrumb">
+                <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
                 <li class="active">${textContainer.text['searchBreadcrumb'] }</li>
               </ul>
               <div class="page-header blue-gradient">
@@ -15,17 +23,28 @@
                 <form class="form-inline form-small form-filter" id="searchPageForm"
                     onsubmit="ajax('../app/UiV2Main.searchFormSubmit', {formIds: 'searchPageForm'}); return false;">
                   <div class="row-fluid">
+	             	 <%-- HJ 20150319
                     <div class="span2">
                       <label for="searchFormSearch">Search for:</label>
+                    </div>
+	            	 --%>                 
+                    <div class="span2">
+                      <label for="searchFormSearch">${textContainer.text['find.search-for'] }</label>
                     </div>
                     <div class="span3" style="white-space: nowrap;">
                       <input type="text" name="searchQuery" id="searchQueryId" value="${grouper:escapeHtml(grouperRequestContainer.indexContainer.searchQuery) }" style="width: 25em" />
                     </div>
                   </div>
                   <div class="row-fluid" style="margin-top: 5px">
+	             	 <%-- HJ 20150319
                     <div class="span2">
                       <label for="people-filter">Filter for:</label>
                     </div>
+	            	 --%>                 
+                    <div class="span2">
+                      <label for="people-filter">${textContainer.text['groupFilterFor'] }</label>
+                    </div>
+                    
                     <div class="span3">
                       <select id="people-filter" class="span12" name="filterType">
                         <option value="all">${textContainer.text['searchTypeAll'] }</option>
@@ -39,7 +58,7 @@
                   </div>
                   <div class="form-actions">
                     <div class="span2">&nbsp;</div>
-                    <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Main.searchFormSubmit', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</a> 
+                    <a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Main.searchFormSubmit', {formIds: 'searchPageForm'}); return false;">${textContainer.text['searchButton'] }</a>
                     &nbsp;
                     <a href="#" onclick="ajax('../app/UiV2Main.searchReset'); return false;" class="btn btn-cancel">${textContainer.text['searchResetButton'] }</a>
                   </div>
@@ -49,4 +68,3 @@
                 </div>
               </div>
             </div>
-            

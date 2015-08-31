@@ -1742,7 +1742,7 @@ public class XmlExporter {
             MemberNotFoundException
   {
     if (this._isNamingPrivExportEnabled()) {
-      this._writePrivileges("stem"  , ns.getStemmers(), ns);
+      this._writePrivileges("stemAdmin"  , ns.getStemmers(), ns);
       this._writePrivileges("create", ns.getCreators(), ns);
     } 
   } // private void _writeStemPrivs(ns)

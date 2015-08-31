@@ -15,3 +15,13 @@ table.attributeDefAssignToTable td {
   padding-left: 5px;
   padding-right: 5px;
 }
+
+.compositeInfo {
+  margin-bottom: 1.3em;
+}
+
+.compositeInfo .compositeFactors {
+  
+  padding-left: 3em;
+  
+}

@@ -208,6 +208,9 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   /** field name for stemAttrUpdaters */
   public static final String FIELD_NAME_STEM_ATTR_UPDATERS = "stemAttrUpdaters";
   
+  /** field name for stemAdmins */
+  public static final String FIELD_NAME_STEM_ADMINS = "stemAdmins";
+  
   /** col */
   public static final String COLUMN_ID = "id";
   

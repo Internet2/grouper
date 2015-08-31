@@ -22,7 +22,7 @@
                       <select id="people-filter" name="privilegeField">
                         <option value="">${textContainer.text['stemPrivilegesFilterEveryone']}</option>
                         <option value="creators">${textContainer.text['stemPrivilegesFilterCreators']}</option>
-                        <option value="stemmers">${textContainer.text['stemPrivilegesFilterStemmers']}</option>
+                        <option value="stemAdmins">${textContainer.text['stemPrivilegesFilterStemAdmins']}</option>
                         <option value="stemAttrReaders">${textContainer.text['stemPrivilegesFilterAttrReaders']}</option>
                         <option value="stemAttrUpdaters">${textContainer.text['stemPrivilegesFilterAttrUpdaters']}</option>
                       </select>

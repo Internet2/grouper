@@ -92,14 +92,14 @@ public class ByteArrayRequestEntity implements RequestEntity {
     }
 
     /* (non-Javadoc)
-     * @see org.apache.commons.httpclient.methods.RequestEntity#getContentType()
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.methods.RequestEntity#getContentType()
      */
     public String getContentType() {
         return contentType;
     }
     
     /* (non-Javadoc)
-     * @see org.apache.commons.httpclient.RequestEntity#writeRequest(java.io.OutputStream)
+     * @see edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.RequestEntity#writeRequest(java.io.OutputStream)
      */
     public void writeRequest(OutputStream out) throws IOException {
         out.write(content);

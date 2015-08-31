@@ -160,7 +160,7 @@ public class TestNamingPrivilege extends GrouperTest {
     iter = privs.iterator();
     while (iter.hasNext()) {
       NamingPrivilege np = (NamingPrivilege) iter.next();
-      if (np.getName().equals(NamingPrivilege.STEM.getName())) {
+      if (np.getName().equals(NamingPrivilege.STEM_ADMIN.getName())) {
         Assert.assertTrue(
           "uofc/subj0 stem stem: " + np.getStem().getName(),
           np.getStem().equals(root)
@@ -171,7 +171,7 @@ public class TestNamingPrivilege extends GrouperTest {
         );
         Assert.assertTrue(
           "uofc/subj0 priv stem: " + np.getName(),
-          np.getName().equals(NamingPrivilege.STEM.getName())
+          np.getName().equals(NamingPrivilege.STEM_ADMIN.getName())
         );
         Assert.assertTrue(
           "uofc/subj0 owner stem: " + np.getOwner().getId(),

@@ -422,6 +422,10 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    */
   private void reconcileMemberships(boolean readonly) {
     
+    String usersToNotRemoveString = GrouperClientConfig.retrieveConfig().propertyValueString("atlassian.users.do.not.remove");
+    Set<String> usersToNotRemoveSet = new HashSet<String>(
+        GrouperClientUtils.nonNull(GrouperClientUtils.splitTrimToList(usersToNotRemoveString, ",")));
+    
     //get all groups
     //if we have reconciled groups, then they should be in here...
     for (String groupName : GrouperClientUtils.nonNull(this.atlassianGroupnameToGroupMap).keySet()) {
@@ -484,6 +488,11 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
         MultiKey multiKey = new MultiKey(atlassianCwdGroup.getId(), atlassianCwdUser.getId());
         
         AtlassianCwdMembership atlassianCwdMembership = this.atlassianGroupAndUserToMembershipMap.get(multiKey);
+
+        if (usersToNotRemoveSet.contains(atlassianCwdUser.getUserName())) {
+          System.out.println("Skipping taking out membership of " + atlassianCwdUser.getUserName() + " from group " + groupName + ", membershipId: " + atlassianCwdMembership.getId());
+          continue;
+        }
         
         //memberships
         if (readonly) {

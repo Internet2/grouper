@@ -13,12 +13,12 @@
                             <select id="people-update" class="span12" name="stemPrivilegeBatchUpdateOperation">
                               <%-- create group should be the default, so list it first --%>
                               <option value="assign_creators">${textContainer.text['groupPrivilegesAssignCreatePrivilege'] }</option>
-                              <option value="assign_stemmers">${textContainer.text['groupPrivilegesAssignStemPrivilege'] }</option>
+                              <option value="assign_stemAdmins">${textContainer.text['groupPrivilegesAssignStemAdminPrivilege'] }</option>
                               <option value="assign_stemAttrReaders">${textContainer.text['groupPrivilegesAssignStemAttributeReadPrivilege'] }</option>
                               <option value="assign_stemAttrUpdaters">${textContainer.text['groupPrivilegesAssignStemAttributeUpdatePrivilege'] }</option>
                               <option value="assign_all">${textContainer.text['groupPrivilegesAssignAllStemPrivilege'] }</option>
                               <option value="revoke_creators">${textContainer.text['groupPrivilegesRevokeCreatePrivilege'] }</option>
-                              <option value="revoke_stemmers">${textContainer.text['groupPrivilegesRevokeStemPrivilege'] }</option>
+                              <option value="revoke_stemAdmins">${textContainer.text['groupPrivilegesRevokeStemAdminPrivilege'] }</option>
                               <option value="revoke_stemAttrReaders">${textContainer.text['groupPrivilegesRevokeStemAttributeReadPrivilege'] }</option>
                               <option value="revoke_stemAttrUpdaters">${textContainer.text['groupPrivilegesRevokeStemAttributeUpdatePrivilege'] }</option>
                               <option value="revoke_all">${textContainer.text['groupPrivilegesRevokeAllStemPrivilege'] }</option>
@@ -38,7 +38,7 @@
                         </label>
                       </th>
                       <th class="sorted">${textContainer.text['privDropdownName'] }</th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStem'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAdmin'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colCreate'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAttributeRead'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAttributeUpdate'] }</th>
@@ -59,7 +59,7 @@
                         <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}
                         </td>
                         <%-- loop through the fields for stems --%>
-                        <c:forEach items="stemmers,creators,stemAttrReaders,stemAttrUpdaters" var="fieldName">
+                        <c:forEach items="stemAdmins,creators,stemAttrReaders,stemAttrUpdaters" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>

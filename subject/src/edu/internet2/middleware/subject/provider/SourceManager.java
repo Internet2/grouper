@@ -329,7 +329,7 @@ public class SourceManager {
    */
   public void loadSource(Source source) {
     log.debug("Loading source: " + source.getId());
-
+    
     //put in map before initting
     this.sourceMap.put(source.getId(), source);
 
@@ -346,6 +346,9 @@ public class SourceManager {
     //do this last in case it throws exceptions...
     source.init();
       
+    source.getSearchAttributes();
+    source.getSortAttributes();
+    source.getSubjectIdentifierAttributes();
   }
 
   /**

@@ -200,17 +200,17 @@ public class RegistryInstall {
     changed = changed || changedArray[0];
 
     // reserve naming privs
-    Field.internal_addField( s, Field.FIELD_NAME_CREATORS, FieldType.NAMING, NamingPrivilege.STEM, 
-        NamingPrivilege.STEM, false, false, changedArray, null);
+    Field.internal_addField( s, Field.FIELD_NAME_CREATORS, FieldType.NAMING, NamingPrivilege.STEM_ADMIN, 
+        NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
     changed = changed || changedArray[0];
-    Field.internal_addField( s, Field.FIELD_NAME_STEMMERS, FieldType.NAMING, 
-        NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, changedArray, null);
+    Field.internal_addField( s, Field.FIELD_NAME_STEM_ADMINS, FieldType.NAMING, 
+        NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
     changed = changed || changedArray[0];
     Field.internal_addField( s, Field.FIELD_NAME_STEM_ATTR_READERS, FieldType.NAMING, 
-        NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, changedArray, null);
+        NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
     changed = changed || changedArray[0];
     Field.internal_addField( s, Field.FIELD_NAME_STEM_ATTR_UPDATERS, FieldType.NAMING, 
-        NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, changedArray, null);
+        NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
     changed = changed || changedArray[0];
     FieldFinder.clearCache();
     GroupTypeFinder.clearCache();

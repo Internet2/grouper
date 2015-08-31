@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright 2014 Internet2
  *  
@@ -27,6 +28,8 @@ import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.subject.SubjectTooManyResults;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,7 +47,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditFieldType;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
@@ -177,15 +179,20 @@ public class UiV2Main extends UiServiceLogicBase {
       GrouperObjectFinderType grouperObjectFinderType = GrouperObjectFinderType.valueOfIgnoreCase(filterType, true);
       grouperObjectFinder.addGrouperObjectFinderType(grouperObjectFinderType);
     }
-    
-    Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
-    
-    indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));
-    
-    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-    
-    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsId", 
-        "/WEB-INF/grouperUi2/index/searchContents.jsp"));
+
+    try {
+      Set<GrouperObject> results = grouperObjectFinder.findGrouperObjects();
+
+      indexContainer.setSearchGuiObjectsResults(GuiObjectBase.convertFromGrouperObjects(results));
+
+      guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#searchResultsId",
+              "/WEB-INF/grouperUi2/index/searchContents.jsp"));
+    } catch (SubjectTooManyResults e) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("searchTooManyResults")));
+    }
 
   }
 
@@ -243,7 +250,16 @@ public class UiV2Main extends UiServiceLogicBase {
       
       //un-url-encrypt
       if (StringUtils.equals("root", folderQueryString)) {
-        stem = StemFinder.findRootStem(grouperSession);
+        
+        // GRP-1107 browse starting from stem configured by property: 
+        // default.browse.stem, otherwise from root.
+        boolean startTreeAtDefaultStem = GrouperUiConfig.retrieveConfig().propertyValueBoolean("default.browse.stem.uiv2.menu", true);
+        String defaultBrowseStem = GrouperUiConfig.retrieveConfig().propertyValueString("default.browse.stem");
+        if (startTreeAtDefaultStem && !StringUtils.isBlank(defaultBrowseStem)) {
+          stem = StemFinder.findByName(grouperSession, defaultBrowseStem, true);
+        } else {
+          stem = StemFinder.findRootStem(grouperSession);
+        }
       } else {
         int lastSlash = folderQueryString.lastIndexOf('/');
         String stemId = null;

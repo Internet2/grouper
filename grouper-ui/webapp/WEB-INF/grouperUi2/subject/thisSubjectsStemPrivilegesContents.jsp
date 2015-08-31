@@ -14,11 +14,11 @@
                             <select id="people-update" class="span12" name="groupPrivilegeBatchUpdateOperation">
                               <%-- create group should be the default, so list it first --%>
 
-                              <option value="assign_stemmers">${textContainer.text['groupPrivilegesAssignStemPrivilege'] }</option>
+                              <option value="assign_stemAdmins">${textContainer.text['groupPrivilegesAssignStemAdminPrivilege'] }</option>
                               <option value="assign_creators">${textContainer.text['groupPrivilegesAssignCreatePrivilege'] }</option>
                               <option value="assign_stemAttrReaders">${textContainer.text['groupPrivilegesAssignStemAttributeReadPrivilege'] }</option>
                               <option value="assign_stemAttrUpdaters">${textContainer.text['groupPrivilegesAssignStemAttributeUpdatePrivilege'] }</option>
-                              <option value="revoke_stemmers">${textContainer.text['groupPrivilegesRevokeStemPrivilege'] }</option>
+                              <option value="revoke_stemAdmins">${textContainer.text['groupPrivilegesRevokeStemAdminPrivilege'] }</option>
                               <option value="revoke_creators">${textContainer.text['groupPrivilegesRevokeCreatePrivilege'] }</option>
                               <option value="revoke_stemAttrReaders">${textContainer.text['groupPrivilegesRevokeStemAttributeReadPrivilege'] }</option>
                               <option value="revoke_stemAttrUpdaters">${textContainer.text['groupPrivilegesRevokeStemAttributeUpdatePrivilege'] }</option>
@@ -42,7 +42,7 @@
                       <th>
                         ${textContainer.text['thisSubjectsPrivilegesStemColumn'] }
                       </th>
-                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colStem'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colStemAdmin'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colCreate'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colStemAttributeRead'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center; width: 10em;">${textContainer.text['priv.colStemAttributeUpdate'] }</th>
@@ -62,7 +62,7 @@
                         <td class="expand foo-clicker" style="white-space: nowrap">${guiMembershipSubjectContainer.guiStem.shortLinkWithIcon}
                         </td>
                         <%-- loop through the fields for groups --%>
-                        <c:forEach items="stemmers,creators,stemAttrReaders,stemAttrUpdaters" var="fieldName">
+                        <c:forEach items="stemAdmins,creators,stemAttrReaders,stemAttrUpdaters" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>

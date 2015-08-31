@@ -570,7 +570,8 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
               ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), pitMembership.getMember().getSubjectSourceId(),
               ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), ownerId,
               ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), "flattened",
-              ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), ownerName);
+              ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), ownerName,
+              ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0.name(), pitMembership.getMember().getSubjectIdentifier0());
         } else if (!isMembership && this.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_ADD,
               ChangeLogLabels.PRIVILEGE_ADD.id.name(), pitMembership.getSourceId(),
@@ -690,7 +691,8 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
               ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), ownerId,
               ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), "flattened",
               ChangeLogLabels.MEMBERSHIP_DELETE.subjectName.name(), subjectName,
-              ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), ownerName);
+              ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), ownerName,
+              ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0.name(), pitMembership.getMember().getSubjectIdentifier0());
         } else if (!isMembership && this.getFlatPrivilegeNotificationsOnSaveOrUpdate()) {
           changeLogEntry = new ChangeLogEntry(false, ChangeLogTypeBuiltin.PRIVILEGE_DELETE,
               ChangeLogLabels.PRIVILEGE_DELETE.id.name(), pitMembership.getSourceId(),

@@ -42,6 +42,9 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** subject id */
   public static final String COLUMN_SUBJECT_ID = "subject_id";
+  
+  /** subjectIdentifier0 */
+  public static final String COLUMN_SUBJECT_IDENTIFIER0 = "subject_identifier0";
 
   /** subject source */
   public static final String COLUMN_SUBJECT_SOURCE = "subject_source";
@@ -71,6 +74,9 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
   /** constant for field name for: subjectSource */
   public static final String FIELD_SUBJECT_SOURCE = "subjectSource";
   
+  /** constant for field name for: subjectIdentifier0 */
+  public static final String FIELD_SUBJECT_IDENTIFIER0 = "subjectIdentifier0";
+  
   /** constant for field name for: subjectType */
   public static final String FIELD_SUBJECT_TYPE = "subjectType";
 
@@ -79,7 +85,8 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE, FIELD_SUBJECT_TYPE, FIELD_SOURCE_ID);
+      FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE, FIELD_SUBJECT_TYPE, FIELD_SOURCE_ID,
+      FIELD_SUBJECT_IDENTIFIER0);
 
 
 
@@ -99,6 +106,9 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
   
   /** subjectSource */
   private String subjectSourceId;
+  
+  /** subjectIdentifier0 */
+  private String subjectIdentifier0;
   
   /** subjectType */
   private String subjectTypeId;
@@ -187,6 +197,21 @@ public class PITMember extends GrouperPIT implements Hib3GrouperVersioned {
    */
   public void setSubjectSourceId(String subjectSourceId) {
     this.subjectSourceId = subjectSourceId;
+  }
+  
+  /**
+   * @return subjectIdentifier0
+   */
+  public String getSubjectIdentifier0() {
+    return subjectIdentifier0;
+  }
+
+  /**
+   * Set subjectIdentifier0
+   * @param subjectIdentifier0
+   */
+  public void setSubjectIdentifier0(String subjectIdentifier0) {
+    this.subjectIdentifier0 = subjectIdentifier0;
   }
   
   /**

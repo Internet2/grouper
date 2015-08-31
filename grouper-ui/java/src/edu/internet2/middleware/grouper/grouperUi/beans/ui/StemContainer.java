@@ -160,6 +160,11 @@ public class StemContainer {
   private Boolean canCreateGroups;
   
   /**
+   * if the logged in user can create stems, lazy loaded
+   */
+  private Boolean canCreateStems;
+  
+  /**
    * if the logged in user can create groups, lazy loaded
    * @return if can admin create groups
    */
@@ -181,6 +186,30 @@ public class StemContainer {
     }
     
     return this.canCreateGroups;
+  }
+  
+  /**
+   * if the logged in user can create stems, lazy loaded
+   * @return if can create folders
+   */
+  public boolean isCanCreateStems() {
+    
+    if (this.canCreateStems == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canCreateStems = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.CREATE.getName(), false);
+            }
+          });
+      
+    }
+    
+    return this.canCreateStems;
   }
 
 
@@ -205,7 +234,7 @@ public class StemContainer {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false);
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false);
             }
           });
       

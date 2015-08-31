@@ -289,7 +289,7 @@ public class UiV2Subject {
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, attributeDefComboSize);
         AttributeDefFinder attributeDefFinder = new AttributeDefFinder();
 
-        return attributeDefFinder.addPrivilege(NamingPrivilege.STEM).assignScope(query).assignSubject(loggedInSubject)
+        return attributeDefFinder.addPrivilege(NamingPrivilege.STEM_ADMIN).assignScope(query).assignSubject(loggedInSubject)
             .assignSplitScope(true).assignQueryOptions(queryOptions).findAttributes();
       }
 
@@ -822,7 +822,7 @@ public class UiV2Subject {
           if (!StringUtils.isBlank(stemString)) {
             theStem = new StemFinder().assignScope(stemString).assignFindByUuidOrName(true)
                 .assignSubject(loggedInSubject)
-                .assignPrivileges(NamingPrivilege.STEM_PRIVILEGES).findStem();
+                .assignPrivileges(NamingPrivilege.CREATE_PRIVILEGES).findStem();
           }
           return theStem;
         }
@@ -834,18 +834,18 @@ public class UiV2Subject {
         return;
       }      
   
-      boolean stemChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemmers[]"), false);
+      boolean stemAdminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAdmins[]"), false);
       boolean createChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
       boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
       boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
 
-      if (!stemChecked && !createChecked && !attrReadChecked && !attrUpdateChecked) {
+      if (!stemAdminChecked && !createChecked && !attrReadChecked && !attrUpdateChecked) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#stemPrivsErrorId", 
             TextContainer.retrieveFromRequest().getText().get("subjectAddMemberStemPrivRequired")));
         return;
       }
       
-      boolean madeChanges = stem.grantPrivs(subject, stemChecked, createChecked, attrReadChecked, 
+      boolean madeChanges = stem.grantPrivs(subject, stemAdminChecked, createChecked, attrReadChecked, 
           attrUpdateChecked, false);
       
       if (madeChanges) {
@@ -1593,7 +1593,7 @@ public class UiV2Subject {
   
       Stem parentStem = StemFinder.findByUuid(grouperSession, parentStemId, false);
       
-      if (parentStem == null || !parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false)) {
+      if (parentStem == null || !parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
             TextContainer.retrieveFromRequest().getText().get("groupNotAllowedToAdminAnotherStem")));
         filterThisSubjectsGroupPrivilegesHelper(request, response, subject);
@@ -1683,7 +1683,7 @@ public class UiV2Subject {
           
           Stem parentStem = StemFinder.findByUuid(grouperSession, parentStemId, false);
           
-          if (parentStem != null && parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM.getName(), false)) {
+          if (parentStem != null && parentStem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
             parentStems.add(parentStem);
           }
         }
@@ -1701,8 +1701,8 @@ public class UiV2Subject {
       int changes = 0;
       
       Privilege[] privileges = assignAll ? (assign ? new Privilege[]{  
-          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS)} : new Privilege[]{  
-            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEMMERS),
+          NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ADMINS)} : new Privilege[]{  
+            NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ADMINS),
             NamingPrivilege.listToPriv(Field.FIELD_NAME_CREATORS),
             NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_READERS),
             NamingPrivilege.listToPriv(Field.FIELD_NAME_STEM_ATTR_UPDATERS)

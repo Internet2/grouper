@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -33,6 +18,8 @@
  */
 package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.dump;
 
+import java.io.IOException;
+import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipEncoding;
 
 /**
  * Various utilities for dump archives.
@@ -109,7 +96,7 @@ class DumpArchiveUtil {
         i += (((long) buffer[offset + 3] << 24) & 0x00000000FF000000L);
         i += (((long) buffer[offset + 2] << 16) & 0x0000000000FF0000L);
         i += (((long) buffer[offset + 1] << 8) & 0x000000000000FF00L);
-        i += (((long) buffer[offset]) & 0x00000000000000FFL);
+        i += (buffer[offset] & 0x00000000000000FFL);
 
         return i;
     }
@@ -144,5 +131,15 @@ class DumpArchiveUtil {
         i += buffer[offset] & 0x000000FF;
 
         return i;
+    }
+
+    /**
+     * Decodes a byte array to a string.
+     */
+    static String decode(ZipEncoding encoding, byte[] b, int offset, int len)
+        throws IOException {
+        byte[] copy = new byte[len];
+        System.arraycopy(b, offset, copy, 0, len);
+        return encoding.decode(copy);
     }
 }

@@ -165,12 +165,14 @@ public class ChangeLogTest extends GrouperTest {
     // one:two:three:three-attrDef
     // one:two:three:three-group
     // one:two:three:four
+    //
+    // plus 2 member attribute updates (subjectIdentifier0)
     
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
-    assertEquals("Should have added 8 change log entries", 8, newChangeLogCount);
+    assertEquals("Should have added 10 change log entries", 10, newChangeLogCount);
 
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity order by sequenceNumber")
+      .createQuery("from ChangeLogEntryEntity where string06 <> 'subjectIdentifier0' order by sequenceNumber")
       .list(ChangeLogEntry.class);
 
     {
@@ -259,6 +261,30 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals("oneNew:two:three:four", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.name));
       assertEquals("one:two:three:four", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyOldValue));
       assertEquals("oneNew:two:three:four", entry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.propertyNewValue));
+    }
+    
+    // check first subjectIdentifier0 update
+    {
+      ChangeLogEntry entry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where string06 = 'subjectIdentifier0' and string05 = 'oneNew:two:two-group'")
+        .uniqueResult(ChangeLogEntry.class);
+      assertEquals(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:two-group", entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals("one:two:two-group", entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:two-group", entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+    
+    // check second subjectIdentifier0 update
+    {
+      ChangeLogEntry entry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where string06 = 'subjectIdentifier0' and string05 = 'oneNew:two:three:three-group'")
+        .uniqueResult(ChangeLogEntry.class);
+      assertEquals(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType(), entry.getChangeLogType());
+      assertEquals(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("oneNew:two:three:three-group", entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals("one:two:three:three-group", entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals("oneNew:two:three:three-group", entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
     }
   }
   
@@ -3217,6 +3243,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectId));
     assertEquals(member.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectSourceId));
     assertEquals(member.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId));
+    assertEquals(member.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
 
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -3251,6 +3278,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
     assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
     assertEquals(member.getContextId(), pitMember.getContextId());
+    assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
     
     //##################################
     // try an update
@@ -3306,6 +3334,65 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
     assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
     assertEquals(member.getContextId(), pitMember.getContextId());
+    assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    
+    
+    //##################################
+    // try another update
+  
+    //try an update of one field
+    member.setSubjectIdentifier0("testidentifier");
+  
+    final Member MEMBER2 = member;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().update(MEMBER2);
+        return null;
+      }
+    });
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier0'")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry3.getContextId()));
+    
+    assertEquals(member.getUuid(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+    assertEquals("subjectIdentifier0", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+    assertEquals("id.test.subject.0", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+    assertEquals("testidentifier", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    
+    // Check PIT table
+    pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getContextId(), pitMember.getContextId());
+    assertEquals("testidentifier", pitMember.getSubjectIdentifier0());
+    
     
     //##################################
     // try a delete
@@ -3327,24 +3414,25 @@ public class ChangeLogTest extends GrouperTest {
       "select count(1) from grouper_change_log_entry");
   
     assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
-    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
 
     ChangeLogTempToEntity.convertRecords();
     
-    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+    ChangeLogEntry changeLogEntry4 = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_DELETE.getChangeLogType().getId())
       .uniqueResult(ChangeLogEntry.class);
     
-    assertEquals(member.getUuid(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id));
-    assertEquals(member.getSubjectId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectId));
-    assertEquals(member.getSubjectSourceId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectSourceId));
-    assertEquals(member.getSubjectTypeId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectTypeId));
+    assertEquals(member.getUuid(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectTypeId));
+    assertEquals(member.getSubjectIdentifier0(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0));
 
-    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry4.getContextId()));
     assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
-        changeLogEntry3.getContextId()));
-    assertEquals("Context id's should match", changeLogEntry3.getContextId(), member.getContextId());
+        changeLogEntry4.getContextId()));
+    assertEquals("Context id's should match", changeLogEntry4.getContextId(), member.getContextId());
   }
 
   
@@ -4201,6 +4289,9 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(group2.getName(), pitGroup2.getName());
     assertEquals(group2.getContextId(), pitGroup2.getContextId());
     
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(group2.toMember().getId(), true);
+    assertEquals(group2.getName(), pitMember.getSubjectIdentifier0());
+
     
     //##################################
     // try updating the stem id
@@ -4840,6 +4931,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(rootMember.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
+    assertEquals(rootMember.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
 
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -4923,6 +5015,7 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals(rootMember.getSubjectId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
       assertNull(deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
       assertEquals(rootMember.getSubjectSourceId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+      assertEquals(rootMember.getSubjectIdentifier0(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
       assertEquals(membership.getGroup().getUuid(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
       assertEquals(membership.getGroup().getName(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     }
@@ -4944,6 +5037,7 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals("members", addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
       assertEquals(newMember.getSubjectId(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
       assertEquals(newMember.getSubjectSourceId(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+      assertEquals(newMember.getSubjectIdentifier0(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
       assertEquals(membership.getGroup().getUuid(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
       assertEquals(membership.getGroup().getName(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     }
@@ -4988,6 +5082,7 @@ public class ChangeLogTest extends GrouperTest {
     assertNull(changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals("members", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName));
     assertEquals(membership.getMemberSourceId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(membership.getMember().getSubjectIdentifier0(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     
@@ -7116,6 +7211,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(member1.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g4.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
 
@@ -7141,6 +7237,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(Group.getDefaultList().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldId));
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
+    assertEquals(member1.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertNull(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
     assertEquals(g4.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
@@ -7169,6 +7266,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId));
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(member2.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g4.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
 
@@ -7182,6 +7280,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId));
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(member2.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g1.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     
@@ -7209,6 +7308,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertNull(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(member2.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g4.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
 
@@ -7223,6 +7323,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member2.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertNull(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(member2.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(member2.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g1.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     
@@ -7254,6 +7355,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.memberId));
     assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(member1.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g2.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     
@@ -7280,6 +7382,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g4.getId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g4.toMember().getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g4.toMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g2.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g2.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
   }
@@ -7804,6 +7907,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("customList", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(g3g4Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(g3g4Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
@@ -7819,6 +7923,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("customList", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(g3g5Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(g3g5Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
@@ -7844,6 +7949,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g3g4Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
@@ -7860,6 +7966,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g5.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g3g5Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
@@ -8040,7 +8147,7 @@ public class ChangeLogTest extends GrouperTest {
       .setString("stemId", s3g4Priv.getOwnerId())
       .uniqueResult(ChangeLogEntry.class);
   
-    assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
+    assertEquals("stemAdmin", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
     assertEquals(s3g4Priv.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId));
     assertEquals(s3g4Priv.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
@@ -8057,7 +8164,7 @@ public class ChangeLogTest extends GrouperTest {
       .setString("stemId", s3g5Priv.getOwnerId())
       .uniqueResult(ChangeLogEntry.class);
   
-    assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
+    assertEquals("stemAdmin", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName));
     assertEquals(s3g5Priv.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId));
     assertEquals(s3g5Priv.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeType));
@@ -8080,7 +8187,7 @@ public class ChangeLogTest extends GrouperTest {
       .setString("stemId", s3g4Priv.getOwnerId())
       .uniqueResult(ChangeLogEntry.class);
   
-    assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
+    assertEquals("stemAdmin", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
     assertEquals(s3g4Priv.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
     assertEquals(s3g4Priv.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
@@ -8098,7 +8205,7 @@ public class ChangeLogTest extends GrouperTest {
       .setString("stemId", s3g5Priv.getOwnerId())
       .uniqueResult(ChangeLogEntry.class);
   
-    assertEquals("stem", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
+    assertEquals("stemAdmin", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName));
     assertEquals(s3g5Priv.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId));
     assertEquals(s3g5Priv.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId));
     assertEquals("naming", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeType));
@@ -8128,6 +8235,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(g3g4Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(g3g4Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
@@ -8144,6 +8252,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(g3g5Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(g3g5Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
@@ -8160,6 +8269,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(g2g4Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(g2g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(g2g4Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g2g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g2g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
@@ -8176,6 +8286,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(g2g5Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(g2g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(g2g5Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(g2g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(g2g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType));
@@ -8313,6 +8424,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g4Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g3g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g3g4Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g3g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
@@ -8329,6 +8441,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g3g5Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g5.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g3g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g3g5Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g3g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g3g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
@@ -8346,6 +8459,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g2g4Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g4.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g2g4Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g2g4Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g2g4Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g2g4Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
@@ -8362,6 +8476,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(g2g5Mship.getMemberSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
     assertEquals(g5.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals(g2g5Mship.getMemberSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(g2g5Mship.getMember().getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(g2g5Mship.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(g2g5Mship.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     assertEquals("flattened", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType));
@@ -8571,6 +8686,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(newMember1.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
   }
@@ -8671,6 +8787,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(newMember1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(newMember1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(newMember1.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
   }
@@ -8745,6 +8862,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("members", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
     assertEquals(rootMember.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
     assertEquals(rootMember.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+    assertEquals(rootMember.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
 
@@ -8830,6 +8948,7 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals(rootMember.getSubjectId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId));
       assertNull(deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
       assertEquals(rootMember.getSubjectSourceId(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+      assertEquals(rootMember.getSubjectIdentifier0(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
       assertEquals(membership.getGroup().getUuid(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
       assertEquals(membership.getGroup().getName(), deleteEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     }
@@ -8851,6 +8970,7 @@ public class ChangeLogTest extends GrouperTest {
       assertEquals("members", addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName));
       assertEquals(newMember.getSubjectId(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId));
       assertEquals(newMember.getSubjectSourceId(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId));
+      assertEquals(newMember.getSubjectIdentifier0(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0));
       assertEquals(membership.getGroup().getUuid(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId));
       assertEquals(membership.getGroup().getName(), addEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName));
     }
@@ -8895,6 +9015,7 @@ public class ChangeLogTest extends GrouperTest {
     assertNull(changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectName));
     assertEquals("members", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName));
     assertEquals(membership.getMemberSourceId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId));
+    assertEquals(membership.getMember().getSubjectIdentifier0(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0));
     assertEquals(membership.getGroup().getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId));
     assertEquals(membership.getGroup().getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName));
     

@@ -1145,7 +1145,7 @@ public class GrouperServiceLogic {
             }
             
             Stem stem = null;
-            if (wsStemLookup != null) {
+            if (wsStemLookup != null && !wsStemLookup.blank()) {
               wsStemLookup.retrieveStemIfNeeded(session, true);
               stem = wsStemLookup.retrieveStem();
             }
@@ -2224,7 +2224,7 @@ public class GrouperServiceLogic {
       theSummary = "clientVersion: " + clientVersion + ", wsGroupToSaves: "
           + GrouperUtil.toStringForLog(wsGroupToSaves, 200) + "\n, actAsSubject: "
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 200);
   
       final String THE_SUMMARY = theSummary;
   
@@ -2242,7 +2242,7 @@ public class GrouperServiceLogic {
   
               //convert the options to a map for easy access, and validate them
               @SuppressWarnings("unused")
-              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+              final Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
                   params);
   
               int wsGroupsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
@@ -2266,7 +2266,66 @@ public class GrouperServiceLogic {
                         throws GrouperDAOException {
                       //make sure everything is in order
                       WS_GROUP_TO_SAVE.validate();
-                      Group group = WS_GROUP_TO_SAVE.save(SESSION);
+                      
+                      String moveOrCopy = paramMap.get("moveOrCopy");
+                      
+                      Group group = null;
+                      
+                      if (!StringUtils.isBlank(moveOrCopy)) {
+                        
+                        Stem toStem = null;
+                        {
+                          String toStemUuid = paramMap.get("moveOrCopyToStemUuid");
+                          int toStemCount = 0;
+                          if (!StringUtils.isBlank(toStemUuid)) {
+                            toStemCount++;
+                          }
+                          String toStemName = paramMap.get("moveOrCopyToStemName");
+                          if (!StringUtils.isBlank(toStemName)) {
+                            toStemCount++;
+                          }
+                          String toStemIdIndex = paramMap.get("moveOrCopyToStemIdIndex");
+                          if (!StringUtils.isBlank(toStemIdIndex)) {
+                            toStemCount++;
+                          }
+                          
+                          if (toStemCount != 1) {
+                            throw new WsInvalidQueryException("Problem with moveOrCopy, "
+                                + "expecting 1 and exactly 1 stem lookup: '" + toStemUuid + "', '"
+                                + toStemName + "', '" + toStemIdIndex + "'");
+                          }
+                          
+                          WsStemLookup wsStemLookup = new WsStemLookup(toStemName, toStemUuid, toStemIdIndex);
+                          wsStemLookup.retrieveStemIfNeeded(SESSION, true);
+                          toStem = wsStemLookup.retrieveStem();
+                          
+                        }
+                        
+                        if (StringUtils.equalsIgnoreCase("move", moveOrCopy)) {
+
+                          Boolean moveAssignAlternateName = GrouperUtil.booleanObjectValue(paramMap.get("moveAssignAlternateName"));
+                          
+                          group = WS_GROUP_TO_SAVE.move(SESSION, toStem, moveAssignAlternateName);
+                          
+                        } else if (StringUtils.equalsIgnoreCase("copy", moveOrCopy)) {
+
+                          Boolean copyPrivilegesOfGroup = GrouperUtil.booleanObjectValue(paramMap.get("copyPrivilegesOfGroup"));
+                          Boolean copyGroupAsPrivilege = GrouperUtil.booleanObjectValue(paramMap.get("copyGroupAsPrivilege"));
+                          Boolean copyListMembersOfGroup = GrouperUtil.booleanObjectValue(paramMap.get("copyListMembersOfGroup"));
+                          Boolean copyListGroupAsMember = GrouperUtil.booleanObjectValue(paramMap.get("copyListGroupAsMember"));
+                          Boolean copyAttributes = GrouperUtil.booleanObjectValue(paramMap.get("copyAttributes"));
+                          
+                          group = WS_GROUP_TO_SAVE.copy(SESSION, toStem, copyPrivilegesOfGroup, copyGroupAsPrivilege,
+                              copyListMembersOfGroup, copyListGroupAsMember, copyAttributes);                          
+                          
+                        } else {
+                          throw new WsInvalidQueryException("Problem with moveOrCopy, "
+                              + "expecting move or copy but was: '" + moveOrCopy + "'");
+                        }
+                      } else {
+                        group = WS_GROUP_TO_SAVE.save(SESSION);
+                      }
+                      
                       SaveResultType saveResultType = WS_GROUP_TO_SAVE.saveResultType();
                       wsGroupSaveResult.setWsGroup(new WsGroup(group, 
                           WS_GROUP_TO_SAVE.getWsGroupLookup(), includeGroupDetail));
@@ -3000,8 +3059,69 @@ public class GrouperServiceLogic {
                 try {
                   //make sure everything is in order
                   wsStemToSave.validate();
-                  Stem stem = wsStemToSave.save(SESSION);
-  
+                  Stem stem = null;
+
+                  String moveOrCopy = paramMap.get("moveOrCopy");
+                  
+                  Group group = null;
+                  
+                  if (!StringUtils.isBlank(moveOrCopy)) {
+                    
+                    Stem toStem = null;
+                    {
+                      String toStemUuid = paramMap.get("moveOrCopyToStemUuid");
+                      int toStemCount = 0;
+                      if (!StringUtils.isBlank(toStemUuid)) {
+                        toStemCount++;
+                      }
+                      String toStemName = paramMap.get("moveOrCopyToStemName");
+                      if (!StringUtils.isBlank(toStemName)) {
+                        toStemCount++;
+                      }
+                      String toStemIdIndex = paramMap.get("moveOrCopyToStemIdIndex");
+                      if (!StringUtils.isBlank(toStemIdIndex)) {
+                        toStemCount++;
+                      }
+                      
+                      if (toStemCount != 1) {
+                        throw new WsInvalidQueryException("Problem with moveOrCopy, "
+                            + "expecting 1 and exactly 1 stem lookup: '" + toStemUuid + "', '"
+                            + toStemName + "', '" + toStemIdIndex + "'");
+                      }
+                      
+                      WsStemLookup wsStemLookup = new WsStemLookup(toStemName, toStemUuid, toStemIdIndex);
+                      wsStemLookup.retrieveStemIfNeeded(SESSION, true);
+                      toStem = wsStemLookup.retrieveStem();
+                      
+                    }
+                    
+                    if (StringUtils.equalsIgnoreCase("move", moveOrCopy)) {
+
+                      Boolean moveAssignAlternateName = GrouperUtil.booleanObjectValue(paramMap.get("moveAssignAlternateName"));
+                      
+                      stem = wsStemToSave.move(SESSION, toStem, moveAssignAlternateName);
+                      
+                    } else if (StringUtils.equalsIgnoreCase("copy", moveOrCopy)) {
+
+                      Boolean copyPrivilegesOfGroup = GrouperUtil.booleanObjectValue(paramMap.get("copyPrivilegesOfGroup"));
+                      Boolean copyGroupAsPrivilege = GrouperUtil.booleanObjectValue(paramMap.get("copyGroupAsPrivilege"));
+                      Boolean copyListMembersOfGroup = GrouperUtil.booleanObjectValue(paramMap.get("copyListMembersOfGroup"));
+                      Boolean copyListGroupAsMember = GrouperUtil.booleanObjectValue(paramMap.get("copyListGroupAsMember"));
+                      Boolean copyAttributes = GrouperUtil.booleanObjectValue(paramMap.get("copyAttributes"));
+                      Boolean copyPrivilegesOfStem = GrouperUtil.booleanObjectValue(paramMap.get("copyPrivilegesOfStem"));
+                      
+                      stem = wsStemToSave.copy(SESSION, toStem, copyPrivilegesOfGroup, copyGroupAsPrivilege,
+                          copyListMembersOfGroup, copyListGroupAsMember, copyAttributes, copyPrivilegesOfStem);                          
+                      
+                    } else {
+                      throw new WsInvalidQueryException("Problem with moveOrCopy, "
+                          + "expecting move or copy but was: '" + moveOrCopy + "'");
+                    }
+                  } else {
+                    stem = wsStemToSave.save(SESSION);
+                  }
+
+                  
                   wsStemSaveResult.setWsStem(new WsStem(stem));
   
                   SaveResultType saveResultType = wsStemToSave.saveResultType();

@@ -264,17 +264,6 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     }
 
     {
-      //    <param-name>nameCol</param-name>
-      String nameCol = props.getProperty("nameCol");
-      if (StringUtils.isBlank(nameCol)) {
-        String errorDetail = "nameCol is required";
-        System.err.println(error + errorDetail);
-        log.error(error + errorDetail);
-        return;
-      }
-    }
-
-    {
       //    <param-name>lowerSearchCol</param-name>
       String lowerSearchCol = props.getProperty("lowerSearchCol");
       if (StringUtils.isBlank(lowerSearchCol)) {
@@ -679,15 +668,29 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
     //    <param-name>nameCol</param-name>
     this.nameCol = props.getProperty("nameCol");
-    if (StringUtils.isBlank(this.nameCol)) {
-      throw new SourceUnavailableException("nameCol not defined, source: " + this.getId());
+    if (!StringUtils.isBlank(this.nameCol)) {
+      this.selectCols.add(this.nameCol);
     }
-    this.selectCols.add(this.nameCol);
 
     //    <param-name>descriptionCol</param-name>
     this.descriptionCol = props.getProperty("descriptionCol");
     if (!StringUtils.isBlank(this.descriptionCol)) {
       this.selectCols.add(this.descriptionCol);
+    }
+    
+    this.nameAttributeName = props.getProperty("Name_AttributeType");
+    this.descriptionAttributeName = props.getProperty("Description_AttributeType");
+    
+    if (StringUtils.isBlank(this.nameCol) && StringUtils.isBlank(this.nameAttributeName)) {
+      throw new SourceUnavailableException("Neither nameCol nor Name_AttributeType defined, source: " + this.getId());
+    }
+    
+    if (!StringUtils.isBlank(this.nameCol) && !StringUtils.isBlank(this.nameAttributeName)) {
+      throw new SourceUnavailableException("Cannot specify both nameCol and Name_AttributeType, source: " + this.getId());
+    }
+    
+    if (!StringUtils.isBlank(this.descriptionCol) && !StringUtils.isBlank(this.descriptionAttributeName)) {
+      throw new SourceUnavailableException("Cannot specify both descriptionCol and Description_AttributeType, source: " + this.getId());
     }
 
     //    <param-name>lowerSearchCol</param-name>
@@ -1067,14 +1070,29 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
 
     subjectID = retrieveString(resultSet, this.subjectIdCol, "subjectIdCol", query,
         resultSetMetaData);
-    name = retrieveString(resultSet, this.nameCol, "nameCol", query, resultSetMetaData);
+    if (!StringUtils.isBlank(this.nameCol)) {
+      name = retrieveString(resultSet, this.nameCol, "nameCol", query, resultSetMetaData);
+    }
+    
     if (!StringUtils.isBlank(this.descriptionCol)) {
       description = retrieveString(resultSet, this.descriptionCol, "descriptionCol",
           query, resultSetMetaData);
     }
+    
+    // if name attribute is present, let's use that.
+    if (!StringUtils.isBlank(this.nameAttributeName)) {
+      name = null;
+    }
+    
+    // if description attribute is present, let's use that.
+    if (!StringUtils.isBlank(this.descriptionAttributeName)) {
+      description = null;
+    }
+    
+    
     Map attributes = loadAttributes(resultSet, query, resultSetMetaData);
     subject = new SubjectImpl(subjectID, name, description, this.getSubjectType().getName(), this.getId(),
-        attributes);
+        attributes, this.nameAttributeName, this.descriptionAttributeName);
     
     if (resultIdentifierToSubject != null) {
       boolean foundValue = false;
@@ -1304,6 +1322,44 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    */
   public void setSubjectAttributeColToName(Map<String, String> subjectAttributeColToName1) {
     this.subjectAttributeColToName = subjectAttributeColToName1;
+  }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributes()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributes() {
+    
+    if (this.subjectIdentifierAttributes == null) {
+      synchronized(JDBCSourceAdapter2.class) {
+        if (this.subjectIdentifierAttributes == null) {
+          
+          LinkedHashMap<Integer, String> temp = new LinkedHashMap<Integer, String>();
+          
+          for (int i = 0; i < 1; i++) {
+            String value = getInitParam("subjectIdentifierAttribute" + i);
+            if (value != null) {
+              temp.put(i, value.toLowerCase());
+            }        
+          }
+                    
+          // if we still don't have anything..
+          if (temp.size() == 0) {
+            for (String identifierCol : SubjectUtils.nonNull(subjectIdentifierCols)) {
+              // check if this column is mapped to an attribute
+              String attribute = subjectAttributeColToName.get(identifierCol);
+              if (attribute != null) {
+                temp.put(0, attribute);
+                break;
+              }
+            }
+          }
+          
+          this.subjectIdentifierAttributes = temp;
+        }
+      }
+    }
+    
+    return this.subjectIdentifierAttributes;
   }
 
 //  /**

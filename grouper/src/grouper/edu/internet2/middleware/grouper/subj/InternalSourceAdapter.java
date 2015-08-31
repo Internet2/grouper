@@ -36,12 +36,14 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
@@ -231,6 +233,10 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
         this.addInitParam("searchAttribute" + i, "searchAttribute" + i);
       }
     }
+    
+    this.addInitParam("subjectVirtualAttribute_0_subjectIdentifierAttribute0", "${subject.id}");
+    this.addInternalAttribute("subjectIdentifierAttribute0");
+    this.addInitParam("subjectIdentifierAttribute0", "subjectIdentifierAttribute0");
   } // public void init()
 
   /**
@@ -321,10 +327,14 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @return the subject
    */
   private Subject createSubject(String id, String name) {
-    Subject subject = new SubjectImpl(id, name, name, 
+    Subject subject = new SubjectImpl(id, null, null,
         SubjectTypeEnum.APPLICATION.getName(), this.getId(), 
-        new HashMap<String, Set<String>>());
-    subject.getAttributes(false).put("name", GrouperUtil.toSet(allName));
+        new HashMap<String, Set<String>>(),
+        "name", "name");
+    
+    Map<String, Set<String>> attrs = new SubjectCaseInsensitiveMapImpl<String, Set<String>>();
+    attrs.put("name", GrouperUtil.toSet(name));
+    ((SubjectImpl)subject).setAttributes(attrs);
     
     return subject;
   }

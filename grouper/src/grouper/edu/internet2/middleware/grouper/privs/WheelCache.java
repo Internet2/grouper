@@ -84,4 +84,56 @@ public class WheelCache {
       .put(new Element(new MultiKey(subj.getSourceId(), subj.getId()), rv));
   }
 
+  /**
+   * Retrieve boolean from cache for readonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return Cached return value or null.
+   * @since 2.1.0
+   */
+  public static Boolean getFromIsWheelReadonlyMemberCache(Subject subj) {
+    Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+      .get(new MultiKey("readonlyCache", subj.getSourceId(), subj.getId()));
+    if (el != null) {
+      return (Boolean) el.getObjectValue();
+    }
+    return null;
+  }
+
+  /**
+   * Put boolean into cache for readonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @param rv 
+   * @since 2.1.0
+   */
+  public static void putInReadonlyHasPrivilegeCache(Subject subj, Boolean rv) {
+    EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+      .put(new Element(new MultiKey("readonlyCache", subj.getSourceId(), subj.getId()), rv));
+  }
+
+
+  /**
+   * Retrieve boolean from cache for viewonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return Cached return value or null.
+   * @since 2.1.0
+   */
+  public static Boolean getFromIsWheelViewonlyMemberCache(Subject subj) {
+    Element el = EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+      .get(new MultiKey("viewonlyCache", subj.getSourceId(), subj.getId()));
+    if (el != null) {
+      return (Boolean) el.getObjectValue();
+    }
+    return null;
+  }
+
+  /**
+   * Put boolean into cache for viewonly <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @param rv 
+   * @since 2.1.0
+   */
+  public static void putInViewonlyHasPrivilegeCache(Subject subj, Boolean rv) {
+    EhcacheController.ehcacheController().getCache(WheelCache.CACHE_IS_WHEEL_MEMBER)
+      .put(new Element(new MultiKey("viewonlyCache", subj.getSourceId(), subj.getId()), rv));
+  }
 }

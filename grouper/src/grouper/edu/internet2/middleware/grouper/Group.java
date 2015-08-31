@@ -31,6 +31,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+
+import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.*;
+
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Collections;
@@ -4965,6 +4968,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 }
               }
               
+              // GRP-1091: ldap loader display name doesnt change
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.rename.includeExcludeRequireEtc.when.name.changes", true)) {
+                Group.this.changeDisplayProperties();
+              }
+              
               if (Group.this.dbVersionDifferentFields().contains(FIELD_TYPE_OF_GROUP)) {
                 TypeOfGroup oldTypeOfGroup = Group.this.dbVersion().getTypeOfGroup();
                 TypeOfGroup newTypeOfGroup = Group.this.getTypeOfGroup();
@@ -6586,6 +6594,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * @param composite
    * @param addDefaultGroupPrivileges
    * @param checkSecurity true to check that user can do this operation, false to ignore
+   * @param extension
+   * @param displayExtension
    * @return group
    * @throws GroupAddException
    * @throws InsufficientPrivilegeException
@@ -6593,7 +6603,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   protected Group internal_copy(final Stem stem, final boolean privilegesOfGroup,
       final boolean groupAsPrivilege, final boolean listMembersOfGroup,
       final boolean listGroupAsMember, final boolean attributes, final boolean composite,
-      final boolean addDefaultGroupPrivileges, final boolean checkSecurity)
+      final boolean addDefaultGroupPrivileges, final boolean checkSecurity, 
+      final String extension, final String displayExtension)
       throws GroupAddException, InsufficientPrivilegeException {
     
     return (Group)HibernateSession.callbackHibernateSession(
@@ -6646,22 +6657,24 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             }
             
                 Group newGroup = null;
+                String theExtension = extension == null ? Group.this.getExtension() : extension;
+                String theDisplayExtension = displayExtension == null ? Group.this.getDisplayExtensionDb() : displayExtension;
                 
                 try {
-                  newGroup = stem.internal_addChildGroup(Group.this.getExtension(),
-                      Group.this.getDisplayExtensionDb(), null, Group.this
+                  newGroup = stem.internal_addChildGroup(theExtension,
+                      theDisplayExtension, null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
                       addDefaultGroupPrivileges, Group.this.typeOfGroup, checkSecurity);
                 } catch (GroupAddException e) {
                   Group test = GroupFinder.findByName(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), stem.getName()
-                      + Stem.DELIM + Group.this.getExtension(), false);
+                      + Stem.DELIM + theExtension, false);
                   if (test == null) {
                     throw e;
                   }
                   
                   // if the group already exists in the new stem, lets append ".#" to the extension.
-                  String newGroupExtension = Group.this.getExtensionDb() + ".2";
+                  String newGroupExtension = theExtension + ".2";
                   int extensionCount = 2;
                   boolean notFound = false;
                   while (notFound == false) {
@@ -6670,7 +6683,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                         + Stem.DELIM + newGroupExtension, false);
                     if (foundGroup != null) {
                       extensionCount++;
-                      newGroupExtension = Group.this.getExtensionDb() + "."
+                      newGroupExtension = theExtension + "."
                           + extensionCount;
                     } else {
                       notFound = true;
@@ -6678,7 +6691,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   }
                   
                   newGroup = stem.internal_addChildGroup(newGroupExtension,
-                      Group.this.getDisplayExtensionDb(), null, Group.this
+                      theDisplayExtension, null, Group.this
                           .description, Group.this.getTypesDb(), attributesMap,
                 addDefaultGroupPrivileges, Group.this.typeOfGroup, checkSecurity);
                 }
@@ -7622,5 +7635,376 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
   
   }
+  
+  /**
+   * if group is in include/exclude etc change other groups
+   */
+  private void changeDisplayProperties() {
+    
+    boolean alreadyChanged = false;
+    
+    String includeExcludeTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.type.name");
+    String requireGroupsTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
+    
+    // group before the changes
+    Group groupBeforeChange = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.getUuid(), false, 
+        new QueryOptions().secondLevelCache(false));
+    DisplayProperties oldDisplayProperties = new DisplayProperties(groupBeforeChange);
+    DisplayProperties newDisplayProperties = new DisplayProperties(this);
+    
+    for (GroupType groupType: this.getTypes(false)) {
+     
+      if (groupType.getName().equals(includeExcludeTypeName)) {
+        changeDisplayPropertiesForIncludeExcludeType(oldDisplayProperties, newDisplayProperties);
+        alreadyChanged = true;
+      } else if (groupType.getName().equals(requireGroupsTypeName)) {
+        changeDisplayPropertiesForRequireInGroupsType(oldDisplayProperties, newDisplayProperties);
+        alreadyChanged = true;
+      }
+      
+    }
+    
+    // addIncludeExclude type from UI - systemOfRecord group is not of type addIncludeExclude
+    if (!alreadyChanged && groupBeforeChange.getName().endsWith(systemOfRecordExtensionSuffix()) 
+          && groupExistsAsCompositeInOverallGroup(groupBeforeChange.getName())) {
+        changeDisplayPropertiesForIncludeExcludeType(oldDisplayProperties, newDisplayProperties);
+        alreadyChanged = true;
+    }
+    
+    // requireInGroups type from UI - systemOfRecord group is not of type requireInGroups
+    if (!alreadyChanged && groupBeforeChange.getName().endsWith(systemOfRecordExtensionSuffix()) 
+          && groupExistsAsMemberInOverallGroup(groupBeforeChange.getName())) {
+      changeDisplayPropertiesForRequireInGroupsType(oldDisplayProperties, newDisplayProperties);
+    }
+    
+  }
+  
+  /**
+   * 
+   * @param groupName
+   * @return if group exists as direct member
+   */
+  private boolean groupExistsAsMemberInOverallGroup(String groupName) {
+    
+    // find overall group and it must not be null
+    if (!groupName.endsWith(systemOfRecordExtensionSuffix())) {
+      return false;
+    }
+    String overallGroupName = groupName.substring(0, groupName.length() - systemOfRecordExtensionSuffix().length());
+    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), overallGroupName, false, 
+        new QueryOptions().secondLevelCache(false));
+    
+    boolean found = false;
+    if (overallGroup != null) {
+      
+      return overallGroup.hasImmediateMember(this.toSubject());
+    }
+    
+    return found;
+  }
+  
+  /**
+   * @param groupName
+   * @return true if group is composite in overall
+   */
+  private boolean groupExistsAsCompositeInOverallGroup(String groupName) {
+   
+    if (!groupName.endsWith(systemOfRecordExtensionSuffix())) {
+      return false;
+    }
+    
+    // find overall group and it must not be null
+    String overallGroupName = groupName.substring(0, groupName.length() - systemOfRecordExtensionSuffix().length());
+    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), overallGroupName, false, 
+        new QueryOptions().secondLevelCache(false));
+    
+    boolean found = false;
+    // system of record must be in one of the composite members.
+    Composite composite = overallGroup != null ? overallGroup.getComposite(false) : null;
+    if (composite != null) {
+      return composite.getLeftGroup().hasMember(this.toSubject());
 
+    }
+    
+    return found;
+  }
+  
+  /**
+   * change include/exclude if group changed
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForIncludeExcludeType(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+    
+    changeDisplayPropertiesForOverallGroup(oldDisplayProperties, newDisplayProperties);
+    changeDisplayPropertiesForSystemForRecordGroup(oldDisplayProperties, newDisplayProperties);
+    changeDisplayPropertiesForIncludeGroup(oldDisplayProperties, newDisplayProperties);
+    changeDisplayPropertiesForExcludeGroup(oldDisplayProperties, newDisplayProperties);
+    changeDisplayPropertiesForSystemOfRecordIncludesGroup(oldDisplayProperties, newDisplayProperties);
+    
+  }
+  
+  /**
+   * change require group if group changed
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForRequireInGroupsType(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+    
+    changeDisplayPropertiesForOverallGroup(oldDisplayProperties, newDisplayProperties);
+    changeDisplayPropertiesForSystemForRecordGroup(oldDisplayProperties, newDisplayProperties);
+    
+  }
+  
+  /**
+   * change overall group if group changed
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForOverallGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+    
+    Group overallGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), oldDisplayProperties.name, false, 
+        new QueryOptions().secondLevelCache(false));
+    
+    if (overallGroup != null && !overallGroup.getUuid().equals(this.getUuid())) {
+      
+      boolean changed = false;
+      
+      if (!overallGroup.getDisplayExtension().equals(newDisplayProperties.displayExtension)) {
+        overallGroup.setDisplayExtension(newDisplayProperties.displayExtension);
+        changed = true;
+
+        //dont change description if someone edited it
+        String previousDescription = overallDescription(oldDisplayProperties.extension, oldDisplayProperties.displayExtension);
+        if (StringUtils.equals(previousDescription, overallGroup.getDescription())) {
+          String overallDescription = overallDescription(newDisplayProperties.extension, newDisplayProperties.displayExtension);
+          overallGroup.setDescription(overallDescription);
+        }
+      }
+      
+      if (!overallGroup.getName().equals(newDisplayProperties.name)) {
+        overallGroup.setExtension(newDisplayProperties.extension);
+        changed = true;
+      }
+      
+      if (changed) {
+        GrouperDAOFactory.getFactory().getGroup().update(overallGroup);
+      } 
+      
+    }
+
+  }
+
+  /**
+   * change system of record if group changed
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForSystemForRecordGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+    
+    Group systemOfRecordGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+        oldDisplayProperties.name+systemOfRecordExtensionSuffix(), false, 
+        new QueryOptions().secondLevelCache(false));
+    
+    if (systemOfRecordGroup != null && !systemOfRecordGroup.getUuid().equals(this.getUuid()) && 
+        systemOfRecordGroup.getDisplayExtension().endsWith(systemOfRecordDisplayExtensionSuffix())) {
+      
+      String displayExtensionWithoutSystemOfRecord = systemOfRecordGroup.getDisplayExtension().
+        substring(0, systemOfRecordGroup.getDisplayExtension().length() - systemOfRecordDisplayExtensionSuffix().length());
+      
+      boolean changed = false;
+      
+      if (!displayExtensionWithoutSystemOfRecord.equals(newDisplayProperties.displayExtension)) {
+        systemOfRecordGroup.setDisplayExtension(newDisplayProperties.displayExtension+systemOfRecordDisplayExtensionSuffix());
+        changed = true;
+
+        //dont change description if someone edited it
+        String previousSystemOrRecordDescription = systemOfRecordDescription(oldDisplayProperties.extension, oldDisplayProperties.displayExtension);
+        if (StringUtils.equals(previousSystemOrRecordDescription, systemOfRecordGroup.getDescription())) {
+          String systemOfRecordDescription = systemOfRecordDescription(newDisplayProperties.extension, newDisplayProperties.displayExtension);
+          systemOfRecordGroup.setDescription(systemOfRecordDescription);
+        }
+      }
+      if (!newDisplayProperties.name.equals(oldDisplayProperties.name)) {
+        systemOfRecordGroup.setExtension(newDisplayProperties.extension+systemOfRecordExtensionSuffix());
+        changed = true;
+      }
+        
+      if(changed) {
+        GrouperDAOFactory.getFactory().getGroup().update(systemOfRecordGroup);
+      }
+      
+    }
+    
+  }
+
+  /**
+   * change include group if group changed
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForIncludeGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+    
+    Group includeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+        oldDisplayProperties.name+includeExtensionSuffix(), false, 
+        new QueryOptions().secondLevelCache(false));
+    if (includeGroup != null && !includeGroup.getUuid().equals(this.getUuid()) && 
+        includeGroup.getDisplayExtension().endsWith(includeDisplayExtensionSuffix())) {
+      
+      String displayExtensionWithoutInclude = includeGroup.getDisplayExtension().
+          substring(0, includeGroup.getDisplayExtension().length() - includeDisplayExtensionSuffix().length());
+      
+      boolean changed = false;
+      
+      if (!displayExtensionWithoutInclude.equals(newDisplayProperties.displayExtension)) {
+        includeGroup.setDisplayExtension(newDisplayProperties.displayExtension+includeDisplayExtensionSuffix());
+        changed = true;
+        //dont change description if someone edited it
+        String previousIncludesDescription = includeDescription(oldDisplayProperties.extension, oldDisplayProperties.displayExtension);
+        if (StringUtils.equals(previousIncludesDescription, includeGroup.getDescription())) {
+          String includesDescription = includeDescription(newDisplayProperties.extension, newDisplayProperties.displayExtension);
+          includeGroup.setDescription(includesDescription);
+        }
+      }
+      if (!oldDisplayProperties.name.equals(newDisplayProperties.name)) {
+        includeGroup.setExtension(newDisplayProperties.extension+includeExtensionSuffix());
+        changed = true;
+      }
+      
+      if (changed) {
+        GrouperDAOFactory.getFactory().getGroup().update(includeGroup);
+      }
+      
+    }
+    
+  }
+
+  /**
+   * change exclude group
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForExcludeGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+        
+    Group excludeGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+        oldDisplayProperties.name+excludeExtensionSuffix(), false, 
+        new QueryOptions().secondLevelCache(false));
+    if (excludeGroup != null && !excludeGroup.getUuid().equals(this.getUuid()) && 
+        excludeGroup.getDisplayExtension().endsWith(excludeDisplayExtensionSuffix())) {
+      
+      String displayExtensionWithoutExclude = excludeGroup.getDisplayExtension().
+          substring(0, excludeGroup.getDisplayExtension().length() - excludeDisplayExtensionSuffix().length());
+      
+      boolean changed = false;
+      
+      if (!displayExtensionWithoutExclude.equals(newDisplayProperties.displayExtension)) {
+        excludeGroup.setDisplayExtension(newDisplayProperties.displayExtension+excludeDisplayExtensionSuffix());
+        changed = true;
+        //dont change description if someone edited it
+        String previousExcludesDescription = excludeDescription(oldDisplayProperties.extension, oldDisplayProperties.displayExtension);
+        if (StringUtils.equals(previousExcludesDescription, excludeGroup.getDescription())) {
+          String excludesDescription = excludeDescription(newDisplayProperties.extension, newDisplayProperties.displayExtension);
+          excludeGroup.setDescription(excludesDescription);
+        }
+      }
+      if (!newDisplayProperties.name.equals(oldDisplayProperties.name)) {
+        excludeGroup.setExtension(newDisplayProperties.extension+excludeExtensionSuffix());
+        changed = true;
+      }
+      
+      if (changed) {
+        GrouperDAOFactory.getFactory().getGroup().update(excludeGroup);
+      }
+      
+    }
+    
+  }
+  
+  /**
+   * change system of record and includes
+   * @param oldDisplayProperties
+   * @param newDisplayProperties
+   */
+  private void changeDisplayPropertiesForSystemOfRecordIncludesGroup(DisplayProperties oldDisplayProperties, DisplayProperties newDisplayProperties) {
+    
+    Group systemOfRecordAndIncludes  = GroupFinder.findByName(GrouperSession.staticGrouperSession(), 
+                                                     oldDisplayProperties.name+systemOfRecordAndIncludesExtensionSuffix(), false, 
+                                                     new QueryOptions().secondLevelCache(false));
+    if (systemOfRecordAndIncludes != null && !systemOfRecordAndIncludes.getUuid().equals(this.getUuid()) && 
+        systemOfRecordAndIncludes.getDisplayExtension().endsWith(systemOfRecordAndIncludesDisplayExtensionSuffix())) {
+      
+      String displayExtensionWithoutSystemOfRecordInclude = systemOfRecordAndIncludes.getDisplayExtension().
+          substring(0, systemOfRecordAndIncludes.getDisplayExtension().length() - systemOfRecordAndIncludesDisplayExtensionSuffix().length());
+      
+      boolean changed = false;
+      
+      if (!displayExtensionWithoutSystemOfRecordInclude.equals(newDisplayProperties.displayExtension)) {
+        systemOfRecordAndIncludes.setDisplayExtension(newDisplayProperties.displayExtension+systemOfRecordAndIncludesDisplayExtensionSuffix());
+        changed = true;
+        //dont change description if someone edited it
+        String previousSystemOrRecordAndIncludesDescription = systemOfRecordAndIncludesDescription(oldDisplayProperties.extension, oldDisplayProperties.displayExtension);
+        if (StringUtils.equals(previousSystemOrRecordAndIncludesDescription, systemOfRecordAndIncludes.getDescription())) {
+          String systemOfRecordAndIncludesDescription = systemOfRecordAndIncludesDescription(newDisplayProperties.extension, newDisplayProperties.displayExtension);
+          systemOfRecordAndIncludes.setDescription(systemOfRecordAndIncludesDescription);
+        }
+      }
+      if (!newDisplayProperties.name.equals(oldDisplayProperties.name)) {
+        systemOfRecordAndIncludes.setExtension(newDisplayProperties.extension+systemOfRecordAndIncludesExtensionSuffix());
+        changed = true;
+      }
+      
+      if (changed) {
+        GrouperDAOFactory.getFactory().getGroup().update(systemOfRecordAndIncludes);
+      }
+      
+    }
+    
+  }
+  
+  /**
+   * keep track of properties of pre/post update
+   */
+  private class DisplayProperties {
+    
+    /**
+     * group name
+     */
+    private String name;
+    
+    /**
+     * display extension
+     */
+    private String displayExtension;
+    
+    /**
+     * extension
+     */
+    private String extension;
+    
+    /**
+     * construct with new or old group
+     * @param group
+     */
+    private DisplayProperties(Group group) {
+      this.name = group.getName();
+      this.displayExtension = group.getDisplayExtension();
+      this.extension = group.getExtension();
+      
+      // for loader, addIncludeExclude type is added to the _systemOfRecord group and for UI addIncludeExclude type is
+      // added to overall Group
+      if (this.name.endsWith(systemOfRecordExtensionSuffix())) {
+        this.name = this.name.substring(0, this.name.length() - systemOfRecordExtensionSuffix().length());
+      }
+      
+      if (this.displayExtension.endsWith(systemOfRecordDisplayExtensionSuffix())) {
+        this.displayExtension = this.displayExtension.substring(0, this.displayExtension.length() - systemOfRecordDisplayExtensionSuffix().length());
+      }
+      
+      if (this.extension.endsWith(systemOfRecordExtensionSuffix())) {
+        this.extension = this.extension.substring(0, this.extension.length() - systemOfRecordExtensionSuffix().length());
+      }
+    }
+    
+  }
+  
 }

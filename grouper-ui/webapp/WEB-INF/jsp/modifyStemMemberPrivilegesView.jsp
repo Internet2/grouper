@@ -20,7 +20,7 @@
 	<html:hidden property="sourceId"/>
 	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	
-	<c:if test="${authUserPriv.stem}">
+	<c:if test="${authUserPriv.stemAdmin}">
 		<c:forEach var="priv" items="${possiblePrivs}">
 			<html:multibox property="privileges" value="${priv}"  styleId="priv${priv}"/> 
 				<label for="priv<c:out value="${priv}"/>"><grouper:message key="priv.${priv}"/></label><br/>
