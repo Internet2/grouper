@@ -7293,9 +7293,12 @@ public class GrouperInstaller {
     if (exception == null) {
       System.out.println("Successfully tested database connection");
     } else {
-      System.out.println("Error: could not connect to the database: ");
-      exception.printStackTrace();
-      
+      if (GrouperInstallerUtils.getFullStackTrace(exception).contains(ClassNotFoundException.class.getName())) {
+        System.out.println("Cannot check connection since driver is not in classpath of installer, this is fine but not sure if connection details work or not");
+      } else {
+        System.out.println("Error: could not connect to the database: ");
+        exception.printStackTrace();
+      }
     }
   }
 
