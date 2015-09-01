@@ -105,7 +105,7 @@ public class GiGrouperVersion {
    * e.g. 1.5.0
    * DEV NOTE: this cant be read from version file since in dev there is no grouper jar so I dont know the version
    */
-  public static final String GROUPER_VERSION = "2.2.1";
+  public static final String GROUPER_VERSION = "2.2.2";
   
   /**
    * se we dont have to keep constructing this
