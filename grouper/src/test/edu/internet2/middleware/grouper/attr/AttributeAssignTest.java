@@ -1312,10 +1312,10 @@ public class AttributeAssignTest extends GrouperTest {
 
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertEquals(0, attributeAssigns.size());
 
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertEquals(0, attributeAssigns.size());
 
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertTrue(attributeDefs.size() == 1 && attributeDefs.contains(attributeDef));
@@ -1324,10 +1324,10 @@ public class AttributeAssignTest extends GrouperTest {
     
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, true);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertEquals(0, attributeAssigns.size());
     
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase2, false);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertEquals(0, attributeAssigns.size());
 
     //test subject 5 can STEM and read
     GrouperSession.stopQuietly(this.grouperSession);
@@ -3498,10 +3498,10 @@ public class AttributeAssignTest extends GrouperTest {
   
     attributeAssigns = GrouperDAOFactory.getFactory()
       .getAttributeAssign().findStemAttributeAssignments(null, null, null, GrouperUtil.toSet(stem.getUuid()), null, true, false);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertEquals(0, attributeAssigns.size());
   
     attributeAssigns = PrivilegeHelper.canViewAttributeAssigns(this.grouperSession, attributeAssignsBase, false);
-    assertTrue(attributeAssigns.size() == 1 && attributeAssigns.contains(attributeAssign));
+    assertEquals(0, attributeAssigns.size());
   
     attributeDefs = PrivilegeHelper.canViewAttributeDefs(this.grouperSession, attributeDefsBase);
     assertEquals(1, attributeDefs.size());
