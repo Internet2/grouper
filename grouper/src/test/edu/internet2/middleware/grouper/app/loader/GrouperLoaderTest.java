@@ -1618,6 +1618,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNotNull(group1SystemOfRecordIncludes);
     assertEquals("The loader:group 1 system of record and includes", group1SystemOfRecordIncludes.getDisplayName());
     
+    HibernateSession.byObjectStatic().delete(group1meta);
     
     group1meta = new TestgrouperLoaderGroups("loader:group1_systemOfRecord",
         "The loader:group 2 system of record", "This is the first group");
@@ -1683,6 +1684,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("This is the third group", systemOfRecordGroup.getDescription());
     assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
     
+    HibernateSession.byObjectStatic().delete(groupMeta);
     
     groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord",
         "loader:group 4 system of record", "This is the fourth group");
