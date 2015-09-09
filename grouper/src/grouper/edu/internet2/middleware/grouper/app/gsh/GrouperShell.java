@@ -285,7 +285,15 @@ private static boolean handleSpecialCase(String[] args) {
     throws  GrouperShellException
   {
     try {
-      GrouperSession s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
+      //get static first
+      GrouperSession s = null;
+      
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.gsh.useStaticGrouperSessionFirst", true)) {
+        s = GrouperSession.staticGrouperSession(false);
+      }
+      if (s==null) {
+        s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
+      }
       if (s != null && s.getSubjectDb() == null) {
         s = null;
         GrouperShell.set(i, GSH_SESSION, s);
