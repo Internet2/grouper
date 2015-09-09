@@ -1757,10 +1757,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   E.CANNOT_ADMIN + errorMessageSuffix);
             }
             try {
-              
-              // Revoke all access privs
-              Group.this._revokeAllAccessPrivs();
-              
+
               //delete any attributes on this group
               Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
               
@@ -1787,6 +1784,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperSession.staticGrouperSession().internal_getRootSession()
                 .getAttributeDefResolver().revokeAllPrivilegesForSubject(groupSubject);
               
+              // Revoke all access privs
+              // GRP-1193 - cant delete composite group
+              Group.this._revokeAllAccessPrivs();
+
               //deletes.add(this);            // ... And add the group last for good luck    
               String name = Group.this.getName(); // Preserve name for logging
               GrouperDAOFactory.getFactory().getGroup().delete(Group.this);

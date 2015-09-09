@@ -254,6 +254,7 @@ private static boolean handleSpecialCase(String[] args) {
   // @since   0.0.1
   protected static void error(Interpreter interpreter, Exception e, String msg) {
     interpreter.error(msg);
+    LOG.error("Error in GSH: " + msg, e);
     if (isDebug(interpreter)) {
       e.printStackTrace();
     }
@@ -439,7 +440,7 @@ private static boolean handleSpecialCase(String[] args) {
   } 
 
   /** logger */
-  private static final Log LOG = GrouperUtil.getLog(ShellHelper.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperShell.class);
 
   /**
    * 
