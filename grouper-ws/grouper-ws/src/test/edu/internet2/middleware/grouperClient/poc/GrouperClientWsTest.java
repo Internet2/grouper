@@ -1165,7 +1165,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // Index 0: success: T: code: SUCCESS: stem: aStem: subject:
       // test.subject.0: naming: create
       // Index 1: success: T: code: SUCCESS: stem: aStem: subject:
-      // test.subject.0: naming: stem
+      // test.subject.0: naming: stemAdmin
 
       assertEquals("0", matcher.group(1));
       assertEquals("SUCCESS", matcher.group(2));
@@ -1185,7 +1185,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("aStem", matcher.group(4));
       assertEquals("test.subject.0", matcher.group(5));
       assertEquals("naming", matcher.group(6));
-      assertEquals("stem", matcher.group(7));
+      assertEquals("stemAdmin", matcher.group(7));
 
       // #####################################################
       // run again, with includeGroupDetail and includeSubjectDetail
@@ -1474,7 +1474,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("aStem", matcher.group(3));
       assertEquals("test.subject.0", matcher.group(4));
       assertEquals("naming", matcher.group(5));
-      assertEquals("stem", matcher.group(6));
+      assertEquals("stemAdmin", matcher.group(6));
 
       // #####################################################
       // run again, with includeGroupDetail and includeSubjectDetail
@@ -8652,7 +8652,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem1", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -8680,7 +8680,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem2", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -8772,7 +8772,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem1", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -8800,7 +8800,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem2", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -10124,7 +10124,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("aStem", matcher.group(5));
       assertEquals("test.subject.0", matcher.group(6));
       assertEquals("naming", matcher.group(7));
-      assertEquals("stem", matcher.group(8));
+      assertEquals("stemAdmin", matcher.group(8));
 
       // #####################################################
       // run again, with includeGroupDetail and includeSubjectDetail

@@ -3544,8 +3544,8 @@ public class GrouperServiceLogic {
           if (privilegeName == null || NamingPrivilege.CREATE.equals(privilegeName)) { 
             subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.CREATE)));
           } 
-          if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
-            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM)));
+          if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName) || NamingPrivilege.STEM_ADMIN.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM_ADMIN)));
           } 
           if (privilegeName == null || NamingPrivilege.STEM_ATTR_READ.equals(privilegeName)) { 
             subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM_ATTR_READ)));
@@ -3606,8 +3606,8 @@ public class GrouperServiceLogic {
             if (privilegeName == null || NamingPrivilege.CREATE.equals(privilegeName)) { 
               stems.addAll(member.hasCreate());
             } 
-            if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
-              stems.addAll(member.hasStem());
+            if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName) || NamingPrivilege.STEM_ADMIN.equals(privilegeName)) { 
+              stems.addAll(member.hasStemAdmin());
             } 
             if (privilegeName == null || NamingPrivilege.STEM_ATTR_READ.equals(privilegeName)) { 
               stems.addAll(member.hasStemAttrRead());
