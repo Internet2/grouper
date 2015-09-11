@@ -112,6 +112,9 @@ public class PrivHelper {
     else if (priv.equals(NamingPrivilege.STEM)) {
       subjects = ns.getStemmers();
     } 
+    else if (priv.equals(NamingPrivilege.STEM_ADMIN)) {
+      subjects = ns.getStemAdmins();
+    } 
    else {
       Assert.fail("invalid privilege: " + priv);
     }
@@ -314,6 +317,10 @@ public class PrivHelper {
     else if (priv.equals(NamingPrivilege.STEM)) {
       Assert.assertTrue(msg + " STEM",    ns.hasStem(subj)    == has  );
       Assert.assertTrue(msg + " STEM",    m.hasStem(ns)       == has  );
+    }
+    else if (priv.equals(NamingPrivilege.STEM_ADMIN)) {
+      Assert.assertTrue(msg + " STEM_ADMIN",    ns.hasStemAdmin(subj)    == has  );
+      Assert.assertTrue(msg + " STEM_ADMIN",    m.hasStemAdmin(ns)       == has  );
     }
     else {
       Assert.fail("unable test priv '" + priv + "'");

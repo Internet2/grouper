@@ -609,6 +609,7 @@ public class GrouperTest extends TestCase {
    */
   public void assertStemHasStem(Stem ns, Subject subj, boolean exp) {
     _assertPriv(NS, ns.getName(), subj, "STEM", exp, ns.hasStem(subj));
+    _assertPriv(NS, ns.getName(), subj, "STEM_ADMIN", exp, ns.hasStemAdmin(subj));
   } // public void assertStemHasStem(ns, subj, exp)
 
   /**

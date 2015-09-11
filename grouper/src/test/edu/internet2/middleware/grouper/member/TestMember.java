@@ -979,6 +979,10 @@ public class TestMember extends GrouperTest {
     Assert.assertTrue("!hasStem: root",   !m.hasStem(root));
     Assert.assertTrue("hasStem: edu",     m.hasStem(edu));
     
+    Assert.assertTrue("hasStemAdmin == 1",     m.hasStemAdmin().size() == 1);
+    Assert.assertTrue("!hasStemAdmin: root",   !m.hasStemAdmin(root));
+    Assert.assertTrue("hasStemAdmin: edu",     m.hasStemAdmin(edu));
+    
     Assert.assertTrue("hasStemAttrRead == 1",     m.hasStemAttrRead().size() == 1);
     Assert.assertTrue("!hasStemAttrRead: root",   !m.hasStemAttrRead(root));
     Assert.assertTrue("hasStemAttrRead: edu",     m.hasStemAttrRead(edu));
@@ -1277,6 +1281,7 @@ public class TestMember extends GrouperTest {
       Stem    a   = r.getStem("a");
       Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
       Assert.assertFalse("OK: cannot stem", m.canStem(a));
+      Assert.assertFalse("OK: cannot stemAdmin", m.canStemAdmin(a));
       r.rs.stop();
     }
     catch (Exception e) {
@@ -1304,6 +1309,27 @@ public class TestMember extends GrouperTest {
       T.e(e);
     }
   } // public void testFailCanStemWhenNull()
+  
+  public void testFailCanStemAdminWhenNull() {
+    LOG.info("testFailCanStemWhenNull");
+    try {
+      R       r   = R.populateRegistry(0, 0, 0);
+      Member  m   = r.rs.getMember();
+      try {
+        m.canStemAdmin(null);
+        Assert.fail("FAIL: expected exception");
+      }
+      catch (IllegalArgumentException eIA) {
+        Assert.assertTrue("OK: threw expected exception", true);
+      }
+      finally {
+        r.rs.stop();
+      }
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testFailCanStemAdminWhenNull()
 
   public void testFailCanUpdateWhenNoPriv() {
     LOG.info("testFailCanUpdateWhenNoPriv");
@@ -1537,6 +1563,7 @@ public class TestMember extends GrouperTest {
       Stem    a   = r.getStem("a");
       Member  m   = r.rs.getMember();
       Assert.assertTrue("OK: can stem", m.canStem(a));
+      Assert.assertTrue("OK: can stemAdmin", m.canStemAdmin(a));
       r.rs.stop();
     }
     catch (Exception e) {

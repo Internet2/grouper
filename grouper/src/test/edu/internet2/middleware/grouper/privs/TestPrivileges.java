@@ -152,7 +152,9 @@ public class TestPrivileges extends GrouperTest {
         Privilege.getInstance("stem")
       );
       Assert.assertTrue("g (ns) has STEM", g.toMember().hasStem(ns));
+      Assert.assertTrue("g (ns) has STEM_ADMIN", g.toMember().hasStemAdmin(ns));
       Assert.assertTrue("g (m) has STEM",  ns.hasStem(g.toSubject()));
+      Assert.assertTrue("g (m) has STEM_ADMIN",  ns.hasStemAdmin(g.toSubject()));
   
       s.stop();
     }
@@ -336,6 +338,15 @@ public class TestPrivileges extends GrouperTest {
     Assert.assertTrue("STEM/B/IS"   , m.hasStem(B)      );
     Assert.assertTrue("STEM/C/IS"   , !m.hasStem(C)     );
   
+    Set stemAdmin    = m.hasStemAdmin();
+    T.amount( "STEM_ADMIN", 1, stemAdmin.size() );
+    Assert.assertTrue("STEM_ADMIN/A/HAS"  , !A.hasStemAdmin(subj)  );
+    Assert.assertTrue("STEM_ADMIN/B/HAS"  , B.hasStemAdmin(subj)   );
+    Assert.assertTrue("STEM_ADMIN/C/HAS"  , !C.hasStemAdmin(subj)  );
+    Assert.assertTrue("STEM_ADMIN/A/IS"   , !m.hasStemAdmin(A)     );
+    Assert.assertTrue("STEM_ADMIN/B/IS"   , m.hasStemAdmin(B)      );
+    Assert.assertTrue("STEM_ADMIN/C/IS"   , !m.hasStemAdmin(C)     );
+    
     nrs.stop();
   }
 }

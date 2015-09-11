@@ -863,6 +863,9 @@ public class TestGroup extends GrouperTest {
     Assert.assertTrue(
       "root has STEM on parent", parent.hasStem(s.getSubject())
     );
+    Assert.assertTrue(
+        "root has STEM on parent", parent.hasStemAdmin(s.getSubject())
+      );
   } 
 
   /**
