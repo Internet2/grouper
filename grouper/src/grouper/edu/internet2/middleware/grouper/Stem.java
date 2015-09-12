@@ -620,7 +620,24 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             StemAddException {
     return internal_addChildStem(extension, displayExtension, null);
   } 
+
+  /**
+   * keep track of if we are in a delete so hooks can 
+   */
+  private static ThreadLocal<Boolean> threadLocalInStemDelete = new InheritableThreadLocal<Boolean>();
   
+  /**
+   * see if we are in the middle of a delete (e.g. for hook)
+   * @return true if delete is occurring
+   */
+  public static boolean deleteOccuring() {
+    Boolean deleteOccuring = threadLocalInStemDelete.get();
+    if (deleteOccuring != null) {
+      return deleteOccuring;
+    }
+    return false;
+  }
+
   /**
    * Delete this stem from the Groups Registry.
    * <pre class="eg">
@@ -662,6 +679,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               throw new StemDeleteException( v.getErrorMessage() );
             }
             try {
+              threadLocalInStemDelete.set(true);
               String name = Stem.this.getName(); // Preserve name for logging
               Stem.this._revokeAllNamingPrivs();
               
@@ -693,6 +711,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             }
             catch (SchemaException eS)            {
               throw new StemDeleteException(eS.getMessage() + ", " + Stem.this.getName(), eS);
+            } finally {
+              threadLocalInStemDelete.remove();
             }
             return null;
          }

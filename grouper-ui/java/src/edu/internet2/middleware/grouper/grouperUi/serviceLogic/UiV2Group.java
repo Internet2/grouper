@@ -274,6 +274,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -348,6 +353,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -411,6 +421,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, member);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -801,6 +816,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, subject);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -819,6 +839,7 @@ public class UiV2Group {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
     GrouperSession grouperSession = null;
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -874,6 +895,11 @@ public class UiV2Group {
 
       GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, member);
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, re)) {
+        return;
+      }
+      throw re;
 
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1001,6 +1027,11 @@ public class UiV2Group {
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupMoreActionsButtonContentsDivId", 
           "/WEB-INF/grouperUi2/group/groupMoreActionsButtonContents.jsp"));
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1173,6 +1204,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(guiResponseJs, re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1442,7 +1478,12 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupRemove(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
-  
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -1617,6 +1658,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
   
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2041,6 +2087,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
   
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2144,6 +2195,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, newGroup);
   
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2481,6 +2537,11 @@ public class UiV2Group {
       }
       
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -2687,6 +2748,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3012,6 +3078,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3122,6 +3193,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3297,6 +3373,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -3741,6 +3822,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, group);
 
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -4200,6 +4286,11 @@ public class UiV2Group {
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, rightFactorGroup);
     
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
