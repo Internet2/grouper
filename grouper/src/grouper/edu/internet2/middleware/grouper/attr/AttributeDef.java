@@ -1525,6 +1525,23 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
   }
 
   /**
+   * keep track of if we are in a delete so hooks can 
+   */
+  private static ThreadLocal<Boolean> threadLocalInAttributeDefDelete = new InheritableThreadLocal<Boolean>();
+  
+  /**
+   * see if we are in the middle of a delete (e.g. for hook)
+   * @return true if delete is occurring
+   */
+  public static boolean deleteOccuring() {
+    Boolean deleteOccuring = threadLocalInAttributeDefDelete.get();
+    if (deleteOccuring != null) {
+      return deleteOccuring;
+    }
+    return false;
+  }
+
+  /**
    * delete this record (and security and actions etc, but not attribute def names yet)
    */
   public void delete() {
@@ -1536,38 +1553,43 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
 
-        //delete any attributes on this def
-        Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeDefId(AttributeDef.this.getId());
-        
-        for (AttributeAssign attributeAssign : attributeAssigns) {
-          attributeAssign.delete();
-        }
+        try {
+          threadLocalInAttributeDefDelete.set(true);
 
-        
-        //find the names that use this def
-        Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(AttributeDef.this.getId());
-        
-        for (AttributeDefName attributeDefName : attributeDefNames) {
-          attributeDefName.delete();
+          //delete any attributes on this def
+          Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerAttributeDefId(AttributeDef.this.getId());
+          
+          for (AttributeAssign attributeAssign : attributeAssigns) {
+            attributeAssign.delete();
+          }
+  
+          
+          //find the names that use this def
+          Set<AttributeDefName> attributeDefNames = GrouperDAOFactory.getFactory().getAttributeDefName().findByAttributeDef(AttributeDef.this.getId());
+          
+          for (AttributeDefName attributeDefName : attributeDefNames) {
+            attributeDefName.delete();
+          }
+          
+          Set<AttributeDefScope> attributeDefScopes = GrouperDAOFactory.getFactory().getAttributeDefScope().findByAttributeDefId(AttributeDef.this.getId(), new QueryOptions().secondLevelCache(false));
+          
+          for (AttributeDefScope attributeDefScope : attributeDefScopes) {
+            attributeDefScope.delete();
+          }
+          
+          
+          GrouperDAOFactory.getFactory().getAttributeDef().delete(AttributeDef.this);
+  
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_DELETE, "id", 
+                AttributeDef.this.getUuid(), "name", AttributeDef.this.getName(), "parentStemId", AttributeDef.this.getStemId(), 
+                "description", AttributeDef.this.getDescription());
+            auditEntry.setDescription("Deleted attributeDef: " + AttributeDef.this.getName());
+            auditEntry.saveOrUpdate(true);
+          }
+        } finally {
+          threadLocalInAttributeDefDelete.remove();
         }
-        
-        Set<AttributeDefScope> attributeDefScopes = GrouperDAOFactory.getFactory().getAttributeDefScope().findByAttributeDefId(AttributeDef.this.getId(), new QueryOptions().secondLevelCache(false));
-        
-        for (AttributeDefScope attributeDefScope : attributeDefScopes) {
-          attributeDefScope.delete();
-        }
-        
-        
-        GrouperDAOFactory.getFactory().getAttributeDef().delete(AttributeDef.this);
-
-        if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_DELETE, "id", 
-              AttributeDef.this.getUuid(), "name", AttributeDef.this.getName(), "parentStemId", AttributeDef.this.getStemId(), 
-              "description", AttributeDef.this.getDescription());
-          auditEntry.setDescription("Deleted attributeDef: " + AttributeDef.this.getName());
-          auditEntry.saveOrUpdate(true);
-        }
-
         return null;
       }
     });
