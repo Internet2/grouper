@@ -1776,7 +1776,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             try {
 
               threadLocalInGroupDelete.set(true);
-              
+
               //delete any attributes on this group
               Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
               

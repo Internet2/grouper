@@ -254,6 +254,7 @@ private static boolean handleSpecialCase(String[] args) {
   // @since   0.0.1
   protected static void error(Interpreter interpreter, Exception e, String msg) {
     interpreter.error(msg);
+    LOG.error("Error in GSH: " + msg, e);
     if (isDebug(interpreter)) {
       e.printStackTrace();
     }
@@ -285,7 +286,15 @@ private static boolean handleSpecialCase(String[] args) {
     throws  GrouperShellException
   {
     try {
-      GrouperSession s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
+      //get static first
+      GrouperSession s = null;
+      
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.gsh.useStaticGrouperSessionFirst", true)) {
+        s = GrouperSession.staticGrouperSession(false);
+      }
+      if (s==null) {
+        s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
+      }
       if (s != null && s.getSubjectDb() == null) {
         s = null;
         GrouperShell.set(i, GSH_SESSION, s);
@@ -431,7 +440,7 @@ private static boolean handleSpecialCase(String[] args) {
   } 
 
   /** logger */
-  private static final Log LOG = GrouperUtil.getLog(ShellHelper.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperShell.class);
 
   /**
    * 

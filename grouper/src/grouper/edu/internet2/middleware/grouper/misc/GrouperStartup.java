@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
- * this should be called when grouper starts up
+ * this should be called when grouper starts up.  this file needs to be utf-8
  */
 public class GrouperStartup {
 
