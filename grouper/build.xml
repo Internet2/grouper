@@ -399,6 +399,7 @@
       <fileset dir="conf">
         <include name="*.example.*"/>
         <include name="*.base.*"/>
+        <include name="*.txt"/>
       </fileset>
     </copy>
   	
