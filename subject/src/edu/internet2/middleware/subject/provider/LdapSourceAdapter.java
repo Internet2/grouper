@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -241,6 +242,28 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             
             //GRP-1151
             ldapPoolConfig = new LdapPoolConfig();
+            
+            //lets fix the boolean properties
+            //GRP-1196 - vtldap doesnt set pooling properties
+            Set<String> propertyNames = new LinkedHashSet<String>((Set<String>)(Object)properties.keySet());
+            for (String propertyName : propertyNames) {
+              if (StringUtils.equals(propertyName, "edu.vt.middleware.ldap.pool.validatePeriodically")) {
+                String value = properties.getProperty(propertyName);
+                ldapPoolConfig.setValidatePeriodically(SubjectUtils.booleanValue(value));
+                properties.remove(propertyName);
+              }
+              if (StringUtils.equals(propertyName, "edu.vt.middleware.ldap.pool.validateOnCheckIn")) {
+                String value = properties.getProperty(propertyName);
+                ldapPoolConfig.setValidateOnCheckIn(SubjectUtils.booleanValue(value));
+                properties.remove(propertyName);
+              }
+              if (StringUtils.equals(propertyName, "edu.vt.middleware.ldap.pool.validateOnCheckOut")) {
+                String value = properties.getProperty(propertyName);
+                ldapPoolConfig.setValidateOnCheckOut(SubjectUtils.booleanValue(value));
+                properties.remove(propertyName);
+              }
+            }
+            
             ldapPoolConfig.setEnvironmentProperties(properties);
          } catch (FileNotFoundException e) {
             log.error("ldap properties not found: " + e, e);

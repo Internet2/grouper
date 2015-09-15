@@ -4,6 +4,7 @@ conf/grouper.client.properties
 conf/grouper.hibernate.properties
 conf/grouper.properties
 conf/grouper-loader.properties
+conf/ldap.properties
 conf/log4j.properties
 conf/morphString.properties
 conf/sources.xml
@@ -14,4 +15,5 @@ dist
 javadoc.log
 misc/server/i2midev1
 spy.log
+temp
 test.log
