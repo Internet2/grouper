@@ -634,6 +634,10 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
                 auditEntry.saveOrUpdate(true);
               }
+              
+              //clear object has attribute cache
+              AttributeAssignBaseDelegate.clearObjectHasAttributeCache();
+
               return null;
             } catch (HookVeto hv) {
               throw hv;
@@ -727,6 +731,9 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
             auditEntry.saveOrUpdate(true);
           }
   
+          //clear object has attribute cache
+          AttributeAssignBaseDelegate.clearObjectHasAttributeCache();
+          
           return null;
         }
       });
