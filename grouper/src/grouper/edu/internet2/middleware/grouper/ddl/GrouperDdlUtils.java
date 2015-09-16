@@ -62,6 +62,7 @@ import org.hibernate.ObjectNotFoundException;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
@@ -771,6 +772,7 @@ public class GrouperDdlUtils {
           //lets clear the type cache
           AuditTypeFinder.clearCache();
           ChangeLogTypeFinder.clearCache();
+          MemberFinder.clearInternalMembers();
         } else {
           if (callFromCommandLine || GrouperShell.runFromGsh) {
             System.err.println("Note: this script was not executed due to option passed in");
