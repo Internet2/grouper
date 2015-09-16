@@ -1469,4 +1469,13 @@
           statistics="false"
   />
 
+  <cache  name="edu.internet2.middleware.grouper.util.GrouperUtil.objectHasAttributeCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="60"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
 </ehcache>

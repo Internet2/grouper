@@ -22,9 +22,12 @@ package edu.internet2.middleware.grouper.attr.assign;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
@@ -32,13 +35,18 @@ import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.AttributeOwnerNotInScopeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -1004,5 +1012,129 @@ public abstract class AttributeAssignBaseDelegate {
     return retrieveAttributeAssignsByOwner();
   }
 
+  /**
+   * cache if group or stem has attribute.  multikey is group|stem, name, attributeName, subjectSourceId of caller, subjectId of caller
+   */
+  private static GrouperCache<MultiKey, Boolean> objectHasAttributeCache = null;
+
+  /**
+   * lazy load, cache if group or stem has attribute.  multikey is group|stem, name, attributeName, subjectSourceId of caller, subjectId of caller
+   * @return field set cache
+   */
+  private static GrouperCache<MultiKey, Boolean> objectHasAttributeCache() {
+    if (objectHasAttributeCache == null) {
+      synchronized(GrouperStartup.class) {
+        if (objectHasAttributeCache == null) {
+          objectHasAttributeCache = new GrouperCache<MultiKey, Boolean>("edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate.objectHasAttributeCache",
+            5000, false, 60, 60, false);
+        }
+      }
+    }
+    return objectHasAttributeCache;
+  }
+
+  /**
+   * clear the cache if we are assigning attributes
+   */
+  public static void clearObjectHasAttributeCache() {
+    objectHasAttributeCache().clear();
+  }
   
+  /**
+   * see if a group or parent or ancestor folder has an attribute.  this can run securely.
+   * @param owner
+   * @param attributeFlag
+   * @param attributeFlagName
+   * @param subjectMakingCall subject making this call
+   * @return true if group or stem has attribute
+   */
+  private boolean hasAttributeOrAncestorHasAttributeHelper(AttributeAssignable owner,
+      AttributeDefName attributeFlag, String attributeFlagName, Subject subjectMakingCall) {
+
+    //not sure why would be null
+    if (owner == null) {
+      return false;
+    }
+
+    //key to cache is type of object, name, and attribute name
+    String type = null;
+    
+    if (owner instanceof Group) {
+      type = "group";
+    } else if (owner instanceof Stem) { 
+      type = "stem";
+    } else if (owner instanceof AttributeDef) {
+      type = "attributeDef";
+    } else {
+      throw new RuntimeException("hasAttributeOrAncestorHasAttribute() is only available for Groups, Stems, or AttributeDefs, not " + owner.getClass().getName());
+    }
+    
+    MultiKey key = new MultiKey(type, ((GrouperObject)owner).getName(), attributeFlagName, subjectMakingCall.getSourceId(), subjectMakingCall.getId());
+    
+    Boolean result = objectHasAttributeCache().get(key);
+    
+    if (result == null) {
+
+      //lazy load the attribute only once
+      attributeFlag = attributeFlag != null ? attributeFlag : AttributeDefNameFinder.findByName(attributeFlagName, false);
+      
+      if (attributeFlag == null) {
+        //cant see it cant read it
+        result = false;
+      } else {
+        result = this.hasAttribute(attributeFlag);
+        
+        if (!result) {
+          //see if the parent stem or ancestor has the attribute
+          AttributeAssignable parent = null;
+          if (owner instanceof Group) {
+            parent = ((Group)owner).getParentStem();
+          } else if (owner instanceof Stem) { 
+            //cant go further than root
+            if (!((Stem)owner).isRootStem()) {
+              parent = ((Stem)owner).getParentStem();
+            } else {
+              result = false;
+            }
+          } else if (owner instanceof AttributeDef) {
+            parent = ((AttributeDef)owner).getParentStem();
+          } else {
+            throw new RuntimeException("hasAttributeOrAncestorHasAttribute() is only available for Groups, Stems, or AttributeDefs, not " + owner.getClass().getName());
+          }
+          if (parent != null) {
+            result = parent.getAttributeDelegate().hasAttributeOrAncestorHasAttributeHelper(parent, attributeFlag, attributeFlagName, subjectMakingCall);
+          }
+        }
+      }
+      
+      objectHasAttributeCache().put(key, result);
+    }
+    
+    return result;    
+    
+  }
+
+  /**
+   * see if a group or parent or ancestor folder has an attribute.  this can run securely.
+   * @param attributeFlagName
+   * @param checkSecurity
+   * @return true if group or stem has attribute
+   */
+  public boolean hasAttributeOrAncestorHasAttribute(
+      final String attributeFlagName, final boolean checkSecurity) {
+    
+    final AttributeAssignable owner = this.getAttributeAssignable();
+    
+    if (checkSecurity) {
+      Subject subjectMakingCall = GrouperSession.staticGrouperSession().getSubject();
+      return hasAttributeOrAncestorHasAttributeHelper(owner, null, attributeFlagName, subjectMakingCall);
+    }
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return hasAttributeOrAncestorHasAttributeHelper(owner, null, attributeFlagName, grouperSession.getSubject());
+      }
+    });
+  }
+
 }
