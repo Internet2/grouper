@@ -44,7 +44,7 @@ import org.apache.commons.logging.Log;
 public class AssignSelfOptOutGroupPrivilegeHook extends GroupHooks {
 
   /** logger */
-  private static final Log logger = GrouperUtil.getLog(Group.class);
+  private static final Log logger = GrouperUtil.getLog(AssignSelfOptOutGroupPrivilegeHook.class);
 
   /**
    * 

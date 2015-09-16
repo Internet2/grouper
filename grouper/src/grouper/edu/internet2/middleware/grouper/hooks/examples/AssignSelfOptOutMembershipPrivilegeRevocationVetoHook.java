@@ -51,7 +51,7 @@ public class AssignSelfOptOutMembershipPrivilegeRevocationVetoHook extends Membe
 
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log logger = GrouperUtil.getLog(Group.class);
+  private static final Log logger = GrouperUtil.getLog(AssignSelfOptOutMembershipPrivilegeRevocationVetoHook.class);
 
   /**
    * 
