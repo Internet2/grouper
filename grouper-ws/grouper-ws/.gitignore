@@ -1,4 +1,9 @@
+build
 build.properties
 conf/grouper-ws.properties
+/grouperClientFailoverState.bin
 webapp/WEB-INF/classes
+webapp/WEB-INF/lib
 spy.log
+temp
+webservices/classes
