@@ -38,6 +38,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -74,6 +75,9 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -92,7 +96,9 @@ import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -1011,6 +1017,8 @@ public class GrouperUiFilter implements Filter {
       }
 
       TextContainer.retrieveFromRequest();
+
+      ensureUserFolder(subjectLoggedIn, httpServletRequest);
       
       filterChain.doFilter(httpServletRequest, response);
       
@@ -1048,6 +1056,83 @@ public class GrouperUiFilter implements Filter {
 
   }
 
+  /**
+   * if configured to create user folders, do that
+   * @param subjectLoggedIn
+   * @param httpServletRequest 
+   */
+  private static void ensureUserFolder(final Subject subjectLoggedIn, final HttpServletRequest httpServletRequest) {
+    
+    if (subjectLoggedIn != null && GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.autoCreateUserFolderOnLogin")) {
+
+      //see if done for session
+      Boolean done = (Boolean)httpServletRequest.getSession().getAttribute("autoCreatedUserFolderOnLoginDone");
+      
+      if (done == null || !done) {
+      
+        //even if not successful, dont try again
+        httpServletRequest.getSession().setAttribute("autoCreatedUserFolderOnLoginDone", true);
+        
+        String folderName = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouperUi.autoCreateUserFolderName");
+  
+        GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+        GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+
+        try {
+                
+          Map<String, Object> variableMap = new HashMap<String, Object>();
+          variableMap.put("subject", subjectLoggedIn);
+          
+          folderName = GrouperUtil.substituteExpressionLanguage(folderName, variableMap, true, false, false);
+      
+          final String FOLDER_NAME = folderName;
+          
+          //make sure no more vars
+          if (!folderName.contains("$")) {
+            
+            Stem stem = StemFinder.findByName(grouperSession, FOLDER_NAME, false);
+            
+            if (stem != null) {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Folder " + FOLDER_NAME + ", exists for user: " + GrouperUtil.subjectToString(subjectLoggedIn));
+              }
+              return;
+            }
+            
+            boolean autoCreateParents = GrouperUiConfig.retrieveConfig()
+                .propertyValueBoolean("grouperUi.autoCreateUserFolderCreateParentFoldersIfNotExist", false);
+            
+            
+            //stem doesnt exist, lets create
+            stem = new StemSave(grouperSession).assignName(FOLDER_NAME).assignCreateParentStemsIfNotExist(autoCreateParents).save();
+            
+            //grant to user
+            stem.grantPriv(subjectLoggedIn, NamingPrivilege.CREATE, false);
+            stem.grantPriv(subjectLoggedIn, NamingPrivilege.STEM, false);
+            
+            //take out the system priv to remove clutter
+            stem.revokePriv(grouperSession.getSubject(), NamingPrivilege.STEM, false);
+            
+            LOG.warn("Created user folder: " + FOLDER_NAME + ", for subject: " + GrouperUtil.subjectToString(subjectLoggedIn));
+            return;
+            
+          }
+          
+  
+        } catch (Exception e) {
+          //dont kill the login
+          LOG.error("Cannot create user folder for: " + folderName + ", " + GrouperUtil.subjectToString(subjectLoggedIn), e);
+          return;
+        } finally {
+          if (grouperSessionResult.isCreated()) {
+            GrouperSession.stopQuietly(grouperSession);
+          }
+        }
+        
+      }
+    }
+  }
+  
   /**
    * thread local for servlet
    */
