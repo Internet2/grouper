@@ -692,6 +692,12 @@ public class GrouperTest extends TestCase {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.update", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.use", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", "false");
+
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.create", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.stem", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("attributeDefs.create.grant.all.attrAdmin", "false");
