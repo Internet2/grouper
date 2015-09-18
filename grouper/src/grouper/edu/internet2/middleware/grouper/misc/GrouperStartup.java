@@ -334,6 +334,11 @@ public class GrouperStartup {
    * make sure grouper can handle utf8
    */
   public static void verifyUtf8andTransactionsHelper() {
+
+    //hibernate not ok yet, try next time starting up
+    if (!GrouperDdlUtils.okToUseHibernate()) {
+      return;
+    }
     
     boolean detectTransactionProblems = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.detect.db.transaction.problems", true);
 
