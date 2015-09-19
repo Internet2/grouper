@@ -181,7 +181,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetSubjects"));
+    TestRunner.run(new GrouperServiceLogicTest("testFindAttributeDefNames"));
   }
 
   /**
@@ -3375,7 +3375,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
         null, null, null, 
         null, null, null, false, null, false, null, false, null, null, null, null, false, null, null, null, null, null);
 
-    assertEquals(WsGetAttributeAssignmentsResultsCode.SUCCESS.name(), 
+    //cant read one of the groups
+    assertEquals(WsGetAttributeAssignmentsResultsCode.INVALID_QUERY.name(), 
         wsGetAttributeAssignmentsResults.getResultMetadata().getResultCode());
     
     assertEquals(0, GrouperUtil.length(wsGetAttributeAssignmentsResults.getWsAttributeAssigns()));
@@ -5163,8 +5164,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
     
-    attributeDef.setMultiValued(true);
-    attributeDef.setMultiAssignable(true);
+    attributeDef.setMultiValued(false);
+    attributeDef.setMultiAssignable(false);
     attributeDef.store();
     
     Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -5977,8 +5978,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
 
-    attributeDef.setMultiValued(true);
-    attributeDef.setMultiAssignable(true);
+    attributeDef.setMultiValued(false);
+    attributeDef.setMultiAssignable(false);
     attributeDef.store();
 
     Group group = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
@@ -6436,16 +6437,16 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
-    Stem testStem = new StemSave(grouperSession).assignName("test1").save();
-    Stem testSubStem = new StemSave(grouperSession).assignName("test1:sub").save();
+    Stem testStem = new StemSave(grouperSession).assignName("testabc1").save();
+    Stem testSubStem = new StemSave(grouperSession).assignName("testabc1:sub").save();
     Stem rootStem = StemFinder.findRootStem(grouperSession);
     
-    AttributeDef testAttributeDef = new AttributeDefSave(grouperSession).assignName("test1:attributeDef1")
+    AttributeDef testAttributeDef = new AttributeDefSave(grouperSession).assignName("testabc1:attributeDef1")
       .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
       .assignToEffMembership(true).save();
-    AttributeDefName testAttributeDefName1 = new AttributeDefNameSave(grouperSession, testAttributeDef).assignName("test1:attributeDefName1").save();
+    AttributeDefName testAttributeDefName1 = new AttributeDefNameSave(grouperSession, testAttributeDef).assignName("testabc1:attributeDefName1").save();
     AttributeDefName testAttributeDefName2 = new AttributeDefNameSave(grouperSession, testAttributeDef)
-      .assignName("test2:attributeDefName2").assignCreateParentStemsIfNotExist(true).save();
+      .assignName("testabc2:attributeDefName2").assignCreateParentStemsIfNotExist(true).save();
     
     testAttributeDefName1.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(testAttributeDefName2);
     
@@ -6454,7 +6455,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
   
     //find no results
     WsFindAttributeDefNamesResults wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test3%", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        GROUPER_VERSION, "testabc3%", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   
     assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
         WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
@@ -6467,7 +6468,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //find all results
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test%", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        GROUPER_VERSION, "testabc%", null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   
     assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
         WsFindAttributeDefNamesResultsCode.SUCCESS.name(), 
@@ -6587,7 +6588,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     
     wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test%", null, null, null, null, null, null, 1, null, null, null, null, null, null, null);
+        GROUPER_VERSION, "testabc%", null, null, null, null, null, null, 1, null, null, null, null, null, null, null);
     assertEquals("F", wsFindAttributeDefNamesResults.getResultMetadata().getSuccess());
     assertEquals("INVALID_QUERY", wsFindAttributeDefNamesResults.getResultMetadata().getResultCode());
   
@@ -6604,7 +6605,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //page by size 1, page number 2
     GrouperServiceUtils.testSession = GrouperSession.startRootSession();
     wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        GROUPER_VERSION, "testabc%", null, null, null, null, null, 
         1, 2, "name", false, null, null, null, null, null);
   
     assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
@@ -6621,7 +6622,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //page by size 1, page number 2, secure
     GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        GROUPER_VERSION, "testabc%", null, null, null, null, null, 
         1, 2, "name", false, null, null, null, null, null);
   
     assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
@@ -6638,7 +6639,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //page by size 1, page number 2, secure
     GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
     wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        GROUPER_VERSION, "testabc%", null, null, null, null, null, 
         1, 2, "name", false, null, null, null, null, null);
   
     assertEquals(wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage(),
@@ -6655,7 +6656,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //page by size 1, page number 2, secure
     GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
     wsFindAttributeDefNamesResults = GrouperServiceLogic.findAttributeDefNames(
-        GROUPER_VERSION, "test%", null, null, null, null, null, 
+        GROUPER_VERSION, "testabc%", null, null, null, null, null, 
         1, 2, "name", false, null, null, null, null, null);
   
     assertEquals(0, GrouperUtil.length(wsFindAttributeDefNamesResults.getAttributeDefNameResults()));
