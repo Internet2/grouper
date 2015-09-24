@@ -1384,7 +1384,7 @@ public class GrouperInstaller {
         String fileNameInnerClassPrefix = GrouperInstallerUtils.substringBeforeLast(
             grouperInstallerIndexFileClassFile.getFile().getName(), ".") + "$";
         for (File siblingFile : parentFile.listFiles()) {
-          if (siblingFile.getName().endsWith(".class") && siblingFile.getName().startsWith(fileNameInnerClassPrefix)) {
+          if (siblingFile.getName().endsWith(".class") && GrouperInstallerUtils.filePathStartsWith(siblingFile.getName(),fileNameInnerClassPrefix)) {
             //this is an inner class
             String innerClassRelativePath = parentRelativePathWithSlash + siblingFile.getName();
             GrouperInstallerIndexFile innerClassIndexFile = indexOfFiles.get(innerClassRelativePath);
@@ -1769,13 +1769,18 @@ public class GrouperInstaller {
   }
 
   /**
+   * patch pattern
+   */
+  private static final Pattern patchNamePattern = Pattern.compile("^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp)_patch_\\d+$");
+
+  
+  /**
    * see if valid patch name e.g. grouper_v2_2_1_api_patch_0
    * @param patchName
    * @return true for valid
    */
   private static boolean patchNameValid(String patchName) {
     //validate patch names
-    Pattern patchNamePattern = Pattern.compile("^grouper_v\\d+_\\d+_\\d+_(api|ws|ui|psp)_patch_\\d+$");
     return patchNamePattern.matcher(patchName).matches();
 
   }
@@ -2063,12 +2068,12 @@ public class GrouperInstaller {
               }
   
               //these are classes not files
-              if (fileRelativePath.startsWith("WEB-INF/classes")) {
+              if (GrouperInstallerUtils.filePathStartsWith(fileRelativePath,"WEB-INF/classes")) {
                 addFile = false;
               }
   
               //these are libs not files
-              if (fileRelativePath.startsWith("WEB-INF/lib")) {
+              if (GrouperInstallerUtils.filePathStartsWith(fileRelativePath,"WEB-INF/lib")) {
                 addFile = false;
               }
   
@@ -2526,7 +2531,13 @@ public class GrouperInstaller {
     GrouperInstallerUtils.tempFilePathForJars = this.grouperBaseBakDir 
         + "jarToDelete" + File.separator;
 
-    this.appToUpgrade.upgradeApp(this);
+    //when we revert patches, default should be true
+    this.revertAllPatchesDefault = true;
+    try {
+      this.appToUpgrade.upgradeApp(this);
+    } finally {
+      this.revertAllPatchesDefault = false;
+    }
 
     this.reportOnConflictingJars();
     
@@ -2568,7 +2579,12 @@ public class GrouperInstaller {
    */
   private void upgradeUi() {
 
-    this.upgradeApi();
+    this.upgradeApiPreRevertPatch();
+
+    System.out.println("You need to revert all patches to upgrade");
+    this.patchRevertUi();
+    
+    this.upgradeApiPostRevertPatch();
     
     System.out.println("\n##################################");
     System.out.println("Upgrading UI\n");
@@ -2677,7 +2693,12 @@ public class GrouperInstaller {
    */
   private void upgradePsp() {
 
-    this.upgradeApi();
+    this.upgradeApiPreRevertPatch();
+
+    System.out.println("You need to revert all patches to upgrade");
+    this.patchRevertPsp();
+    
+    this.upgradeApiPostRevertPatch();
     
     System.out.println("\n##################################");
     System.out.println("Upgrading PSP\n");
@@ -2870,7 +2891,7 @@ public class GrouperInstaller {
       {
         //get the relative path with no leading or trailing slash
         String path = fileToCopyFrom.getAbsolutePath();
-        if (!path.startsWith(fromDirString)) {
+        if (!GrouperInstallerUtils.filePathStartsWith(path,fromDirString)) {
           throw new RuntimeException("Why does path not start with fromDirString: " + path + ", " + fromDirString);
         }
         relativePath = path.substring(fromDirString.length());
@@ -2880,7 +2901,7 @@ public class GrouperInstaller {
       
       //ignore paths passed in
       for (String pathToIgnore : relativePathsToIgnore) {
-        if (relativePath.startsWith(pathToIgnore)) {
+        if (GrouperInstallerUtils.filePathStartsWith(relativePath,pathToIgnore)) {
           ignore = true;
           break;
         }
@@ -2944,12 +2965,33 @@ public class GrouperInstaller {
    * upgrade the api
    */
   private void upgradeApi() {
+    this.upgradeApiPreRevertPatch();
+
+    System.out.println("You need to revert all patches to upgrade");
+    this.patchRevertApi();
+    
+    this.upgradeApiPostRevertPatch();
+  }
+
+
+  /**
+   * upgrade the api
+   */
+  private void upgradeApiPreRevertPatch() {
 
     //make sure existing gsh is executable and dos2unix
     gshExcutableAndDos2Unix(new File(gshCommand()).getParentFile().getAbsolutePath(), "existing");
     
     this.runChangeLogTempToChangeLog();
+  }
+  
+  
+  /**
+   * upgrade the api
+   */
+  private void upgradeApiPostRevertPatch() {
 
+    //revert patches
     this.upgradeClient();
 
     System.out.println("\n##################################");
@@ -2995,6 +3037,12 @@ public class GrouperInstaller {
 
     this.upgradeEhcacheXml();
 
+    this.compareAndCopyFile(this.grouperUtf8File, 
+        new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouperUtf8.txt"),
+        true,
+        new File(this.upgradeExistingClassesDirectoryString)
+        );
+    
     System.out.println("\nYou should compare " + this.grouperPropertiesFile.getParentFile().getAbsolutePath() + File.separator + "sources.xml"
         + "\n  with " + this.untarredApiDir + File.separator + "conf" + File.separator + "sources.xml");
     System.out.println("Press <enter> to continue after you have merged the sources.xml");
@@ -3677,7 +3725,7 @@ public class GrouperInstaller {
    */
   public File bakFile(File existingFile) {
     String existingFilePath = existingFile.getAbsolutePath();
-    if (!existingFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+    if (!GrouperInstallerUtils.filePathStartsWith(existingFilePath, this.upgradeExistingApplicationDirectoryString)) {
       throw new RuntimeException("Why does existing path not start with upgrade path??? " 
           + existingFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
     }
@@ -3718,7 +3766,7 @@ public class GrouperInstaller {
       if (!GrouperInstallerUtils.equals(existingBaseContents, newBaseContents)) {
         
         String existingBasePropertiesFilePath = existingBasePropertiesFile.getAbsolutePath();
-        if (!existingBasePropertiesFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+        if (!GrouperInstallerUtils.filePathStartsWith(existingBasePropertiesFilePath, this.upgradeExistingApplicationDirectoryString)) {
           throw new RuntimeException("Why does existing path not start with upgrade path??? " 
               + existingBasePropertiesFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
         }
@@ -3758,7 +3806,7 @@ public class GrouperInstaller {
     if (existingExamplePropertiesFile != null && existingExamplePropertiesFile.exists() && existingExamplePropertiesFile.isFile()) {
 
       String existingExamplePropertiesFilePath = existingExamplePropertiesFile.getAbsolutePath();
-      if (!existingExamplePropertiesFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+      if (!GrouperInstallerUtils.filePathStartsWith(existingExamplePropertiesFilePath, this.upgradeExistingApplicationDirectoryString)) {
         throw new RuntimeException("Why does existing path not start with upgrade path??? " 
             + existingExamplePropertiesFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
       }
@@ -3803,7 +3851,7 @@ public class GrouperInstaller {
         if (removeRedundantProperties) {
 
           String existingPropertiesFilePath = existingPropertiesFile.getAbsolutePath();
-          if (!existingPropertiesFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+          if (!GrouperInstallerUtils.filePathStartsWith(existingPropertiesFilePath, this.upgradeExistingApplicationDirectoryString)) {
             throw new RuntimeException("Why does existing path not start with upgrade path??? " 
                 + existingPropertiesFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
           }
@@ -4115,7 +4163,9 @@ public class GrouperInstaller {
         
         grouperInstaller.subjectPropertiesFile = grouperInstaller.findClasspathFile("subject.properties", false);
         grouperInstaller.subjectBasePropertiesFile = grouperInstaller.findClasspathFile("subject.base.properties", false);
-        
+
+        grouperInstaller.grouperUtf8File = grouperInstaller.findClasspathFile("grouperUtf8.txt", false);
+
         //no need to check if it exists... its new in 2.2
         
         grouperInstaller.grouperPropertiesFile = grouperInstaller.findClasspathFile("grouper.properties", false);
@@ -4431,6 +4481,21 @@ public class GrouperInstaller {
   private boolean grouperStopped = false;
 
   /**
+   * if should revert all
+   */
+  private Boolean revertAllPatches = null;
+  
+  /**
+   * default for revert all patches
+   */
+  private boolean revertAllPatchesDefault = false;
+  
+  /**
+   * if should revert all
+   */
+  private Boolean installAllPatches = null;
+  
+  /**
    * revert patches for an app
    * @param thisAppToRevert
    * @return if reverted
@@ -4548,18 +4613,24 @@ public class GrouperInstaller {
       boolean securityRelated = GrouperInstallerUtils.booleanValue(patchProperties.getProperty("security"), false);
       boolean requiresRestart = GrouperInstallerUtils.booleanValue(patchProperties.getProperty("requiresRestart"), true);
 
+      if (this.revertAllPatches == null) {
+        System.out.println("Would you like to revert all patches (t|f)? [" + (this.revertAllPatchesDefault ? "t" : "f") + "]: ");
+        this.revertAllPatches = readFromStdInBoolean(this.revertAllPatchesDefault, "grouperInstaller.autorun.revertAllPatches");
+      }
+      
       //print description
       System.out.println("Patch " + keyBase + " is " + patchProperties.getProperty("risk") + " risk, "
           + (securityRelated ? "is a security patch" : "is not a security patch"));
       System.out.println(patchProperties.getProperty("description"));
-      System.out.print("Would you like to revert patch " + keyBase + " (t|f)? [f]: ");
-      boolean revertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.revertPatch");
+      if (!this.revertAllPatches) {
+        System.out.print("Would you like to revert patch " + keyBase + " (t|f)? [f]: ");
+        boolean revertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.revertPatch");
 
-      if (!revertPatch) {
-        System.out.println("");
-        continue;
+        if (!revertPatch) {
+          System.out.println("");
+          continue;
+        }
       }
-
       //check dependencies
       for (String patchName : installedPatchDependencies.keySet()) {
         
@@ -4801,12 +4872,20 @@ public class GrouperInstaller {
       boolean securityRelated = GrouperInstallerUtils.booleanValue(patchProperties.getProperty("security"), false);
       boolean requiresRestart = GrouperInstallerUtils.booleanValue(patchProperties.getProperty("requiresRestart"), true);
       
+      if (this.installAllPatches == null) {
+        System.out.println("Would you like to install all patches (t|f)? [t]: ");
+        this.installAllPatches = readFromStdInBoolean(true, "grouperInstaller.autorun.installAllPatches");
+      }
+      
       //print description
       System.out.println("Patch " + keyBase + " is " + patchProperties.getProperty("risk") + " risk, "
           + (securityRelated ? "is a security patch" : "is not a security patch"));
       System.out.println(patchProperties.getProperty("description"));
-      System.out.println("Would you like to install patch " + keyBase + " (t|f)? [t]: ");
-      boolean installPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
+      boolean installPatch = false;
+      if (!this.installAllPatches) {
+        System.out.println("Would you like to install patch " + keyBase + " (t|f)? [t]: ");
+      }
+      installPatch = this.installAllPatches || readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
 
       if (!this.patchExistingPropertiesFile.exists()) {
         GrouperInstallerUtils.fileCreate(this.patchExistingPropertiesFile);
@@ -5038,8 +5117,15 @@ public class GrouperInstaller {
     }
     urlToDownload += "release/";
     
-    String grouperVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
-
+    //e.g. 2.2.2
+    Matcher patchNameMatcher = patchNamePattern.matcher(patchName);
+    if (!patchNameMatcher.matches()) {
+      throw new RuntimeException("Invalid patch name: " + patchName);
+    }
+    
+    //String grouperVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    String grouperVersion = patchNameMatcher.group(1) + "." + patchNameMatcher.group(2) + "." + patchNameMatcher.group(3);
+    
     urlToDownload +=  grouperVersion + "/patches/" + patchName + ".tar.gz";
 
     File patchFile = new File(this.grouperTarballDirectoryString + patchName + ".tar.gz");
@@ -5340,7 +5426,7 @@ public class GrouperInstaller {
     }
 
     String existingJarFilePath = existingJarFile.getAbsolutePath();
-    if (!existingJarFilePath.startsWith(this.upgradeExistingApplicationDirectoryString)) {
+    if (!GrouperInstallerUtils.filePathStartsWith(existingJarFilePath,this.upgradeExistingApplicationDirectoryString)) {
       throw new RuntimeException("Why does existing path not start with upgrade path??? " + existingJarFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
     }
     
@@ -5370,6 +5456,62 @@ public class GrouperInstaller {
     
     if (printResultIfNotUpgrade) {
       System.out.println(existingJarFile.getName() + " is up to date");
+    }
+    return false;
+  }
+
+  /**
+   * on an upgrade, compare a new file and an existing file and see if needs to be updated, and if so, update it
+   * @param existingFile
+   * @param newFile
+   * @param printResultIfNotUpgrade
+   * @param toDir if file not there, copy here.  If null, then go to upgrade existing lib directory string
+   * @return true if upgraded, false if not
+   */
+  private boolean compareAndCopyFile(File existingFile, File newFile, boolean printResultIfNotUpgrade, File toDir) {
+    
+    if (toDir == null) {
+      throw new RuntimeException("Which dir to copy to??? " + newFile + ", " + existingFile);
+    }
+    
+    if (existingFile == null || !existingFile.exists()) {
+      System.out.println(newFile.getName() + " is a new file and is being copied to the application dir: " + toDir.getAbsolutePath());
+      existingFile = new File(toDir.getAbsoluteFile() + File.separator + newFile.getName());
+      GrouperInstallerUtils.copyFile(newFile, existingFile, true);
+      return true;
+    }
+
+    String existingFilePath = existingFile.getAbsolutePath();
+    if (!GrouperInstallerUtils.filePathStartsWith(existingFilePath,this.upgradeExistingApplicationDirectoryString)) {
+      throw new RuntimeException("Why does existing path not start with upgrade path??? " + existingFilePath + ", " + this.upgradeExistingApplicationDirectoryString);
+    }
+    
+    String bakFileString = this.grouperBaseBakDir + existingFilePath.substring(this.upgradeExistingApplicationDirectoryString.length());
+    File bakFile = new File(bakFileString);
+    
+    String existingChecksum = GrouperInstallerUtils.fileSha1(existingFile);
+    String newChecksum = GrouperInstallerUtils.fileSha1(newFile);
+    
+    long existingSize = existingFile.length();
+    long newSize = newFile.length();
+    
+    if (!GrouperInstallerUtils.equals(existingChecksum, newChecksum) || existingSize != newSize) {
+
+      //make sure parents exist
+      GrouperInstallerUtils.createParentDirectories(bakFile);
+      
+      System.out.println(existingFile.getName() + " had checksum " + existingChecksum + " and size " + existingSize + " bytes and is being upgraded to checksum "
+          + newChecksum + " and size " + newSize + " bytes.\n  It is backed up to " + bakFile);
+
+      GrouperInstallerUtils.fileMove(existingFile, bakFile);
+      
+      GrouperInstallerUtils.copyFile(newFile, existingFile, true);
+      
+      return true;
+    }
+    
+    if (printResultIfNotUpgrade) {
+      System.out.println(existingFile.getName() + " is up to date");
     }
     return false;
   }
@@ -5413,6 +5555,11 @@ public class GrouperInstaller {
    * subject.base.properties
    */
   private File subjectBasePropertiesFile;
+  
+  /**
+   * grouperUtf8.txt
+   */
+  private File grouperUtf8File;
   
   /**
    * grouper.example.properties
@@ -8847,7 +8994,12 @@ public class GrouperInstaller {
    */
   private void upgradeWs() {
   
-    this.upgradeApi();
+    this.upgradeApiPreRevertPatch();
+
+    System.out.println("You need to revert all patches to upgrade");
+    this.patchRevertWs();
+    
+    this.upgradeApiPostRevertPatch();
     
     System.out.println("\n##################################");
     System.out.println("Upgrading WS\n");
