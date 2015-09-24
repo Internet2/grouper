@@ -2468,20 +2468,15 @@ public class GrouperInstaller {
   }
   
   /**
-   * file of the properties file for record of which patches are applied
-   */
-  private File patchExistingPropertiesFile = null;
-
-  /**
    * get the existing properties file of patches
    * @return the file for patches
    */
   private Properties patchExistingProperties() {
-    this.patchExistingPropertiesFile();
-    if (this.patchExistingPropertiesFile == null || !this.patchExistingPropertiesFile.exists()) {
+    File patchExistingPropertiesFile = this.patchExistingPropertiesFile();
+    if (patchExistingPropertiesFile == null || !patchExistingPropertiesFile.exists()) {
       return new Properties();
     }
-    return GrouperInstallerUtils.propertiesFromFile(this.patchExistingPropertiesFile);
+    return GrouperInstallerUtils.propertiesFromFile(patchExistingPropertiesFile);
    }
 
   /**
@@ -2489,18 +2484,18 @@ public class GrouperInstaller {
    * @return the file for patches
    */
   private File patchExistingPropertiesFile() {
-    if (this.patchExistingPropertiesFile == null) {
-      
-      //if theres a web-inf, put it there, if not, put it in regular...
-      if (new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF").exists()) {
-        this.patchExistingPropertiesFile = new File(this.upgradeExistingApplicationDirectoryString 
-            + "WEB-INF" + File.separator + "grouperPatchStatus.properties");
-      } else {
-        this.patchExistingPropertiesFile = new File(this.upgradeExistingApplicationDirectoryString 
-            + "grouperPatchStatus.properties");
-      }
+    
+    //dont cache this in a variable since the upgrade existing application variable
+    File patchExistingPropertiesFile = null;
+    //if theres a web-inf, put it there, if not, put it in regular...
+    if (new File(this.upgradeExistingApplicationDirectoryString + "WEB-INF").exists()) {
+      patchExistingPropertiesFile = new File(this.upgradeExistingApplicationDirectoryString 
+          + "WEB-INF" + File.separator + "grouperPatchStatus.properties");
+    } else {
+      patchExistingPropertiesFile = new File(this.upgradeExistingApplicationDirectoryString 
+          + "grouperPatchStatus.properties");
     }
-    return this.patchExistingPropertiesFile;
+    return patchExistingPropertiesFile;
   }
   
   /**
@@ -4621,6 +4616,8 @@ public class GrouperInstaller {
 
     Map<String, Set<String>> installedPatchDependencies = new HashMap<String, Set<String>>();
     
+    File patchExistingPropertiesFile = patchExistingPropertiesFile();
+    
     for (int i=1000;i>=0;i--) {
       
       //grouper_v2_2_1_api_patch_0.state
@@ -4836,9 +4833,9 @@ public class GrouperInstaller {
       installedPatchDependencies.remove(keyBase);
       System.out.println("Patch successfully reverted: " + keyBase);
 
-      editPropertiesFile(this.patchExistingPropertiesFile, keyBase + ".date", 
+      editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
           GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
-      editPropertiesFile(this.patchExistingPropertiesFile, keyBase + ".state", 
+      editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
           GrouperInstallerPatchStatus.reverted.name());
 
       System.out.println("");
@@ -4873,6 +4870,8 @@ public class GrouperInstaller {
     Map<Integer, String> patchNumberToNameBase = new LinkedHashMap<Integer, String>();
     
     boolean foundNewPatch = false;
+    
+    File patchExistingPropertiesFile = patchExistingPropertiesFile();
     
     OUTER: for (int i=0;i<1000;i++) {
       
@@ -4990,12 +4989,12 @@ public class GrouperInstaller {
       }
       installPatch = this.installAllPatches || readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
 
-      if (!this.patchExistingPropertiesFile.exists()) {
-        GrouperInstallerUtils.fileCreate(this.patchExistingPropertiesFile);
+      if (!patchExistingPropertiesFile.exists()) {
+        GrouperInstallerUtils.fileCreate(patchExistingPropertiesFile);
       }
       
       //keep track that we skipped this in the patch properties file
-      editPropertiesFile(this.patchExistingPropertiesFile, keyBase + ".date", 
+      editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
           GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
 
       if (!installPatch) {
@@ -5012,7 +5011,7 @@ public class GrouperInstaller {
           grouperInstallerPatchStatus = GrouperInstallerPatchStatus.skippedPermanently;
         }
 
-        editPropertiesFile(this.patchExistingPropertiesFile, keyBase + ".state", 
+        editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
             grouperInstallerPatchStatus.name());
         System.out.println("");
         continue OUTER;
@@ -5115,7 +5114,7 @@ public class GrouperInstaller {
       }
 
       if (patchHasProblem) {
-        editPropertiesFile(this.patchExistingPropertiesFile, keyBase + ".state", 
+        editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
             GrouperInstallerPatchStatus.error.name());
 
         continue OUTER;
@@ -5151,7 +5150,7 @@ public class GrouperInstaller {
       this.patchesInstalled.add(keyBase);
       System.out.println("Patch successfully applied: " + keyBase);
       
-      editPropertiesFile(this.patchExistingPropertiesFile, keyBase + ".state", 
+      editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
           GrouperInstallerPatchStatus.applied.name());
       System.out.println("");
     }
