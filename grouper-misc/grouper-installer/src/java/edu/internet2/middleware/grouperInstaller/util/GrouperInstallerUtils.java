@@ -11044,4 +11044,22 @@ public class GrouperInstallerUtils  {
     return descendantPath;
   }
 
+  /**
+   * 
+   * @param bigPath
+   * @param prefixPath
+   * @return true if starts with
+   */
+  public static boolean filePathStartsWith(String bigPath, String prefixPath) {
+  
+    bigPath = replace(bigPath, "\\\\", "\\");
+    bigPath = replace(bigPath, "\\", "/");
+  
+    prefixPath = replace(prefixPath, "\\\\", "\\");
+    prefixPath = replace(prefixPath, "\\", "/");
+  
+    return bigPath.startsWith(prefixPath);
+  
+  }
+
 }
