@@ -2938,7 +2938,7 @@ public class GrouperService {
     return wsGetAttributeAssignmentsResults; 
   
   }
-
+  
   /**
    * get attributeAssignments based on inputs
    * @param attributeAssignType Type of owner, from enum AttributeAssignType, e.g.
@@ -3076,11 +3076,54 @@ public class GrouperService {
 
     //this should be the first and only return, or else it is exiting too early
     return wsGetAttributeAssignmentsResults; 
-  
-
-    
-  
   }
+  
+  
+  /**
+   * get attributeAssignActions based on inputs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsNameOfAttributeDef find assignActions in this attribute def
+   * @param wsAttributeDefId find assignments in this attribute def (optional)
+   * @param wsAttributeDefIdIndex find assignments in this attribute def (optional)
+   * @param action to query, or none to query all actions
+   * @param actAsSubjectId 
+   * @param actAsSubjectSourceId 
+   * @param actAsSubjectIdentifier 
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the results
+   */
+  public WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
+		  String clientVersion, String wsNameOfAttributeDef, String wsAttributeDefId, String wsAttributeDefIdIndex,
+	      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, 
+	      String paramName0, String paramValue0, String paramName1, String paramValue1) {
+	  
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
+
+    try {
+      
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
+
+      wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActionsLite(grouperWsVersion,
+    		  wsNameOfAttributeDef, wsAttributeDefId, wsAttributeDefIdIndex, action, actAsSubjectId, 
+    		  actAsSubjectSourceId, actAsSubjectIdentifier, paramName0, paramValue0, paramName1, paramValue1);
+
+    } catch (Exception e) {
+    	wsGetAttributeAssignActionsResults.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGetAttributeAssignActionsResults.getResultMetadata(), this.soap);
+
+    return wsGetAttributeAssignActionsResults;
+  }
+  
 
   /**
    * assign attributes and values to owner objects (groups, stems, etc)

@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResul
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttribute;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignActionTuple;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValueResult;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
@@ -126,6 +128,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefName
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -340,6 +343,10 @@ public class WsRestClassLookup {
 
     addAliasClass(WsRestGroupSaveLiteRequest.class);
     addAliasClass(WsRestGroupSaveRequest.class);
+    
+    addAliasClass(WsRestGetAttributeAssignActionsLiteRequest.class);
+    addAliasClass(WsGetAttributeAssignActionsResults.class);
+    addAliasClass(WsAttributeAssignActionTuple.class);
     
   }
   
