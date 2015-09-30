@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1154,8 +1155,16 @@ public class GrouperInstaller {
       
     }
     
-    int nextPatchIndex = this.downloadPatches(this.appToUpgrade);
-
+    int nextPatchIndex = -1;
+    
+    {
+      String grouperVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+  
+      grouperVersion = GrouperInstallerUtils.replace(grouperVersion, ".", "_");
+  
+      nextPatchIndex = this.downloadPatches(this.appToUpgrade, grouperVersion);
+    }
+    
     //see if dir is there: e.g. grouper_v2_2_1_ui_patch_0
     String patchName = null;
     
@@ -2373,7 +2382,7 @@ public class GrouperInstaller {
     
     for (int i=0;i<10;i++) {
       //what do we want to do, install, revert, or get status?
-      System.out.print("What do you want to do with patches (install, revert, status)? [install]: ");
+      System.out.print("What do you want to do with patches (install, revert, status, fixIndexFile)? [install]: ");
       String patchAction = readFromStdIn("grouperInstaller.autorun.patchAction");
       try {
         grouperInstallerPatchAction = GrouperInstallerPatchAction.valueOfIgnoreCase(patchAction, false, true);
@@ -2389,6 +2398,8 @@ public class GrouperInstaller {
     switch(grouperInstallerPatchAction) {
       case install:
         
+        fixIndexFileIfOk();
+
         //loop through applications, check patches
         this.appToUpgrade.patch(this);
 
@@ -2396,14 +2407,24 @@ public class GrouperInstaller {
         
       case revert:
         
+        fixIndexFileIfOk();
+
         //look through applications, check for reverts
         this.appToUpgrade.revertPatch(this);
         break;
         
       case status:
         
+        fixIndexFileIfOk();
+
         //print out status for applications
         this.appToUpgrade.patchStatus(this);
+        break;
+        
+      case fixIndexFile:
+        
+        //print out status for applications
+        this.appToUpgrade.fixIndexFile(this);
         break;
         
       default:
@@ -2417,6 +2438,9 @@ public class GrouperInstaller {
    */
   public static enum GrouperInstallerPatchAction {
 
+    /** fix index file */
+    fixIndexFile,
+    
     /** install patches */
     install,
 
@@ -2509,8 +2533,9 @@ public class GrouperInstaller {
 
     this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
     System.out.println("Upgrading to grouper " + this.appToUpgrade.name() + " version: " + this.version);
-
-
+ 
+    fixIndexFileIfOk();
+    
     System.out.println("\n##################################");
     System.out.println("Download and build grouper packages\n");
 
@@ -2545,6 +2570,51 @@ public class GrouperInstaller {
     //reset this so that patches go against new version
     this.grouperVersionOfJar = null;
     
+  }
+
+  /**
+   * 
+   */
+  private void fixIndexFileIfOk() {
+    Properties patchesExistingProperties = patchExistingProperties();
+    
+    //see what is already there
+    String existingDate = patchesExistingProperties.getProperty("grouperInstallerLastFixedIndexFile.date");
+
+    boolean defaultToFixIndex = true;
+    
+    if (!GrouperInstallerUtils.isBlank(existingDate)) {
+      try {
+        Date theDate = GrouperInstallerUtils.dateMinutesSecondsFormat.parse(existingDate);
+        //this is when the installer was fixed to do the index file correctly
+        if (theDate.getTime() > GrouperInstallerUtils.dateValue("20150929").getTime()) {
+          defaultToFixIndex = false;
+        }
+      } catch (ParseException pe) {
+        System.out.println("Cant parse date: " + existingDate);
+      }
+    }
+
+    //if we are affecting 2.2.2+ then dont recommend this
+    if (defaultToFixIndex) {
+      
+      //see the version
+      String grouperVersion = this.grouperVersionOfJar().toString();
+
+      GiGrouperVersion giGrouperVersion = GiGrouperVersion.valueOfIgnoreCase(grouperVersion);
+      
+      if (giGrouperVersion.greaterOrEqualToArg(GiGrouperVersion.valueOfIgnoreCase("2.2.2"))) {
+        defaultToFixIndex = false;
+      }
+      
+    }
+    
+    
+    System.out.println("Do you want to fix the patch index file (download all patches and see if they are installed?) (" + (defaultToFixIndex ? "recommended" : "not recommended") + ") (t|f)? [" + (defaultToFixIndex ? "t" : "f") + "]: ");
+    boolean fixIndexFile = readFromStdInBoolean(defaultToFixIndex, "grouperInstaller.autorun.fixIndexFile");
+    if (fixIndexFile) {
+      this.appToUpgrade.fixIndexFile(this);
+    }
   }
 
   /**
@@ -4141,6 +4211,11 @@ public class GrouperInstaller {
       public void upgradeApp(GrouperInstaller grouperInstaller) {
         grouperInstaller.upgradeUi();
       }
+
+      @Override
+      public void fixIndexFile(GrouperInstaller grouperInstaller) {
+        grouperInstaller.fixIndexFileUi();
+      }
     },
     
     /**
@@ -4234,6 +4309,11 @@ public class GrouperInstaller {
       public void patchStatus(GrouperInstaller grouperInstaller) {
         grouperInstaller.patchStatusApi();
       }
+
+      @Override
+      public void fixIndexFile(GrouperInstaller grouperInstaller) {
+        grouperInstaller.fixIndexFileApi();
+      }
     },
 
     /**
@@ -4292,6 +4372,12 @@ public class GrouperInstaller {
       public void upgradeApp(GrouperInstaller grouperInstaller) {
         grouperInstaller.upgradeClient();
       }
+      
+      @Override
+      public void fixIndexFile(GrouperInstaller grouperInstaller) {
+        throw new RuntimeException("Not implemented");
+      }
+
     },
 
     /**
@@ -4356,6 +4442,12 @@ public class GrouperInstaller {
       public void upgradeApp(GrouperInstaller grouperInstaller) {
         grouperInstaller.upgradeWs();
       }
+
+      @Override
+      public void fixIndexFile(GrouperInstaller grouperInstaller) {
+        grouperInstaller.fixIndexFileWs();
+      }
+
     }, 
     
     /**
@@ -4414,6 +4506,11 @@ public class GrouperInstaller {
       public void upgradeApp(GrouperInstaller grouperInstaller) {
         grouperInstaller.upgradePsp();
       }
+
+      @Override
+      public void fixIndexFile(GrouperInstaller grouperInstaller) {
+        grouperInstaller.fixIndexFilePsp();
+      }
     };
 
     /**
@@ -4452,6 +4549,12 @@ public class GrouperInstaller {
      * @param grouperInstaller
      */
     public abstract void patchStatus(GrouperInstaller grouperInstaller);
+    
+    /**
+     * fix index file for this app
+     * @param grouperInstaller
+     */
+    public abstract void fixIndexFile(GrouperInstaller grouperInstaller);
     
     /**
      * 
@@ -5060,47 +5163,215 @@ public class GrouperInstaller {
   }
   
   /**
-   * get all patches
+   * fix the index file
    * @param thisAppToUpgrade app to upgrade to check
-   * @return next patch index
    */
-  private int downloadPatches(AppToUpgrade thisAppToUpgrade) {
+  private void fixIndexFile(AppToUpgrade thisAppToUpgrade) {
 
     if (thisAppToUpgrade == AppToUpgrade.CLIENT) {
-      throw new RuntimeException("Cant install patches for " + thisAppToUpgrade);
+      throw new RuntimeException("Cant fix index file for " + thisAppToUpgrade);
     }
     
-    String grouperVersion = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    Properties patchesExistingProperties = patchExistingProperties();
+
+    String grouperVersion = this.grouperVersionOfJar().toString();
 
     grouperVersion = GrouperInstallerUtils.replace(grouperVersion, ".", "_");
 
-    Map<Integer, String> patchNumberToNameBase = new LinkedHashMap<Integer, String>();
+    //lets download all patches
+    int nextPatchIndex = downloadPatches(thisAppToUpgrade, grouperVersion);
     
-    int nextPatchIndex = 0;
+    File patchExistingPropertiesFile = patchExistingPropertiesFile();
+
+    Map<String, String> patchDirToApplicationPath = new LinkedHashMap<String, String>();
+    patchDirToApplicationPath.put("files", this.upgradeExistingApplicationDirectoryString);
+    patchDirToApplicationPath.put("classes", this.upgradeExistingClassesDirectoryString);
+    patchDirToApplicationPath.put("lib", this.upgradeExistingLibDirectoryString);
+
+    //map of full patch file name to the patch number that is installed
+    Map<String, Integer> fileInMoreRecentPatchMap = new HashMap<String, Integer>();
+
+    boolean patchesOverallOk = true;
     
-    OUTER: for (int i=0;i<1000;i++) {
-      
+    //process patches from greatest to least
+    OUTER: for (int i=nextPatchIndex-1;i>=0;i--) {
       
       //grouper_v2_2_1_api_patch_0.state
-      String keyBase = "grouper_v" + grouperVersion + "_" + thisAppToUpgrade.name().toLowerCase() + "_patch_" + i;
-      System.out.println("\n################ Checking patch " + keyBase);
+      String patchName = "grouper_v" + grouperVersion + "_" + thisAppToUpgrade.name().toLowerCase() + "_patch_" + i;
 
-      patchNumberToNameBase.put(i, keyBase);
+      String key = patchName + ".state";
 
-      //lets see if it exists on the server
-      File patchUntarredDir = downloadAndUnzipPatch(keyBase);
+      //see what is already there
+      String existingState = patchesExistingProperties.getProperty(key);
       
+      GrouperInstallerPatchStatus grouperInstallerPatchStatus = GrouperInstallerPatchStatus.valueOfIgnoreCase(existingState, false, true);
+
+      File patchUntarredDir = new File(this.grouperTarballDirectoryString + patchName);
+
       //if no more patches
       if (patchUntarredDir == null) {
         System.out.println("");
         break OUTER;
       }
+
+      //keep track that we skipped this in the patch properties file
+      //editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
+      //    GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+      //editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
+      //    grouperInstallerPatchStatus.name());
+
+      boolean patchHasProblem = false;
+      boolean patchHasAtLeastOneFile = false;
+      boolean patchHasAtLeastOneFileInAnotherPatch = false;
+      Set<String> patchErrors = new LinkedHashSet<String>();
       
+      //keep track of patch paths (full path in patch)
+      Set<String> patchPaths = new HashSet<String>();
+      
+      //we are installing this patch, lets see if the files are there...
+      //this.upgradeExistingApplicationDirectoryString
+      //patchUntarredDir
+      File newDir = new File(patchUntarredDir.getAbsolutePath() + File.separator + "new");
+      //loop through lib, classes, files
+      for (String patchDir : patchDirToApplicationPath.keySet()) {
+
+        String applicationPath = patchDirToApplicationPath.get(patchDir);
+
+        File newDirFiles = new File(newDir.getAbsoluteFile() + File.separator + patchDir);
+
+        // relative, e.g. WEB-INF/jsp/someFile.jsp
+        Set<String> newFileRelativePaths = GrouperInstallerUtils.fileDescendantRelativePaths(newDirFiles);
+        // go through all files of the patches in the new dir
+        for (String newFilePath : GrouperInstallerUtils.nonNull(newFileRelativePaths)) {
+
+          String patchPath = patchDir + File.separator + newFilePath;
+          
+          Integer existsInPatchVersion = fileInMoreRecentPatchMap.get(patchPath);
+          
+          //if this file was in a newer patch, then thats ok
+          if (existsInPatchVersion != null) {
+            //this file is ok, its in a more recent patch
+            patchHasAtLeastOneFileInAnotherPatch = true;
+            continue;
+          }
+
+          File newFileInGrouper = new File(applicationPath + newFilePath);
+
+          File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + newFilePath);
+          
+          //see if the contents of the patch match those in grouper
+          if (!GrouperInstallerUtils.contentEquals(newFileInPatch, newFileInGrouper)) {
+
+            patchErrors.add("Problem in patch:\n  " + newFileInPatch.getAbsolutePath() 
+                + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
+            patchHasProblem = true;
+          } else {
+
+            patchPaths.add(patchPath);
+
+            patchHasAtLeastOneFile = true;
+          }
+        }
+      }
+        
+      //is any file installed?  or if there are only files in other patches... hmm
+      if (patchHasAtLeastOneFile || (patchHasAtLeastOneFileInAnotherPatch && !patchHasProblem )) {
+        
+        //add files in this patch to the list
+        for (String patchPath : patchPaths) {
+          fileInMoreRecentPatchMap.put(patchPath, i);
+        }
+        
+        //one or more of the files in the patch had a problem
+        if (patchHasProblem) {
+          for (String patchError: patchErrors) {
+            System.out.println(patchError);
+          }
+          if (grouperInstallerPatchStatus == null || (grouperInstallerPatchStatus != GrouperInstallerPatchStatus.applied
+              && grouperInstallerPatchStatus != GrouperInstallerPatchStatus.error)) {
+            patchesOverallOk = false;
+            editPropertiesFile(patchExistingPropertiesFile, patchName + ".date", 
+                GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+            editPropertiesFile(patchExistingPropertiesFile, patchName + ".state", 
+                GrouperInstallerPatchStatus.applied.name());
+            System.out.println("Patch " + patchName + " was listed as " + grouperInstallerPatchStatus + " but was changed to applied (even though there are files missing)");
+            
+          }
+          continue;          
+        }
+        
+        if (grouperInstallerPatchStatus == null || grouperInstallerPatchStatus != GrouperInstallerPatchStatus.applied) {
+          patchesOverallOk = false;
+          editPropertiesFile(patchExistingPropertiesFile, patchName + ".date", 
+              GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+          editPropertiesFile(patchExistingPropertiesFile, patchName + ".state", 
+              GrouperInstallerPatchStatus.applied.name());
+          System.out.println("Patch " + patchName + " was listed as " + grouperInstallerPatchStatus + " but was changed to applied");
+          
+        }
+        
+      } else {
+        if (grouperInstallerPatchStatus == null || grouperInstallerPatchStatus != GrouperInstallerPatchStatus.applied) {
+          continue;
+        }
+        
+        patchesOverallOk = false;
+        editPropertiesFile(patchExistingPropertiesFile, patchName + ".date", 
+            GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+        editPropertiesFile(patchExistingPropertiesFile, patchName + ".state", 
+            GrouperInstallerPatchStatus.skippedTemporarily.name());
+        System.out.println("Patch " + patchName + " was listed as applied but was changed to skippedTemporarily");
+        continue;
+      }
+
+    }
+
+    //tell the properties file that we have fixed the index file now
+    editPropertiesFile(patchExistingPropertiesFile, "grouperInstallerLastFixedIndexFile.date", 
+        GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+  
+    if (patchesOverallOk) {
+      System.out.println("Patches for " + thisAppToUpgrade + " for version " + grouperVersion + " were in the index file correctly");
+    }
+  }
+  
+  /**
+   * get all patches
+   * @param thisAppToUpgrade app to upgrade to check
+   * @param grouperVersion
+   * @return next patch index
+   */
+  private int downloadPatches(AppToUpgrade thisAppToUpgrade, String grouperVersion) {
+
+    if (thisAppToUpgrade == AppToUpgrade.CLIENT) {
+      throw new RuntimeException("Cant install patches for " + thisAppToUpgrade);
+    }
+    
+    Map<Integer, String> patchNumberToNameBase = new LinkedHashMap<Integer, String>();
+    
+    int nextPatchIndex = 0;
+
+    OUTER: for (int i=0;i<1000;i++) {
+
+      //grouper_v2_2_1_api_patch_0.state
+      String keyBase = "grouper_v" + grouperVersion + "_" + thisAppToUpgrade.name().toLowerCase() + "_patch_" + i;
+
+      patchNumberToNameBase.put(i, keyBase);
+
+      //lets see if it exists on the server
+      File patchUntarredDir = downloadAndUnzipPatch(keyBase);
+
+      //if no more patches
+      if (patchUntarredDir == null) {
+        System.out.println("");
+        break OUTER;
+      }
+
       nextPatchIndex = i+1;
     }
 
     return nextPatchIndex;
-    
+
   }
   
   /**
@@ -5287,6 +5558,37 @@ public class GrouperInstaller {
    */
   private void patchApi() {
     this.downloadAndInstallPatches(AppToUpgrade.API);
+  }
+
+  /**
+   * fix index file api
+   */
+  private void fixIndexFileApi() {
+    this.fixIndexFile(AppToUpgrade.API);
+  }
+
+  /**
+   * fix index file ui
+   */
+  private void fixIndexFileUi() {
+    this.fixIndexFile(AppToUpgrade.UI);
+    this.fixIndexFile(AppToUpgrade.API);
+  }
+
+  /**
+   * fix index file ws
+   */
+  private void fixIndexFileWs() {
+    this.fixIndexFile(AppToUpgrade.WS);
+    this.fixIndexFile(AppToUpgrade.API);
+  }
+
+  /**
+   * fix index file psp
+   */
+  private void fixIndexFilePsp() {
+    this.fixIndexFile(AppToUpgrade.PSP);
+    this.fixIndexFile(AppToUpgrade.API);
   }
 
   /**
