@@ -929,8 +929,8 @@ public class GrouperInstaller {
     System.out.println("Editing " + buildPropertiesFile.getAbsolutePath() + ": ");
     String apiDir = GrouperInstallerUtils.replace(this.untarredApiDir.getAbsolutePath(),"\\\\", "/");
     apiDir = GrouperInstallerUtils.replace(apiDir, "\\", "/");
-    editPropertiesFile(buildPropertiesFile, "grouper.folder", apiDir);
-    editPropertiesFile(buildPropertiesFile, "should.copy.context.xml.to.metainf", "false");
+    editPropertiesFile(buildPropertiesFile, "grouper.folder", apiDir, false);
+    editPropertiesFile(buildPropertiesFile, "should.copy.context.xml.to.metainf", "false", false);
     
   }
   
@@ -952,7 +952,7 @@ public class GrouperInstaller {
     System.out.println("Editing " + buildPropertiesFile.getAbsolutePath() + ": ");
     String apiDir = GrouperInstallerUtils.replace(this.untarredApiDir.getAbsolutePath(),"\\\\", "/");
     apiDir = GrouperInstallerUtils.replace(apiDir, "\\", "/");
-    editPropertiesFile(buildPropertiesFile, "grouper.dir", apiDir);
+    editPropertiesFile(buildPropertiesFile, "grouper.dir", apiDir, false);
     
   }
 
@@ -4834,9 +4834,9 @@ public class GrouperInstaller {
       System.out.println("Patch successfully reverted: " + keyBase);
 
       editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
-          GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+          GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), false);
       editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
-          GrouperInstallerPatchStatus.reverted.name());
+          GrouperInstallerPatchStatus.reverted.name(), false);
 
       System.out.println("");
     }
@@ -4989,13 +4989,9 @@ public class GrouperInstaller {
       }
       installPatch = this.installAllPatches || readFromStdInBoolean(true, "grouperInstaller.autorun.installPatch");
 
-      if (!patchExistingPropertiesFile.exists()) {
-        GrouperInstallerUtils.fileCreate(patchExistingPropertiesFile);
-      }
-      
       //keep track that we skipped this in the patch properties file
       editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
-          GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+          GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), true);
 
       if (!installPatch) {
 
@@ -5012,7 +5008,7 @@ public class GrouperInstaller {
         }
 
         editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
-            grouperInstallerPatchStatus.name());
+            grouperInstallerPatchStatus.name(), true);
         System.out.println("");
         continue OUTER;
       }
@@ -5115,7 +5111,7 @@ public class GrouperInstaller {
 
       if (patchHasProblem) {
         editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
-            GrouperInstallerPatchStatus.error.name());
+            GrouperInstallerPatchStatus.error.name(), true);
 
         continue OUTER;
       }
@@ -5151,7 +5147,7 @@ public class GrouperInstaller {
       System.out.println("Patch successfully applied: " + keyBase);
       
       editPropertiesFile(patchExistingPropertiesFile, keyBase + ".state", 
-          GrouperInstallerPatchStatus.applied.name());
+          GrouperInstallerPatchStatus.applied.name(), true);
       System.out.println("");
     }
 
@@ -5291,9 +5287,9 @@ public class GrouperInstaller {
               && grouperInstallerPatchStatus != GrouperInstallerPatchStatus.error)) {
             patchesOverallOk = false;
             editPropertiesFile(patchExistingPropertiesFile, patchName + ".date", 
-                GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+                GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), true);
             editPropertiesFile(patchExistingPropertiesFile, patchName + ".state", 
-                GrouperInstallerPatchStatus.applied.name());
+                GrouperInstallerPatchStatus.applied.name(), true);
             System.out.println("Patch " + patchName + " was listed as " + grouperInstallerPatchStatus + " but was changed to applied (even though there are files missing)");
             
           }
@@ -5303,9 +5299,9 @@ public class GrouperInstaller {
         if (grouperInstallerPatchStatus == null || grouperInstallerPatchStatus != GrouperInstallerPatchStatus.applied) {
           patchesOverallOk = false;
           editPropertiesFile(patchExistingPropertiesFile, patchName + ".date", 
-              GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+              GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), true);
           editPropertiesFile(patchExistingPropertiesFile, patchName + ".state", 
-              GrouperInstallerPatchStatus.applied.name());
+              GrouperInstallerPatchStatus.applied.name(), true);
           System.out.println("Patch " + patchName + " was listed as " + grouperInstallerPatchStatus + " but was changed to applied");
           
         }
@@ -5317,9 +5313,9 @@ public class GrouperInstaller {
         
         patchesOverallOk = false;
         editPropertiesFile(patchExistingPropertiesFile, patchName + ".date", 
-            GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+            GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), true);
         editPropertiesFile(patchExistingPropertiesFile, patchName + ".state", 
-            GrouperInstallerPatchStatus.skippedTemporarily.name());
+            GrouperInstallerPatchStatus.skippedTemporarily.name(), true);
         System.out.println("Patch " + patchName + " was listed as applied but was changed to skippedTemporarily");
         continue;
       }
@@ -5328,7 +5324,7 @@ public class GrouperInstaller {
 
     //tell the properties file that we have fixed the index file now
     editPropertiesFile(patchExistingPropertiesFile, "grouperInstallerLastFixedIndexFile.date", 
-        GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()));
+        GrouperInstallerUtils.dateMinutesSecondsFormat.format(new Date()), true);
   
     if (patchesOverallOk) {
       System.out.println("Patches for " + thisAppToUpgrade + " for version " + grouperVersion + " were in the index file correctly");
@@ -6142,9 +6138,9 @@ public class GrouperInstaller {
 
     //lets edit the three properties:
     System.out.println("Editing " + localGrouperHibernatePropertiesFile.getAbsolutePath() + ": ");
-    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl);
-    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser);
-    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass);
+    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.url", this.dbUrl, false);
+    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.username", this.dbUser, false);
+    editPropertiesFile(localGrouperHibernatePropertiesFile, "hibernate.connection.password", this.dbPass, false);
 
     //####################################
     //check to see if listening on port?
@@ -8114,9 +8110,9 @@ public class GrouperInstaller {
       //set the grouper property
       System.out.println("Editing " + localGrouperClientPropertiesFile.getAbsolutePath() + ": ");
       editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.url", "http://localhost:" 
-          + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/servicesRest");
-      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.login", "GrouperSystem");
-      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.password", this.grouperSystemPassword);
+          + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/servicesRest", false);
+      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.login", "GrouperSystem", false);
+      editPropertiesFile(localGrouperClientPropertiesFile, "grouperClient.webService.password", this.grouperSystemPassword, false);
       
       
 //      grouperClient.webService.url = http://localhost:8200/grouper-ws/servicesRest
@@ -8870,11 +8866,17 @@ public class GrouperInstaller {
    * @param file
    * @param propertyName
    * @param propertyValue
+   * @param createFileIfNotExist 
    */
-  public static void editPropertiesFile(File file, String propertyName, String propertyValue) {
+  public static void editPropertiesFile(File file, String propertyName, String propertyValue, boolean createFileIfNotExist) {
     if (!file.exists()) {
-      throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
-          + file.getAbsolutePath());
+      if (createFileIfNotExist) {
+        System.out.println("Creating file: " + (file == null ? null : file.getAbsolutePath()));
+        GrouperInstallerUtils.fileCreate(file);
+      } else {
+        throw new RuntimeException("Why does " + file.getName() + " not exist and have contents? " 
+            + file.getAbsolutePath());
+      }
     }
     
     propertyValue = GrouperInstallerUtils.defaultString(propertyValue);
