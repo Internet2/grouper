@@ -113,7 +113,7 @@ public class GrouperInstallerMergePatchFiles {
           String patchProperty = (String)patchPropertyObject;
           if (patchProperty.startsWith(propertyBaseApplied)) {
             String patchPropertyFromValue = patchPropertiesFrom.getProperty(patchProperty);
-            GrouperInstaller.editPropertiesFile(patchPropertiesFileTo, patchProperty, patchPropertyFromValue);
+            GrouperInstaller.editPropertiesFile(patchPropertiesFileTo, patchProperty, patchPropertyFromValue, true);
           }
         }
       }
