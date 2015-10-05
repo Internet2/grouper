@@ -83,6 +83,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefName
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -1547,6 +1548,29 @@ public class GrouperServiceRest {
     
     return wsGetAttributeAssignmentsResults;
     
+  }
+  
+  /**
+   * get attribute assign actions rest
+   * @param clientVersion
+   * @param wsRestGetAttributeAssignActionsRequest
+   * @return the result
+   */
+  public static WsGetAttributeAssignActionsResults getAttributeAssignActions(GrouperVersion clientVersion,
+      WsRestGetAttributeAssignActionsRequest wsRestGetAttributeAssignActionsRequest) {
+    //cant be null
+	wsRestGetAttributeAssignActionsRequest = wsRestGetAttributeAssignActionsRequest == null ? new WsRestGetAttributeAssignActionsRequest()
+      : wsRestGetAttributeAssignActionsRequest;
+    
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestGetAttributeAssignActionsRequest.getClientVersion()), false, "clientVersion");
+
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignmentsResults = new GrouperService(false).
+        getAttributeAssignActions(clientVersionString, wsRestGetAttributeAssignActionsRequest.getWsAttributeDefLookups(), 
+        wsRestGetAttributeAssignActionsRequest.getActions(), wsRestGetAttributeAssignActionsRequest.getActAsSubjectLookup(),
+        wsRestGetAttributeAssignActionsRequest.getParams());
+    
+    return wsGetAttributeAssignmentsResults;
   }
   
   /**

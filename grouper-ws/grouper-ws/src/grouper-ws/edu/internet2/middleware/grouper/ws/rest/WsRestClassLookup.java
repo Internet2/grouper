@@ -129,6 +129,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefName
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -345,6 +346,7 @@ public class WsRestClassLookup {
     addAliasClass(WsRestGroupSaveRequest.class);
     
     addAliasClass(WsRestGetAttributeAssignActionsLiteRequest.class);
+    addAliasClass(WsRestGetAttributeAssignActionsRequest.class);
     addAliasClass(WsGetAttributeAssignActionsResults.class);
     addAliasClass(WsAttributeAssignActionTuple.class);
     

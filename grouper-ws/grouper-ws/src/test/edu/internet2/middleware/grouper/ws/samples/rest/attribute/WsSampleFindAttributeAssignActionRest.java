@@ -27,9 +27,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -37,13 +40,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author vsachdeva
  */
-public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
+public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 
   /**
-   * find attribute assign actions lite web service with REST
+   * find attribute assign actions web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeAssignActionsLite(WsSampleRestType wsSampleRestType) {
+  public static void findAttributeAssignActions(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -70,12 +73,13 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
       
-      WsRestGetAttributeAssignActionsLiteRequest getAttributeActionsLite = new WsRestGetAttributeAssignActionsLiteRequest();
+      WsRestGetAttributeAssignActionsRequest getAttributeActions = new WsRestGetAttributeAssignActionsRequest();
       
-      getAttributeActionsLite.setWsNameOfAttributeDef("test:test");
+      WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup("test:test", null);
+      getAttributeActions.setWsAttributeDefLookups(new WsAttributeDefLookup[]{wsAttributeDefLookup});
       
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getAttributeActionsLite);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getAttributeActions);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -94,7 +98,7 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
       String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
       String response = RestClientSettings.responseBodyAsString(method);
-
+      System.out.println(response);
       Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
     
       //see if problem
@@ -127,7 +131,7 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeAssignActionsLite(WsSampleRestType.json);
+	  findAttributeAssignActions(WsSampleRestType.json);
   }
 
   /**
@@ -135,7 +139,7 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
    */
   @Override
   public void executeSample(WsSampleRestType wsSampleRestType) {
-	  findAttributeAssignActionsLite(wsSampleRestType);
+	  findAttributeAssignActions(wsSampleRestType);
   }
 
   /**

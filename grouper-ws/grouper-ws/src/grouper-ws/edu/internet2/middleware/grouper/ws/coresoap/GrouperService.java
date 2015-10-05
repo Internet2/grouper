@@ -3078,6 +3078,40 @@ public class GrouperService {
     return wsGetAttributeAssignmentsResults; 
   }
   
+  /**
+   * get attributeAssignActions from based on inputs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeDefLookups find assignments in these attribute defs
+   * @param actions to query, or none to query all actions
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public WsGetAttributeAssignActionsResults getAttributeAssignActions(
+	  String clientVersion, WsAttributeDefLookup[] wsAttributeDefLookups, String[] actions, 
+	  WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {  
+
+	WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
+  
+    try {
+
+    GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+      clientVersion, true);
+
+    wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActions(grouperWsVersion, 
+    	wsAttributeDefLookups, actions, actAsSubjectLookup, params);
+
+    } catch (Exception e) {
+      wsGetAttributeAssignActionsResults.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGetAttributeAssignActionsResults.getResultMetadata(), this.soap);
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsGetAttributeAssignActionsResults; 
+  }
+  
   
   /**
    * get attributeAssignActions based on inputs

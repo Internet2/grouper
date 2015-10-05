@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
@@ -242,13 +243,20 @@ public enum GrouperWsRestGet {
 
       if (requestObject instanceof WsRestGetAttributeAssignActionsLiteRequest) {
 
-        //get attributeAssignments
+        //get attributeAssignActions
         return GrouperServiceRest.getAttributeAssignActionsLite(clientVersion,
             (WsRestGetAttributeAssignActionsLiteRequest)requestObject);
         
-      }  else {
+      } else if (requestObject instanceof WsRestGetAttributeAssignActionsRequest) {
+    	  
+    	  //get attributeAssignActionsLite
+          return GrouperServiceRest.getAttributeAssignActions(clientVersion,
+              (WsRestGetAttributeAssignActionsRequest)requestObject);
+      } 
+      else {
         throw new RuntimeException("Must pass in a request object of type " 
-            + WsRestGetAttributeAssignActionsLiteRequest.class.getSimpleName());
+            + WsRestGetAttributeAssignActionsLiteRequest.class.getSimpleName() +" or "
+            + WsRestGetAttributeAssignActionsRequest.class.getSimpleName());
       }
       
     }
