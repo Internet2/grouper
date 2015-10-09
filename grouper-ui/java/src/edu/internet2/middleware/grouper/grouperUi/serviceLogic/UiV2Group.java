@@ -4351,24 +4351,37 @@ public class UiV2Group {
       result = StringUtils.trimToEmpty(result);
       //see if we can translate this
       // loader ran successfully, inserted 2 memberships, deleted 0 memberships, total membership count: 2
-      Pattern pattern = Pattern.compile("^loader ran successfully, inserted (\\d+) memberships, deleted (\\d+) memberships, total membership count: (\\d+)$");
+      Pattern pattern = Pattern.compile("^loader ran (successfully|with subject problems), inserted (\\d+) memberships, deleted (\\d+) memberships, total membership count: (\\d+), unresolvable subjects: (\\d+)$");
+      
+      boolean subjectProblems = result.contains("subject problems");
       
       Matcher matcher = pattern.matcher(result);
       
       if (matcher.matches()) {
 
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountAdded(GrouperUtil.intValue(matcher.group(1)));
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountRemoved(GrouperUtil.intValue(matcher.group(2)));
-        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountTotal(GrouperUtil.intValue(matcher.group(3)));
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountAdded(GrouperUtil.intValue(matcher.group(2)));
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountRemoved(GrouperUtil.intValue(matcher.group(3)));
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountTotal(GrouperUtil.intValue(matcher.group(4)));
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setCountUnresolvableSubjects(GrouperUtil.intValue(matcher.group(5)));
         
-        result = TextContainer.retrieveFromRequest().getText().get("groupRunLoaderProcessResult");
-        
+        if (subjectProblems) {
+          result = TextContainer.retrieveFromRequest().getText().get("groupRunLoaderProcessResultWithSubjectProblems");
+        } else {
+          result = TextContainer.retrieveFromRequest().getText().get("groupRunLoaderProcessResult");
+        } 
       }
       
-      //lets show a success message on the new screen
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-          TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateSuccess") + "<br />"
-              + result));
+      if (subjectProblems) {
+        // show an error
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateError") + "<br />"
+                + result));
+      } else {
+        //lets show a success message on the new screen
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+            TextContainer.retrieveFromRequest().getText().get("loaderGroupUpdateSuccess") + "<br />"
+                + result));
+      }
 
       filterHelper(request, response, group);
 

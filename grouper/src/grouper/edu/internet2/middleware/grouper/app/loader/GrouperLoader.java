@@ -1008,9 +1008,12 @@ public class GrouperLoader {
         GrouperLoaderJob.runJobLdap(hib3GrouperLoaderLog, group, grouperSession);
       }
       
-      return "loader " + (isDryRun() ? "dry " : "") + "ran successfully, " + (isDryRun() ? "would have " : "") + "inserted " + hib3GrouperLoaderLog.getInsertCount()
+      String status = "SUBJECT_PROBLEMS".equals(hib3GrouperLoaderLog.getStatus()) ? "with subject problems" :
+        "successfully";
+      
+      return "loader " + (isDryRun() ? "dry " : "") + "ran " + status + ", " + (isDryRun() ? "would have " : "") + "inserted " + hib3GrouperLoaderLog.getInsertCount()
         + " memberships, " + (isDryRun() ? "would have " : "") + "deleted " + hib3GrouperLoaderLog.getDeleteCount() + " memberships, total membership count: "
-        + hib3GrouperLoaderLog.getTotalCount();
+        + hib3GrouperLoaderLog.getTotalCount() + ", unresolvable subjects: " + hib3GrouperLoaderLog.getUnresolvableSubjectCount();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
