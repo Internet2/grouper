@@ -256,7 +256,8 @@ public enum GrouperWsRestGet {
       else {
         throw new RuntimeException("Must pass in a request object of type " 
             + WsRestGetAttributeAssignActionsLiteRequest.class.getSimpleName() +" or "
-            + WsRestGetAttributeAssignActionsRequest.class.getSimpleName());
+            + WsRestGetAttributeAssignActionsRequest.class.getSimpleName() +" but was "+
+            requestObject == null ? null : requestObject.getClass().getName());
       }
       
     }

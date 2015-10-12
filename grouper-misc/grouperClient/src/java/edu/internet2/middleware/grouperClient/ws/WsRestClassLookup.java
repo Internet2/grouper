@@ -170,6 +170,10 @@ public class WsRestClassLookup {
     
     addAliasClass(WsSubject.class);
     addAliasClass(WsSubjectLookup.class);
+    
+    addAliasClass(WsRestGetAttributeAssignActionsRequest.class);
+    addAliasClass(WsGetAttributeAssignActionsResults.class);
+    addAliasClass(WsAttributeAssignActionTuple.class);
   }
   
   /**
