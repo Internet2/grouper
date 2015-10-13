@@ -32,15 +32,12 @@
 
 package edu.internet2.middleware.subject.provider;
 
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
 
 
 /**
@@ -58,9 +55,12 @@ public class LdapSubject extends SubjectImpl {
     * @param sourceId
     */
    protected LdapSubject(String id, String name, String description,
-      String type, String sourceId) {
-                super(id, name, description, type, sourceId);
-    log.debug("LdapSubject Name = "  + name);
+       String type, String sourceId) {
+     super(id, name, description, type, sourceId);
+   
+     if (log.isDebugEnabled()) {
+       log.debug("LdapSubject Name = "  + name);
+     }
    }
 
    /*
@@ -87,10 +87,10 @@ public class LdapSubject extends SubjectImpl {
     * @param descriptionAttribute
     */
    protected LdapSubject(String id, String name, String description,
-   		String type, String sourceId,
-   		String nameAttribute, String descriptionAttribute) {
-                super(id, name, description, type, sourceId, nameAttribute, descriptionAttribute);
-   	log.debug("LdapSubject Id = "  + id);
+        String type, String sourceId,
+   		  String nameAttribute, String descriptionAttribute) {
+     super(id, name, description, type, sourceId, nameAttribute, descriptionAttribute);
+   	 log.debug("LdapSubject Id = "  + id);
    }
 
    /*
@@ -104,10 +104,10 @@ public class LdapSubject extends SubjectImpl {
     * @param descriptionAttribute
     */
    protected LdapSubject(String id, String name, String description,
-   		String type, String sourceId, Map<String, Set<String>> attributes,
-   		String nameAttribute, String descriptionAttribute) {
-                super(id, name, description, type, sourceId, attributes, nameAttribute, descriptionAttribute);
-        }
+       String type, String sourceId, Map<String, Set<String>> attributes,
+       String nameAttribute, String descriptionAttribute) {
+     super(id, name, description, type, sourceId, attributes, nameAttribute, descriptionAttribute);
+   }
 
   /* have we tried to get all the attributes */
   private boolean attributesGotten = false;
@@ -136,17 +136,21 @@ public class LdapSubject extends SubjectImpl {
 
   @Override
   public String getName() {
-    if (super.getName().length()>0) return super.getName();
+    if (!StringUtils.isBlank(super.getName())) return super.getName();
     this.getAllAttributes();
     return super.getName();
   }
 
   @Override
   public String getDescription() {
-    if (super.getDescription().length()>0) return super.getDescription();
-    log.debug("getting all (description), gotten = " + attributesGotten);
+    if (!StringUtils.isBlank(super.getDescription())) return super.getDescription();
+    if (log.isDebugEnabled()) {
+      log.debug("getting all (description), gotten = " + attributesGotten);
+    }
     this.getAllAttributes();
-    log.debug("got all (description), gotten=" + attributesGotten + ", desc=" + super.getDescription());
+    if (log.isDebugEnabled()) {
+      log.debug("got all (description), gotten=" + attributesGotten + ", desc=" + super.getDescription());
+    }
     return super.getDescription();
   }
 
