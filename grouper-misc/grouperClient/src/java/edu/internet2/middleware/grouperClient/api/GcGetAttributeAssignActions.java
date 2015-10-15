@@ -105,23 +105,23 @@ public class GcGetAttributeAssignActions {
 
  
   /** attributeDef names to query */
-  private Set<String> attributeDefNames = new LinkedHashSet<String>();
+  private Set<String> namesOfAttributeDefs = new LinkedHashSet<String>();
 
   /** attributeDef uuids to query */
-  private Set<String> attributeDefUuids = new LinkedHashSet<String>();
+  private Set<String> uuidsOfAttributeDefs = new LinkedHashSet<String>();
 
   /** attributeDef id indexes to query */
-  private Set<Long> attributeDefIdIndexes = new LinkedHashSet<Long>();  
+  private Set<Long> idIndexesOfAttributeDefs = new LinkedHashSet<Long>();  
   
   
   /**
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.length(this.attributeDefNames) == 0 && GrouperClientUtils.length(this.attributeDefUuids) == 0 &&
-    	GrouperClientUtils.length(this.attributeDefIdIndexes) == 0 ) {
+    if (GrouperClientUtils.length(this.namesOfAttributeDefs) == 0 && GrouperClientUtils.length(this.uuidsOfAttributeDefs) == 0 &&
+    	GrouperClientUtils.length(this.idIndexesOfAttributeDefs) == 0 ) {
       throw new RuntimeException("atleast one of the attributeDefNames, attributeDefUuids and attributeDefIdIndexes "
-      		+ "is required : " + this);
+        + "is required : " + this);
     }
   }
   
@@ -147,14 +147,14 @@ public class GcGetAttributeAssignActions {
         //########### ATTRIBUTE DEFS
         List<WsAttributeDefLookup> attributeDefLookups = new ArrayList<WsAttributeDefLookup>();
         //add names and/or uuids
-        for (String attributeDefName : this.attributeDefNames) {
-          attributeDefLookups.add(new WsAttributeDefLookup(attributeDefName, null));
+        for (String nameOfAttributeDef : this.namesOfAttributeDefs) {
+          attributeDefLookups.add(new WsAttributeDefLookup(nameOfAttributeDef, null));
         }
-        for (String attributeDefUuid : this.attributeDefUuids) {
-          attributeDefLookups.add(new WsAttributeDefLookup(null, attributeDefUuid));
+        for (String uuidOfAttributeDef : this.uuidsOfAttributeDefs) {
+          attributeDefLookups.add(new WsAttributeDefLookup(null, uuidOfAttributeDef));
         }
-        for (Long attributeDefIdIndex : this.attributeDefIdIndexes) {
-          attributeDefLookups.add(new WsAttributeDefLookup(null, null, attributeDefIdIndex.toString()));
+        for (Long idIndexOfAttributeDef : this.idIndexesOfAttributeDefs) {
+          attributeDefLookups.add(new WsAttributeDefLookup(null, null, idIndexOfAttributeDef.toString()));
         }
         if (GrouperClientUtils.length(attributeDefLookups) > 0) {
         	getAttributeAssignActions.setWsAttributeDefLookups(GrouperClientUtils.toArray(attributeDefLookups, WsAttributeDefLookup.class));
@@ -190,31 +190,31 @@ public class GcGetAttributeAssignActions {
 
   /**
    * set the attributedef name
-   * @param theAttributeDefName
+   * @param nameOfAttributeDef
    * @return this for chaining
    */
-  public GcGetAttributeAssignActions addAttributeDefName(String theAttributeDefName) {
-    this.attributeDefNames.add(theAttributeDefName);
+  public GcGetAttributeAssignActions addAttributeDefName(String nameOfAttributeDef) {
+    this.namesOfAttributeDefs.add(nameOfAttributeDef);
     return this;
   }
 
   /**
    * set the attributedef uuid
-   * @param theAttributeDefUuid
+   * @param uuidOfAttributeDef
    * @return this for chaining
    */
-  public GcGetAttributeAssignActions addAttributeDefUuid(String theAttributeDefUuid) {
-    this.attributeDefUuids.add(theAttributeDefUuid);
+  public GcGetAttributeAssignActions addAttributeDefUuid(String uuidOfAttributeDef) {
+    this.uuidsOfAttributeDefs.add(uuidOfAttributeDef);
     return this;
   }
 
   /**
    * set the attributedef id index
-   * @param theAttributeDefIdIndex
+   * @param idIndexOfATtributeDef
    * @return this for chaining
    */
-  public GcGetAttributeAssignActions addAttributeDefIdIndex(Long theAttributeDefIdIndex) {
-    this.attributeDefIdIndexes.add(theAttributeDefIdIndex);
+  public GcGetAttributeAssignActions addAttributeDefIdIndex(Long idIndexOfATtributeDef) {
+    this.idIndexesOfAttributeDefs.add(idIndexOfATtributeDef);
     return this;
   }
 

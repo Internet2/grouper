@@ -3785,43 +3785,43 @@ public class GrouperClient {
    */
   private static String getAttributeAssignActions(Map<String, String> argMap, Map<String, String> argMapNotUsed) {
   
-    GcGetAttributeAssignActions gcGetAttributeAssignments = new GcGetAttributeAssignActions();        
+    GcGetAttributeAssignActions gcGetAttributeAssignActions = new GcGetAttributeAssignActions();        
 
     {
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-      gcGetAttributeAssignments.assignClientVersion(clientVersion);
+      gcGetAttributeAssignActions.assignClientVersion(clientVersion);
       
     }
     
     {
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
-      gcGetAttributeAssignments.assignActAsSubject(actAsSubject);
+      gcGetAttributeAssignActions.assignActAsSubject(actAsSubject);
     }
     
     { 
-      Set<String> attributeDefNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefNames", false);
+      Set<String> namesOfAttributeDefs = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "namesOfAttributeDefs", false);
       
-      if (GrouperClientUtils.length(attributeDefNames) > 0) {
-        for (String attributeDefName : attributeDefNames) {
-          gcGetAttributeAssignments.addAttributeDefName(attributeDefName);
+      if (GrouperClientUtils.length(namesOfAttributeDefs) > 0) {
+        for (String nameOfAttributeDef : namesOfAttributeDefs) {
+          gcGetAttributeAssignActions.addAttributeDefName(nameOfAttributeDef);
         }
       }
     }
     
     {
-      Set<String> attributeDefUuids = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefUuids", false);
-      if (GrouperClientUtils.length(attributeDefUuids) > 0) {
-        for (String attributeDefUuid : attributeDefUuids) {
-          gcGetAttributeAssignments.addAttributeDefUuid(attributeDefUuid);
+      Set<String> uuidsOfAttributeDefs = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "uuidsOfAttributeDefs", false);
+      if (GrouperClientUtils.length(uuidsOfAttributeDefs) > 0) {
+        for (String uuidOfAttributeDef : uuidsOfAttributeDefs) {
+          gcGetAttributeAssignActions.addAttributeDefUuid(uuidOfAttributeDef);
         }
       }
     }
 
     {
-      Set<String> attributeDefIdIndexes = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "attributeDefIdIndexes", false);
-      if (GrouperClientUtils.length(attributeDefIdIndexes) > 0) {
-        for (String attributeDefIdIndex : attributeDefIdIndexes) {
-          gcGetAttributeAssignments.addAttributeDefIdIndex(GrouperClientUtils.longValue(attributeDefIdIndex));
+      Set<String> idIndexesOfAttributeDefs = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "idIndexesOfAttributeDefs", false);
+      if (GrouperClientUtils.length(idIndexesOfAttributeDefs) > 0) {
+        for (String idIndexOfAttributeDef : idIndexesOfAttributeDefs) {
+          gcGetAttributeAssignActions.addAttributeDefIdIndex(GrouperClientUtils.longValue(idIndexOfAttributeDef));
         }
       }
     }
@@ -3831,7 +3831,7 @@ public class GrouperClient {
       
       if (GrouperClientUtils.length(actions) > 0) {
         for (String action : actions) {
-          gcGetAttributeAssignments.addAction(action);
+          gcGetAttributeAssignActions.addAction(action);
         }
       }
     }
@@ -3840,7 +3840,7 @@ public class GrouperClient {
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       
       for (WsParam param : params) {
-        gcGetAttributeAssignments.addParam(param);
+        gcGetAttributeAssignActions.addParam(param);
       }
     }
     
@@ -3849,7 +3849,7 @@ public class GrouperClient {
     
     failOnArgsNotUsed(argMapNotUsed);
   
-    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = gcGetAttributeAssignments.execute();
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = gcGetAttributeAssignActions.execute();
     
     StringBuilder result = new StringBuilder();
     int index = 0;

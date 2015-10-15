@@ -1808,9 +1808,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
    * test attributeAssignActions read
    */
   public void testGetAttributeAssignActions() {
-    AttributeDefName attributeDefName1 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName nameOfAttributeDef1 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
     
-    final AttributeDef attributeDef1 = attributeDefName1.getAttributeDef();
+    final AttributeDef attributeDef1 = nameOfAttributeDef1.getAttributeDef();
     
     attributeDef1.setAssignToGroup(false);
     attributeDef1.setAssignToStem(true);
@@ -1819,9 +1819,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
     attributeDef1.getAttributeDefActionDelegate().addAction("delete");
     attributeDef1.store();
     
-    AttributeDefName attributeDefName2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeDefName2");
+    AttributeDefName nameOfAttributeDef2 = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeDefName2");
     
-    final AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+    final AttributeDef attributeDef2 = nameOfAttributeDef2.getAttributeDef();
     
     attributeDef2.setAssignToGroup(false);
     attributeDef2.setAssignToStem(true);

@@ -3117,8 +3117,8 @@ public class GrouperService {
    * get attributeAssignActions based on inputs
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param wsNameOfAttributeDef find assignActions in this attribute def
-   * @param wsAttributeDefId find assignments in this attribute def (optional)
-   * @param wsAttributeDefIdIndex find assignments in this attribute def (optional)
+   * @param wsIdOfAtttributeDef find assignments in this attribute def (optional)
+   * @param wsIdIndexOfAtrrbuteDef find assignments in this attribute def (optional)
    * @param action to query, or none to query all actions
    * @param actAsSubjectId 
    * @param actAsSubjectSourceId 
@@ -3134,7 +3134,7 @@ public class GrouperService {
    * @return the results
    */
   public WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
-		  String clientVersion, String wsNameOfAttributeDef, String wsAttributeDefId, String wsAttributeDefIdIndex,
+		  String clientVersion, String wsNameOfAttributeDef, String wsIdOfAtttributeDef, String wsIdIndexOfAtrrbuteDef,
 	      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, 
 	      String paramName0, String paramValue0, String paramName1, String paramValue1) {
 	  
@@ -3145,7 +3145,7 @@ public class GrouperService {
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
 
       wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActionsLite(grouperWsVersion,
-    		  wsNameOfAttributeDef, wsAttributeDefId, wsAttributeDefIdIndex, action, actAsSubjectId, 
+    		  wsNameOfAttributeDef, wsIdOfAtttributeDef, wsIdIndexOfAtrrbuteDef, action, actAsSubjectId, 
     		  actAsSubjectSourceId, actAsSubjectIdentifier, paramName0, paramValue0, paramName1, paramValue1);
 
     } catch (Exception e) {

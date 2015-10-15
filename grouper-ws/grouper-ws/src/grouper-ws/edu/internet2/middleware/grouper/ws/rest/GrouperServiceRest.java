@@ -1590,8 +1590,8 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestGetAttributeAssignActionsLiteRequest.getClientVersion()), false, "clientVersion");
 
     WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new GrouperService(false).getAttributeAssignActionsLite(clientVersionString, 
-    		wsRestGetAttributeAssignActionsLiteRequest.getWsNameOfAttributeDef(), wsRestGetAttributeAssignActionsLiteRequest.getWsAttributeDefId(), 
-    		wsRestGetAttributeAssignActionsLiteRequest.getWsAttributeDefIdIndex(), wsRestGetAttributeAssignActionsLiteRequest.getAction(),
+    		wsRestGetAttributeAssignActionsLiteRequest.getWsNameOfAttributeDef(), wsRestGetAttributeAssignActionsLiteRequest.getWsIdOfAttributeDef(), 
+    		wsRestGetAttributeAssignActionsLiteRequest.getWsIdIndexOfAttributeDef(), wsRestGetAttributeAssignActionsLiteRequest.getAction(),
     		wsRestGetAttributeAssignActionsLiteRequest.getActAsSubjectId(), wsRestGetAttributeAssignActionsLiteRequest.getActAsSubjectSourceId(),
     		wsRestGetAttributeAssignActionsLiteRequest.getActAsSubjectIdentifier(), wsRestGetAttributeAssignActionsLiteRequest.getParamName0(),
     		wsRestGetAttributeAssignActionsLiteRequest.getParamValue0(), wsRestGetAttributeAssignActionsLiteRequest.getParamName1(),

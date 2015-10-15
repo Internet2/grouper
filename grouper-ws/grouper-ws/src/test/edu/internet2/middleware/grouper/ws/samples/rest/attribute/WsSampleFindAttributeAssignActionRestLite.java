@@ -72,7 +72,7 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
       
       WsRestGetAttributeAssignActionsLiteRequest getAttributeActionsLite = new WsRestGetAttributeAssignActionsLiteRequest();
       
-      getAttributeActionsLite.setWsNameOfAttributeDef("test:test");
+      getAttributeActionsLite.setWsNameOfAttributeDef("test:testAttributeAssignDefNameDef");
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getAttributeActionsLite);

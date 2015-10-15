@@ -31,13 +31,13 @@ public class WsRestGetAttributeAssignActionsLiteRequest implements WsRequestBean
 	private String clientVersion;
 	
 	/** attribute definition id in the query */
-	private String wsAttributeDefId;
+	private String wsIdOfAttributeDef;
 	
 	/** name of attribute definition in the query */
 	private String wsNameOfAttributeDef;
 	
 	/** id index of attribute definition in the query */
-	private String wsAttributeDefIdIndex;
+	private String wsIdIndexOfAttributeDef;
 	
 	/** action in the query */
 	private String action;
@@ -80,18 +80,18 @@ public class WsRestGetAttributeAssignActionsLiteRequest implements WsRequestBean
 	}
 
 	/**
-	 * @return wsAttributeDefId
+	 * @return wsIdOfAttributeDef
 	*/
-	public String getWsAttributeDefId() {
-	  return this.wsAttributeDefId;
+	public String getWsIdOfAttributeDef() {
+	  return this.wsIdOfAttributeDef;
 	}
 
     /**
 	 * 
-	 * @param wsAttributeDefId1
+	 * @param wsIdOfAttributeDef1
 	*/
-	public void setWsAttributeDefId(String wsAttributeDefId1) {
-	  this.wsAttributeDefId = wsAttributeDefId1;
+	public void setWsIdOfAttributeDef(String wsIdOfAttributeDef1) {
+	  this.wsIdOfAttributeDef = wsIdOfAttributeDef1;
 	}
 
 	/**
@@ -111,15 +111,15 @@ public class WsRestGetAttributeAssignActionsLiteRequest implements WsRequestBean
 	/**
 	 * @return wsAttributeDefIdIndex
 	*/
-	public String getWsAttributeDefIdIndex() {
-	  return this.wsAttributeDefIdIndex;
+	public String getWsIdIndexOfAttributeDef() {
+	  return this.wsIdIndexOfAttributeDef;
 	}
 
 	/**
-	 * @param wsAttributeDefIdIndex1
+	 * @param wsIdIndexOfAttributeDef1
 	 */
-	public void setWsAttributeDefIdIndex(String wsAttributeDefIdIndex1) {
-	  this.wsAttributeDefIdIndex = wsAttributeDefIdIndex1;
+	public void setWsIdIndexOfAttributeDef(String wsIdIndexOfAttributeDef1) {
+	  this.wsIdIndexOfAttributeDef = wsIdIndexOfAttributeDef1;
 	}
 
 	/**

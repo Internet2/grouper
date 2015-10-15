@@ -75,7 +75,7 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
       
       WsRestGetAttributeAssignActionsRequest getAttributeActions = new WsRestGetAttributeAssignActionsRequest();
       
-      WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup("test:test", null);
+      WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup("test:testAttributeAssignDefNameDef", null);
       getAttributeActions.setWsAttributeDefLookups(new WsAttributeDefLookup[]{wsAttributeDefLookup});
       
       //get the xml / json / xhtml / paramString

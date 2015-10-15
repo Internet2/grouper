@@ -6089,8 +6089,8 @@ public class GrouperServiceLogic {
    * get attributeAssignActions from attribute definition
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param wsNameOfAttributeDef find assignments in this attribute def
-   * @param wsAttributeDefId find assignments in this attribute def (optional)
-   * @param wsAttributeDefIdIndex find assignments in this attribute def (optional)
+   * @param wsIdOfAttributeDef find assignments in this attribute def (optional)
+   * @param wsIdIndexOfAttributeDef find assignments in this attribute def (optional)
    * @param action to query, or none to query all actions
    * @param actAsSubjectId act as this subject
    * @param actAsSubjectSourceId act as this subject
@@ -6102,17 +6102,17 @@ public class GrouperServiceLogic {
    * @return the results
    */
   public static WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(final GrouperVersion clientVersion,
-      String wsNameOfAttributeDef, String wsAttributeDefId, String wsAttributeDefIdIndex, String action, 
+      String wsNameOfAttributeDef, String wsIdOfAttributeDef, String wsIdIndexOfAttributeDef, String action, 
 	  String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0, 
 	  String paramValue0, String paramName1, String paramValue1) {
 	  
 	    
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
 	    
-	if (!StringUtils.isBlank(wsNameOfAttributeDef) || !StringUtils.isBlank(wsAttributeDefId) 
-		|| !StringUtils.isBlank(wsAttributeDefIdIndex)) {
+	if (!StringUtils.isBlank(wsNameOfAttributeDef) || !StringUtils.isBlank(wsIdOfAttributeDef) 
+		|| !StringUtils.isBlank(wsIdIndexOfAttributeDef)) {
 	  wsAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsNameOfAttributeDef, 
-		  wsAttributeDefId, wsAttributeDefIdIndex)};
+		  wsIdOfAttributeDef, wsIdIndexOfAttributeDef)};
 	}
 	    
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId, actAsSubjectSourceId, 
