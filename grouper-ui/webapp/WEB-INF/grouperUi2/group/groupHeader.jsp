@@ -61,7 +61,8 @@
                                   </div>
                                 </div>
                               </div>
-                              <div id="add-members-privileges-select" class="control-group"  ${defaultMemberUnchecked ? 'style="display:none"' : '' } >
+
+                              <div id="add-members-privileges-select" class="control-group"  ${(defaultMemberUnchecked || !grouperRequestContainer.groupContainer.canAdmin )? 'style="display:none"' : '' } >
                                 <label class="control-label">${textContainer.text['groupViewAssignThesePrivileges']}</label>
                                 <div class="controls" >
                                   <label class="radio inline" >
@@ -111,6 +112,7 @@
                                   </label>
                                 </div>
                               </div>
+                              
                               <div class="control-group">
                                 <div class="controls">
                                   <button onclick="ajax('../app/UiV2Group.addMemberSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form', formIdsOptional: 'groupRefreshPartFormId, groupFilterFormId,groupPagingFormId,groupPagingPrivilegesFormId,groupFilterPrivilegesFormId,groupPagingAuditForm, groupFilterAuditFormId, groupQuerySortAscendingFormId'}); return false;" 

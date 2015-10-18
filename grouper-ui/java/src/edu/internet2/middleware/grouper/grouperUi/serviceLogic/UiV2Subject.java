@@ -895,7 +895,7 @@ public class UiV2Subject {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      Subject subject = retrieveSubjectHelper(request);
+      final Subject subject = retrieveSubjectHelper(request);
   
       if (subject == null) {
         return;
@@ -908,18 +908,21 @@ public class UiV2Subject {
         tempGroupString = request.getParameter("groupAddMemberComboNameDisplay");
       }
       final String groupString = tempGroupString;
-      
+      final boolean[] userHasAdmin = new boolean[]{false};
       Group group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
         
         @Override
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          Group group = null;
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          Group theGroup = null;
           
           if (!StringUtils.isBlank(groupString)) {
-            group = new GroupFinder().assignScope(groupString).assignFindByUuidOrName(true)
-                .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES).findGroup();
+            theGroup = new GroupFinder().assignScope(groupString).assignFindByUuidOrName(true)
+                .assignPrivileges(AccessPrivilege.UPDATE_PRIVILEGES).assignSubject(loggedInSubject).findGroup();
+            if (theGroup != null) {
+              userHasAdmin[0] = theGroup.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
+            }
           }
-          return group;
+          return theGroup;
         }
       });
         
@@ -959,6 +962,15 @@ public class UiV2Subject {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupPrivsErrorId",
             TextContainer.retrieveFromRequest().getText().get("subjectAddMemberPrivRequired")));
+        return;
+        
+      }
+
+      //if any privs are checked, then the user must have ADMIN on the group
+      if (!userHasAdmin[0] && (adminChecked || updateChecked || readChecked || viewChecked || optinChecked || optoutChecked || attrReadChecked || attrUpdateChecked)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupPrivsErrorId",
+            TextContainer.retrieveFromRequest().getText().get("subjectAddMemberNotAllowedToAssignPrivs")));
         return;
         
       }
