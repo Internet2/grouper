@@ -1,0 +1,24 @@
+
+description = 'Grouper Plugin for Shibboleth'
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.7'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.7'
+  compile project(':grouper')
+  compile project(':subject')
+    compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version:'1.3.3') {
+exclude(module: 'logback-classic')
+exclude(module: 'log4j-over-slf4j')
+    }
+  testCompile project(':grouper')
+    compile(group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final') {
+       /* This dependency was originally in the Maven provided scope, but the project was not of type war.
+       This behavior is not yet supported by Gradle, so this dependency has been converted to a compile dependency.
+       Please review and delete this closure when resolved. */
+    }
+}
+
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
+}
+artifacts.archives packageTests

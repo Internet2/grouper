@@ -1,0 +1,32 @@
+rootProject.name = 'grouper-parent'
+include ':morphString'
+include ':grouperClient'
+include ':subject'
+include ':grouper'
+include ':grouper-shib'
+include ':grouper-scim'
+include ':grouper-ui'
+include ':grouper-ws-parent:grouper-ws'
+include ':grouper-ws-parent:grouper-ws-java-generated-client'
+include ':grouper-ws-parent:grouper-ws-manual-client'
+include ':grouper-ws-parent:grouper-ws-test'
+include ':grouper-ws-parent'
+include ':grouper-installer'
+include ':grouper-Voot'
+include ':grouper-activemq'
+
+project(':morphString').projectDir = "$rootDir/../grouper-misc/morphString" as File
+project(':grouperClient').projectDir = "$rootDir/../grouper-misc/grouperClient" as File
+project(':subject').projectDir = "$rootDir/../subject" as File
+project(':grouper').projectDir = "$rootDir/../grouper" as File
+project(':grouper-shib').projectDir = "$rootDir/../grouper-misc/grouper-shib" as File
+project(':grouper-scim').projectDir = "$rootDir/../grouper-misc/grouperScim" as File
+project(':grouper-ui').projectDir = "$rootDir/../grouper-ui" as File
+project(':grouper-ws-parent:grouper-ws').projectDir = "$rootDir/../grouper-ws/grouper-ws" as File
+project(':grouper-ws-parent:grouper-ws-java-generated-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-generated-client" as File
+project(':grouper-ws-parent:grouper-ws-manual-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-manual-client" as File
+project(':grouper-ws-parent:grouper-ws-test').projectDir = "$rootDir/../grouper-ws/grouper-ws-test" as File
+project(':grouper-ws-parent').projectDir = "$rootDir/../grouper-ws" as File
+project(':grouper-installer').projectDir = "$rootDir/../grouper-misc/grouper-installer" as File
+project(':grouper-Voot').projectDir = "$rootDir/../grouper-misc/grouper-voot" as File
+project(':grouper-activemq').projectDir = "$rootDir/../grouper-misc/grouperActivemq" as File

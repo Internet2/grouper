@@ -1,0 +1,12 @@
+
+description = 'Grouper WS Generated Client'
+dependencies {
+  compile project(':grouper-ws-parent:grouper-ws')
+    system group: 'edu.internet2.middleware.grouper', name: 'ws-test-interface', version:'1.0'
+}
+
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
+}
+artifacts.archives packageTests
