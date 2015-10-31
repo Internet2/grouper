@@ -289,6 +289,7 @@ public class GoogleGrouperConnector {
                     .setWhoCanInvite(defaultGroupSettings.getWhoCanInvite())
                     .setAllowExternalMembers(defaultGroupSettings.getAllowExternalMembers())
                     .setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage())
+                    .setWhoCanJoin(defaultGroupSettings.getWhoCanJoin())
                     .setAllowWebPosting(defaultGroupSettings.getAllowWebPosting())
                     .setPrimaryLanguage(defaultGroupSettings.getPrimaryLanguage())
                     .setMaxMessageBytes(defaultGroupSettings.getMaxMessageBytes())
@@ -309,14 +310,7 @@ public class GoogleGrouperConnector {
 
 
         } else {
-            recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
-            Groups groupssettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
-
-            if (groupssettings.getArchiveOnly().equalsIgnoreCase("true")) {
-                groupssettings.setArchiveOnly("false");
-                GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupssettings);
-                recentlyManipulatedObjectsList.add(groupKey);
-            }
+          unarchiveGooGroupIfNecessary(googleGroup);
         }
 
         Set<edu.internet2.middleware.grouper.Member> members = grouperGroup.getMembers();
@@ -351,6 +345,22 @@ public class GoogleGrouperConnector {
         }
         
         return null;
+    }
+    
+    public void unarchiveGooGroupIfNecessary(Group group) throws IOException {
+      String groupKey = group.getEmail();
+      final Groups defaultGroupSettings = properties.getDefaultGroupSettings();
+
+      recentlyManipulatedObjectsList.delayIfNeeded(groupKey);
+      Groups groupssettings = GoogleAppsSdkUtils.retrieveGroupSettings(groupssettingsClient, groupKey);
+
+      if (groupssettings.getArchiveOnly().equalsIgnoreCase("true")) {
+          groupssettings.setArchiveOnly("false");
+          groupssettings.setWhoCanPostMessage(defaultGroupSettings.getWhoCanPostMessage());
+
+          GoogleAppsSdkUtils.updateGroupSettings(groupssettingsClient, groupKey, groupssettings);
+          recentlyManipulatedObjectsList.add(groupKey);
+      }
     }
 
     public void deleteGooGroup(edu.internet2.middleware.grouper.Group group) throws IOException {
@@ -565,7 +575,18 @@ public class GoogleGrouperConnector {
 
     public void updateGooMember(edu.internet2.middleware.grouper.Group group, Subject subject, String role) throws IOException {
         User user = fetchGooUser(addressFormatter.qualifySubjectAddress(subject.getId()));
+
+        if (user == null) {
+            user = createGooUser(subject);
+            if (user == null) {
+                return;
+            }
+        }
+
         Group gooGroup = fetchGooGroup(addressFormatter.qualifyGroupAddress(group.getName()));
+        if (gooGroup == null) {
+            return;
+        }
 
         recentlyManipulatedObjectsList.delayIfNeeded(gooGroup.getEmail());
         Member member = GoogleAppsSdkUtils.retrieveGroupMember(directoryClient, gooGroup.getEmail(), user.getPrimaryEmail());

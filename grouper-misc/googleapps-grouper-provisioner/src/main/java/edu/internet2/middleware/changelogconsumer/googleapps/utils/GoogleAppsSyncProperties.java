@@ -184,6 +184,10 @@ public class GoogleAppsSyncProperties {
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanPostMessage", "ALL_IN_DOMAIN_CAN_POST"));
         LOG.debug("Google Apps Consumer - Setting whoCanPostMessage to {}", defaultGroupSettings.getWhoCanPostMessage());
 
+        defaultGroupSettings.setWhoCanJoin(
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "whoCanJoin", "CAN_REQUEST_TO_JOIN"));
+        LOG.debug("Google Apps Consumer - Setting whoCanJoin to {}", defaultGroupSettings.getWhoCanJoin());
+
         defaultGroupSettings.setAllowWebPosting(
                 GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allowWebPosting", "true"));
         LOG.debug("Google Apps Consumer - Setting allowWebPosting to {}", defaultGroupSettings.getAllowWebPosting());
