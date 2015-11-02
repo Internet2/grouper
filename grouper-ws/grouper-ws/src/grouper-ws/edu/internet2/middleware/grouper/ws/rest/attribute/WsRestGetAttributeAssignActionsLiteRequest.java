@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 public class WsRestGetAttributeAssignActionsLiteRequest implements WsRequestBean {
 
 	/** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
-	private String clientVersion;
+    private String clientVersion;
 	
 	/** attribute definition id in the query */
 	private String wsIdOfAttributeDef;

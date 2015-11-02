@@ -3078,6 +3078,46 @@ public class GrouperService {
     return wsGetAttributeAssignmentsResults; 
   }
   
+
+  /**
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeDefLookup is the attribute definition to be modified
+   * @param actions to assign
+   * @param assign T to assign, or F to remove assignment
+   * @param replaceAllExisting T if assigning, if this list should replace all existing actions
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public WsAttributeDefAssignActionResults assignAttributeDefActions(
+	      String clientVersion, WsAttributeDefLookup wsAttributeDefLookup,
+	      String[] actions, String assign, String replaceAllExisting,
+	      WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+	  
+	  WsAttributeDefAssignActionResults wsAttributeDefAssignActionResults = new WsAttributeDefAssignActionResults();
+	  
+	  try {
+		  boolean assignBoolean = GrouperServiceUtils.booleanValue(assign, "assign");
+
+		  Boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanObjectValue(replaceAllExisting, "replaceAllExisting");
+		  
+		  GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
+
+		  wsAttributeDefAssignActionResults = GrouperServiceLogic.assignAttributeDefActions(grouperWsVersion, 
+		      wsAttributeDefLookup, actions, assignBoolean, replaceAllExistingBoolean, actAsSubjectLookup, params);
+		  
+	  } catch (Exception e) {
+		  wsAttributeDefAssignActionResults.assignResultCodeException(null, null, e);
+	  }
+
+	  //set response headers
+	  GrouperServiceUtils.addResponseHeaders(wsAttributeDefAssignActionResults.getResultMetadata(), this.soap);
+	    
+	  //this should be the first and only return, or else it is exiting too early
+	  return wsAttributeDefAssignActionResults;
+
+  }
+  
   /**
    * get attributeAssignActions from based on inputs
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
@@ -3095,8 +3135,7 @@ public class GrouperService {
   
     try {
 
-    GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
-      clientVersion, true);
+    GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
 
     wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActions(grouperWsVersion, 
     	wsAttributeDefLookups, actions, actAsSubjectLookup, params);

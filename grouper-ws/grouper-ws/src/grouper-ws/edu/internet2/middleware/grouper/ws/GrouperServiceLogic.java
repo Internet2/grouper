@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +57,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignDelegatable;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignOperation;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -115,6 +117,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemb
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults.WsAttributeDefAssignActionsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup.AttributeDefNameFindResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
@@ -6425,6 +6428,115 @@ public class GrouperServiceLogic {
     
     return wsAssignAttributesLiteResults; 
 
+  }
+  
+  /**
+   * add/remove/replace actions from Attribute Defs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeDefLookup attribute def to be modified
+   * @param actions to assign
+   * @param assign T to assign, or F to remove assignment
+   * @param replaceAllExisting T if assigning, if this list should replace all existing actions
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public static WsAttributeDefAssignActionResults assignAttributeDefActions(
+		  final GrouperVersion clientVersion, final WsAttributeDefLookup wsAttributeDefLookup,
+		  final String[] actions, final boolean assign, final Boolean replaceAllExisting, 
+	      final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+
+    WsAttributeDefAssignActionResults wsAttributeDefAssignActionsResults = new WsAttributeDefAssignActionResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAttributeDefAssignActionsResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion
+              + ",\n actions: " + GrouperUtil.toStringForLog(actions, 200)
+              +",\n assign: " + assign + ", replaceAllExisting: " + replaceAllExisting
+              + ",\n actAsSubject: "+ actAsSubjectLookup
+              + "\n, wsAttributeDefLookup: " + GrouperUtil.toStringForLog(wsAttributeDefLookup, 200);
+  
+      if ((wsAttributeDefLookup == null || wsAttributeDefLookup.blank())) {
+          throw new WsInvalidQueryException("You need to pass in wsAttributeDefNameLookup");
+      }
+
+      if (!assign && replaceAllExisting != null) {
+          throw new WsInvalidQueryException("If you are unassigning, you cannot pass in replaceAllExisting");
+      }
+      
+      if (actions == null || actions.length == 0) {
+    	  throw new WsInvalidQueryException("You need to pass in actions.");
+      }
+      
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      //get the attributedefs to be modified
+      AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDefIfNeeded(session, "Attribute Def not found.");
+      
+      List<WsAttributeDefActionOperationPerformed> actionsWithOperations = new ArrayList<WsAttributeDefActionOperationPerformed>();
+      
+      if (!assign) {
+    	  for (String action: actions) {
+    		  	WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+            	actionWithOperation.setAction(action);
+            	if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) { 
+                actionWithOperation.setMessage("NOT_THERE");
+            	} else {
+            	  attributeDef.getAttributeDefActionDelegate().removeAction(action);
+            	  actionWithOperation.setMessage("DELETED");
+            	}
+            	actionsWithOperations.add(actionWithOperation);
+      	  }
+      } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
+    	  for (String action: actions) {
+          	  WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+          	  actionWithOperation.setAction(action);
+          	  if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
+            	  actionWithOperation.setMessage("ALREADY_THERE");
+              } else {
+            	  attributeDef.getAttributeDefActionDelegate().addAction(action);
+            	  actionWithOperation.setMessage("ADDED");
+              }
+          	  actionsWithOperations.add(actionWithOperation);
+          }
+      } else {
+    	  Set<AttributeAssignAction> allowedActions = attributeDef.getAttributeDefActionDelegate().allowedActions();
+    	  attributeDef.getAttributeDefActionDelegate().replaceAllActionsWith(Arrays.asList(actions));
+    	  for (AttributeAssignAction action: allowedActions) {
+     		WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+     		actionWithOperation.setAction(action.getName());
+     		actionWithOperation.setMessage("DELETED");
+     		actionsWithOperations.add(actionWithOperation);
+     	  }
+    	  for (String action: actions) {
+    	    WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+      		actionWithOperation.setAction(action);
+      		actionWithOperation.setMessage("ADDED");
+      		actionsWithOperations.add(actionWithOperation);
+    	  }
+      }
+      attributeDef.store();
+      
+      WsAttributeDef wsAttributeDef = new WsAttributeDef(attributeDef, wsAttributeDefLookup);
+      wsAttributeDefAssignActionsResults.setWsAttributeDef(wsAttributeDef);
+      
+      wsAttributeDefAssignActionsResults.setActions(actionsWithOperations.toArray(
+    		  new WsAttributeDefActionOperationPerformed[actionsWithOperations.size()]));
+        
+    } catch (Exception e) {
+      wsAttributeDefAssignActionsResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+    wsAttributeDefAssignActionsResults.assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
+
+    return wsAttributeDefAssignActionsResults; 
+  
   }
 
   /**
