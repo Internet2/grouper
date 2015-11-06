@@ -31,7 +31,7 @@ pageContext.setAttribute("parentTilesContext",tContext);
 		</c:catch>
 <c:if test="${not empty uiException && empty silent}">
 	<span class="jspError"><grouper:message key="jsp.error"/></span>
-	<!-- <c:out value="${uiException.class.simpleName}"/>:<c:out escapeXml="false" value="${uiException.message}"/> -->
+	<!-- <c:out escapeXml="false" value="${uiException.message}"/> -->
 </c:if>	
 <c:if test="${not empty uiException}">
 	<c:set var="uiException" scope="request" value="${uiException}"/>
