@@ -146,6 +146,7 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeDefActionsStatus;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeLogic;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation;
 import edu.internet2.middleware.grouper.ws.rest.subject.TooManyResultsWhenFilteringByGroupException;
@@ -6461,7 +6462,7 @@ public class GrouperServiceLogic {
               + "\n, wsAttributeDefLookup: " + GrouperUtil.toStringForLog(wsAttributeDefLookup, 200);
   
       if ((wsAttributeDefLookup == null || wsAttributeDefLookup.blank())) {
-          throw new WsInvalidQueryException("You need to pass in wsAttributeDefNameLookup");
+          throw new WsInvalidQueryException("You need to pass in wsAttributeDefLookup");
       }
 
       if (!assign && replaceAllExisting != null) {
@@ -6485,10 +6486,10 @@ public class GrouperServiceLogic {
     		  	WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
             	actionWithOperation.setAction(action);
             	if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) { 
-                actionWithOperation.setMessage("NOT_THERE");
+            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
             	} else {
             	  attributeDef.getAttributeDefActionDelegate().removeAction(action);
-            	  actionWithOperation.setMessage("DELETED");
+            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
             	}
             	actionsWithOperations.add(actionWithOperation);
       	  }
@@ -6497,10 +6498,10 @@ public class GrouperServiceLogic {
           	  WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
           	  actionWithOperation.setAction(action);
           	  if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
-            	  actionWithOperation.setMessage("ALREADY_THERE");
+            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
               } else {
             	  attributeDef.getAttributeDefActionDelegate().addAction(action);
-            	  actionWithOperation.setMessage("ADDED");
+            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
               }
           	  actionsWithOperations.add(actionWithOperation);
           }
@@ -6510,13 +6511,13 @@ public class GrouperServiceLogic {
     	  for (AttributeAssignAction action: allowedActions) {
      		WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
      		actionWithOperation.setAction(action.getName());
-     		actionWithOperation.setMessage("DELETED");
+     		actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
      		actionsWithOperations.add(actionWithOperation);
      	  }
     	  for (String action: actions) {
     	    WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
       		actionWithOperation.setAction(action);
-      		actionWithOperation.setMessage("ADDED");
+      		actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
       		actionsWithOperations.add(actionWithOperation);
     	  }
       }
@@ -6527,13 +6528,14 @@ public class GrouperServiceLogic {
       
       wsAttributeDefAssignActionsResults.setActions(actionsWithOperations.toArray(
     		  new WsAttributeDefActionOperationPerformed[actionsWithOperations.size()]));
+      
+      wsAttributeDefAssignActionsResults.assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
         
     } catch (Exception e) {
       wsAttributeDefAssignActionsResults.assignResultCodeException(null, theSummary, e);
     } finally {
       GrouperSession.stopQuietly(session);
     }
-    wsAttributeDefAssignActionsResults.assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
 
     return wsAttributeDefAssignActionsResults; 
   

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeDefActionsStatus;
+
 /**
  * item in the assign attribute def action result
  * @author vsachdeva
@@ -8,13 +10,13 @@ public class WsAttributeDefActionOperationPerformed {
 	
 	/** action name assigned/removed **/
 	private String action;
+  
+	/** status of the action eg: Added, Deleted, Not Found, Already assigned  **/
+  private WsAssignAttributeDefActionsStatus status;
 	
-	/** message eg: ADDED, DELETED, NOT_THERE, ALREADY_THERE **/
-    private String message;
-	
-    /**
-     * @return action name
-     */
+  /**
+   * @return action name
+   */
 	public String getAction() {
 		return this.action;
 	}
@@ -27,17 +29,18 @@ public class WsAttributeDefActionOperationPerformed {
 	}
 
 	/**
-	 * @return message eg: ADDED, DELETED, NOT_THERE, ALREADY_THERE
+	 * @return status of the action eg: Added, Deleted, Not Found, Already assigned
 	 */
-	public String getMessage() {
-		return this.message;
-	}
+  public WsAssignAttributeDefActionsStatus getStatus() {
+    return this.status;
+  }
 
-	/**
-	 * @param message1 eg: ADDED, DELETED, NOT_THERE, ALREADY_THERE
-	 */
-	public void setMessage(String message1) {
-		this.message = message1;
-	}
-
+  /**
+   * status of the action eg: Added, Deleted, Not Found, Already assigned
+   * @param status1
+   */
+  public void setStatus(WsAssignAttributeDefActionsStatus status1) {
+    this.status = status1;
+  }
+	
 }

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcAssignAttributeDefActions;
 import edu.internet2.middleware.grouperClient.api.GcAssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouperClient.api.GcAssignAttributes;
 import edu.internet2.middleware.grouperClient.api.GcAssignAttributesBatch;
@@ -85,6 +86,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignActionTu
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeAssignValue;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDef;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefActionOperationPerformed;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefAssignActionResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameDeleteResult;
@@ -363,6 +366,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "assignAttributesBatchWs")) {
         result = assignAttributesBatch(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "assignAttributeDefActionsWs")) {
+          result = assignAttributeDefActions(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "assignPermissionsWs")) {
         result = assignPermissions(argMap, argMapNotUsed);
@@ -4340,6 +4346,109 @@ public class GrouperClient {
         index++;
       }
     }    
+    return result.toString();
+  }
+  
+  /**
+   * assign actions to attribute def
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String assignAttributeDefActions(Map<String, String> argMap, Map<String, String> argMapNotUsed) {
+  
+    GcAssignAttributeDefActions gcAssignAttributeDefActions = new GcAssignAttributeDefActions();      
+
+    {
+      String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+      gcAssignAttributeDefActions.assignClientVersion(clientVersion);
+    }
+      
+    {
+      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+      gcAssignAttributeDefActions.assignActAsSubject(actAsSubject);
+    }
+    
+    {
+      String nameOfAttributeDef = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "nameOfAttributeDef", false);
+      String uuidOfAttributeDef = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "uuidOfAttributeDef", false);
+      String idIndexOfAttributeDef = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "idIndexOfAttributeDef", false);
+        
+      if (!GrouperClientUtils.isBlank(uuidOfAttributeDef) || !GrouperClientUtils.isBlank(nameOfAttributeDef) 
+          || !GrouperClientUtils.isBlank(idIndexOfAttributeDef)) {
+        WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup(nameOfAttributeDef, uuidOfAttributeDef, idIndexOfAttributeDef);
+        gcAssignAttributeDefActions.assignAttributeDefLookup(wsAttributeDefLookup);
+      }
+        
+    }
+
+    {
+      Set<String> actions = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "actions", false);
+        
+      if (GrouperClientUtils.length(actions) > 0) {
+        for (String action : actions) {
+      	  gcAssignAttributeDefActions.addAction(action);
+        }
+      }
+    }
+    
+    boolean assign = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "assign", true, false);
+
+    gcAssignAttributeDefActions.assign(assign);
+    
+    Boolean replaceAllExisting = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "replaceAllExisting");
+    
+    if (replaceAllExisting != null) {
+      gcAssignAttributeDefActions.assignReplaceAllExisting(replaceAllExisting);
+    }
+     
+    {
+      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+       
+      for (WsParam param : params) {
+    	  gcAssignAttributeDefActions.addParam(param);
+      }
+    }
+      
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+      
+    failOnArgsNotUsed(argMapNotUsed);
+    
+    WsAttributeDefAssignActionResults wsAttributeDefAssignActionResults = gcAssignAttributeDefActions.execute();
+      
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+      
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+    
+    substituteMap.put("wsAttributeDefAssignActionResults", wsAttributeDefAssignActionResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+    substituteMap.put("nameOfAttributeDef", wsAttributeDefAssignActionResults.getWsAttributeDef().getName());
+    
+    String outputTemplate = null;
+    
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.assignAttributeDefActions.output");
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsAttributeDefAssignActionResults, " +
+      "grouperClientUtils, index, actionWithOperation, nameOfAttributeDef");
+    
+    for (WsAttributeDefActionOperationPerformed actionWithOperation : GrouperClientUtils.nonNull(wsAttributeDefAssignActionResults.getActions(),
+    		WsAttributeDefActionOperationPerformed.class)) {
+        
+      substituteMap.put("index", index);
+      substituteMap.put("actionWithOperation", actionWithOperation);
+        
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+        
+      index++;
+    }
+      
     return result.toString();
   }
 
