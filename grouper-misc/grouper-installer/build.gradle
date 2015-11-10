@@ -1,2 +1,20 @@
 
 description = 'Grouper Installer'
+sourceSets {
+  main{
+    java {
+      srcDirs 'src/java', 'src/ext'
+    }
+    resources {
+      srcDirs 'conf'
+    }
+  }
+  test {
+    java {
+      srcDir 'src/test'
+    }
+    resources {
+      srcDir 'testFiles'
+    }
+  }
+}

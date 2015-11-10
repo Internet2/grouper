@@ -8,5 +8,21 @@ dependencies {
   compile group: 'org.apache.wink', name: 'wink-client', version:'1.4'
   testCompile project(path: ":grouper", configuration: "tests")
   provided project(':grouper')
-  compile group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final'
+  provided group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final'
+}
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/main'
+    }
+    resources {
+      srcDirs 'conf', 'misc/META-INF'
+    }
+  }
+  test {
+    java {
+      srcDir 'src/test'
+    }
+  }
 }

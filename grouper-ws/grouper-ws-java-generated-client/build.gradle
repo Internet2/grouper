@@ -1,6 +1,27 @@
 
 description = 'Grouper WS Generated Client'
+repositories {
+   flatDir {
+       dirs 'lib'
+   }
+}
+
 dependencies {
   compile project(':grouper-ws-parent:grouper-ws')
-  compile group: 'edu.internet2.middleware.grouper', name: 'ws-test-interface', version:'1.0'
+  compile name: 'grouperWsTestInterfaces'
+}
+sourceSets {
+  main{
+    java {
+      srcDir 'src'
+    }
+    resources {
+      srcDirs 'conf'
+    }
+  }
+  test {
+    java {
+      srcDir 'test'
+    }
+  }
 }

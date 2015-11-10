@@ -26,5 +26,16 @@ sourceSets {
       srcDirs 'conf', 'src/grouper/**/*.hbm.xml'
     }
   }
+  test {
+    java {
+      srcDir 'tests'
+      include '**/*.java'
+    }
+    resources {
+      srcDirs 'tests', 'confForTest'
+      include '**/*.properties', '**/*.xml'
+    }
+  }
 }
+
 

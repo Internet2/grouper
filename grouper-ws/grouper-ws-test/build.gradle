@@ -1,7 +1,21 @@
 
 description = 'Grouper WS Test'
+repositories {
+	flatDir {
+		dirs '../grouper-ws-java-generated-client/lib'
+	}
+}
+
 dependencies {
-  compile project(':grouper-ws-parent:grouper-ws')
-  compile project(':grouper-ws-parent:grouper-ws-java-generated-client')
-  compile project(':grouper-ws-parent:grouper-ws')
+  testCompile project(':grouper-ws-parent:grouper-ws')
+  testCompile project(':grouper-ws-parent:grouper-ws-java-generated-client')
+  testCompile project(path: ":grouper", configuration: "tests")
+  testCompile project(path: ":grouper-ws-parent:grouper-ws", configuration: "tests")
+}
+sourceSets {
+  test {
+    java {
+      srcDir 'src/test'
+    }
+  }
 }

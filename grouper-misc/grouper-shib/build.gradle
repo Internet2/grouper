@@ -10,8 +10,6 @@ dependencies {
     exclude(module: 'log4j-over-slf4j')
   }
   testCompile project(path: ":grouper", configuration: "tests")
-  provided(group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final') {
-   
-  }
+  provided group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final' 
 }
 

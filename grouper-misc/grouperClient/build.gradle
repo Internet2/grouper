@@ -24,4 +24,12 @@ sourceSets {
       srcDir 'conf/*base*'
     }
   }
+  test {
+    java {
+      srcDir 'src/testSource'
+    }
+    resources {
+      srcDir 'src/testConf'
+    }
+  }
 }

@@ -51,11 +51,8 @@ dependencies {
   runtime group: 'postgresql', name: 'postgresql', version:'8.4-701.jdbc4'
   runtime group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
   testCompile group: 'com.jamonapi', name: 'jamon', version:'2.7'
-  provided(group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final') {
-  }
-  provided(group: 'javax.servlet', name: 'servlet-api', version:'2.5') {
-
-  }
+  provided group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final'
+  provided group: 'javax.servlet', name: 'servlet-api', version:'2.5'
 }
 
 sourceSets {

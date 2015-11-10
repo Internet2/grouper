@@ -5,8 +5,22 @@ dependencies {
   compile project(':grouper')
   compile project(':grouperClient')
   compile project(':grouper-ws-parent:grouper-ws')
-  provided(group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final') {
-  
-  }
+  testCompile project(path: ":grouper", configuration: "tests")
+  provided group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final' 
 }
 
+sourceSets {
+  main{
+    java {
+      srcDir 'src'
+    }
+    resources {
+      srcDirs 'misc'
+    }
+  }
+  test {
+    java {
+      srcDir 'test'
+    }
+  }
+}

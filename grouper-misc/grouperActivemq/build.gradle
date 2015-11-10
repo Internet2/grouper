@@ -4,5 +4,21 @@ dependencies {
   compile project(':subject')
   compile project(':grouper')
   compile project(':grouperClient')
-    compile group: 'org.apache.activemq', name: 'activemq-core', version:'5.7.0'
+  compile group: 'org.apache.activemq', name: 'activemq-core', version:'5.7.0'
+}
+
+sourceSets {
+  main{
+    java {
+      srcDir 'source'
+    }
+    resources {
+      srcDirs 'misc'
+    }
+  }
+  test {
+  	java {
+  		srcDir 'test'
+  	}
+  }
 }

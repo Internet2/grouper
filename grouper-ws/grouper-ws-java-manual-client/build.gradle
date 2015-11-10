@@ -1,6 +1,22 @@
 
 description = 'Grouper WS Manual Client'
+repositories {
+	flatDir {
+		dirs 'lib'
+	}
+}
+
 dependencies {
-  compile project(':grouper-ws-parent:grouper-ws')
-  compile group: 'edu.internet2.middleware.grouper', name: 'ws-test-interface', version:'1.0'
+	compile project(':grouper-ws-parent:grouper-ws')
+	compile name: 'grouperWsTestInterfaces'
+}
+sourceSets {
+	main{
+		java {
+			srcDir 'src/java-manual-client'
+		}
+		resources {
+			srcDirs 'conf'
+		}
+	}
 }
