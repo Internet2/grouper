@@ -154,6 +154,7 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3MemberDAO.class);
       addClass(CFG, Hib3MembershipDAO.class);
       addClass(CFG, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");
+      addClass(CFG, Hib3MessageDAO.class);
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleViewDAO");
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionRoleSubjectViewDAO");
       addClass(CFG, Hib3PermissionEntryDAO.class, "Hib3PermissionAllViewDAO");

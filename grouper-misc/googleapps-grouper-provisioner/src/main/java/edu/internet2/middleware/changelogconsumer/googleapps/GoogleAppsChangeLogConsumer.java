@@ -337,6 +337,9 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
             if (AttributeAssignType.valueOf(assignType) == AttributeAssignType.group) {
                 final edu.internet2.middleware.grouper.Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerId, false);
+                if (group == null) {
+                  return;  // group was deleted
+                }
 
                 try {
                     connector.createGooGroupIfNecessary(group);
@@ -346,6 +349,9 @@ public class GoogleAppsChangeLogConsumer extends ChangeLogConsumerBase {
 
             } else if (AttributeAssignType.valueOf(assignType) == AttributeAssignType.stem) {
                 final Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerId, false);
+                if (stem == null) {
+                  return;  // stem was deleted
+                }
                 final Set<edu.internet2.middleware.grouper.Group> groups = stem.getChildGroups(Scope.SUB);
 
                 for (edu.internet2.middleware.grouper.Group group : groups) {

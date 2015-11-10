@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
@@ -1833,8 +1834,10 @@ public enum GrouperDdl implements DdlVersionable {
       
       addTableIndices(ddlVersionBean, database, groupsTableNew, stemsTableNew, attributeDefsTableNew, attributeDefNamesTableNew);
 
+      addMessagingTables(ddlVersionBean, database);
+      addMessagingIndexes(ddlVersionBean, database);
+      
     }
-
   }, 
   
   /** first version of grouper, make sure the ddl table is there */
@@ -2284,6 +2287,10 @@ public enum GrouperDdl implements DdlVersionable {
             "commit;\n");
         }
       }
+      
+      addMessagingTables(ddlVersionBean, database);
+      addMessagingIndexes(ddlVersionBean, database);
+      
     }
   };
 
@@ -4003,6 +4010,54 @@ public enum GrouperDdl implements DdlVersionable {
 
     {
       GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          "If using the default internal messaging with Grouper, this is the table that holds the messages and state of messages");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID, "member id of user who sent the message");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT, "how many times this message has been attempted to be retrieved");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS, "milliseconds since 1970 that the message was attempted to be received");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS, "millis since 1970 that this message was successfully received");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate version, optimistic locking so multiple processes dont update the same record at the same time");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_ID, "db uuid for this row");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_MESSAGE_BODY, "message body");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_QUEUE_NAME, "queue name for the message");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS, "microseconds since 1970 this message was sent (note this is probably unique, but not necessarily)");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_STATE, "state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED");
+
+    }
+    
+    
+    {
+      GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
           GroupSet.TABLE_GROUPER_GROUP_SET,
           "This table holds relationships for memberships or privileges on groups, stems, attributes.  This allows quick joining of who is in a group effectively");
 
@@ -5597,7 +5652,10 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
           "fk_membership_field_id", Field.TABLE_GROUPER_FIELDS, "field_id", "id");
     }
- 
+
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GrouperMessageHibernate.TABLE_GROUPER_MESSAGE, 
+        "fk_message_from_member_id", Member.TABLE_GROUPER_MEMBERS, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID, memberIdCol);
+    
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         "fk_memberships_creator_id", Member.TABLE_GROUPER_MEMBERS, "creator_id", memberIdCol);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
@@ -10588,6 +10646,84 @@ public enum GrouperDdl implements DdlVersionable {
   }
   
   /**
+   * Add messaging indexes
+   * @param ddlVersionBean 
+   * @param database
+   */
+  private static void addMessagingIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_id_idx", true, GrouperMessageHibernate.COLUMN_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_sent_time_idx", false, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_state_idx", false, GrouperMessageHibernate.COLUMN_STATE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_queue_name_idx", false, GrouperMessageHibernate.COLUMN_QUEUE_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_from_mem_id_idx", false, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_query_idx", true, GrouperMessageHibernate.COLUMN_QUEUE_NAME, 
+          GrouperMessageHibernate.COLUMN_STATE, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS, GrouperMessageHibernate.COLUMN_ID);
+      
+    }
+  }
+  
+  /**
+   * Add messaging tables
+   * @param ddlVersionBean 
+   * @param database
+   */
+  private static void addMessagingTables(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ID, 
+          Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS,
+          Types.BIGINT, "20", false, true);
+  
+      //sent to receiver but not yet confirmed
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_TIME_MILLIS,
+          Types.BIGINT, "20", false, true);
+  
+      //count of get attempts
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_ATTEMPT_COUNT,
+          Types.BIGINT, "20", false, true);
+      
+      //IN_QUEUE, GET_ATTEMPTED, PROCESSED
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_STATE,
+          Types.VARCHAR, "20", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS,
+          Types.BIGINT, "20", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID,
+          Types.VARCHAR, "100", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_QUEUE_NAME,
+          Types.VARCHAR, "100", false, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_MESSAGE_BODY,
+          Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, null, false, true);
+    }
+  }
+  /**
    * Add PIT tables
    * @param ddlVersionBean 
    * @param database
@@ -11577,7 +11713,6 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * 
-   * @param database
    * @param ddlVersionBean
    */
   private static void populatePITTables(DdlVersionBean ddlVersionBean) {

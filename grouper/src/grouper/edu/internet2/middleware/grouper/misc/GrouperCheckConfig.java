@@ -78,6 +78,7 @@ import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.messaging.GrouperMessageUtils;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
@@ -1661,7 +1662,96 @@ public class GrouperCheckConfig {
         
       }      
       
+      {
+        String messagesRootStemName = GrouperMessageUtils.messageRootStemName();
 
+        
+        Stem messagesStem = StemFinder.findByName(grouperSession, messagesRootStemName, false);
+        if (messagesStem == null) {
+          messagesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for message queues and topics, topic to queue relationships and permissions")
+            .assignName(messagesRootStemName)
+            .save();
+          if (wasInCheckConfig) {
+            String error = "auto-created stem: " + messagesRootStemName;
+            System.err.println("Grouper note: " + error);
+            LOG.warn(error);
+          }
+
+        }
+        
+        {
+          //see if attributeDef for topics is there
+          String grouperMessageTopicDefName = GrouperMessageUtils.grouperMessageTopicNameOfDef();
+          AttributeDef grouperMessageTopicDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              grouperMessageTopicDefName, false, new QueryOptions().secondLevelCache(false));
+          if (grouperMessageTopicDef == null) {
+            grouperMessageTopicDef = messagesStem.addChildAttributeDef(GrouperUtil.extensionFromName(grouperMessageTopicDefName), AttributeDefType.perm);
+            grouperMessageTopicDef.setAssignToGroup(true);
+            grouperMessageTopicDef.setAssignToEffMembership(true);
+            grouperMessageTopicDef.store();
+            if (wasInCheckConfig) {
+              String error = "auto-created attributeDef: " + grouperMessageTopicDefName;
+              System.err.println("Grouper note: " + error);
+              LOG.warn(error);
+            }
+            
+          }
+          grouperMessageTopicDef.getAttributeDefActionDelegate().configureActionList("send_to_topic");
+        }
+
+        {
+          //see if attributeDef for queues is there
+          String grouperMessageQueueDefName = GrouperMessageUtils.grouperMessageQueueNameOfDef();
+          AttributeDef grouperMessageQueueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              grouperMessageQueueDefName, false, new QueryOptions().secondLevelCache(false));
+          if (grouperMessageQueueDef == null) {
+            grouperMessageQueueDef = messagesStem.addChildAttributeDef(GrouperUtil.extensionFromName(grouperMessageQueueDefName), AttributeDefType.perm);
+            grouperMessageQueueDef.setAssignToGroup(true);
+            grouperMessageQueueDef.setAssignToEffMembership(true);
+            grouperMessageQueueDef.store();
+            if (wasInCheckConfig) {
+              String error = "auto-created attributeDef: " + grouperMessageQueueDefName;
+              System.err.println("Grouper note: " + error);
+              LOG.warn(error);
+            }
+          }
+          grouperMessageQueueDef.getAttributeDefActionDelegate().configureActionList("send_to_queue,receive");
+        }
+
+        {
+          String topicStemName = messagesRootStemName + ":grouperMessageTopics";
+          Stem topicStem = StemFinder.findByName(grouperSession, topicStemName, false);
+          if (topicStem == null) {
+            topicStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignDescription("folder for message topics, add a permission here for a topic, imply queues by the topic")
+              .assignName(topicStemName)
+              .save();
+            if (wasInCheckConfig) {
+              String error = "auto-created stem: " + topicStemName;
+              System.err.println("Grouper note: " + error);
+              LOG.warn(error);
+            }
+          }
+        }        
+
+        {
+          String queueStemName = messagesRootStemName + ":grouperMessageQueues";
+          Stem queueStem = StemFinder.findByName(grouperSession, queueStemName, false);
+          if (queueStem == null) {
+            queueStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignDescription("folder for message queues, add a permission here for a queue, implied queues by the topic")
+              .assignName(queueStemName)
+              .save();
+            if (wasInCheckConfig) {
+              String error = "auto-created stem: " + queueStemName;
+              System.err.println("Grouper note: " + error);
+              LOG.warn(error);
+            }
+          }
+        }        
+
+      }
       
       {
         String rulesRootStemName = RuleUtils.attributeRuleStemName();

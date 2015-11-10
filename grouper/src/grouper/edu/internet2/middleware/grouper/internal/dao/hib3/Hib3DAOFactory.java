@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.MessageDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignActionSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeAssignDAO;
@@ -514,6 +515,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public TableIndexDAO getTableIndex() {
     return new Hib3TableIndexDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getMessage()
+   */
+  @Override
+  public MessageDAO getMessage() {
+    return new Hib3MessageDAO();
   }
 } 
 
