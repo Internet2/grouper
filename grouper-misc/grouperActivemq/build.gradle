@@ -6,9 +6,3 @@ dependencies {
   compile project(':grouperClient')
     compile group: 'org.apache.activemq', name: 'activemq-core', version:'5.7.0'
 }
-
-task packageTests(type: Jar) {
-  from sourceSets.test.output
-  classifier = 'tests'
-}
-artifacts.archives packageTests

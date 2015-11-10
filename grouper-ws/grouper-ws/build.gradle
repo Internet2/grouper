@@ -1,8 +1,2 @@
 
 description = 'Grouper WS'
-
-task packageTests(type: Jar) {
-  from sourceSets.test.output
-  classifier = 'tests'
-}
-artifacts.archives packageTests

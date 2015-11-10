@@ -1,8 +1,22 @@
 
 description = 'MorphString'
 
-task packageTests(type: Jar) {
-  from sourceSets.test.output
-  classifier = 'tests'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/java'
+    }
+    resources {
+      srcDirs 'conf'
+    }
+  }
+  test {
+    java {
+      srcDir 'src/test'
+    }
+    resources {
+      srcDir 'src/test/resources'
+    }
+  }
 }
-artifacts.archives packageTests

@@ -5,9 +5,3 @@ dependencies {
   compile project(':grouper-ws-parent:grouper-ws-java-generated-client')
   compile project(':grouper-ws-parent:grouper-ws')
 }
-
-task packageTests(type: Jar) {
-  from sourceSets.test.output
-  classifier = 'tests'
-}
-artifacts.archives packageTests
