@@ -1,17 +1,15 @@
 /*******************************************************************************
  * Copyright 2012 Internet2
  * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  ******************************************************************************/
 /*
  * @author mchyzer $Id: GrouperWsRestPut.java,v 1.10 2009/12/07 07:31:14 mchyzer Exp $
@@ -79,40 +77,51 @@ public enum GrouperWsRestPut {
 
       if (requestObject instanceof WsRestGroupSaveRequest) {
         if (!StringUtils.isBlank(groupName)) {
-          throw new WsInvalidQueryException("Dont pass group name when saving batch groups: '" + groupName + "'");
+          throw new WsInvalidQueryException(
+              "Dont pass group name when saving batch groups: '" + groupName + "'");
         }
         if (!StringUtils.isBlank(operation)) {
-          throw new WsInvalidQueryException("Dont pass sub resource when saving batch groups: '" + operation + "'");
+          throw new WsInvalidQueryException(
+              "Dont pass sub resource when saving batch groups: '" + operation + "'");
         }
-        return GrouperServiceRest.groupSave(clientVersion, (WsRestGroupSaveRequest)requestObject);
+        return GrouperServiceRest.groupSave(clientVersion,
+            (WsRestGroupSaveRequest) requestObject);
       }
 
-      if (requestObject instanceof WsRestGroupSaveLiteRequest && !StringUtils.isBlank(operation)) {
-        throw new WsInvalidQueryException("Dont pass sub resource when saving group: '" + operation + "'");
+      if (requestObject instanceof WsRestGroupSaveLiteRequest
+          && !StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Dont pass sub resource when saving group: '"
+            + operation + "'");
       }
-      
-      if ((requestObject == null || requestObject instanceof WsRestGroupSaveLiteRequest) 
-          && StringUtils.isBlank(operation) ) {
-        return GrouperServiceRest.groupSaveLite(clientVersion, groupName, (WsRestGroupSaveLiteRequest)requestObject);
+
+      if ((requestObject == null || requestObject instanceof WsRestGroupSaveLiteRequest)
+          && StringUtils.isBlank(operation)) {
+        return GrouperServiceRest.groupSaveLite(clientVersion, groupName,
+            (WsRestGroupSaveLiteRequest) requestObject);
       }
-      
-      if (requestObject instanceof WsRestAddMemberRequest && StringUtils.isBlank(operation)) {
-        return GrouperServiceRest.addMember(clientVersion, groupName, (WsRestAddMemberRequest)requestObject);
+
+      if (requestObject instanceof WsRestAddMemberRequest
+          && StringUtils.isBlank(operation)) {
+        return GrouperServiceRest.addMember(clientVersion, groupName,
+            (WsRestAddMemberRequest) requestObject);
       }
-      
-      if (requestObject instanceof WsRestAddMemberLiteRequest && StringUtils.isBlank(operation)) {
-        return GrouperServiceRest.addMemberLite(clientVersion, groupName, null, null, (WsRestAddMemberLiteRequest)requestObject);
+
+      if (requestObject instanceof WsRestAddMemberLiteRequest
+          && StringUtils.isBlank(operation)) {
+        return GrouperServiceRest.addMemberLite(clientVersion, groupName, null, null,
+            (WsRestAddMemberLiteRequest) requestObject);
       }
-      
+
       //validate and get the operation
       GrouperWsRestPutGroup grouperWsRestPutGroup = GrouperWsRestPutGroup
           .valueOfIgnoreCase(operation, true);
 
-      return grouperWsRestPutGroup.service(clientVersion, groupName, urlStrings, requestObject);
+      return grouperWsRestPutGroup.service(clientVersion, groupName, urlStrings,
+          requestObject);
     }
 
   },
-  
+
   /** stem put requests */
   stems {
 
@@ -136,30 +145,37 @@ public enum GrouperWsRestPut {
 
       if (requestObject instanceof WsRestStemSaveRequest) {
         if (!StringUtils.isBlank(stemName)) {
-          throw new WsInvalidQueryException("Dont pass stem name when saving batch stems: '" + stemName + "'");
+          throw new WsInvalidQueryException(
+              "Dont pass stem name when saving batch stems: '" + stemName + "'");
         }
         if (!StringUtils.isBlank(operation)) {
-          throw new WsInvalidQueryException("Dont pass sub resource when saving batch stems: '" + operation + "'");
+          throw new WsInvalidQueryException(
+              "Dont pass sub resource when saving batch stems: '" + operation + "'");
         }
-        return GrouperServiceRest.stemSave(clientVersion, (WsRestStemSaveRequest)requestObject);
+        return GrouperServiceRest.stemSave(clientVersion,
+            (WsRestStemSaveRequest) requestObject);
       }
 
-      if (requestObject instanceof WsRestStemSaveLiteRequest && !StringUtils.isBlank(operation)) {
-        throw new WsInvalidQueryException("Dont pass sub resource when saving stem: '" + operation + "'");
+      if (requestObject instanceof WsRestStemSaveLiteRequest
+          && !StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Dont pass sub resource when saving stem: '"
+            + operation + "'");
       }
 
-      if ((requestObject == null || requestObject instanceof WsRestStemSaveLiteRequest) 
-          && StringUtils.isBlank(operation) ) {
-        return GrouperServiceRest.stemSaveLite(clientVersion, stemName, (WsRestStemSaveLiteRequest)requestObject);
+      if ((requestObject == null || requestObject instanceof WsRestStemSaveLiteRequest)
+          && StringUtils.isBlank(operation)) {
+        return GrouperServiceRest.stemSaveLite(clientVersion, stemName,
+            (WsRestStemSaveLiteRequest) requestObject);
       }
-      
-      throw new RuntimeException("Invalid put stem request: " + clientVersion 
-          + ", " + stemName + ", " + operation + ", " 
-          + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
+
+      throw new RuntimeException("Invalid put stem request: " + clientVersion
+          + ", " + stemName + ", " + operation + ", "
+          + GrouperUtil.toStringForLog(urlStrings) + ", "
+          + GrouperUtil.className(requestObject));
     }
 
-  }, 
-  
+  },
+
   /** attribute assign requests */
   attributeAssignments {
 
@@ -179,39 +195,40 @@ public enum GrouperWsRestPut {
 
       //url should be: /xhtml/v1_3_000/attributeAssignments
       String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
-      
+
       if (!StringUtils.isBlank(somethingElse)) {
-        throw new RuntimeException("Cant pass anything after 'attributeAssignments' in URL");
+        throw new RuntimeException(
+            "Cant pass anything after 'attributeAssignments' in URL");
       }
 
       if (requestObject instanceof WsRestAssignAttributesRequest) {
 
         //assign attributes
         return GrouperServiceRest.assignAttributes(clientVersion,
-            (WsRestAssignAttributesRequest)requestObject);
-        
+            (WsRestAssignAttributesRequest) requestObject);
+
       } else if (requestObject instanceof WsRestAssignAttributesLiteRequest) {
-        
+
         //assign attributes
         return GrouperServiceRest.assignAttributesLite(clientVersion,
-            (WsRestAssignAttributesLiteRequest)requestObject);
+            (WsRestAssignAttributesLiteRequest) requestObject);
 
       } else if (requestObject instanceof WsRestAssignAttributesBatchRequest) {
-        
+
         //assign attributes batch
         return GrouperServiceRest.assignAttributesBatch(clientVersion,
-            (WsRestAssignAttributesBatchRequest)requestObject);
+            (WsRestAssignAttributesBatchRequest) requestObject);
 
       } else {
-        throw new RuntimeException("Must pass in a request object of type " 
+        throw new RuntimeException("Must pass in a request object of type "
             + WsRestAssignAttributesRequest.class.getSimpleName() + " or "
             + WsRestAssignAttributesLiteRequest.class.getSimpleName());
       }
-      
+
     }
 
   },
-  
+
   /** grouperPrivileges put requests */
   grouperPrivileges {
 
@@ -231,71 +248,81 @@ public enum GrouperWsRestPut {
 
       //handle the URL: /groups with nothing after...
       if (urlStrings.size() == 0) {
-        
+
         if (requestObject instanceof WsRestAssignGrouperPrivilegesLiteRequest) {
-          
+
           //find stems
           return GrouperServiceRest.assignGrouperPrivilegesLite(clientVersion,
-              (WsRestAssignGrouperPrivilegesLiteRequest)requestObject);
+              (WsRestAssignGrouperPrivilegesLiteRequest) requestObject);
         } else if (requestObject instanceof WsRestAssignGrouperPrivilegesRequest) {
-          
+
           //find stems
           return GrouperServiceRest.assignGrouperPrivileges(clientVersion,
-              (WsRestAssignGrouperPrivilegesRequest)requestObject);
+              (WsRestAssignGrouperPrivilegesRequest) requestObject);
         }
 
       }
-      throw new RuntimeException("Invalid put grouper privileges request: " + clientVersion 
-          + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
+      throw new RuntimeException("Invalid put grouper privileges request: "
+          + clientVersion
+          + ", " + GrouperUtil.toStringForLog(urlStrings) + ", "
+          + GrouperUtil.className(requestObject));
     }
 
   },
-  
-  
-  /** group put requests */
-  members{
-  
-      /**
-       * handle the incoming request based on PUT HTTP method and members resource
-       * @param clientVersion version of client, e.g. v1_3_000
-       * @param urlStrings not including the app name or servlet.  
-       * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/members/a:b
-       * the urlStrings would be size two: {"group", "a:b"}
-       * @param requestObject is the request body converted to object
-       * @return the result object
-       */
-      @Override
-      public WsResponseBean service(
-          GrouperVersion clientVersion, List<String> urlStrings,
-          WsRequestBean requestObject) {
-  
-        //url should be: /v1_3_000/members/123412345
-        //or url should be: /v1_3_000/members/sourceId/someSource/subjectId/123412345
-        String subjectId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, false, false);
-        String sourceId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, true, true);
 
-        if (requestObject instanceof WsRestMemberChangeSubjectRequest) {
-          if (!StringUtils.isBlank(subjectId)) {
-            throw new WsInvalidQueryException("Dont pass subjectId when changing subjects of batch members: '" + subjectId + "'");
-          }
-          if (!StringUtils.isBlank(sourceId)) {
-            throw new WsInvalidQueryException("Dont pass sourceId when changing subjects of batch members: '" + sourceId + "'");
-          }
-          return GrouperServiceRest.memberChangeSubject(clientVersion, (WsRestMemberChangeSubjectRequest)requestObject);
+  /** group put requests */
+  members {
+
+    /**
+     * handle the incoming request based on PUT HTTP method and members resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/members/a:b
+     * the urlStrings would be size two: {"group", "a:b"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /v1_3_000/members/123412345
+      //or url should be: /v1_3_000/members/sourceId/someSource/subjectId/123412345
+      String subjectId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings,
+          0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings,
+          0, true, true);
+
+      if (requestObject instanceof WsRestMemberChangeSubjectRequest) {
+        if (!StringUtils.isBlank(subjectId)) {
+          throw new WsInvalidQueryException(
+              "Dont pass subjectId when changing subjects of batch members: '"
+                  + subjectId + "'");
         }
-  
-        if (requestObject instanceof WsRestMemberChangeSubjectLiteRequest) {
-          return GrouperServiceRest.memberChangeSubjectLite(clientVersion, subjectId, sourceId, 
-              (WsRestMemberChangeSubjectLiteRequest)requestObject);
+        if (!StringUtils.isBlank(sourceId)) {
+          throw new WsInvalidQueryException(
+              "Dont pass sourceId when changing subjects of batch members: '" + sourceId
+                  + "'");
         }
-        
-        throw new RuntimeException("Cants find handler for object: " + GrouperUtil.className(requestObject));
+        return GrouperServiceRest.memberChangeSubject(clientVersion,
+            (WsRestMemberChangeSubjectRequest) requestObject);
       }
-  
-    }, 
-    /** permission assign requests */
-    permissionAssignments {
-  
+
+      if (requestObject instanceof WsRestMemberChangeSubjectLiteRequest) {
+        return GrouperServiceRest.memberChangeSubjectLite(clientVersion, subjectId,
+            sourceId,
+            (WsRestMemberChangeSubjectLiteRequest) requestObject);
+      }
+
+      throw new RuntimeException("Cants find handler for object: "
+          + GrouperUtil.className(requestObject));
+    }
+
+  },
+  /** permission assign requests */
+  permissionAssignments {
+
     /**
      * handle the incoming request based on GET HTTP method and group resource
      * @param clientVersion version of client, e.g. v1_3_000
@@ -309,119 +336,128 @@ public enum GrouperWsRestPut {
     public WsResponseBean service(
         GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
-  
+
       //url should be: /xhtml/v1_3_000/permissionAssignments
       String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
-      
+
       if (!StringUtils.isBlank(somethingElse)) {
-        throw new RuntimeException("Cant pass anything after 'permissionAssignments' in URL");
+        throw new RuntimeException(
+            "Cant pass anything after 'permissionAssignments' in URL");
       }
-  
+
       if (requestObject instanceof WsRestAssignPermissionsRequest) {
-  
+
         //assign permissions
         return GrouperServiceRest.assignPermissions(clientVersion,
-            (WsRestAssignPermissionsRequest)requestObject);
-        
+            (WsRestAssignPermissionsRequest) requestObject);
+
       } else if (requestObject instanceof WsRestAssignPermissionsLiteRequest) {
-        
+
         //assign permissions
         return GrouperServiceRest.assignPermissionsLite(clientVersion,
-            (WsRestAssignPermissionsLiteRequest)requestObject);
-  
+            (WsRestAssignPermissionsLiteRequest) requestObject);
+
       } else {
-        throw new RuntimeException("Must pass in a request object of type " 
+        throw new RuntimeException("Must pass in a request object of type "
             + WsRestAssignPermissionsRequest.class.getSimpleName() + " or "
             + WsRestAssignPermissionsLiteRequest.class.getSimpleName());
       }
-      
+
     }
-  
-  }, 
-  
+
+  },
+
   /** attributeDefName put requests */
   attributeDefNames {
-    
-      /**
-       * handle the incoming request based on PUT HTTP method and group resource
-       * @param clientVersion version of client, e.g. v1_3_000
-       * @param urlStrings not including the app name or servlet.  
-       * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
-       * the urlStrings would be size two: {"group", "a:b"}
-       * @param requestObject is the request body converted to object
-       * @return the result object
-       */
-      @Override
-      public WsResponseBean service(
-          GrouperVersion clientVersion, List<String> urlStrings,
-          WsRequestBean requestObject) {
-    
-        //url should be: /v1_3_000/groups/aStem:aGroup/members
-        String attributeDefNameName = GrouperServiceUtils.popUrlString(urlStrings);
-        String operation = GrouperServiceUtils.popUrlString(urlStrings);
-    
-        if (!StringUtils.isBlank(operation)) {
-          throw new WsInvalidQueryException("Dont pass in an operation! " + operation);
-        }
-        
-        if (requestObject instanceof WsRestAttributeDefNameSaveRequest) {
-          if (!StringUtils.isBlank(attributeDefNameName)) {
-            throw new WsInvalidQueryException("Dont pass attributeDefName name when saving batch attributeDefNames: '" + attributeDefNameName + "'");
-          }
-          return GrouperServiceRest.attributeDefNameSave(clientVersion, (WsRestAttributeDefNameSaveRequest)requestObject);
-        }
-        
-        if ((requestObject == null || requestObject instanceof WsRestAttributeDefNameSaveLiteRequest) ) {
-          return GrouperServiceRest.attributeDefNameSaveLite(clientVersion, attributeDefNameName, (WsRestAttributeDefNameSaveLiteRequest)requestObject);
-        }
-        
-        if (requestObject instanceof WsRestAssignAttributeDefNameInheritanceRequest) {
-          return GrouperServiceRest.assignAttributeDefNameInheritance(clientVersion, (WsRestAssignAttributeDefNameInheritanceRequest)requestObject);
-        }
-        
-        if (requestObject instanceof WsRestAssignAttributeDefNameInheritanceLiteRequest) {
-          return GrouperServiceRest.assignAttributeDefNameInheritanceLite(clientVersion, (WsRestAssignAttributeDefNameInheritanceLiteRequest)requestObject);
-        }
-        
-        throw new WsInvalidQueryException("Invalid request object: " + ( requestObject == null ? null : requestObject.getClass()));
+
+    /**
+     * handle the incoming request based on PUT HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
+     * the urlStrings would be size two: {"group", "a:b"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /v1_3_000/groups/aStem:aGroup/members
+      String attributeDefNameName = GrouperServiceUtils.popUrlString(urlStrings);
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Dont pass in an operation! " + operation);
       }
-    
-    },
-    
-    /** attribute def actions **/
-    attributeDefActions {
-    	
-	   /**
-       * handle the incoming request based on PUT HTTP method and group resource
-       * @param clientVersion version of client, e.g. v1_3_000
-       * @param urlStrings not including the app name or servlet.  
-       * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDefActions
-       * the urlStrings would be size one: {"attributeDefActions"}
-       * @param requestObject is the request body converted to object
-       * @return the result object
-       */
-	    @Override
-	    public WsResponseBean service(
-	        GrouperVersion clientVersion, List<String> urlStrings,
-	        WsRequestBean requestObject) {
-	    	
-	      //url should be: /xhtml/v1_3_000/attributeDefActions
-	      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
-	        
-	      if (!StringUtils.isBlank(somethingElse)) {
-	        throw new RuntimeException("Cant pass anything after 'attributeDefActions' in URL");
-	      }
-	  
-	      if (requestObject instanceof WsRestAssignAttributeDefActionsRequest) {
-	        return GrouperServiceRest.assignAttributeDefActions(clientVersion, (WsRestAssignAttributeDefActionsRequest)requestObject);
-	      }
-	      
-	      throw new WsInvalidQueryException("Invalid request object: " + ( requestObject == null ? null : requestObject.getClass()));
-	    }
-    	
-    };
-    
-    
+
+      if (requestObject instanceof WsRestAttributeDefNameSaveRequest) {
+        if (!StringUtils.isBlank(attributeDefNameName)) {
+          throw new WsInvalidQueryException(
+              "Dont pass attributeDefName name when saving batch attributeDefNames: '"
+                  + attributeDefNameName + "'");
+        }
+        return GrouperServiceRest.attributeDefNameSave(clientVersion,
+            (WsRestAttributeDefNameSaveRequest) requestObject);
+      }
+
+      if ((requestObject == null || requestObject instanceof WsRestAttributeDefNameSaveLiteRequest)) {
+        return GrouperServiceRest.attributeDefNameSaveLite(clientVersion,
+            attributeDefNameName, (WsRestAttributeDefNameSaveLiteRequest) requestObject);
+      }
+
+      if (requestObject instanceof WsRestAssignAttributeDefNameInheritanceRequest) {
+        return GrouperServiceRest.assignAttributeDefNameInheritance(clientVersion,
+            (WsRestAssignAttributeDefNameInheritanceRequest) requestObject);
+      }
+
+      if (requestObject instanceof WsRestAssignAttributeDefNameInheritanceLiteRequest) {
+        return GrouperServiceRest.assignAttributeDefNameInheritanceLite(clientVersion,
+            (WsRestAssignAttributeDefNameInheritanceLiteRequest) requestObject);
+      }
+
+      throw new WsInvalidQueryException("Invalid request object: "
+          + (requestObject == null ? null : requestObject.getClass()));
+    }
+
+  },
+
+  /** attribute def actions **/
+  attributeDefActions {
+
+    /**
+      * handle the incoming request based on PUT HTTP method and group resource
+      * @param clientVersion version of client, e.g. v1_3_000
+      * @param urlStrings not including the app name or servlet.  
+      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDefActions
+      * the urlStrings would be size one: {"attributeDefActions"}
+      * @param requestObject is the request body converted to object
+      * @return the result object
+      */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/attributeDefActions
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException(
+            "Cant pass anything after 'attributeDefActions' in URL");
+      }
+
+      if (requestObject instanceof WsRestAssignAttributeDefActionsRequest) {
+        return GrouperServiceRest.assignAttributeDefActions(clientVersion,
+            (WsRestAssignAttributeDefActionsRequest) requestObject);
+      }
+
+      throw new WsInvalidQueryException("Invalid request object: "
+          + (requestObject == null ? null : requestObject.getClass()));
+    }
+
+  };
 
   /**
    * handle the incoming request based on HTTP method
@@ -444,7 +480,7 @@ public enum GrouperWsRestPut {
    */
   public static GrouperWsRestPut valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestPut.class, 
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestPut.class,
         string, exceptionOnNotFound);
   }
 
