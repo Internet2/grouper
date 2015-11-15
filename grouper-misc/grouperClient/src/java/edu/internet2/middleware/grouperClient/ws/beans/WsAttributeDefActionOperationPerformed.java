@@ -5,26 +5,26 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * @author vsachdeva
  */
 public class WsAttributeDefActionOperationPerformed {
-
-  /** action name assigned/removed **/
-  private String action;
-
-  /** status from WsAssignAttributeDefActionsStatus **/
+	
+	/** action name assigned/removed **/
+	private String action;
+	
+	/** status from WsAssignAttributeDefActionsStatus **/
   private String status;
-
-  /**
-   * @return action name
-   */
-  public String getAction() {
-    return this.action;
-  }
-
-  /**
-   * @param action1
-   */
-  public void setAction(String action1) {
-    this.action = action1;
-  }
+	
+    /**
+     * @return action name
+     */
+	public String getAction() {
+		return this.action;
+	}
+	
+	/**
+	 * @param action1
+	 */
+	public void setAction(String action1) {
+		this.action = action1;
+	}
 
   /**
    * status from WsAssignAttributeDefActionsStatus

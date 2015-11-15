@@ -14,13 +14,13 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
 
   /** attribute def to add or remove from actions **/
   private WsAttributeDefLookup wsAttributeDefLookup;
-
+  
   /**
    * attribute def to add or remove from actions
    * @return wsAttributeDefLookup
    */
   public WsAttributeDefLookup getWsAttributeDefLookup() {
-    return this.wsAttributeDefLookup;
+	return this.wsAttributeDefLookup;
   }
 
   /**
@@ -28,7 +28,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
    * @param wsAttributeDefLookup1
    */
   public void setWsAttributeDefLookup(WsAttributeDefLookup wsAttributeDefLookup1) {
-    this.wsAttributeDefLookup = wsAttributeDefLookup1;
+	this.wsAttributeDefLookup = wsAttributeDefLookup1;
   }
 
   /** actions to be added/removed/replaced **/
@@ -39,27 +39,27 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
    * @return actions
    */
   public String[] getActions() {
-    return this.actions;
-  }
+	return this.actions;
+ }
 
   /**
    * actions to be added/removed/replaced
    * @param actions1
    */
   public void setActions(String[] actions1) {
-    this.actions = actions1;
+	this.actions = actions1;
   }
 
-  /**
-     * T to assign, or F to remove assignment
-     */
+/**
+   * T to assign, or F to remove assignment
+   */
   private String assign;
-
+  
   /**
    * T if assigning, if this list should replace all existing immediately inherited attribute def names
    */
   private String replaceAllExisting;
-
+  
   /**
    * T to assign, or F to remove assignment
    * @return assign
@@ -91,10 +91,10 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
   public void setReplaceAllExisting(String replaceAllExisting1) {
     this.replaceAllExisting = replaceAllExisting1;
   }
-
+  
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
   private String clientVersion;
-
+  
   /**
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
@@ -113,7 +113,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
 
   /** if acting as someone else */
   private WsSubjectLookup actAsSubjectLookup;
-
+  
   /**
    * if acting as someone else
    * @return act as subject
@@ -131,7 +131,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
   }
 
   /** optional: reserved for future use */
-  private WsParam[] params;
+  private  WsParam[] params;
 
   /**
    * optional: reserved for future use
@@ -148,7 +148,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
   public void setParams(WsParam[] params1) {
     this.params = params1;
   }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
   */
@@ -156,5 +156,5 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
   public GrouperRestHttpMethod retrieveRestHttpMethod() {
     return GrouperRestHttpMethod.PUT;
   }
-
+	  
 }

@@ -18,7 +18,7 @@ public class GcAssignAttributeDefActions {
 
   /** client version */
   private String clientVersion;
-
+  
   /**
    * assign client version
    * @param theClientVersion
@@ -28,23 +28,22 @@ public class GcAssignAttributeDefActions {
     this.clientVersion = theClientVersion;
     return this;
   }
-
+  
   /** Attribute Definition to be modified **/
   private WsAttributeDefLookup wsAttributeDefLookup;
-
+  
   /**
    * @param wsAttributeDefLookup1
    * @return this for chaining
    */
-  public GcAssignAttributeDefActions assignAttributeDefLookup(
-      WsAttributeDefLookup wsAttributeDefLookup1) {
-    this.wsAttributeDefLookup = wsAttributeDefLookup1;
-    return this;
+  public GcAssignAttributeDefActions assignAttributeDefLookup(WsAttributeDefLookup wsAttributeDefLookup1) {
+	this.wsAttributeDefLookup = wsAttributeDefLookup1;
+	return this;
   }
 
   /** actions to assign */
   private Set<String> actions = new LinkedHashSet<String>();
-
+	  
   /**
    * @param action
    * @return this for chaining
@@ -52,8 +51,9 @@ public class GcAssignAttributeDefActions {
   public GcAssignAttributeDefActions addAction(String action) {
     this.actions.add(action);
     return this;
-  }
-
+  }  
+	  
+	  
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
 
@@ -67,7 +67,7 @@ public class GcAssignAttributeDefActions {
     this.params.add(new WsParam(paramName, paramValue));
     return this;
   }
-
+	  
   /**
    * add a param to the list
    * @param wsParam
@@ -77,7 +77,7 @@ public class GcAssignAttributeDefActions {
     this.params.add(wsParam);
     return this;
   }
-
+	  
   /** act as subject if any */
   private WsSubjectLookup actAsSubject;
 
@@ -90,7 +90,7 @@ public class GcAssignAttributeDefActions {
     this.actAsSubject = theActAsSubject;
     return this;
   }
-
+  
   /**
    * if we are assigning or unassigning
    */
@@ -105,12 +105,12 @@ public class GcAssignAttributeDefActions {
     this.assign = isAssign;
     return this;
   }
-
+  
   /**
    * if it is an assignment, if we are replacing existing assignments
    */
   private Boolean replaceAllExisting;
-
+  
   /**
    * if it is an assignment, if we are replacing existing assignments
    * @param replaceAllExisting1
@@ -120,7 +120,7 @@ public class GcAssignAttributeDefActions {
     this.replaceAllExisting = replaceAllExisting1;
     return this;
   }
-
+  
   /**
    * validate this call
    */
@@ -128,18 +128,16 @@ public class GcAssignAttributeDefActions {
     if (GrouperClientUtils.length(this.actions) == 0) {
       throw new RuntimeException("actions are required: " + this);
     }
-    if (this.wsAttributeDefLookup == null
-        || (GrouperClientUtils.isBlank(this.wsAttributeDefLookup.getName())
-            && GrouperClientUtils.isBlank(this.wsAttributeDefLookup.getUuid())
-            && GrouperClientUtils.isBlank(this.wsAttributeDefLookup.getIdIndex()))) {
+    if (this.wsAttributeDefLookup == null || (GrouperClientUtils.isBlank(this.wsAttributeDefLookup.getName())
+        && GrouperClientUtils.isBlank(this.wsAttributeDefLookup.getUuid())
+        && GrouperClientUtils.isBlank(this.wsAttributeDefLookup.getIdIndex()))) {
       throw new RuntimeException("AttributeDef is required: " + this);
     }
     if (this.assign == null) {
-      throw new RuntimeException(
-          "Assign is required, true means you are assigning, false means you are removing a direct assignment");
+      throw new RuntimeException("Assign is required, true means you are assigning, false means you are removing a direct assignment");
     }
   }
-
+  
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
    * exception will be thrown
@@ -157,55 +155,47 @@ public class GcAssignAttributeDefActions {
       assignAttributeDefActionRequest.setActAsSubjectLookup(this.actAsSubject);
 
       assignAttributeDefActionRequest.setWsAttributeDefLookup(this.wsAttributeDefLookup);
-
-      assignAttributeDefActionRequest.setActions(GrouperClientUtils.toArray(this.actions,
-          String.class));
-
+      
+      assignAttributeDefActionRequest.setActions(GrouperClientUtils.toArray(this.actions, String.class));
+      
       if (this.assign != null) {
-        assignAttributeDefActionRequest.setAssign(this.assign ? "T" : "F");
+    	  assignAttributeDefActionRequest.setAssign(this.assign ? "T" : "F");
       }
-
+      
       if (this.replaceAllExisting != null) {
-        assignAttributeDefActionRequest
-            .setReplaceAllExisting(this.replaceAllExisting ? "T" : "F");
+    	  assignAttributeDefActionRequest.setReplaceAllExisting(this.replaceAllExisting ? "T" : "F");
       }
-
+      
       //add params if there are any
       if (this.params.size() > 0) {
-        assignAttributeDefActionRequest.setParams(GrouperClientUtils.toArray(this.params,
-            WsParam.class));
+    	  assignAttributeDefActionRequest.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
       //kick off the web service
       wsAttributeDefAssignActionResults = (WsAttributeDefAssignActionResults)
-          grouperClientWs.executeService("attributeDefActions",
-              assignAttributeDefActionRequest, "assignActionsToAttributeDef",
-              this.clientVersion, false);
-
+        grouperClientWs.executeService("attributeDefActions", assignAttributeDefActionRequest, "assignActionsToAttributeDef", this.clientVersion, false);
+      
       String attributeDefNameSaveResultMessage = "";
-
+      
       //try to get the message
       try {
-        attributeDefNameSaveResultMessage = wsAttributeDefAssignActionResults
-            .getResultMetadata().getResultMessage();
+        attributeDefNameSaveResultMessage = wsAttributeDefAssignActionResults.getResultMetadata().getResultMessage();
 
-      } catch (Exception e) {
-      }
-
-      String resultMessage = wsAttributeDefAssignActionResults.getResultMetadata()
-          .getResultMessage() + "\n"
-          + attributeDefNameSaveResultMessage;
-
-      grouperClientWs.handleFailure(wsAttributeDefAssignActionResults, null,
-          resultMessage);
-
+      } catch (Exception e) {}
+      
+      String resultMessage = wsAttributeDefAssignActionResults.getResultMetadata().getResultMessage() + "\n"
+        + attributeDefNameSaveResultMessage;
+      
+      grouperClientWs.handleFailure(wsAttributeDefAssignActionResults, null, resultMessage);
+      
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);
     }
     return wsAttributeDefAssignActionResults;
-
+    
   }
+
 
 }
