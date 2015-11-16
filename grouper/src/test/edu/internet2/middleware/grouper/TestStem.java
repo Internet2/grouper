@@ -97,7 +97,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testAddChildStemWithBadExtnOrDisplayExtn"));
+    TestRunner.run(new TestStem("testGetAllStemsSplitScopeSecure"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -543,6 +543,10 @@ public class TestStem extends GrouperTest {
       Assert.assertTrue(
         "root has STEM on parent", parent.hasStem(s.getSubject())
       );
+      
+      Assert.assertTrue(
+          "root has STEM_ADMIN on parent", parent.hasStemAdmin(s.getSubject())
+        );
     }
     catch (StemNotFoundException eSNF) {
       Assert.fail("stem has no parent: " + eSNF.getMessage());
@@ -1258,6 +1262,7 @@ public class TestStem extends GrouperTest {
   
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
       T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins before grant", 1, r.ns.getStemAdmins().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
   
       GrouperSession.callbackGrouperSession(r.rs, new GrouperSessionHandler() {
@@ -1276,6 +1281,7 @@ public class TestStem extends GrouperTest {
   
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
       T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins after grant" , 2, r.ns.getStemAdmins().size()  );
       T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
   
       s.stop();
@@ -1293,11 +1299,12 @@ public class TestStem extends GrouperTest {
       Subject subjA = r.getSubject("a");
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
       T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
-      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins before grant", 1, r.ns.getStemAdmins().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
       r.ns.grantPriv(subjA, NamingPrivilege.STEM);
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
       T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
+      T.amount("stemAdmins after grant" , 2, r.ns.getStemAdmins().size()  );
       T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
       r.rs.stop();
     }
@@ -2382,6 +2389,5 @@ public class TestStem extends GrouperTest {
     
     }
   }
-  
 }
 

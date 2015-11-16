@@ -28,10 +28,8 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -39,6 +37,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author vsachdeva
+ * sample web service client to find actions assigned to attribute def.
  */
 public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 

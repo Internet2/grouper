@@ -278,6 +278,7 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(stem.hasCreate(a));
     assertTrue(stem.hasCreate(groupToDeleteSubject));
     assertEquals(1, stem.getStemmers().size());
+    assertEquals(1, stem.getStemAdmins().size());
     assertTrue(group.hasUpdate(a));
     assertTrue(group.hasUpdate(groupToDeleteSubject));
     assertTrue(group.hasGroupAttrRead(groupToDeleteSubject));
@@ -292,6 +293,7 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(stem.hasCreate(a));
     assertFalse(stem.hasCreate(groupToDeleteSubject));
     assertEquals(1, stem.getStemmers().size());
+    assertEquals(1, stem.getStemAdmins().size());
     assertTrue(group.hasUpdate(a));
     assertFalse(group.hasUpdate(groupToDeleteSubject));
     assertFalse(group.hasGroupAttrUpdate(groupToDeleteSubject));

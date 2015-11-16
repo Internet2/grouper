@@ -304,6 +304,11 @@ public class GroupContainer {
    * number of members
    */
   private int countTotal;
+  
+  /**
+   * number of unresolvable subjects
+   */
+  private int countUnresolvableSubjects;
 
   /**
    * number of members
@@ -319,6 +324,22 @@ public class GroupContainer {
    */
   public void setCountTotal(int countTotal1) {
     this.countTotal = countTotal1;
+  }
+
+  
+  /**
+   * @return the countUnresolvableSubjects
+   */
+  public int getCountUnresolvableSubjects() {
+    return countUnresolvableSubjects;
+  }
+
+  
+  /**
+   * @param countUnresolvableSubjects the countUnresolvableSubjects to set
+   */
+  public void setCountUnresolvableSubjects(int countUnresolvableSubjects) {
+    this.countUnresolvableSubjects = countUnresolvableSubjects;
   }
 
   /**

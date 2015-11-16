@@ -1720,6 +1720,23 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   } // public boolean canWriteField(subj, f)
 
   /**
+   * keep track of if we are in a delete so hooks can 
+   */
+  private static ThreadLocal<Boolean> threadLocalInGroupDelete = new InheritableThreadLocal<Boolean>();
+  
+  /**
+   * see if we are in the middle of a delete (e.g. for hook)
+   * @return true if delete is occurring
+   */
+  public static boolean deleteOccuring() {
+    Boolean deleteOccuring = threadLocalInGroupDelete.get();
+    if (deleteOccuring != null) {
+      return deleteOccuring;
+    }
+    return false;
+  }
+  
+  /**
    * Delete this group from the Groups Registry.
    * <pre class="eg">
    * try {
@@ -1757,9 +1774,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                   E.CANNOT_ADMIN + errorMessageSuffix);
             }
             try {
-              
-              // Revoke all access privs
-              Group.this._revokeAllAccessPrivs();
+
+              threadLocalInGroupDelete.set(true);
               
               //delete any attributes on this group
               Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
@@ -1787,8 +1803,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               GrouperSession.staticGrouperSession().internal_getRootSession()
                 .getAttributeDefResolver().revokeAllPrivilegesForSubject(groupSubject);
               
+              // Revoke all access privs
+              // GRP-1193 - cant delete composite group
+              Group.this._revokeAllAccessPrivs();
+
               //deletes.add(this);            // ... And add the group last for good luck    
-              String name = Group.this.getName(); // Preserve name for logging
+              String theName = Group.this.getName(); // Preserve name for logging
               GrouperDAOFactory.getFactory().getGroup().delete(Group.this);
 
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
@@ -1811,23 +1831,21 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               }
               
               sw.stop();
-              EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
-          }
-          catch (InsufficientPrivilegeException eDAO) {
+              EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(theName), sw);
+          } catch (InsufficientPrivilegeException eDAO) {
             throw new GrouperException( eDAO );
-            }
-            catch (GrouperDAOException eDAO) {
-              throw new GroupDeleteException( eDAO.getMessage() + errorMessageSuffix, eDAO );
-            }
-            catch (RevokePrivilegeException eRP) {
-              throw new GroupDeleteException(eRP.getMessage() + errorMessageSuffix, eRP);
-            }
-            catch (SchemaException eS) {
-              throw new GroupDeleteException(eS.getMessage() + errorMessageSuffix, eS);
-            }
-            return null;
+          } catch (GrouperDAOException eDAO) {
+            throw new GroupDeleteException( eDAO.getMessage() + errorMessageSuffix, eDAO );
+          } catch (RevokePrivilegeException eRP) {
+            throw new GroupDeleteException(eRP.getMessage() + errorMessageSuffix, eRP);
+          } catch (SchemaException eS) {
+            throw new GroupDeleteException(eS.getMessage() + errorMessageSuffix, eS);
+          } finally {
+            threadLocalInGroupDelete.remove();
           }
-        });
+          return null;
+        }
+      });
   }
 
   /**

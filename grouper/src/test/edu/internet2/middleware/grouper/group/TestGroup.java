@@ -96,6 +96,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -114,10 +115,52 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testReadonlyViewonlyAdmin"));
+    TestRunner.run(new TestGroup("testDeleteComposite"));
     //TestRunner.run(TestGroup.class);
   }
 
+  /**
+   * 
+   */
+  public void testDeleteComposite() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
+    //    grouperSession = GrouperSession.startRootSession();
+    //    suffix = "6";
+    //    folderName = "test";
+    //    subject = "test.subject.0";
+    //    folder = new StemSave(grouperSession).assignName(folderName).save();
+    //    grantPriv(folderName, subject, NamingPrivilege.STEM);
+    //    compositeLeft = new GroupSave(grouperSession).assignName(folderName + ":compositeLeft" + suffix).save();
+    //    grantPriv(folderName + ":compositeLeft" + suffix, subject, AccessPrivilege.READ);
+    //    compositeRight = new GroupSave(grouperSession).assignName(folderName + ":compositeRight" + suffix).save();
+    //    grantPriv(folderName + ":compositeRight" + suffix, subject, AccessPrivilege.READ);
+    //    grouperSession = GrouperSession.start(SubjectFinder.findById(subject));
+    //    compositeOwner = new GroupSave(grouperSession).assignName(folderName + ":compositeOwner" + suffix).save();
+    //    addComposite(folderName + ":compositeOwner" + suffix,CompositeType.COMPLEMENT,folderName + ":compositeLeft" + suffix,folderName + ":compositeRight" + suffix);
+    //    delGroup(folderName + ":compositeOwner" + suffix);
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String suffix = "6";
+    String folderName = "test";
+    Subject subject = SubjectFinder.findById("test.subject.0", true);
+    Stem folder = new StemSave(grouperSession).assignName(folderName).save();
+    folder.grantPriv(subject, NamingPrivilege.STEM, false);
+    Group compositeLeft = new GroupSave(grouperSession).assignName(folderName + ":compositeLeft" + suffix).save();
+    compositeLeft.grantPriv(subject, AccessPrivilege.READ, false);
+    Group compositeRight = new GroupSave(grouperSession).assignName(folderName + ":compositeRight" + suffix).save();
+    compositeRight.grantPriv(subject, AccessPrivilege.READ, false);
+    grouperSession = GrouperSession.start(subject);
+    Group compositeOwner = new GroupSave(grouperSession).assignName(folderName + ":compositeOwner" + suffix).save();
+    compositeOwner.addCompositeMember(CompositeType.COMPLEMENT, compositeLeft, compositeRight);
+    compositeOwner.delete();
+
+    
+    
+  }
+  
   /**
    * 
    */
@@ -820,6 +863,9 @@ public class TestGroup extends GrouperTest {
     Assert.assertTrue(
       "root has STEM on parent", parent.hasStem(s.getSubject())
     );
+    Assert.assertTrue(
+        "root has STEM on parent", parent.hasStemAdmin(s.getSubject())
+      );
   } 
 
   /**

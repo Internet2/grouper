@@ -96,6 +96,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -677,6 +678,24 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 }
                 if (report == null) {
                   hibernateSession.byObject().saveOrUpdate(groups);
+                }
+              }
+            }
+            
+            {
+              //grouper_message.from_member_id, 
+              Set<GrouperMessageHibernate> grouperMessageHibernates = GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(Member.this.getId());
+              if (GrouperUtil.length(grouperMessageHibernates) > 0) {
+                for (GrouperMessageHibernate grouperMessageHibernate : grouperMessageHibernates) {
+                  if (report == null) {
+                    grouperMessageHibernate.setFromMemberId(newMemberUuid);
+                  } else {
+                    report.append("CHANGE message: " + grouperMessageHibernate.getId() + ", " + grouperMessageHibernate.getQueueName()
+                        + ", from member id FROM: " + grouperMessageHibernate.getFromMemberId() + ", TO: " + newMemberUuid + "\n");
+                  }
+                }
+                if (report == null) {
+                  hibernateSession.byObject().saveOrUpdate(grouperMessageHibernates);
                 }
               }
             }

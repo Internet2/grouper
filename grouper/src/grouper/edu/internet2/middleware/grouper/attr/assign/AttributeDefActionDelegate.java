@@ -248,7 +248,7 @@ public class AttributeDefActionDelegate {
    * @param newActions
    */
   public void replaceAllActionsWith(Collection newActions) {
-    
+
     Set<String> allowedActionStrings = this.allowedActionStrings();
     allowedActionStrings = new HashSet<String>();
     allowedActionStrings.addAll(newActions);

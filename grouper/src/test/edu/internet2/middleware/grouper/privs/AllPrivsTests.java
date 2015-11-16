@@ -49,6 +49,7 @@ public class AllPrivsTests {
     suite.addTestSuite(TestPrivREAD.class);
     suite.addTestSuite(Test_uc_NamingPrivs.class);
     suite.addTestSuite(TestPrivSTEM.class);
+    suite.addTestSuite(TestPrivSTEM_ADMIN.class);
     suite.addTestSuite(Test_privs_CachingNamingResolver.class);
     suite.addTestSuite(TestPrivUPDATE.class);
     suite.addTestSuite(TestAccessPrivilege.class);

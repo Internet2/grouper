@@ -1,0 +1,14 @@
+These are instructions to do a build on a branch for a previous build number of the grouperInstaller.
+for example. if 2.2.2 is released, then these instructions will help you build 2.2.1.
+
+Change but do not commit!
+
+1. GiGrouperVersion (to old build number)
+2. misc/version.properties
+3. grouper.installer.example.properties
+4. misc/grouper.installer.properties
+
+5. revert GiGrouperVersion
+6. revert misc/version.properties
+7. revert grouper.installer.example.properties
+8. revert misc/grouper.installer.properties

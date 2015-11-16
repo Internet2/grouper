@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityFinder;
 import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
+import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
+import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -66,6 +68,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -108,7 +111,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_alternateName"));
+    TestRunner.run(new TestStemApi("testCreateAttributeDefNamePrivs"));
   }
 
   /** size before getting started */
@@ -975,7 +978,7 @@ public class TestStemApi extends GrouperTest {
     top.grantPriv(b, NamingPrivilege.CREATE);
     top_new.grantPriv(b, NamingPrivilege.STEM);
     top.grantPriv(c, NamingPrivilege.STEM);
-    top_new.grantPriv(c, NamingPrivilege.STEM);
+    top_new.grantPriv(c, NamingPrivilege.CREATE);
     
     nrs = GrouperSession.start(a);
     try {
@@ -2417,7 +2420,9 @@ public class TestStemApi extends GrouperTest {
     assertTrue(stem_copy_target.getChildGroups().size() == 0);
     assertTrue(stem_copy_target.getChildStems().size() == 1);
     assertTrue(stem_copy_target.getStemmers().size() == 1);
+    assertTrue(stem_copy_target.getStemAdmins().size() == 1);
     assertTrue(stem_copy_target.hasStem(c) == true);
+    assertTrue(stem_copy_target.hasStemAdmin(c) == true);
     assertTrue(stem_copy_target.getCreators().size() == 1);
     assertTrue(stem_copy_target.hasCreate(c) == true);
 
@@ -2431,9 +2436,11 @@ public class TestStemApi extends GrouperTest {
     Stem level3Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Stem2", true);
     assertTrue(level1Stem1.getDisplayExtension().equals("level1Stem1 display name"));
     assertTrue(level1Stem1.getStemmers().size() == 0);
+    assertTrue(level1Stem1.getStemAdmins().size() == 0);
     assertTrue(level1Stem1.getCreators().size() == 0);
     assertTrue(level3Stem2.getDisplayExtension().equals("level3Stem2 display name"));
     assertTrue(level3Stem2.getStemmers().size() == 0);
+    assertTrue(level3Stem2.getStemAdmins().size() == 0);
     assertTrue(level3Stem2.getCreators().size() == 0);
     
     // verify other groups
@@ -2490,24 +2497,30 @@ public class TestStemApi extends GrouperTest {
     // stem privilege checks
     if (privilegesOfStem) {
       assertTrue(newStem.getStemmers().size() == 1);
+      assertTrue(newStem.getStemAdmins().size() == 1);
       assertTrue(newStem.getCreators().size() == 1);
       assertTrue(newStem.hasCreate(a) == true);
       assertTrue(newStem.hasStem(b) == true);
+      assertTrue(newStem.hasStemAdmin(b) == true);
       assertTrue(level3Stem1.getStemmers().size() == 1);
+      assertTrue(level3Stem1.getStemAdmins().size() == 1);
       assertTrue(level3Stem1.getCreators().size() == 2);
       assertTrue(level3Stem1.getStemAttrReaders().size() == 1);
       assertTrue(level3Stem1.getStemAttrUpdaters().size() == 1);
       assertTrue(level3Stem1.hasCreate(i) == true);
       assertTrue(level3Stem1.hasCreate(k) == true);
       assertTrue(level3Stem1.hasStem(j) == true);
+      assertTrue(level3Stem1.hasStemAdmin(j) == true);
       assertTrue(level3Stem1.hasStemAttrRead(l) == true);
       assertTrue(level3Stem1.hasStemAttrUpdate(m) == true);
     } else {
       assertTrue(newStem.getStemmers().size() == 0);
+      assertTrue(newStem.getStemAdmins().size() == 0);
       assertTrue(newStem.getCreators().size() == 0);
       assertTrue(level3Stem1.getStemAttrReaders().size() == 0);
       assertTrue(level3Stem1.getStemAttrUpdaters().size() == 0);
       assertTrue(level3Stem1.getStemmers().size() == 0);
+      assertTrue(level3Stem1.getStemAdmins().size() == 0);
       assertTrue(level3Stem1.getCreators().size() == 0);
     }
     
@@ -2548,8 +2561,10 @@ public class TestStemApi extends GrouperTest {
     // stems with copied group as a privilege checks
     if (groupAsPrivilege) {
       assertTrue(top.hasStem(level3Group3.toSubject()) == true);
+      assertTrue(top.hasStemAdmin(level3Group3.toSubject()) == true);
     } else {
       assertTrue(top.hasStem(level3Group3.toSubject()) == false);
+      assertTrue(top.hasStemAdmin(level3Group3.toSubject()) == false);
     }
     
     // attribute checks
@@ -2961,6 +2976,202 @@ public class TestStemApi extends GrouperTest {
     top.deleteAlternateName("test3:test4:test5");
     top.store();
     assertTrue(true);
+  }
+  
+  /**
+   * 
+   */
+  public void testCopyPrivs() {
+    R r = R.populateRegistry(0, 0, 1);
+    Subject a = r.getSubject("a");
+    
+    Stem source1 = this.root.addChildStem("source1", "source1");
+    source1.addChildStem("sub", "sub");
+    
+    Stem source2 = this.root.addChildStem("source2", "source2");
+    source2.addChildStem("sub", "sub");
+    
+    Stem target1 = this.root.addChildStem("target1", "target1");
+
+    Stem target2 = this.root.addChildStem("target2", "target2");
+
+    source1.grantPriv(a, NamingPrivilege.STEM);
+    source2.grantPriv(a, NamingPrivilege.CREATE);
+    target1.grantPriv(a, NamingPrivilege.STEM);
+    target2.grantPriv(a, NamingPrivilege.CREATE);
+    
+    GrouperSession.start(a);
+
+    try {
+      source2.copy(target1);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      source2.copy(target2);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    Stem newStem1 = source1.copy(target1);
+    Stem newStem2 = source1.copy(target2);
+    
+    assertEquals(1, newStem1.getChildStems().size());
+    assertEquals(1, newStem2.getChildStems().size());
+  }
+  
+  /**
+   * 
+   */
+  public void testCreateGroupPrivs() {
+    R r = R.populateRegistry(0, 0, 1);
+    Subject a = r.getSubject("a");
+    
+    Stem stem1 = this.root.addChildStem("stem1", "stem1");    
+    Stem stem2 = this.root.addChildStem("stem2", "stem2");    
+    Stem stem3 = this.root.addChildStem("stem3", "stem3");
+    Stem stem4 = this.root.addChildStem("stem4", "stem4");
+
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+    stem3.grantPriv(a, NamingPrivilege.CREATE);
+    stem4.grantPriv(a, NamingPrivilege.STEM);
+    
+    GrouperSession.start(a);
+
+    try {
+      stem1.addChildGroup("group", "group");
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      stem2.addChildGroup("group", "group");
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+
+    stem3.addChildGroup("group", "group");
+    stem4.addChildGroup("group", "group");
+  }
+  
+  /**
+   * 
+   */
+  public void testCreateStemPrivs() {
+    R r = R.populateRegistry(0, 0, 1);
+    Subject a = r.getSubject("a");
+    
+    Stem stem1 = this.root.addChildStem("stem1", "stem1");    
+    Stem stem2 = this.root.addChildStem("stem2", "stem2");    
+    Stem stem3 = this.root.addChildStem("stem3", "stem3");
+    Stem stem4 = this.root.addChildStem("stem4", "stem4");
+
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+    stem3.grantPriv(a, NamingPrivilege.CREATE);
+    stem4.grantPriv(a, NamingPrivilege.STEM);
+    
+    GrouperSession.start(a);
+
+    try {
+      stem1.addChildStem("stem", "stem");
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      stem2.addChildStem("stem", "stem");
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+
+    stem3.addChildStem("stem", "stem");
+    stem4.addChildStem("stem", "stem");
+  }
+  
+  /**
+   * 
+   */
+  public void testCreateAttributeDefPrivs() {
+    R r = R.populateRegistry(0, 0, 1);
+    Subject a = r.getSubject("a");
+    
+    Stem stem1 = this.root.addChildStem("stem1", "stem1");    
+    Stem stem2 = this.root.addChildStem("stem2", "stem2");    
+    Stem stem3 = this.root.addChildStem("stem3", "stem3");
+    Stem stem4 = this.root.addChildStem("stem4", "stem4");
+
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+    stem3.grantPriv(a, NamingPrivilege.CREATE);
+    stem4.grantPriv(a, NamingPrivilege.STEM);
+    
+    GrouperSession.start(a);
+
+    try {
+      stem1.addChildAttributeDef("attr", AttributeDefType.attr);
+      fail("failed to throw AttributeDefAddException");
+    } catch (AttributeDefAddException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      stem2.addChildAttributeDef("attr", AttributeDefType.attr);
+      fail("failed to throw AttributeDefAddException");
+    } catch (AttributeDefAddException e) {
+      assertTrue(true);
+    }
+
+    stem3.addChildAttributeDef("attr", AttributeDefType.attr);
+    stem4.addChildAttributeDef("attr", AttributeDefType.attr);
+  }
+  
+  /**
+   * 
+   */
+  public void testCreateAttributeDefNamePrivs() {
+    R r = R.populateRegistry(0, 0, 1);
+    Subject a = r.getSubject("a");
+    
+    AttributeDef attrDef = this.top.addChildAttributeDef("attrdef", AttributeDefType.attr);
+    attrDef.getPrivilegeDelegate().grantPriv(a, AttributeDefPrivilege.ATTR_ADMIN, true);
+    
+    Stem stem1 = this.root.addChildStem("stem1", "stem1");    
+    Stem stem2 = this.root.addChildStem("stem2", "stem2");    
+    Stem stem3 = this.root.addChildStem("stem3", "stem3");
+    Stem stem4 = this.root.addChildStem("stem4", "stem4");
+
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+    stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+    stem3.grantPriv(a, NamingPrivilege.CREATE);
+    stem4.grantPriv(a, NamingPrivilege.STEM);
+    
+    GrouperSession.start(a);
+
+    try {
+      stem1.addChildAttributeDefName(attrDef, "attr", "attr");
+      fail("failed to throw AttributeDefNameAddException");
+    } catch (AttributeDefNameAddException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      stem2.addChildAttributeDefName(attrDef, "attr", "attr");
+      fail("failed to throw AttributeDefNameAddException");
+    } catch (AttributeDefNameAddException e) {
+      assertTrue(true);
+    }
+
+    stem3.addChildAttributeDefName(attrDef, "attr", "attr");
+    stem4.addChildAttributeDefName(attrDef, "attr", "attr");
   }
 }
 

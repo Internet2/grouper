@@ -256,6 +256,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
     s.setConsiderIfWheelMember(false);
     // verify no stem privilege
     assertFalse(s.getMember().canStem(dev.getParentStem()));
+    assertFalse(s.getMember().canStemAdmin(dev.getParentStem()));
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
   }
   
@@ -320,6 +321,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
     s.setConsiderIfWheelMember(false);
     // verify stem privilege
     assertTrue(s.getMember().canStem(dev.getParentStem()));
+    assertTrue(s.getMember().canStemAdmin(dev.getParentStem()));
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
   }
   

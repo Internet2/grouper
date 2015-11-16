@@ -1166,7 +1166,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // Index 0: success: T: code: SUCCESS: stem: aStem: subject:
       // test.subject.0: naming: create
       // Index 1: success: T: code: SUCCESS: stem: aStem: subject:
-      // test.subject.0: naming: stem
+      // test.subject.0: naming: stemAdmin
 
       assertEquals("0", matcher.group(1));
       assertEquals("SUCCESS", matcher.group(2));
@@ -1186,7 +1186,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("aStem", matcher.group(4));
       assertEquals("test.subject.0", matcher.group(5));
       assertEquals("naming", matcher.group(6));
-      assertEquals("stem", matcher.group(7));
+      assertEquals("stemAdmin", matcher.group(7));
 
       // #####################################################
       // run again, with includeGroupDetail and includeSubjectDetail
@@ -1475,7 +1475,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("aStem", matcher.group(3));
       assertEquals("test.subject.0", matcher.group(4));
       assertEquals("naming", matcher.group(5));
-      assertEquals("stem", matcher.group(6));
+      assertEquals("stemAdmin", matcher.group(6));
 
       // #####################################################
       // run again, with includeGroupDetail and includeSubjectDetail
@@ -8653,7 +8653,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem1", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -8681,7 +8681,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem2", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -8773,7 +8773,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem1", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -8801,7 +8801,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "folder", matcher.group(2));
       assertEquals(outputLine, "aStem2", matcher.group(3));
       assertEquals(outputLine, "test.subject.8", matcher.group(4));
-      assertEquals(outputLine, "stemmers", matcher.group(5));
+      assertEquals(outputLine, "stemAdmins", matcher.group(5));
       assertEquals(outputLine, "immediate", matcher.group(6));
       assertEquals(outputLine, "T", matcher.group(7));
 
@@ -10125,7 +10125,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("aStem", matcher.group(5));
       assertEquals("test.subject.0", matcher.group(6));
       assertEquals("naming", matcher.group(7));
-      assertEquals("stem", matcher.group(8));
+      assertEquals("stemAdmin", matcher.group(8));
 
       // #####################################################
       // run again, with includeGroupDetail and includeSubjectDetail
@@ -11979,7 +11979,8 @@ public class GrouperClientWsTest extends GrouperTest {
    */
   public void testAssignActionsToAttributeDef() throws Exception {
 
-    AttributeDefName nameOfAttributeDef = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName nameOfAttributeDef = AttributeDefNameTest.exampleAttributeDefNameDb(
+        "test", "testAttributeAssignDefName");
 
     final AttributeDef attributeDef = nameOfAttributeDef.getAttributeDef();
 
@@ -11990,9 +11991,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --nameOfAttributeDef=test:testAttributeAssignDefNameDef --actions=read,assign --assign=T",
-          " "));
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=assignAttributeDefActionsWs --nameOfAttributeDef=test:testAttributeAssignDefNameDef --actions=read,assign --assign=T",
+                  " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 
@@ -12011,7 +12014,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
       assertEquals(outputLine, "read", matcher.group(3));
       assertEquals(outputLine, "ADDED", matcher.group(4));
-      
+
       outputLine = outputLines[1];
       matcher = pattern.matcher(outputLines[1]);
 
@@ -12030,18 +12033,19 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<name>"));
 
       // ######################################################
       // Try attributeDefId
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
-      
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --uuidOfAttributeDef="+attributeDef.getId()+" --actions=read,assign --assign=T",
-          " "));
 
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=assignAttributeDefActionsWs --uuidOfAttributeDef="
+              + attributeDef.getId() + " --actions=read,assign --assign=T",
+          " "));
 
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -12053,13 +12057,13 @@ public class GrouperClientWsTest extends GrouperTest {
       outputLine = outputLines[0];
 
       matcher = pattern.matcher(outputLines[0]);
-      
+
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
       assertEquals(outputLine, "read", matcher.group(3));
       assertEquals(outputLine, "ASSIGNED_ALREADY", matcher.group(4));
-      
+
       outputLine = outputLines[1];
       matcher = pattern.matcher(outputLines[1]);
 
@@ -12078,16 +12082,18 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<uuid>"));
 
       // ######################################################
       // Try attributeDefIdIndex
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
-      
+
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="+attributeDef.getIdIndex()+" --actions=delete,assign --assign=T",
+          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
+              + attributeDef.getIdIndex() + " --actions=delete,assign --assign=T",
           " "));
 
       System.out.flush();
@@ -12100,13 +12106,13 @@ public class GrouperClientWsTest extends GrouperTest {
       outputLine = outputLines[0];
 
       matcher = pattern.matcher(outputLines[0]);
-      
+
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
       assertEquals(outputLine, "delete", matcher.group(3));
       assertEquals(outputLine, "ADDED", matcher.group(4));
-      
+
       outputLine = outputLines[1];
       matcher = pattern.matcher(outputLines[1]);
 
@@ -12125,16 +12131,19 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
 
       // ######################################################
       // Try replacing actions
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
-      
+
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="+attributeDef.getIdIndex()+" --actions=view --assign=T --replaceAllExisting=T",
+          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
+              + attributeDef.getIdIndex()
+              + " --actions=view --assign=T --replaceAllExisting=T",
           " "));
 
       System.out.flush();
@@ -12147,43 +12156,43 @@ public class GrouperClientWsTest extends GrouperTest {
       outputLine = outputLines[0];
 
       matcher = pattern.matcher(outputLines[0]);
-      
+
       List<String> existingActions = new ArrayList<String>();
       existingActions.add("read");
       existingActions.add("assign");
       existingActions.add("delete");
-      
+
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertTrue(outputLine,  existingActions.contains(matcher.group(3)));
+      assertTrue(outputLine, existingActions.contains(matcher.group(3)));
       assertEquals(outputLine, "DELETED", matcher.group(4));
-      
+
       outputLine = outputLines[1];
       matcher = pattern.matcher(outputLines[1]);
 
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "1", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertTrue(outputLine,  existingActions.contains(matcher.group(3)));
+      assertTrue(outputLine, existingActions.contains(matcher.group(3)));
       assertEquals(outputLine, "DELETED", matcher.group(4));
-      
+
       outputLine = outputLines[2];
       matcher = pattern.matcher(outputLines[2]);
 
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "2", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertTrue(outputLine,  existingActions.contains(matcher.group(3)));
+      assertTrue(outputLine, existingActions.contains(matcher.group(3)));
       assertEquals(outputLine, "DELETED", matcher.group(4));
-      
+
       outputLine = outputLines[3];
       matcher = pattern.matcher(outputLines[3]);
 
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "3", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
-      assertEquals(outputLine,  "view", matcher.group(3));
+      assertEquals(outputLine, "view", matcher.group(3));
       assertEquals(outputLine, "ADDED", matcher.group(4));
 
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -12195,17 +12204,18 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
-      
-      
-   // ######################################################
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
+
+      // ######################################################
       // Try removing actions
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
-      
+
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="+attributeDef.getIdIndex()+" --actions=view --assign=F",
+          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
+              + attributeDef.getIdIndex() + " --actions=view --assign=F",
           " "));
 
       System.out.flush();
@@ -12218,13 +12228,13 @@ public class GrouperClientWsTest extends GrouperTest {
       outputLine = outputLines[0];
 
       matcher = pattern.matcher(outputLines[0]);
-      
+
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
       assertEquals(outputLine, "view", matcher.group(3));
       assertEquals(outputLine, "DELETED", matcher.group(4));
-      
+
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -12234,16 +12244,19 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
-      
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
+
       // ######################################################
       // Try params
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
-      
+
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="+attributeDef.getIdIndex()+" --actions=view --assign=T --paramName0=a --paramValue0=b",
+          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
+              + attributeDef.getIdIndex()
+              + " --actions=view --assign=T --paramName0=a --paramValue0=b",
           " "));
 
       System.out.flush();
@@ -12256,13 +12269,13 @@ public class GrouperClientWsTest extends GrouperTest {
       outputLine = outputLines[0];
 
       matcher = pattern.matcher(outputLines[0]);
-      
+
       assertTrue(outputLine, matcher.matches());
       assertEquals(outputLine, "0", matcher.group(1));
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
       assertEquals(outputLine, "view", matcher.group(3));
       assertEquals(outputLine, "ADDED", matcher.group(4));
-      
+
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -12272,16 +12285,19 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
-      
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
+
       // ######################################################
       // Try actAs
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
-      
+
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="+attributeDef.getIdIndex()+" --actions=view --assign=T --actAsSubjectId=GrouperSystem",
+          "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
+              + attributeDef.getIdIndex()
+              + " --actions=view --assign=T --actAsSubjectId=GrouperSystem",
           " "));
 
       System.out.flush();
@@ -12300,7 +12316,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLine, "test:testAttributeAssignDefNameDef", matcher.group(2));
       assertEquals(outputLine, "view", matcher.group(3));
       assertEquals(outputLine, "ASSIGNED_ALREADY", matcher.group(4));
-      
+
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("actAsSubjectLookup"));
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -12310,8 +12326,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("params"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup") && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
-      
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup")
+              && GrouperClientWs.mostRecentRequest.contains("<idIndex>"));
+
     } finally {
       System.setOut(systemOut);
     }
@@ -13259,7 +13276,8 @@ public class GrouperClientWsTest extends GrouperTest {
    */
   public void testGetAttributeAssignsAttributeDef() throws Exception {
 
-    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb("test", "testAttributeAssignDefName");
+    AttributeDefName attributeDefName = AttributeDefNameTest.exampleAttributeDefNameDb(
+        "test", "testAttributeAssignDefName");
 
     final AttributeDef attributeDef = attributeDefName.getAttributeDef();
 
@@ -13267,11 +13285,12 @@ public class GrouperClientWsTest extends GrouperTest {
     attributeDef.setAssignToAttributeDef(true);
     attributeDef.store();
 
-    AttributeDef attributeDefAssignTo = AttributeDefTest.exampleAttributeDefDb("test", "testAttributeDefAssignTo");
+    AttributeDef attributeDefAssignTo = AttributeDefTest.exampleAttributeDefDb("test",
+        "testAttributeDefAssignTo");
 
-    AttributeAssignResult attributeAssignResult = attributeDefAssignTo.getAttributeDelegate().assignAttribute(attributeDefName);
+    AttributeAssignResult attributeAssignResult = attributeDefAssignTo
+        .getAttributeDelegate().assignAttribute(attributeDefName);
     AttributeAssign attributeAssign = attributeAssignResult.getAttributeAssign();
-
 
     PrintStream systemOut = System.out;
 
@@ -13280,9 +13299,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefNames=test:testAttributeAssignDefNameDef",
-          " "));
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefNames=test:testAttributeAssignDefNameDef",
+                  " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 
@@ -13331,7 +13352,8 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("wsAttributeAssignLookups"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups") && GrouperClientWs.mostRecentRequest.contains("<name>"));
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups")
+              && GrouperClientWs.mostRecentRequest.contains("<name>"));
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("wsAttributeDefNameLookups"));
       assertTrue(GrouperClientWs.mostRecentRequest,
@@ -13353,10 +13375,12 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --ownerAttributeDefUuids=" + attributeDefAssignTo.getUuid(),
-          " "));
-
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --ownerAttributeDefUuids="
+                      + attributeDefAssignTo.getUuid(),
+                  " "));
 
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -13417,9 +13441,6 @@ public class GrouperClientWsTest extends GrouperTest {
           !GrouperClientWs.mostRecentRequest.contains("wsOwnerStemLookups"));
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("wsOwnerSubjectLookups"));
-
-
-
 
     } finally {
       System.setOut(systemOut);

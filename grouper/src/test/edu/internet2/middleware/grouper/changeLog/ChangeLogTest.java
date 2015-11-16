@@ -4283,6 +4283,7 @@ public class ChangeLogTest extends GrouperTest {
     
     group2.setExtension("group2a");
     group2.store();
+    GrouperUtil.sleep(100);
     ChangeLogTempToEntity.convertRecords();
     pitGroup2 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group2.getId(), false);
     assertNotNull(pitGroup2);

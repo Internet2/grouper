@@ -3090,31 +3090,36 @@ public class GrouperService {
    * @return the results
    */
   public WsAttributeDefAssignActionResults assignAttributeDefActions(
-	      String clientVersion, WsAttributeDefLookup wsAttributeDefLookup,
-	      String[] actions, String assign, String replaceAllExisting,
-	      WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
-	  
-	  WsAttributeDefAssignActionResults wsAttributeDefAssignActionResults = new WsAttributeDefAssignActionResults();
-	  
-	  try {
-		  boolean assignBoolean = GrouperServiceUtils.booleanValue(assign, "assign");
+      String clientVersion, WsAttributeDefLookup wsAttributeDefLookup,
+      String[] actions, String assign, String replaceAllExisting,
+      WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
-		  Boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanObjectValue(replaceAllExisting, "replaceAllExisting");
-		  
-		  GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
+    WsAttributeDefAssignActionResults wsAttributeDefAssignActionResults = new WsAttributeDefAssignActionResults();
 
-		  wsAttributeDefAssignActionResults = GrouperServiceLogic.assignAttributeDefActions(grouperWsVersion, 
-		      wsAttributeDefLookup, actions, assignBoolean, replaceAllExistingBoolean, actAsSubjectLookup, params);
-		  
-	  } catch (Exception e) {
-		  wsAttributeDefAssignActionResults.assignResultCodeException(null, null, e);
-	  }
+    try {
+      boolean assignBoolean = GrouperServiceUtils.booleanValue(assign, "assign");
 
-	  //set response headers
-	  GrouperServiceUtils.addResponseHeaders(wsAttributeDefAssignActionResults.getResultMetadata(), this.soap);
-	    
-	  //this should be the first and only return, or else it is exiting too early
-	  return wsAttributeDefAssignActionResults;
+      Boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanObjectValue(
+          replaceAllExisting, "replaceAllExisting");
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion,
+          true);
+
+      wsAttributeDefAssignActionResults = GrouperServiceLogic.assignAttributeDefActions(
+          grouperWsVersion,
+          wsAttributeDefLookup, actions, assignBoolean, replaceAllExistingBoolean,
+          actAsSubjectLookup, params);
+
+    } catch (Exception e) {
+      wsAttributeDefAssignActionResults.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(
+        wsAttributeDefAssignActionResults.getResultMetadata(), this.soap);
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefAssignActionResults;
 
   }
   
@@ -3128,27 +3133,31 @@ public class GrouperService {
    * @return the results
    */
   public WsGetAttributeAssignActionsResults getAttributeAssignActions(
-	  String clientVersion, WsAttributeDefLookup[] wsAttributeDefLookups, String[] actions, 
-	  WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {  
+      String clientVersion, WsAttributeDefLookup[] wsAttributeDefLookups,
+      String[] actions,
+      WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
-	WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
-  
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
+
     try {
 
-    GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion,
+          true);
 
-    wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActions(grouperWsVersion, 
-    	wsAttributeDefLookups, actions, actAsSubjectLookup, params);
+      wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActions(
+          grouperWsVersion,
+          wsAttributeDefLookups, actions, actAsSubjectLookup, params);
 
     } catch (Exception e) {
       wsGetAttributeAssignActionsResults.assignResultCodeException(null, null, e);
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetAttributeAssignActionsResults.getResultMetadata(), this.soap);
+    GrouperServiceUtils.addResponseHeaders(
+        wsGetAttributeAssignActionsResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
-    return wsGetAttributeAssignActionsResults; 
+    return wsGetAttributeAssignActionsResults;
   }
   
   

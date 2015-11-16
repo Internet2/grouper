@@ -130,7 +130,7 @@ if [ "$arg1" != "-initEnv" ]; then
 	# invoker doesn't appear to properly handle the shibboleth or grouper jars with Spring META-INF resources
 	# $JAVA  -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -jar $GROUPER_HOME/lib/grouper/invoker.jar -cpdir $GROUPER_CONF -cpalljars $GROUPER_HOME/lib -cpjar $GROUPER_HOME/dist/lib/grouper.jar  -cpalljars $GROUPER_HOME/dist/lib/test $GSH $*
 
-	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH $*
+	${JAVA} -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 $GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH $*
 	
 fi
 #:end

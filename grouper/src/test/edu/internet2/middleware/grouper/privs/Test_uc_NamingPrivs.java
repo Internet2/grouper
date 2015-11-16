@@ -97,6 +97,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
     r.root.grantPriv(this.subjA, NamingPrivilege.STEM);
     Stem top = StemFinder.findRootStem( GrouperSession.start(this.subjA) ).addChildStem("child", "child"); 
     assertTrue( top.hasStem(this.subjA) );
+    assertTrue( top.hasStemAdmin(this.subjA) );
   }
   /**
    * @since   1.2.1

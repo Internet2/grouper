@@ -3549,8 +3549,8 @@ public class GrouperServiceLogic {
           if (privilegeName == null || NamingPrivilege.CREATE.equals(privilegeName)) { 
             subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.CREATE)));
           } 
-          if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
-            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM)));
+          if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName) || NamingPrivilege.STEM_ADMIN.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM_ADMIN)));
           } 
           if (privilegeName == null || NamingPrivilege.STEM_ATTR_READ.equals(privilegeName)) { 
             subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM_ATTR_READ)));
@@ -3611,8 +3611,8 @@ public class GrouperServiceLogic {
             if (privilegeName == null || NamingPrivilege.CREATE.equals(privilegeName)) { 
               stems.addAll(member.hasCreate());
             } 
-            if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
-              stems.addAll(member.hasStem());
+            if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName) || NamingPrivilege.STEM_ADMIN.equals(privilegeName)) { 
+              stems.addAll(member.hasStemAdmin());
             } 
             if (privilegeName == null || NamingPrivilege.STEM_ATTR_READ.equals(privilegeName)) { 
               stems.addAll(member.hasStemAttrRead());
@@ -5989,104 +5989,125 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  public static WsGetAttributeAssignActionsResults getAttributeAssignActions(final GrouperVersion clientVersion, 
-	WsAttributeDefLookup[] wsAttributeDefLookups, String[] actions, WsSubjectLookup actAsSubjectLookup, 
-	final WsParam[] params) {
-	  
-    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
-	  
-	GrouperSession session = null;
-	String theSummary = null;
-    try {
-	  
-	  GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsGetAttributeAssignActionsResults.getResponseMetadata().warnings());
+  public static WsGetAttributeAssignActionsResults getAttributeAssignActions(
+      final GrouperVersion clientVersion,
+      WsAttributeDefLookup[] wsAttributeDefLookups, String[] actions,
+      WsSubjectLookup actAsSubjectLookup,
+      final WsParam[] params) {
 
-	  theSummary = "clientVersion: " + clientVersion 
-	    + ", wsAttributeDefLookups: "
-	    + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200) 
-	    + ", actions: " + GrouperUtil.toStringForLog(actions, 200)
-	    + ", actAsSubject: "
-	    + actAsSubjectLookup 
-	    + "\n, paramNames: "
-	    + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-	  
-	  //start session based on logged in user or the actAs passed in
-	  session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-	  
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsGetAttributeAssignActionsResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion
+          + ", wsAttributeDefLookups: "
+          + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200)
+          + ", actions: " + GrouperUtil.toStringForLog(actions, 200)
+          + ", actAsSubject: "
+          + actAsSubjectLookup
+          + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
       //convert the options to a map for easy access, and validate them
-	  @SuppressWarnings("unused")
-	  Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
-	      
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+
       StringBuilder errorMessage = new StringBuilder();
-      
+
       if (wsAttributeDefLookups == null) {
         throw new WsInvalidQueryException("You need to pass in wsAttributeDefLookups");
       }
-        
+
       //get the attributedefs to retrieve
-      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(session, wsAttributeDefLookups, 
-    	errorMessage, null, false, null, null);
-      
+      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(
+          session, wsAttributeDefLookups,
+          errorMessage, null, false, null, null);
+
       Set<AttributeDef> attributeDefs;
       List<WsAttributeAssignActionTuple> wsAttributeAssignActionTuples = new ArrayList<WsAttributeAssignActionTuple>();
 
-      if (!GrouperServiceUtils.nullArray(wsAttributeDefLookups) && GrouperUtil.length(attributeDefIds) == 0) {
+      if (!GrouperServiceUtils.nullArray(wsAttributeDefLookups)
+          && GrouperUtil.length(attributeDefIds) == 0) {
         attributeDefs = new HashSet<AttributeDef>();
       } else {
-    	       
+
         Collection<String> actionsCollection = GrouperUtil.toSet(actions);
-      
-        if (actionsCollection == null || actionsCollection.size() == 0 
-            || (actionsCollection.size() == 1 && StringUtils.isBlank(actionsCollection.iterator().next()))) {
+
+        if (actionsCollection == null
+            || actionsCollection.size() == 0
+            || (actionsCollection.size() == 1 && StringUtils.isBlank(actionsCollection
+                .iterator().next()))) {
           actionsCollection = null;
         }
-	      
-        attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef().findByIdsSecure(attributeDefIds, null);
+
+        attributeDefs = GrouperDAOFactory.getFactory().getAttributeDef()
+            .findByIdsSecure(attributeDefIds, null);
         for (AttributeDef attributeDef : attributeDefs) {
-    	  
-          Set<String> allowedActionStrings = attributeDef.getAttributeDefActionDelegate().allowedActionStrings();
-    	  
-    	  for (String action: allowedActionStrings) {
-    		if (actionsCollection != null) {
-    			if (actionsCollection.contains(action)) {
-                    WsAttributeAssignActionTuple tuple = new WsAttributeAssignActionTuple(action, attributeDef.getId(), 
-                    	attributeDef.getName());
-        		    wsAttributeAssignActionTuples.add(tuple);
-    			}
-    		} else {
-    		    WsAttributeAssignActionTuple tuple = new WsAttributeAssignActionTuple(action, attributeDef.getId(), 
-    		    	attributeDef.getName());
-    		    wsAttributeAssignActionTuples.add(tuple);
-    		}
-    	  }
-    	  
+
+          Set<String> allowedActionStrings = attributeDef.getAttributeDefActionDelegate()
+              .allowedActionStrings();
+
+          for (String action : allowedActionStrings) {
+            if (actionsCollection != null) {
+              if (actionsCollection.contains(action)) {
+                WsAttributeAssignActionTuple tuple = new WsAttributeAssignActionTuple(
+                    action, attributeDef.getId(),
+                    attributeDef.getName());
+                wsAttributeAssignActionTuples.add(tuple);
+              }
+            } else {
+              WsAttributeAssignActionTuple tuple = new WsAttributeAssignActionTuple(
+                  action, attributeDef.getId(),
+                  attributeDef.getName());
+              wsAttributeAssignActionTuples.add(tuple);
+            }
+          }
+
         }
       }
-	      
-      WsAttributeDef[] wsAttributeDefs = WsAttributeDef.convertAttributeDefs(attributeDefs);
-      
-      wsGetAttributeAssignActionsResults.setWsAttributeAssignActionTuples(wsAttributeAssignActionTuples
-       .toArray(new WsAttributeAssignActionTuple[wsAttributeAssignActionTuples.size()]));
-      
+
+      WsAttributeDef[] wsAttributeDefs = WsAttributeDef
+          .convertAttributeDefs(attributeDefs);
+
+      wsGetAttributeAssignActionsResults
+          .setWsAttributeAssignActionTuples(wsAttributeAssignActionTuples
+              .toArray(new WsAttributeAssignActionTuple[wsAttributeAssignActionTuples
+                  .size()]));
+
       wsGetAttributeAssignActionsResults.setWsAttributeDefs(wsAttributeDefs);
-      
+
       if (errorMessage.length() > 0) {
-        wsGetAttributeAssignActionsResults.assignResultCode(WsGetAttributeAssignActionsResultsCode.INVALID_QUERY);
-        wsGetAttributeAssignActionsResults.getResultMetadata().appendResultMessage(errorMessage.toString());
+        wsGetAttributeAssignActionsResults
+            .assignResultCode(WsGetAttributeAssignActionsResultsCode.INVALID_QUERY);
+        wsGetAttributeAssignActionsResults.getResultMetadata().appendResultMessage(
+            errorMessage.toString());
       } else {
-        wsGetAttributeAssignActionsResults.assignResultCode(WsGetAttributeAssignActionsResultsCode.SUCCESS);
+        wsGetAttributeAssignActionsResults
+            .assignResultCode(WsGetAttributeAssignActionsResultsCode.SUCCESS);
       }
-      
-     wsGetAttributeAssignActionsResults.getResultMetadata().appendResultMessage(
-       ", Found " + wsGetAttributeAssignActionsResults.getWsAttributeAssignActionTuples().length + " results.  ");
-      
+
+      wsGetAttributeAssignActionsResults
+          .getResultMetadata()
+          .appendResultMessage(
+              ", Found "
+                  + wsGetAttributeAssignActionsResults.getWsAttributeAssignActionTuples().length
+                  + " results.  ");
+
     } catch (Exception e) {
-	   	wsGetAttributeAssignActionsResults.assignResultCodeException(null, theSummary, e);
+      wsGetAttributeAssignActionsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-	    GrouperSession.stopQuietly(session);
-	}
-	  
-    return wsGetAttributeAssignActionsResults; 
+      GrouperSession.stopQuietly(session);
+    }
+
+    return wsGetAttributeAssignActionsResults;
   }
   
   /**
@@ -6105,31 +6126,38 @@ public class GrouperServiceLogic {
    * @param paramValue1 reserved for future use
    * @return the results
    */
-  public static WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(final GrouperVersion clientVersion,
-      String wsNameOfAttributeDef, String wsIdOfAttributeDef, String wsIdIndexOfAttributeDef, String action, 
-	  String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0, 
-	  String paramValue0, String paramName1, String paramValue1) {
-	  
-	    
+  public static WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
+      final GrouperVersion clientVersion,
+      String wsNameOfAttributeDef, String wsIdOfAttributeDef,
+      String wsIdIndexOfAttributeDef, String action,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+
     WsAttributeDefLookup[] wsAttributeDefLookups = null;
-	    
-	if (!StringUtils.isBlank(wsNameOfAttributeDef) || !StringUtils.isBlank(wsIdOfAttributeDef) 
-		|| !StringUtils.isBlank(wsIdIndexOfAttributeDef)) {
-	  wsAttributeDefLookups = new WsAttributeDefLookup[]{new WsAttributeDefLookup(wsNameOfAttributeDef, 
-		  wsIdOfAttributeDef, wsIdIndexOfAttributeDef)};
-	}
-	    
-    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId, actAsSubjectSourceId, 
-    	actAsSubjectIdentifier);
-	    
+
+    if (!StringUtils.isBlank(wsNameOfAttributeDef)
+        || !StringUtils.isBlank(wsIdOfAttributeDef)
+        || !StringUtils.isBlank(wsIdIndexOfAttributeDef)) {
+      wsAttributeDefLookups = new WsAttributeDefLookup[] { new WsAttributeDefLookup(
+          wsNameOfAttributeDef,
+          wsIdOfAttributeDef, wsIdIndexOfAttributeDef) };
+    }
+
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId,
+        actAsSubjectIdentifier);
+
     String[] actions = null;
     if (!StringUtils.isBlank(action)) {
-      actions = new String[]{action};
+      actions = new String[] { action };
     }
-    
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0, paramName1);
-    
-    return getAttributeAssignActions(clientVersion, wsAttributeDefLookups, actions, actAsSubjectLookup, params);
+
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0,
+        paramName1);
+
+    return getAttributeAssignActions(clientVersion, wsAttributeDefLookups, actions,
+        actAsSubjectLookup, params);
   }
   
   
@@ -6443,102 +6471,112 @@ public class GrouperServiceLogic {
    * @return the results
    */
   public static WsAttributeDefAssignActionResults assignAttributeDefActions(
-		  final GrouperVersion clientVersion, final WsAttributeDefLookup wsAttributeDefLookup,
-		  final String[] actions, final boolean assign, final Boolean replaceAllExisting, 
-	      final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+      final GrouperVersion clientVersion,
+      final WsAttributeDefLookup wsAttributeDefLookup,
+      final String[] actions, final boolean assign, final Boolean replaceAllExisting,
+      final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
     WsAttributeDefAssignActionResults wsAttributeDefAssignActionsResults = new WsAttributeDefAssignActionResults();
-  
+
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
-      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsAttributeDefAssignActionsResults.getResponseMetadata().warnings());
+
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsAttributeDefAssignActionsResults.getResponseMetadata().warnings());
 
       theSummary = "clientVersion: " + clientVersion
-              + ",\n actions: " + GrouperUtil.toStringForLog(actions, 200)
-              +",\n assign: " + assign + ", replaceAllExisting: " + replaceAllExisting
-              + ",\n actAsSubject: "+ actAsSubjectLookup
-              + "\n, wsAttributeDefLookup: " + GrouperUtil.toStringForLog(wsAttributeDefLookup, 200);
-  
+          + ",\n actions: " + GrouperUtil.toStringForLog(actions, 200)
+          + ",\n assign: " + assign + ", replaceAllExisting: " + replaceAllExisting
+          + ",\n actAsSubject: " + actAsSubjectLookup
+          + "\n, wsAttributeDefLookup: "
+          + GrouperUtil.toStringForLog(wsAttributeDefLookup, 200);
+
       if ((wsAttributeDefLookup == null || wsAttributeDefLookup.blank())) {
-          throw new WsInvalidQueryException("You need to pass in wsAttributeDefLookup");
+        throw new WsInvalidQueryException("You need to pass in wsAttributeDefLookup");
       }
 
       if (!assign && replaceAllExisting != null) {
-          throw new WsInvalidQueryException("If you are unassigning, you cannot pass in replaceAllExisting");
+        throw new WsInvalidQueryException(
+            "If you are unassigning, you cannot pass in replaceAllExisting");
       }
-      
+
       if (actions == null || actions.length == 0) {
-    	  throw new WsInvalidQueryException("You need to pass in actions.");
+        throw new WsInvalidQueryException("You need to pass in actions.");
       }
-      
+
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-  
+
       //get the attributedefs to be modified
-      AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDefIfNeeded(session, "Attribute Def not found.");
-      
+      AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDefIfNeeded(
+          session, "Attribute Def not found.");
+
       List<WsAttributeDefActionOperationPerformed> actionsWithOperations = new ArrayList<WsAttributeDefActionOperationPerformed>();
-      
+
       if (!assign) {
-    	  for (String action: actions) {
-    		  	WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-            	actionWithOperation.setAction(action);
-            	if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) { 
-            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
-            	} else {
-            	  attributeDef.getAttributeDefActionDelegate().removeAction(action);
-            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
-            	}
-            	actionsWithOperations.add(actionWithOperation);
-      	  }
-      } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
-    	  for (String action: actions) {
-          	  WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-          	  actionWithOperation.setAction(action);
-          	  if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
-            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
-              } else {
-            	  attributeDef.getAttributeDefActionDelegate().addAction(action);
-            	  actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
-              }
-          	  actionsWithOperations.add(actionWithOperation);
+        for (String action : actions) {
+          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+          actionWithOperation.setAction(action);
+          if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) {
+            actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
+          } else {
+            attributeDef.getAttributeDefActionDelegate().removeAction(action);
+            actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
           }
+          actionsWithOperations.add(actionWithOperation);
+        }
+      } else if (assign && (replaceAllExisting == null || !replaceAllExisting)) {
+        for (String action : actions) {
+          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+          actionWithOperation.setAction(action);
+          if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
+            actionWithOperation
+                .setStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
+          } else {
+            attributeDef.getAttributeDefActionDelegate().addAction(action);
+            actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
+          }
+          actionsWithOperations.add(actionWithOperation);
+        }
       } else {
-    	  Set<AttributeAssignAction> allowedActions = attributeDef.getAttributeDefActionDelegate().allowedActions();
-    	  attributeDef.getAttributeDefActionDelegate().replaceAllActionsWith(Arrays.asList(actions));
-    	  for (AttributeAssignAction action: allowedActions) {
-     		WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-     		actionWithOperation.setAction(action.getName());
-     		actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
-     		actionsWithOperations.add(actionWithOperation);
-     	  }
-    	  for (String action: actions) {
-    	    WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
-      		actionWithOperation.setAction(action);
-      		actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
-      		actionsWithOperations.add(actionWithOperation);
-    	  }
+        Set<AttributeAssignAction> allowedActions = attributeDef
+            .getAttributeDefActionDelegate().allowedActions();
+        attributeDef.getAttributeDefActionDelegate().replaceAllActionsWith(
+            Arrays.asList(actions));
+        for (AttributeAssignAction action : allowedActions) {
+          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+          actionWithOperation.setAction(action.getName());
+          actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
+          actionsWithOperations.add(actionWithOperation);
+        }
+        for (String action : actions) {
+          WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
+          actionWithOperation.setAction(action);
+          actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
+          actionsWithOperations.add(actionWithOperation);
+        }
       }
       attributeDef.store();
-      
-      WsAttributeDef wsAttributeDef = new WsAttributeDef(attributeDef, wsAttributeDefLookup);
+
+      WsAttributeDef wsAttributeDef = new WsAttributeDef(attributeDef,
+          wsAttributeDefLookup);
       wsAttributeDefAssignActionsResults.setWsAttributeDef(wsAttributeDef);
-      
+
       wsAttributeDefAssignActionsResults.setActions(actionsWithOperations.toArray(
-    		  new WsAttributeDefActionOperationPerformed[actionsWithOperations.size()]));
-      
-      wsAttributeDefAssignActionsResults.assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
-        
+          new WsAttributeDefActionOperationPerformed[actionsWithOperations.size()]));
+
+      wsAttributeDefAssignActionsResults
+          .assignResultCode(WsAttributeDefAssignActionsResultsCode.SUCCESS);
+
     } catch (Exception e) {
       wsAttributeDefAssignActionsResults.assignResultCodeException(null, theSummary, e);
     } finally {
       GrouperSession.stopQuietly(session);
     }
 
-    return wsAttributeDefAssignActionsResults; 
-  
+    return wsAttributeDefAssignActionsResults;
+
   }
 
   /**

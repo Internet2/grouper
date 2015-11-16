@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
@@ -1449,6 +1450,7 @@ public class PITSyncTests extends GrouperTest {
     assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
     
     // and verify
+    GrouperCacheUtils.clearAllCaches();
     member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
     pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getId(), true);
     assertEquals("id.test.subject.1", member.getSubjectIdentifier0());
