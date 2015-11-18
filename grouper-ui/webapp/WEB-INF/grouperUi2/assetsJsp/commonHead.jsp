@@ -9,6 +9,7 @@
 <link href="../../grouperExternal/public/assets/css/responsive.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/grouperUi2.css" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/bootstrap-datepicker.min.css" rel="stylesheet">
 
 <c:if test="${!empty mediaNullMap['css.additional']}">
   <c:forTokens var="cssRef" items="${mediaNullMap['css.additional']}" delims=" ">

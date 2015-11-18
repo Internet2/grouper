@@ -1685,7 +1685,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("loader:group 3 system of record", systemOfRecordGroup.getDisplayName());
     
     HibernateSession.byObjectStatic().delete(groupMeta);
-    
+
     groupMeta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord",
         "loader:group 4 system of record", "This is the fourth group");
     

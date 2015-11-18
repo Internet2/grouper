@@ -35,6 +35,12 @@ public interface AuditEntryDAO extends GrouperDAO {
    */
   public Set<AuditEntry> findByActingUser(String actAsMemberId, QueryOptions queryOptions);
   
+  /**
+   * audits for a user withhin a given time range
+   * @return the audits that that user performed within a given time range
+   */
+  public Set<AuditEntry> findByActingUser(String actAsMemberId, QueryOptions queryOptions, Long startTime, Long endTime);
+  
   /** 
      * insert or update an audit entry object 
    * @param auditEntry 

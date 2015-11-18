@@ -18,6 +18,7 @@
 <script src="../../grouperExternal/public/assets/js/jquery.blockUI.js"></script>
 <script src="../../grouperExternal/public/assets/js/jquery.simplemodal.js"></script>
 <script src="../../grouperExternal/public/assets/nifty/niftycube.js"></script>
+<script src="../../grouperExternal/public/assets/js/bootstrap-datepicker.min.js"></script>
 
 <script type="text/javascript">
   $().ajaxStop($.unblockUI); 
