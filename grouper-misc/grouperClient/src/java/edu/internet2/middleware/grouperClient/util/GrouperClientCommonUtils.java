@@ -1058,6 +1058,16 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * make sure a collection is non null.  If null, then return an empty list
+   * @param <T>
+   * @param list
+   * @return the list or empty list if null
+   */
+  public static <T> Collection<T> nonNull(Collection<T> list) {
+    return list == null ? new ArrayList<T>() : list;
+  }
+  
+  /**
    * make sure a list is non null.  If null, then return an empty set
    * @param <T>
    * @param set

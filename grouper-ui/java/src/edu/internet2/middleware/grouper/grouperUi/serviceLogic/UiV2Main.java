@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright 2014 Internet2
  *  
@@ -15,6 +16,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -25,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.internet2.middleware.subject.SubjectTooManyResults;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +38,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -40,6 +46,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
@@ -57,10 +64,12 @@ import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItem;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild;
 import edu.internet2.middleware.grouper.grouperUi.beans.tree.DojoTreeItemChild.DojoTreeItemType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer.IndexPanel;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.GrouperObjectFinderType;
@@ -959,6 +968,167 @@ public class UiV2Main extends UiServiceLogicBase {
       grouperSession = GrouperSession.start(loggedInSubject);
   
       myFavoritesHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * my activity
+   * @param request
+   * @param response
+   */
+  public void myActivity(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/myActivity.jsp"));
+  
+      
+      myActivityHelper(request, response);
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * the filter button was pressed on the my activity page, or paging or sorting, or something
+   * @param request
+   * @param response
+   */
+  private void myActivityHelper(HttpServletRequest request, HttpServletResponse response) {
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    String myActivityStartDate = StringUtils.trimToEmpty(request.getParameter("startDate"));
+    String myActivityEndDate = StringUtils.trimToEmpty(request.getParameter("endDate"));
+    
+    IndexContainer indexContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getIndexContainer();
+    
+    String dateFormat = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("audit.query.date-format");
+    SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+    
+    Date startDate = null;
+    Date endDate = null;
+    Long startTime = 0L;
+    Long endTime = 0L;
+    if (!StringUtils.isBlank(myActivityStartDate)) {
+        try {
+        	startDate = sdf.parse(myActivityStartDate);
+        	startTime = startDate.getTime();
+        } catch (ParseException e) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myActivityStartDate",
+            TextContainer.retrieveFromRequest().getText().get("myActivityIncorrectDateFormat")));
+            //clear out the results
+            guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myActivityResultsId", ""));
+            return;
+        }
+    }
+    
+    if (!StringUtils.isBlank(myActivityEndDate)) {
+        try {
+        	endDate = sdf.parse(myActivityEndDate);
+        	endTime = endDate.getTime();
+        } catch (ParseException e) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myActivityEndDate",
+            TextContainer.retrieveFromRequest().getText().get("myActivityIncorrectDateFormat")));
+            //clear out the results
+            guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myActivityResultsId", ""));
+            return;
+        }
+    }
+   
+    if (endDate != null && startDate != null && endDate.before(startDate)) {
+    	guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#myActivityStartDate",
+        TextContainer.retrieveFromRequest().getText().get("myActivityStartDateAfterEndDate")));
+        //clear out the results
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#myActivityResultsId", ""));
+        return;
+    }
+    
+    GuiPaging guiPaging = indexContainer.getMyActivityGuiPaging();
+    QueryOptions queryOptions = QueryOptions.create("createdOnDb", false, null, null);
+
+    GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), GrouperSession.staticGrouperSession().getSubject(), true);
+    Set<AuditEntry> auditEntries = GrouperDAOFactory.getFactory().getAuditEntry().findByActingUser(member.getUuid(), 
+    								queryOptions, startTime, endTime);
+    
+    //this shouldnt be null, but make sure
+    if (auditEntries == null) {
+    	auditEntries = new HashSet<AuditEntry>();
+    }
+    
+    if (GrouperUtil.length(auditEntries) == 0) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          TextContainer.retrieveFromRequest().getText().get("myActivityNoResultsFound")));
+    }
+    
+    indexContainer.setGuiAuditEntries(GuiAuditEntry.convertFromAuditEntries(auditEntries));
+    
+    guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+    
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#myActivityResultsId", 
+        "/WEB-INF/grouperUi2/index/myActivityContents.jsp"));
+}
+  
+  /**
+   * my activity reset button
+   * @param request
+   * @param response
+   */
+  public void myActivityReset(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      //clear out form
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("startDate", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("endDate", ""));
+      
+      //get the unfiltered stems
+      myActivityHelper(request, response);
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * my activity
+   * @param request
+   * @param response
+   */
+  public void myActivitySubmit(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      myActivityHelper(request, response);
   
     } finally {
       GrouperSession.stopQuietly(grouperSession);

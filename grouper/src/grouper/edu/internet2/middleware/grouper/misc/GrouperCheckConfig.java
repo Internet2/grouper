@@ -78,7 +78,7 @@ import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.messaging.GrouperMessageUtils;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
@@ -1657,14 +1657,13 @@ public class GrouperCheckConfig {
             "unique id in the email sent to the user", wasInCheckConfig);
         checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_EMAIL_WHEN_REGISTERED, 
             "email addresses to notify when the user registers", wasInCheckConfig);
-        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_EMAIL, 
-            "email sent to user as invite", wasInCheckConfig);
-        
+        checkAttribute(externalSubjectStem, externalSubjectInviteAttrType, ExternalSubjectAttrFramework.EXTERNAL_SUBJECT_INVITE_EMAIL,
+            "email sent to user as invite", wasInCheckConfig);      
+      
       }      
       
       {
-        String messagesRootStemName = GrouperMessageUtils.messageRootStemName();
-
+        String messagesRootStemName = GrouperBuiltinMessagingSystem.messageRootStemName();
         
         Stem messagesStem = StemFinder.findByName(grouperSession, messagesRootStemName, false);
         if (messagesStem == null) {
@@ -1682,7 +1681,7 @@ public class GrouperCheckConfig {
         
         {
           //see if attributeDef for topics is there
-          String grouperMessageTopicDefName = GrouperMessageUtils.grouperMessageTopicNameOfDef();
+          String grouperMessageTopicDefName = GrouperBuiltinMessagingSystem.grouperMessageTopicNameOfDef();
           AttributeDef grouperMessageTopicDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
               grouperMessageTopicDefName, false, new QueryOptions().secondLevelCache(false));
           if (grouperMessageTopicDef == null) {
@@ -1702,7 +1701,7 @@ public class GrouperCheckConfig {
 
         {
           //see if attributeDef for queues is there
-          String grouperMessageQueueDefName = GrouperMessageUtils.grouperMessageQueueNameOfDef();
+          String grouperMessageQueueDefName = GrouperBuiltinMessagingSystem.grouperMessageQueueNameOfDef();
           AttributeDef grouperMessageQueueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
               grouperMessageQueueDefName, false, new QueryOptions().secondLevelCache(false));
           if (grouperMessageQueueDef == null) {
@@ -1720,7 +1719,7 @@ public class GrouperCheckConfig {
         }
 
         {
-          String topicStemName = messagesRootStemName + ":grouperMessageTopics";
+          String topicStemName = GrouperBuiltinMessagingSystem.topicStemName();
           Stem topicStem = StemFinder.findByName(grouperSession, topicStemName, false);
           if (topicStem == null) {
             topicStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
@@ -1736,7 +1735,7 @@ public class GrouperCheckConfig {
         }        
 
         {
-          String queueStemName = messagesRootStemName + ":grouperMessageQueues";
+          String queueStemName = GrouperBuiltinMessagingSystem.queueStemName();
           Stem queueStem = StemFinder.findByName(grouperSession, queueStemName, false);
           if (queueStem == null) {
             queueStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)

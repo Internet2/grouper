@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Date;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AuditEntryNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -113,6 +115,46 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
       .setCacheRegion(KLASS + ".FindByActingUser")
       .setString( "actAsMemberId", actAsMemberId ) 
       .listSet(AuditEntry.class);
+  }
+  
+  
+  /**
+   * find audit entries that a user did within a given time range.
+   * @see AuditEntryDAO#findByActingUser(String, QueryOptions, Long, Long)
+   */
+  public Set<AuditEntry> findByActingUser(String actAsMemberId, QueryOptions queryOptions, Long startTime, Long endTime) {
+
+    StringBuilder sql = new StringBuilder("select theAuditEntry "
+        + " from AuditEntry theAuditEntry where "
+        + " theAuditEntry.actAsMemberId = :actAsMemberId ");
+    
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQueryPaging() == null) {
+      int defaultHib3AuditEntryPageSize = GrouperConfig.retrieveConfig().propertyValueInt("defaultHib3AuditEntryPageSize", 1000);
+      queryOptions.paging(QueryPaging.page(defaultHib3AuditEntryPageSize, 1, false));
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sort(QuerySort.desc("createdOnDb"));
+    }
+    
+    ByHqlStatic byHqlStatic =  HibernateSession.byHqlStatic().options(queryOptions)
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindByActingUser")
+        .setString( "actAsMemberId", actAsMemberId );
+    
+    if (startTime != null && startTime > 0) {
+      sql.append(" and theAuditEntry.createdOnDb >= :startTime");
+      byHqlStatic.setLong("startTime", startTime);
+    }
+    
+    if (endTime != null && endTime > 0) {
+      sql.append(" and theAuditEntry.createdOnDb <= :endTime");
+      byHqlStatic.setLong("endTime", endTime);
+    }
+    
+    return byHqlStatic.createQuery(sql.toString()).listSet(AuditEntry.class);
   }
 
 } 

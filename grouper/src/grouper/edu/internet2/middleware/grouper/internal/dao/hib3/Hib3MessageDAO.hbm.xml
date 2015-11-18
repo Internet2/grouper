@@ -64,6 +64,7 @@
     <property name="fromMemberId" column="from_member_id"/>
     <property name="queueName" column="queue_name"/>
     <property name="messageBody" column="message_body"/>    
+    <property name="attemptTimeExpiresMillis" column="attempt_time_expires_millis"/>    
     
   </class>
 </hibernate-mapping>

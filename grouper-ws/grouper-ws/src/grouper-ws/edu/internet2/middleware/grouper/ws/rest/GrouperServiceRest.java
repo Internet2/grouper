@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLit
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
@@ -46,6 +47,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
@@ -70,6 +72,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesBatchRequest;
@@ -81,6 +84,8 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefName
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
@@ -1545,6 +1550,103 @@ public class GrouperServiceRest {
     
     return wsGetAttributeAssignmentsResults;
     
+  }
+  
+  /**
+   * assign actions to attribute def
+   * @param clientVersion
+   * @param wsRestAssignAttributeDefActionsRequest
+   * @return the result
+   */
+  public static WsAttributeDefAssignActionResults assignAttributeDefActions(
+      GrouperVersion clientVersion,
+      WsRestAssignAttributeDefActionsRequest wsRestAssignAttributeDefActionsRequest) {
+    //cant be null
+    wsRestAssignAttributeDefActionsRequest = wsRestAssignAttributeDefActionsRequest == null ? new WsRestAssignAttributeDefActionsRequest()
+        : wsRestAssignAttributeDefActionsRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestAssignAttributeDefActionsRequest
+            .getClientVersion()), false, "clientVersion");
+
+    WsAttributeDefAssignActionResults wsAttributeDefAssignActionResults = new GrouperService(
+        false).
+        assignAttributeDefActions(clientVersionString,
+            wsRestAssignAttributeDefActionsRequest.getWsAttributeDefLookup(),
+            wsRestAssignAttributeDefActionsRequest.getActions(),
+            wsRestAssignAttributeDefActionsRequest.getAssign(),
+            wsRestAssignAttributeDefActionsRequest.getReplaceAllExisting(),
+            wsRestAssignAttributeDefActionsRequest.getActAsSubjectLookup(),
+            wsRestAssignAttributeDefActionsRequest.getParams());
+
+    return wsAttributeDefAssignActionResults;
+
+  }
+
+  /**
+   * get attribute assign actions rest
+   * @param clientVersion
+   * @param wsRestGetAttributeAssignActionsRequest
+   * @return the result
+   */
+  public static WsGetAttributeAssignActionsResults getAttributeAssignActions(
+      GrouperVersion clientVersion,
+      WsRestGetAttributeAssignActionsRequest wsRestGetAttributeAssignActionsRequest) {
+    //cant be null
+    wsRestGetAttributeAssignActionsRequest = wsRestGetAttributeAssignActionsRequest == null ? new WsRestGetAttributeAssignActionsRequest()
+        : wsRestGetAttributeAssignActionsRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestGetAttributeAssignActionsRequest
+            .getClientVersion()), false, "clientVersion");
+
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignmentsResults = new GrouperService(
+        false).
+        getAttributeAssignActions(clientVersionString,
+            wsRestGetAttributeAssignActionsRequest.getWsAttributeDefLookups(),
+            wsRestGetAttributeAssignActionsRequest.getActions(),
+            wsRestGetAttributeAssignActionsRequest.getActAsSubjectLookup(),
+            wsRestGetAttributeAssignActionsRequest.getParams());
+
+    return wsGetAttributeAssignmentsResults;
+  }
+
+  /**
+   * get attribute assign actions rest for one attribute definition
+   * @param clientVersion
+   * @param wsRestGetAttributeAssignActionsLiteRequest
+   * @return the results object
+   */
+  public static WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
+      GrouperVersion clientVersion,
+      WsRestGetAttributeAssignActionsLiteRequest wsRestGetAttributeAssignActionsLiteRequest) {
+
+    //can't be null
+    wsRestGetAttributeAssignActionsLiteRequest = wsRestGetAttributeAssignActionsLiteRequest == null ?
+        new WsRestGetAttributeAssignActionsLiteRequest()
+        : wsRestGetAttributeAssignActionsLiteRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestGetAttributeAssignActionsLiteRequest
+            .getClientVersion()), false, "clientVersion");
+
+    WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new GrouperService(
+        false).getAttributeAssignActionsLite(clientVersionString,
+        wsRestGetAttributeAssignActionsLiteRequest.getWsNameOfAttributeDef(),
+        wsRestGetAttributeAssignActionsLiteRequest.getWsIdOfAttributeDef(),
+        wsRestGetAttributeAssignActionsLiteRequest.getWsIdIndexOfAttributeDef(),
+        wsRestGetAttributeAssignActionsLiteRequest.getAction(),
+        wsRestGetAttributeAssignActionsLiteRequest.getActAsSubjectId(),
+        wsRestGetAttributeAssignActionsLiteRequest.getActAsSubjectSourceId(),
+        wsRestGetAttributeAssignActionsLiteRequest.getActAsSubjectIdentifier(),
+        wsRestGetAttributeAssignActionsLiteRequest.getParamName0(),
+        wsRestGetAttributeAssignActionsLiteRequest.getParamValue0(),
+        wsRestGetAttributeAssignActionsLiteRequest.getParamName1(),
+        wsRestGetAttributeAssignActionsLiteRequest.getParamValue1()
+        );
+
+    return wsGetAttributeAssignActionsResults;
+
   }
 
   /**
