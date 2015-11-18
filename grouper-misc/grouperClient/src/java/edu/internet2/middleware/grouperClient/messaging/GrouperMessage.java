@@ -11,20 +11,6 @@ package edu.internet2.middleware.grouperClient.messaging;
 public interface GrouperMessage {
 
   /**
-   * queue or topic that the message is sent to/from.
-   * most useful when sending messages
-   * @return the queue or topic
-   */
-  public String getQueueOrTopic();
-  
-  /**
-   * queue or topic that the message is sent to/from.
-   * most useful when sending messages
-   * @param theQueueOrTopic1
-   */
-  public void setQueueOrTopic(String theQueueOrTopic1);
-  
-  /**
    * member id of a subjcet that sent the message
    * @return the from member id
    */

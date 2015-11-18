@@ -15,7 +15,15 @@
  */
 package edu.internet2.middleware.grouperClient.util;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * hierarchical config class for grouper.client.properties
@@ -80,11 +88,73 @@ public class GrouperClientConfig extends ConfigPropertiesCascadeBase {
   }
 
   /**
-   * @see edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase#getConfigClassInJarToLookForConfigFiles()
+   * @see edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase#getClassInSiblingJar
    */
   @Override
   protected Class<?> getClassInSiblingJar() {
     return GrouperClientCommonUtils.class;
+  }
+  
+  /**
+   * 
+   */
+  private static Log log = GrouperClientUtils.retrieveLog(GrouperClientConfig.class);
+  
+  /**
+   * cache the messaging configs
+   */
+  private Map<String, GrouperMessagingConfig> grouperMessagingConfigs;
+
+  /**
+   * pattern for messaging system
+   */
+  private static Pattern grouperMessagingConfigPattern = Pattern.compile("^grouper.messaging.system.([^.]+).name$");
+  
+  /**
+   * process configs for messaging and return the map 
+   * @return the configs
+   */
+  public Map<String, GrouperMessagingConfig> retrieveGrouperMessagingConfigs() {
+    if (this.grouperMessagingConfigs == null) {
+      synchronized (GrouperClientConfig.class) {
+        if (this.grouperMessagingConfigs == null) {
+          Map<String, GrouperMessagingConfig> theGrouperMessagingConfigs = new HashMap<String, GrouperMessagingConfig>();
+          
+          for (String configName : this.propertyNames()) {
+            
+            //  # name of a messaging system.  note, "myAwsMessagingSystem" can be arbitrary
+            //  # grouper.messaging.system.myAwsMessagingSystem.name = aws
+            //
+            //  # class that implements edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem
+            //  # grouper.messaging.system.myAwsMessagingSystem.class = 
+
+            Matcher matcher = grouperMessagingConfigPattern.matcher(configName);
+            if (matcher.matches()) {
+              String name = matcher.group(1);
+              GrouperMessagingConfig grouperMessagingConfig = new GrouperMessagingConfig();
+              grouperMessagingConfig.setName(name);
+              String theClassName = this.propertyValueString("grouper.messaging.system." + name + ".class");
+              try {
+                Class<GrouperMessagingSystem> grouperMessagingSystemClass = GrouperClientUtils.forName(theClassName);
+                
+                //make sure implements interface
+                if (!GrouperMessagingSystem.class.isAssignableFrom(grouperMessagingSystemClass)) {
+                  throw new RuntimeException(theClassName + " class does not implement " + GrouperMessagingSystem.class.getName());
+                }
+                grouperMessagingConfig.setTheClass(grouperMessagingSystemClass);
+                theGrouperMessagingConfigs.put(name, grouperMessagingConfig);
+              } catch (Exception e) {
+                log.error("Cant instantiate messaging system: " + name + ", " + theClassName, e);
+              }
+              
+            }
+          }
+          
+          this.grouperMessagingConfigs = theGrouperMessagingConfigs;
+        }
+      }
+    }
+    return this.grouperMessagingConfigs;
   }
   
 }

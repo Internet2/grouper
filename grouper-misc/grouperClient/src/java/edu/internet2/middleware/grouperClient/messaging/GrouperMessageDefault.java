@@ -22,8 +22,6 @@ public class GrouperMessageDefault implements GrouperMessage {
    * body of message (e.g. the json or encrypted message)
    */
   private String messageBody;
-
-  
   
   /**
    * @param id1 the id to set
@@ -68,25 +66,6 @@ public class GrouperMessageDefault implements GrouperMessage {
    */
   public void setMessageBody(String messageBody1) {
     this.messageBody = messageBody1;
-  }
-
-  /**
-   * @see GrouperMessage#getQueueOrTopic()
-   */
-  private String queueOrTopic;
-
-  /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessage#getQueueOrTopic()
-   */
-  public String getQueueOrTopic() {
-    return this.queueOrTopic;
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessage#setQueueOrTopic(java.lang.String)
-   */
-  public void setQueueOrTopic(String theQueueOrTopic1) {
-    this.queueOrTopic = theQueueOrTopic1;
   }
 
 }
