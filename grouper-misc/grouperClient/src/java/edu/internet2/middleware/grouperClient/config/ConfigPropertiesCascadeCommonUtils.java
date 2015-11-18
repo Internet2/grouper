@@ -2539,8 +2539,8 @@ public class ConfigPropertiesCascadeCommonUtils  {
     if (objectOrArrayOrCollection instanceof Collection) {
       Collection collection = (Collection) objectOrArrayOrCollection;
       Object first = collection.iterator().next();
-      return toArray(collection, first == null ? Object.class : first
-          .getClass());
+      Class clazz = first == null ? Object.class : first.getClass();
+      return toArray(collection, clazz);
     }
     // make an array of the type of object passed in, size one
     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),
