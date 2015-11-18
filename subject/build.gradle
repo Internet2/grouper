@@ -23,7 +23,7 @@ sourceSets {
       srcDir 'src'
     }
     resources {
-      srcDirs 'conf', 'src/grouper/**/*.hbm.xml'
+      srcDirs 'conf'
     }
   }
   test {

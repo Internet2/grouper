@@ -62,7 +62,7 @@ sourceSets {
       exclude 'test/**', 'doc/**'
     }
     resources {
-      srcDirs 'conf', 'confCustom', 'src/grouper/**/*.hbm.xml'
+      srcDirs 'conf', 'confCustom'
     }
   }
   test {
@@ -70,7 +70,7 @@ sourceSets {
       srcDir 'src/test'
     }
     resources {
-      srcDir 'confForTest/**'
+      srcDir 'confForTest'
     }
   }
 }

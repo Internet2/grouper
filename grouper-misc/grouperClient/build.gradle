@@ -21,7 +21,8 @@ sourceSets {
       exclude 'custom/**', 'extCustom/**', 'testConf/**', 'testSource/**'
     }
     resources {
-      srcDir 'conf/*base*'
+      srcDir 'conf/'
+      include '*base*'
     }
   }
   test {
