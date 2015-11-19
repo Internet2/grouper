@@ -31,6 +31,8 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
    * 
    */
   public GrouperDuoChangeLogConsumer() {
+    //make sure this is registered
+    GrouperDuoDaemon.scheduleJobsOnce();
   }
 
   /**
