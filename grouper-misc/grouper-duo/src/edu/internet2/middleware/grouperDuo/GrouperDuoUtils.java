@@ -31,7 +31,7 @@ public class GrouperDuoUtils {
     //get the configs and register the quartz job
     //# put groups in here which go to duo, the name in duo will be the extension here
     //grouperDuo.folder.name.withDuoGroups = a:b:c
-    String duoFolderName = GrouperLoaderConfig.getPropertyString("grouperDuo.folder.name.withDuoGroups");
+    String duoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.folder.name.withDuoGroups");
     if (!duoFolderName.endsWith(":")) {
       duoFolderName += ":";
     }
@@ -43,7 +43,7 @@ public class GrouperDuoUtils {
    * @return the subject attribute name
    */
   public static String configSubjectAttributeForDuoUsername() {
-    return GrouperLoaderConfig.getPropertyString("grouperDuo.subjectAttributeForDuoUsername");
+    return GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.subjectAttributeForDuoUsername");
   }
   
   /**
@@ -54,7 +54,7 @@ public class GrouperDuoUtils {
   
     //# put the comma separated list of sources to send to duo
     //grouperDuo.sourcesForSubjects = someSource
-    String sourcesForSubjectsString = GrouperLoaderConfig.getPropertyString("grouperDuo.sourcesForSubjects");
+    String sourcesForSubjectsString = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.sourcesForSubjects");
     
     return GrouperUtil.splitTrimToSet(sourcesForSubjectsString, ",");
   }

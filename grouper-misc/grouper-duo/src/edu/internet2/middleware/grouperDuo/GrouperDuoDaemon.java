@@ -85,7 +85,7 @@ public class GrouperDuoDaemon {
         
         boolean runDaemons = true;
         
-        if (GrouperLoaderConfig.getPropertyBoolean("grouperDuo.dontRunDaemonsHere", false)) {
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperDuo.dontRunDaemonsHere", false)) {
           
           LOG.warn("Daemons dont run here since this is set in grouper-loader.properties file overlay: " +
               "grouperDuo.dontRunDaemonsHere, hostname: " + GrouperUtil.hostname());
@@ -95,7 +95,7 @@ public class GrouperDuoDaemon {
 
         if (runDaemons) {
           
-          String serverNamesString = GrouperLoaderConfig.getPropertyString("grouperDuo.daemonRunOnlyOnServerNames", false);
+          String serverNamesString = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouperDuo.daemonRunOnlyOnServerNames");
           
           if (!StringUtils.isBlank(serverNamesString)) {
             
@@ -129,7 +129,7 @@ public class GrouperDuoDaemon {
         
         if (runDaemons) {
           {
-            String fullRefreshCron = GrouperLoaderConfig.getPropertyString("grouperDuo.daemonCron", true);
+            String fullRefreshCron = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.daemonCron");
             scheduleDaemon(GrouperDuoFullRefresh.class, GrouperDuoFullRefresh.GROUPER_DUO_FULL_REFRESH, fullRefreshCron);
           }
         }

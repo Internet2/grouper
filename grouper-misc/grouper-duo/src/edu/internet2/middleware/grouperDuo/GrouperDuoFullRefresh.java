@@ -104,7 +104,7 @@ public class GrouperDuoFullRefresh implements Job {
       
       //# put groups in here which go to duo, the name in duo will be the extension here
       //grouperDuo.folder.name.withDuoGroups = duo
-      String grouperDuoFolderName = GrouperLoaderConfig.getPropertyString("grouperDuo.folder.name.withDuoGroups");
+      String grouperDuoFolderName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.folder.name.withDuoGroups");
       Stem grouperDuoFolder = StemFinder.findByName(grouperSession, grouperDuoFolderName, true);
       
       Set<Group> grouperGroups = grouperDuoFolder.getChildGroups(Scope.ONE);
@@ -153,7 +153,7 @@ public class GrouperDuoFullRefresh implements Job {
       int totalCount = 0;
       
       //# is grouper the true system of record, delete duo groups which dont exist in grouper
-      if (GrouperLoaderConfig.getPropertyBoolean("grouperDuo.deleteGroupsInDuoWhichArentInGrouper", true)) {
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperDuo.deleteGroupsInDuoWhichArentInGrouper", true)) {
         
         //which groups are in duo and not in grouper?
         Set<String> groupExtensionsInDuoNotInGrouper = new TreeSet<String>(duoGroupNameToGroupMap.keySet());

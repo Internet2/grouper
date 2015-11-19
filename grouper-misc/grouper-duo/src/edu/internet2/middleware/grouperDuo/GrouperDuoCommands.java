@@ -104,7 +104,7 @@ public class GrouperDuoCommands {
    */
   private static Http httpAdmin(String method, String path, Integer timeoutSeconds) {
     
-    String domain = GrouperLoaderConfig.getPropertyString("grouperDuo.adminDomainName", true);
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.adminDomainName");
     
     Http request = (timeoutSeconds != null && timeoutSeconds > 0) ? 
         new Http(method, domain, path, timeoutSeconds) : new Http(method, domain, path);
@@ -130,8 +130,8 @@ public class GrouperDuoCommands {
    * @param request
    */
   private static void signHttpAdmin(Http request) {
-    String integrationKey = GrouperLoaderConfig.getPropertyString("grouperDuo.adminIntegrationKey", true);
-    String secretKey = GrouperLoaderConfig.getPropertyString("grouperDuo.adminSecretKey", true);
+    String integrationKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.adminIntegrationKey");
+    String secretKey = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouperDuo.adminSecretKey");
     try {
       request.signRequest(integrationKey,
           secretKey);
