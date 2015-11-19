@@ -1,1 +1,5 @@
 /bin/
+/logs/
+/spy.log
+/dist/
+/build.properties
