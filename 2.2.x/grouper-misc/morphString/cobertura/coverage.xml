@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
 
-<coverage line-rate="0.16912972085385877" branch-rate="0.09272467902995721" lines-covered="206" lines-valid="1218" branches-covered="65" branches-valid="701" complexity="4.468354430379747" version="2.0.3" timestamp="1447957311416">
+<coverage line-rate="0.16912972085385877" branch-rate="0.09272467902995721" lines-covered="206" lines-valid="1218" branches-covered="65" branches-valid="701" complexity="4.468354430379747" version="2.0.3" timestamp="1447961407339">
 	<sources>
 		<source>--source</source>
 		<source>/home/travis/build/Internet2/grouper/grouper-misc/morphString/src/java</source>
