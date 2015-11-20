@@ -5,8 +5,6 @@
  */
 package edu.internet2.middleware.grouperClient.messaging;
 
-import java.util.Collection;
-
 
 /**
  * Represents the methods that a messaging system
@@ -21,9 +19,10 @@ public interface GrouperMessagingSystem {
    * in the order that collection iterator designates.  If there is a problem
    * delivering the messages, the implementation should log, wait (back off)
    * and retry until it is successful.
-   * @param messages
+   * @param grouperMessageSendParam has the queue or topic, and the message(s) and perhaps args
+   * @return result
    */
-  public void sendMessages(Collection<GrouperMessage> messages);
+  public GrouperMessageSendResult send(GrouperMessageSendParam grouperMessageSendParam);
 
   /**
    * tell the messaging system that these messages are processed
@@ -32,16 +31,18 @@ public interface GrouperMessagingSystem {
    * receiveMessages method.  If there is a problem
    * delivering the messages, the implementation should wait (back off)
    * and retry until it is successful.
-   * @param messages
+   * @param grouperMessageProcessedParam
+   * @return result
    */
-  public void messagesAreProcessed(Collection<GrouperMessage> messages);
+  public GrouperMessageProcessedResult markAsProcessed(GrouperMessageProcessedParam grouperMessageProcessedParam);
 
   /**
    * this will generally block until there are messages to process.  These messages
    * are ordered in the order that they were sent.
+   * @param grouperMessageReceiveParam grouper messaging receive param
    * @return a message or multiple messages.  It will block until there are messages
    * available for this recipient to process
    */
-  public Collection<GrouperMessage> receiveMessages();
+  public GrouperMessageReceiveResult receive(GrouperMessageReceiveParam grouperMessageReceiveParam);
 
 }

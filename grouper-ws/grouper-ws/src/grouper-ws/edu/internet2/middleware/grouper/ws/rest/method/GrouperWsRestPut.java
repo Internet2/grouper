@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesBatchRequest;
@@ -385,7 +386,45 @@ public enum GrouperWsRestPut {
         throw new WsInvalidQueryException("Invalid request object: " + ( requestObject == null ? null : requestObject.getClass()));
       }
     
-    };
+    },
+    
+    /** attribute def actions **/
+  attributeDefActions {
+
+    /**
+      * handle the incoming request based on PUT HTTP method and group resource
+      * @param clientVersion version of client, e.g. v1_3_000
+      * @param urlStrings not including the app name or servlet.  
+      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDefActions
+      * the urlStrings would be size one: {"attributeDefActions"}
+      * @param requestObject is the request body converted to object
+      * @return the result object
+      */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/attributeDefActions
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException(
+            "Cant pass anything after 'attributeDefActions' in URL");
+      }
+
+      if (requestObject instanceof WsRestAssignAttributeDefActionsRequest) {
+        return GrouperServiceRest.assignAttributeDefActions(clientVersion,
+            (WsRestAssignAttributeDefActionsRequest) requestObject);
+      }
+
+      throw new WsInvalidQueryException("Invalid request object: "
+          + (requestObject == null ? null : requestObject.getClass()));
+    }
+
+  };
+    
+    
 
   /**
    * handle the incoming request based on HTTP method

@@ -21,7 +21,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MessageDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
@@ -61,10 +60,10 @@ public class GrouperMessageHibernateTest extends GrouperTest {
     grouperMessageHibernate.setSentTimeMicros(0L);
     grouperMessageHibernate.setState("state");
     
-    GrouperDAOFactory.getFactory().getMessage().saveOrUpdate(grouperMessageHibernate);
+    grouperMessageHibernate.saveOrUpdate();
     
     grouperMessageHibernate.setState("state2");
-    GrouperDAOFactory.getFactory().getMessage().saveOrUpdate(grouperMessageHibernate);
+    grouperMessageHibernate.saveOrUpdate();
     
     grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findById(grouperMessageHibernate.getId(), true);
     assertEquals("state2", grouperMessageHibernate.getState());

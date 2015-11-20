@@ -47,6 +47,9 @@ public class GrouperMessageHibernate extends GrouperAPI implements GrouperMessag
   /** milliseconds since 1970 that the message was attempted to be received */
   public static final String COLUMN_GET_ATTEMPT_TIME_MILLIS = "get_attempt_time_millis";
   
+  /** milliseconds since 1970 that the message was attempted to be received */
+  public static final String COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS = "attempt_time_expires_millis";
+  
   /** how many times this message has been attempted to be retrieved */
   public static final String COLUMN_GET_ATTEMPT_COUNT = "get_attempt_count";
   
@@ -94,6 +97,30 @@ public class GrouperMessageHibernate extends GrouperAPI implements GrouperMessag
    * queue name for the message
    */
   private String queueName;
+
+  /**
+   * millis since 1970 that this message attempt expires if not sent successfully
+   * note this will be reset to null when message sent successfully
+   */
+  private Long attemptTimeExpiresMillis;
+  
+  /**
+   * millis since 1970 that this message attempt expires if not sent successfully
+   * note this will be reset to null when message sent successfully
+   * @return the attemptTimeExpiresMillis
+   */
+  public Long getAttemptTimeExpiresMillis() {
+    return this.attemptTimeExpiresMillis;
+  }
+  
+  /**
+   * millis since 1970 that this message attempt expires if not sent successfully
+   * note this will be reset to null when message sent successfully
+   * @param attemptTimeExpiresMillis1 the attemptTimeExpiresMillis to set
+   */
+  public void setAttemptTimeExpiresMillis(Long attemptTimeExpiresMillis1) {
+    this.attemptTimeExpiresMillis = attemptTimeExpiresMillis1;
+  }
 
   /**
    * state of this message: IN_QUEUE, GET_ATTEMPTED, PROCESSED
@@ -310,14 +337,14 @@ public class GrouperMessageHibernate extends GrouperAPI implements GrouperMessag
   }
 
   /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessage#getQueueOrTopic()
+   * @return queue or topic
    */
   public String getQueueOrTopic() {
     return this.getQueueName();
   }
 
   /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessage#setQueueOrTopic(java.lang.String)
+   * @param theQueueOrTopic1
    */
   public void setQueueOrTopic(String theQueueOrTopic1) {
     this.setQueueName(theQueueOrTopic1);

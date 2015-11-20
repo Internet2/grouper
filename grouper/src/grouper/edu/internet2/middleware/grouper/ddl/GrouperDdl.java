@@ -4036,6 +4036,10 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, "millis since 1970 that this message attempt expires if not sent successfully");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
           GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate version, optimistic locking so multiple processes dont update the same record at the same time");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
@@ -10696,6 +10700,9 @@ public enum GrouperDdl implements DdlVersionable {
           "grpmessage_from_mem_id_idx", false, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_attempt_exp_idx", false, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
           "grpmessage_query_idx", true, GrouperMessageHibernate.COLUMN_QUEUE_NAME, 
           GrouperMessageHibernate.COLUMN_STATE, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS, GrouperMessageHibernate.COLUMN_ID);
       
@@ -10950,6 +10957,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, 
+          Types.BIGINT, null, false, false);
     }
   }
   /**
