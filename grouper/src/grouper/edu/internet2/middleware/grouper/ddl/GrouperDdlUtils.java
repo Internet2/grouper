@@ -72,6 +72,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
+import edu.internet2.middleware.grouper.ddl.ddlutils.HsqlDb2Platform;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -265,14 +266,24 @@ public class GrouperDdlUtils {
     
     if (cachedPlatform == null || !useCache) {
       
+      if (!PlatformFactory.isPlatformSupported("HsqlDb2")) {
+        PlatformFactory.registerPlatform("HsqlDb2", HsqlDb2Platform.class);
+      }
+      
       String ddlUtilsDbnameOverride = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.dbname.override");
   
       //convenience to get the url, user, etc of the grouper db
       GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
   
       if (StringUtils.isBlank(ddlUtilsDbnameOverride)) {
-        cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
-            grouperDb.getUrl());
+        
+        if (isHsql()) {
+          // assume newer driver
+          cachedPlatform = PlatformFactory.createNewPlatformInstance("HsqlDb2");
+        } else {
+          cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
+              grouperDb.getUrl());
+        }
       } else {
         cachedPlatform = PlatformFactory.createNewPlatformInstance(ddlUtilsDbnameOverride);
       }
@@ -871,6 +882,42 @@ public class GrouperDdlUtils {
         if (!StringUtils.isBlank(connectionUrl)) {
         
           String error = "Cannot determine the driver class from database URL: " + connectionUrl;
+          System.err.println(error);
+          LOG.error(error);
+          return null;
+        }
+      }
+    }
+    return driverClassName;
+
+  }
+  
+  /**
+   * if there is no quartz driver class specified, then try to derive it from the URL
+   * @param connectionUrl
+   * @param driverClassName
+   * @return the driver class
+   */
+  public static String convertUrlToQuartzDriverDelegateClassIfNeeded(String connectionUrl, String driverClassName) {
+    //default some of the stuff
+    if (StringUtils.isBlank(driverClassName)) {
+      
+      if (GrouperDdlUtils.isHsql(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.HSQLDBDelegate";
+      } else if (GrouperDdlUtils.isMysql(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
+      } else if (GrouperDdlUtils.isOracle(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate";
+      } else if (GrouperDdlUtils.isPostgres(connectionUrl)) { 
+        driverClassName = "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate";
+      } else if (GrouperDdlUtils.isSQLServer(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.MSSQLDelegate";
+      } else {
+        
+        //if this is blank we will figure it out later
+        if (!StringUtils.isBlank(connectionUrl)) {
+        
+          String error = "Cannot determine the quartz driver class from database URL: " + connectionUrl;
           System.err.println(error);
           LOG.error(error);
           return null;

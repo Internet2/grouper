@@ -23,7 +23,6 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -41,11 +40,15 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -1866,6 +1869,8 @@ public enum GrouperLoaderType {
   public static void scheduleLoads() {
     
     GrouperSession grouperSession = null;
+    Set<String> jobNames = new HashSet<String>();
+    
     try {
       grouperSession = GrouperSession.startRootSession();
   
@@ -1890,6 +1895,7 @@ public enum GrouperLoaderType {
           GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
   
           jobName = grouperLoaderTypeEnum.name() + "__" + group.getName() + "__" + group.getUuid();
+          jobNames.add(jobName);
           
           grouperLoaderTypeEnum.attributeValueValidateRequired(group, GrouperLoader.GROUPER_LOADER_DB_NAME);
           grouperLoaderAndGroups = grouperLoaderTypeEnum.attributeValueValidateRequired(group, GrouperLoader.GROUPER_LOADER_AND_GROUPS);
@@ -1944,6 +1950,56 @@ public enum GrouperLoaderType {
       throw new RuntimeException(e);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    // check to see if anything should be unscheduled.
+    try {
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+      for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
+        
+        String jobName = jobKey.getName();
+        
+        if ((jobName.startsWith(GrouperLoaderType.SQL_SIMPLE.name() + "__") ||
+            jobName.startsWith(GrouperLoaderType.SQL_GROUP_LIST.name() + "__")) && !jobNames.contains(jobName)) {
+          try {
+            String triggerName = "triggerFor_" + jobName;
+            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+          } catch (Exception e) {
+            String errorMessage = "Could not unschedule job: '" + jobName + "'";
+            LOG.error(errorMessage, e);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            try {
+              //lets enter a log entry so it shows up as error in the db
+              Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+              hib3GrouploaderLog.setJobMessage(errorMessage);
+              hib3GrouploaderLog.setJobName(jobName);
+              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+              hib3GrouploaderLog.store();
+              
+            } catch (Exception e2) {
+              LOG.error("Problem logging to loader db log", e2);
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      
+      String errorMessage = "Could not query sql jobs to see if any should be unscheduled.";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
     }
   }
     
@@ -3302,6 +3358,8 @@ public enum GrouperLoaderType {
   public static void scheduleAttributeLoads() {
     
     GrouperSession grouperSession = null;
+    Set<String> jobNames = new HashSet<String>();
+
     try {
       grouperSession = GrouperSession.startRootSession();
 
@@ -3342,6 +3400,7 @@ public enum GrouperLoaderType {
           GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
   
           jobName = grouperLoaderTypeEnum.name() + "__" + attributeDef.getName() + "__" + attributeDef.getUuid();
+          jobNames.add(jobName);
           
           //get the real attributes
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttrDef(attributeDef, GrouperLoader.ATTRIBUTE_LOADER_DB_NAME);
@@ -3401,6 +3460,55 @@ public enum GrouperLoaderType {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    
+    // check to see if anything should be unscheduled.
+    try {
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+      for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
+        
+        String jobName = jobKey.getName();
+        
+        if ((jobName.startsWith(GrouperLoaderType.ATTR_SQL_SIMPLE.name() + "__")) && !jobNames.contains(jobName)) {
+          try {
+            String triggerName = "triggerFor_" + jobName;
+            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+          } catch (Exception e) {
+            String errorMessage = "Could not unschedule job: '" + jobName + "'";
+            LOG.error(errorMessage, e);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            try {
+              //lets enter a log entry so it shows up as error in the db
+              Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+              hib3GrouploaderLog.setJobMessage(errorMessage);
+              hib3GrouploaderLog.setJobName(jobName);
+              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+              hib3GrouploaderLog.store();
+              
+            } catch (Exception e2) {
+              LOG.error("Problem logging to loader db log", e2);
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      
+      String errorMessage = "Could not query attribute jobs to see if any should be unscheduled.";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
   }
 
   /**
@@ -3409,6 +3517,8 @@ public enum GrouperLoaderType {
   public static void scheduleLdapLoads() {
     
     GrouperSession grouperSession = null;
+    Set<String> jobNames = new HashSet<String>();
+
     try {
       grouperSession = GrouperSession.startRootSession();
 
@@ -3451,7 +3561,8 @@ public enum GrouperLoaderType {
   
           groupName = group.getName();
           jobName = grouperLoaderTypeEnum.name() + "__" + groupName + "__" + group.getUuid();
-          
+          jobNames.add(jobName);
+
           //get the real attributes
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapFilterName());
@@ -3553,6 +3664,57 @@ public enum GrouperLoaderType {
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    
+    // check to see if anything should be unscheduled.
+    try {
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+      for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
+        
+        String jobName = jobKey.getName();
+        
+        if ((jobName.startsWith(GrouperLoaderType.LDAP_GROUP_LIST.name() + "__") ||
+            jobName.startsWith(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES.name() + "__") ||
+            jobName.startsWith(GrouperLoaderType.LDAP_SIMPLE + "__")) && !jobNames.contains(jobName)) {
+          try {
+            String triggerName = "triggerFor_" + jobName;
+            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+          } catch (Exception e) {
+            String errorMessage = "Could not unschedule job: '" + jobName + "'";
+            LOG.error(errorMessage, e);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            try {
+              //lets enter a log entry so it shows up as error in the db
+              Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+              hib3GrouploaderLog.setJobMessage(errorMessage);
+              hib3GrouploaderLog.setJobName(jobName);
+              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+              hib3GrouploaderLog.store();
+              
+            } catch (Exception e2) {
+              LOG.error("Problem logging to loader db log", e2);
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      
+      String errorMessage = "Could not query ldap jobs to see if any should be unscheduled.";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
   }
 
 
@@ -3574,7 +3736,9 @@ public enum GrouperLoaderType {
     //forbidden ones are there
     Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
 
-    JobDetail jobDetail = new JobDetail(jobName, null, GrouperLoaderJob.class);
+    JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
+      .withIdentity(jobName)
+      .build();
     
     if (StringUtils.isBlank(grouperLoaderScheduleType)) {
       boolean hasCron = !StringUtils.isBlank(grouperLoaderQuartzCron);
@@ -3590,27 +3754,26 @@ public enum GrouperLoaderType {
     }
     
     //schedule this job based on the schedule type and params
+    String triggerName = "triggerFor_" + jobName;
+    
     GrouperLoaderScheduleType grouperLoaderScheduleTypeEnum = GrouperLoaderScheduleType
       .valueOfIgnoreCase(grouperLoaderScheduleType, true);
     
-    Trigger trigger = grouperLoaderScheduleTypeEnum.createTrigger(grouperLoaderQuartzCron, 
+    Trigger trigger = grouperLoaderScheduleTypeEnum.createTrigger(
+        triggerName,
+        grouperLoaderPriority != null ? grouperLoaderPriority : Trigger.DEFAULT_PRIORITY,
+        grouperLoaderQuartzCron, 
         grouperLoaderIntervalSeconds);
     
     if (LOG.isDebugEnabled() && trigger instanceof SimpleTrigger) {
       LOG.debug("Starting job " + jobName + " at " + ((SimpleTrigger)trigger).getStartTime());
     }
     
-    trigger.setName("triggerFor_" + jobName);
-    
-    //if there is a priority, set it
-    if (grouperLoaderPriority != null) {
-      trigger.setPriority(grouperLoaderPriority);
-    }
     if (unschedule) {
-      scheduler.unscheduleJob(trigger.getName(), null);
+      scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
     }
     //scheduler.unscheduleJob()
-    scheduler.scheduleJob(jobDetail, trigger);
+    scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
 
   }
   
