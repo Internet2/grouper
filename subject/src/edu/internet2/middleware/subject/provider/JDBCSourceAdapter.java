@@ -427,7 +427,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   @Override
   public void init() throws SourceUnavailableException {
     try {
-      Properties props = getInitParams();
+      Properties props = initParams();
       //this might not exist if it is Grouper source and no driver...
       setupDataSource(props);
     } catch (Exception ex) {
@@ -589,7 +589,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     //see if has jdbc in provider
     if (this.jdbcConnectionProvider.requiresJdbcConfigInSourcesXml()) {
       String error = "problem with sources.xml source id: " + this.getId() + ", ";
-      Properties props = this.getInitParams();
+      Properties props = this.initParams();
       String driver = props.getProperty("dbDriver");
       if (StringUtils.isBlank(driver)) {
         System.err.println("Subject API error: " + error + ", driver param is required");
@@ -693,7 +693,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
    */
   public String printConfig() {
 
-    Properties props = this.getInitParams();
+    Properties props = this.initParams();
     String dbResult = this.jdbcConnectionProvider.getClass().getSimpleName();
     if (this.jdbcConnectionProvider.requiresJdbcConfigInSourcesXml()) {
       String dbUrl = props.getProperty("dbUrl");

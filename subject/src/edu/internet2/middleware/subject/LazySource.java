@@ -205,10 +205,10 @@ public class LazySource implements Source {
   }
 
   /**
-   * @see edu.internet2.middleware.subject.Source#getInitParams()
+   * @see edu.internet2.middleware.subject.Source#initParams()
    */
-  public Properties getInitParams() {
-    return this.getSource().getInitParams();
+  public Properties initParams() {
+    return this.getSource().initParams();
   }
 
 }

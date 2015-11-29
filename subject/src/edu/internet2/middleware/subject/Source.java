@@ -169,5 +169,5 @@ public interface Source {
    * get the init params e.g. from the sources.xml
    * @return params
    */
-  public Properties getInitParams();
+  public Properties initParams();
 }

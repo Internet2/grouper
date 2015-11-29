@@ -218,7 +218,7 @@ public class SourceManager {
       for (Iterator iter = mgr.getSources().iterator(); iter.hasNext();) {
         BaseSourceAdapter source = (BaseSourceAdapter) iter.next();
         log.debug("Source init params: " + "id = " + source.getId() + ", params = "
-            + source.getInitParams());
+            + source.initParams());
         source.init();
         if (source.getId().equals("example")) {
 
