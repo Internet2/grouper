@@ -275,7 +275,7 @@ from
      on subject.subjectid=desct.subjectid
    left join (select subjectid, value as email from subjectattribute
       where name='email') emailt
-     on subject.subjectid=desct.subjectid
+     on subject.subjectid=emailt.subjectid
 where
    (lower(name) like '%' || ? || '%')
    or (lower(lfnamet.lfname) like '%' || ? || '%')
