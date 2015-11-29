@@ -122,7 +122,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
      */
   public void checkConfig() {
 
-    Properties props = this.getInitParams();
+    Properties props = this.initParams();
     String error = "problem with sources.xml source id: " + this.getId() + ", ";
 
     //TODO encapsulate this stuff from the superclass into one method

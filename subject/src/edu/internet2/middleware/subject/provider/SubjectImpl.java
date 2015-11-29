@@ -305,7 +305,7 @@ public class SubjectImpl implements Subject {
     }
     
     virtualAttributeVariables = new LinkedHashMap<String, String>();
-    Properties properties = source.getInitParams();
+    Properties properties = source.initParams();
     
     //no virtuals
     if (properties != null && properties.size() > 0) {
@@ -356,7 +356,7 @@ public class SubjectImpl implements Subject {
     }
     
     virtualAttributes = new LinkedHashMap<String, String>();
-    Properties properties = source.getInitParams();
+    Properties properties = source.initParams();
     
     //no virtuals
     if (properties != null && properties.size() > 0) {

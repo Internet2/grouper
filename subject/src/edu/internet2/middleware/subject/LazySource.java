@@ -181,7 +181,6 @@ public class LazySource implements Source, Serializable {
   /**
    * @see edu.internet2.middleware.subject.Source#searchPage(java.lang.String)
    */
-  @Override
   public SearchPageResult searchPage(String searchValue) {
     return this.getSource().searchPage(searchValue);
   }
@@ -215,10 +214,10 @@ public class LazySource implements Source, Serializable {
   }
 
   /**
-   * @see edu.internet2.middleware.subject.Source#getInitParams()
+   * @see edu.internet2.middleware.subject.Source#initParams()
    */
-  public Properties getInitParams() {
-    return this.getSource().getInitParams();
+  public Properties initParams() {
+    return this.getSource().initParams();
   }
 
   /**

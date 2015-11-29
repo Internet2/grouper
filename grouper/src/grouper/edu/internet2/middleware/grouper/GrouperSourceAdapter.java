@@ -334,7 +334,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    */
   public void init() throws SourceUnavailableException {
     try {
-      Properties props = getInitParams();
+      Properties props = initParams();
       
       {
         String maxResultsString = props.getProperty("maxResults");

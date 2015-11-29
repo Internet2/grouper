@@ -170,7 +170,7 @@ public interface Source {
    * get the init params e.g. from the sources.xml
    * @return params
    */
-  public Properties getInitParams();
+  public Properties initParams();
   
   /**
    * Get a set of attributes that are marked as being internal attributes.
