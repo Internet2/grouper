@@ -25,5 +25,24 @@
 			<type>2</type>
 			<locationURI>GROUPER_V2_0_SOURCE</locationURI>
 		</link>
+		<link>
+			<name>GROUPER_V2_0_SUBJECT_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_V2_0_SUBJECT_SOURCE</locationURI>
+		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GROUPER_V2_0_CONF</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_0/grouper/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_V2_0_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_0/grouper/src/grouper</value>
+		</variable>
+		<variable>
+			<name>GROUPER_V2_0_SUBJECT_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_0/subject/src</value>
+		</variable>
+	</variableList>
 </projectDescription>

@@ -1,0 +1,11 @@
+.lastbuild.properties
+build
+build.properties
+dist
+logs
+spy.log
+temp
+tomcat-context.xml
+webapp/WEB-INF/classes
+webapp/WEB-INF/lib/*.jar
+webapp/WEB-INF/web.xml
