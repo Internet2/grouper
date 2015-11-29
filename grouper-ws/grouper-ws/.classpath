@@ -65,6 +65,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/xml-resolver-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.4.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/junit.jar"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_v1_6"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

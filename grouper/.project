@@ -14,4 +14,17 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>GROUPER_1_6_SUBJECT_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_1_6_SUBJECT_SOURCE</locationURI>
+		</link>
+	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GROUPER_1_6_SUBJECT_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v1_6/subject/src</value>
+		</variable>
+	</variableList>
 </projectDescription>

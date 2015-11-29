@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper"/>
+	<classpathentry kind="src" path="GROUPER_1_6_SUBJECT_SOURCE"/>
 	<classpathentry kind="src" path="src/esb"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
@@ -62,5 +63,6 @@
 	<classpathentry kind="lib" path="lib/jetty/servlet-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-httpclient.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ddlUtils.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/subject"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

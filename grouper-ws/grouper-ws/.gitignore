@@ -1,0 +1,10 @@
+build
+build.properties
+conf/grouper-ws.properties
+temp
+webapp/WEB-INF/classes
+webapp/WEB-INF/lib
+spy.log
+/grouperClientFailoverState.bin
+webapp/WEB-INF/services/*.ondeck
+webservices/classes
