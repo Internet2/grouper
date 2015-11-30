@@ -125,7 +125,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
      */
     public void init() {
         log.debug("ldap source init");
-        props = getInitParams();
+        props = initParams();
 
 	nameAttributeName = getNeededProperty(props,"Name_AttributeType");
 	subjectIDAttributeName = getNeededProperty(props,"SubjectID_AttributeType");
