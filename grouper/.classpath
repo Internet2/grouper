@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper"/>
+	<classpathentry kind="src" path="GROUPER_V2_1_SUBJECT_SOURCE"/>
 	<classpathentry kind="src" path="src/esb"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
@@ -66,5 +67,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate-jpa-2.0-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/slf4j-log4j12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/vt-ldap.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/subject"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
