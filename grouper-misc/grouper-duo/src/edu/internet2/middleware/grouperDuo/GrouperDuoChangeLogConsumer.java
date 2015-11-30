@@ -31,8 +31,10 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
    * 
    */
   public GrouperDuoChangeLogConsumer() {
+    //make sure this is registered
+    GrouperDuoDaemon.scheduleJobsOnce();
   }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase#processChangeLogEntries(java.util.List, edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata)
    */
