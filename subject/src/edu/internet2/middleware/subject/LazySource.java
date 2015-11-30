@@ -244,8 +244,8 @@ public class LazySource implements Source, Serializable {
   /**
    * @see edu.internet2.middleware.subject.Source#getInitParams()
    */
-  public Properties getInitParams() {
-    return this.getSource().getInitParams();
+  public Properties initParams() {
+    return this.getSource().initParams();
   }
 
   /**

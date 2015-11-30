@@ -496,7 +496,7 @@ public abstract class BaseSourceAdapter implements Source {
    * (non-javadoc)
    * @return params
    */
-  public Properties getInitParams() {
+  public Properties initParams() {
     return this.params;
   }
 

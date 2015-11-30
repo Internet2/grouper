@@ -136,7 +136,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
      */
   public void checkConfig() {
 
-    Properties props = this.getInitParams();
+    Properties props = this.initParams();
     String error = "problem with sources.xml source id: " + this.getId() + ", ";
 
     //TODO encapsulate this stuff from the superclass into one method
@@ -816,7 +816,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       return this.dbTableOrView;
     }
     String key = "realm__" + realm + "__dbTableOrView";
-    String thisDbTableOrView = this.getInitParams().getProperty(key);
+    String thisDbTableOrView = this.initParams().getProperty(key);
     if (StringUtils.isBlank(thisDbTableOrView)) {
       throw new RuntimeException("You are calling this source with a realm that is not configured: " + this.getId() + ", " + realm + ", " + key);
     }
