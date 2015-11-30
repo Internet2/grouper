@@ -1223,7 +1223,7 @@ public class GrouperCheckConfig {
     checkJar("slf4j-log4j12.jar", 9752, "org.slf4j.impl.Log4jLoggerAdapter", "1.6.2");
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
-    checkJar("subject.jar", 261985, "edu.internet2.middleware.subject.InvalidQueryException", "2.2.2");
+    checkJar("subject.jar", 262091, "edu.internet2.middleware.subject.InvalidQueryException", "2.2.2");
     checkJar("vt-ldap.jar", 472910, "edu.vt.middleware.ldap.AbstractCli", "3.3.5");
     checkJar("xpp3_min.jar", 24979, "org.xmlpull.mxp1.MXParser", "1.1.4c");
     checkJar("xstream.jar", 692061, "com.thoughtworks.xstream.alias.CannotResolveClassException", "1.3");
