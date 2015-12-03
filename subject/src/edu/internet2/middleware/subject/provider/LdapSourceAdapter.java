@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -392,47 +393,75 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull)
-            throws SubjectNotFoundException,SubjectNotUniqueException {
-        Subject subject = null;
-        Search search = getSearch("searchSubjectByIdentifier");
-        if (search == null) {
-            log.error("searchType: \"searchSubjectByIdentifier\" not defined.");
-            return subject;
-        }
-        if (localDomain != null) {
-           int atpos;
-           if ((atpos=id.indexOf("@" + localDomain))>0) {
-              if (log.isDebugEnabled()) {
-              log.debug("looking at id=" + id);
-              }
-              id = id.substring(0, atpos);
-              if (log.isDebugEnabled()) {
-              log.debug("converted to id=" + id);
-           }
-        }
-        }
-        try {
-           Attributes attributes = getLdapUnique( search, id, allAttributeNames );
-           subject = createSubject(attributes);
-           if (subject == null && exceptionIfNull) {
-               throw new SubjectNotFoundException("Subject " + id + " not found.");
-           }
-        } catch (SubjectNotFoundException e) {
-        	if (exceptionIfNull) {
-        		throw e;
-        	} else {
-        		return null;
-        	}
-        }
-        search = getSearch("searchSubjectByIdentifierAttributes");
-        if (search==null) ((LdapSubject)subject).setAttributesGotten(true);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    Map<String, Object> debugLog = null;
+    try {
+      if (log.isDebugEnabled()) {
+        debugLog = new LinkedHashMap<String, Object>();
+        debugLog.put("method", "getSubjectByIdentifier");
+        debugLog.put("id", id);
+        debugLog.put("exceptionIfNull", exceptionIfNull);
+      }
+      Subject subject = null;
+      Search search = getSearch("searchSubjectByIdentifier");
+      if (debugLog != null) {
+        debugLog.put("search", search);
+      }
+      
+      if (search == null) {
+        log.error("searchType: \"searchSubjectByIdentifier\" not defined.");
         return subject;
+      }
+      if (localDomain != null) {
+        int atpos;
+        if ((atpos = id.indexOf("@" + localDomain)) > 0) {
+          if (log.isDebugEnabled()) {
+            log.debug("looking at id=" + id);
+          }
+          id = id.substring(0, atpos);
+          if (log.isDebugEnabled()) {
+            log.debug("converted to id=" + id);
+          }
+          if (debugLog != null) {
+            debugLog.put("convertedToId", id);
+          }
+        }
+      }
+      try {
+        Attributes attributes = getLdapUnique(search, id, allAttributeNames);
+        subject = createSubject(attributes);
+        if (debugLog != null) {
+          debugLog.put("foundSubject", subject != null);
+        }
+        if (subject == null && exceptionIfNull) {
+          throw new SubjectNotFoundException("Subject " + id + " not found.");
+        }
+      } catch (SubjectNotFoundException e) {
+        if (exceptionIfNull) {
+          throw e;
+        }
+        return null;
+      }
+      search = getSearch("searchSubjectByIdentifierAttributes");
+      if (debugLog != null) {
+        debugLog.put("searchSubjectByIdentifierAttributesNotNull", search!=null);
+      }
+      if (search == null)
+        ((LdapSubject) subject).setAttributesGotten(true);
+      return subject;
+
+    } finally {
+      if (log.isDebugEnabled()) {
+        log.debug(SubjectUtils.mapToString(debugLog));
+      }
     }
+
+  }
     
     /**
      * {@inheritDoc}
@@ -761,9 +790,21 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     
     protected Attributes getLdapUnique( Search search, String searchValue, String[] attributeNames)
                  throws SubjectNotFoundException,SubjectNotUniqueException, SourceUnavailableException  {
+      
+      
+      Map<String, Object> debugLog = null;
+      try {
+        if (log.isDebugEnabled()) {
+          debugLog = new LinkedHashMap<String, Object>();
+          debugLog.put("method", "getLdapUnique");
+          debugLog.put("search", search);
+          debugLog.put("searchValue", searchValue);
+          debugLog.put("attributeNames", SubjectUtils.toStringForLog(attributeNames, 200));
+        }
+
         Attributes attributes = null;
         Iterator<SearchResult> results = getLdapResults(search, searchValue, attributeNames);
-        
+
         if (results == null || !results.hasNext()) {
             String errMsg = "No results: " + search.getSearchType() + " filter:" + search.getParam("filter") + " searchValue: " + searchValue;
             throw new SubjectNotFoundException( errMsg);
@@ -772,12 +813,22 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
         SearchResult si = ( SearchResult )results.next( );
         attributes = si.getAttributes();
         
+        if (debugLog!=null) {
+          debugLog.put("dn", si.getName());
+        }
+
         // Add the DN to the returned attributes.
         attributes.put(new BasicAttribute("dn", si.getName()));
         
         if ( results.hasNext()) {
             si = (SearchResult) results.next();
+            if (debugLog!=null) {
+              debugLog.put("dn2", si.getName());
+            }
             if (!multipleResults) {
+              if (debugLog!=null) {
+                debugLog.put("searchIsNotUnique", true);
+              }
                String errMsg ="Search is not unique:" + si.getName() + "\n";
                throw new SubjectNotUniqueException( errMsg );
             }
@@ -802,9 +853,17 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
           }
           
           // Add the DN to the returned attributes.
-       	  attributes.get("dn").add(si.getName());
+          attributes.get("dn").add(si.getName());
         }
         return attributes;
+
+      } finally {
+        if (log.isDebugEnabled()) {
+          log.debug(SubjectUtils.mapToString(debugLog));
+        }
+      }
+
+      
     }
     
     /**

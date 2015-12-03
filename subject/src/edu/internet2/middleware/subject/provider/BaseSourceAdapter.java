@@ -236,25 +236,49 @@ public abstract class BaseSourceAdapter implements Source {
    */
   public Subject getSubjectByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subject = null;
-
-    //try by id first
-    subject = this.getSubject(idOrIdentifier, false);
-
-    //try by identifier if not by id
-    if (subject == null) {
-      subject = this.getSubjectByIdentifier(idOrIdentifier, false);
+    
+    Map<String, Object> debugLog = null;
+    try {
+      if (log.isDebugEnabled()) {
+        debugLog = new LinkedHashMap<String, Object>();
+        debugLog.put("method", "getSubjectByIdOrIdentifier");
+        debugLog.put("idOrIdentifier", idOrIdentifier);
+        debugLog.put("exceptionIfNull", exceptionIfNull);
+      }
+      
+      Subject subject = null;
+  
+      //try by id first
+      subject = this.getSubject(idOrIdentifier, false);
+  
+      //try by identifier if not by id
+      if (subject == null) {
+        if (debugLog != null) {
+          debugLog.put("subjectById", "notFound");
+        }
+        subject = this.getSubjectByIdentifier(idOrIdentifier, false);
+        if (debugLog != null) {
+          debugLog.put("subjectByIdentifier", subject == null ? "notFound" : "found");
+        }
+      } else {
+        if (debugLog != null) {
+          debugLog.put("subjectById", "found");
+        }
+      }
+  
+      //if null at this point, and exception, then throw it
+      if (subject == null && exceptionIfNull) {
+        throw new SubjectNotFoundException("Cant find subject by id or identifier: '" + idOrIdentifier + "'"); 
+      }
+  
+      return subject;
+    } finally {
+      if (log.isDebugEnabled()) {
+        log.debug(SubjectUtils.mapToString(debugLog));
+      }
     }
-
-    //if null at this point, and exception, then throw it
-    if (subject == null && exceptionIfNull) {
-      throw new SubjectNotFoundException("Cant find subject by id or identifier: '" + idOrIdentifier + "'"); 
-    }
-
-    return subject;
   }
-
-
+  
   /**
    * @see edu.internet2.middleware.subject.Source#getSubjectsByIdsOrIdentifiers(java.util.Collection)
    */
