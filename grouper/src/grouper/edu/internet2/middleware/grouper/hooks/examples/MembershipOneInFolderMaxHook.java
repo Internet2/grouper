@@ -134,7 +134,9 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
   /**
    * cache if stem name has the membership one attribute
    */
-  private static GrouperCache<String, Boolean> stemHasMembershipOneAttribute = new GrouperCache(MembershipOneInFolderMaxHook.class.getName() + ".membershipOneAttribute");
+  private static GrouperCache<String, Boolean> stemHasMembershipOneAttribute = new GrouperCache(
+      MembershipOneInFolderMaxHook.class.getName() + ".membershipOneAttribute", 5000, false, 60, 60, false);
+  //TODO remove defaults in 2.3+
   
   /**
    * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean)

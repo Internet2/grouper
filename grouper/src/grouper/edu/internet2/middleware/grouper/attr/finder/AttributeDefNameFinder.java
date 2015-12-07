@@ -340,7 +340,8 @@ public class AttributeDefNameFinder {
    * result is an array of size one or empty array if not found
    */
   private static GrouperCache<MultiKey, AttributeDefName[]> findByNameCache = new GrouperCache<MultiKey, AttributeDefName[]>(
-      AttributeDefNameFinder.class.getName() + ".findByNameCache");
+      AttributeDefNameFinder.class.getName() + ".findByNameCache", 2000, false, 60, 60, false);
+  //TODO remove defaults in 2.3+
   
   /**
    * find an attributeDefName by name.  This is a secure method, a GrouperSession must be open.  This will cache the result
