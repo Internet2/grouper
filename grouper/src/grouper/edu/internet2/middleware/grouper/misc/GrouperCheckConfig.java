@@ -67,6 +67,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -80,6 +81,7 @@ import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
@@ -1661,10 +1663,10 @@ public class GrouperCheckConfig {
             "email sent to user as invite", wasInCheckConfig);      
       
       }      
-      
+
       {
         String messagesRootStemName = GrouperBuiltinMessagingSystem.messageRootStemName();
-        
+
         Stem messagesStem = StemFinder.findByName(grouperSession, messagesRootStemName, false);
         if (messagesStem == null) {
           messagesStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
@@ -1676,21 +1678,36 @@ public class GrouperCheckConfig {
             System.err.println("Grouper note: " + error);
             LOG.warn(error);
           }
-
         }
         
         {
+          //see if role for permissions is there
+          String grouperMessageNameOfRole = GrouperBuiltinMessagingSystem.grouperMessageNameOfRole();
+          Group groupMessagingRoleGroup = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
+              grouperMessageNameOfRole, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.role));
+          if (groupMessagingRoleGroup == null) {
+            Role groupMessagingRole = messagesStem.addChildRole(GrouperUtil.extensionFromName(grouperMessageNameOfRole), 
+                GrouperUtil.extensionFromName(grouperMessageNameOfRole));
+            if (wasInCheckConfig) {
+              String error = "auto-created role: " + groupMessagingRole.getName();
+              System.err.println("Grouper note: " + error);
+              LOG.warn(error);
+            }
+          }
+        }
+
+        {
           //see if attributeDef for topics is there
-          String grouperMessageTopicDefName = GrouperBuiltinMessagingSystem.grouperMessageTopicNameOfDef();
+          String grouperMessageTopicNameOfDef = GrouperBuiltinMessagingSystem.grouperMessageTopicNameOfDef();
           AttributeDef grouperMessageTopicDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-              grouperMessageTopicDefName, false, new QueryOptions().secondLevelCache(false));
+              grouperMessageTopicNameOfDef, false, new QueryOptions().secondLevelCache(false));
           if (grouperMessageTopicDef == null) {
-            grouperMessageTopicDef = messagesStem.addChildAttributeDef(GrouperUtil.extensionFromName(grouperMessageTopicDefName), AttributeDefType.perm);
+            grouperMessageTopicDef = messagesStem.addChildAttributeDef(GrouperUtil.extensionFromName(grouperMessageTopicNameOfDef), AttributeDefType.perm);
             grouperMessageTopicDef.setAssignToGroup(true);
             grouperMessageTopicDef.setAssignToEffMembership(true);
             grouperMessageTopicDef.store();
             if (wasInCheckConfig) {
-              String error = "auto-created attributeDef: " + grouperMessageTopicDefName;
+              String error = "auto-created attributeDef: " + grouperMessageTopicNameOfDef;
               System.err.println("Grouper note: " + error);
               LOG.warn(error);
             }
@@ -1701,16 +1718,16 @@ public class GrouperCheckConfig {
 
         {
           //see if attributeDef for queues is there
-          String grouperMessageQueueDefName = GrouperBuiltinMessagingSystem.grouperMessageQueueNameOfDef();
+          String grouperMessageQueueNameOfDef = GrouperBuiltinMessagingSystem.grouperMessageQueueNameOfDef();
           AttributeDef grouperMessageQueueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-              grouperMessageQueueDefName, false, new QueryOptions().secondLevelCache(false));
+              grouperMessageQueueNameOfDef, false, new QueryOptions().secondLevelCache(false));
           if (grouperMessageQueueDef == null) {
-            grouperMessageQueueDef = messagesStem.addChildAttributeDef(GrouperUtil.extensionFromName(grouperMessageQueueDefName), AttributeDefType.perm);
+            grouperMessageQueueDef = messagesStem.addChildAttributeDef(GrouperUtil.extensionFromName(grouperMessageQueueNameOfDef), AttributeDefType.perm);
             grouperMessageQueueDef.setAssignToGroup(true);
             grouperMessageQueueDef.setAssignToEffMembership(true);
             grouperMessageQueueDef.store();
             if (wasInCheckConfig) {
-              String error = "auto-created attributeDef: " + grouperMessageQueueDefName;
+              String error = "auto-created attributeDef: " + grouperMessageQueueNameOfDef;
               System.err.println("Grouper note: " + error);
               LOG.warn(error);
             }

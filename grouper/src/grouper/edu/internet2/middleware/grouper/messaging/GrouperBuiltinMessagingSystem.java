@@ -8,22 +8,28 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
@@ -43,10 +49,29 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
 
   /**
+   * TODO
+   */
+  public static final String actionSendToTopic = "send_to_topic";
+  
+  /**
    * cache stuff in messaging, key is Boolean.TRUE
    */
   private static GrouperCache<Boolean, GrouperBuiltinMessagingCache> messageCache = new GrouperCache(
       "edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem.messageCache");
+
+
+  /**
+   * clear the cache
+   */
+  private static void clearCache() {
+
+    synchronized (GrouperBuiltinMessagingCache.class) {
+
+      messageCache.clear();
+
+    }
+  }
+
 
   /**
    * get the cache, if needed recalculate everything
@@ -74,17 +99,24 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
             tempGrouperBuiltinMessagingCache.setRootStem(messageStem);
 
             {
+              //role
+              Role messagingRole = new GroupFinder().assignGroupNames(GrouperUtil.toSet(grouperMessageNameOfRole())).findGroup();
+              
+              tempGrouperBuiltinMessagingCache.setMessagingRole(messagingRole);
+              
+              //queue
               AttributeDef queueDef = new AttributeDefFinder().assignFindByUuidOrName(false).assignScope(grouperMessageQueueNameOfDef()).findAttribute();
               
               tempGrouperBuiltinMessagingCache.setQueueAttributeDef(queueDef);
               
+              //queueMap
               Map<String, AttributeDefName> queueMap = new HashMap<String, AttributeDefName>();
               
               Stem queueStem = StemFinder.findByName(grouperSession, queueStemName(), true, new QueryOptions().secondLevelCache(false));
               
               Set<AttributeDefName> queueAttributeDefNames = new AttributeDefNameFinder().assignParentStemId(messageStem.getId())
                   .assignAttributeDefId(queueDef.getId()).assignParentStemId(queueStem.getId()).findAttributeNames();
-  
+
               for (AttributeDefName queueAttributeDefName : queueAttributeDefNames) {
                 queueMap.put(queueAttributeDefName.getExtension(), queueAttributeDefName);
               }
@@ -158,13 +190,96 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     /**
      * topic extension sends to queue extension, lazy loaded
      */
-    private Map<String, String> topicExtSendsToQueueExtMap = new HashMap<String, String>();
+    private Map<String, Set<String>> topicExtSendsToQueueExtMap = Collections.synchronizedMap(new HashMap<String, Set<String>>());
 
     /**
      * hashmap of source id, subject id, topic name, boolean if allow or not, lazy loaded
      */
-    private Map<MultiKey, Boolean> allowedToSendToTopic = new HashMap<MultiKey, Boolean>();
+    private Map<MultiKey, Boolean> allowedToSendToTopic = Collections.synchronizedMap(new HashMap<MultiKey, Boolean>());
+
+    /**
+     * role that users have for permissions
+     */
+    private Role messagingRole = null;
     
+    /**
+     * role that users have for permissions
+     * @return the messagingRole
+     */
+    public Role getMessagingRole() {
+      return this.messagingRole;
+    }
+    
+    /**
+     * role that users have for permissions
+     * @param messagingRole1 the messagingRole to set
+     */
+    public void setMessagingRole(Role messagingRole1) {
+      this.messagingRole = messagingRole1;
+    }
+
+    /**
+     * lazy load which topics send to which queues
+     * @param topicExt
+     * @return the set of queues that a topic sends to
+     */
+    public Set<String> topicExtSendsToQueueExts(String topicExt) {
+      
+      Map<String, Set<String>> theTopicExtSendsToQueueExts = getTopicExtSendsToQueueExtMap();
+      
+      Set<String> queueExtensions = theTopicExtSendsToQueueExts.get(topicExt);
+      
+      if (queueExtensions == null) {
+
+        synchronized (theTopicExtSendsToQueueExts) {
+          
+          //make sure there is no race condition
+          queueExtensions = theTopicExtSendsToQueueExts.get(topicExt);
+          
+          if (queueExtensions == null) {
+
+            GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
+            GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
+            
+            try {
+              AttributeDefName topicAttributeDefName = getExtensionOfTopicToAttributeDefName().get(topicExt);
+              
+              if (topicAttributeDefName == null) {
+                throw new RuntimeException("Cant find topic: " + topicExt);
+              }
+              
+              Set<AttributeDefName> queuesImpliedByThis = topicAttributeDefName.getAttributeDefNameSetDelegate().getAttributeDefNamesImpliedByThis();
+              
+              queueExtensions = new TreeSet<String>();
+              
+              String queueStemName = queueStemName();
+
+              for (AttributeDefName queueImpliedByThis : queuesImpliedByThis) {
+                
+                //see if in right folder
+                if (GrouperUtil.nameInFolderDirect(queueImpliedByThis.getName(), queueStemName)) {
+                  
+                  //see if exists in this cache
+                  if (this.getExtensionOfQueueToAttributeDefName().get(queueImpliedByThis.getExtension()) != null) {
+                    queueExtensions.add(queueImpliedByThis.getExtension());
+                    
+                  }
+                }
+              }
+              
+            } finally {
+              if (grouperSessionResult.isCreated()) {
+                GrouperSession.stopQuietly(grouperSession);
+              }
+            }
+            
+            //apply the cache
+            theTopicExtSendsToQueueExts.put(topicExt, queueExtensions);
+          }
+        }
+      }
+      return queueExtensions;
+    }
     
     /**
      * hashmap of source id, subject id, topic name, boolean if allow or not, lazy loaded
@@ -187,7 +302,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
      * topic extension sends to queue extension, lazy loaded
      * @return the topicExtSendsToQueueExtMap
      */
-    public Map<String, String> getTopicExtSendsToQueueExtMap() {
+    public Map<String, Set<String>> getTopicExtSendsToQueueExtMap() {
       return this.topicExtSendsToQueueExtMap;
     }
     
@@ -195,7 +310,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
      * topic extension sends to queue extension, lazy loaded
      * @param topicExtSendsToQueueExtMap1 the topicExtSendsToQueueExtMap to set
      */
-    public void setTopicExtSendsToQueueExtMap(Map<String, String> topicExtSendsToQueueExtMap1) {
+    public void setTopicExtSendsToQueueExtMap(Map<String, Set<String>> topicExtSendsToQueueExtMap1) {
       this.topicExtSendsToQueueExtMap = topicExtSendsToQueueExtMap1;
     }
 
@@ -312,6 +427,14 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
   }
 
   /**
+   * grouper message name of role
+   * @return the name
+   */
+  public static String grouperMessageNameOfRole() {
+    return GrouperBuiltinMessagingSystem.messageRootStemName() + ":grouperMessageRole";
+  }
+
+  /**
    * grouper message queue name of attribute def
    * @return the name
    */
@@ -345,6 +468,24 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    * @param topicName
    */
   public static void createTopic(String topicName) {
+
+    if (StringUtils.isBlank(topicName)) {
+      throw new NullPointerException("topicName cant be blank");
+    }
+
+    if (topicName.contains(":")) {
+      throw new RuntimeException("topicName cant contain colon: " + topicName);
+    }
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+    
+    Stem topicStem = StemFinder.findByName(grouperSession, topicStemName(), true, new QueryOptions().secondLevelCache(false));
+
+    AttributeDef queueAttributeDef = new AttributeDefFinder().assignFindByUuidOrName(false).assignScope(grouperMessageQueueNameOfDef()).findAttribute();
+    
+    new AttributeDefNameSave(grouperSession, queueAttributeDef).assignName(topicStem.getName() + ":" + topicName).save();
+
+    clearCache();
   }
   
   /**
@@ -353,6 +494,23 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    */
   public static void createQueue(String queueName) {
     
+    if (StringUtils.isBlank(queueName)) {
+      throw new NullPointerException("queueName cant be blank");
+    }
+
+    if (queueName.contains(":")) {
+      throw new RuntimeException("queueName cant contain colon: " + queueName);
+    }
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+    
+    Stem queueStem = StemFinder.findByName(grouperSession, queueStemName(), true, new QueryOptions().secondLevelCache(false));
+
+    AttributeDef queueAttributeDef = new AttributeDefFinder().assignFindByUuidOrName(false).assignScope(grouperMessageQueueNameOfDef()).findAttribute();
+    
+    new AttributeDefNameSave(grouperSession, queueAttributeDef).assignName(queueStem.getName() + ":" + queueName).save();
+
+    clearCache();
   }
   
   /**
@@ -362,6 +520,23 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    */
   public static void topicSendsToQueue(String topicName, String queueName) {
     
+    GrouperBuiltinMessagingCache grouperBuiltinMessagingCache = retrieveCache();
+    
+    AttributeDefName topicAttributeDefName = grouperBuiltinMessagingCache.getExtensionOfTopicToAttributeDefName().get(topicName);
+
+    if (topicAttributeDefName == null) {
+      throw new RuntimeException("Cant find topic: '" + topicName + "'");
+    }
+    
+    AttributeDefName queueAttributeDefName = grouperBuiltinMessagingCache.getExtensionOfQueueToAttributeDefName().get(queueName);
+
+    if (queueAttributeDefName == null) {
+      throw new RuntimeException("Cant find queue: '" + queueName + "'");
+    }
+
+    topicAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(queueAttributeDefName);
+    
+    clearCache();
   }
 
   /**
@@ -370,7 +545,21 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    * @param subject
    */
   public static void allowSendToTopic(String topicName, Subject subject) {
+
+    GrouperBuiltinMessagingCache grouperMessagingCache = retrieveCache();
+
+    AttributeDefName topicAttributeDefName = grouperMessagingCache.getExtensionOfQueueToAttributeDefName().get(topicName);
     
+    if (topicAttributeDefName == null) {
+      throw new RuntimeException("topic doesnt exist '" + topicName + "'");
+    }
+
+    Role messagingRole = grouperMessagingCache.getMessagingRole();
+    
+    messagingRole.getPermissionRoleDelegate().assignSubjectRolePermission(topicAttributeDefName, subject, PermissionAllowed.ALLOWED);
+
+    clearCache();
+
   }
   
   /**
@@ -379,6 +568,20 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    * @param subject
    */
   public static void allowSendToQueue(String queueName, Subject subject) {
+    
+    GrouperBuiltinMessagingCache grouperMessagingCache = retrieveCache();
+
+    AttributeDefName queueAttributeDefName = grouperMessagingCache.getExtensionOfQueueToAttributeDefName().get(queueName);
+    
+    if (queueAttributeDefName == null) {
+      throw new RuntimeException("queue doesnt exist '" + queueName + "'");
+    }
+
+    Role messagingRole = grouperMessagingCache.getMessagingRole();
+    
+    messagingRole.getPermissionRoleDelegate().assignSubjectRolePermission(queueAttributeDefName, subject, PermissionAllowed.ALLOWED);
+
+    clearCache();
     
   }
   
@@ -427,7 +630,13 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    * @return the queue names that the topic sends to
    */
   public static Collection<String> queuesTopicSendsTo(String topicName) {
-    return null;
+    
+    GrouperBuiltinMessagingCache grouperBuiltinMessagingCache = retrieveCache();
+    
+    Set<String> queues = grouperBuiltinMessagingCache.topicExtSendsToQueueExts(topicName);
+    
+    return queues;
+    
   }
   
   /** last millis number */
