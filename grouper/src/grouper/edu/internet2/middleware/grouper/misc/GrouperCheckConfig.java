@@ -78,6 +78,7 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
@@ -1537,7 +1538,7 @@ public class GrouperCheckConfig {
    * @param logAutocreate 
    * @return the attribute def name
    */
-  private static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String displayExtension, String description, boolean logAutocreate) {
+  public static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String displayExtension, String description, boolean logAutocreate) {
     String attributeDefNameName = stem.getName() + ":" + extension;
     
     //dont cache since if not there, that not there will be cached
@@ -2352,6 +2353,13 @@ public class GrouperCheckConfig {
         
       }
 
+      {
+        //are we using this hook?
+        if (GrouperUtil.trimToEmpty(GrouperConfig.retrieveConfig().propertyValueString("hooks.membership.class")).contains(MembershipOneInFolderMaxHook.class.getName())) {
+          MembershipOneInFolderMaxHook.initObjectsOnce(wasInCheckConfig);
+        }
+        
+      }
       
     } catch (SessionException se) {
       throw new RuntimeException(se);
