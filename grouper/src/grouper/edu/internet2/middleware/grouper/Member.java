@@ -681,6 +681,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 Set<Membership> membershipsToDelete = new HashSet<Membership>();
     
                 for (Membership membershipPrevious : membershipsPrevious) {
+                  if (membershipPrevious.isEffective()) {
+                    continue;
+                  }
                   boolean isDeleting = false;
                   if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getMemberUuid())) {
                     
