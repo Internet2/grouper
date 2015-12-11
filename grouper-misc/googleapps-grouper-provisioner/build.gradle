@@ -1,19 +1,16 @@
 apply plugin: "java"
-description = 'MorphString'
-
+description = 'Googleapps grouper provisioner'
 
 sourceSets {
   main{
     java {
-      srcDir 'src/java'
-    }
-    resources {
-      srcDirs 'conf'
+      srcDir 'src/main'
+      exclude 'src/test/**', 'src/doc/**'
     }
   }
   test {
     java {
-      srcDir 'src/test'
+      srcDir 'src/test/java'
     }
     resources {
       srcDir 'src/test/resources'

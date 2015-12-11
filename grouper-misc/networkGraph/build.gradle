@@ -1,0 +1,11 @@
+apply plugin: "java"
+description = 'networkGraph'
+
+
+sourceSets {
+  main{
+    java {
+      srcDir 'java/src/edu'
+    }
+  }
+}

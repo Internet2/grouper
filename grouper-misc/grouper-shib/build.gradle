@@ -1,4 +1,4 @@
-
+apply plugin: "java"
 description = 'Grouper Plugin for Shibboleth'
 dependencies {
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4j_log4j12_version
@@ -13,4 +13,3 @@ dependencies {
   testCompile project(path: ":grouper", configuration: "tests")
   provided group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
 }
-

@@ -1,0 +1,10 @@
+apply plugin: "java"
+description = 'Grouper aws changelog'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/edu'
+    }
+  }
+}

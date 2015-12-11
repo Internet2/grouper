@@ -8,21 +8,21 @@
     </classpath>
   </taskdef>
 
-  <!-- 
-  provides all environment variables as Ant properties prefixed by "env.". 
-  For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 
+  <!--
+  provides all environment variables as Ant properties prefixed by "env.".
+  For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}.
   -->
   <property environment="env" />
-  
+
   <if><not><available file="build.properties" /></not>
     <then><copy file="build.example.properties" tofile="build.properties" /></then>
-  </if> 
-  
+  </if>
+
   <available file="build.properties" property="build.properties.exists" value="true"/>
 
   <fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
   <property file="build.properties" />
-  
+
   <target name="build" description="full build" depends="init,clean,compile,jarPrepare,jar">
   </target>
 
@@ -64,7 +64,7 @@
     </condition>
 
     <pathconvert targetos="${main.os}" property="main.theClasspath" refid="main.classpath" />
-    
+
   </target>
 
   <target name="clean" depends="init">
@@ -72,8 +72,8 @@
     <delete dir="${main.binDir}" />
     <mkdir dir="${main.binDir}" />
 
-  </target> 
-  
+  </target>
+
   <target name="compile" depends="init">
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
@@ -114,10 +114,10 @@
      </jar>
     <echo message="Output is: dist/${main.appName}.jar" />
    </target>
-  
+
   <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
     <mkdir dir="dist/binary/${binName}"/>
-    <copy todir="dist/binary/${binName}">    
+    <copy todir="dist/binary/${binName}">
       <fileset dir="dist">
         <include name="${main.appName}.jar"/>
       </fileset>
@@ -129,8 +129,8 @@
       <tarfileset dir="dist/binary" >
         <include name="${binName}/**"/>
       </tarfileset>
-    </tar>            
+    </tar>
   </target>
 
-  
+
 </project>

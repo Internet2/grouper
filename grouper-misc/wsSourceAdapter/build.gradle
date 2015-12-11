@@ -1,9 +1,11 @@
-apply plugin: "java"
-description = 'Grouper Installer'
+
+description = 'WsSourceAdapter'
+
+
 sourceSets {
   main{
     java {
-      srcDirs 'src/java', 'src/ext'
+      srcDir 'src/edu'
     }
     resources {
       srcDirs 'conf'
@@ -14,7 +16,7 @@ sourceSets {
       srcDir 'src/test'
     }
     resources {
-      srcDir 'testFiles'
+      srcDir 'src/test/resources'
     }
   }
 }
