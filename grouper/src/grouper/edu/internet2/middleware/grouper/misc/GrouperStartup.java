@@ -212,14 +212,14 @@ public class GrouperStartup {
       printConfigOnce();
   
       //check java version
-      if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkJavaVersion", true)) {
-        String javaVersion = System.getProperty("java.version");
-        if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
-          String error = "Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion;
-          LOG.error(error);
-          System.out.println(error);
-        }
-      }
+//      if (GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkJavaVersion", true)) {
+//        String javaVersion = System.getProperty("java.version");
+//        if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
+//          String error = "Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion;
+//          LOG.error(error);
+//          System.out.println(error);
+//        }
+//      }
 
       //add in custom sources
       SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
