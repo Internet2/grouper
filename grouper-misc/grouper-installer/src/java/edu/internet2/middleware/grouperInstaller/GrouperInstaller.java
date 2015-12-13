@@ -8530,14 +8530,14 @@ public class GrouperInstaller {
    */
   private GrouperInstallerMainFunction grouperInstallerMainFunction() {
 
-    if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.checkJavaVersion", true, false)) {
-      String javaVersion = System.getProperty("java.version");
-      if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
-        System.out.println("Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion);        
-        System.out.println("Press <enter> to continue...");
-        readFromStdIn("grouperInstaller.autorun.wrongJavaContinue");
-      }
-    }
+//    if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.checkJavaVersion", true, false)) {
+//      String javaVersion = System.getProperty("java.version");
+//      if (javaVersion != null && !javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7")) {
+//        System.out.println("Error: Java should be version 6 or 7 (1.6 or 1.7), but is detected as: " + javaVersion);        
+//        System.out.println("Press <enter> to continue...");
+//        readFromStdIn("grouperInstaller.autorun.wrongJavaContinue");
+//      }
+//    }
 
     String input = null;
     String defaultAction = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.installOrUpgrade", false);
