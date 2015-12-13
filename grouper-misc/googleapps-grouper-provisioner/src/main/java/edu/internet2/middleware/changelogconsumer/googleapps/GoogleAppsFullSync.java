@@ -347,6 +347,7 @@ public class GoogleAppsFullSync {
 
     private void processExtraGroups(boolean dryRun, Collection<ComparableGroupItem> extraGroups) {
         for (ComparableGroupItem item : extraGroups) {
+          if (!properties.shouldIgnoreExtraGoogleGroups()) {
             LOG.info("Google Apps Consumer '{}' Full Sync - removing extra Google group: {}", consumerName, item);
 
             if (!dryRun) {
@@ -356,6 +357,9 @@ public class GoogleAppsFullSync {
                     LOG.error("Google Apps Consume '{}' Full Sync - Error removing extra group ({}): {}", new Object[]{consumerName, item.getName(), e.getMessage()});
                 }
             }
+          } else {
+            LOG.info("Google Apps Consumer '{}' Full Sync - ignoring extra Google group: {}", consumerName, item);
+          }
         }
     }
 
