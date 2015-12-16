@@ -1714,7 +1714,7 @@ public class GrouperCheckConfig {
             }
             
           }
-          grouperMessageTopicDef.getAttributeDefActionDelegate().configureActionList("send_to_topic");
+          grouperMessageTopicDef.getAttributeDefActionDelegate().configureActionList(GrouperBuiltinMessagingSystem.actionSendToTopic);
         }
 
         {
@@ -1733,7 +1733,8 @@ public class GrouperCheckConfig {
               LOG.warn(error);
             }
           }
-          grouperMessageQueueDef.getAttributeDefActionDelegate().configureActionList("send_to_queue,receive");
+          grouperMessageQueueDef.getAttributeDefActionDelegate().configureActionList(
+              GrouperBuiltinMessagingSystem.actionSendToQueue + "," + GrouperBuiltinMessagingSystem.actionReceive);
         }
 
         {

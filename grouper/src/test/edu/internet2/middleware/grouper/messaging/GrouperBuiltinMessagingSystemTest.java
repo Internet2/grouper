@@ -50,7 +50,12 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
    */
   public void testMessageSecurity() {
 
-    assertFalse(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
+    try {
+      assertFalse(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
+    } catch (Exception e) {
+      //queue doesnt exist
+      assertTrue(GrouperUtil.getFullStackTrace(e).toLowerCase().contains("queue doesnt exist"));
+    }
     try {
       GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
     } catch (Exception e) {
@@ -59,9 +64,27 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     }
     GrouperBuiltinMessagingSystem.createQueue("abc");
     assertFalse(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
-    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
     assertTrue(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
+
     
+    assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToQueue("abc", SubjectTestHelper.SUBJ0));
+    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    assertTrue(GrouperBuiltinMessagingSystem.allowedToSendToQueue("abc", SubjectTestHelper.SUBJ0));
+
+    try {
+      assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0));
+    } catch (Exception e) {
+      //queue doesnt exist
+      assertTrue(GrouperUtil.getFullStackTrace(e).toLowerCase().contains("topic doesnt exist"));
+    }
+
+    GrouperBuiltinMessagingSystem.createTopic("def");
+    
+    assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0));
+    GrouperBuiltinMessagingSystem.allowSendToTopic("def", SubjectTestHelper.SUBJ0);
+    assertTrue(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0));
+
   }
 
   /**
