@@ -862,9 +862,7 @@ public class GrouperServiceLogic {
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param wsStemQueryFilter is the filter properties that can search by
    * name, uuid, approximate attribute, and can do group math on multiple operations, etc
-   * @param includeStemDetail T or F as to if the stem detail should be
-   * included (defaults to F)
-   * @param actAsSubjectLookup
+   * @param actAsSubjectLookup to act as a different user than the logged in user
    * @param params optional: reserved for future use
    * @param wsStemLookups to pass in a list of uuids or names to lookup.  Note the stems are returned
    * in alphabetical order
