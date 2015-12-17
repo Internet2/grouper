@@ -130,7 +130,7 @@
   Hibernate Query Caches
 -->
 
-  <cache name="net.sf.hibernate.cache.StandardQueryCache"
+  <cache name="org.hibernate.cache.internal.StandardQueryCache"
     maxElementsInMemory="500"
     eternal="false"
     timeToIdleSeconds="10"
@@ -139,23 +139,7 @@
     statistics="false"
   />
 
-  <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
-    maxElementsInMemory="5000"
-    eternal="true"
-    overflowToDisk="true"
-    statistics="false"
-  />
-
-  <cache name="org.hibernate.cache.StandardQueryCache"
-    maxElementsInMemory="500"
-    eternal="false"
-    timeToIdleSeconds="10"
-    timeToLiveSeconds="10"
-    overflowToDisk="false"
-    statistics="false"
-  />
-
-  <cache name="org.hibernate.cache.UpdateTimestampsCache"
+  <cache name="org.hibernate.cache.spi.UpdateTimestampsCache"
     maxElementsInMemory="5000"
     eternal="true"
     overflowToDisk="true"

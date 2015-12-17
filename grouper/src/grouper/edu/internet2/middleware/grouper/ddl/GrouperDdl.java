@@ -34,6 +34,7 @@ import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
@@ -892,12 +893,11 @@ public enum GrouperDdl implements DdlVersionable {
         HibernateSession.callbackHibernateSession(
             GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-          @SuppressWarnings("deprecation")
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
-            Connection connection = hibernateSession.getSession().connection();
+            Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             

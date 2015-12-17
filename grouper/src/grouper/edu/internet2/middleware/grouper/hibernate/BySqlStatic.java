@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -64,7 +65,6 @@ public class BySqlStatic {
    * @param sql can be insert, update, delete, or ddl
    * @return the number of rows affected or 0 for ddl
    */
-  @SuppressWarnings("deprecation")
   public int executeSql(final String sql) {
     return executeSql(sql, null);
   }
@@ -75,7 +75,6 @@ public class BySqlStatic {
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
    */
-  @SuppressWarnings("deprecation")
   public int executeSql(final String sql, final List<Object> params) {
   
     int result = (Integer)HibernateSession.callbackHibernateSession(
@@ -92,7 +91,7 @@ public class BySqlStatic {
         try {
           
           //we dont close this connection or anything since could be pooled
-          Connection connection = hibernateSession.getSession().connection();
+          Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
       
           attachParams(preparedStatement, params);
@@ -121,7 +120,6 @@ public class BySqlStatic {
    * @param sql can be insert, update, delete, or ddl
    * @return the number of rows affected or 0 for ddl
    */
-  @SuppressWarnings("deprecation")
   public <T> T select(final Class<T> returnClassType, final String sql) {
     return select(returnClassType, sql, null);
   }
@@ -134,7 +132,6 @@ public class BySqlStatic {
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
    */
-  @SuppressWarnings("deprecation")
   public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params) {
   
     //TODO incorporate this with the listSelect
@@ -149,7 +146,7 @@ public class BySqlStatic {
         try {
           
           //we dont close this connection or anything since could be pooled
-          Connection connection = hibernateSession.getSession().connection();
+          Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
       
           attachParams(preparedStatement, params);
@@ -207,7 +204,6 @@ public class BySqlStatic {
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
    */
-  @SuppressWarnings("deprecation")
   public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params) {
   
     List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(
@@ -227,7 +223,7 @@ public class BySqlStatic {
         try {
           
           //we dont close this connection or anything since could be pooled
-          Connection connection = hibernateSession.getSession().connection();
+          Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
           preparedStatement = connection.prepareStatement(sql);
       
           attachParams(preparedStatement, params);
@@ -335,7 +331,7 @@ public class BySqlStatic {
       //not sure why the session implementer is null, if this ever fails for a type, 
       //might want to not use hibernate and brute force it
       currentType = (Type) typeList.get(i);
-      currentType.nullSafeSet(statement, paramList.get(i), i + 1, null);
+      currentType.nullSafeSet(statement, paramList.get(i), i + 1, (SessionImpl)HibernateSession._internal_hibernateSession().getSession());
     }
   
   }

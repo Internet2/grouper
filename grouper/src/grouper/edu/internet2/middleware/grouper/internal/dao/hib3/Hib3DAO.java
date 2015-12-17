@@ -276,6 +276,7 @@ public abstract class Hib3DAO {
       }
     }
     _CFG.addXML(xml);
+    _CFG.addResource(resourceName);
 
   }
 
@@ -320,6 +321,17 @@ public abstract class Hib3DAO {
 	  initHibernateIfNotInitted();
 		return FACTORY.openSession();
 	} 
+	
+  /**
+   * DONT CALL THIS METHOD, IT IS FOR INTERNAL GROUPER FRAMEWORK USE
+   * ONLY. 
+   * @return the session factor
+   */
+  public static SessionFactory getSessionFactory() {
+    //just in case
+    initHibernateIfNotInitted();
+    return FACTORY;
+  } 
 
 	/**
 	 * evict a persistent class

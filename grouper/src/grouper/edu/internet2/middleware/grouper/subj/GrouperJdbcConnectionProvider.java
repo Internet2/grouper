@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -62,9 +63,8 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
     /**
      * @see edu.internet2.middleware.subject.provider.JdbcConnectionBean#connection()
      */
-    @SuppressWarnings("deprecation")
     public Connection connection() throws SQLException {
-      return this.hibernateSession.getSession().connection();
+      return ((SessionImpl)this.hibernateSession.getSession()).connection();
     }
     /**
      * @see edu.internet2.middleware.subject.provider.JdbcConnectionBean#doneWithConnection()

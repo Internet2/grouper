@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -127,7 +128,6 @@ public class BySql extends HibernateDelegate {
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
    */
-  @SuppressWarnings("deprecation")
   public int executeSql(final String sql, final List<Object> params) {
   
     HibernateSession hibernateSession = this.getHibernateSession();
@@ -137,7 +137,7 @@ public class BySql extends HibernateDelegate {
     try {
       
       //we dont close this connection or anything since could be pooled
-      Connection connection = hibernateSession.getSession().connection();
+      Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
       preparedStatement = connection.prepareStatement(sql);
   
       BySqlStatic.attachParams(preparedStatement, params);

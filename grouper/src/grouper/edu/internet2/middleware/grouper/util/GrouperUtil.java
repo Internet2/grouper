@@ -111,6 +111,7 @@ import org.apache.log4j.FileAppender;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -7612,7 +7613,7 @@ public class GrouperUtil {
    * @param transaction
    */
   public static void rollbackQuietly(Transaction transaction) {
-    if (transaction != null && transaction.isActive()) {
+    if (transaction != null && transaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
       try {
         transaction.rollback();
       } catch (Exception e) {

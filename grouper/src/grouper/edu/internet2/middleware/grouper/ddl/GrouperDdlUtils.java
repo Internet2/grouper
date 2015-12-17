@@ -59,6 +59,7 @@ import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
 import org.hibernate.ObjectNotFoundException;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -2728,7 +2729,6 @@ public class GrouperDdlUtils {
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
   
-        @SuppressWarnings("deprecation")
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
           HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
@@ -2739,7 +2739,7 @@ public class GrouperDdlUtils {
               if (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb && !hsqlSchemaOk)) {
                 continue;
               }
-              Connection connection = hibernateSession.getSession().connection();
+              Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
               
               DatabaseMetaData databaseMetaData = null;
               ResultSet fkData = null;
