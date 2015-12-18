@@ -427,6 +427,21 @@ public class XmlImportMain {
   }
   
   /**
+   * get a db count of exportable rows
+   * @param xmlExportMain 
+   * @return db count
+   */
+  public static int dbCountGsh(XmlExportMain xmlExportMain) {
+    int total = 0;
+    total += XmlExportStem.dbCount(xmlExportMain);
+    total += XmlExportGroup.dbCount(xmlExportMain);
+    total += XmlExportMembership.dbCount(xmlExportMain);
+    total += XmlExportComposite.dbCount(xmlExportMain);
+    total += XmlExportAttributeDef.dbCount(xmlExportMain);
+    return total;
+  }
+  
+  /**
    * 
    * @return original db count
    */

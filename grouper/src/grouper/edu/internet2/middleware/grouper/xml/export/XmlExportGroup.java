@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -429,6 +430,86 @@ public class XmlExportGroup {
     
     xStream.marshal(this, compactWriter);
   
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer) throws IOException {
+    //new GroupSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
+    //.assignDescription(this.description).assignDisplayName(this.displayName).save();
+
+    writer.write("new GroupSave(grouperSession).assignName(\""
+        + GrouperUtil.escapeDoubleQuotes(this.name) 
+        + "\").assignCreateParentStemsIfNotExist(true)");
+    if (!StringUtils.isBlank(this.description)) {
+      writer.write(".assignDescription(\""
+        + GrouperUtil.escapeDoubleQuotes(this.description)
+        + "\")");
+    }
+    writer.write(".assignDisplayName("
+        + GrouperUtil.escapeDoubleQuotes(this.displayName)
+        + "\")");
+
+    //TODO add in alternate name
+    if (!StringUtils.isBlank(this.alternateName)) {
+      //      writer.write(".assignDescription(\""
+      //          + GrouperUtil.escapeDoubleQuotes(this.description)
+      //          + "\")");
+    }
+    
+    writer.write(".assignTypeOfGroup(TypeOfGroup.valueOfIgnoreCase(\""
+        + GrouperUtil.escapeDoubleQuotes(this.typeOfGroup) + "\", true)"
+        );
+    
+    writer.write(".save();\n");
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain 
+   */
+  public static void exportGroupsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct theGroup " + exportFromOnQuery(xmlExportMain, true));
+  
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        try {
+  
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              Object object = results.get(0);
+              Group group = (Group)object;
+              XmlExportGroup xmlExportGroup = group.xmlToExportGroup(grouperVersion);
+              xmlExportGroup.toGsh(grouperVersion, writer);
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming stems", ioe);
+        }
+        return null;
+      }
+    });
   }
 
   /**

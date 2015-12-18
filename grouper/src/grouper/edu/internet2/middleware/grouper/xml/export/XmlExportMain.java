@@ -235,6 +235,87 @@ public class XmlExportMain {
       GrouperUtil.closeQuietly(fileWriter);
     }
   }
+
+  /**
+   * write the xml to a writer
+   * @param writer
+   * @param fileName for logging
+   */
+  public void writeAllTablesGsh(Writer writer, String fileName) {
+
+    this.done = false;
+    this.currentRecordIndex = 0;
+    Thread thread = null;
+    final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    final SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
+    try {
+
+      final long totalRecordCount = XmlImportMain.dbCountGsh(this);
+      final long startTime = System.currentTimeMillis();
+      
+      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported to GSH (not exact, might be less)");
+      
+      thread = new Thread(new Runnable() {
+        
+        public void run() {
+          while (true) {
+            //sleep for thirty seconds
+            for (int i=0;i<30;i++) {
+              if (XmlExportMain.this.done) {
+                return;
+              }
+              try {
+                Thread.sleep(1000);
+              } catch (InterruptedException ie) {
+                //nothing
+              }
+            }
+            if (XmlExportMain.this.done) {
+              return;
+            }
+            
+            //give a status
+            long now = System.currentTimeMillis();
+            int percent = (int)Math.round(((double)XmlExportMain.this.currentRecordIndex*100D)/totalRecordCount);
+            
+            long endTime = startTime + (long)((now-startTime) * (100D / percent));
+            
+            XmlImportMain.logInfoAndPrintToScreen(format.format(new Date(now)) + ": completed "
+                + GrouperUtil.formatNumberWithCommas(XmlExportMain.this.currentRecordIndex) + " of " 
+                + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " ("
+                + percent + "%) estimated time done: " + estFormat.format(new Date(endTime)));
+          }          
+        }
+      });
+      
+      thread.start();
+      
+      //note, cant use stax since you cant mix stax and non stax since it wont close elements
+      writer.write("grouperSession = GrouperSession.startRootSession();\n");
+
+      XmlExportStem.exportStemsGsh(writer, this);
+      XmlExportGroup.exportGroupsGsh(writer, this);
+      XmlExportComposite.exportCompositesGsh(writer, this);
+      //XmlExportAttributeDef.exportAttributeDefsGsh(writer, this);
+      
+      XmlExportMembership.exportMembershipsGsh(writer, this);
+
+      writer.flush();
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    } finally {
+      this.done = true;
+      if (thread != null) {
+        try {
+          thread.join(2000);
+        } catch (InterruptedException ie) {}
+      }
+
+    }
+    XmlImportMain.logInfoAndPrintToScreen("DONE: " + format.format(new Date()) + ": exported "
+        + GrouperUtil.formatNumberWithCommas(XmlExportMain.this.currentRecordIndex) + " records to: " + fileName);
+
+  }
   
   /**
    * write the xml to a writer
