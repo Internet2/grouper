@@ -1,0 +1,10 @@
+apply plugin: "java"
+description = 'CMU Billing'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src'
+    }
+  }
+}

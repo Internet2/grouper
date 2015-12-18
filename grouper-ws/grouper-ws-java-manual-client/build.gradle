@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-	compile project(':grouper-ws-parent:grouper-ws')
+	compile project(':grouper-ws:grouper-ws')
 	compile name: 'grouperWsTestInterfaces'
 }
 sourceSets {
