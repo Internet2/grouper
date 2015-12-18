@@ -392,6 +392,101 @@ public class XmlExportComposite {
    * @param writer
    * @param xmlExportMain
    */
+  public static void exportCompositesGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theComposite.factorOwnerUuid ), "
+            + " theComposite.typeDb, "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theComposite.leftFactorUuid ), "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theComposite.rightFactorUuid )"
+            + exportFromOnQuery(xmlExportMain, false));
+
+        try {
+  
+          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              String overallGroupName = (String)results.get(0);
+              String type = (String)results.get(1);
+              String leftFactorName = (String)results.get(2);
+              String rightFactorName = (String)results.get(3);
+
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              XmlExportComposite.toGsh(grouperVersion, writer, overallGroupName, type, leftFactorName, rightFactorName);
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
+  /**
+   * convert this to GSH that is failsafe
+   * @param grouperVersion
+   * @param writer
+   * @param overallGroupName 
+   * @param type 
+   * @param leftFactorName 
+   * @param rightFactorName 
+   * @throws IOException 
+   */
+  public static void toGsh(GrouperVersion grouperVersion, Writer writer, String overallGroupName, 
+      String type, String leftFactorName, String rightFactorName) throws IOException {
+
+    writer.write("overallGroup = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotes(overallGroupName) + "\", false);\n");
+    writer.write("leftFactorGroup = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotes(leftFactorName) + "\", false);\n");
+    writer.write("rightFactorGroup = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotes(rightFactorName) + "\", false);\n");
+
+    writer.write("compositeType = edu.internet2.middleware.grouper.misc.CompositeType.valueOfIgnoreCase(\"" 
+        + GrouperUtil.escapeDoubleQuotes(type) + "\");\n");
+    writer.write("if (overallGroup != null) { ");
+
+    writer.write("if (leftFactorGroup != null) { ");
+
+    writer.write("if (rightFactorGroup != null) { ");
+
+    //addCompositeMember(CompositeType type, Group left, Group right)
+    writer.write("overallGroup.addCompositeMember(compositeType, leftFactorGroup, rightFactorGroup); ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find rightFactorGroup: '" + rightFactorName + "'\"); } ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find leftFactorGroup: '" + leftFactorName + "'\"); } ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find overallGroup: '" + overallGroupName + "'\"); }\n");
+
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
   public static void exportComposites(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
