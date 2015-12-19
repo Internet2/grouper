@@ -2,11 +2,6 @@ apply plugin:'java'
 
 description = 'Subject API'
 
-configurations {
-    provided
-    provided.extendsFrom(compile)
-}
-
 dependencies {
   compile project(':grouper-misc:morphString')
   compile project(':grouper-misc:grouperClient')

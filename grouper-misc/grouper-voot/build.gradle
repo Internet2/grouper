@@ -1,17 +1,12 @@
 apply plugin: "java"
 description = 'Grouper Voot'
 
-configurations {
-    provided
-    provided.extendsFrom(compile)
-}
-
 dependencies {
   compile project(':subject')
   compile project(':grouper')
   compile project(':grouper-misc:grouperClient')
   compile project(':grouper-ws:grouper-ws')
-  testCompile project(path: ":grouper", configuration: "test")
+  testCompile project(path: ":grouper", configuration: "tests")
   provided group: 'org.hibernate', name: 'hibernate-core', version: 'hibernate_core_version'
 }
 

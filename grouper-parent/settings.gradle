@@ -1,32 +1,52 @@
 rootProject.name = 'grouper-parent'
-include ':morphString'
-include ':grouperClient'
+include ':grouper-misc:morphString'
+include ':grouper-misc:grouperClient'
 include ':subject'
 include ':grouper'
-include ':grouper-shib'
-include ':grouper-scim'
+include ':grouper-misc:grouper-shib'
+include ':grouper-misc:grouper-scim'
 include ':grouper-ui'
-include ':grouper-ws-parent:grouper-ws'
-include ':grouper-ws-parent:grouper-ws-java-generated-client'
-include ':grouper-ws-parent:grouper-ws-manual-client'
-include ':grouper-ws-parent:grouper-ws-test'
-include ':grouper-ws-parent'
-include ':grouper-installer'
-include ':grouper-Voot'
-include ':grouper-activemq'
+include ':grouper-ws:grouper-ws'
+include ':grouper-ws:grouper-ws-java-generated-client'
+include ':grouper-ws:grouper-ws-java-manual-client'
+include ':grouper-ws:grouper-ws-test'
+include ':grouper-misc:grouper-installer'
+include ':grouper-misc:grouper-voot'
+include ':grouper-misc:grouperActivemq'
+include ':grouper-misc:cmuBilling'
+include ':grouper-misc:googleapps-grouper-provisioner'
+include ':grouper-misc:grouper-aws-changelog'
+include ':grouper-misc:grouperAtlassianConnector'
+include ':grouper-misc:grouperKimConnector'
+include ':grouper-misc:morphString'
+include ':grouper-misc:networkGraph'
+include ':grouper-misc:cmuBilling'
+include ':grouper-misc:poc_secureUserData'
+include ':grouper-parent'
+include ':grouper-qs-builder'
 
-project(':morphString').projectDir = "$rootDir/../grouper-misc/morphString" as File
-project(':grouperClient').projectDir = "$rootDir/../grouper-misc/grouperClient" as File
+project(':grouper-misc:morphString').projectDir = "$rootDir/../grouper-misc/morphString" as File
+project(':grouper-misc:grouperClient').projectDir = "$rootDir/../grouper-misc/grouperClient" as File
 project(':subject').projectDir = "$rootDir/../subject" as File
 project(':grouper').projectDir = "$rootDir/../grouper" as File
-project(':grouper-shib').projectDir = "$rootDir/../grouper-misc/grouper-shib" as File
-project(':grouper-scim').projectDir = "$rootDir/../grouper-misc/grouperScim" as File
+project(':grouper-misc:grouper-shib').projectDir = "$rootDir/../grouper-misc/grouper-shib" as File
+project(':grouper-misc:grouper-scim').projectDir = "$rootDir/../grouper-misc/grouperScim" as File
 project(':grouper-ui').projectDir = "$rootDir/../grouper-ui" as File
-project(':grouper-ws-parent:grouper-ws').projectDir = "$rootDir/../grouper-ws/grouper-ws" as File
-project(':grouper-ws-parent:grouper-ws-java-generated-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-generated-client" as File
-project(':grouper-ws-parent:grouper-ws-manual-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-manual-client" as File
-project(':grouper-ws-parent:grouper-ws-test').projectDir = "$rootDir/../grouper-ws/grouper-ws-test" as File
-project(':grouper-ws-parent').projectDir = "$rootDir/../grouper-ws" as File
-project(':grouper-installer').projectDir = "$rootDir/../grouper-misc/grouper-installer" as File
-project(':grouper-Voot').projectDir = "$rootDir/../grouper-misc/grouper-voot" as File
-project(':grouper-activemq').projectDir = "$rootDir/../grouper-misc/grouperActivemq" as File
+project(':grouper-ws:grouper-ws').projectDir = "$rootDir/../grouper-ws/grouper-ws" as File
+project(':grouper-ws:grouper-ws-java-generated-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-generated-client" as File
+project(':grouper-ws:grouper-ws-java-manual-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-manual-client" as File
+project(':grouper-ws:grouper-ws-test').projectDir = "$rootDir/../grouper-ws/grouper-ws-test" as File
+project(':grouper-ws').projectDir = "$rootDir/../grouper-ws" as File
+project(':grouper-misc:grouper-installer').projectDir = "$rootDir/../grouper-misc/grouper-installer" as File
+project(':grouper-misc:grouper-voot').projectDir = "$rootDir/../grouper-misc/grouper-voot" as File
+project(':grouper-misc:grouperActivemq').projectDir = "$rootDir/../grouper-misc/grouperActivemq" as File
+project(':grouper-misc:cmuBilling').projectDir = "$rootDir/../grouper-misc/cmuBilling" as File
+project(':grouper-misc:googleapps-grouper-provisioner').projectDir = "$rootDir/../grouper-misc/googleapps-grouper-provisioner" as File
+project(':grouper-misc:grouper-aws-changelog').projectDir = "$rootDir/../grouper-misc/grouper-aws-changelog" as File
+project(':grouper-misc:grouperAtlassianConnector').projectDir = "$rootDir/../grouper-misc/grouperAtlassianConnector" as File
+project(':grouper-misc:grouperKimConnector').projectDir = "$rootDir/../grouper-misc/grouperKimConnector" as File
+project(':grouper-misc:morphString').projectDir = "$rootDir/../grouper-misc/morphString" as File
+project(':grouper-misc:networkGraph').projectDir = "$rootDir/../grouper-misc/networkGraph" as File
+project(':grouper-misc:poc_secureUserData').projectDir = "$rootDir/../grouper-misc/poc_secureUserData" as File
+project(':grouper-misc').projectDir = "$rootDir/../grouper-misc" as File
+project(':grouper-qs-builder').projectDir = "$rootDir/../grouper-qs-builder" as File

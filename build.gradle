@@ -1,8 +1,14 @@
 subprojects {
     apply plugin: 'java'
-    group = 'org.gradle.sample'
-    version = '1.0'
     repositories {
         mavenCentral()
     }
+
+    configurations {
+        tests
+
+        provided
+        provided.extendsFrom(compile)
+    }
+
 }

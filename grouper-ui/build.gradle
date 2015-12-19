@@ -1,11 +1,6 @@
 apply plugin:'java'
 description = 'Grouper UI'
 
-configurations {
-    provided
-    provided.extendsFrom(compile)
-}
-
 dependencies {
   compile project(':subject')
   compile project(':grouper')

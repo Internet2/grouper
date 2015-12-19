@@ -1,11 +1,6 @@
 apply plugin: "java"
 description = 'Grouper Plugin for Shibboleth'
 
-configurations {
-    provided
-    provided.extendsFrom(compile)
-}
-
 dependencies {
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: 'slf4j_log4j12_version'
   compile group: 'org.slf4j', name: 'slf4j-api', version: 'slf4j_log4j12_version'
