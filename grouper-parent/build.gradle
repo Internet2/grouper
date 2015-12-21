@@ -24,6 +24,7 @@ subprojects {
     maven { url "http://oss.sonatype.org/content/repositories/releases/" }
     maven { url "http://repo1.maven.org/maven2" }
     maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
+    maven { url "http://central.maven.org/maven2" }
   }
   
   configurations {
