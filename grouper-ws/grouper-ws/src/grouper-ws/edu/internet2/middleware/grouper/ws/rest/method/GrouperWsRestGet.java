@@ -31,8 +31,10 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefNamesRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -211,6 +213,51 @@ public enum GrouperWsRestGet {
         throw new RuntimeException("Must pass in a request object of type " 
             + WsRestGetAttributeAssignmentsRequest.class.getSimpleName() + " or "
             + WsRestGetAttributeAssignmentsLiteRequest.class.getSimpleName());
+      }
+      
+    }
+
+  },
+  
+  /** attribute assign actions get requests */
+  attributeAssignActions {
+
+    /**
+     * handle the incoming request based on GET HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeAssignActions
+     * the urlStrings would be size one: {"attributeAssignActions"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(GrouperVersion clientVersion, List<String> urlStrings, WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/attributeAssignActions
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+      
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException("Cant pass anything after 'attributeAssignActions' in URL");
+      }
+
+      if (requestObject instanceof WsRestGetAttributeAssignActionsLiteRequest) {
+
+        //get attributeAssignActions
+        return GrouperServiceRest.getAttributeAssignActionsLite(clientVersion,
+            (WsRestGetAttributeAssignActionsLiteRequest)requestObject);
+        
+      } else if (requestObject instanceof WsRestGetAttributeAssignActionsRequest) {
+    	  
+    	  //get attributeAssignActionsLite
+          return GrouperServiceRest.getAttributeAssignActions(clientVersion,
+              (WsRestGetAttributeAssignActionsRequest)requestObject);
+      } 
+      else {
+        throw new RuntimeException("Must pass in a request object of type " 
+            + WsRestGetAttributeAssignActionsLiteRequest.class.getSimpleName() +" or "
+            + WsRestGetAttributeAssignActionsRequest.class.getSimpleName() +" but was "+
+            requestObject == null ? null : requestObject.getClass().getName());
       }
       
     }

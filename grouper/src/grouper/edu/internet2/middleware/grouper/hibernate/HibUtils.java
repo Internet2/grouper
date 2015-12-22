@@ -44,6 +44,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.hibernate.type.ByteType;
 import org.hibernate.type.CharacterType;
 import org.hibernate.type.DateType;
@@ -304,7 +305,24 @@ public class HibUtils {
       if (evictBeforeFlush) {
         hibernateSession.getSession().flush();
       }
-      hibernateSession.getSession().evict(object);
+      
+      try {
+        hibernateSession.getSession().evict(object);
+      } catch (IllegalArgumentException e) {
+        // ignore
+        
+        // In hibernate 5, seems to sometimes throw:
+        // java.lang.IllegalArgumentException: Non-entity object instance passed to evict : cd620430b6204390be5e55e375a5cdb7
+        // at org.hibernate.event.internal.DefaultEvictEventListener.onEvict(DefaultEvictEventListener.java:95)
+        
+        // comment in hibernate 5 code:
+        
+        // see if the passed object is even an entity, and if not throw an exception
+        //              this is different than legacy Hibernate behavior, but what JPA 2.1 is calling for
+        //              with EntityManager.detach
+
+        // TODO need to look at later
+      }
     }
   }
   
@@ -487,7 +505,7 @@ public class HibUtils {
    * @param transaction
    */
   public static void rollbackQuietly(Transaction transaction) {
-    if (transaction != null && transaction.isActive()) {
+    if (transaction != null && transaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
       try {
         transaction.rollback();
       } catch (Exception e) {

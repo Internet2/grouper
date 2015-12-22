@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.util.Date;
 
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -231,12 +232,11 @@ public class LoadData {
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-        @SuppressWarnings("deprecation")
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
           HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
           Session session = hibernateSession.getSession();
-          Connection connection = session.connection();
+          Connection connection = ((SessionImpl)session).connection();
           PreparedStatement preparedStatement = null;
           try {
 

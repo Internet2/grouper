@@ -59,6 +59,7 @@ import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
 import org.hibernate.ObjectNotFoundException;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -72,6 +73,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
+import edu.internet2.middleware.grouper.ddl.ddlutils.HsqlDb2Platform;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -265,14 +267,24 @@ public class GrouperDdlUtils {
     
     if (cachedPlatform == null || !useCache) {
       
+      if (!PlatformFactory.isPlatformSupported("HsqlDb2")) {
+        PlatformFactory.registerPlatform("HsqlDb2", HsqlDb2Platform.class);
+      }
+      
       String ddlUtilsDbnameOverride = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.dbname.override");
   
       //convenience to get the url, user, etc of the grouper db
       GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
   
       if (StringUtils.isBlank(ddlUtilsDbnameOverride)) {
-        cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
-            grouperDb.getUrl());
+        
+        if (isHsql()) {
+          // assume newer driver
+          cachedPlatform = PlatformFactory.createNewPlatformInstance("HsqlDb2");
+        } else {
+          cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
+              grouperDb.getUrl());
+        }
       } else {
         cachedPlatform = PlatformFactory.createNewPlatformInstance(ddlUtilsDbnameOverride);
       }
@@ -871,6 +883,42 @@ public class GrouperDdlUtils {
         if (!StringUtils.isBlank(connectionUrl)) {
         
           String error = "Cannot determine the driver class from database URL: " + connectionUrl;
+          System.err.println(error);
+          LOG.error(error);
+          return null;
+        }
+      }
+    }
+    return driverClassName;
+
+  }
+  
+  /**
+   * if there is no quartz driver class specified, then try to derive it from the URL
+   * @param connectionUrl
+   * @param driverClassName
+   * @return the driver class
+   */
+  public static String convertUrlToQuartzDriverDelegateClassIfNeeded(String connectionUrl, String driverClassName) {
+    //default some of the stuff
+    if (StringUtils.isBlank(driverClassName)) {
+      
+      if (GrouperDdlUtils.isHsql(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.HSQLDBDelegate";
+      } else if (GrouperDdlUtils.isMysql(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
+      } else if (GrouperDdlUtils.isOracle(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.oracle.OracleDelegate";
+      } else if (GrouperDdlUtils.isPostgres(connectionUrl)) { 
+        driverClassName = "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate";
+      } else if (GrouperDdlUtils.isSQLServer(connectionUrl)) {
+        driverClassName = "org.quartz.impl.jdbcjobstore.MSSQLDelegate";
+      } else {
+        
+        //if this is blank we will figure it out later
+        if (!StringUtils.isBlank(connectionUrl)) {
+        
+          String error = "Cannot determine the quartz driver class from database URL: " + connectionUrl;
           System.err.println(error);
           LOG.error(error);
           return null;
@@ -2681,7 +2729,6 @@ public class GrouperDdlUtils {
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
   
-        @SuppressWarnings("deprecation")
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
           HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
@@ -2692,7 +2739,7 @@ public class GrouperDdlUtils {
               if (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb && !hsqlSchemaOk)) {
                 continue;
               }
-              Connection connection = hibernateSession.getSession().connection();
+              Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
               
               DatabaseMetaData databaseMetaData = null;
               ResultSet fkData = null;

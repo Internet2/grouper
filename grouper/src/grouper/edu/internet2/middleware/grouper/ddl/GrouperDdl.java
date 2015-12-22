@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
+import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
@@ -891,12 +893,11 @@ public enum GrouperDdl implements DdlVersionable {
         HibernateSession.callbackHibernateSession(
             GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-          @SuppressWarnings("deprecation")
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
-            Connection connection = hibernateSession.getSession().connection();
+            Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
             PreparedStatement statement = null;
             ResultSet resultSet = null;
             
@@ -1836,7 +1837,9 @@ public enum GrouperDdl implements DdlVersionable {
 
       addMessagingTables(ddlVersionBean, database);
       addMessagingIndexes(ddlVersionBean, database);
-      
+     
+      addQuartzTables(ddlVersionBean, database);
+      addQuartzIndexes(ddlVersionBean, database);
     }
   }, 
   
@@ -2291,6 +2294,8 @@ public enum GrouperDdl implements DdlVersionable {
       addMessagingTables(ddlVersionBean, database);
       addMessagingIndexes(ddlVersionBean, database);
       
+      addQuartzTables(ddlVersionBean, database);
+      addQuartzIndexes(ddlVersionBean, database);
     }
   };
 
@@ -4028,6 +4033,10 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
           GrouperMessageHibernate.COLUMN_GET_TIME_MILLIS, "millis since 1970 that this message was successfully received");
+
+      GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+          GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
+          GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, "millis since 1970 that this message attempt expires if not sent successfully");
 
       GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
           GrouperMessageHibernate.TABLE_GROUPER_MESSAGE,
@@ -5828,6 +5837,25 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_stem_set_then", Stem.TABLE_GROUPER_STEMS, 
         StemSet.COLUMN_THEN_HAS_STEM_ID, Stem.COLUMN_ID);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_triggers", "qrtz_trigger_to_jobs_fk", "qrtz_job_details", 
+        Arrays.asList(new String[]{"sched_name", "job_name", "job_group"}),
+        Arrays.asList(new String[]{"sched_name", "job_name", "job_group"}));
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_simple_triggers", "qrtz_simple_trig_to_trig_fk", "qrtz_triggers", 
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_cron_triggers", "qrtz_cron_trig_to_trig_fk", "qrtz_triggers", 
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_simprop_triggers", "qrtz_simprop_trig_to_trig_fk", "qrtz_triggers", 
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_blob_triggers", "qrtz_blob_trig_to_trig_fk", "qrtz_triggers", 
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
+        Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
     
     //now lets add views
     if (buildingAudits) {
@@ -7897,7 +7925,7 @@ public enum GrouperDdl implements DdlVersionable {
           + "and gf.type = 'list' "
           + "and gmav.member_id = gm.id "
           + "and gaa.owner_member_id is not null "
-          + "and gaa.owner_group_id is null "
+          + "and gaa.owner_group_id is not null "
           + "and gaa.attribute_assign_action_id = gaaa.id ");
 
       
@@ -10672,9 +10700,217 @@ public enum GrouperDdl implements DdlVersionable {
           "grpmessage_from_mem_id_idx", false, GrouperMessageHibernate.COLUMN_FROM_MEMBER_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
+          "grpmessage_attempt_exp_idx", false, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
           "grpmessage_query_idx", true, GrouperMessageHibernate.COLUMN_QUEUE_NAME, 
           GrouperMessageHibernate.COLUMN_STATE, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS, GrouperMessageHibernate.COLUMN_ID);
       
+    }
+  }
+  
+  /**
+   * Add quartz tables
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addQuartzTables(DdlVersionBean ddlVersionBean, Database database) {
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_job_details");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_group", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "description", Types.VARCHAR, "250", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_class_name", Types.VARCHAR, "250", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "is_durable", Types.BOOLEAN, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "is_nonconcurrent", Types.BOOLEAN, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "is_update_data", Types.BOOLEAN, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "requests_recovery", Types.BOOLEAN, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_data", Types.BLOB, null, false, false);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_triggers");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_name", Types.VARCHAR, "200", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_group", Types.VARCHAR, "200", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "description", Types.VARCHAR, "250", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "next_fire_time", Types.BIGINT, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "prev_fire_time", Types.BIGINT, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "priority", Types.BIGINT, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_state", Types.VARCHAR, "16", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_type", Types.VARCHAR, "8", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "start_time", Types.BIGINT, "13", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "end_time", Types.BIGINT, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "calendar_name", Types.VARCHAR, "200", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "misfire_instr", Types.BIGINT, "2", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_data", Types.BLOB, null, false, false);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_simple_triggers");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "repeat_count", Types.BIGINT, "7", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "repeat_interval", Types.BIGINT, "12", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "times_triggered", Types.BIGINT, "10", false, true);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_cron_triggers");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "cron_expression", Types.VARCHAR, "120", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "time_zone_id", Types.VARCHAR, "80", false, false);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_simprop_triggers");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "str_prop_1", Types.VARCHAR, "512", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "str_prop_2", Types.VARCHAR, "512", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "str_prop_3", Types.VARCHAR, "512", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "int_prop_1", Types.BIGINT, "10", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "int_prop_2", Types.BIGINT, "10", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "long_prop_1", Types.BIGINT, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "long_prop_2", Types.BIGINT, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "dec_prop_1", Types.DOUBLE, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "dec_prop_2", Types.DOUBLE, "13", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "bool_prop_1", Types.BOOLEAN, "1", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "bool_prop_2", Types.BOOLEAN, "1", false, false);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_blob_triggers");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "blob_data", Types.BLOB, null, false, false);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_calendars");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "calendar_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "calendar", Types.BLOB, null, false, true);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_paused_trigger_grps");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_fired_triggers");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "entry_id", Types.VARCHAR, "95", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "instance_name", Types.VARCHAR, "200", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "fired_time", Types.BIGINT, "13", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_time", Types.BIGINT, "13", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "priority", Types.BIGINT, "13", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "state", Types.VARCHAR, "16", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_name", Types.VARCHAR, "200", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_group", Types.VARCHAR, "200", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "is_nonconcurrent", Types.BOOLEAN, "1", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "requests_recovery", Types.BOOLEAN, "1", false, false);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_scheduler_state");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "instance_name", Types.VARCHAR, "200", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_checkin_time", Types.BIGINT, "13", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "checkin_interval", Types.BIGINT, "13", false, true);
+    }
+    
+    {
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_locks");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "lock_name", Types.VARCHAR, "40", true, true);
+    }
+  }
+  
+  /**
+   * Add quartz indexes
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addQuartzIndexes(DdlVersionBean ddlVersionBean, Database database) {
+    
+    {
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_job_details", 
+          "idx_qrtz_j_req_recovery", false, "sched_name", "requests_recovery");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_job_details", 
+          "idx_qrtz_j_grp", false, "sched_name", "job_group");
+    }
+    
+    {
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_j", false, "sched_name", "job_name", "job_group");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_jg", false, "sched_name", "job_group");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_c", false, "sched_name", "calendar_name");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_g", false, "sched_name", "trigger_group");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_state", false, "sched_name", "trigger_state");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_n_state", false, "sched_name", "trigger_name", "trigger_group", "trigger_state");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_n_g_state", false, "sched_name", "trigger_group", "trigger_state");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_next_fire_time", false, "sched_name", "next_fire_time");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_nft_st", false, "sched_name", "trigger_state", "next_fire_time");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_nft_misfire", false, "sched_name", "misfire_instr", "next_fire_time");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_nft_st_misfire", false, "sched_name", "misfire_instr", "next_fire_time", "trigger_state");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+          "idx_qrtz_t_nft_st_misfire_grp", false, "sched_name", "misfire_instr", "next_fire_time", "trigger_group", "trigger_state");
+    }
+    
+    {
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+          "idx_qrtz_ft_trig_inst_name", false, "sched_name", "instance_name");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+          "idx_qrtz_ft_inst_job_req_rcvry", false, "sched_name", "instance_name", "requests_recovery");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+          "idx_qrtz_ft_j_g", false, "sched_name", "job_name", "job_group");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+          "idx_qrtz_ft_jg", false, "sched_name", "job_group");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+          "idx_qrtz_ft_t_g", false, "sched_name", "trigger_name", "trigger_group");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+          "idx_qrtz_ft_tg", false, "sched_name", "trigger_group");
     }
   }
   
@@ -10721,6 +10957,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_HIBERNATE_VERSION_NUMBER, 
           Types.BIGINT, null, false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(messageTable, GrouperMessageHibernate.COLUMN_ATTEMPT_TIME_EXPIRES_MILLIS, 
+          Types.BIGINT, null, false, false);
     }
   }
   /**

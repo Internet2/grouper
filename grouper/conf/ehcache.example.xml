@@ -130,7 +130,7 @@
   Hibernate Query Caches
 -->
 
-  <cache name="net.sf.hibernate.cache.StandardQueryCache"
+  <cache name="org.hibernate.cache.internal.StandardQueryCache"
     maxElementsInMemory="500"
     eternal="false"
     timeToIdleSeconds="10"
@@ -139,23 +139,7 @@
     statistics="false"
   />
 
-  <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
-    maxElementsInMemory="5000"
-    eternal="true"
-    overflowToDisk="true"
-    statistics="false"
-  />
-
-  <cache name="org.hibernate.cache.StandardQueryCache"
-    maxElementsInMemory="500"
-    eternal="false"
-    timeToIdleSeconds="10"
-    timeToLiveSeconds="10"
-    overflowToDisk="false"
-    statistics="false"
-  />
-
-  <cache name="org.hibernate.cache.UpdateTimestampsCache"
+  <cache name="org.hibernate.cache.spi.UpdateTimestampsCache"
     maxElementsInMemory="5000"
     eternal="true"
     overflowToDisk="true"
@@ -362,6 +346,14 @@
           statistics="false"
   />
 
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO.FindByNameCache"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="60"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"
+          statistics="false"
+  />
 
   <cache  name="edu.internet2.middleware.grouper.audit.AuditType"
           maxElementsInMemory="1000"
@@ -449,6 +441,15 @@
           eternal="false"
           timeToIdleSeconds="10"
           timeToLiveSeconds="10"
+          overflowToDisk="false"
+          statistics="false"
+    />
+
+  <cache  name="edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder.findByNameCache"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="60"
+          timeToLiveSeconds="60"
           overflowToDisk="false"
           statistics="false"
     />
@@ -1487,6 +1488,24 @@
   />
 
   <cache  name="edu.internet2.middleware.grouper.util.GrouperUtil.objectHasAttributeCache"
+          maxElementsInMemory="5000"
+          eternal="false"
+          timeToIdleSeconds="60"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem.messageCache"
+          maxElementsInMemory="100"
+          eternal="false"
+          timeToIdleSeconds="60"
+          timeToLiveSeconds="60"
+          overflowToDisk="false"
+          statistics="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook.membershipOneAttribute"
           maxElementsInMemory="5000"
           eternal="false"
           timeToIdleSeconds="60"

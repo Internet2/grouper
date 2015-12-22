@@ -32,6 +32,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -258,7 +260,7 @@ public class HibernateSession {
           if (useSavepoints && (parentSessionExists   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
               || GrouperConfig.retrieveConfig().propertyValueBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
             try {
-              this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+              this.savepoint = ((SessionImpl)this.activeHibernateSession().getSession()).connection().setSavepoint();
               savePointCount++;
             } catch (SQLException sqle) {
               throw new RuntimeException("Problem setting save point for transaction type: " 
@@ -473,7 +475,7 @@ public class HibernateSession {
     //if we are readonly, and we have work, then that is bad
     if (hibernateSession.isReadonly() 
         && session != null && session.isDirty()) {
-      session.connection().rollback();
+      ((SessionImpl)session).connection().rollback();
       //when i retrieve a bunch of fields, this doesnt work.  why???
       //throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
     }
@@ -482,7 +484,7 @@ public class HibernateSession {
     // committed or rolledback,
     // then commit.
     if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
-        && hibernateSession.immediateTransaction.isActive()) {
+        && hibernateSession.immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
 
       LOG.debug("endTransactionAutoCommit");
       
@@ -526,7 +528,7 @@ public class HibernateSession {
       //if there was a save point, rollback (since postgres doesnt like a failed query not rolled back)
       if (hibernateSession != null && hibernateSession.savepoint != null) {
         try {
-          hibernateSession.activeHibernateSession().getSession().connection().rollback(hibernateSession.savepoint);
+          ((SessionImpl)hibernateSession.activeHibernateSession().getSession()).connection().rollback(hibernateSession.savepoint);
         } catch (SQLException sqle) {
           throw new RuntimeException("Problem rolling back savepoint", sqle);
         }
@@ -544,7 +546,7 @@ public class HibernateSession {
       // then rollback.
       //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
       if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
-        if (hibernateSession.immediateTransaction.isActive()) {
+        if (hibernateSession.immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
           LOG.debug("endTransactionRollback");
           hibernateSession.immediateTransaction.rollback();
         }
@@ -897,7 +899,7 @@ public class HibernateSession {
       return false;
     }
     return this.activeHibernateSession().immediateTransaction == null ? false : this
-        .activeHibernateSession().immediateTransaction.isActive();
+        .activeHibernateSession().immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE);
   }
 
   /**

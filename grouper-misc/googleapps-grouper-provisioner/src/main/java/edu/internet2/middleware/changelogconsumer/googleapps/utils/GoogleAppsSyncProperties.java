@@ -79,6 +79,8 @@ public class GoogleAppsSyncProperties {
     private String googleGroupFilter;
 
     private boolean ignoreExtraGoogleMembers;
+    
+    private boolean ignoreExtraGoogleGroups;
 
     /** Newly deleted objects aren't always removed ASAP, nor are newly created/updated object ready immediately */
     private int recentlyManipulatedQueueSize;
@@ -257,6 +259,8 @@ public class GoogleAppsSyncProperties {
         ignoreExtraGoogleMembers = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "ignoreExtraGoogleMembers", true);
         LOG.debug("Google Apps Consumer - Setting ignoreExtraGoogleMembers to {}", ignoreExtraGoogleMembers);
 
+        ignoreExtraGoogleGroups = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "ignoreExtraGoogleGroups", false);
+        LOG.debug("Google Apps Consumer - Setting ignoreExtraGoogleGroups to {}", ignoreExtraGoogleGroups);
     }
 
     public boolean isRetryOnError() {
@@ -342,6 +346,8 @@ public class GoogleAppsSyncProperties {
     public String getGoogleGroupFilter() { return googleGroupFilter; }
 
     public boolean shouldIgnoreExtraGoogleMembers() { return ignoreExtraGoogleMembers; }
+    
+    public boolean shouldIgnoreExtraGoogleGroups() { return ignoreExtraGoogleGroups; }
 
     public int getRecentlyManipulatedQueueSize() {
         return recentlyManipulatedQueueSize;
