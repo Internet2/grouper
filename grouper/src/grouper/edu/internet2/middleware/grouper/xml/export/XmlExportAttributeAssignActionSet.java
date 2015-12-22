@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
@@ -394,6 +395,64 @@ public class XmlExportAttributeAssignActionSet {
     return queryBuilder.toString();
   }
 
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeAssignActionSetsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.ifHasRoleId ), "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.thenHasRoleId ), "
+            + " theRoleSet "
+            + exportFromOnQuery(xmlExportMain, false));
+
+//        //select all action sets (immediate is depth = 1)
+//        Query query = session.createQuery(
+//            "select distinct theAttributeAssignActionSet " + exportFromOnQuery(xmlExportMain, true));
+
+        try {
+  
+          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              String ifHasRoleName = (String)results.get(0);
+              String thenHasRoleName = (String)results.get(1);
+              RoleSet roleSet = (RoleSet)results.get(2);
+              XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(grouperVersion);
+
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              xmlExportRoleSet.toGsh(grouperVersion, writer, ifHasRoleName, thenHasRoleName);
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
+        }
+        return null;
+      }
+    });
+  }
 
   /**
    * 

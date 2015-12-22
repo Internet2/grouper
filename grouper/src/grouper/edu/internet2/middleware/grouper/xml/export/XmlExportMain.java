@@ -296,9 +296,14 @@ public class XmlExportMain {
       XmlExportStem.exportStemsGsh(writer, this);
       XmlExportGroup.exportGroupsGsh(writer, this);
       XmlExportComposite.exportCompositesGsh(writer, this);
-      //XmlExportAttributeDef.exportAttributeDefsGsh(writer, this);
+      XmlExportAttributeDef.exportAttributeDefsGsh(writer, this);
+      XmlExportRoleSet.exportRoleSetsGsh(writer, this);
+      XmlExportAttributeAssignAction.exportAttributeAssignActionsGsh(writer, this);
+      XmlExportAttributeAssignActionSet.exportAttributeAssignActionSetsGsh(writer, this);
       
       XmlExportMembership.exportMembershipsGsh(writer, this);
+
+      XmlExportAttributeDefName.exportAttributeDefNamesGsh(writer, this);
 
       writer.flush();
     } catch (IOException ioe) {
