@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
@@ -463,8 +464,8 @@ public class XmlExportComposite {
     writer.write("rightFactorGroup = GroupFinder.findByName(grouperSession, \""
         + GrouperUtil.escapeDoubleQuotes(rightFactorName) + "\", false);\n");
 
-    writer.write("compositeType = edu.internet2.middleware.grouper.misc.CompositeType.valueOfIgnoreCase(\"" 
-        + GrouperUtil.escapeDoubleQuotes(type) + "\");\n");
+    writer.write("compositeType = CompositeType." + CompositeType.valueOfIgnoreCase(type).name() + ";\n");
+    
     writer.write("if (overallGroup != null) { ");
 
     writer.write("if (leftFactorGroup != null) { ");

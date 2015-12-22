@@ -22,7 +22,10 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -389,6 +392,115 @@ public class XmlExportAttributeAssignAction {
       }
 
     });
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeAssignActionsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theAttributeAssignAction.attributeDefId ), "
+            + " theAttributeAssignAction "
+            + exportFromOnQuery(xmlExportMain, false));
+        
+        try {
+  
+          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            
+            String previousNameOfAttributeDef = null;
+            Set<String> actionList = null;
+            
+            XmlExportAttributeAssignAction xmlExportAttributeAssignAction = null;
+            String nameOfAttributeDef = null;
+            
+            while(results.next()) {
+              nameOfAttributeDef = (String)results.get(0);
+              
+              AttributeAssignAction attributeAssignAction = (AttributeAssignAction)results.get(1);
+              xmlExportAttributeAssignAction = attributeAssignAction.xmlToExportAttributeAssignAction(grouperVersion);
+
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              if (!StringUtils.equals(nameOfAttributeDef, previousNameOfAttributeDef)) {
+                if (actionList != null) {
+
+                  xmlExportAttributeAssignAction.toGsh(grouperVersion, writer, nameOfAttributeDef, actionList);
+
+                } 
+                actionList = new LinkedHashSet<String>();
+                previousNameOfAttributeDef = nameOfAttributeDef;
+              }
+              actionList.add(xmlExportAttributeAssignAction.getName());
+              xmlExportMain.incrementRecordCount();
+            }
+            
+            if (actionList != null && xmlExportAttributeAssignAction != null) {
+
+              xmlExportAttributeAssignAction.toGsh(grouperVersion, writer, nameOfAttributeDef, actionList);
+
+            }
+
+            
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param nameOfAttributeDef
+   * @param actionList
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String nameOfAttributeDef, Set<String> actionList) throws IOException {
+
+    if (GrouperUtil.length(actionList) == 0) {
+      throw new RuntimeException("Why is actionList null? " + nameOfAttributeDef);
+    }
+
+    if (nameOfAttributeDef == null) {
+      throw new RuntimeException("Why is nameOfAttributeDef null?");
+    }
+    
+    writer.write("attributeDef = AttributeDefFinder.findByName(\""
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
+
+    writer.write("if (attributeDef != null) { ");
+
+    //addCompositeMember(CompositeType type, Group left, Group right)
+    writer.write("attributeDef.getAttributeDefActionDelegate().configureActionList(\"" + GrouperUtil.join(actionList.iterator(), ",") + "\"); ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); }\n");
+
   }
 
   /**

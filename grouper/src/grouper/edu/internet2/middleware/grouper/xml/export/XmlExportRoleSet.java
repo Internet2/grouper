@@ -295,6 +295,34 @@ public class XmlExportRoleSet {
   }
 
   /**
+   * @param exportVersion 
+   * @param writer
+   * @param ifHasRoleName 
+   * @param thenHasRoleName 
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String ifHasRoleName, String thenHasRoleName) throws IOException {
+    writer.write("ifHasRole = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotes(ifHasRoleName) + "\", false);\n");
+    writer.write("thenHasRole = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotes(thenHasRoleName) + "\", false);\n");
+
+    writer.write("if (ifHasRole != null) { ");
+
+    writer.write("if (thenHasRole != null) { ");
+
+    //addCompositeMember(CompositeType type, Group left, Group right)
+    writer.write("ifHasRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(thenHasRole)); ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasRole: '" + thenHasRoleName + "'\"); } ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasRole: '" + ifHasRoleName + "'\"); }\n");
+
+  }
+
+  /**
    * parse the xml file for groups
    * @param xmlImportMain
    */
@@ -451,6 +479,61 @@ public class XmlExportRoleSet {
           writer.write("  </roleSets>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming roleSets", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportRoleSetsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.ifHasRoleId ), "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.thenHasRoleId ), "
+            + " theRoleSet "
+            + exportFromOnQuery(xmlExportMain, false));
+
+        try {
+  
+          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              String ifHasRoleName = (String)results.get(0);
+              String thenHasRoleName = (String)results.get(1);
+              RoleSet roleSet = (RoleSet)results.get(2);
+              XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(grouperVersion);
+
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              xmlExportRoleSet.toGsh(grouperVersion, writer, ifHasRoleName, thenHasRoleName);
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
         }
         return null;
       }

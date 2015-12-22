@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -432,7 +433,7 @@ public class XmlExportAttributeDefName {
         + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
     return result;
   }
-  
+
   /**
    * get the query from the FROM clause on to the end for export
    * @param xmlExportMain
@@ -440,6 +441,17 @@ public class XmlExportAttributeDefName {
    * @return the export query
    */
   private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
+    return exportFromOnQuery(xmlExportMain, includeOrderBy, true);
+  }
+
+  /**
+   * get the query from the FROM clause on to the end for export
+   * @param xmlExportMain
+   * @param includeOrderBy 
+   * @param includeAttributeDefScoping
+   * @return the export query
+   */
+  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy, boolean includeAttributeDefScoping) {
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
     if (!xmlExportMain.filterStemsOrObjects()) {
@@ -448,10 +460,13 @@ public class XmlExportAttributeDefName {
       queryBuilder.append(
           " from AttributeDefName as theAttributeDefName where ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
-      queryBuilder.append(" ) and exists ( select theAttributeDef from AttributeDef as theAttributeDef " +
-          " where theAttributeDef.id = theAttributeDefName.attributeDefId and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
-      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" )");
+      if (includeAttributeDefScoping) {
+        queryBuilder.append(" and exists ( select theAttributeDef from AttributeDef as theAttributeDef " +
+            " where theAttributeDef.id = theAttributeDefName.attributeDefId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+        queryBuilder.append(" ) ) ");
+      }
     }
     if (includeOrderBy) {
       queryBuilder.append(" order by theAttributeDefName.nameDb ");
@@ -508,6 +523,100 @@ public class XmlExportAttributeDefName {
     });
   }
 
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeDefNamesGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+              + "( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theAttributeDefName.attributeDefId ), "
+              + "theAttributeDefName " + exportFromOnQuery(xmlExportMain, true, false));
+
+        try {
+  
+          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          
+          String previousAttributeDefId = null;
+          
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              String nameOfAttributeDef = (String)results.get(0);
+              AttributeDefName attributeDefName = (AttributeDefName)results.get(1);
+              XmlExportAttributeDefName xmlExportAttributeDefName = attributeDefName.xmlToExportAttributeDefName(grouperVersion);
+              
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              xmlExportAttributeDefName.toGsh(grouperVersion, writer, nameOfAttributeDef, 
+                  !StringUtils.equals(previousAttributeDefId, xmlExportAttributeDefName.getAttributeDefId()));
+              xmlExportMain.incrementRecordCount();
+
+              previousAttributeDefId = xmlExportAttributeDefName.getAttributeDefId();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param nameOfAttributeDef 
+   * @param printAttributeDefFinder 
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, String nameOfAttributeDef, boolean printAttributeDefFinder) throws IOException {
+
+    if (printAttributeDefFinder) {
+      writer.write("attributeDef = AttributeDefFinder.findByName(\""
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
+    }
+    
+    writer.write("if (attributeDef != null) { ");
+    writer.write(" new AttributeDefNameSave(grouperSession, attributeDef).assignName(\""
+        + GrouperUtil.escapeDoubleQuotes(this.name) 
+        + "\").assignCreateParentStemsIfNotExist(true)");
+
+    if (!StringUtils.isBlank(this.description)) {
+      writer.write(".assignDescription(\""
+        + GrouperUtil.escapeDoubleQuotes(this.description)
+        + "\")");
+    }
+    writer.write(".assignDisplayName("
+        + GrouperUtil.escapeDoubleQuotes(this.displayName)
+        + "\")");
+
+    writer.write(".save();");
+    
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); } \n");
+  }
+  
+  
   /**
    * take a reader (e.g. dom reader) and convert to an xml export group
    * @param exportVersion
