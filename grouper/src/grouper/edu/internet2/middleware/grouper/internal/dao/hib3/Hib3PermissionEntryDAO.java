@@ -53,6 +53,7 @@ import edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntryImpl;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -77,13 +78,70 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
    * @see edu.internet2.middleware.grouper.internal.dao.PermissionEntryDAO#findByMemberId(java.lang.String)
    */
   public Set<PermissionEntry> findByMemberId(String memberId) {
-    Set<PermissionEntry> permissionEntries = HibernateSession.byHqlStatic().createQuery(
-        "select thePermissionEntryAll from PermissionEntryAll thePermissionEntryAll where thePermissionEntryAll.memberId = :theMemberId")
-        .setString("theMemberId", memberId)
-        .listSet(PermissionEntry.class);
 
-      return permissionEntries;
+    /*
+     bah! hibernate doesn't support unions
+    String sql = 
+      "select distinct gr.nameDb as role_name, gm.subjectSourceIdDb as subject_source_id, gm.subjectIdDb as subject_id, gaaa.nameDb as action, gadn.nameDb as attribute_def_name_name, gadn.displayNameDb as attribute_def_name_disp_name, gr.displayNameDb as role_display_name, gaa.attributeAssignDelegatableDb as attribute_assign_delegatable, gaa.enabledDb as enabled, gaa.enabledTimeDb as enabled_time, gaa.disabledTimeDb as disabled_time, gr.uuid as role_id, gadn.attributeDefId as attribute_def_id, gm.uuid as member_id, gadn.id as attribute_def_name_id, gaaa.id as action_id, gmav.depth as membership_depth, grs.depth as role_set_depth, gadns.depth as attr_def_name_set_depth, gaaas.depth as attr_assign_action_set_depth, gmav.uuid as membership_id, gaa.id as attribute_assign_id, 'role' as permission_type, gaa.notes as assignment_notes, gmav.enabledTimeDb as immediate_mship_enabled_time, gmav.disabledTimeDb as immediate_mship_disabled_time, gaa.disallowedDb as disallowed from Group gr, MembershipEntry gmav, Member gm, Field gf, RoleSet grs, AttributeDef gad, AttributeAssign gaa, AttributeDefName gadn, AttributeDefNameSet gadns, AttributeAssignAction gaaa, AttributeAssignActionSet gaaas where gmav.ownerGroupId = gr.uuid and gmav.fieldId = gf.uuid and gr.typeOfGroupDb = 'role' and gf.typeString = 'list' and gf.name = 'members' and gmav.enabledDb = 'T' and gmav.memberUuid = gm.id and grs.ifHasRoleId = gr.uuid and gadn.attributeDefId = gad.id and gad.attributeDefTypeDb = 'perm' and gaa.ownerGroupId = grs.thenHasRoleId and gaa.attributeDefNameId = gadns.ifHasAttributeDefNameId and gadn.id = gadns.thenHasAttributeDefNameId and gaa.attributeAssignTypeDb = 'group' and gaa.attributeAssignActionId = gaaas.ifHasAttrAssignActionId and gaaa.id = gaaas.thenHasAttrAssignActionId " +
+      "and gm.uuid = :theMemberId " +
+      "union " +
+      "select distinct gr.nameDb as role_name, gm.subjectSourceIdDb as subject_source_id, gm.subjectIdDb as subject_id, gaaa.nameDb as action, gadn.nameDb as attribute_def_name_name, gadn.displayNameDb as attribute_def_name_disp_name, gr.displayNameDb as role_display_name, gaa.attributeAssignDelegatableDb as attribute_assign_delegatable, gaa.enabledDb as enabled, gaa.enabledTimeDb as enabled_time, gaa.disabledTimeDb as disabled_time, gr.uuid as role_id, gadn.attributeDefId as attribute_def_id, gm.uuid as member_id, gadn.id as attribute_def_name_id, gaaa.id as action_id, gmav.depth as membership_depth, -1 AS role_set_depth, gadns.depth as attr_def_name_set_depth, gaaas.depth as attr_assign_action_set_depth, gmav.uuid as membership_id, gaa.id as attribute_assign_id, 'role_subject' as permission_type, gaa.notes as assignment_notes, gmav.enabledTimeDb as immediate_mship_enabled_time, gmav.disabledTimeDb as immediate_mship_disabled_time, gaa.disallowedDb as disallowed from Group gr, MembershipEntry gmav, Member gm, Field gf, AttributeDef gad, AttributeAssign gaa, AttributeDefName gadn, AttributeDefNameSet gadns, AttributeAssignAction gaaa, AttributeAssignActionSet gaaas where gmav.ownerGroupId = gr.uuid and gr.typeOfGroupDb = 'role' and gmav.fieldId = gf.uuid and gmav.ownerGroupId = gaa.ownerGroupId and gmav.memberId = gaa.ownerMemberId and gf.typeString = 'list' and gf.name = 'members' and gmav.enabledDb = 'T' and gmav.memberUuid = gm.id  and gadn.attributeDefId = gad.id and gad.attributeDefTypeDb = 'perm' and gaa.attributeAssignTypeDb = 'any_mem' and gaa.attributeDefNameId = gadns.ifHasAttributeDefNameId and gadn.id = gadns.thenHasAttributeDefNameId and gaa.attributeAssignActionId = gaaas.ifHasAttrAssignActionId and gaaa.id = gaaas.thenHasAttrAssignActionId " +
+      "and gm.uuid = :theMemberId";
+      */
+    
+    String sql = 
+      "select distinct gr.nameDb as role_name, gm.subjectSourceIdDb as subject_source_id, gm.subjectIdDb as subject_id, gaaa.nameDb as action, gadn.nameDb as attribute_def_name_name, gadn.displayNameDb as attribute_def_name_disp_name, gr.displayNameDb as role_display_name, gaa.attributeAssignDelegatableDb as attribute_assign_delegatable, gaa.enabledDb as enabled, gaa.enabledTimeDb as enabled_time, gaa.disabledTimeDb as disabled_time, gr.uuid as role_id, gadn.attributeDefId as attribute_def_id, gm.uuid as member_id, gadn.id as attribute_def_name_id, gaaa.id as action_id, gmav.depth as membership_depth, grs.depth as role_set_depth, gadns.depth as attr_def_name_set_depth, gaaas.depth as attr_assign_action_set_depth, gmav.uuid as membership_id, gaa.id as attribute_assign_id, gaa.attributeAssignTypeDb as attribute_assign_type, gaa.notes as assignment_notes, gmav.enabledTimeDb as immediate_mship_enabled_time, gmav.disabledTimeDb as immediate_mship_disabled_time, gaa.disallowedDb as disallowed from Group gr, MembershipEntry gmav, Member gm, Field gf, RoleSet grs, AttributeDef gad, AttributeAssign gaa, AttributeDefName gadn, AttributeDefNameSet gadns, AttributeAssignAction gaaa, AttributeAssignActionSet gaaas where gmav.ownerGroupId = gr.uuid and gmav.fieldId = gf.uuid and gr.typeOfGroupDb = 'role' and gf.typeString = 'list' and gf.name = 'members' and gmav.enabledDb = 'T' and gmav.memberUuid = gm.id and gadn.attributeDefId = gad.id and gad.attributeDefTypeDb = 'perm' and gaa.attributeDefNameId = gadns.ifHasAttributeDefNameId and gadn.id = gadns.thenHasAttributeDefNameId and gaa.attributeAssignActionId = gaaas.ifHasAttrAssignActionId and gaaa.id = gaaas.thenHasAttrAssignActionId and ((grs.ifHasRoleId = gr.uuid and gaa.ownerGroupId = grs.thenHasRoleId  and gaa.attributeAssignTypeDb = 'group') or (grs.ifHasRoleId = gr.uuid and grs.thenHasRoleId = gr.uuid and gmav.ownerGroupId = gaa.ownerGroupId and gmav.memberUuid = gaa.ownerMemberId and gaa.attributeAssignTypeDb = 'any_mem')) " +
+      "and gm.uuid = :theMemberId ";
+    
+    Set<Object[]> permissionData = HibernateSession.byHqlStatic().createQuery(sql)
+      .setString("theMemberId", memberId)
+      .listSet(Object[].class);
+    
+    return _getPermissionEntriesFromPermissionData(permissionData);
   }
+  
+
+  private Set<PermissionEntry> _getPermissionEntriesFromPermissionData(Collection<Object[]> data) {
+    Set<PermissionEntry> permissionEntries = new LinkedHashSet<PermissionEntry>();
+    
+    for (Object[] entry : data) {
+      PermissionEntry permissionEntry = new PermissionEntryImpl();
+      
+      boolean isRoleAssignment = "group".equals(entry[22]);
+      
+      permissionEntry.setRoleName((String)entry[0]);
+      permissionEntry.setSubjectSourceId((String)entry[1]);
+      permissionEntry.setSubjectId((String)entry[2]);
+      permissionEntry.setAction((String)entry[3]);
+      permissionEntry.setAttributeDefNameName((String)entry[4]);
+      permissionEntry.setAttributeDefNameDispName((String)entry[5]);
+      permissionEntry.setRoleDisplayName((String)entry[6]);
+      permissionEntry.setAttributeAssignDelegatableDb((String)entry[7]);
+      permissionEntry.setEnabledDb((String)entry[8]);
+      permissionEntry.setEnabledTimeDb(entry[9] != null ? (Long)entry[9] : null);
+      permissionEntry.setDisabledTimeDb(entry[10] != null ? (Long)entry[10] : null);
+      permissionEntry.setRoleId((String)entry[11]);
+      permissionEntry.setAttributeDefId((String)entry[12]);
+      permissionEntry.setMemberId((String)entry[13]);
+      permissionEntry.setAttributeDefNameId((String)entry[14]);
+      permissionEntry.setActionId((String)entry[15]);
+      permissionEntry.setMembershipDepth((Integer)entry[16]);
+      permissionEntry.setRoleSetDepth(isRoleAssignment ? (Integer)entry[17] : -1);
+      permissionEntry.setAttributeDefNameSetDepth((Integer)entry[18]);
+      permissionEntry.setAttributeAssignActionSetDepth((Integer)entry[19]);
+      permissionEntry.setMembershipId((String)entry[20]);
+      permissionEntry.setAttributeAssignId((String)entry[21]);
+      permissionEntry.setPermissionTypeDb(isRoleAssignment ? "role" : "role_subject");
+      permissionEntry.setAssignmentNotes((String)entry[23]);
+      permissionEntry.setImmediateMshipEnabledTimeDb(entry[24] != null ? (Long)entry[24] : null);
+      permissionEntry.setImmediateMshipDisabledTimeDb(entry[25] != null ? (Long)entry[25] : null);
+      permissionEntry.setDisallowedDb((String)entry[26]);
+      
+      permissionEntries.add(permissionEntry);
+    }
+    
+    return permissionEntries;
+  } 
 
   /**
    * 
@@ -184,18 +242,18 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
-      String selectPrefix = "select distinct pea ";
+      String selectPrefix = "select distinct gr.nameDb as role_name, gm.subjectSourceIdDb as subject_source_id, gm.subjectIdDb as subject_id, gaaa.nameDb as action, gadn.nameDb as attribute_def_name_name, gadn.displayNameDb as attribute_def_name_disp_name, gr.displayNameDb as role_display_name, gaa.attributeAssignDelegatableDb as attribute_assign_delegatable, gaa.enabledDb as enabled, gaa.enabledTimeDb as enabled_time, gaa.disabledTimeDb as disabled_time, gr.uuid as role_id, gadn.attributeDefId as attribute_def_id, gm.uuid as member_id, gadn.id as attribute_def_name_id, gaaa.id as action_id, gmav.depth as membership_depth, grs.depth as role_set_depth, gadns.depth as attr_def_name_set_depth, gaaas.depth as attr_assign_action_set_depth, gmav.uuid as membership_id, gaa.id as attribute_assign_id, gaa.attributeAssignTypeDb as attribute_assign_type, gaa.notes as assignment_notes, gmav.enabledTimeDb as immediate_mship_enabled_time, gmav.disabledTimeDb as immediate_mship_disabled_time, gaa.disallowedDb as disallowed ";
       
       //doesnt work due to composite key, hibernate puts parens around it and mysql fails
       //String countPrefix = "select count(distinct pea) ";
       
-      StringBuilder sqlTables = new StringBuilder(" from PermissionEntryAll pea ");
+      StringBuilder sqlTables = new StringBuilder(" from Group gr, MembershipEntry gmav, Member gm, Field gf, RoleSet grs, AttributeDef gad, AttributeAssign gaa, AttributeDefName gadn, AttributeDefNameSet gadns, AttributeAssignAction gaaa, AttributeAssignActionSet gaaas ");
 
       if (permissionNameInStem != null && permissionNameInStemScope == Scope.ONE) {
-        sqlTables.append(" , AttributeDefName adn ");
+        sqlTables.append(" , AttributeDefName adn2 ");
       }
       
-      StringBuilder sqlWhereClause = new StringBuilder("");
+      StringBuilder sqlWhereClause = new StringBuilder(" gmav.ownerGroupId = gr.uuid and gmav.fieldId = gf.uuid and gr.typeOfGroupDb = 'role' and gf.typeString = 'list' and gf.name = 'members' and gmav.enabledDb = 'T' and gmav.memberUuid = gm.id and gadn.attributeDefId = gad.id and gad.attributeDefTypeDb = 'perm' and gaa.attributeDefNameId = gadns.ifHasAttributeDefNameId and gadn.id = gadns.thenHasAttributeDefNameId and gaa.attributeAssignActionId = gaaas.ifHasAttrAssignActionId and gaaa.id = gaaas.thenHasAttrAssignActionId and ((grs.ifHasRoleId = gr.uuid and gaa.ownerGroupId = grs.thenHasRoleId  and gaa.attributeAssignTypeDb = 'group') or (grs.ifHasRoleId = gr.uuid and grs.thenHasRoleId = gr.uuid and gmav.ownerGroupId = gaa.ownerGroupId and gmav.memberUuid = gaa.ownerMemberId and gaa.attributeAssignTypeDb = 'any_mem')) ");
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
       
@@ -203,39 +261,39 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       
       grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, sqlWhereClause, "pea.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+        sqlTables, sqlWhereClause, "gadn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
       
       boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
           grouperSessionSubject, byHqlStatic, 
-          sqlTables, "pea.roleId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+          sqlTables, "gr.uuid", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
 
       StringBuilder sql;
       if (changedQuery) {
         if (sqlWhereClause.length() > 0) {
           sql = sqlTables.append(" and ").append(sqlWhereClause);
         } else {
-          sql = sqlTables;
+          throw new RuntimeException("Unexpected.");
         }
       } else {
         sql = sqlTables.append(" where ").append(sqlWhereClause);
       }
       
       if (enabled != null && enabled) {
-        sql.append(" and pea.enabledDb = 'T' ");
+        sql.append(" and gaa.enabledDb = 'T' ");
       }
       if (enabled != null && !enabled) {
-        sql.append(" and pea.enabledDb = 'F' ");
+        sql.append(" and gaa.enabledDb = 'F' ");
       }
       
       if (permissionNameInStem != null) {
         switch (permissionNameInStemScope) {
           case ONE:
-            sql.append(" and pea.attributeDefNameId = adn.id and adn.stemId = :stemId ");
+            sql.append(" and gadn.id = adn2.id and adn2.stemId = :stemId ");
             byHqlStatic.setString("stemId", permissionNameInStem.getUuid());
             break;
           case SUB:
             
-            sql.append(" and pea.attributeDefNameName like :stemSub ");
+            sql.append(" and gadn.nameDb like :stemSub ");
             byHqlStatic.setString("stemSub", permissionNameInStem.getName() + ":%");
             
             break;
@@ -246,41 +304,41 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
 
       
       if (noEndDate) {
-        sql.append(" and pea.immediateMshipDisabledTimeDb is null ");
-        sql.append(" and pea.disabledTimeDb is null ");
+        sql.append(" and gmav.disabledTimeDb is null ");
+        sql.append(" and gaa.disabledTimeDb is null ");
       }
       
       if (actionsSize > 0) {
-        sql.append(" and pea.action in (");
+        sql.append(" and gaaa.nameDb in (");
         sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
         sql.append(") ");
       }
       if (roleIdsSize > 0) {
-        sql.append(" and pea.roleId in (");
+        sql.append(" and gr.uuid in (");
         sql.append(HibUtils.convertToInClause(roleIds, byHqlStatic));
         sql.append(") ");
       }
       if (attributeDefIdsSize > 0) {
-        sql.append(" and pea.attributeDefId in (");
+        sql.append(" and gadn.attributeDefId in (");
         sql.append(HibUtils.convertToInClause(attributeDefIds, byHqlStatic));
         sql.append(") ");
       }
       if (attributeDefNameIdsSize > 0) {
-        sql.append(" and pea.attributeDefNameId in (");
+        sql.append(" and gadn.id in (");
         sql.append(HibUtils.convertToInClause(attributeDefNameIds, byHqlStatic));
         sql.append(") ");
       }
       if (memberIdsSize > 0) {
-        sql.append(" and pea.memberId in (");
+        sql.append(" and gm.uuid in (");
         sql.append(HibUtils.convertToInClause(memberIds, byHqlStatic));
         sql.append(") ");
       }
       
       QueryOptions queryOptions = new QueryOptions();
-      QuerySort querySort = new QuerySort("pea.subjectId", true);
-      querySort.insertSortToBeginning("pea.action", true);
-      querySort.insertSortToBeginning("pea.roleDisplayName", true);
-      querySort.insertSortToBeginning("pea.attributeDefNameDispName", true);
+      QuerySort querySort = new QuerySort("gm.subjectIdDb", true);
+      querySort.insertSortToBeginning("gaaa.nameDb", true);
+      querySort.insertSortToBeginning("gr.displayNameDb", true);
+      querySort.insertSortToBeginning("gadn.displayNameDb", true);
       queryOptions.sort(querySort);
       
       byHqlStatic
@@ -300,9 +358,9 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
         sqlString = sqlString.substring(0, sqlString.length()-5);
       }
 
-      Set<PermissionEntry> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PermissionEntry.class);
-
-      int size = GrouperUtil.length(results);
+      Set<Object[]> permissionData = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(Object[].class);
+      
+      int size = GrouperUtil.length(permissionData);
       if (maxAssignments >= 0) {
 
         //doesnt work on mysql i think due to hibernate and composite key
@@ -320,6 +378,8 @@ public class Hib3PermissionEntryDAO extends Hib3DAO implements PermissionEntryDA
       if (size == 0) {
         continue;
       }
+      
+      Set<PermissionEntry> results = _getPermissionEntriesFromPermissionData(permissionData);
       
       //if the hql didnt filter, we need to do that here
       results = grouperSession.getAttributeDefResolver().postHqlFilterPermissions(grouperSessionSubject, results);
