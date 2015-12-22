@@ -438,6 +438,10 @@ public class XmlImportMain {
     total += XmlExportMembership.dbCount(xmlExportMain);
     total += XmlExportComposite.dbCount(xmlExportMain);
     total += XmlExportAttributeDef.dbCount(xmlExportMain);
+    total += XmlExportAttributeDefName.dbCount(xmlExportMain);
+    total += XmlExportRoleSet.dbCount(xmlExportMain);
+    total += XmlExportAttributeAssignAction.dbCount(xmlExportMain);
+    total += XmlExportAttributeAssignActionSet.dbCount(xmlExportMain);
     return total;
   }
   

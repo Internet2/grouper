@@ -469,7 +469,7 @@ public class XmlExportMembership {
     } else if (field.isAttributeDefListField()) {
 
       writer.write("attributeDef = AttributeDefFinder.findByName(\""
-          + GrouperUtil.escapeDoubleQuotes(stemName) + "\", false);\n");
+          + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
 
     }
 

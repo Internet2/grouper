@@ -38,6 +38,7 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -442,7 +443,7 @@ public class XmlExportGroup {
     //new GroupSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
 
-    writer.write("new GroupSave(grouperSession).assignName(\""
+    writer.write("group = new GroupSave(grouperSession).assignName(\""
         + GrouperUtil.escapeDoubleQuotes(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
@@ -454,18 +455,12 @@ public class XmlExportGroup {
         + GrouperUtil.escapeDoubleQuotes(this.displayName)
         + "\")");
 
-    //TODO add in alternate name
-    if (!StringUtils.isBlank(this.alternateName)) {
-      //      writer.write(".assignDescription(\""
-      //          + GrouperUtil.escapeDoubleQuotes(this.description)
-      //          + "\")");
-    }
-    
-    writer.write(".assignTypeOfGroup(TypeOfGroup.valueOfIgnoreCase(\""
-        + GrouperUtil.escapeDoubleQuotes(this.typeOfGroup) + "\", true)"
-        );
+    writer.write(".assignTypeOfGroup(TypeOfGroup." + TypeOfGroup.valueOfIgnoreCase(this.typeOfGroup, true).name() + ")");
     
     writer.write(".save();\n");
+    if (!StringUtils.isBlank(this.alternateName)) {
+      writer.write("group.addAlternateName(\"" + GrouperUtil.escapeDoubleQuotes(this.alternateName) + "\");\n");
+    }
   }
 
   /**
