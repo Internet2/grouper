@@ -1,0 +1,16 @@
+apply plugin:'java'
+description = 'Grouper Web Services'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/main'
+    }
+  }
+  test {
+    java {
+      srcDir 'src/test'
+    }
+  }
+}
+

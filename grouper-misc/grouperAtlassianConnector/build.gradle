@@ -1,0 +1,17 @@
+apply plugin: "java"
+description = 'Grouper Atlassian Connector'
+sourceSets {
+    main{
+        java {
+            srcDir 'source'
+        }
+        resources {
+            srcDirs 'misc', 'conf'
+        }
+    }
+    test {
+        java {
+            srcDir 'test'
+        }
+    }
+}

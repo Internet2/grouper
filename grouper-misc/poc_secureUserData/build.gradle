@@ -1,0 +1,15 @@
+apply plugin: "java"
+description = 'POC Secure User Data'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/main'
+    }
+  }
+  test {
+  	java {
+  		srcDir 'src/test'
+  	}
+  }
+}
