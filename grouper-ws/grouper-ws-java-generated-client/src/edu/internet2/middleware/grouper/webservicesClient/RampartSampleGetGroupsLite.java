@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.context.ConfigurationContext;
@@ -27,8 +29,6 @@ import org.apache.neethi.PolicyEngine;
 import org.apache.rampart.RampartMessageData;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetGroupsLite;
 import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;

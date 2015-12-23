@@ -31,8 +31,6 @@ import org.opensaml.util.resource.Resource;
 import org.opensaml.util.resource.ResourceException;
 import org.springframework.context.support.GenericApplicationContext;
 
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;

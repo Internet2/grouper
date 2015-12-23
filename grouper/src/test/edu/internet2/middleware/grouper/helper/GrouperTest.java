@@ -107,7 +107,7 @@ public class GrouperTest extends TestCase {
       return;
     if (expected != null && SubjectHelper.eq(expected,actual))
       return;
-    failNotEquals(message, expected, actual);
+    assertEquals(message, expected, actual);
   }
 
 

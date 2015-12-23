@@ -24,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.hibernate.internal.SessionImpl;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.hibernate.impl.SessionImpl;
 
 /**
  * 

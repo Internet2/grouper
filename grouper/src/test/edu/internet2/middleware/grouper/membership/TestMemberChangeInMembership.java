@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.membership;
 
-import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
@@ -45,7 +44,6 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.subject.Subject;
 
 /**

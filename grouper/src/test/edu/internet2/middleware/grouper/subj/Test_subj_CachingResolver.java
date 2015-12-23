@@ -35,9 +35,6 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.privs.CachingAccessResolver;
-import edu.internet2.middleware.grouper.privs.CachingNamingResolver;
-import edu.internet2.middleware.grouper.privs.Test_privs_CachingAccessResolver;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 

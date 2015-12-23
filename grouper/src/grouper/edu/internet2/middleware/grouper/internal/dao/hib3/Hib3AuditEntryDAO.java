@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.util.Date;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.audit.AuditEntry;

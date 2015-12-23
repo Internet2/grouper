@@ -15,8 +15,6 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
-import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
-
 /**
  * If sending in attribute assignments in batch, this is one of the entries
  * @author mchyzer

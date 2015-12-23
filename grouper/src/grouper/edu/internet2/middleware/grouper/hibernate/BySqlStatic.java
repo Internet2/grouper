@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
-import org.hibernate.internal.SessionImpl;
+import org.hibernate.impl.SessionImpl;
 import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;

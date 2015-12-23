@@ -942,7 +942,7 @@ public class GrouperLoader {
         //forbidden ones are there
 
         //the name of the job must be unique, so use the group name since one job per group (at this point)
-        JobDetail jobDetail = JobBuilder.newJob(GrouperUtil.forName("edu.internet2.middleware.grouper.esb.listener.EsbHttpServer"))
+        JobDetail jobDetail = JobBuilder.newJob(GrouperUtil.forName("EsbHttpServer"))
           .withIdentity(GrouperLoaderType.GROUPER_ESB_HTTP_LISTENER)
           .usingJobData("port", port)
           .usingJobData("bindAddress", bindAddress)
@@ -1027,7 +1027,7 @@ public class GrouperLoader {
             && !(sendername.equals(""))) {
 
           //the name of the job must be unique, so use the group name since one job per group (at this point)
-          JobDetail jobDetail = JobBuilder.newJob(GrouperUtil.forName("edu.internet2.middleware.grouper.esb.listener.EsbXmppListener"))
+          JobDetail jobDetail = JobBuilder.newJob(GrouperUtil.forName("EsbXmppListener"))
             .withIdentity(GrouperLoaderType.GROUPER_ESB_XMMP_LISTENER)
             .usingJobData("port", port)
             .usingJobData("server", server)

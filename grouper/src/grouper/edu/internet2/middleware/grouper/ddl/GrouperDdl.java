@@ -34,7 +34,7 @@ import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.Table;
-import org.hibernate.internal.SessionImpl;
+import org.hibernate.impl.SessionImpl;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;

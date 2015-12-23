@@ -51,8 +51,6 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Wraps a GrouperStem- allows non persistent values to be stored for the UI and

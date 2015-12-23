@@ -53,13 +53,13 @@ public class ExpirableCacheTest extends TestCase {
    */
   public void testNoCache() {
     
-    ExpirableCache<Boolean, Boolean> noCache = new ExpirableCache(0);
+    edu.internet2.middleware.grouperClient.util.ExpirableCache<Boolean, Boolean> noCache = new edu.internet2.middleware.grouperClient.util.ExpirableCache(0);
     
     noCache.put(true, true);
     
     assertNull("" + noCache.get(true), noCache.get(true));
     
-    noCache = new ExpirableCache(-1);
+    noCache = new edu.internet2.middleware.grouperClient.util.ExpirableCache(-1);
     
     noCache.put(true, true);
     

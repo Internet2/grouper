@@ -21,7 +21,6 @@ package edu.internet2.middleware.grouper.grouperUi;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

@@ -1,36 +1,36 @@
-
 description = 'Grouper Client'
 dependencies {
-  compile group: 'joda-time', name: 'joda-time', version:'2.3'
-  compile group: 'org.jdom', name: 'jdom', version:'1.1'
-  compile group: 'dom4j', name: 'dom4j', version:'1.6.1'
-  compile group: 'org.codehaus.jettison', name: 'jettison', version:'1.3.5'
-  compile group: 'xom', name: 'xom', version:'1.2.5'
-  compile group: 'cglib', name: 'cglib', version:'3.1'
-  compile group: 'net.sf.json-lib', name: 'json-lib', version:'2.3', classifier:'jdk15'
-  compile group: 'org.opensymphony.quartz', name: 'quartz', version:'1.6.1'
-  compile group: 'jivesoftware', name: 'smack', version:'3.1.0'
-  compile group: 'xpp3', name: 'xpp3_min', version:'1.1.4c'
-  compile group: 'javax.mail', name: 'mail', version:'1.4.7'
+    compile group: 'joda-time', name: 'joda-time', version: '2.3'
+    compile group: 'org.jdom', name: 'jdom', version: '1.1'
+    compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
+    compile group: 'org.codehaus.jettison', name: 'jettison', version: '1.3.5'
+    compile group: 'xom', name: 'xom', version: '1.2.5'
+    compile group: 'cglib', name: 'cglib', version: '3.1'
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.3', classifier: 'jdk15'
+    compile group: 'org.quartz-scheduler', name: 'quartz', version:'2.2.2'
+    compile group: 'jivesoftware', name: 'smack', version: '3.1.0'
+    compile group: 'xpp3', name: 'xpp3_min', version: '1.1.4c'
+    compile group: 'javax.mail', name: 'mail', version: '1.4.7'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src'
-      exclude 'custom/**', 'extCustom/**', 'testConf/**', 'testSource/**'
+    main {
+        java {
+            srcDirs 'src/custom', 'src/ext', 'src/extCustom', 'src/extMore', 'src/java'
+            exclude 'custom/**', 'extCustom/**', 'testConf/**', 'testSource/**'
+        }
+        resources {
+            srcDir 'conf'
+            include '**/*.properties'
+        }
     }
-    resources {
-      srcDir 'conf'
-      include '**/*.properties'
+    test {
+        java {
+            srcDir 'src/testSource'
+        }
+        resources {
+            srcDir 'src/testConf'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/testSource'
-    }
-    resources {
-      srcDir 'src/testConf'
-    }
-  }
 }

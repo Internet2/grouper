@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.UUIDHexGenerator;
-import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.impl.SessionFactoryImpl;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;

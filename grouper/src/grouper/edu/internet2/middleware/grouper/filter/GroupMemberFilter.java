@@ -36,12 +36,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
-import  java.util.LinkedHashSet;
 
 
 /** 

@@ -16,7 +16,6 @@
 package edu.internet2.middleware.grouper.shibboleth.dataConnector;
 
 import java.util.Map;
-import java.util.Set;
 
 import junit.textui.TestRunner;
 

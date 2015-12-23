@@ -33,7 +33,6 @@
 package edu.internet2.middleware.grouper.subj;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import  edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /** 

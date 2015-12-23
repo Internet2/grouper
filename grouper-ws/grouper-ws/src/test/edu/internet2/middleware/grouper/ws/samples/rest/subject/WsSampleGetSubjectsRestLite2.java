@@ -27,7 +27,6 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;

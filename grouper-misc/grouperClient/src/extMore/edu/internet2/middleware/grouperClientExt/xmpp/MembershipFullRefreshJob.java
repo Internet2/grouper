@@ -45,7 +45,7 @@ public class MembershipFullRefreshJob implements Job, StatefulJob {
   public void execute(JobExecutionContext context) throws JobExecutionException {
     String jobName = null;
     try {
-      jobName = context.getJobDetail().getName();
+      jobName = context.getJobDetail().getKey().getName();
       if (log.isDebugEnabled()) {
         log.debug("Full refresh on job: " + jobName);
       }

@@ -18,23 +18,6 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
-import org.hibernate.internal.SessionImpl;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
-
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
@@ -44,6 +27,21 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
+import org.hibernate.Transaction;
+import org.hibernate.impl.SessionImpl;
+
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <pre>
@@ -484,7 +482,7 @@ public class HibernateSession {
     // committed or rolledback,
     // then commit.
     if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
-        && hibernateSession.immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
+        && hibernateSession.immediateTransaction.isActive()) {
 
       LOG.debug("endTransactionAutoCommit");
       
@@ -546,7 +544,7 @@ public class HibernateSession {
       // then rollback.
       //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
       if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
-        if (hibernateSession.immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
+        if (hibernateSession.immediateTransaction.isActive()) {
           LOG.debug("endTransactionRollback");
           hibernateSession.immediateTransaction.rollback();
         }
@@ -899,7 +897,7 @@ public class HibernateSession {
       return false;
     }
     return this.activeHibernateSession().immediateTransaction == null ? false : this
-        .activeHibernateSession().immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE);
+        .activeHibernateSession().immediateTransaction.isActive();
   }
 
   /**

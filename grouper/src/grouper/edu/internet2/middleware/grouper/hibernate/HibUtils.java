@@ -44,7 +44,6 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.hibernate.type.ByteType;
 import org.hibernate.type.CharacterType;
 import org.hibernate.type.DateType;
@@ -505,7 +504,7 @@ public class HibUtils {
    * @param transaction
    */
   public static void rollbackQuietly(Transaction transaction) {
-    if (transaction != null && transaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
+    if (transaction != null && transaction.isActive()) {
       try {
         transaction.rollback();
       } catch (Exception e) {

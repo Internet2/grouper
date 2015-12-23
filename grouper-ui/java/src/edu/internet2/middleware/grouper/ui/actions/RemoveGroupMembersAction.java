@@ -48,21 +48,14 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
-import edu.internet2.middleware.grouper.ui.util.CollectionPager;
-import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
-import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 
 /**
  * Top level Strut's action which removes selected, or all members, depending on user choice.  

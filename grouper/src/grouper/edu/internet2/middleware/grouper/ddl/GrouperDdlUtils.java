@@ -59,7 +59,7 @@ import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
 import org.hibernate.ObjectNotFoundException;
-import org.hibernate.internal.SessionImpl;
+import org.hibernate.impl.SessionImpl;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;

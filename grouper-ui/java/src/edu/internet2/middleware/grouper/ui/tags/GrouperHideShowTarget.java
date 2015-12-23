@@ -38,8 +38,6 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import org.apache.strutsel.taglib.utils.EvalHelper;
-
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

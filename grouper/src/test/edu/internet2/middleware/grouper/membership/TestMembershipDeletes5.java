@@ -32,8 +32,6 @@
 
 package edu.internet2.middleware.grouper.membership;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -46,7 +44,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 

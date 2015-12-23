@@ -34,7 +34,6 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -48,8 +47,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.Message;
 
