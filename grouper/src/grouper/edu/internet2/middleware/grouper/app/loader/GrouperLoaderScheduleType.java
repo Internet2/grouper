@@ -19,13 +19,13 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
-import org.quartz.CronTrigger;
-import org.quartz.SimpleTrigger;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -45,19 +45,21 @@ public enum GrouperLoaderScheduleType {
     
     /**
      * create a trigger based on the type (this), and the params (e.g. cron string, interval seconds, etc)
+     * @param name
+     * @param priority
      * @param quartzCronString
      * @param intervalSeconds
      * @return the trigger
      */
     @Override
-    public Trigger createTrigger(String quartzCronString, Integer intervalSeconds) {
-      CronTrigger cronTrigger = new CronTrigger();
-      try {
-        cronTrigger.setCronExpression(quartzCronString);
-      } catch (ParseException pe) {
-        throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
-      }
-      return cronTrigger;
+    public Trigger createTrigger(String name, int priority, String quartzCronString, Integer intervalSeconds) {
+      Trigger trg = TriggerBuilder.newTrigger()
+        .withIdentity(name)
+        .withPriority(priority)
+        .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))
+        .build();
+
+      return trg;
     }
   },
 
@@ -69,25 +71,32 @@ public enum GrouperLoaderScheduleType {
     
     /**
      * create a trigger based on the type (this), and the params (e.g. cron string, interval seconds, etc)
+     * @param name
+     * @param priority
      * @param quartzCronString
      * @param intervalSeconds
      * @return the trigger
      */
     @Override
-    public Trigger createTrigger(String quartzCronString, Integer intervalSeconds) {
-      SimpleTrigger simpleTrigger = new SimpleTrigger();
-      simpleTrigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-
-      //default to daily
-      intervalSeconds = GrouperUtil.defaultIfNull(intervalSeconds, 60*60*24);
-      simpleTrigger.setRepeatInterval(intervalSeconds * 1000);
+    public Trigger createTrigger(String name, int priority, String quartzCronString, Integer intervalSeconds) {
       
       //start time is the interval seconds / 5, rand
       int startSeconds = (int)(Math.random() * intervalSeconds);
       Date startTime = new Date(System.currentTimeMillis() + ((long)startSeconds*1000));
       
-      simpleTrigger.setStartTime(startTime);
-      return simpleTrigger;
+      //default to daily
+      intervalSeconds = GrouperUtil.defaultIfNull(intervalSeconds, 60*60*24);
+      
+      Trigger trg = TriggerBuilder.newTrigger()
+        .withIdentity(name)
+        .startAt(startTime)
+        .withPriority(priority)
+        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+            .withIntervalInSeconds(intervalSeconds)
+            .repeatForever())
+        .build();      
+      
+      return trg;
     }
   };
   
@@ -99,11 +108,13 @@ public enum GrouperLoaderScheduleType {
 
   /**
    * create a trigger based on the type (this), and the params (e.g. cron string, interval seconds, etc)
+   * @param name
+   * @param priority
    * @param quartzCronString
    * @param intervalSeconds
    * @return the trigger
    */
-  public abstract Trigger createTrigger(String quartzCronString, Integer intervalSeconds);
+  public abstract Trigger createTrigger(String name, int priority, String quartzCronString, Integer intervalSeconds);
   
   /**
    * do a case-insensitive matching

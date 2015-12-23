@@ -9,8 +9,6 @@
 
 package edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.index;
 
-import edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.common.StreamFlags;
-
 public class BlockInfo {
     public int blockNumber = -1;
     public long compressedOffset = -1;

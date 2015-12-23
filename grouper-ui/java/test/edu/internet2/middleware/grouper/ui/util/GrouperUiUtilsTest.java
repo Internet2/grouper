@@ -18,8 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ui.util;
 
-import java.util.List;
-
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 

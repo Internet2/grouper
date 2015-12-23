@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletRequest;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.SearchTermProcessor;
-import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.subject.Source;
 
 /**

@@ -18,7 +18,6 @@
  */
 package edu.internet2.middleware.grouperClientExt.xmpp;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,12 +37,16 @@ import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Message.Type;
+import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
@@ -535,13 +538,11 @@ public class GrouperClientXmppMain {
      }
      
      String jobGroup = Scheduler.DEFAULT_GROUP;
-     JobDetail jobDetail = new JobDetail(jobName,
-         jobGroup, jobClass);
+     JobDetail jobDetail = JobBuilder.newJob(jobClass)
+                      .withIdentity(jobName, jobGroup)
+                      .storeDurably(true).build();
 
      Scheduler scheduler = GrouperClientXmppMain.scheduler();
-
-     //atlassian requires durable jobs...
-     jobDetail.setDurability(true);
 
      boolean uniqueTriggerNames = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.xmpp.uniqueQuartzTriggerNames", false);
 
@@ -555,18 +556,20 @@ public class GrouperClientXmppMain {
      CronTrigger cronTrigger = null;
      if (!uniqueTriggerNames) {
        try {
-         cronTrigger = (CronTrigger) scheduler.getTrigger(triggerName, jobGroup);
+         cronTrigger = (CronTrigger) scheduler.getTrigger(new TriggerKey(triggerName, jobGroup));
        } catch (SchedulerException se) {
          throw new RuntimeException("Problem with trigger: " + jobName, se);
        }
      }
      if (cronTrigger == null) {
-       cronTrigger = new CronTrigger(triggerName, jobGroup);
+         cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerName, jobGroup)
+                 .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString)).build();
      }
 
      try {
-       cronTrigger.setCronExpression(quartzCronString);
-     } catch (ParseException pe) {
+         CronScheduleBuilder builder = (CronScheduleBuilder) cronTrigger.getScheduleBuilder();
+         builder.cronSchedule(quartzCronString);
+     } catch (Exception pe) {
        throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
      }
 

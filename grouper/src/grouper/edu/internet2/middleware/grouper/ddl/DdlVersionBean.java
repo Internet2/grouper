@@ -25,8 +25,6 @@ import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.platform.SqlBuilder;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-
 
 /**
  * bean to pass to versions to update stuff

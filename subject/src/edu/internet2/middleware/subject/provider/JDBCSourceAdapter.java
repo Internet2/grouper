@@ -1027,7 +1027,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
         String useInClauseForIdAndIdentifierString = props.getProperty("useInClauseForIdAndIdentifier");
         if (!StringUtils.isBlank(useInClauseForIdAndIdentifierString)) {
           try {
-            Integer.parseInt(useInClauseForIdAndIdentifierString);
+            SubjectUtils.booleanValue(useInClauseForIdAndIdentifierString);
           } catch (Exception e) {
             System.err.println("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifier);
             log.error("Cant parse useInClauseForIdAndIdentifier: " + useInClauseForIdAndIdentifier);

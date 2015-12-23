@@ -35,7 +35,6 @@ package edu.internet2.middleware.grouper.ui.util;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.PrintWriter;
-import java.util.ResourceBundle;
 
 import org.w3c.dom.Element;
 

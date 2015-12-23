@@ -44,7 +44,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

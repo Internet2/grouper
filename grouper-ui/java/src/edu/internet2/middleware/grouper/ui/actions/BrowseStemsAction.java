@@ -43,7 +43,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.ui.CallerPageException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;

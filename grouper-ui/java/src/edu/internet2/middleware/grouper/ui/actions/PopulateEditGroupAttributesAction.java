@@ -32,8 +32,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;

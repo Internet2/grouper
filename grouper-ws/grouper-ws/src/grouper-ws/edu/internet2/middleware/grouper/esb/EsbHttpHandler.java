@@ -22,10 +22,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.grouper.esb.listener.EsbListener;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.esb.listener.EsbListener;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

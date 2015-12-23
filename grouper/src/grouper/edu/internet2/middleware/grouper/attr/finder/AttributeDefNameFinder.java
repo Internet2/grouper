@@ -22,13 +22,14 @@ package edu.internet2.middleware.grouper.attr.finder;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -332,6 +333,46 @@ public class AttributeDefNameFinder {
    */
   public static AttributeDefName findByName(String name, boolean exceptionIfNull) {
     return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(name, exceptionIfNull);
+  }
+  
+  /**
+   * multikey is the sourceId of user in grouper session, subject id in grouper session, and name of attribute def name, 
+   * result is an array of size one or empty array if not found
+   */
+  private static GrouperCache<MultiKey, AttributeDefName[]> findByNameCache = new GrouperCache<MultiKey, AttributeDefName[]>(
+      AttributeDefNameFinder.class.getName() + ".findByNameCache", 2000, false, 60, 60, false);
+  //TODO remove defaults in 2.3+
+  
+  /**
+   * find an attributeDefName by name.  This is a secure method, a GrouperSession must be open.  This will cache the result
+   * @param name of attributeDefName
+   * @param exceptionIfNull true if exception should be thrown if null
+   * @return the attribute def name or null
+   * @throws AttributeDefNameNotFoundException
+   */
+  public static AttributeDefName findByNameCache(String name, boolean exceptionIfNull) {
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    MultiKey key = new MultiKey(grouperSessionSubject.getSourceId(), grouperSessionSubject.getId(), name);
+    AttributeDefName[] resultArray = findByNameCache.get(key);
+    AttributeDefName result = null;
+    
+    //see if not in cache, do the query
+    if (resultArray == null) {
+      result = findByName(name, false);
+      resultArray = new AttributeDefName[]{result};
+      //put new value in cache
+      findByNameCache.put(key, resultArray);
+    }
+
+    if (GrouperUtil.length(resultArray) == 1) {
+      result = resultArray[0];
+    }
+    if (result == null && exceptionIfNull) {
+      throw new AttributeDefNameNotFoundException("Cannot find (or not allowed to find) attribute def name with name: '" + name + "'");
+    }
+    return result;
   }
   
   /**

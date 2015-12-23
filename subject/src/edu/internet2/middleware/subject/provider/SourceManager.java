@@ -24,7 +24,6 @@ See doc/license.txt in this distribution.
 package edu.internet2.middleware.subject.provider;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -34,10 +33,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.imageio.stream.FileImageInputStream;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringUtils;

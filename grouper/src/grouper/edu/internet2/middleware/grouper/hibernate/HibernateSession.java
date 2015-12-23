@@ -18,21 +18,6 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
-
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
@@ -42,6 +27,21 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
+import org.hibernate.Transaction;
+import org.hibernate.impl.SessionImpl;
+
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <pre>
@@ -258,7 +258,7 @@ public class HibernateSession {
           if (useSavepoints && (parentSessionExists   // && this.activeHibernateSession().isTransactionActive()  && !this.activeHibernateSession().isReadonly() 
               || GrouperConfig.retrieveConfig().propertyValueBoolean("jdbc.useSavePointsOnAllNewTransactions", false))) {
             try {
-              this.savepoint = this.activeHibernateSession().getSession().connection().setSavepoint();
+              this.savepoint = ((SessionImpl)this.activeHibernateSession().getSession()).connection().setSavepoint();
               savePointCount++;
             } catch (SQLException sqle) {
               throw new RuntimeException("Problem setting save point for transaction type: " 
@@ -473,7 +473,7 @@ public class HibernateSession {
     //if we are readonly, and we have work, then that is bad
     if (hibernateSession.isReadonly() 
         && session != null && session.isDirty()) {
-      session.connection().rollback();
+      ((SessionImpl)session).connection().rollback();
       //when i retrieve a bunch of fields, this doesnt work.  why???
       //throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
     }
@@ -526,7 +526,7 @@ public class HibernateSession {
       //if there was a save point, rollback (since postgres doesnt like a failed query not rolled back)
       if (hibernateSession != null && hibernateSession.savepoint != null) {
         try {
-          hibernateSession.activeHibernateSession().getSession().connection().rollback(hibernateSession.savepoint);
+          ((SessionImpl)hibernateSession.activeHibernateSession().getSession()).connection().rollback(hibernateSession.savepoint);
         } catch (SQLException sqle) {
           throw new RuntimeException("Problem rolling back savepoint", sqle);
         }

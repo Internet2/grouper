@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 

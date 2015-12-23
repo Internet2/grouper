@@ -32,7 +32,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

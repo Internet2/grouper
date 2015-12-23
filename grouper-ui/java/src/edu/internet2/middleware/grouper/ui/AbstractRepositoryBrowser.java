@@ -72,7 +72,6 @@ import edu.internet2.middleware.grouper.filter.StemNameFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

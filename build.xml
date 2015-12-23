@@ -1,3 +1,0 @@
-<project name="grouper-root" basedir="grouper-parent">
-	<import file="grouper-parent/build.xml"/>
-</project>
