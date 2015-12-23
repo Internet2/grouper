@@ -40,3 +40,6 @@ grouper-misc/grouperActivemq/dist2/
 build/
 
 **/.gradle/
+
+**/*.ipr
+**/*.iws
