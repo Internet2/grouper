@@ -45,7 +45,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
 
@@ -412,14 +411,15 @@ public class XmlExportAttributeAssignActionSet {
         //select all members in order
         Query query = session.createQuery(
             "select distinct "
-            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.ifHasRoleId ), "
-            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.thenHasRoleId ), "
-            + " theRoleSet "
+            + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef, AttributeAssignAction theAttributeAssignAction where theAttributeAssignAction.id = theAttributeAssignActionSet.ifHasAttrAssignActionId and theAttributeDef.id = theAttributeAssignAction.attributeDefId ), "
+            + " ( select theAttributeAssignAction.nameDb from AttributeAssignAction as theAttributeAssignAction where theAttributeAssignAction.id = theAttributeAssignActionSet.ifHasAttrAssignActionId ), "
+            + " ( select theAttributeAssignAction.nameDb from AttributeAssignAction as theAttributeAssignAction where theAttributeAssignAction.id = theAttributeAssignActionSet.thenHasAttrAssignActionId ), "
+            + " theAttributeAssignActionSet "
             + exportFromOnQuery(xmlExportMain, false));
 
 //        //select all action sets (immediate is depth = 1)
 //        Query query = session.createQuery(
-//            "select distinct theAttributeAssignActionSet " + exportFromOnQuery(xmlExportMain, true));
+//            "select distinct  " + exportFromOnQuery(xmlExportMain, true));
 
         try {
   
@@ -430,16 +430,17 @@ public class XmlExportAttributeAssignActionSet {
           try {
             results = query.scroll();
             while(results.next()) {
-              String ifHasRoleName = (String)results.get(0);
-              String thenHasRoleName = (String)results.get(1);
-              RoleSet roleSet = (RoleSet)results.get(2);
-              XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(grouperVersion);
+              String nameOfAttributeDef = (String)results.get(0);
+              String ifHasActionName = (String)results.get(1);
+              String thenHasActionName = (String)results.get(2);
+              AttributeAssignActionSet attributeAssignActionSet = (AttributeAssignActionSet)results.get(3);
+              XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = attributeAssignActionSet.xmlToExportAttributeAssignActionSet(grouperVersion);
 
               //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
               //    + ", " + stemName + ", " + nameOfAttributeDef 
               //    + ", " + enabledTime + ", " + disabledTime  + "\n");
               
-              xmlExportRoleSet.toGsh(grouperVersion, writer, ifHasRoleName, thenHasRoleName);
+              xmlExportAttributeAssignActionSet.toGsh(grouperVersion, writer, nameOfAttributeDef, ifHasActionName, thenHasActionName);
               xmlExportMain.incrementRecordCount();
             }
           } finally {
@@ -452,6 +453,50 @@ public class XmlExportAttributeAssignActionSet {
         return null;
       }
     });
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param nameOfAttributeDef
+   * @param ifHasActionName 
+   * @param thenHasActionName 
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String nameOfAttributeDef, String ifHasActionName, String thenHasActionName) throws IOException {
+    
+    //readWrite = permissionDef.getAttributeDefActionDelegate().findAction("readWrite", true);
+    //admin = permissionDef.getAttributeDefActionDelegate().findAction("admin", true);
+    // 
+    //readWrite.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(read);
+    
+    if (nameOfAttributeDef == null) {
+      throw new RuntimeException("Why is nameOfAttributeDef null?");
+    }
+
+    writer.write("attributeDef = AttributeDefFinder.findByName(\""
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
+
+    writer.write("if (attributeDef != null) { ");
+
+    writer.write("ifHasActionName = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotes(ifHasActionName) + "\", false); ");
+
+    writer.write("if (ifHasActionName != null) { ");
+
+    writer.write("thenHasActionName = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotes(thenHasActionName) + "\", false); ");
+
+    writer.write("if (thenHasActionName != null) { ");
+
+    writer.write(" ifHasActionName.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(thenHasActionName); ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasActionName: '" + thenHasActionName + "', attributeDefName: '" + nameOfAttributeDef + "'\"); }");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasActionName: '" + ifHasActionName + "', attributeDefName: '" + nameOfAttributeDef + "'\"); }");
+    
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); }\n");
+
   }
 
   /**
