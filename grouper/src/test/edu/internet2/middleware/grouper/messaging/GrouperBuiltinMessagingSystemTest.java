@@ -4,7 +4,10 @@
  */
 package edu.internet2.middleware.grouper.messaging;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 
@@ -19,7 +22,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    
+    TestRunner.run(new GrouperBuiltinMessagingSystemTest("testMessageSecurity"));
   }
   
   
@@ -42,7 +45,47 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testMessageSecurity() {
 
+    try {
+      assertFalse(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
+    } catch (Exception e) {
+      //queue doesnt exist
+      assertTrue(GrouperUtil.getFullStackTrace(e).toLowerCase().contains("queue doesnt exist"));
+    }
+    try {
+      GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    } catch (Exception e) {
+      //queue doesnt exist
+      assertTrue(GrouperUtil.getFullStackTrace(e).toLowerCase().contains("queue doesnt exist"));
+    }
+    GrouperBuiltinMessagingSystem.createQueue("abc");
+    assertFalse(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
+    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
+    assertTrue(GrouperBuiltinMessagingSystem.allowedToReceiveFromQueue("abc", SubjectTestHelper.SUBJ0));
+
+    
+    assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToQueue("abc", SubjectTestHelper.SUBJ0));
+    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    assertTrue(GrouperBuiltinMessagingSystem.allowedToSendToQueue("abc", SubjectTestHelper.SUBJ0));
+
+    try {
+      assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0));
+    } catch (Exception e) {
+      //queue doesnt exist
+      assertTrue(GrouperUtil.getFullStackTrace(e).toLowerCase().contains("topic doesnt exist"));
+    }
+
+    GrouperBuiltinMessagingSystem.createTopic("def");
+    
+    assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0));
+    GrouperBuiltinMessagingSystem.allowSendToTopic("def", SubjectTestHelper.SUBJ0);
+    assertTrue(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0));
+
+  }
 
   /**
    * Test method for {@link edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem#send(edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam)}.

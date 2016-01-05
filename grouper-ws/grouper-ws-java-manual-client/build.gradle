@@ -1,14 +1,8 @@
-
 description = 'Grouper WS Manual Client'
-repositories {
-	flatDir {
-		dirs 'lib'
-	}
-}
 
 dependencies {
-	compile project(':grouper-ws-parent:grouper-ws')
-	compile name: 'grouperWsTestInterfaces'
+	compile project(':grouper-ws:grouper-ws')
+	compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 sourceSets {
 	main{

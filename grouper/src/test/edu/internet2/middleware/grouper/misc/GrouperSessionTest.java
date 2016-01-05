@@ -19,8 +19,6 @@
  */
 package edu.internet2.middleware.grouper.misc;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import junit.textui.TestRunner;
 import net.sf.ehcache.CacheManager;
 import edu.internet2.middleware.grouper.Group;

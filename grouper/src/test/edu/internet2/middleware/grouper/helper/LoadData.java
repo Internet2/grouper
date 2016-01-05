@@ -21,7 +21,6 @@ import java.util.Date;
 
 import org.hibernate.Session;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -37,7 +36,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -48,6 +46,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
+import org.hibernate.impl.SessionImpl;
 
 /**
  * load test data (will not error if already there)
@@ -231,12 +230,11 @@ public class LoadData {
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-        @SuppressWarnings("deprecation")
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
           HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
           Session session = hibernateSession.getSession();
-          Connection connection = session.connection();
+          Connection connection = ((SessionImpl)session).connection();
           PreparedStatement preparedStatement = null;
           try {
 

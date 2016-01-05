@@ -18,10 +18,6 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
-import java.sql.Timestamp;
-
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 

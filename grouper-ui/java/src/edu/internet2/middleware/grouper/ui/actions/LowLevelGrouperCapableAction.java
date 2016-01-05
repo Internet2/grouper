@@ -54,7 +54,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

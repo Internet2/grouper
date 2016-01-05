@@ -10,7 +10,6 @@
 
 package edu.internet2.middleware.grouperInstallerExt.org.tukaani.xz.rangecoder;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 public abstract class RangeDecoder extends RangeCoder {

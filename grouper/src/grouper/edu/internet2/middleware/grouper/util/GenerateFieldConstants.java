@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.app.loader.LoaderJobBean;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 
 
 /**

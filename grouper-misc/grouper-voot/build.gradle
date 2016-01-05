@@ -1,26 +1,25 @@
-
 description = 'Grouper Voot'
 dependencies {
-  compile project(':subject')
-  compile project(':grouper')
-  compile project(':grouperClient')
-  compile project(':grouper-ws-parent:grouper-ws')
-  testCompile project(path: ":grouper", configuration: "tests")
-  provided group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
+    compile project(':subject')
+    compile project(':grouper')
+    compile project(':grouper-misc:grouperClient')
+    compile project(':grouper-ws:grouper-ws')
+    testCompile project(path: ":grouper", configuration: "tests")
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.4.Final'
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src'
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDirs 'misc'
+        }
     }
-    resources {
-      srcDirs 'misc'
+    test {
+        java {
+            srcDir 'test'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'test'
-    }
-  }
 }

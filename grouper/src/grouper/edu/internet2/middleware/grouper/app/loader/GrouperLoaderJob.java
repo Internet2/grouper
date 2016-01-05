@@ -28,11 +28,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.CronTrigger;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.PersistJobDataAfterExecution;
 import org.quartz.SimpleTrigger;
-import org.quartz.StatefulJob;
 import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.Group;
@@ -61,7 +62,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * class which will run a loader job
  * implements StatefulJob so multiple dont run at once
  */
-public class GrouperLoaderJob implements Job, StatefulJob {
+@PersistJobDataAfterExecution
+@DisallowConcurrentExecution
+public class GrouperLoaderJob implements Job {
 
   /**
    * logger 
@@ -81,7 +84,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
     GrouperSession grouperSession = null;
     try {
       grouperSession = GrouperSession.startRootSession();
-      String jobName = context.getJobDetail().getName();
+      String jobName = context.getJobDetail().getKey().getName();
   
       hib3GrouploaderLog.setJobName(jobName);
       

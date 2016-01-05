@@ -69,8 +69,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsResultMeta;

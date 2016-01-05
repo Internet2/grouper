@@ -951,7 +951,7 @@ public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
 
     String jobName = null;
     try {
-      jobName = context.getJobDetail().getName();
+      jobName = context.getJobDetail().getKey().getName();
       if (log.isDebugEnabled()) {
         log.debug("Scheduling full refresh on job: " + jobName);
       }

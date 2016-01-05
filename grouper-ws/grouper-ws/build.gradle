@@ -1,31 +1,29 @@
-
 description = 'Grouper WS'
 
 dependencies {
   compile project(':subject')
   compile project(':grouper')
   compile project(':grouper-ui')
-  compile project(':grouperClient')
-  compile group: 'commons-io', name: 'commons-io', version: commons_io_version
-  compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
-  compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
-  compile group: 'commons-math', name: 'commons-math', version: commons_math_version
-  compile group: 'commons-net', name: 'commons-net', version: commons_net_version
-  compile group: 'com.thoughtworks.xstream', name: 'xstream', version: xstream_version
-  compile group: 'org.apache.ws.security', name: 'wss4j', version: wss4j_version
-  compile group: 'org.apache.ws.security', name: 'wss4j', version: wss4j_version
-  compile group: 'org.apache.axis2', name: 'axis2-transport-http', version: axis2_transport_http_version
-  compile group: 'org.apache.axis2', name: 'axis2-adb', version: axis2_adb_version
-  compile group: 'org.apache.rampart', name: 'rampart-core', version: rampart_core_version
-  compile group: 'org.apache.rampart', name: 'rampart-policy', version: rampart_policy_version
-  compile group: 'org.apache.rampart', name: 'rampart-trust', version: rampart_trust_version
+  compile project(':grouper-misc:grouperClient')
+  compile group: 'commons-io', name: 'commons-io', version: 'commons_io_version'
+  compile group: 'commons-lang', name: 'commons-lang', version: 'commons_lang_version'
+  compile group: 'commons-logging', name: 'commons-logging', version: 'commons_logging_version'
+  compile group: 'commons-math', name: 'commons-math', version: 'commons_math_version'
+  compile group: 'commons-net', name: 'commons-net', version: 'commons_net_version'
+  compile group: 'com.thoughtworks.xstream', name: 'xstream', version: 'xstream_version'
+  compile group: 'org.apache.ws.security', name: 'wss4j', version: 'wss4j_version'
+  compile group: 'org.apache.axis2', name: 'axis2-transport-http', version: 'axis2_transport_http_version'
+  compile group: 'org.apache.axis2', name: 'axis2-adb', version: 'axis2_adb_version'
+  compile group: 'org.apache.rampart', name: 'rampart-core', version: 'rampart_core_version'
+  compile group: 'org.apache.rampart', name: 'rampart-policy', version: 'rampart_policy_version'
+  compile group: 'org.apache.rampart', name: 'rampart-trust', version: 'rampart_trust_version'
   testCompile project(path: ":grouper", configuration: "tests")
 }
 
 sourceSets {
   main{
     java {
-      srcDir 'src/grouper-ws'
+      srcDirs 'src/grouper-ws'
     }
     resources {
       srcDirs 'conf'
@@ -33,7 +31,7 @@ sourceSets {
   }
   test {
     java {
-      srcDir 'src/test'
+      srcDirs 'src/test'
     }
   }
 }

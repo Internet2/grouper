@@ -44,7 +44,6 @@ import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.IntersectionFilter;
 import edu.internet2.middleware.grouper.filter.NullFilter;
 import edu.internet2.middleware.grouper.filter.StemCreatedAfterFilter;
-import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;

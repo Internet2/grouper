@@ -39,7 +39,6 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.strutsel.taglib.utils.EvalHelper;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

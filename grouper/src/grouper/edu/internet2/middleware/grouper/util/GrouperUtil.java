@@ -1665,6 +1665,7 @@ public class GrouperUtil {
 	    Object object = JSONObject.toBean( jsonObject, theClass );
 	    return (T)object;
   }
+  
   /**
    * get the extension from name.  if name is a:b:c, name is c
    * @param name
@@ -1680,6 +1681,23 @@ public class GrouperUtil {
     }
     String extension = name.substring(lastColonIndex+1);
     return extension;
+  }
+
+  /**
+   * <pre>
+   * see if a name is in a folder (not subfolder).  if name is a:b:c, and folder is a:b, then yes
+   * if a:b:c and a:c, then no
+   * if a:b:c and a, then no
+   * </pre>
+   * @param name
+   * @param folder 
+   * @return the name
+   */
+  public static boolean nameInFolderDirect(String name, String folder) {
+
+    String parentStem = parentStemNameFromName(name);
+
+    return equals(parentStem, folder);
   }
 
   /**

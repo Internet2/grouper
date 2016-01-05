@@ -15,9 +15,6 @@
  */
 package edu.internet2.middleware.grouperClient.config;
 
-import junit.framework.TestCase;
-import junit.textui.TestRunner;
-
 /**
  * 
  * @author mchyzer

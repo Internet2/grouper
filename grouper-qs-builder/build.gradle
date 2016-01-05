@@ -1,0 +1,14 @@
+apply plugin:'java'
+description = 'Grouper Gs Builder'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'custom-grouper-ui/java'
+    }
+    resources {
+      srcDirs 'custom-grouper-ui/resources'
+    }
+  }
+}
+

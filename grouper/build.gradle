@@ -1,76 +1,77 @@
-
 description = 'Grouper API'
 dependencies {
-  compile project(':subject')
-  compile project(':morphString')
-  compile project(':grouperClient')
-  compile group: 'antlr', name: 'antlr', version: antlr_version
-  compile group: 'asm', name: 'asm', version: asm_version
-  compile group: 'asm', name: 'asm-util', version: asm_util_version
-  compile group: 'backport-util-concurrent', name: 'backport-util-concurrent', version: backport_util_concurrent_version
-  compile group: 'commons-beanutils', name: 'commons-beanutils', version: commons_beanutils_version
-  compile group: 'commons-betwixt', name: 'commons-betwixt', version: commons_betwixt_version
-  compile group: 'commons-cli', name: 'commons-cli', version: commons_cli_version
-  compile group: 'commons-collections', name: 'commons-collections', version: commons_collections_version
-  compile group: 'commons-digester', name: 'commons-digester', version: commons_digester_version
-  compile group: 'commons-discovery', name: 'commons-discovery', version: commons_discovery_version
-  compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
-  compile group: 'commons-httpclient', name: 'commons-httpclient', version: commons_httpclient_version
-  compile group: 'commons-io', name: 'commons-io', version: commons_io_version
-  compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
-  compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
-  compile group: 'commons-math', name: 'commons-math', version: commons_math_version
-  compile group: 'com.thoughtworks.xstream', name: 'xstream', version: xstream_version
-  compile group: 'c3p0', name: 'c3p0', version: c3p0_version
-  compile group: 'dom4j', name: 'dom4j', version: dom4j_version
-  compile group: 'javassist', name: 'javassist', version: javassist_version
-  compile group: 'javax.activation', name: 'activation', version: activation_version
-  compile group: 'javax.mail', name: 'mail', version: mail_version
-  compile group: 'javax.transaction', name: 'jta', version: jta_version
-  compile group: 'jug', name: 'jug', version: jug_version
-  compile group: 'net.sf.ehcache', name: 'ehcache-core', version: ehcache_core_version
-  compile group: 'net.sf.ezmorph', name: 'ezmorph', version: ezmorph_version
-  compile group: 'net.sf.json-lib', name: 'json-lib', version: json_lib_version, classifier: 'jdk15'
-  compile group: 'net.sf.jsr107cache', name: 'jsr107cache', version: jsr107cache_version
-  compile group: 'odmg', name: 'odmg', version: odmg_version
-  compile group: 'org.opensymphony.quartz', name: 'quartz', version: quartz_version
-  compile group: 'org.apache.ant', name: 'ant', version: ant_version
-  compile group: 'org.apache.ddlutils', name: 'ddlutils', version: ddlutils_version
-  compile group: 'org.beanshell', name: 'bsh', version: bsh_version
-  compile group: 'xpp3', name: 'xpp3_min', version: xpp3_min_version
-  compile group: 'jivesoftware', name: 'smack', version: smack_version
-  compile group: 'org.mortbay.jetty', name: 'jetty', version: jetty_version
-  compile group: 'org.mortbay.jetty', name: 'jetty-util', version: jetty_util_version
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4j_log4j12_version
-  compile group: 'hsqldb', name: 'hsqldb', version: hsqldb_version
-  compile group: 'org.wso2.charon', name: 'org.wso2.charon.core', version: org_wso2_charon_core_version
-  compile group: 'org.apache.wink', name: 'wink-client', version: wink_client_version
-  compile group: 'org.wso2.charon', name: 'org.wso2.charon.samples', version: org_wso2_charon_samples_version
-  runtime group: 'p6spy', name: 'p6spy', version: p6spy_version
-  runtime group: 'postgresql', name: 'postgresql', version: postgresql_version
-  runtime group: 'mysql', name: 'mysql-connector-java', version: mysql_connector_java_version
-  testCompile group: 'com.jamonapi', name: 'jamon', version: jamon_version
-  provided group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
-  provided group: 'javax.servlet', name: 'servlet-api', version: servlet_api_version
+    compile project(':subject')
+    compile project(':grouper-misc:morphString')
+    compile project(':grouper-misc:grouperClient')
+    compile group: 'ant', name: 'ant-jakarta-oro', version: '1.6.1'
+    compile group: 'antlr', name: 'antlr', version: '2.7.7'
+    compile group: 'asm', name: 'asm', version: '3.3.1'
+    compile group: 'asm', name: 'asm-util', version: '3.3.1'
+    compile group: 'backport-util-concurrent', name: 'backport-util-concurrent', version: '3.1'
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.2'
+    compile group: 'commons-betwixt', name: 'commons-betwixt', version: '0.8'
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
+    compile group: 'commons-digester', name: 'commons-digester', version: '1.7'
+    compile group: 'commons-discovery', name: 'commons-discovery', version: '0.4'
+    compile group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1'
+    compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.0'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
+    compile group: 'commons-math', name: 'commons-math', version: '1.1'
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.7'
+    compile group: 'c3p0', name: 'c3p0', version: '0.9.1.2'
+    compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
+    compile group: 'javassist', name: 'javassist', version: '3.12.0.GA'
+    compile group: 'javax.activation', name: 'activation', version: '1.1.1'
+    compile group: 'javax.mail', name: 'mail', version: '1.4.7'
+    compile group: 'javax.transaction', name: 'jta', version: '1.0.1B'
+    compile group: 'jug', name: 'jug', version: '1.1.2'
+    compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.6.9'
+    compile group: 'net.sf.ezmorph', name: 'ezmorph', version: '1.0.6'
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.3', classifier: 'jdk15'
+    compile group: 'net.sf.jsr107cache', name: 'jsr107cache', version: '1.0'
+    compile group: 'odmg', name: 'odmg', version: '3.0'
+    compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.2.2'
+    compile group: 'org.apache.ant', name: 'ant', version: '1.7.1'
+    compile group: 'org.apache.ddlutils', name: 'ddlutils', version: '1.0'
+    compile group: 'org.beanshell', name: 'bsh', version: '2.0b5'
+    compile group: 'xpp3', name: 'xpp3_min', version: '1.1.4c'
+    compile group: 'jivesoftware', name: 'smack', version: '3.1.0'
+    compile group: 'org.mortbay.jetty', name: 'jetty', version: '6.1.24'
+    compile group: 'org.mortbay.jetty', name: 'jetty-util', version: '6.1.24'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.7'
+    compile group: 'hsqldb', name: 'hsqldb', version: '1.8.0.10'
+    compile group: 'org.wso2.charon', name: 'org.wso2.charon.core', version: '1.0.0'
+    compile group: 'org.apache.wink', name: 'wink-client', version: '1.4'
+    compile group: 'org.wso2.charon', name: 'org.wso2.charon.samples', version: '1.0.0'
+    runtime group: 'p6spy', name: 'p6spy', version: '1.1'
+    runtime group: 'postgresql', name: 'postgresql', version: '8.4-701.jdbc4'
+    runtime group: 'mysql', name: 'mysql-connector-java', version: '5.1.17'
+    testCompile group: 'com.jamonapi', name: 'jamon', version: '2.7'
+    provided group: 'org.hibernate', name: 'hibernate-core', version: '3.6.7.Final'
+    provided group: 'javax.servlet', name: 'servlet-api', version: '2.5'
 }
 
 sourceSets {
-  main{
-    java {
-      srcDirs 'src/esb', 'src/grouper'
-      exclude 'test/**', 'doc/**'
+    main {
+        java {
+            srcDirs 'src/grouper'
+            exclude 'test/**', 'doc/**'
+        }
+        resources {
+            srcDirs 'conf', 'confCustom', 'src/grouper'
+            include '**/*.xml', '**/*.properties'
+        }
     }
-    resources {
-      srcDirs 'conf', 'confCustom'
+    test {
+        java {
+            srcDir 'src/test'
+        }
+        resources {
+            srcDir 'confForTest'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test'
-    }
-    resources {
-      srcDir 'confForTest'
-    }
-  }
 }
 

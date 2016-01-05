@@ -1,0 +1,22 @@
+
+description = 'WsSourceAdapter'
+
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/edu'
+    }
+    resources {
+      srcDirs 'conf'
+    }
+  }
+  test {
+    java {
+      srcDir 'src/test'
+    }
+    resources {
+      srcDir 'src/test/resources'
+    }
+  }
+}

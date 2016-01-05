@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.webservicesClient;
 
 import java.io.Reader;
 
+import edu.internet2.middleware.grouper.ws.samples.WsSampleManualXmlHttp;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -24,7 +25,6 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PutMethod;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.WsSampleManualXmlHttp;
 
 /**
  * @author mchyzer

@@ -33,7 +33,6 @@
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import junit.runner.TestRunListener;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;

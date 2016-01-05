@@ -1,0 +1,19 @@
+apply plugin: "java"
+description = 'Googleapps grouper provisioner'
+
+sourceSets {
+  main{
+    java {
+      srcDir 'src/main'
+      exclude 'src/test/**', 'src/doc/**'
+    }
+  }
+  test {
+    java {
+      srcDir 'src/test/java'
+    }
+    resources {
+      srcDir 'src/test/resources'
+    }
+  }
+}

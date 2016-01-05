@@ -24,16 +24,11 @@ import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
-import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAssignAttributeDefNameInheritanceResults;
-import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefName;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameSaveResults;
-import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefNameToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignAttributeDefNameInheritanceRequest;
-import edu.internet2.middleware.grouperClient.ws.beans.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 

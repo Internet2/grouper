@@ -1,10 +1,9 @@
-
 description = 'Grouper AMQ'
 dependencies {
   compile project(':subject')
   compile project(':grouper')
-  compile project(':grouperClient')
-  compile group: 'org.apache.activemq', name: 'activemq-core', version:activemq_version
+  compile project(':grouper-misc:grouperClient')
+  compile group: 'org.apache.activemq', name: 'activemq-core', version:'activemq_version'
 }
 
 sourceSets {

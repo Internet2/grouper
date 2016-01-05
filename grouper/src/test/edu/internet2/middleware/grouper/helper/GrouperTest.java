@@ -36,7 +36,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
@@ -108,8 +107,7 @@ public class GrouperTest extends TestCase {
       return;
     if (expected != null && SubjectHelper.eq(expected,actual))
       return;
-
-    Assert.assertEquals(message, expected, actual);
+    assertEquals(message, expected, actual);
   }
 
 

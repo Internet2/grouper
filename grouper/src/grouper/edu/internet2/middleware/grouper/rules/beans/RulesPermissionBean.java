@@ -19,7 +19,6 @@
  */
 package edu.internet2.middleware.grouper.rules.beans;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
