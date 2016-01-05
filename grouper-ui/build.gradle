@@ -2,7 +2,7 @@ description = 'Grouper UI'
 dependencies {
     compile project(':subject')
     compile project(':grouper')
-    compile project(':grouperClient')
+    compile project(':grouper-misc:grouperClient')
     compile group: 'ant', name: 'ant-jakarta-oro', version: '1.6.1'
     compile group: 'antlr', name: 'antlr', version: '2.7.7'
     compile group: 'asm', name: 'asm', version: '3.3.1'

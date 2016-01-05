@@ -1,0 +1,13 @@
+apply plugin: "java"
+description = 'Grouper duo'
+
+sourceSets {
+  main{
+    java {
+      srcDirs 'src'
+    }
+    resources {
+      srcDirs 'conf'
+    }
+  }
+}

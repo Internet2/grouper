@@ -1,7 +1,7 @@
 description = 'Grouper WS Manual Client'
 
 dependencies {
-	compile project(':grouper-ws-parent:grouper-ws')
+	compile project(':grouper-ws:grouper-ws')
 	compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 sourceSets {
