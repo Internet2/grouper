@@ -18,13 +18,15 @@ subprojects {
 
   repositories {
     mavenLocal()
-    
+    mavenCentral()
     maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
     maven { url "https://shibboleth.net/nexus/content/groups/public" }
     maven { url "http://oss.sonatype.org/content/repositories/releases/" }
     maven { url "http://repo1.maven.org/maven2" }
     maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
     maven { url "http://central.maven.org/maven2" }
+    maven { url "http://maven.ala.org.au/repository" }
+    maven { url "http://mvnrepository.com/artifact" }
   }
   
   configurations {

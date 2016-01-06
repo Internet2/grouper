@@ -16,7 +16,7 @@ sourceSets {
       srcDir 'src/main'
     }
     resources {
-      srcDirs 'conf', 'misc/META-INF'
+      srcDirs '.settings'
     }
   }
   test {

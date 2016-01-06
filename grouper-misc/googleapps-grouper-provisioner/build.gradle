@@ -1,6 +1,16 @@
 apply plugin: "java"
 description = 'Googleapps grouper provisioner'
 
+dependencies {
+  compile project(':grouper')
+  compile group: 'com.google.apis', name: 'google-api-services-admin-directory', version: 'directory_v1-rev62-1.21.0'
+  compile group: 'com.google.apis', name: 'google-api-services-groupssettings', version: 'v1-rev54-1.21.0'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.7'
+  compile group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1'
+  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+  compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
+}
+
 sourceSets {
   main{
     java {

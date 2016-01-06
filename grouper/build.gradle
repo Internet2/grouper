@@ -67,7 +67,7 @@ sourceSets {
     }
     test {
         java {
-            srcDir 'src/test'
+            srcDir 'src/test/edu'
         }
         resources {
             srcDir 'confForTest'

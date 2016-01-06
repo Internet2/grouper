@@ -4,7 +4,7 @@ include ':grouper-misc:grouperClient'
 include ':subject'
 include ':grouper'
 include ':grouper-misc:grouper-shib'
-include ':grouper-misc:grouper-scim'
+include ':grouper-misc:grouperScim'
 include ':grouper-ui'
 include ':grouper-ws:grouper-ws'
 include ':grouper-ws:grouper-ws-java-generated-client'
@@ -30,7 +30,7 @@ project(':grouper-misc:grouperClient').projectDir = "$rootDir/../grouper-misc/gr
 project(':subject').projectDir = "$rootDir/../subject" as File
 project(':grouper').projectDir = "$rootDir/../grouper" as File
 project(':grouper-misc:grouper-shib').projectDir = "$rootDir/../grouper-misc/grouper-shib" as File
-project(':grouper-misc:grouper-scim').projectDir = "$rootDir/../grouper-misc/grouperScim" as File
+project(':grouper-misc:grouperScim').projectDir = "$rootDir/../grouper-misc/grouperScim" as File
 project(':grouper-ui').projectDir = "$rootDir/../grouper-ui" as File
 project(':grouper-ws:grouper-ws').projectDir = "$rootDir/../grouper-ws/grouper-ws" as File
 project(':grouper-ws:grouper-ws-java-generated-client').projectDir = "$rootDir/../grouper-ws/grouper-ws-java-generated-client" as File
