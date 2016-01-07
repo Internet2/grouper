@@ -1,4 +1,4 @@
-
+apply plugin: 'java'
 description = 'Grouper WS Test'
 repositories {
 	flatDir {
@@ -7,15 +7,16 @@ repositories {
 }
 
 dependencies {
-  testCompile project(':grouper-ws-parent:grouper-ws')
-  testCompile project(':grouper-ws-parent:grouper-ws-java-generated-client')
+  testCompile project(':grouper-ws:grouper-ws')
+  testCompile project(':grouper-ws:grouper-ws-java-generated-client')
   testCompile project(path: ":grouper", configuration: "tests")
-  testCompile project(path: ":grouper-ws-parent:grouper-ws", configuration: "tests")
+  testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
 }
+
 sourceSets {
   test {
     java {
-      srcDir 'src/test'
+      srcDirs 'src/test'
     }
   }
 }

@@ -1,8 +1,8 @@
 
 description = 'Subject API'
 dependencies {
-  compile project(':morphString')
-  compile project(':grouperClient')
+  compile project(':grouper-misc:morphString')
+  compile project(':grouper-misc:grouperClient')
   compile group: 'commons-collections', name: 'commons-collections', version:'3.2.1'
   compile group: 'cglib', name: 'cglib', version:'3.1'
   compile group: 'commons-logging', name: 'commons-logging', version:'1.2'

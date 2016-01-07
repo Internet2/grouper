@@ -1,0 +1,19 @@
+apply plugin:'java'
+description = 'Grouper Gs Builder'
+dependencies {
+  compile project(':subject')
+  compile project(':grouper-ui')
+  provided group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+  provided group: 'org.apache.struts', name: 'struts-core', version: '1.3.5'
+}
+sourceSets {
+  main{
+    java {
+      srcDir 'custom-grouper-ui/java'
+    }
+    resources {
+      srcDirs 'custom-grouper-ui/resources'
+    }
+  }
+}
+

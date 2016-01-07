@@ -2,7 +2,7 @@ description = 'Grouper UI'
 dependencies {
     compile project(':subject')
     compile project(':grouper')
-    compile project(':grouperClient')
+    compile project(':grouper-misc:grouperClient')
     compile group: 'ant', name: 'ant-jakarta-oro', version: '1.6.1'
     compile group: 'antlr', name: 'antlr', version: '2.7.7'
     compile group: 'asm', name: 'asm', version: '3.3.1'
@@ -26,7 +26,7 @@ dependencies {
     compile group: 'javassist', name: 'javassist', version: '3.12.0.GA'
     compile group: 'javax.activation', name: 'activation', version: '1.1.1'
     compile group: 'javax.mail', name: 'mail', version: '1.4.7'
-    compile group: 'javax.transaction', name: 'jta', version: '1.0.1B'
+    compile group: 'javax.transaction', name: 'jta', version: '1.1'
     compile group: 'jug', name: 'jug', version: '1.1.2'
     compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.6.9'
     compile group: 'net.sf.ezmorph', name: 'ezmorph', version: '1.0.6'

@@ -1,14 +1,13 @@
-
+apply plugin: "java"
 description = 'Grouper SCIM'
 dependencies {
-  compile group: 'org.wso2.charon', name: 'org.wso2.charon.core', version:'1.0.0'
-  compile group: 'org.wso2.charon', name: 'org.wso2.charon.samples', version:'1.0.0'
-  compile group: 'commons-httpclient', name: 'commons-httpclient', version:'3.0'
-  compile group: 'org.json', name: 'json', version:'20140107'
-  compile group: 'org.apache.wink', name: 'wink-client', version:'1.4'
+  compile group: 'org.wso2.charon', name: 'org.wso2.charon.samples', version: '1.0'
+  compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+  compile group: 'org.json', name: 'json', version: '20151123'
+  compile group: 'org.apache.wink', name: 'wink-client', version: '1.4'
+  provided group: 'org.hibernate', name: 'hibernate-core', version: '5.0.5.Final'
   testCompile project(path: ":grouper", configuration: "tests")
   provided project(':grouper')
-  provided group: 'org.hibernate', name: 'hibernate-core', version:'3.6.7.Final'
 }
 
 sourceSets {
@@ -17,7 +16,7 @@ sourceSets {
       srcDir 'src/main'
     }
     resources {
-      srcDirs 'conf', 'misc/META-INF'
+      srcDirs '.settings'
     }
   }
   test {

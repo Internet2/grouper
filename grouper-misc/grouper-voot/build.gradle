@@ -2,8 +2,8 @@ description = 'Grouper Voot'
 dependencies {
     compile project(':subject')
     compile project(':grouper')
-    compile project(':grouperClient')
-    compile project(':grouper-ws-parent:grouper-ws')
+    compile project(':grouper-misc:grouperClient')
+    compile project(':grouper-ws:grouper-ws')
     testCompile project(path: ":grouper", configuration: "tests")
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.4.Final'
 }
