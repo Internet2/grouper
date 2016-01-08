@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -571,6 +573,9 @@ public class HibernateSession {
     }
     if (e instanceof StaleObjectStateException) {
       throw new GrouperStaleObjectStateException(errorString, e);
+    }
+    if (e instanceof StaleStateException) {
+      throw new GrouperStaleStateException(errorString, e);
     }
     // if hibernate exception, repackage
     if (e instanceof HibernateException) {
