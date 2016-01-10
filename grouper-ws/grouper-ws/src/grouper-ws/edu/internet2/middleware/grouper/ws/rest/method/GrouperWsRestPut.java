@@ -37,6 +37,8 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributes
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributesRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
@@ -338,6 +340,53 @@ public enum GrouperWsRestPut {
     }
   
   }, 
+  
+  /** attributeDef put requests */
+  attributeDefs {
+
+    /**
+     * handle the incoming request based on PUT HTTP method and attributeDef resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDefs/[nameOfAttributeDef]
+     * the urlStrings would be size two: {"attributeDefs", "nameOfAttributeDef"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /v1_3_000/attributeDefs/[nameOfAttributeDef]
+
+      String attributeDefName = GrouperServiceUtils.popUrlString(urlStrings);
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Dont pass in an operation! " + operation);
+      }
+
+      if (requestObject instanceof WsRestAttributeDefSaveRequest) {
+        if (!StringUtils.isBlank(attributeDefName)) {
+          throw new WsInvalidQueryException(
+              "Dont pass attributeDefName name when saving batch attributeDefs: '"
+                  + attributeDefName + "'");
+        }
+        return GrouperServiceRest.attributeDefSave(clientVersion,
+            (WsRestAttributeDefSaveRequest) requestObject);
+      }
+
+      if ((requestObject == null || requestObject instanceof WsRestAttributeDefSaveLiteRequest)) {
+        return GrouperServiceRest.attributeDefSaveLite(clientVersion, attributeDefName,
+            (WsRestAttributeDefSaveLiteRequest) requestObject);
+      }
+
+      throw new WsInvalidQueryException("Invalid request object: "
+          + (requestObject == null ? null : requestObject.getClass()));
+    }
+
+  },
   
   /** attributeDefName put requests */
   attributeDefNames {
