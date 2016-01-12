@@ -8,10 +8,14 @@ dependencies {
         exclude(module: 'dwr')
         exclude(module: 'kuali-common')
         exclude(module: 'xapool')
+        exclude(module: 'commons-transaction')
     }
     compile(group: 'org.kuali.rice', name:'rice-kim-impl', version:'2.0.1') {
-    	exclude(module: 'dwr')
-      exclude(group: 'org.jacorb')
+        exclude(module: 'dwr')
+        exclude(module: 'kuali-common')
+        exclude(module: 'xapool')
+        exclude(module: 'commons-transaction')
+        exclude(group: 'org.jacorb')
     }
 
     compile project(':grouper')
