@@ -1,6 +1,20 @@
 description = 'Grouper Kim Connector'
 dependencies {
-   compile fileTree(dir: 'lib', include: ['*.jar'])
+  compile project(':grouper')
+  compile project(':grouper-misc:grouperClient')
+
+  compile group: 'org.hibernate', name:'hibernate-annotations', version:'3.3.0.ga'
+  compile group: 'javax.persistence', name:'persistence-api', version:'1.0'
+  compile group: 'org.springframework', name:'spring-beans', version:'2.0.4'
+  compile group: 'commons-validator', name:'commons-validator', version:'1.1.4'
+  compile group: 'org.springframework', name:'spring-core', version:'2.0.4'
+  compile group: 'org.springframework', name:'spring-jdbc', version:'2.0.4'
+  compile group: 'org.springframework', name:'spring-dao', version:'2.0.4'
+  compile group: 'ant-contrib', name:'ant-contrib', version:'20020829'
+  compile group: 'javax.servlet', name:'servlet-api', version:'2.4'
+  compile group: 'jdom', name:'jdom', version:'1.1'
+
+  compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 
 sourceSets {
