@@ -19,24 +19,6 @@
  */
 package edu.internet2.middleware.grouperAtlassianConnector.db;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.quartz.CronTrigger;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.StatefulJob;
-import org.quartz.impl.StdSchedulerFactory;
-
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAccessProvider;
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianUtils;
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperProfileProvider;
@@ -49,6 +31,26 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
 import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.StatefulJob;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
+import org.quartz.impl.StdSchedulerFactory;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 
@@ -327,15 +329,13 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     if (GrouperClientUtils.isBlank(quartzCronString)) {
       return;
     }
-    
+
     String jobGroup = Scheduler.DEFAULT_GROUP;
-    JobDetail jobDetail = new JobDetail(jobName,
-        jobGroup, jobClass);
+    JobDetail jobDetail = JobBuilder.newJob(jobClass)
+            .withIdentity(jobName, jobGroup)
+            .storeDurably(true).build();
 
     Scheduler scheduler = scheduler();
-
-    //atlassian requires durable jobs...
-    jobDetail.setDurability(true);
 
     boolean uniqueTriggerNames = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.atlassian.uniqueQuartzTriggerNames", false);
 
@@ -349,18 +349,20 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     CronTrigger cronTrigger = null;
     if (!uniqueTriggerNames) {
       try {
-        cronTrigger = (CronTrigger) scheduler.getTrigger(triggerName, jobGroup);
+        cronTrigger = (CronTrigger) scheduler.getTrigger(new TriggerKey(triggerName, jobGroup));
       } catch (SchedulerException se) {
         throw new RuntimeException("Problem with trigger: " + jobName, se);
       }
     }
     if (cronTrigger == null) {
-      cronTrigger = new CronTrigger(triggerName, jobGroup);
+      cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerName, jobGroup)
+              .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString)).build();
     }
 
     try {
-      cronTrigger.setCronExpression(quartzCronString);
-    } catch (ParseException pe) {
+      CronScheduleBuilder builder = (CronScheduleBuilder) cronTrigger.getScheduleBuilder();
+      builder.cronSchedule(quartzCronString);
+    } catch (Exception pe) {
       throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
     }
 
