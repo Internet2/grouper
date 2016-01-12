@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.Job;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -155,14 +156,16 @@ public class GrouperDuoDaemon {
       Scheduler scheduler = scheduler();
 
       //the name of the job must be unique, so use the group name since one job per group (at this point)
-      JobDetail jobDetail = new JobDetail(jobName, null, jobClass);
+      String jobGroup = Scheduler.DEFAULT_GROUP;
+      JobDetail jobDetail = JobBuilder.newJob(jobClass)
+              .withIdentity(jobName, jobGroup)
+              .build();
 
       //schedule this job
       GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
       Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerChangeLog_" + jobName, priority, cronString, null);
 
       scheduler.scheduleJob(jobDetail, trigger);
-
 
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + jobName + "'";
