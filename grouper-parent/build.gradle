@@ -27,6 +27,7 @@ subprojects {
     maven { url "http://central.maven.org/maven2" }
     maven { url "http://maven.ala.org.au/repository" }
     maven { url "http://mvnrepository.com/artifact" }
+    maven { url "https://maven.atlassian.com/repository/public" }
   }
   
   configurations {

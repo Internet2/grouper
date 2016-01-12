@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ws;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -164,16 +165,14 @@ public class GrouperServiceJ2ee implements Filter {
       LOG.debug("Number of rampart results: " + results.size());
       OUTER: for (int i = 0; i < results.size(); i++) {
         WSHandlerResult rResult = (WSHandlerResult) results.get(i);
-        Vector wsSecEngineResults = rResult.getResults();
+        List<WSSecurityEngineResult> wsSecEngineResults = rResult.getResults();
 
         for (int j = 0; j < wsSecEngineResults.size(); j++) {
-          WSSecurityEngineResult wser = (WSSecurityEngineResult) wsSecEngineResults
-              .get(j);
+          WSSecurityEngineResult wser = wsSecEngineResults.get(j);
           if (wser.getAction() == WSConstants.UT && wser.getPrincipal() != null) {
 
             //Extract the principal
-            WSUsernameTokenPrincipal principal = (WSUsernameTokenPrincipal) wser
-                .getPrincipal();
+            WSUsernameTokenPrincipal principal = (WSUsernameTokenPrincipal) wser.getPrincipal();
 
             //Get user
             userIdLoggedIn = principal.getName();

@@ -31,7 +31,7 @@ public class GrouperWssecSample implements GrouperWssecAuthentication {
    * @see edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication#authenticate(org.apache.ws.security.WSPasswordCallback)
    */
   public boolean authenticate(WSPasswordCallback wsPasswordCallback) throws IOException {
-    System.out.println("identifier: " + wsPasswordCallback.getIdentifer() + ", usage: "
+    System.out.println("identifier: " + wsPasswordCallback.getIdentifier() + ", usage: "
         + wsPasswordCallback.getUsage());
 
     if (wsPasswordCallback.getUsage() == WSPasswordCallback.USERNAME_TOKEN) {
@@ -39,8 +39,8 @@ public class GrouperWssecSample implements GrouperWssecAuthentication {
       // because the original one can't be un-digested from the message
 
       // we can throw either of the two Exception types if authentication fails
-      if (!"GrouperSystem".equals(wsPasswordCallback.getIdentifer())) {
-        throw new IOException("unknown user: " + wsPasswordCallback.getIdentifer());
+      if (!"GrouperSystem".equals(wsPasswordCallback.getIdentifier())) {
+        throw new IOException("unknown user: " + wsPasswordCallback.getIdentifier());
       }
 
       // this will throw an exception if the passwords don't match
@@ -51,14 +51,14 @@ public class GrouperWssecSample implements GrouperWssecAuthentication {
     if (wsPasswordCallback.getUsage() == WSPasswordCallback.USERNAME_TOKEN_UNKNOWN) {
       // for passwords sent in cleartext mode we can compare passwords directly
 
-      if (!"GrouperSystem".equals(wsPasswordCallback.getIdentifer())) {
-        throw new IOException("unknown user: " + wsPasswordCallback.getIdentifer());
+      if (!"GrouperSystem".equals(wsPasswordCallback.getIdentifier())) {
+        throw new IOException("unknown user: " + wsPasswordCallback.getIdentifier());
       }
 
       // we can throw either of the two Exception types if authentication fails
       if (!"mypass".equals(wsPasswordCallback.getPassword())) {
         throw new IOException("password incorrect for user: "
-            + wsPasswordCallback.getIdentifer());
+            + wsPasswordCallback.getIdentifier());
       }
       return true;
     }

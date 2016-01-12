@@ -69,7 +69,7 @@ public class RampartHandlerServer implements CallbackHandler {
     for (int i = 0; i < callbacks.length; i++) {
       if (callbacks[i] instanceof WSPasswordCallback) {
         WSPasswordCallback wsPasswordCallback = (WSPasswordCallback) callbacks[i];
-        LOG.debug("identifier: "+wsPasswordCallback.getIdentifer()+", usage: "+wsPasswordCallback.getUsage());
+        LOG.debug("identifier: "+wsPasswordCallback.getIdentifier()+", usage: "+wsPasswordCallback.getUsage());
 
 //        if (pc.getUsage() == WSPasswordCallback.USERNAME_TOKEN) {
 //          // for passwords sent in digest mode we need to provide the password,

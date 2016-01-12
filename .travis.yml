@@ -10,24 +10,23 @@ language: java
 sudo: false
 branches:
   only:
-  - master
-  - GROUPER_2_1_BRANCH
-  - GROUPER_2_2_BRANCH
+  - gradle
 jdk:
-- oraclejdk7
-- openjdk6
-- openjdk7
-install:
-- mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q 
-script:
-- mvn -f ./grouper-parent clean package -DskipTests=true -Dlicense.skip=true
-before_install:
-- chmod -R 777 ./travis/init-travis-build.sh
-- ./travis/init-travis-build.sh
-after_success:
-- mvn -f ./grouper-parent clean test cobertura:cobertura coveralls:cobertura
-- chmod -R 777 travis/javadocs-ghpages.sh
-- travis/javadocs-ghpages.sh
+  - oraclejdk7
+cache:
+  directories:
+    - '$HOME/.gradle/caches'
 env:
   global:
     secure: XmmxnbDo/FeIE2O5M6YMSKjULOgLPDDx79mcfRTf79Fvjiqw2yJBrheLwR2sYs4+6uw7Pe0FkKUXtyRrcK31JvWTuqvwTs08MgMt42VPx7xGX+96i8hN6QTF8D1B1YYRJnnXrtOrhqSbpm+jffw3PiK4f5fcKDntSaMbPUiVRDg=
+before_install:
+- chmod -R 777 ./travis/init-travis-build.sh
+- ./travis/init-travis-build.sh
+- chmod -R 777 ./gradlew
+install:
+- ./gradlew clean
+script:
+- ./gradlew build -x javadoc -x test --parallel
+after_success:
+# - chmod -R 777 travis/javadocs-ghpages.sh
+# - travis/javadocs-ghpages.sh
