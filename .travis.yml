@@ -29,4 +29,4 @@ script:
 - ./gradlew build -x test --parallel --stacktrace
 after_success:
 - chmod -R 777 travis/javadocs-ghpages.sh
-# - travis/javadocs-ghpages.sh
+- travis/javadocs-ghpages.sh

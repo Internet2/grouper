@@ -1,7 +1,6 @@
 description = 'Grouper Root Project'
 
 allprojects  {
-  apply plugin: 'java'
   apply plugin: 'maven'
   apply plugin: "idea"
   apply plugin: "eclipse"
@@ -44,7 +43,7 @@ subprojects {
 
   javadoc {
     classpath += configurations.provided
-    enabled = !Boolean.getBoolean("skipJavadocs")
+    failOnError = false
   }
 
   jar {
@@ -62,3 +61,12 @@ subprojects {
     testCompile group: 'junit', name: 'junit', version: junit_version
   }
 }
+
+/**
+ * Aggregate all javadocs into a single directory
+ **/
+task javadoc(type: Javadoc) {
+    destinationDir = new File(buildDir, 'javadoc')
+    println "javadoc destination is " + destinationDir
+    classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
+} 

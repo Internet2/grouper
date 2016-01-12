@@ -1,13 +1,12 @@
 #!/bin/bash
 
 invokeJavadoc=false
-grouperDocsDirectory="/tmp"
 
 # Only invoke the javadoc deployment process
 # for the first job in the build matrix, so as
 # to avoid multiple deployments.
 
-if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "gradle" ]; then
   case "${TRAVIS_JOB_NUMBER}" in
        *\.1) 
   		echo -e "Invoking Javadoc deployment for Travis job ${TRAVIS_JOB_NUMBER}"
@@ -20,10 +19,10 @@ if [ "$invokeJavadoc" == true ]; then
   
   echo -e "Invoking Maven to generate the site documentation...\n"
   echo "Current working directory is $PWD"
-  mvn -f ./grouper-parent -Dlicense.skip=true -DskipTests=true site site:deploy -ff -B
+  ./gradlew javadoc -q
   
-  echo -e "Copying the generated docs over from $grouperDocsDirectory...\n"
-  cp -R $grouperDocsDirectory $HOME/javadoc-latest
+  echo -e "Copying the generated docs over...\n"
+  cp -R build/javadoc $HOME/javadoc-latest
 
   cd $HOME
   git config --global user.email "travis@travis-ci.org"
@@ -33,6 +32,7 @@ if [ "$invokeJavadoc" == true ]; then
 
   cd gh-pages
   echo "Current working directory is $PWD"
+
 
   echo -e "Removing javadocs...\n"
   git rm -rf ./master/** > /dev/null
