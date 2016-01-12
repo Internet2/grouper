@@ -1,0 +1,30 @@
+rootProject.name = 'grouper-parent'
+
+include ':grouper-misc:morphString'
+include ':grouper-misc:grouperClient'
+
+include ':subject'
+include ':grouper'
+
+include ':grouper-ws:grouper-ws'
+include ':grouper-ws:grouper-ws-java-generated-client'
+include ':grouper-ws:grouper-ws-java-manual-client'
+include ':grouper-ws:grouper-ws-test'
+
+include ':grouper-misc:grouper-shib'
+include ':grouper-misc:grouperScim'
+include ':grouper-misc:grouper-installer'
+include ':grouper-misc:grouper-voot'
+include ':grouper-misc:grouperActivemq'
+include ':grouper-misc:cmuBilling'
+include ':grouper-misc:googleapps-grouper-provisioner'
+include ':grouper-misc:grouper-aws-changelog'
+include ':grouper-misc:grouperAtlassianConnector'
+include ':grouper-misc:grouperKimConnector'
+include ':grouper-misc:morphString'
+include ':grouper-misc:networkGraph'
+include ':grouper-misc:cmuBilling'
+include ':grouper-misc:poc_secureUserData'
+
+include ':grouper-ui'
+include ':grouper-qs-builder'

@@ -1,3 +1,4 @@
+description = 'Grouper Root Project'
 
 allprojects  {
   apply plugin: 'java'

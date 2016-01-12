@@ -7,6 +7,9 @@ dependencies {
     compile group: 'com.atlassian.seraph', name: 'atlassian-seraph', version: '2.6.3'
     compile group: 'com.atlassian.user', name: 'atlassian-user', version: '3.0'
     compile group: 'com.atlassian.event', name: 'atlassian-event', version: '2.3.5'
+    compile(group: 'com.atlassian.confluence', name: 'confluence', version: '5.6.5') {
+        exclude(module: 'XmlSchema')
+    }
     compile project(':grouper')
     compile project(':subject')
     compile project(':grouper-misc:grouper-aws-changelog')
