@@ -37,6 +37,9 @@ if [ "$invokeJavadoc" == true ]; then
   echo -e "Removing javadocs...\n"
   git rm -rf ./master/** > /dev/null
 
+  echo -e "Creating master directory...\n"
+  mkdir -p ./master
+
   echo -e "Copying new javadocs...\n"
   cp -Rf $HOME/javadoc-latest ./master
   echo -e "Adding changes to the index...\n"
