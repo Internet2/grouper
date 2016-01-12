@@ -6,6 +6,7 @@ allprojects  {
   apply plugin: "eclipse"
 }
 
+
 subprojects {
   apply plugin: 'java'
   apply from: rootProject.file("gradle/tasks.gradle")
@@ -41,11 +42,6 @@ subprojects {
     tests testJar
   }
 
-  javadoc {
-    classpath += configurations.provided
-    failOnError = false
-  }
-
   jar {
     manifest {
       attributes("Implementation-Title": project.name,
@@ -65,8 +61,11 @@ subprojects {
 /**
  * Aggregate all javadocs into a single directory
  **/
-task javadoc(type: Javadoc) {
-    destinationDir = new File(buildDir, 'javadoc')
-    println "javadoc destination is " + destinationDir
+task alljavadoc(type: Javadoc) {
+    source subprojects.collect { 
+      project -> project.sourceSets.main.allJava 
+    }
     classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
+    destinationDir = file("${buildDir}/javadoc")
+    failOnError = false
 } 

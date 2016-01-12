@@ -16,3 +16,4 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 task wrapper(type: Wrapper, description: "Gradle's wrapper") {
   gradleVersion = project.gradleVersion
 }
+
