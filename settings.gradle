@@ -24,6 +24,8 @@ include ':grouper-misc:grouperKimConnector'
 include ':grouper-misc:morphString'
 include ':grouper-misc:cmuBilling'
 include ':grouper-misc:poc_secureUserData'
+include ':grouper-misc:grouper-duo'
 
 include ':grouper-ui'
+include ':grouper-ui-dojo'
 include ':grouper-qs-builder'

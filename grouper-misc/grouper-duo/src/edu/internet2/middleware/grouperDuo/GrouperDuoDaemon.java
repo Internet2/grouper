@@ -159,13 +159,7 @@ public class GrouperDuoDaemon {
 
       //schedule this job
       GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
-
-      Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
-
-      trigger.setName("triggerChangeLog_" + jobName);
-
-      //medium priority
-      trigger.setPriority(priority);
+      Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerChangeLog_" + jobName, priority, cronString, null);
 
       scheduler.scheduleJob(jobDetail, trigger);
 

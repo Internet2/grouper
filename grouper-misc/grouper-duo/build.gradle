@@ -1,6 +1,17 @@
 apply plugin: "java"
 description = 'Grouper duo'
 
+dependencies {
+  compile project(':grouper')
+  compile project(':grouper-misc:grouperClient')
+  compile group: 'com.squareup.okio', name: 'okio', version: '1.0.0'
+  compile group: 'com.squareup.okhttp', name: 'okhttp', version: '2.0.0'
+  compile(group: 'org.json', name: 'json', version: '20151123') {
+  	exclude(module: 'jta')
+  }
+  compile fileTree(dir: 'lib', include: ['*.jar'])
+}
+
 sourceSets {
   main{
     java {

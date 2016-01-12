@@ -15,6 +15,7 @@ dependencies {
   compile group: 'jdom', name:'jdom', version:'1.1'
 
   compile fileTree(dir: 'lib', include: ['*.jar'])
+  compile project(':grouper-ws:grouper-ws')
 }
 
 sourceSets {
