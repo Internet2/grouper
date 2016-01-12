@@ -22,7 +22,6 @@ include ':grouper-misc:grouper-aws-changelog'
 include ':grouper-misc:grouperAtlassianConnector'
 include ':grouper-misc:grouperKimConnector'
 include ':grouper-misc:morphString'
-include ':grouper-misc:networkGraph'
 include ':grouper-misc:cmuBilling'
 include ':grouper-misc:poc_secureUserData'
 
