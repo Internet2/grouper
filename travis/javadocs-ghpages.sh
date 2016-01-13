@@ -19,7 +19,7 @@ if [ "$invokeJavadoc" == true ]; then
   
   echo -e "Invoking Gradle to generate the site documentation...\n"
   echo "Current working directory is $PWD"
-  ./gradlew alljavadoc -q
+  ./gradlew alljavadoc -x test 
   
   echo -e "Copying the generated docs over...\n"
   cp -R build/javadoc $HOME/javadoc-latest
@@ -28,7 +28,7 @@ if [ "$invokeJavadoc" == true ]; then
   git config --global user.email "travis@travis-ci.org"
   git config --global user.name "travis-ci"
   echo -e "Cloning the gh-pages branch...\n"
-  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/Internet2/grouper gh-pages > /dev/null
+  git clone --quiet --branch=gh-pages --depth=10 https://${GH_TOKEN}@github.com/Internet2/grouper gh-pages > /dev/null
 
   cd gh-pages
   echo "Current working directory is $PWD"
