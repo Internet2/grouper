@@ -43,9 +43,6 @@ import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
  */
 public class GrouperKimGroupUpdateServiceImplTest extends GrouperTest {
 
-  /** field */
-  @SuppressWarnings("unused")
-  private Field field = null;
   /** root session */
   private GrouperSession grouperSession;
   /** group type */
@@ -95,8 +92,7 @@ public class GrouperKimGroupUpdateServiceImplTest extends GrouperTest {
   
     this.groupType = GroupType.createType(this.grouperSession, "someType", false);
     
-    this.field = this.groupType.addAttribute(this.grouperSession, "anAttribute", 
-        AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+    this.groupType.addAttribute(this.grouperSession, "anAttribute");
   
     String wsUserLabel = GrouperClientUtils.propertiesValue(
         "grouperClient.webService.user.label", true);
