@@ -39,7 +39,11 @@ subprojects {
   }
 
   artifacts {
-    tests testJar
+      tests testJar
+
+      archives sourcesJar
+      archives javadocJar
+      archives testJar
   }
 
   jar {
