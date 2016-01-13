@@ -26,7 +26,7 @@ before_install:
 install:
 - ./gradlew clean
 script:
-- ./gradlew build alljavadoc -x test -x javadoc --parallel --stacktrace
+- ./gradlew build alljavadoc -x test -x javadoc --parallel --stacktrace -q
 after_success:
 - chmod -R 777 travis/javadocs-ghpages.sh
 - travis/javadocs-ghpages.sh
