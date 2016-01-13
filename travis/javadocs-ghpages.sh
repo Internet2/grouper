@@ -31,6 +31,8 @@ if [ "$invokeJavadoc" == true ]; then
 
   echo -e "Removing javadocs...\n"
   git rm -rf ./master/**
+  git rm -rf ./master/javadoc-latest/**
+  rm -rf ./master/javadoc-latest
 
   echo -e "Creating directory...\n"
   mkdir -p ./master
@@ -39,7 +41,7 @@ if [ "$invokeJavadoc" == true ]; then
   ls $HOME/javadoc-latest
 
   echo -e "Copying new javadocs...\n"
-  cp -Rf $HOME/javadoc-latest ./master
+  cp -Rf $HOME/javadoc-latest/** ./master
 
   echo -e "Listing new javadocs...\n"
   ls ./master
