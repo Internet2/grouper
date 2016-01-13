@@ -16,6 +16,8 @@ dependencies {
 
   compile fileTree(dir: 'lib', include: ['*.jar'])
   compile project(':grouper-ws:grouper-ws')
+
+  testCompile project(path: ":grouper", configuration: "tests")
 }
 
 sourceSets {
