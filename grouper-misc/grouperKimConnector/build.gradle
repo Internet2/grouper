@@ -18,6 +18,7 @@ dependencies {
   compile project(':grouper-ws:grouper-ws')
 
   testCompile project(path: ":grouper", configuration: "tests")
+  testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
 }
 
 sourceSets {

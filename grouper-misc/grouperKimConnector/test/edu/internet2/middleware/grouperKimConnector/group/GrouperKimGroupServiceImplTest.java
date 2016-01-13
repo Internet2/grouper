@@ -19,18 +19,6 @@
  */
 package edu.internet2.middleware.grouperKimConnector.group;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import junit.textui.TestRunner;
-
-import org.kuali.rice.kim.bo.group.dto.GroupInfo;
-import org.kuali.rice.kim.bo.group.dto.GroupMembershipInfo;
-import org.kuali.rice.kim.bo.types.dto.AttributeSet;
-
-import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -38,15 +26,24 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperKimConnector.groupUpdate.GrouperKimGroupUpdateServiceImpl;
 import edu.internet2.middleware.grouperKimConnector.util.GrouperKimUtils;
+import junit.textui.TestRunner;
+import org.kuali.rice.kim.bo.group.dto.GroupInfo;
+import org.kuali.rice.kim.bo.group.dto.GroupMembershipInfo;
+import org.kuali.rice.kim.bo.types.dto.AttributeSet;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -82,7 +79,7 @@ public class GrouperKimGroupServiceImplTest extends GrouperTest {
   
   /** field */
   @SuppressWarnings("unused")
-  private Field field = null;
+  private AttributeDefName field = null;
 
   /** */
   private Group nonKimTestGroup = null;
@@ -112,8 +109,7 @@ public class GrouperKimGroupServiceImplTest extends GrouperTest {
 
     this.groupType = GroupType.createType(this.grouperSession, "someType", false);
     
-    this.field = this.groupType.addAttribute(this.grouperSession, "anAttribute", 
-        AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+    this.field = this.groupType.addAttribute(this.grouperSession, "anAttribute");
 
     String wsUserLabel = GrouperClientUtils.propertiesValue(
         "grouperClient.webService.user.label", true);
