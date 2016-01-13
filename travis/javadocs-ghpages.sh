@@ -17,10 +17,6 @@ fi
 if [ "$invokeJavadoc" == true ]; then
   echo -e "Start to publish lastest Javadoc to gh-pages...\n"
   
-  echo -e "Invoking Gradle to generate the site documentation...\n"
-  echo "Current working directory is $PWD"
-  ./gradlew alljavadoc -x test 
-  
   echo -e "Copying the generated docs over...\n"
   cp -R build/javadoc $HOME/javadoc-latest
 
