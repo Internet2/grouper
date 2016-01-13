@@ -989,6 +989,27 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
 
   /**
+   * get the value whatever it is or null if none
+   * @return the value
+   */
+  public Object getValue() {
+    if (!StringUtils.isEmpty(this.valueString)) {
+      return this.valueString;
+    }
+    if (this.valueInteger != null) {
+      return this.valueInteger;
+    }
+    if (this.valueFloating != null) {
+      return this.valueFloating;
+    }
+    if (this.valueMemberId != null) {
+      return this.valueMemberId;
+    }
+    //probably null :)
+    return null;
+  }
+  
+  /**
    * get the type of this value
    * @return the type of this value
    */
@@ -1004,17 +1025,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     if (valueCount == 0) {
       return AttributeAssignValueType.nullValue;
     }
-    if (this.valueFloating != null) {
-      return AttributeAssignValueType.floating;
+    if (!StringUtils.isEmpty(this.valueString)) {
+      return AttributeAssignValueType.string;
     }
     if (this.valueInteger != null) {
       return AttributeAssignValueType.integerValue;
     }
+    if (this.valueFloating != null) {
+      return AttributeAssignValueType.floating;
+    }
     if (this.valueMemberId != null) {
       return AttributeAssignValueType.memberId;
-    }
-    if (!StringUtils.isEmpty(this.valueString)) {
-      return AttributeAssignValueType.string;
     }
     throw new RuntimeException("Why are we here? " + this);
   }

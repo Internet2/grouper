@@ -22,7 +22,10 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,8 +42,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -48,6 +55,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
@@ -576,6 +584,88 @@ public class XmlExportAttributeAssign {
   }
 
   /**
+   * @param xmlExportMain
+   * @param writer
+   */
+  public static void exportAttributeAssigns(final Writer writer, final XmlExportMain xmlExportMain) {
+  
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        //select all members in order
+        //order by attributeAssignId so the ones not about assigns are first.
+        Query query = session.createQuery(
+            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true));
+  
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        
+        Set<AttributeAssign> attributeAssignsOfAssigns = new LinkedHashSet<AttributeAssign>();
+        
+        try {
+          writer.write("  <attributeAssigns>\n");
+  
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              Object object = results.get(0);
+              final AttributeAssign attributeAssign = (AttributeAssign)object;
+              
+              if (attributeAssign.getAttributeAssignType() == AttributeAssignType.imm_mem || 
+                  attributeAssign.getAttributeAssignType() == AttributeAssignType.imm_mem_asgn) {
+                //do these in a future phase
+                xmlExportMain.getAttributeAssignsForSecondPhase().put(attributeAssign.getId(), attributeAssign);
+              } else if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+                //do the attribute assigns of assigns later on (just below)
+                attributeAssignsOfAssigns.add(attributeAssign);
+              } else {
+              
+                xmlExportMain.getAttributeAssignIds().add(attributeAssign.getId());
+  
+                exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                    attributeAssign);
+              }
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+  
+          for (AttributeAssign attributeAssignOfAssign: attributeAssignsOfAssigns) {
+            
+            //if the foreign key isnt there, then dont export
+            if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignOfAssign.getOwnerAttributeAssignId())) {
+  
+              xmlExportMain.getAttributeAssignIds().add(attributeAssignOfAssign.getId());
+  
+              exportAttributeAssign(writer, xmlExportMain, grouperVersion,
+                  attributeAssignOfAssign);
+            }
+          }
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute assigns element 
+          writer.write("  </attributeAssigns>\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming attributeAssigns", ioe);
+        }
+        return null;
+      }
+  
+    });
+  }
+
+
+
+  /**
    * parse the xml file for groups
    * @param xmlImportMain
    */
@@ -699,7 +789,7 @@ public class XmlExportAttributeAssign {
    * @param xmlExportMain
    * @param writer
    */
-  public static void exportAttributeAssigns(final Writer writer, final XmlExportMain xmlExportMain) {
+  public static void exportAttributeAssignsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
 
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, 
         AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
@@ -716,11 +806,12 @@ public class XmlExportAttributeAssign {
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         
-        Set<AttributeAssign> attributeAssignsOfAssigns = new LinkedHashSet<AttributeAssign>();
-        
         try {
-          writer.write("  <attributeAssigns>\n");
   
+          //keep a set of attribute assign ids (original assigns, not the attributes on attribute assignments)
+          //so when merging with existing attributes we dont clobber existing one
+          writer.write("attributeAssignIdsAlreadyUsed = new HashSet<String>();\n");
+          
           //this is an efficient low-memory way to iterate through a resultset
           ScrollableResults results = null;
           try {
@@ -729,43 +820,16 @@ public class XmlExportAttributeAssign {
               Object object = results.get(0);
               final AttributeAssign attributeAssign = (AttributeAssign)object;
               
-              if (attributeAssign.getAttributeAssignType() == AttributeAssignType.imm_mem || 
-                  attributeAssign.getAttributeAssignType() == AttributeAssignType.imm_mem_asgn) {
-                //do these in a future phase
-                xmlExportMain.getAttributeAssignsForSecondPhase().put(attributeAssign.getId(), attributeAssign);
-              } else if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
-                //do the attribute assigns of assigns later on (just below)
-                attributeAssignsOfAssigns.add(attributeAssign);
-              } else {
-              
-                xmlExportMain.getAttributeAssignIds().add(attributeAssign.getId());
-
-                exportAttributeAssign(writer, xmlExportMain, grouperVersion,
-                    attributeAssign);
+              if (attributeAssign.getAttributeAssignType().isAssignmentOnAssignment()) {
+                continue;
               }
+              exportAttributeAssignGsh(writer, xmlExportMain, grouperVersion,
+                  attributeAssign);
             }
           } finally {
             HibUtils.closeQuietly(results);
           }
 
-          for (AttributeAssign attributeAssignOfAssign: attributeAssignsOfAssigns) {
-            
-            //if the foreign key isnt there, then dont export
-            if (xmlExportMain.getAttributeAssignIds().contains(attributeAssignOfAssign.getOwnerAttributeAssignId())) {
-
-              xmlExportMain.getAttributeAssignIds().add(attributeAssignOfAssign.getId());
-
-              exportAttributeAssign(writer, xmlExportMain, grouperVersion,
-                  attributeAssignOfAssign);
-            }
-          }
-          
-          if (xmlExportMain.isIncludeComments()) {
-            writer.write("\n");
-          }
-          
-          //end the attribute assigns element 
-          writer.write("  </attributeAssigns>\n");
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming attributeAssigns", ioe);
         }
@@ -870,6 +934,99 @@ public class XmlExportAttributeAssign {
     xmlExportAttributeAssign.toXml(grouperVersion, writer);
     writer.write("\n");
     xmlExportMain.incrementRecordCount();
+  }
+
+  /**
+   * @param writer
+   * @param xmlExportMain
+   * @param grouperVersion
+   * @param attributeAssign
+   * @throws IOException
+   */
+  private static void exportAttributeAssignGsh(final Writer writer,
+      final XmlExportMain xmlExportMain, GrouperVersion grouperVersion,
+      final AttributeAssign attributeAssign) throws IOException {
+
+    XmlExportAttributeAssign xmlExportAttributeAssign = attributeAssign.xmlToExportAttributeAssign(grouperVersion);
+    xmlExportAttributeAssign.toXml(grouperVersion, writer);
+    xmlExportMain.incrementRecordCount();
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        try {
+
+          //lets get values
+          Set<AttributeAssign> attributeAssignsOnAssigns = GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getAttributeAssign().findAssignmentsFromAssignments(GrouperUtil.toSet(attributeAssign), null, null, false));
+          
+          Set<String> attributeAssignIdsForValues = new HashSet<String>();
+          
+          attributeAssignIdsForValues.add(attributeAssign.getId());
+          
+          for (AttributeAssign currentAttributeAssign : attributeAssignsOnAssigns) {
+            
+            attributeAssignIdsForValues.add(currentAttributeAssign.getId());
+            
+          }
+          
+          Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory().getAttributeAssignValue().findByAttributeAssignIds(attributeAssignIdsForValues);
+
+          //convert the values with id of the attribute these values are attached to as key, and set of values as the values
+          Map<String, Set<AttributeAssignValue>> mapOfAttributeAssignIdToValues = new HashMap<String, Set<AttributeAssignValue>>();
+          
+          for (AttributeAssignValue attributeAssignValue : attributeAssignValues) {
+            
+            String key = attributeAssignValue.getAttributeAssignId();
+            
+            Set<AttributeAssignValue> theseAttributeAssignValues = mapOfAttributeAssignIdToValues.get(key);
+            if (theseAttributeAssignValues == null) {
+              theseAttributeAssignValues = new HashSet<AttributeAssignValue>();
+              mapOfAttributeAssignIdToValues.put(key, theseAttributeAssignValues);
+            }
+
+            theseAttributeAssignValues.add(attributeAssignValue);
+          }
+
+          
+          
+          //now we have all the attributes on attributes, and all values for all
+          if (!StringUtils.isBlank(attributeAssign.getOwnerStemId())) {
+            
+            Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), attributeAssign.getOwnerStemId(), true);
+            
+            writer.write("stem = StemFinder.findByName(grouperSession, \""
+                + GrouperUtil.escapeDoubleQuotes(stem.getName()) + "\", false);\n");
+
+            writer.write("if (stem != null) { ");
+            
+              
+            writer.write(" } else { System.out.println(\"ERROR: cant find stem: '" + stem.getName() + "'\"); } ");
+            
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
+            XmlExportUtils.toStringGroup(null, writer, attributeAssign.getOwnerGroupId(), false);
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerMemberId())) {
+            XmlExportUtils.toStringMember(null, writer, attributeAssign.getOwnerMemberId(), false);
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerMembershipId())) {
+            XmlExportUtils.toStringMembership(null, writer, attributeAssign.getOwnerMembershipId(), false);
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeDefId())) {
+            XmlExportUtils.toStringAttributeDef(null, writer, attributeAssign.getOwnerAttributeDefId(), false);
+          }
+          if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeAssignId())) {
+            XmlExportUtils.toStringAttributeAssign("attrOn", writer, attributeAssign.getOwnerAttributeAssignId(), false);
+          }
+
+          return null;
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+      }
+    });
+
   }
 
   /**

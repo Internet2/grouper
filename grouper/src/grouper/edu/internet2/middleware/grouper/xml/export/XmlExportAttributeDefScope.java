@@ -456,6 +456,90 @@ public class XmlExportAttributeDefScope {
   }
 
   /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeDefScopesGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        //select all action sets (immediate is depth = 1)
+        Query query = session.createQuery(
+            "select ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theAttributeDefScope.attributeDefId ), "
+            + " theAttributeDefScope " + exportFromOnQuery(xmlExportMain, true));
+        
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        try {
+  
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              String nameOfAttributeDef = (String)results.get(0);
+              Object object = results.get(1);
+              AttributeDefScope attributeDefScope = (AttributeDefScope)object;
+              
+              XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(grouperVersion);
+              xmlExportAttributeDefScope.toGsh(grouperVersion, writer, nameOfAttributeDef);
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming attributeDefScopes", ioe);
+        }
+        return null;
+      }
+    });
+  }
+  
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param nameOfAttributeDef
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String nameOfAttributeDef) throws IOException {
+
+    if (nameOfAttributeDef == null) {
+      throw new RuntimeException("Why is nameOfAttributeDef null?");
+    }
+    
+    writer.write("attributeDef = AttributeDefFinder.findByName(\""
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
+
+    writer.write("attributeDefScopeType = AttributeDefScopeType.valueOfIgnoreCase(\"" + GrouperUtil.escapeDoubleQuotes(this.getAttributeDefScopeType()) + "\", true);\n");
+
+    writer.write("if (attributeDef != null) { ");
+
+    writer.write("if (attributeDefScopeType != null) { ");
+
+    //addCompositeMember(CompositeType type, Group left, Group right)
+    
+    String scopeString = this.getScopeString() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotes(this.getScopeString()) + "\"");
+    String scopeString2 = this.getScopeString2() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotes(this.getScopeString2()) + "\"");
+    
+    writer.write("attributeDef.getAttributeDefScopeDelegate().assignScope(attributeDefScopeType, "
+        + scopeString + ", " + scopeString2 + "); ");
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDefScopeType: '" + this.getAttributeDefScopeType() + "'\"); } ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); }\n");
+
+  }
+
+
+  /**
    * take a reader (e.g. dom reader) and convert to an xml export group
    * @param exportVersion
    * @param hierarchicalStreamReader
