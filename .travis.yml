@@ -30,3 +30,5 @@ script:
 after_success:
 - chmod -R 777 travis/javadocs-ghpages.sh
 - travis/javadocs-ghpages.sh
+- chmod -R 777 travis/deploy-to-sonatype.sh
+- travis/deploy-to-sonatype.sh
