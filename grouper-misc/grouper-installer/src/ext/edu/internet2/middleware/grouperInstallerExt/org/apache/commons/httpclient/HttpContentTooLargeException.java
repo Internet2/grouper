@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclie
 /**
  * Signals that the response content was larger than anticipated. 
  * 
- * @author Ortwin Glück
+ * @author Ortwin GlÃ¼ck
  */
 public class HttpContentTooLargeException extends HttpException {
     private int maxlen;
