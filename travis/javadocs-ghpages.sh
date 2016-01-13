@@ -33,21 +33,29 @@ if [ "$invokeJavadoc" == true ]; then
   cd gh-pages
   echo "Current working directory is $PWD"
 
-
   echo -e "Removing javadocs...\n"
-  git rm -rf ./master/** > /dev/null
+  git rm -rf ./master/**
 
-  echo -e "Creating master directory...\n"
+  echo -e "Creating directory...\n"
   mkdir -p ./master
+
+  echo -e "Listing generated directory...\n"
+  ls $HOME/javadoc-latest
 
   echo -e "Copying new javadocs...\n"
   cp -Rf $HOME/javadoc-latest ./master
+
+  echo -e "Listing new javadocs...\n"
+  ls ./master
+
   echo -e "Adding changes to the index...\n"
-  git add -f . > /dev/null
+  git add -f --all . 
+
   echo -e "Committing changes...\n"
-  git commit -m "Javadoc on build $TRAVIS_BUILD_NUMBER pushed to gh-pages" > /dev/null
+  git commit -m "Javadoc on build $TRAVIS_BUILD_NUMBER pushed to gh-pages"
+
   echo -e "Pushing upstream to origin...\n"
-  git push -fq origin gh-pages > /dev/null
+  git push -fq origin gh-pages
 
   echo -e "Done magic with auto publishment to gh-pages.\n"
   
