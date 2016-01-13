@@ -314,7 +314,7 @@ public class XmlExportRoleSet {
     writer.write("if (thenHasRole != null) { ");
 
     //addCompositeMember(CompositeType type, Group left, Group right)
-    writer.write("ifHasRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(thenHasRole)); ");
+    writer.write("ifHasRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(thenHasRole); ");
 
     writer.write(" } else { System.out.println(\"ERROR: cant find thenHasRole: '" + thenHasRoleName + "'\"); } ");
 

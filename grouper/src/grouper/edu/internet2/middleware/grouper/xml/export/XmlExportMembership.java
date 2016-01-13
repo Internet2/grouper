@@ -435,7 +435,7 @@ public class XmlExportMembership {
       String stemName, String nameOfAttributeDef, Timestamp enabledTimestamp, Timestamp disabledTimestamp) throws IOException {
 
     //SubjectFinder.findByIdAndSource("12345", "jdbc", true);
-    writer.write("subject = SubjectFinder.findByIdandSource(\""
+    writer.write("subject = SubjectFinder.findByIdAndSource(\""
         + GrouperUtil.escapeDoubleQuotes(subjectId) + "\", \""
         + GrouperUtil.escapeDoubleQuotes(sourceId) + "\", false);\n");
     
@@ -443,9 +443,9 @@ public class XmlExportMembership {
 
     if (field.isStemListField() || field.isGroupAccessField() || field.isAttributeDefListField()) {
 
-      //Privilege getInstance(String name, boolean exceptionIfNotFound)
-      writer.write("privilege = Privilege.getInstance(\""
-          + GrouperUtil.escapeDoubleQuotes(fieldName) + "\", true);\n");
+      //privilege = Privilege.listToPriv("attrAdmins", false);
+      writer.write("privilege = Privilege.listToPriv(\""
+          + GrouperUtil.escapeDoubleQuotes(fieldName) + "\", false);\n");
       
     } else {
       
@@ -473,6 +473,11 @@ public class XmlExportMembership {
 
     }
 
+    boolean hasPrivilege = !field.isGroupListField() || field.isGroupAccessField();
+    if (hasPrivilege) {
+      writer.write("if (privilege != null) { ");
+    }
+    
     writer.write("if (subject != null) { ");
 
     if (field.isGroupListField() || field.isGroupAccessField()) {
@@ -516,8 +521,13 @@ public class XmlExportMembership {
 
     }
 
-    writer.write("} else { System.out.println(\"ERROR: cant find subject: '" + sourceId + "' --> '" + subjectId+ "'\");}\n");
+    writer.write("} else { System.out.println(\"ERROR: cant find subject: '" + sourceId + "' --> '" + subjectId+ "'\");}");
 
+    if (hasPrivilege) {
+      writer.write(" } else { System.out.println(\"ERROR: cant find privilege: '" + fieldName + "'\");}");
+    }
+    
+    writer.write("\n");
   }
   
   /**

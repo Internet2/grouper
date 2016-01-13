@@ -296,6 +296,80 @@ public class XmlExportAttributeDefNameSet {
   }
 
   /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeDefNameSets(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        //select all action sets (immediate is depth = 1)
+        Query query = session.createQuery(
+            "select theAttributeDefNameSet " + exportFromOnQuery(xmlExportMain, true));
+  
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        try {
+          writer.write("  <attributeDefNameSets>\n");
+  
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              Object object = results.get(0);
+              final AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+  
+                      XmlExportUtils.toStringAttributeDefNameSet(writer, attributeDefNameSet, false);
+                      
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
+              XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(grouperVersion);
+              writer.write("    ");
+              xmlExportAttributeDefNameSet.toXml(grouperVersion, writer);
+              writer.write("\n");
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the attribute def name sets element 
+          writer.write("  </attributeDefNameSets>\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming attributeDefNameSets", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
+  /**
    * parse the xml file for groups
    * @param xmlImportMain
    */
@@ -400,81 +474,94 @@ public class XmlExportAttributeDefNameSet {
     return queryBuilder.toString();
   }
 
-        
   /**
    * 
    * @param writer
    * @param xmlExportMain
    */
-  public static void exportAttributeDefNameSets(final Writer writer, final XmlExportMain xmlExportMain) {
+  public static void exportAttributeDefNameSetsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
-  
+
         Session session = hibernateHandlerBean.getHibernateSession().getSession();
-  
-        //select all action sets (immediate is depth = 1)
+
+        //select all members in order
         Query query = session.createQuery(
-            "select theAttributeDefNameSet " + exportFromOnQuery(xmlExportMain, true));
-  
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+            "select distinct "
+            + " ( select theAttributeDefName.nameDb from AttributeDefName as theAttributeDefName where theAttributeDefName.id = theAttributeDefNameSet.ifHasAttributeDefNameId ), "
+            + " ( select theAttributeDefName.nameDb from AttributeDefName as theAttributeDefName where theAttributeDefName.id = theAttributeDefNameSet.thenHasAttributeDefNameId ), "
+            + " theAttributeDefNameSet "
+            + exportFromOnQuery(xmlExportMain, true));
+
         try {
-          writer.write("  <attributeDefNameSets>\n");
   
+          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
           //this is an efficient low-memory way to iterate through a resultset
           ScrollableResults results = null;
           try {
             results = query.scroll();
             while(results.next()) {
-              Object object = results.get(0);
-              final AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)object;
-              
-              //comments to dereference the foreign keys
-              if (xmlExportMain.isIncludeComments()) {
-                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                  
-                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                      throws GrouperDAOException {
-                    try {
-                      writer.write("\n    <!-- ");
-
-                      XmlExportUtils.toStringAttributeDefNameSet(writer, attributeDefNameSet, false);
-                      
-                      writer.write(" -->\n");
-                      return null;
-                    } catch (IOException ioe) {
-                      throw new RuntimeException(ioe);
-                    }
-                  }
-                });
-              }
-              
+              String ifHasAttributeDefName = (String)results.get(0);
+              String thenHasAttributeDefName = (String)results.get(1);
+              AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)results.get(2);
               XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(grouperVersion);
-              writer.write("    ");
-              xmlExportAttributeDefNameSet.toXml(grouperVersion, writer);
-              writer.write("\n");
+
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              xmlExportAttributeDefNameSet.toGsh(grouperVersion, writer, ifHasAttributeDefName, thenHasAttributeDefName);
               xmlExportMain.incrementRecordCount();
             }
           } finally {
             HibUtils.closeQuietly(results);
           }
           
-          if (xmlExportMain.isIncludeComments()) {
-            writer.write("\n");
-          }
-          
-          //end the attribute def name sets element 
-          writer.write("  </attributeDefNameSets>\n");
         } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming attributeDefNameSets", ioe);
+          throw new RuntimeException("Problem with streaming memberships", ioe);
         }
         return null;
       }
     });
   }
 
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param ifHasAttributeDefName 
+   * @param thenHasAttributeDefName 
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String ifHasAttributeDefName, String thenHasAttributeDefName) throws IOException {
+    
+    //readWrite = permissionDef.getAttributeDefActionDelegate().findAction("readWrite", true);
+    //admin = permissionDef.getAttributeDefActionDelegate().findAction("admin", true);
+    // 
+    //readWrite.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(read);
+    
+    writer.write("ifHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(ifHasAttributeDefName) + "\", false);\n");
+    writer.write("thenHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(thenHasAttributeDefName) + "\", false);\n");
+
+    writer.write("if (ifHasAttributeDefNameName != null) { ");
+
+    writer.write("if (thenHasAttributeDefName != null) { ");
+
+    writer.write(" ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName); ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasAttributeDefName: '" + thenHasAttributeDefName + "'\"); }");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasAttributeDefName: '" + ifHasAttributeDefName + "'\"); } \n");
+
+  }
+
+
+        
   /**
    * take a reader (e.g. dom reader) and convert to an xml export group
    * @param exportVersion

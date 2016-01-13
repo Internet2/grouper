@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +30,9 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
@@ -221,6 +224,9 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
 
   /**
    * find all assignments and values for a member
+   * @param memberIds 
+   * @param enabled 
+   * @return the map
    */
   public Map<AttributeAssign, Set<AttributeAssignValue>> findMemberAttributeAssignmentValues(
       Collection<String> memberIds, Boolean enabled) {
@@ -485,6 +491,142 @@ public class Hib3AttributeAssignValueDAO extends Hib3DAO implements AttributeAss
     }
     return totalResults;
     
+  }
+
+  /**
+   * @param attributeAssignType
+   * @param attributeDefType
+   * @param enabled
+   * @param attributeAssignIds 
+   * @return assigns
+   * @see AttributeAssignValueDAO#findValuesOnAssignments(Collection, AttributeAssignType, AttributeDefType, Boolean)
+   */
+  public Set<AttributeAssignValue> findValuesOnAssignments(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled) {
+
+    int attributeAssignsSize = GrouperUtil.length(attributeAssignIds);
+
+    Set<AttributeAssignValue> results = new LinkedHashSet<AttributeAssignValue>();
+    
+    if (attributeAssignsSize == 0) {
+      return results;
+    }
+    
+    //remove dupes
+    Set<String> attributeAssignIdsSet = attributeAssignIds instanceof Set ? (Set)attributeAssignIds : new LinkedHashSet<String>(attributeAssignIds);
+    
+    //get in ordered list
+    List<String> attributeAssignIdsList = new ArrayList<String>(attributeAssignIdsSet);
+    
+    attributeAssignsSize = GrouperUtil.length(attributeAssignIdsList);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignsSize, 100);
+
+    //note this is shared with assignments, thats ok
+    int maxAssignments = GrouperConfig.retrieveConfig().propertyValueInt("ws.findAttrAssignments.maxResultSize", 30000);
+
+    for (int i=0;i<numberOfBatches; i++) {
+      
+      List<String> currentBatch = GrouperUtil.batchList(attributeAssignIdsList, 100, i);
+      
+      int currentBatchSize = GrouperUtil.length(currentBatch);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+      String selectPrefix = "select distinct aa, aav ";
+      
+      StringBuilder sqlTables = new StringBuilder(" from AttributeAssignValue aav, AttributeAssign aa, AttributeDefName adn, AttributeDef ad ");
+
+      StringBuilder sqlWhereClause = new StringBuilder(
+          " aa.attributeDefNameId = adn.id and adn.attributeDefId = ad.id and aav.attributeAssignId = aa.id ");
+      
+      if (attributeAssignType != null) {
+        sqlWhereClause.append(" and aa.attributeAssignTypeDb = '" + attributeAssignType.name() + "' ");
+      }
+      
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+      
+      Subject grouperSessionSubject = grouperSession.getSubject();
+      
+      grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
+        grouperSessionSubject, byHqlStatic, 
+        sqlTables, sqlWhereClause, "adn.attributeDefId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+      
+      StringBuilder sql;
+      sql = sqlTables.append(" where ").append(sqlWhereClause);
+      
+      if (attributeDefType != null) {
+        sql.append(" and ad.attributeDefTypeDb = :theAttributeDefType ");
+        byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
+      }
+      if (enabled != null && enabled) {
+        sql.append(" and aa.enabledDb = 'T' ");
+      }
+      if (enabled != null && !enabled) {
+        sql.append(" and aa.enabledDb = 'F' ");
+      }
+      if (currentBatchSize > 0) {
+        
+        sql.append(" and aa.ownerAttributeAssignId in (");
+        sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+        sql.append(") ");
+      }
+      
+      byHqlStatic
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAssignmentsOnAssignments");
+
+      //if -1, lets not check
+      Set<Object[]> tempResults = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
+
+      //something to filter
+      if (GrouperUtil.length(tempResults) > 0) {
+
+        //get the assigns out, filter those, sync up the values
+        
+        tempResults = new HashSet<Object[]>(tempResults);
+
+        Set<AttributeAssign> tempResultsAttributeAssigns = new HashSet<AttributeAssign>();
+
+        for (Object[] tuple : tempResults) {
+          AttributeAssign currentAttributeAssign = (AttributeAssign)tuple[0];
+          tempResultsAttributeAssigns.add(currentAttributeAssign);
+        }
+        
+        //if the hql didnt filter, we need to do that here
+        tempResultsAttributeAssigns = grouperSession.getAttributeDefResolver().postHqlFilterAttributeAssigns(grouperSessionSubject, tempResultsAttributeAssigns);
+        
+        Iterator<Object[]> iterator = tempResults.iterator();
+        
+        while (iterator.hasNext()) {
+          Object[] tuple = iterator.next();
+          AttributeAssign currentAttributeAssign = (AttributeAssign)tuple[0];
+          if (!tempResultsAttributeAssigns.contains(currentAttributeAssign)) {
+            iterator.remove();
+          }
+        }
+      }
+
+      for (Object[] tuple : tempResults) {
+        
+        AttributeAssignValue current = (AttributeAssignValue)tuple[1];
+        
+        results.add(current);
+        
+      }
+      
+      if (maxAssignments >= 0) {
+
+        //see if too many
+        if (results.size() > maxAssignments) {
+          throw new RuntimeException("Too many results: " + results.size());
+        }
+        
+      }
+    }
+    
+    //we should be down to the secure list
+    return results;
   }
 
 } 

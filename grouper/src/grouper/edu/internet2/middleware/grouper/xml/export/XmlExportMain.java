@@ -305,6 +305,12 @@ public class XmlExportMain {
 
       XmlExportAttributeDefName.exportAttributeDefNamesGsh(writer, this);
 
+      XmlExportAttributeDefNameSet.exportAttributeDefNameSetsGsh(writer, this);
+
+      XmlExportAttributeDefScope.exportAttributeDefScopesGsh(writer, this);
+
+      XmlExportAttributeAssign.exportAttributeAssignsGsh(writer, this);
+
       writer.flush();
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);

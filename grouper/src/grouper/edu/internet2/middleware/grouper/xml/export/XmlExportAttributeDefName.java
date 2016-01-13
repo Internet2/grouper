@@ -607,7 +607,7 @@ public class XmlExportAttributeDefName {
         + GrouperUtil.escapeDoubleQuotes(this.description)
         + "\")");
     }
-    writer.write(".assignDisplayName("
+    writer.write(".assignDisplayName(\""
         + GrouperUtil.escapeDoubleQuotes(this.displayName)
         + "\")");
 
