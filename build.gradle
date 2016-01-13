@@ -52,6 +52,10 @@ subprojects {
     }
   }
 
+  javadoc {
+    failOnError = false
+  }
+
   dependencies {
     compile group: 'log4j', name: 'log4j', version: log4j_version
     testCompile group: 'junit', name: 'junit', version: junit_version
