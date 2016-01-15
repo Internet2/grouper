@@ -10687,9 +10687,6 @@ public enum GrouperDdl implements DdlVersionable {
           GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
-          "grpmessage_id_idx", true, GrouperMessageHibernate.COLUMN_ID);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
           "grpmessage_sent_time_idx", false, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
