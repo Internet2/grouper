@@ -77,10 +77,6 @@ public class GrouperKimGroupServiceImplTest extends GrouperTest {
   /** group type */
   private GroupType groupType = null;
   
-  /** field */
-  @SuppressWarnings("unused")
-  private AttributeDefName field = null;
-
   /** */
   private Group nonKimTestGroup = null;
 
@@ -109,7 +105,7 @@ public class GrouperKimGroupServiceImplTest extends GrouperTest {
 
     this.groupType = GroupType.createType(this.grouperSession, "someType", false);
     
-    this.field = this.groupType.addAttribute(this.grouperSession, "anAttribute");
+    this.groupType.addAttribute(this.grouperSession, "anAttribute");
 
     String wsUserLabel = GrouperClientUtils.propertiesValue(
         "grouperClient.webService.user.label", true);

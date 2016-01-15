@@ -34,6 +34,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
@@ -275,7 +276,7 @@ public abstract class Hib3DAO {
         xml = StringUtils.replace(xml, optimisiticLockVersion, "optimistic-lock=\"none\"");
       }
     }
-    _CFG.addXML(xml);
+    _CFG.addInputStream(IOUtils.toInputStream(xml));
     _CFG.addResource(resourceName);
 
   }

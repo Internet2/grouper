@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -73,6 +74,8 @@ public class ByObject extends HibernateDelegate {
       //just throw, this is ok
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       String errorString = "Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this;
@@ -127,6 +130,8 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       String errorString = "Exception in delete: " + GrouperUtil.classNameCollection(object) + ", " + this;
       if (!GrouperUtil.injectInException(e, errorString)) {
@@ -159,6 +164,8 @@ public class ByObject extends HibernateDelegate {
       //just throw, this is ok
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       String errorString = "Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this;
@@ -222,6 +229,8 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (MembershipAlreadyExistsException e) {
       throw e;
     } catch (RuntimeException e) {
@@ -280,6 +289,8 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (MembershipAlreadyExistsException e) {
       throw e;
     } catch (RuntimeException e) {
@@ -317,6 +328,8 @@ public class ByObject extends HibernateDelegate {
       //just throw, this is ok
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -390,6 +403,8 @@ public class ByObject extends HibernateDelegate {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in save: " + GrouperUtil.className(object) + ", " + this;
@@ -430,6 +445,8 @@ public class ByObject extends HibernateDelegate {
 
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in load: " + theClass + ", " 
@@ -465,6 +482,8 @@ public class ByObject extends HibernateDelegate {
       //just throw, this is ok
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -514,6 +533,8 @@ public class ByObject extends HibernateDelegate {
       //just throw, this is ok
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
