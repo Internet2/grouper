@@ -19,6 +19,8 @@ cache:
 env:
   global:
     secure: XmmxnbDo/FeIE2O5M6YMSKjULOgLPDDx79mcfRTf79Fvjiqw2yJBrheLwR2sYs4+6uw7Pe0FkKUXtyRrcK31JvWTuqvwTs08MgMt42VPx7xGX+96i8hN6QTF8D1B1YYRJnnXrtOrhqSbpm+jffw3PiK4f5fcKDntSaMbPUiVRDg=
+    secure: MjJBfBqMpetCZ0PmcISetMxHAEcC83EawXmJuCW/F7RrCk8tBY+YglYSRHFqj/LDcwLHdDPuPOLHEv/RKPyqQvjYfJICwpQugMRrIUPuoXsg57xoSP36DBNG8qVCa5rS1qLaUb42fsvYXd9ufjKu8c0Eihq8pbz+yrXxKgvSpIU=
+    secure: kJDUzde56X0epK70R9e2hN7Q6nfHyk0ixDOynPYJh01hREyLl/7Zm3V6dv5nfGhFbCoJDcqkTlUsl26ixrmmr4AUhh+fKkQVO8Pjj8z9fR6Y1lukJ2v2RVDRzN0sR5cCqKGd2yr9VW9s+4JinfcBQNj2dxwhCKddj+NPPM9o0CE=
 before_install:
 - chmod -R 777 ./travis/init-travis-build.sh
 - ./travis/init-travis-build.sh

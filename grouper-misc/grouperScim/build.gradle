@@ -18,6 +18,7 @@ dependencies {
   provided group: 'org.hibernate', name: 'hibernate-core', version: '5.0.5.Final'
 
   testCompile project(path: ":grouper", configuration: "tests")
+  testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
   provided project(':grouper')
 }
 
