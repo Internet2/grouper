@@ -18,10 +18,12 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import org.hibernate.StaleStateException;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -569,6 +571,9 @@ public class HibernateSession {
     }
     if (e instanceof StaleObjectStateException) {
       throw new GrouperStaleObjectStateException(errorString, e);
+    }
+    if (e instanceof StaleStateException) {
+      throw new GrouperStaleStateException(errorString, e);
     }
     // if hibernate exception, repackage
     if (e instanceof HibernateException) {

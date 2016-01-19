@@ -33,6 +33,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -256,6 +257,8 @@ public class ByCriteriaStatic {
       return result;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in uniqueResult: (" + returnType + "), " + this;
@@ -380,6 +383,8 @@ public class ByCriteriaStatic {
       
       return result;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (GrouperDAOException e) {
       GrouperUtil.injectInException(e, "Exception in list: (" + returnType + "), " + this);

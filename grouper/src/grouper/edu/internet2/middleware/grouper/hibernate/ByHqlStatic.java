@@ -31,6 +31,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -337,6 +338,8 @@ public class ByHqlStatic implements HqlQuery {
       return result;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       GrouperUtil.injectInException(e, "Exception in uniqueResult: (" + returnType + "), " + this);
       throw e;
@@ -387,6 +390,8 @@ public class ByHqlStatic implements HqlQuery {
       
       return result;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -471,6 +476,8 @@ public class ByHqlStatic implements HqlQuery {
       });
       
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
