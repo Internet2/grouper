@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.PlatformFactory;
+import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -109,6 +110,7 @@ public class GrouperLoader {
     
     GrouperCheckConfig.checkGrouperLoaderConfigDbs();
     GrouperCheckConfig.checkGrouperLoaderConsumers();
+    GrouperCheckConfig.checkGrouperLoaderOtherJobs();
     
     //this will find all schedulable groups, and schedule them
     GrouperLoaderType.scheduleLoads();
@@ -119,6 +121,9 @@ public class GrouperLoader {
 
     scheduleMaintenanceJobs();
     scheduleChangeLogJobs();
+    
+    scheduleOtherJobs();
+    
     //this will schedule ESB listener jobs if enabled
     scheduleEsbListenerJobs();
     
@@ -556,6 +561,161 @@ public class GrouperLoader {
         hib3GrouploaderLog.setHost(GrouperUtil.hostname());
         hib3GrouploaderLog.setJobMessage(errorMessage);
         hib3GrouploaderLog.setJobType(GrouperLoaderType.CHANGE_LOG.name());
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
+  }
+  
+  /**
+   * schedule other jobs
+   */
+  public static void scheduleOtherJobs() {
+
+    //otherJob.duo.class = 
+    //otherJob.duo.quartzCron = 
+    //otherJob.duo.priority = 
+
+    //make sure sequences are ok
+    Map<String, String> otherJobMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
+        GrouperCheckConfig.grouperLoaderOtherJobPattern);
+    
+    Set<String> otherJobNames = new HashSet<String>();
+        
+    while (otherJobMap.size() > 0) {
+            
+      //get one
+      String consumerKey = otherJobMap.keySet().iterator().next();
+
+      Matcher matcher = GrouperCheckConfig.grouperLoaderOtherJobPattern.matcher(consumerKey);
+      matcher.matches();
+      String otherJobName = matcher.group(1);
+      boolean missingOne = false;
+      //now find all required keys
+      String classKey = "otherJob." + otherJobName + ".class";
+      if (!otherJobMap.containsKey(classKey)) {
+        String error = "cannot find grouper-loader.properties key: " + classKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      
+      String cronKey = "otherJob." + otherJobName + ".quartzCron";
+      if (!otherJobMap.containsKey(cronKey)) {
+        String error = "cannot find grouper-loader.properties key: " + cronKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      
+      String priorityKey = "otherJob." + otherJobName + ".priority";
+      
+      //check the classname
+      Class<? extends Job> theClass = null;
+      String className = otherJobMap.get(classKey);
+      String cronString = otherJobMap.get(cronKey);
+      int priority = GrouperUtil.intValue(otherJobMap.get(priorityKey), 5);
+      
+      String jobName = GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX + otherJobName;
+      otherJobNames.add(jobName);
+
+      try {
+        if (missingOne) {
+          throw new RuntimeException("Cant find config param" );
+        }
+        
+        theClass = GrouperUtil.forName(className);
+
+        //at this point we have all the attributes and we know the required ones are there, and logged when 
+        //forbidden ones are there
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+        JobDetail jobDetail = JobBuilder.newJob(theClass)
+          .withIdentity(jobName)
+          .build();
+        
+        //schedule this job
+        GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
+
+        Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerOtherJob_" + jobName, priority, cronString, null);
+
+        scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+
+      } catch (Exception e) {
+
+        String errorMessage = "Could not schedule job: '" + jobName + "'";
+        LOG.error(errorMessage, e);
+        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        try {
+          //lets enter a log entry so it shows up as error in the db
+          Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+          hib3GrouploaderLog.setJobMessage(errorMessage);
+          hib3GrouploaderLog.setJobName(jobName);
+          hib3GrouploaderLog.setJobSchedulePriority(priority);
+          hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
+          hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+          hib3GrouploaderLog.setJobType("OTHER_JOB");
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+          hib3GrouploaderLog.store();
+          
+        } catch (Exception e2) {
+          LOG.error("Problem logging to loader db log", e2);
+        }
+
+      }
+      
+      otherJobMap.remove(classKey);
+      otherJobMap.remove(cronKey);
+      otherJobMap.remove(priorityKey);
+    }
+    
+    // check to see if anything should be unscheduled.
+    try {
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+      for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
+        
+        String jobName = jobKey.getName();
+        
+        if (jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX) && !otherJobNames.contains(jobName)) {
+          try {
+            String triggerName = "triggerOtherJob_" + jobName;
+            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+          } catch (Exception e) {
+            String errorMessage = "Could not unschedule job: '" + jobName + "'";
+            LOG.error(errorMessage, e);
+            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+            try {
+              //lets enter a log entry so it shows up as error in the db
+              Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+              hib3GrouploaderLog.setJobMessage(errorMessage);
+              hib3GrouploaderLog.setJobName(jobName);
+              hib3GrouploaderLog.setJobType("OTHER_JOB");
+              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+              hib3GrouploaderLog.store();
+              
+            } catch (Exception e2) {
+              LOG.error("Problem logging to loader db log", e2);
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      
+      String errorMessage = "Could not query other jobs to see if any should be unscheduled.";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setJobType("OTHER_JOB");
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
         hib3GrouploaderLog.store();
         

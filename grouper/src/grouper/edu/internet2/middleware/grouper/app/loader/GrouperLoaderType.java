@@ -1571,6 +1571,11 @@ public enum GrouperLoaderType {
   public static final String GROUPER_CHANGE_LOG_CONSUMER_PREFIX = "CHANGE_LOG_consumer_";
 
   /**
+   * other jobs prefix
+   */
+  public static final String GROUPER_OTHER_JOB_PREFIX = "OTHER_JOB_";
+  
+  /**
    * esb http listener name
    */
   public static final String GROUPER_ESB_HTTP_LISTENER = "CHANGE_LOG_esb_http_listener";
