@@ -1,25 +1,25 @@
 description = 'Grouper Atlassian Connector'
 dependencies {
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.7'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.7'
-    compile group: 'xerces', name: 'xml-apis', version: '2.10.0'
-    compile group: 'javax.transaction', name: 'jta', version: '1.1'
-    compile group: 'com.atlassian.seraph', name: 'atlassian-seraph', version: '2.6.3'
-    compile group: 'com.atlassian.user', name: 'atlassian-user', version: '3.0'
-    compile group: 'com.atlassian.event', name: 'atlassian-event', version: '2.3.5'
-    compile(group: 'com.atlassian.confluence', name: 'confluence', version: '5.6.5') {
+    compile group: 'org.slf4j', name: 'slf4j-api', version: slf4j_log4j12_version
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4j_log4j12_version
+    compile group: 'xerces', name: 'xml-apis', version: xml_apis_version
+    compile group: 'javax.transaction', name: 'jta', version: jta_version
+    compile group: 'com.atlassian.seraph', name: 'atlassian-seraph', version: atlassian_seraph_version
+    compile group: 'com.atlassian.user', name: 'atlassian-user', version: atlassian_user_version
+    compile group: 'com.atlassian.event', name: 'atlassian-event', version: atlassian_event_version
+    compile(group: 'com.atlassian.confluence', name: 'confluence', version: atlassian_confluence_version) {
         exclude(module: 'XmlSchema')
     }
     compile project(':grouper')
     compile project(':subject')
     compile project(':grouper-misc:grouper-aws-changelog')
     compile project(':grouper-misc:grouperClient')
-    compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version: '1.3.3') {
+    compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version: shibboleth_common_version) {
         exclude(module: 'logback-classic')
         exclude(module: 'log4j-over-slf4j')
     }
     testCompile project(path: ":grouper", configuration: "tests")
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.4.Final'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
 }
 sourceSets {
     main{

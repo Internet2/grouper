@@ -2,12 +2,12 @@
 description = 'Grouper WS Generated Client'
 dependencies {
   compile project(':grouper-ws:grouper-ws')
-  compile group: 'org.apache.axis2', name: 'axis2-adb', version: '1.6.1'
-  compile group: 'org.apache.axis2', name: 'axis2-codegen', version: '1.6.1'
-  compile group: 'org.apache.axis2', name: 'axis2-java2wsdl', version: '1.6.1'
-  compile group: 'org.apache.axis2', name: 'axis2-kernel', version: '1.6.1'
-  compile group: 'org.apache.axis2', name: 'axis2-transport-http', version: '1.6.1'
-  compile group: 'org.apache.axis2', name: 'axis2-transport-local', version: '1.6.1'
+  compile group: 'org.apache.axis2', name: 'axis2-adb', version: axis2_adb_version
+  compile group: 'org.apache.axis2', name: 'axis2-codegen', version: axis2_codengen_version
+  compile group: 'org.apache.axis2', name: 'axis2-java2wsdl', version: axis2_java2wsdl_version
+  compile group: 'org.apache.axis2', name: 'axis2-kernel', version: axis2_karnel_version
+  compile group: 'org.apache.axis2', name: 'axis2-transport-http', version: axis2_transport_http_version
+  compile group: 'org.apache.axis2', name: 'axis2-transport-local', version: axis2_transport_local_version
   compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 sourceSets {

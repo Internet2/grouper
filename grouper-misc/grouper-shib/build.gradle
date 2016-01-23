@@ -1,16 +1,16 @@
 description = 'Grouper Plugin for Shibboleth'
 dependencies {
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.7'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.7'
-    compile group: 'xerces', name: 'xml-apis', version: '2.10.0'
-    compile group: 'javax.transaction', name: 'jta', version: '1.1'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: slf4j_log4j12_version
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4j_log4j12_version
+    compile group: 'xerces', name: 'xml-apis', version: xml_apis_version
+    compile group: 'javax.transaction', name: 'jta', version: jta_version
     compile project(':grouper')
     compile project(':subject')
-    compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version: '1.3.3') {
+    compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version: shibboleth_common_version) {
         exclude(module: 'logback-classic')
         exclude(module: 'log4j-over-slf4j')
     }
     testCompile project(path: ":grouper", configuration: "tests")
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.4.Final'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
 }
 

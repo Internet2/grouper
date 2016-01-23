@@ -3,7 +3,7 @@ dependencies {
   compile project(':subject')
   compile project(':grouper')
   compile project(':grouper-misc:grouperClient')
-  compile group: 'org.apache.activemq', name: 'activemq-core', version:'5.7.0'
+  compile group: 'org.apache.activemq', name: 'activemq-core', version: activemq_version
 }
 
 sourceSets {
