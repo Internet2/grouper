@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.PlatformFactory;
+import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -43,6 +44,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.SimpleScheduleBuilder;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
@@ -129,6 +131,13 @@ public class GrouperLoader {
     
     schedulePspFullSyncJob();
     schedulePspFullSyncRunAtStartupJob();
+    
+    // delay starting the scheduler until the end to make sure things that need to be unscheduled are taken care of first?
+    try {
+      schedulerFactory.getScheduler().start();
+    } catch (SchedulerException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -314,7 +323,6 @@ public class GrouperLoader {
       
       try {
         schedulerFactory = new StdSchedulerFactory(props);
-        schedulerFactory.getScheduler().start();
       } catch (SchedulerException se) {
         throw new RuntimeException(se);
       }
@@ -384,7 +392,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -475,7 +483,6 @@ public class GrouperLoader {
         }
         //at this point we have all the attributes and we know the required ones are there, and logged when 
         //forbidden ones are there
-        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
 
         //the name of the job must be unique, so use the group name since one job per group (at this point)
         JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
@@ -487,7 +494,7 @@ public class GrouperLoader {
 
         Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerChangeLog_" + jobName, priority, cronString, null);
 
-        scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+        scheduleJobIfNeeded(jobDetail, trigger);
 
       } catch (Exception e) {
 
@@ -631,7 +638,6 @@ public class GrouperLoader {
 
         //at this point we have all the attributes and we know the required ones are there, and logged when 
         //forbidden ones are there
-        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
 
         JobDetail jobDetail = JobBuilder.newJob(theClass)
           .withIdentity(jobName)
@@ -642,8 +648,7 @@ public class GrouperLoader {
 
         Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerOtherJob_" + jobName, priority, cronString, null);
 
-        scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
-
+        scheduleJobIfNeeded(jobDetail, trigger);        
       } catch (Exception e) {
 
         String errorMessage = "Could not schedule job: '" + jobName + "'";
@@ -764,7 +769,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -842,7 +847,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -909,7 +914,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -974,7 +979,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
 
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
 
 
     } catch (Exception e) {
@@ -1019,7 +1024,6 @@ public class GrouperLoader {
 
       //at this point we have all the attributes and we know the required ones are there, and logged when 
       //forbidden ones are there
-      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
 
       //the name of the job must be unique, so use the group name since one job per group (at this point)
       JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
@@ -1031,7 +1035,7 @@ public class GrouperLoader {
       
       Trigger trigger = grouperLoaderScheduleType.createTrigger("triggerMaintenance_cleanLogs", priority, cronString, null);
 
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
 
       
     } catch (Exception e) {
@@ -1122,7 +1126,7 @@ public class GrouperLoader {
           .withPriority(priority)
           .build();
 
-        scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trg), true);
+        scheduleJobIfNeeded(jobDetail, trg);
       } else {
         LOG.info("Not starting experimental HTTP(S) listener");
        
@@ -1203,7 +1207,7 @@ public class GrouperLoader {
             .withPriority(priority)
             .build();
 
-          scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trg), true);
+          scheduleJobIfNeeded(jobDetail, trg);
         } else {
           unschedule = true;
         }
@@ -1405,7 +1409,6 @@ public class GrouperLoader {
       
         //at this point we have all the attributes and we know the required ones are there, and logged when 
         //forbidden ones are there
-        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
     
         //the name of the job must be unique, so use the group name since one job per group (at this point)
         JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
@@ -1417,7 +1420,7 @@ public class GrouperLoader {
     
         Trigger trigger = grouperLoaderScheduleType.createTrigger("trigger_" + jobName, Trigger.DEFAULT_PRIORITY, clientGroupConfigBean.getCron(), null);
         
-        scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+        scheduleJobIfNeeded(jobDetail, trigger);
     
     
       } catch (Exception e) {
@@ -1549,7 +1552,7 @@ public class GrouperLoader {
   
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
   
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      scheduleJobIfNeeded(jobDetail, trigger);
   
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
@@ -1626,7 +1629,7 @@ public class GrouperLoader {
         .withSchedule(SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0))
         .build();
               
-      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trg), true);
+      scheduleJobIfNeeded(jobDetail, trg);
   
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
@@ -1813,4 +1816,66 @@ public class GrouperLoader {
     }
   }
   
+  /**
+   * Schedule job if new or something has changed
+   * @param jobDetail
+   * @param trigger
+   * @return true if needed an update
+   * @throws SchedulerException 
+   */
+  public static boolean scheduleJobIfNeeded(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
+    Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+    
+    boolean scheduleJob = false;
+    
+    JobDetail oldJobDetail = scheduler.getJobDetail(jobDetail.getKey());
+    Trigger oldTrigger = scheduler.getTrigger(trigger.getKey());
+
+    if (oldJobDetail == null || oldTrigger == null) {
+      scheduleJob = true;
+    }
+    
+    if (!scheduleJob && oldJobDetail.getJobClass() != jobDetail.getJobClass()) {
+      scheduleJob = true;
+    }
+    
+    if (!scheduleJob && oldTrigger.getPriority() != trigger.getPriority()) {
+      scheduleJob = true;
+    }
+    
+    if (!scheduleJob) {
+
+      if (oldTrigger instanceof SimpleTrigger && trigger instanceof SimpleTrigger) {
+        if (((SimpleTrigger)oldTrigger).getRepeatInterval() != ((SimpleTrigger)trigger).getRepeatInterval()) {
+          scheduleJob = true;
+        }
+      } else if (oldTrigger instanceof CronTrigger && trigger instanceof CronTrigger) {
+        if (!((CronTrigger)oldTrigger).getCronExpression().equals(((CronTrigger)trigger).getCronExpression())) {
+          scheduleJob = true;
+        }
+      } else {
+        scheduleJob = true;
+      }
+    }
+    
+    if (!scheduleJob) {
+      if (oldJobDetail.getJobDataMap() == null && jobDetail.getJobDataMap() == null) {
+        // ok
+      } else if (oldJobDetail.getJobDataMap() == null || jobDetail.getJobDataMap() == null) {
+        scheduleJob = true;
+      } else if (!oldJobDetail.getJobDataMap().equals(jobDetail.getJobDataMap())) {
+        scheduleJob = true;
+      }
+    }
+    
+    if (scheduleJob) {
+      // apparently running this for a job that already exists when bringing the daemon up on a different host may fire some
+      // jobs concurrently with jobs on another host.  so only updating if there's something to update.
+      scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+      LOG.info("Scheduled quartz job: " + jobDetail.getKey().getName());
+      return true;
+    }
+    
+    return false;
+  }
 }

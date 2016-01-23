@@ -3778,7 +3778,7 @@ public enum GrouperLoaderType {
       scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
     }
     //scheduler.unscheduleJob()
-    scheduler.scheduleJob(jobDetail, GrouperUtil.toSet(trigger), true);
+    GrouperLoader.scheduleJobIfNeeded(jobDetail, trigger);
 
   }
   
