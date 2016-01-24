@@ -10543,7 +10543,7 @@ public class GrouperInstallerUtils  {
       return null;
     }
     if (nodes.getLength() != 1) {
-      throw new RuntimeException("There is more than 1 Server element in server.xml: " + xmlFile.getAbsolutePath());
+      throw new RuntimeException("There is more than 1 xpath expression: '" + xpathExpression + "' element in server.xml: " + xmlFile.getAbsolutePath());
     }
     
     
