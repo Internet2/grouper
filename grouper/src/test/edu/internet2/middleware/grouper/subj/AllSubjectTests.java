@@ -29,6 +29,7 @@ public class AllSubjectTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.subj");
     //$JUnit-BEGIN$
+    suite.addTestSuite(LdapSubjectTest.class);
     suite.addTestSuite(TestGrouperSubject.class);
     suite.addTestSuite(TestGrouperSourceAdapter.class);
     suite.addTestSuite(Test_subj_SubjectResolverFactory.class);
