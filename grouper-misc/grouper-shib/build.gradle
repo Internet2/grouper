@@ -7,8 +7,8 @@ dependencies {
     compile project(':grouper')
     compile project(':subject')
     compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version: shibboleth_common_version) {
-        exclude(module: 'logback-classic')
-        exclude(module: 'log4j-over-slf4j')
+        exclude(group: 'ch.qos.logback', module: 'logback-classic')
+        exclude(group: 'org.slf4j', module: 'log4j-over-slf4j')
     }
     testCompile project(path: ":grouper", configuration: "tests")
     compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
