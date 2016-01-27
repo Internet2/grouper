@@ -57,7 +57,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testSelectFromSqlQuery"));
+    TestRunner.run(new HibernateSessionTest("testSelectFromHqlQuery"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -78,6 +78,25 @@ public class HibernateSessionTest extends GrouperTest {
     
     List<Group> groups = HibernateSession.bySqlStatic().listSelect(Group.class, 
         "select * from grouper_groups where name = ?", GrouperUtil.toListObject("test:testGroup"));
+    assertTrue(GrouperUtil.length(groups) > 0);
+  }
+
+  /**
+   * 
+   */
+  public void testSelectFromHqlQuery() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
+    
+    List<Group> groups = HibernateSession.byHqlStatic()
+        .createQuery("select theGroup.uuid as uuid, theGroup.hibernateVersionNumber as hibernateVersionNumber, theGroup.lastMembershipChangeDb as lastMembershipChangeDb, "
+            + "theGroup.lastImmediateMembershipChangeDb as lastImmediateMembershipChangeDb, theGroup.parentUuid as parentUuid, theGroup.creatorUuid as creatorUuid, "
+            + "theGroup.createTimeLong as createTimeLong, theGroup.modifierUuid as modifierUuid, theGroup.modifyTimeLong as modifyTimeLong, theGroup.nameDb as nameDb, theGroup.displayNameDb as displayNameDb, "
+            + "theGroup.extensionDb as extensionDb, theGroup.displayExtensionDb as displayExtensionDb, theGroup.descriptionDb as descriptionDb, theGroup.contextId as contextId, "
+            + "theGroup.alternateNameDb as alternateNameDb, theGroup.typeOfGroupDb as typeOfGroupDb, theGroup.idIndex as idIndex "
+            + "from Group as theGroup where theGroup.nameDb = :theName")
+        .setString("theName", "test:testGroup").assignConvertHqlColumnsToObject(true).list(Group.class);
+
     assertTrue(GrouperUtil.length(groups) > 0);
   }
 
