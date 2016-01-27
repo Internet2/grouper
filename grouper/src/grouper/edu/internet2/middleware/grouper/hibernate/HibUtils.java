@@ -19,6 +19,7 @@
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -69,6 +70,93 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class HibUtils {
+
+  /**
+   * Whether the type of the class means that it should be handled as a primitive
+   * query vs a hibernate object query.
+   * @param clazz is the class to check.
+   * @return true if so.
+   */
+  static boolean handleAsPrimitive(Class clazz) {
+    if (clazz.isPrimitive() || clazz == java.lang.String.class
+        || clazz == BigDecimal.class || clazz == Integer.class
+        || clazz == java.sql.Date.class || clazz == java.util.Date.class
+        || clazz == java.sql.Time.class || clazz == java.sql.Timestamp.class
+        || clazz == java.sql.Clob.class || clazz == java.sql.Blob.class
+        || clazz == java.sql.Ref.class || clazz == Boolean.class || clazz == Byte.class
+        || clazz == Short.class || clazz == Integer.class || clazz == Float.class
+        || clazz == Double.class || clazz == Long.class) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Convert the params to friendly strings
+   * 
+   * @param params
+   * @param types
+   * @return the string of the params (for logging)
+   */
+  @SuppressWarnings("unchecked")
+  public static String paramsToString(Object params, Object types) {
+    //nothing to do if nothing to do
+    if (params == null && types == null) {
+      return "null";
+    }
+
+    List<Object> paramsList = GrouperUtil.toList(params);
+    List<Type> typesList = (List<Type>)(Object)GrouperUtil.toList(types);
+
+    int paramLength = GrouperUtil.length(paramsList);
+    int typeLength = GrouperUtil.length(typesList);
+
+    if (paramLength != typeLength) {
+      throw new RuntimeException("The params length " + paramLength
+          + " must equal the types length " + typeLength);
+    }
+    StringBuilder result = new StringBuilder();
+    //loop through, set the params
+    Type currentType = null;
+    for (int i = 0; i < paramLength; i++) {
+      try {
+        currentType = typesList.get(i);
+        result.append(currentType.toLoggableString(paramsList.get(i), null)).append(",");
+      } catch (HibernateException he) {
+        result.append("<error>");
+      }
+    }
+
+    return result.toString();
+  }
+
+  /**
+   * Parses an alias out of a sql query.
+   * @param text is the text to find the alias in.
+   * @param exceptionIfNotFound if true, when an alias is not found, and exception will be thrown.
+   * @return the alias.
+   */
+  public static String parseAlias(String text, boolean exceptionIfNotFound) {
+    Pattern pattern = Pattern.compile("\\{.*?\\}");
+    Matcher matcher = pattern.matcher(text);
+    String alias = null;
+    if (matcher.find()) {
+      alias = matcher.group();
+      alias = StringUtils.replace(alias, "{", "");
+      alias = StringUtils.replace(alias, "}", "");
+      if (alias != null && alias.indexOf(".") > -1) {
+        alias = alias.substring(0, alias.indexOf("."));
+      }
+      return alias;
+    }
+
+    if (exceptionIfNotFound) {
+      throw new RuntimeException("Cannot find a sql alias in the text: " + text
+          + "An alias must be in the format {anything} or {anything.anything}. "
+          + "Each sql query must contain at least one alias.");
+    }
+    return null;
+  }
 
   /**
    * if in an hql or sql query, depending on the value, pass is or = back

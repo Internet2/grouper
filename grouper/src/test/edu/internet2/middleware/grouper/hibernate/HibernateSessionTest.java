@@ -57,7 +57,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testRollback"));
+    TestRunner.run(new HibernateSessionTest("testSelectFromSqlQuery"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -67,6 +67,18 @@ public class HibernateSessionTest extends GrouperTest {
    */
   public HibernateSessionTest(String name) {
     super(name);
+  }
+
+  /**
+   * 
+   */
+  public void testSelectFromSqlQuery() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
+    
+    List<Group> groups = HibernateSession.bySqlStatic().listSelect(Group.class, 
+        "select * from grouper_groups where name = ?", GrouperUtil.toListObject("test:testGroup"));
+    assertTrue(GrouperUtil.length(groups) > 0);
   }
 
   /**
