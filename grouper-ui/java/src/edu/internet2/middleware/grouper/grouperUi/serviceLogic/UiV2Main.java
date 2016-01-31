@@ -1262,7 +1262,7 @@ public class UiV2Main extends UiServiceLogicBase {
         Set<Group> groups = new GroupFinder()
             .assignSubject(GrouperSession.staticGrouperSession().getSubject())
             .assignField(Group.getDefaultList())
-            .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+            .assignPrivileges(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
             .assignQueryOptions(new QueryOptions().paging(
                 GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
     
