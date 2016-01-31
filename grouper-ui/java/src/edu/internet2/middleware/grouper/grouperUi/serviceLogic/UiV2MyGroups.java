@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -38,6 +39,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.MyGroupsContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -469,7 +471,7 @@ public class UiV2MyGroups {
     
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
+      final String myGroupsFilter = StringUtils.trimToEmpty(request.getParameter("myGroupsFilter"));
       
       MyGroupsContainer myGroupsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getMyGroupsContainer();
       
@@ -485,27 +487,33 @@ public class UiV2MyGroups {
         return;
       }
       
-      GuiPaging guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
-      QueryOptions queryOptions = new QueryOptions();
+      final GuiPaging guiPaging = myGroupsContainer.getMyGroupsGuiPaging();
+      final QueryOptions queryOptions = new QueryOptions();
       
       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
 
-      MembershipFinder membershipFinder = new MembershipFinder()
-        .assignSubjectHasMembershipForGroup(loggedInSubject)
-        .addSubject(loggedInSubject)
-        .assignCheckSecurity(true)
-        .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
-        .assignEnabled(true)
-        .assignQueryOptionsForGroup(queryOptions);
-      
-  
-      if (!StringUtils.isBlank(myGroupsFilter)) {
-        membershipFinder.assignSplitScopeForGroup(true);
-        membershipFinder.assignScopeForGroup(myGroupsFilter);
-      }
-    
-      Set<MembershipSubjectContainer> results = membershipFinder
-          .findMembershipResult().getMembershipSubjectContainers();
+      // run this as groupersystem so that we see more than just privs this user can read (e.g. optin/optout)
+      Set<MembershipSubjectContainer> results =
+          
+          (Set<MembershipSubjectContainer>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              MembershipFinder membershipFinder = new MembershipFinder()
+                .assignSubjectHasMembershipForGroup(loggedInSubject)
+                .addSubject(loggedInSubject)
+                .assignCheckSecurity(true)
+                .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
+                .assignEnabled(true)
+                .assignQueryOptionsForGroup(queryOptions);
+              if (!StringUtils.isBlank(myGroupsFilter)) {
+                membershipFinder.assignSplitScopeForGroup(true);
+                membershipFinder.assignScopeForGroup(myGroupsFilter);
+              }
+            
+              return membershipFinder
+                  .findMembershipResult().getMembershipSubjectContainers();
+            }
+          });
       
       MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
       
