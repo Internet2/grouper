@@ -60,7 +60,7 @@ public enum DiagnosticType {
   trivial {
 
     /**
-     * @see DiagnosticType#appendDiagnostics(List)
+     * @see DiagnosticType#appendDiagnostics(Set)
      */
     @Override
     public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
@@ -74,7 +74,7 @@ public enum DiagnosticType {
   db {
 
     /**
-     * @see DiagnosticType#appendDiagnostics(List)
+     * @see DiagnosticType#appendDiagnostics(Set)
      */
     @Override
     public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
@@ -89,15 +89,15 @@ public enum DiagnosticType {
   sources {
 
     /**
-     * @see DiagnosticType#appendDiagnostics(List)
+     * @see DiagnosticType#appendDiagnostics(Set)
      */
     @Override
     public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
       db.appendDiagnostics(diagnosticsTasks);
 
-      Collection<Source> sources = SourceManager.getInstance().getSources();
+      Collection<Source> theSources = SourceManager.getInstance().getSources();
       
-      for (Source source : sources) {
+      for (Source source : theSources) {
         
         diagnosticsTasks.add(new DiagnosticSourceTest(source.getId()));
         
@@ -107,18 +107,17 @@ public enum DiagnosticType {
   },
   
   /**
-   * do the sources test plus the jobs
+   * daemon and loader jobs
    */
-  all {
+  daemonJobsOnly {
 
     /**
-     * @see DiagnosticType#appendDiagnostics(List)
+     * @see DiagnosticType#appendDiagnostics(Set)
      */
     @SuppressWarnings("unchecked")
     @Override
     public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
-      sources.appendDiagnostics(diagnosticsTasks);
-      
+
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("CHANGE_LOG_changeLogTempToChangeLog", GrouperLoaderType.CHANGE_LOG));
 
       String emailTo = GrouperLoaderConfig.getPropertyString("daily.report.emailTo");
@@ -262,6 +261,22 @@ public enum DiagnosticType {
           }
         }
       }
+    }
+  },
+  /**
+   * do the sources test plus the jobs
+   */
+  all {
+
+    /**
+     * @see DiagnosticType#appendDiagnostics(Set)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void appendDiagnostics(Set<DiagnosticTask> diagnosticsTasks) {
+      sources.appendDiagnostics(diagnosticsTasks);
+      
+      daemonJobsOnly.appendDiagnostics(diagnosticsTasks);
       
       {
         //do min size groups
@@ -281,7 +296,10 @@ public enum DiagnosticType {
       }
       
     }
-  };
+  }
+
+
+  ;
   
   /**
    * cache the results of which groups or attributes are loadable
