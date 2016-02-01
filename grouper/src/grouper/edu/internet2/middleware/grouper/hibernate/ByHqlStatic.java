@@ -31,6 +31,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -48,6 +49,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class ByHqlStatic implements HqlQuery {
+  
+  /**
+   * if use resulttransformer to change columns to object
+   */
+  private boolean convertHqlColumnsToObject;
+  
+  /**
+   * if use resulttransformer to change columns to object
+   * @param theConvert
+   * @return this for chaining
+   */
+  public ByHqlStatic assignConvertHqlColumnsToObject(boolean theConvert) {
+    this.convertHqlColumnsToObject = theConvert;
+    return this;
+  }
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ByHqlStatic.class);
@@ -337,6 +353,8 @@ public class ByHqlStatic implements HqlQuery {
       return result;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       GrouperUtil.injectInException(e, "Exception in uniqueResult: (" + returnType + "), " + this);
       throw e;
@@ -387,6 +405,8 @@ public class ByHqlStatic implements HqlQuery {
       
       return result;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -472,6 +492,8 @@ public class ByHqlStatic implements HqlQuery {
       
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in executeUpdate: " + this;
@@ -499,6 +521,8 @@ public class ByHqlStatic implements HqlQuery {
     byHql.setCacheRegion(ByHqlStatic.this.cacheRegion);
     byHql.setQuery(ByHqlStatic.this.query);
     byHql.options(ByHqlStatic.this.queryOptions);
+    byHql.setConvertHqlColumnsToObject(ByHqlStatic.this.convertHqlColumnsToObject);
+    
     return byHql;
     
   }

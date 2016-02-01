@@ -5837,23 +5837,23 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_stem_set_then", Stem.TABLE_GROUPER_STEMS, 
         StemSet.COLUMN_THEN_HAS_STEM_ID, Stem.COLUMN_ID);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_triggers", "qrtz_trigger_to_jobs_fk", "qrtz_job_details", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_TRIGGERS", "qrtz_trigger_to_jobs_fk", "grouper_QZ_JOB_DETAILS", 
         Arrays.asList(new String[]{"sched_name", "job_name", "job_group"}),
         Arrays.asList(new String[]{"sched_name", "job_name", "job_group"}));
     
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_simple_triggers", "qrtz_simple_trig_to_trig_fk", "qrtz_triggers", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_SIMPLE_TRIGGERS", "qrtz_simple_trig_to_trig_fk", "grouper_QZ_TRIGGERS", 
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
     
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_cron_triggers", "qrtz_cron_trig_to_trig_fk", "qrtz_triggers", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_CRON_TRIGGERS", "qrtz_cron_trig_to_trig_fk", "grouper_QZ_TRIGGERS", 
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
     
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_simprop_triggers", "qrtz_simprop_trig_to_trig_fk", "qrtz_triggers", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_SIMPROP_TRIGGERS", "qrtz_simprop_trig_to_trig_fk", "grouper_QZ_TRIGGERS", 
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
     
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "qrtz_blob_triggers", "qrtz_blob_trig_to_trig_fk", "qrtz_triggers", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_QZ_BLOB_TRIGGERS", "qrtz_blob_trig_to_trig_fk", "grouper_QZ_TRIGGERS", 
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}),
         Arrays.asList(new String[]{"sched_name", "trigger_name", "trigger_group"}));
     
@@ -10659,7 +10659,9 @@ public enum GrouperDdl implements DdlVersionable {
       
     }
     
-
+    if (GrouperDdlUtils.isHsql()) {
+      ddlVersionBean.appendAdditionalScriptUnique("\n\nSET DATABASE TRANSACTION CONTROL MVCC;\n");
+    }
     
   }
 
@@ -10683,9 +10685,6 @@ public enum GrouperDdl implements DdlVersionable {
     {
       Table messageTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           GrouperMessageHibernate.TABLE_GROUPER_MESSAGE);
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
-          "grpmessage_id_idx", true, GrouperMessageHibernate.COLUMN_ID);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, messageTable.getName(), 
           "grpmessage_sent_time_idx", false, GrouperMessageHibernate.COLUMN_SENT_TIME_MICROS);
@@ -10716,7 +10715,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addQuartzTables(DdlVersionBean ddlVersionBean, Database database) {
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_job_details");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_JOB_DETAILS");
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "job_name", Types.VARCHAR, "200", true, true);
@@ -10731,7 +10730,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_triggers");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_TRIGGERS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
@@ -10751,7 +10750,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_simple_triggers");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_SIMPLE_TRIGGERS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
@@ -10761,7 +10760,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_cron_triggers");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_CRON_TRIGGERS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
@@ -10770,7 +10769,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_simprop_triggers");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_SIMPROP_TRIGGERS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
@@ -10788,7 +10787,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_blob_triggers");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_BLOB_TRIGGERS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
@@ -10796,20 +10795,20 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_calendars");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_CALENDARS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "calendar_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "calendar", Types.BLOB, null, false, true);
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_paused_trigger_grps");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_PAUSED_TRIGGER_GRPS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_group", Types.VARCHAR, "200", true, true);
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_fired_triggers");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_FIRED_TRIGGERS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "entry_id", Types.VARCHAR, "95", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "trigger_name", Types.VARCHAR, "200", false, true);
@@ -10826,7 +10825,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_scheduler_state");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_SCHEDULER_STATE");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "instance_name", Types.VARCHAR, "200", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_checkin_time", Types.BIGINT, "13", false, true);
@@ -10834,7 +10833,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
     
     {
-      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "qrtz_locks");
+      Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, "grouper_QZ_LOCKS");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "sched_name", Types.VARCHAR, "120", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "lock_name", Types.VARCHAR, "40", true, true);
     }
@@ -10848,68 +10847,68 @@ public enum GrouperDdl implements DdlVersionable {
   private static void addQuartzIndexes(DdlVersionBean ddlVersionBean, Database database) {
     
     {
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_job_details", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_JOB_DETAILS", 
           "idx_qrtz_j_req_recovery", false, "sched_name", "requests_recovery");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_job_details", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_JOB_DETAILS", 
           "idx_qrtz_j_grp", false, "sched_name", "job_group");
     }
     
     {
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_j", false, "sched_name", "job_name", "job_group");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_jg", false, "sched_name", "job_group");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_c", false, "sched_name", "calendar_name");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_g", false, "sched_name", "trigger_group");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_state", false, "sched_name", "trigger_state");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_n_state", false, "sched_name", "trigger_name", "trigger_group", "trigger_state");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_n_g_state", false, "sched_name", "trigger_group", "trigger_state");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_next_fire_time", false, "sched_name", "next_fire_time");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_nft_st", false, "sched_name", "trigger_state", "next_fire_time");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_nft_misfire", false, "sched_name", "misfire_instr", "next_fire_time");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_nft_st_misfire", false, "sched_name", "misfire_instr", "next_fire_time", "trigger_state");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_TRIGGERS", 
           "idx_qrtz_t_nft_st_misfire_grp", false, "sched_name", "misfire_instr", "next_fire_time", "trigger_group", "trigger_state");
     }
     
     {
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_FIRED_TRIGGERS", 
           "idx_qrtz_ft_trig_inst_name", false, "sched_name", "instance_name");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_FIRED_TRIGGERS", 
           "idx_qrtz_ft_inst_job_req_rcvry", false, "sched_name", "instance_name", "requests_recovery");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_FIRED_TRIGGERS", 
           "idx_qrtz_ft_j_g", false, "sched_name", "job_name", "job_group");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_FIRED_TRIGGERS", 
           "idx_qrtz_ft_jg", false, "sched_name", "job_group");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_FIRED_TRIGGERS", 
           "idx_qrtz_ft_t_g", false, "sched_name", "trigger_name", "trigger_group");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "qrtz_fired_triggers", 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_QZ_FIRED_TRIGGERS", 
           "idx_qrtz_ft_tg", false, "sched_name", "trigger_group");
     }
   }

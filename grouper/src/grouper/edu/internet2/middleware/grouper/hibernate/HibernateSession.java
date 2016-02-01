@@ -22,23 +22,31 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -572,6 +580,9 @@ public class HibernateSession {
     if (e instanceof StaleObjectStateException) {
       throw new GrouperStaleObjectStateException(errorString, e);
     }
+    if (e instanceof StaleStateException) {
+      throw new GrouperStaleStateException(errorString, e);
+    }
     // if hibernate exception, repackage
     if (e instanceof HibernateException) {
       throw new GrouperDAOException(errorString, e);
@@ -925,5 +936,127 @@ public class HibernateSession {
     }
     return false;
   }
+
+  /**
+   * Query hibernate objects by sql, get the list, and evict
+   * @param query SQL query, but have curly brackets per hibernate spec, e.g.
+   * SELECT {cat.*} FROM CAT {cat} WHERE cat.name='barney'
+   * @param aliasOfObject is a string or array of strings of alias of the object in 
+   * the SQL e.g. is SELECT {cat.*} FROM ... the alias is "cat"
+   * @param types is the Class or Class[] of type of object(s) returned
+   * @param params prepared statement params (null, Object, Object[], or List of Objects)
+   * @param paramTypes prepared statement types(null, Type, Type[], or List of Types)
+   * @return the array of objects
+   */
+  List retrieveListBySql(String query, String aliasOfObject, Class types,
+      Object params, Object paramTypes) {
+    
+    List list = null;
+
+    Query hibQuery = retrieveQueryBySql(query, aliasOfObject, types, params, paramTypes);
+    
+    list = hibQuery.list();
+    if (list != null) {
+      //make sure objects are not attached to hib session
+      //only do this if hibernate objects
+      if (types != null) {
+        HibUtils.evict(this, list, true);
+      }
+    }
+    return list;
+  }
+
+  /**
+   * Query hibernate objects by sql
+   * @param query SQL query, but have curly brackets per hibernate spec, e.g.
+   * SELECT {cat.*} FROM CAT {cat} WHERE cat.name='barney'
+   * @param aliasOfObject is a string or array of strings of alias of the object in 
+   * the SQL e.g. is SELECT {cat.*} FROM ... the alias is "cat"
+   * @param types is the Class or Class[] of type of object(s) returned
+   * @param params prepared statement params (null, Object, Object[], or List of Objects)
+   * @param paramTypes prepared statement types(null, Type, Type[], or List of Types)
+   * @return the array of objects
+   */
+  @SuppressWarnings("unchecked") Query retrieveQueryBySql(String query, String aliasOfObject, Class types,
+      Object params, Object paramTypes) {
+
+    Query hibQuery = null;
+
+    try {
+
+      hibQuery = this.getSession().createSQLQuery(query);
+
+      if (aliasOfObject != null && types != null) {
+        hibQuery = ((SQLQuery)hibQuery).addEntity(aliasOfObject, types);
+      } else if (types != null) {
+        //if no entity then just get the list of object[] or objects
+        //CH 061105 adding support for native queries for lists of object[]'s or objects
+        hibQuery = ((SQLQuery)hibQuery).addEntity(types);
+      }
+
+      attachParams(hibQuery, params, paramTypes);
+
+      
+    } catch (Throwable he) {
+      throw new RuntimeException("Error querying for array of objects, query: " + query + ", "
+          + HibUtils.paramsToString(params, paramTypes), he);
+    }
+
+    return hibQuery;
+
+  }
+
+
+  /**
+   * Attach params for a prepared statement
+   * @param query is the hibernate query to attach to
+   * @param params (null, Object, Object[], or List of Objects)
+   * @param types (null, Type, Type[], or List of Types)
+   */
+  @SuppressWarnings("deprecation")
+  static void attachParams(Query query, Object params, Object types) {
+
+    //nothing to do if nothing to do
+    if (GrouperUtil.length(params) == 0 && GrouperUtil.length(types) == 0) {
+      return;
+    }
+
+    if (GrouperUtil.length(params) != GrouperUtil.length(types)) {
+      throw new RuntimeException("The params length must equal the types length and params " +
+      "and types must either both or neither be null");
+    }
+
+    int paramLength = -1;
+
+
+    List paramList = GrouperUtil.toList(params);
+    List typeList = GrouperUtil.toList(types);
+
+
+      paramLength = paramList.size();
+
+      if (paramLength != typeList.size()) {
+        throw new RuntimeException("The params length " + paramLength
+            + " must equal the types length " + typeList.size());
+      }
+
+      //loop through, set the params
+      for (int i = 0; i < paramLength; i++) {
+        //massage types
+        Object param = paramList.get(i);
+        Type type = (Type) typeList.get(i);
+        
+        //convert date
+        if (type.equals(StandardBasicTypes.DATE)) {
+          type = StandardBasicTypes.TIMESTAMP;
+          //convert the data
+          param = GrouperUtil.toTimestamp(param);
+        }
+        
+        query.setParameter(i, param, type);
+      }
+
+
+    }
 
 }

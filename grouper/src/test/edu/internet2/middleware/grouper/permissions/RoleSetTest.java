@@ -50,7 +50,7 @@ public class RoleSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RoleSetTest("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new RoleSetTest("testSetLogic"));
   }
 
   /**
@@ -14602,7 +14602,8 @@ public class RoleSetTest extends GrouperTest {
   
     //lets make sure one record was created
     RoleSet roleSet = HibernateSession.byHqlStatic().createQuery(
-        "from RoleSet")
+        "from RoleSet where ifHasRoleId = :ifHasRoleId")
+        .setString("ifHasRoleId", org1.getId())
         .uniqueResult(RoleSet.class);
   
     assertEquals(0, roleSet.getDepth());

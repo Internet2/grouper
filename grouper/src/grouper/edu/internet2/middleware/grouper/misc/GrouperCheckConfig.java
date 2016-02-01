@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.Job;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -915,6 +916,73 @@ public class GrouperCheckConfig {
   }
   
   /**
+   * check the grouper loader other jobs configs
+   */
+  public static void checkGrouperLoaderOtherJobs() {
+
+    //otherJob.duo.class = 
+    //otherJob.duo.quartzCron = 
+    //otherJob.duo.priority = 
+    
+    //make sure sequences are ok
+    Map<String, String> otherJobMap = GrouperLoaderConfig.retrieveConfig().propertiesMap(
+        grouperLoaderOtherJobPattern);
+    while (otherJobMap.size() > 0) {
+      //get one
+      String otherJobKey = otherJobMap.keySet().iterator().next();
+      //get the database name
+      Matcher matcher = grouperLoaderOtherJobPattern.matcher(otherJobKey);
+      matcher.matches();
+      String otherJobName = matcher.group(1);
+      boolean missingOne = false;
+      //now find all required keys
+      String classKey = "otherJob." + otherJobName + ".class";
+      if (!otherJobMap.containsKey(classKey)) {
+        String error = "cannot find grouper-loader.properties key: " + classKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      String cronKey = "otherJob." + otherJobName + ".quartzCron";
+      if (!otherJobMap.containsKey(cronKey)) {
+        String error = "cannot find grouper-loader.properties key: " + cronKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      
+      String priorityKey = "otherJob." + otherJobName + ".priority";
+
+      if (missingOne) {
+        return;
+      }
+      String className = otherJobMap.get(classKey);
+      @SuppressWarnings("unused")
+      String cronName = otherJobMap.get(cronKey);
+      
+      //check the classname
+      try {
+        
+        @SuppressWarnings("unused")
+        Class<? extends Job> theClass = GrouperUtil.forName(className);
+        
+      } catch (Exception e) {
+        String error = "problem finding class: " + classKey + " from grouper-loader.properties: " + className 
+          + ", " + ExceptionUtils.getFullStackTrace(e);
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        
+      }
+      
+      otherJobMap.remove(classKey);
+      otherJobMap.remove(cronKey);
+      otherJobMap.remove(priorityKey);
+
+    }
+    
+  }
+  
+  /**
    * check the grouper loader consumer configs
    */
   public static void checkGrouperLoaderConsumers() {
@@ -1401,6 +1469,12 @@ public class GrouperCheckConfig {
    */
   public static Pattern grouperLoaderConsumerPattern = Pattern.compile(
       "^changeLog\\.consumer\\.(\\w+)\\.(class|quartzCron)$");
+  
+  /**
+   * match something like this: otherJob.duo.class, otherJob.duo.quartzCron, otherJob.duo.priority
+   */
+  public static Pattern grouperLoaderOtherJobPattern = Pattern.compile(
+      "^otherJob\\.(\\w+)\\.(class|quartzCron|priority)$");
   
   /**
    * <pre>

@@ -70,7 +70,7 @@ import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -115,7 +115,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testDeleteComposite"));
+    TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -776,7 +776,7 @@ public class TestGroup extends GrouperTest {
         group2.setDescription("Good bye");
         group2.store();
         fail("Should throw this exception");
-      } catch (GrouperStaleObjectStateException sose) {
+      } catch (GrouperStaleStateException sose) {
         //good
       }
       

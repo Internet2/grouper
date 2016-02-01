@@ -25,6 +25,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -164,6 +165,8 @@ public class ByObjectStatic extends ByQueryBase {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this;
@@ -220,6 +223,8 @@ public class ByObjectStatic extends ByQueryBase {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in update: " + GrouperUtil.className(object) + ", " + this;
@@ -267,6 +272,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -322,6 +329,8 @@ public class ByObjectStatic extends ByQueryBase {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (RuntimeException e) {
       
       String errorString = "Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this;
@@ -374,6 +383,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -428,6 +439,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -488,6 +501,8 @@ public class ByObjectStatic extends ByQueryBase {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
       throw e;
+    } catch (GrouperStaleStateException e) {
+      throw e;
     } catch (MembershipAlreadyExistsException e) {
       throw e;
     } catch (RuntimeException e) {
@@ -539,6 +554,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (MembershipAlreadyExistsException e) {
       throw e;
@@ -595,6 +612,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
@@ -661,6 +680,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (GrouperStaleStateException e) {
       throw e;
     } catch (RuntimeException e) {
       
