@@ -23,10 +23,12 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -46,8 +48,10 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.permissions.PermissionEntryImpl;
 import edu.internet2.middleware.grouper.permissions.PermissionFinder;
 import edu.internet2.middleware.grouper.permissions.PermissionProcessor;
+import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -1876,10 +1880,216 @@ public class PITPermissionTests extends GrouperTest {
   }
   
   /**
+   * 
+   */
+  public void testRolePermissionObject() {
+    Role role = edu.addChildRole("testGroup", "testGroup");
+    Group group = GroupFinder.findByUuid(grouperSession, role.getId(), true);
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    role.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToGroup(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
+    AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
+
+    AttributeAssign assign = role.getPermissionRoleDelegate().assignRolePermission("testAction1", attributeDefName1, PermissionAllowed.ALLOWED).getAttributeAssign();
+
+    // populate PIT tables
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITPermissionAllView perm = (PITPermissionAllView)new PermissionFinder()
+      .addPermissionDef(attributeDef)
+      .assignPointInTimeFrom(new Timestamp(System.currentTimeMillis() - 100000))
+      .assignEnabled(true)
+      .findPermissions().iterator().next();
+    
+    assertEquals(group.getName(), perm.getRoleName());
+    assertEquals(newMember1.getSubjectSourceId(), perm.getSubjectSourceId());
+    assertEquals(newMember1.getSubjectId(), perm.getSubjectId());
+    assertEquals(action1.getName(), perm.getAction());
+    assertEquals(attributeDefName1.getName(), perm.getAttributeDefNameName());
+    assertEquals(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group.getId(), true).getId(), perm.getRoleId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDef.getId(), true).getId(), perm.getAttributeDefId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(newMember1.getId(), true).getId(), perm.getMemberId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefName1.getId(), true).getId(), perm.getAttributeDefNameId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action1.getId(), true).getId(), perm.getActionId());
+    assertEquals(0, perm.getMembershipDepth());
+    assertEquals(0, perm.getRoleSetDepth());
+    assertEquals(0, perm.getAttributeDefNameSetDepth());
+    assertEquals(0, perm.getAttributeAssignActionSetDepth());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign.getId(), true).getId(), perm.getAttributeAssignId());
+    assertEquals(PermissionType.role, perm.getPermissionType());
+    assertEquals("T", perm.getGroupSetActiveDb());
+    assertNotNull(perm.getGroupSetStartTimeDb());
+    assertNull(perm.getGroupSetEndTimeDb());
+    assertEquals("T", perm.getMembershipActiveDb());
+    assertNotNull(perm.getMembershipStartTimeDb());
+    assertNull(perm.getMembershipEndTimeDb());
+    assertEquals("T", perm.getRoleSetActiveDb());
+    assertNotNull(perm.getRoleSetStartTimeDb());
+    assertNull(perm.getRoleSetEndTimeDb());
+    assertEquals("T", perm.getActionSetActiveDb());
+    assertNotNull(perm.getActionSetStartTimeDb());
+    assertNull(perm.getActionSetEndTimeDb());
+    assertEquals("T", perm.getAttributeDefNameSetActiveDb());
+    assertNotNull(perm.getAttributeDefNameSetStartTimeDb());
+    assertNull(perm.getAttributeDefNameSetEndTimeDb());
+    assertEquals("T", perm.getAttributeAssignActiveDb());
+    assertNotNull(perm.getAttributeAssignStartTimeDb());
+    assertNull(perm.getAttributeAssignEndTimeDb());
+    assertEquals("F", perm.getDisallowedDb());
+    assertEquals(action1.getId(), perm.getActionSourceId());
+    assertEquals(group.getId(), perm.getRoleSourceId());
+    assertEquals(attributeDefName1.getId(), perm.getAttributeDefNameSourceId());
+    assertEquals(attributeDef.getId(), perm.getAttributeDefSourceId());
+    assertEquals(newMember1.getId(), perm.getMemberSourceId());
+    assertEquals(MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ1, Group.getDefaultList(), true).getImmediateMembershipId(), perm.getMembershipSourceId());
+    assertEquals(assign.getId(), perm.getAttributeAssignSourceId());
+    
+    PermissionEntryImpl perm2 = (PermissionEntryImpl)new PermissionFinder()
+      .addPermissionDef(attributeDef)
+      .assignEnabled(true)
+      .findPermissions().iterator().next();
+    
+    assertEquals(role.getName(), perm2.getRoleName());
+    assertEquals(newMember1.getSubjectSourceId(), perm2.getSubjectSourceId());
+    assertEquals(newMember1.getSubjectId(), perm2.getSubjectId());
+    assertEquals(action1.getName(), perm2.getAction());
+    assertEquals(attributeDefName1.getName(), perm2.getAttributeDefNameName());
+    assertEquals(attributeDefName1.getDisplayName(), perm2.getAttributeDefNameDispName());
+    assertEquals(role.getDisplayName(), perm2.getRoleDisplayName());
+    assertEquals("FALSE", perm2.getAttributeAssignDelegatableDb());
+    assertEquals("T", perm2.getEnabledDb());
+    assertNull(perm2.getEnabledTimeDb());
+    assertNull(perm2.getDisabledTimeDb());
+    assertEquals(role.getId(), perm2.getRoleId());
+    assertEquals(attributeDef.getId(), perm2.getAttributeDefId());
+    assertEquals(newMember1.getId(), perm2.getMemberId());
+    assertEquals(attributeDefName1.getId(), perm2.getAttributeDefNameId());
+    assertEquals(action1.getId(), perm2.getActionId());
+    assertEquals(0, perm2.getMembershipDepth());
+    assertEquals(0, perm2.getRoleSetDepth());
+    assertEquals(0, perm2.getAttributeDefNameSetDepth());
+    assertEquals(0, perm2.getAttributeAssignActionSetDepth());
+    assertEquals(MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ1, Group.getDefaultList(), true).getUuid(), perm2.getMembershipId());
+    assertEquals(assign.getId(), perm2.getAttributeAssignId());
+    assertEquals(PermissionType.role, perm2.getPermissionType());
+    assertNull(perm2.getAssignmentNotes());
+    assertNull(perm2.getImmediateMshipEnabledTimeDb());
+    assertNull(perm2.getImmediateMshipDisabledTimeDb());
+    assertEquals("F", perm2.getDisallowedDb());
+  }
+  
+  /**
+   * 
+   */
+  public void testSubjectRolePermissionObject() {
+    Role role = edu.addChildRole("testGroup", "testGroup");
+    Group group = GroupFinder.findByUuid(grouperSession, role.getId(), true);
+    Member newMember1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    role.addMember(newMember1.getSubject(), true);
+    
+    AttributeDef attributeDef = edu.addChildAttributeDef("attributeDef", AttributeDefType.perm);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.store();
+    AttributeDefName attributeDefName1 = edu.addChildAttributeDefName(attributeDef, "testAttribute1", "testAttribute1");
+    AttributeAssignAction action1 = attributeDef.getAttributeDefActionDelegate().addAction("testAction1");
+
+    AttributeAssign assign = role.getPermissionRoleDelegate().assignSubjectRolePermission("testAction1", attributeDefName1, newMember1, PermissionAllowed.ALLOWED).getAttributeAssign();
+
+    // populate PIT tables
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITPermissionAllView perm = (PITPermissionAllView)new PermissionFinder()
+      .addPermissionDef(attributeDef)
+      .assignPointInTimeFrom(new Timestamp(System.currentTimeMillis() - 100000))
+      .assignEnabled(true)
+      .findPermissions().iterator().next();
+    
+    assertEquals(group.getName(), perm.getRoleName());
+    assertEquals(newMember1.getSubjectSourceId(), perm.getSubjectSourceId());
+    assertEquals(newMember1.getSubjectId(), perm.getSubjectId());
+    assertEquals(action1.getName(), perm.getAction());
+    assertEquals(attributeDefName1.getName(), perm.getAttributeDefNameName());
+    assertEquals(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group.getId(), true).getId(), perm.getRoleId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDef.getId(), true).getId(), perm.getAttributeDefId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(newMember1.getId(), true).getId(), perm.getMemberId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefName1.getId(), true).getId(), perm.getAttributeDefNameId());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action1.getId(), true).getId(), perm.getActionId());
+    assertEquals(0, perm.getMembershipDepth());
+    assertEquals(-1, perm.getRoleSetDepth());
+    assertEquals(0, perm.getAttributeDefNameSetDepth());
+    assertEquals(0, perm.getAttributeAssignActionSetDepth());
+    assertEquals(GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign.getId(), true).getId(), perm.getAttributeAssignId());
+    assertEquals(PermissionType.role_subject, perm.getPermissionType());
+    assertEquals("T", perm.getGroupSetActiveDb());
+    assertNotNull(perm.getGroupSetStartTimeDb());
+    assertNull(perm.getGroupSetEndTimeDb());
+    assertEquals("T", perm.getMembershipActiveDb());
+    assertNotNull(perm.getMembershipStartTimeDb());
+    assertNull(perm.getMembershipEndTimeDb());
+    assertEquals("T", perm.getRoleSetActiveDb());
+    assertNotNull(perm.getRoleSetStartTimeDb());
+    assertNull(perm.getRoleSetEndTimeDb());
+    assertEquals("T", perm.getActionSetActiveDb());
+    assertNotNull(perm.getActionSetStartTimeDb());
+    assertNull(perm.getActionSetEndTimeDb());
+    assertEquals("T", perm.getAttributeDefNameSetActiveDb());
+    assertNotNull(perm.getAttributeDefNameSetStartTimeDb());
+    assertNull(perm.getAttributeDefNameSetEndTimeDb());
+    assertEquals("T", perm.getAttributeAssignActiveDb());
+    assertNotNull(perm.getAttributeAssignStartTimeDb());
+    assertNull(perm.getAttributeAssignEndTimeDb());
+    assertEquals("F", perm.getDisallowedDb());
+    assertEquals(action1.getId(), perm.getActionSourceId());
+    assertEquals(group.getId(), perm.getRoleSourceId());
+    assertEquals(attributeDefName1.getId(), perm.getAttributeDefNameSourceId());
+    assertEquals(attributeDef.getId(), perm.getAttributeDefSourceId());
+    assertEquals(newMember1.getId(), perm.getMemberSourceId());
+    assertEquals(MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ1, Group.getDefaultList(), true).getImmediateMembershipId(), perm.getMembershipSourceId());
+    assertEquals(assign.getId(), perm.getAttributeAssignSourceId());
+    
+    PermissionEntryImpl perm2 = (PermissionEntryImpl)new PermissionFinder()
+      .addPermissionDef(attributeDef)
+      .assignEnabled(true)
+      .findPermissions().iterator().next();
+    
+    assertEquals(role.getName(), perm2.getRoleName());
+    assertEquals(newMember1.getSubjectSourceId(), perm2.getSubjectSourceId());
+    assertEquals(newMember1.getSubjectId(), perm2.getSubjectId());
+    assertEquals(action1.getName(), perm2.getAction());
+    assertEquals(attributeDefName1.getName(), perm2.getAttributeDefNameName());
+    assertEquals(attributeDefName1.getDisplayName(), perm2.getAttributeDefNameDispName());
+    assertEquals(role.getDisplayName(), perm2.getRoleDisplayName());
+    assertEquals("FALSE", perm2.getAttributeAssignDelegatableDb());
+    assertEquals("T", perm2.getEnabledDb());
+    assertNull(perm2.getEnabledTimeDb());
+    assertNull(perm2.getDisabledTimeDb());
+    assertEquals(role.getId(), perm2.getRoleId());
+    assertEquals(attributeDef.getId(), perm2.getAttributeDefId());
+    assertEquals(newMember1.getId(), perm2.getMemberId());
+    assertEquals(attributeDefName1.getId(), perm2.getAttributeDefNameId());
+    assertEquals(action1.getId(), perm2.getActionId());
+    assertEquals(0, perm2.getMembershipDepth());
+    assertEquals(-1, perm2.getRoleSetDepth());
+    assertEquals(0, perm2.getAttributeDefNameSetDepth());
+    assertEquals(0, perm2.getAttributeAssignActionSetDepth());
+    assertEquals(MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ1, Group.getDefaultList(), true).getUuid(), perm2.getMembershipId());
+    assertEquals(assign.getId(), perm2.getAttributeAssignId());
+    assertEquals(PermissionType.role_subject, perm2.getPermissionType());
+    assertNull(perm2.getAssignmentNotes());
+    assertNull(perm2.getImmediateMshipEnabledTimeDb());
+    assertNull(perm2.getImmediateMshipDisabledTimeDb());
+    assertEquals("F", perm2.getDisallowedDb());
+  }
+  
+  /**
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITPermissionTests("testPermissionByRoleAssign"));
+    TestRunner.run(new PITPermissionTests("testSubjectRolePermissionObject"));
     //TestRunner.run(PITPermissionTests.class);
   }
 }
