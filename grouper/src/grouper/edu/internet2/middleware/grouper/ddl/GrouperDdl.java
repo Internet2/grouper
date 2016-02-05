@@ -9331,7 +9331,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "attr_assign_action_set_depth, "
         + "membership_id, "
         + "attribute_assign_id, "
-        + "permission_type, "
+        + (ddlVersionBean.isHsql() ? "ltrim(permission_type), " : "permission_type, ")
         + "assignment_notes, "
         + "immediate_mship_enabled_time, "
         + "immediate_mship_disabled_time, "
@@ -9835,7 +9835,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "attribute_def_name_set_id, "
         + "action_set_id, "
         + "attribute_assign_id, "
-        + "permission_type, "
+        + (ddlVersionBean.isHsql() ? "ltrim(permission_type), " : "permission_type, ")
         + "group_set_active, "
         + "group_set_start_time, "
         + "group_set_end_time, "

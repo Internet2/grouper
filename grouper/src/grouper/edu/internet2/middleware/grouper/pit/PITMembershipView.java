@@ -68,6 +68,9 @@ public class PITMembershipView {
 
   /** constant for field name for: membershipId */
   public static final String FIELD_MEMBERSHIP_ID = "membershipId";
+  
+  /** constant for field name for: membershipSourceId */
+  public static final String FIELD_MEMBERSHIP_SOURCE_ID = "membershipSourceId";
 
   /** constant for field name for: membershipStartTimeDb */
   public static final String FIELD_MEMBERSHIP_START_TIME_DB = "membershipStartTimeDb";
@@ -89,6 +92,9 @@ public class PITMembershipView {
   
   /** id in grouper_pit_memberships */
   private String membershipId;
+  
+  /** source id in grouper_pit_memberships */
+  private String membershipSourceId;
   
   /** id in grouper_pit_group_set */
   private String groupSetId;
@@ -476,5 +482,21 @@ public class PITMembershipView {
     Long endTime = GrouperUtil.getMinLongValue(membershipEndTimeDb, groupSetEndTimeDb);
 
     return new Timestamp(endTime / 1000);
+  }
+
+  
+  /**
+   * @return the membershipSourceId
+   */
+  public String getMembershipSourceId() {
+    return membershipSourceId;
+  }
+
+  
+  /**
+   * @param membershipSourceId the membershipSourceId to set
+   */
+  public void setMembershipSourceId(String membershipSourceId) {
+    this.membershipSourceId = membershipSourceId;
   }
 }

@@ -1879,7 +1879,7 @@ public class PITPermissionTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITPermissionTests("testPermissionByRoleSet"));
+    TestRunner.run(new PITPermissionTests("testPermissionByRoleAssign"));
     //TestRunner.run(PITPermissionTests.class);
   }
 }
