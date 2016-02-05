@@ -32,6 +32,7 @@ public class AllStressTests {
 
     //$JUnit-BEGIN$
     suite.addTestSuite(GroupDeleteTest.class);
+    suite.addTestSuite(PermissionPerformanceTest.class);
     //$JUnit-END$
     return suite;
   }
