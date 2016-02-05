@@ -137,7 +137,7 @@ public class PermissionPerformanceTest extends GrouperTest {
       
       assertEquals(10000, permissions.size());
       System.out.println("Time (ms) to get all permissions in point in time with permission name top:child-0: " + diff);
-     //TODO assertTrue("Query should be less than 5 seconds, actual time in ms=" + diff, diff < 5000);
+      assertTrue("Query should take less than 5 seconds, actual time in ms=" + diff, diff < 5000);
       
       start = System.currentTimeMillis();
       permissions = new PermissionFinder()
@@ -150,7 +150,7 @@ public class PermissionPerformanceTest extends GrouperTest {
       
       assertEquals(10000, permissions.size());
       System.out.println("Time (ms) to get all permissions with permission name top:child-0: " + diff);
-    //TODO  assertTrue("Query should be less than 5 seconds, actual time in ms=" + diff, diff < 5000);
+      assertTrue("Query should take less than 5 seconds, actual time in ms=" + diff, diff < 5000);
       
       start = System.currentTimeMillis();
       permissions = new PermissionFinder()
@@ -164,7 +164,7 @@ public class PermissionPerformanceTest extends GrouperTest {
       
       assertEquals(1001, permissions.size());
       System.out.println("Time (ms) to get all permissions in point in time for an individual subject: " + diff);
-     //TODO assertTrue("Query should be less than 5 seconds, actual time in ms=" + diff, diff < 5000);
+      assertTrue("Query should take less than 5 seconds, actual time in ms=" + diff, diff < 5000);
       
       start = System.currentTimeMillis();
       permissions = new PermissionFinder()
@@ -177,7 +177,7 @@ public class PermissionPerformanceTest extends GrouperTest {
       
       assertEquals(1001, permissions.size());
       System.out.println("Time (ms) to get all permissions for an individual subject: " + diff);
-    //TODO  assertTrue("Query should be less than 5 seconds, actual time in ms=" + diff, diff < 5000);
+      assertTrue("Query should take less than 5 seconds, actual time in ms=" + diff, diff < 5000);
       
       
       start = System.currentTimeMillis();
@@ -191,7 +191,7 @@ public class PermissionPerformanceTest extends GrouperTest {
       
       assertEquals(1, permissions.size());
       System.out.println("Time (ms) to get a single role assignment: " + diff);
-      //TODO  assertTrue("Query should be less than 5 seconds, actual time in ms=" + diff, diff < 5000);      
+      assertTrue("Query should take less than 5 seconds, actual time in ms=" + diff, diff < 5000);      
     } finally {
       System.out.println("Done permission performance testing");
     }
