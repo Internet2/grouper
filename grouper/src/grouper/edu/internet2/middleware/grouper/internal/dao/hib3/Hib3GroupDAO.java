@@ -2362,21 +2362,22 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     //see if we are adding more to the query, note, this is for the ADMIN list since the user should be able to read privs
     Set<Privilege> adminSet = GrouperUtil.toSet(AccessPrivilege.ADMIN);
-    grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
         sql, "theGroup.uuid", adminSet);
 
     boolean changedQueryNotWithPriv = grouperSession.getAccessResolver().hqlFilterGroupsNotWithPrivWhereClause(subject, byHqlStatic, 
         sql, "theGroup.uuid", privilege, considerAllSubject);
 
-    if (!StringUtils.isBlank(sqlLikeString)) {
-      sql.append(" and theGroup.nameDb like :sqlLikeString ");
-      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    if (changedQuery || changedQueryNotWithPriv) {
+      sql.append(" and ");
+    } else {
+      sql.append(" where ");
     }
-    
+
     switch (scope) {
       case ONE:
         
-        sql.append(" and theGroup.parentUuid = :stemId ");
+        sql.append(" theGroup.parentUuid = :stemId ");
         byHqlStatic.setString("stemId", stemId);
         
         break;
@@ -2384,7 +2385,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       case SUB:
         
         Stem stem = StemFinder.findByUuid(grouperSession, stemId, true);
-        sql.append(" and theGroup.nameDb like :stemPattern ");
+        sql.append(" theGroup.nameDb like :stemPattern ");
         byHqlStatic.setString("stemPattern", stem.getName() + ":%");
 
         break;
@@ -2392,7 +2393,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       default:
         throw new RuntimeException("Need to pass in a scope, or its not implemented: " + scope);
     }
+
+    if (!StringUtils.isBlank(sqlLikeString)) {
+      
+      sql.append(" and theGroup.nameDb like :sqlLikeString ");
+      byHqlStatic.setString("sqlLikeString", sqlLikeString);
+    }
     
+
     if (queryOptions != null) {
       massageSortFields(queryOptions.getQuerySort());
     }
