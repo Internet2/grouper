@@ -493,7 +493,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.PERMISSION_CHANGE_ON_ROLE.roleName));
       
   /**
-   * defaults for audit type, though doesnt hold the id
+   * defaults for changelog type, though doesn't hold the id
    */
   private ChangeLogType internalChangeLogTypeDefault;
   
@@ -506,8 +506,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   }
   
   /**
-   * get the audit type from the enum
-   * @return the audit type
+   * get the changelog type from the enum
+   * @return the changelog type
    */
   public ChangeLogType getChangeLogType() {
     return ChangeLogTypeFinder.find(this.internalChangeLogTypeDefault.getChangeLogCategory(), 
