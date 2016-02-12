@@ -634,14 +634,10 @@ public class ChangeLogEntry extends GrouperAPI {
   }
 
   /**
-   * if temp object, then with hibernate composite id, cant be null
-   * @param theString to convert if temp object
-   * @return the string, if temp object, then make sure not null
+   * @param theString
+   * @return the string without empty strings
    */
   private String tempConvert(String theString) {
-    if (this.tempObject) {
-      return StringUtils.defaultString(theString);
-    }
     //why would be have empty string?
     if ("".equals(theString)) {
       return null;
