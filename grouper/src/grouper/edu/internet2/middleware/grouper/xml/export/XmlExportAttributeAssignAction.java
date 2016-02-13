@@ -497,9 +497,12 @@ public class XmlExportAttributeAssignAction {
     writer.write("if (attributeDef != null) { ");
 
     //addCompositeMember(CompositeType type, Group left, Group right)
-    writer.write("attributeDef.getAttributeDefActionDelegate().configureActionList(\"" + GrouperUtil.join(actionList.iterator(), ",") + "\"); ");
+    String actionsCommaSeparated = GrouperUtil.join(actionList.iterator(), ",");
+    writer.write("int changeCount = attributeDef.getAttributeDefActionDelegate().configureActionList(\"" + actionsCommaSeparated + "\"); "
+        + "gshTotalObjectCount+=" + actionList.size() + "; if (changeCount > 0) { gshTotalChangeCount+=changeCount; "
+            + "System.out.println(\"Made \" + changeCount + \" changes for actionList of attributeDef: " + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\");  }");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); }\n");
+    writer.write(" } else { gshTotalErrorCount++;  System.out.println(\"ERROR: cant find attributeDef: '" + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); }\n");
 
   }
 

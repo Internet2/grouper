@@ -481,21 +481,29 @@ public class XmlExportAttributeAssignActionSet {
 
     writer.write("if (attributeDef != null) { ");
 
-    writer.write("ifHasActionName = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotes(ifHasActionName) + "\", false); ");
+    writer.write("ifHasAction = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotes(ifHasActionName) + "\", false); ");
 
-    writer.write("if (ifHasActionName != null) { ");
+    writer.write("if (ifHasAction != null) { ");
 
-    writer.write("thenHasActionName = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotes(thenHasActionName) + "\", false); ");
+    writer.write("thenHasAction = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotes(thenHasActionName) + "\", false); ");
 
-    writer.write("if (thenHasActionName != null) { ");
+    writer.write("if (thenHasAction != null) { ");
 
-    writer.write(" ifHasActionName.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(thenHasActionName); ");
+    writer.write(" boolean changed = ifHasAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(thenHasAction); gshTotalObjectCount++; "
+        + "if (changed) { gshTotalChangeCount++; System.out.println(\"Made change for action inheritance for attributeDef: " 
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + ", if has action: " + GrouperUtil.escapeDoubleQuotes(ifHasActionName) 
+        + " then has action: " + GrouperUtil.escapeDoubleQuotes(thenHasActionName) + "); } ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasActionName: '" + thenHasActionName + "', attributeDefName: '" + nameOfAttributeDef + "'\"); }");
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasAction: '" 
+        + GrouperUtil.escapeDoubleQuotes(thenHasActionName) + "', attributeDefName: '" 
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); gshTotalErrorCount++; }");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasActionName: '" + ifHasActionName + "', attributeDefName: '" + nameOfAttributeDef + "'\"); }");
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasAction: '" 
+        + GrouperUtil.escapeDoubleQuotes(ifHasActionName) + "', attributeDefName: '" 
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); gshTotalErrorCount++; }");
     
-    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); }\n");
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" 
+        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); gshTotalErrorCount++; }\n");
 
   }
 

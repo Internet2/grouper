@@ -540,23 +540,18 @@ public class XmlExportAttributeDefNameSet {
       @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
       String ifHasAttributeDefName, String thenHasAttributeDefName) throws IOException {
     
-    //readWrite = permissionDef.getAttributeDefActionDelegate().findAction("readWrite", true);
-    //admin = permissionDef.getAttributeDefActionDelegate().findAction("admin", true);
-    // 
-    //readWrite.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(read);
-    
     writer.write("ifHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(ifHasAttributeDefName) + "\", false);\n");
     writer.write("thenHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(thenHasAttributeDefName) + "\", false);\n");
 
-    writer.write("if (ifHasAttributeDefNameName != null) { ");
+    writer.write("if (ifHasAttributeDefName != null) { ");
 
     writer.write("if (thenHasAttributeDefName != null) { ");
 
-    writer.write(" ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName); ");
+    writer.write(" boolean changed = ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName);  gshTotalObjectCount++;\nif (changed) {gshTotalChangeCount++; System.out.println(\"Made change for attributeDefName inheritance: \" + ifHasAttributeDefName.getName() + \" implies \" + thenHasAttributeDefName.getName()); ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasAttributeDefName: '" + thenHasAttributeDefName + "'\"); }");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find thenHasAttributeDefName: '" + GrouperUtil.escapeDoubleQuotes(thenHasAttributeDefName) + "'\"); }");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasAttributeDefName: '" + ifHasAttributeDefName + "'\"); } \n");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find ifHasAttributeDefName: '" + GrouperUtil.escapeDoubleQuotes(ifHasAttributeDefName) + "'\"); } \n");
 
   }
 

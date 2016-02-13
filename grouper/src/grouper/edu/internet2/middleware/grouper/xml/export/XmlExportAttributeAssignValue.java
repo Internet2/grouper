@@ -348,6 +348,18 @@ public class XmlExportAttributeAssignValue {
 
   /**
    * get db count
+   * @param xmlExportMain 
+   * @return db count
+   */
+  public static long dbCount(XmlExportMain xmlExportMain) {
+    long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignValue) " 
+        + XmlExportAttributeAssign.exportFromOnQuery(xmlExportMain, false, true, true)).uniqueResult(Long.class);
+    return result;
+  }
+
+
+  /**
+   * get db count
    * @return db count
    */
   public static long dbCount() {

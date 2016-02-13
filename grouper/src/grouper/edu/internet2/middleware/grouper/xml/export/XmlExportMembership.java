@@ -435,7 +435,7 @@ public class XmlExportMembership {
       String stemName, String nameOfAttributeDef, Timestamp enabledTimestamp, Timestamp disabledTimestamp) throws IOException {
 
     //SubjectFinder.findByIdAndSource("12345", "jdbc", true);
-    writer.write("subject = SubjectFinder.findByIdAndSource(\""
+    writer.write("Subject subject = SubjectFinder.findByIdAndSource(\""
         + GrouperUtil.escapeDoubleQuotes(subjectId) + "\", \""
         + GrouperUtil.escapeDoubleQuotes(sourceId) + "\", false);\n");
     
@@ -444,12 +444,12 @@ public class XmlExportMembership {
     if (field.isStemListField() || field.isGroupAccessField() || field.isAttributeDefListField()) {
 
       //privilege = Privilege.listToPriv("attrAdmins", false);
-      writer.write("privilege = Privilege.listToPriv(\""
+      writer.write("Privilege privilege = Privilege.listToPriv(\""
           + GrouperUtil.escapeDoubleQuotes(fieldName) + "\", false);\n");
       
     } else {
       
-      writer.write("privilege = null;\n");
+      writer.write("Privilege privilege = null;\n");
       if (!StringUtils.equals(Group.getDefaultList().getName(), fieldName)) {
         
         throw new RuntimeException("Not expecting field: '" + fieldName + "'");
@@ -459,16 +459,16 @@ public class XmlExportMembership {
 
     if (field.isGroupListField() || field.isGroupAccessField()) {
       
-      writer.write("group = GroupFinder.findByName(grouperSession, \""
+      writer.write("Group group = GroupFinder.findByName(grouperSession, \""
           + GrouperUtil.escapeDoubleQuotes(groupName) + "\", false);\n");
       
     } else if (field.isStemListField()) {
-      writer.write("stem = StemFinder.findByName(grouperSession, \""
+      writer.write("Stem stem = StemFinder.findByName(grouperSession, \""
           + GrouperUtil.escapeDoubleQuotes(stemName) + "\", false);\n");
 
     } else if (field.isAttributeDefListField()) {
 
-      writer.write("attributeDef = AttributeDefFinder.findByName(\""
+      writer.write("AttributeDef attributeDef = AttributeDefFinder.findByName(\""
           + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
 
     }
@@ -485,46 +485,52 @@ public class XmlExportMembership {
       writer.write("if (group != null) { ");
       
       if (field.isGroupAccessField()) {
-
         // grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
-        writer.write("group.grantPriv(subject, privilege, false);");
+        writer.write("boolean changed = group.grantPriv(subject, privilege, false);    gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for group privilege: \" + group.getName() + \", privilege: \" + privilege + \", subject: \" + GrouperUtil.subjectToString(subject)); } ");
         
       } else {
         
-        //addOrEditMember(final Subject subject, final boolean defaultPrivs,
-        //final boolean memberChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked)
-        writer.write("group.addOrEditMember(subject, false, true, " 
-            + (enabledTimestamp == null ? "null" : "new java.util.Date(" + enabledTimestamp.getTime() + "L)") + ", " 
-            + (disabledTimestamp == null ? "null" : "new java.util.Date(" + disabledTimestamp.getTime() + "L)") + ", false);");
+        if (GrouperUtil.equals(field, Group.getDefaultList())) {
+          //addOrEditMember(final Subject subject, final boolean defaultPrivs,
+          //final boolean memberChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked)
+          writer.write("boolean changed = group.addOrEditMember(subject, false, true, " 
+              + (enabledTimestamp == null ? "null" : "new java.util.Date(" + enabledTimestamp.getTime() + "L)") + ", " 
+              + (disabledTimestamp == null ? "null" : "new java.util.Date(" + disabledTimestamp.getTime() + "L)") + ", false);  "
+                  + "    gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for group membership: \" + group.getName() + \", field: \" + field + \", subject: \" + GrouperUtil.subjectToString(subject)); }");
+        } else {
+          //TODO we should probably handle this at some point
+          System.out.println("Error: This export only works with 'members' group membership lists! " + field);
+          writer.write("gshTotalErrorCount++;\nSystem.out.println(\"Error: This export only works with 'members' group membership lists! " + GrouperUtil.escapeDoubleQuotes(field.getName()) + "\");\n");
+        }
         
       }
       
-      writer.write(" } else { System.out.println(\"ERROR: cant find group: '" + groupName + "'\"); } ");
+      writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find group: '" + GrouperUtil.escapeDoubleQuotes(groupName) + "'\"); } ");
       
     } else if (field.isStemListField()) {
 
       writer.write("if (stem != null) { ");
       
       // grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
-      writer.write("stem.grantPriv(subject, privilege, false);");
+      writer.write("boolean changed = stem.grantPriv(subject, privilege, false);   gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for stem privilege: \" + stem.getName() + \", privilege: \" + privilege + \", subject: \" + GrouperUtil.subjectToString(subject)); }");
         
-      writer.write(" } else { System.out.println(\"ERROR: cant find stem: '" + stemName + "'\"); } ");
+      writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find stem: '" + GrouperUtil.escapeDoubleQuotes(stemName) + "'\"); } ");
 
     } else if (field.isAttributeDefListField()) {
 
       writer.write("if (attributeDef != null) { ");
       
       // grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
-      writer.write("attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, false);");
+      writer.write("boolean changed = attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, false);  gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for attributeDef privilege: \" + attributeDef.getName() + \", privilege: \" + privilege + \", subject: \" + GrouperUtil.subjectToString(subject));  }");
 
-      writer.write(" } else { System.out.println(\"ERROR: cant find attribute definition: '" + nameOfAttributeDef + "'\"); } ");
+      writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attribute definition: '" + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); } ");
 
     }
 
-    writer.write("} else { System.out.println(\"ERROR: cant find subject: '" + sourceId + "' --> '" + subjectId+ "'\");}");
+    writer.write("} else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find subject: '" + GrouperUtil.escapeDoubleQuotes(sourceId) + "' --> '" + GrouperUtil.escapeDoubleQuotes(subjectId) + "'\");}");
 
     if (hasPrivilege) {
-      writer.write(" } else { System.out.println(\"ERROR: cant find privilege: '" + fieldName + "'\");}");
+      writer.write(" } " /* else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find privilege: '" + GrouperUtil.escapeDoubleQuotes(fieldName) + "'\"); } "*/);
     }
     
     writer.write("\n");

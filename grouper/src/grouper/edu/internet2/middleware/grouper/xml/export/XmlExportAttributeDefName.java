@@ -593,12 +593,12 @@ public class XmlExportAttributeDefName {
       @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, String nameOfAttributeDef, boolean printAttributeDefFinder) throws IOException {
 
     if (printAttributeDefFinder) {
-      writer.write("attributeDef = AttributeDefFinder.findByName(\""
+      writer.write("AttributeDef attributeDef = AttributeDefFinder.findByName(\""
         + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
     }
-    
+
     writer.write("if (attributeDef != null) { ");
-    writer.write(" new AttributeDefNameSave(grouperSession, attributeDef).assignName(\""
+    writer.write(" AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef).assignName(\""
         + GrouperUtil.escapeDoubleQuotes(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
 
@@ -609,11 +609,11 @@ public class XmlExportAttributeDefName {
     }
     writer.write(".assignDisplayName(\""
         + GrouperUtil.escapeDoubleQuotes(this.displayName)
-        + "\")");
+        + "\");  ");
 
-    writer.write(".save();");
+    writer.write("AttributeDefName attributeDefName = attributeDefNameSave.save();  gshTotalObjectCount++;  if (attributeDefNameSave.getSaveResultType() != SaveResultType.NO_CHANGE) {gshTotalChangeCount++;  System.out.println(\"Made change for attributeDefName: \" + attributeDefName.getName()); }  ");
     
-    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); } \n");
+    writer.write(" } else { gshTotalErrorCount++;  System.out.println(\"ERROR: cant find attributeDef: '" + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); } \n");
   }
   
   

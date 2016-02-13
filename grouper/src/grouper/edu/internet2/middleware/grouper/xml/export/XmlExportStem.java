@@ -442,7 +442,7 @@ public class XmlExportStem {
       @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer) throws IOException {
     //new StemSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
-    writer.write("new StemSave(grouperSession).assignName(\""
+    writer.write("StemSave stemSave = new StemSave(grouperSession).assignName(\""
         + GrouperUtil.escapeDoubleQuotes(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
@@ -452,7 +452,7 @@ public class XmlExportStem {
     }
     writer.write(".assignDisplayName(\""
         + GrouperUtil.escapeDoubleQuotes(this.displayName)
-        + "\").save();\n");
+        + "\");\nstem = stemSave.save();\ngshTotalObjectCount++;\nif (stemSave.getSaveResultType() != SaveResultType.NO_CHANGE) { System.out.println(\"Made change for stem: \" + stem.getName()); gshTotalChangeCount++;}\n");
   }
 
   /**

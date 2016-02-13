@@ -705,7 +705,7 @@ public class XmlExportAttributeDef {
     //new AttributeDefSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
 
-    writer.write("new AttributeDefSave(grouperSession).assignName(\""
+    writer.write("AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession).assignName(\""
         + GrouperUtil.escapeDoubleQuotes(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
@@ -764,9 +764,11 @@ public class XmlExportAttributeDef {
     
     writer.write(".assignMultiAssignable(" + GrouperUtil.booleanValue(this.multiAssignable, false) + ")");
     writer.write(".assignMultiValued(" + GrouperUtil.booleanValue(this.multiValued, false) + ")");
-    writer.write(".assignValueType(AttributeDefValueType." + AttributeDefValueType.valueOfIgnoreCase(this.valueType, true).name() + ")");
+    writer.write(".assignValueType(AttributeDefValueType." + AttributeDefValueType.valueOfIgnoreCase(this.valueType, true).name() + ");\n");
     
-    writer.write(".save();\n");
+    writer.write("AttributeDef attributeDef = attributeDefSave.save();\n");
+    writer.write("gshTotalObjectCount++;\nif (attributeDefSave.getSaveResultType() != SaveResultType.NO_CHANGE) {"
+        + "System.out.println(\"Made change for attributeDef: \" + attributeDef.getName()); gshTotalChangeCount++;}\n");
   }
 
   /**

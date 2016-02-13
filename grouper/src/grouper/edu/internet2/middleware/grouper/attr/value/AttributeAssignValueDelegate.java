@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
@@ -1748,5 +1749,90 @@ public class AttributeAssignValueDelegate {
       .toString();
   }
 
+  /**
+   * replace values, update if possible... works for single or multi-assign
+   * @param expectedAttributeAssignValues
+   * @return the number of records updated
+   */
+  public int replaceValues(Set<AttributeAssignValue> expectedAttributeAssignValues) {
+    Set<AttributeAssignValue> existingAttributeAssignValues = this.getAttributeAssignValues();
+
+    Iterator<AttributeAssignValue> expectedAttributeAssignValueIterator = expectedAttributeAssignValues.iterator();
+    
+    int count = 0;
+    
+    // loop through expected values
+    while (expectedAttributeAssignValueIterator.hasNext()) {
+      
+      AttributeAssignValue expectedAttributeAssignValue = expectedAttributeAssignValueIterator.next();
+      
+      Iterator<AttributeAssignValue> existingAttributeAssignValueIterator = existingAttributeAssignValues.iterator();
+      
+      //loop through existing values
+      while (existingAttributeAssignValueIterator.hasNext()) {
+        AttributeAssignValue existingAttributeAssignValue = existingAttributeAssignValueIterator.next();
+        
+        // if the same then remove both from each set
+        if (GrouperUtil.equals(expectedAttributeAssignValue.getValue(), existingAttributeAssignValue.getValue())) {
+          expectedAttributeAssignValueIterator.remove();
+          existingAttributeAssignValueIterator.remove();
+          break;
+        }
+      }
+    }
+
+    //see if there are changes
+    if (GrouperUtil.length(existingAttributeAssignValues) > 0 || GrouperUtil.length(expectedAttributeAssignValues) > 0) {
+
+      AttributeDefName theAttributeDefName = attributeAssign.getAttributeDefName();
+      
+      if (!theAttributeDefName.getAttributeDef().isMultiValued()) {
+        
+        if (GrouperUtil.length(expectedAttributeAssignValues) > 1) {
+          throw new RuntimeException("Why assigning more than one value to a single valued attribute definition? " 
+              + GrouperUtil.toStringForLog(expectedAttributeAssignValues) + ", " + theAttributeDefName.getName());  
+        }
+        
+        if (GrouperUtil.length(expectedAttributeAssignValues) == 1) {
+          count++;
+          this.assignValue(expectedAttributeAssignValues.iterator().next());
+        } else {
+          count++;
+          //must be a delete
+          this.deleteValue(existingAttributeAssignValues.iterator().next());
+        }
+        
+      } else {
+        
+        expectedAttributeAssignValueIterator = expectedAttributeAssignValues.iterator();
+        Iterator<AttributeAssignValue> existingAttributeAssignValueIterator = existingAttributeAssignValues.iterator();
+        
+        // loop through expected values
+        while (expectedAttributeAssignValueIterator.hasNext()) {
+          
+          AttributeAssignValue expectedAttributeAssignValue = expectedAttributeAssignValueIterator.next();
+          
+          count++;
+
+          if (existingAttributeAssignValueIterator.hasNext()) {
+            AttributeAssignValue existingAttributeAssignValue = existingAttributeAssignValueIterator.next();
+            existingAttributeAssignValue.assignValue(expectedAttributeAssignValue);
+            existingAttributeAssignValue.saveOrUpdate();
+          } else {
+            expectedAttributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+            expectedAttributeAssignValue.saveOrUpdate();
+          }
+        }
+        
+        //delete extra things that need to be deleted 
+        while (existingAttributeAssignValueIterator.hasNext()) {
+          count++;
+          AttributeAssignValue attributeAssignValue = existingAttributeAssignValueIterator.next();
+          attributeAssignValue.delete();
+        }
+      }
+    }
+    return count;
+  }
 
 }

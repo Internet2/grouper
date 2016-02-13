@@ -443,7 +443,7 @@ public class XmlExportGroup {
     //new GroupSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
 
-    writer.write("group = new GroupSave(grouperSession).assignName(\""
+    writer.write("GroupSave groupSave = new GroupSave(grouperSession).assignName(\""
         + GrouperUtil.escapeDoubleQuotes(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
@@ -455,9 +455,9 @@ public class XmlExportGroup {
         + GrouperUtil.escapeDoubleQuotes(this.displayName)
         + "\")");
 
-    writer.write(".assignTypeOfGroup(TypeOfGroup." + TypeOfGroup.valueOfIgnoreCase(this.typeOfGroup, true).name() + ")");
+    writer.write(".assignTypeOfGroup(TypeOfGroup." + TypeOfGroup.valueOfIgnoreCase(this.typeOfGroup, true).name() + ");\n");
     
-    writer.write(".save();\n");
+    writer.write("Group group = groupSave.save();\ngshTotalObjectCount++;\nif (groupSave.getSaveResultType() != SaveResultType.NO_CHANGE) { System.out.println(\"Made change for group: \" + group.getName()); gshTotalChangeCount++;}\n");
     if (!StringUtils.isBlank(this.alternateName)) {
       writer.write("group.addAlternateName(\"" + GrouperUtil.escapeDoubleQuotes(this.alternateName) + "\");\n");
     }
