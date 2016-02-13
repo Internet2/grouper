@@ -445,7 +445,7 @@ public class XmlImportMain {
     total += XmlExportAttributeDefNameSet.dbCount(xmlExportMain);
     total += XmlExportAttributeDefScope.dbCount(xmlExportMain);
     total += XmlExportAttributeAssign.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssignValue.dbCount();
+    total += XmlExportAttributeAssignValue.dbCount(xmlExportMain);
     return total;
   }
   

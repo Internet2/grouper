@@ -51,11 +51,12 @@ public class AttributeDefActionDelegate {
   /**
    * configure the action list based on comma separated list of actions
    * @param list
+   * @return number of changes
    */
-  public void configureActionList(String list) {
+  public int configureActionList(String list) {
     String[] actions = GrouperUtil.splitTrim(list, ",");
     Set<String> actionSet = GrouperUtil.toSet(actions);
-    this.configureActionList(actionSet);
+    return this.configureActionList(actionSet);
   }
   
   /**
@@ -154,8 +155,11 @@ public class AttributeDefActionDelegate {
   /**
    * configure the action list based on collection of actions
    * @param collection
+   * @return the number of changed
    */
-  public void configureActionList(Collection<String> collection) {
+  public int configureActionList(Collection<String> collection) {
+
+    int numberOfChanges = 0;
 
     collection = GrouperUtil.nonNull(collection);
     
@@ -179,18 +183,20 @@ public class AttributeDefActionDelegate {
     //lets add and delete, no need to do in transaction
     for (String add: adds) {
       internal_addAction(add, null);
+      numberOfChanges++;
     }
     for (String remove: removes) {
       for (AttributeAssignAction attributeAssignAction : this.allowedActions()) {
         if (StringUtils.equals(remove, attributeAssignAction.getName())) {
           attributeAssignAction.delete();
+          numberOfChanges++;
         }
       }
     }
     //lets clear the cache
     this.allowedActionsSet = null;
     this.allowedActionStringSet = null;
-    
+    return numberOfChanges;
   }
 
   /**

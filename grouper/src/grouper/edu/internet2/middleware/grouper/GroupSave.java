@@ -566,7 +566,7 @@ public class GroupSave {
 
                 //now compare and put all attributes (then store if needed)
                 //null throws exception? hmmm.  remove attribute if blank
-                if (!StringUtils.equals(StringUtils.defaultString(theGroup.getDescription()), 
+                if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theGroup.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
                   needsSave = true;
                   if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {

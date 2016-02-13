@@ -448,38 +448,41 @@ public class XmlExportComposite {
    * convert this to GSH that is failsafe
    * @param grouperVersion
    * @param writer
-   * @param overallGroupName 
+   * @param ownerGroupName 
    * @param type 
    * @param leftFactorName 
    * @param rightFactorName 
    * @throws IOException 
    */
-  public static void toGsh(GrouperVersion grouperVersion, Writer writer, String overallGroupName, 
+  public static void toGsh(GrouperVersion grouperVersion, Writer writer, String ownerGroupName, 
       String type, String leftFactorName, String rightFactorName) throws IOException {
 
-    writer.write("overallGroup = GroupFinder.findByName(grouperSession, \""
-        + GrouperUtil.escapeDoubleQuotes(overallGroupName) + "\", false);\n");
-    writer.write("leftFactorGroup = GroupFinder.findByName(grouperSession, \""
+    writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotes(ownerGroupName) + "\", false);\n");
+    writer.write("Group leftFactorGroup = GroupFinder.findByName(grouperSession, \""
         + GrouperUtil.escapeDoubleQuotes(leftFactorName) + "\", false);\n");
-    writer.write("rightFactorGroup = GroupFinder.findByName(grouperSession, \""
+    writer.write("Group rightFactorGroup = GroupFinder.findByName(grouperSession, \""
         + GrouperUtil.escapeDoubleQuotes(rightFactorName) + "\", false);\n");
 
-    writer.write("compositeType = CompositeType." + CompositeType.valueOfIgnoreCase(type).name() + ";\n");
+    writer.write("CompositeType compositeType = CompositeType." + CompositeType.valueOfIgnoreCase(type).name() + ";\n");
     
-    writer.write("if (overallGroup != null) { ");
+    writer.write("if (ownerGroup != null) { ");
 
     writer.write("if (leftFactorGroup != null) { ");
 
     writer.write("if (rightFactorGroup != null) { ");
 
     //addCompositeMember(CompositeType type, Group left, Group right)
-    writer.write("overallGroup.addCompositeMember(compositeType, leftFactorGroup, rightFactorGroup); ");
+    writer.write(" CompositeSave compositeSave = new CompositeSave(grouperSession).assignOwnerGroup(ownerGroup).assignCompositeType(compositeType)"
+        + ".assignLeftFactorGroup(leftFactorGroup).assignRightFactorGroup(rightFactorGroup); gshTotalObjectCount++; Composite composite = compositeSave.save(); "
+        + "if (compositeSave.getSaveResultType() != SaveResultType.NO_CHANGE) {System.out.println(\"Made change for composite: \" + composite.toString()); "
+        + "gshTotalChangeCount++;} ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find rightFactorGroup: '" + rightFactorName + "'\"); } ");
+    writer.write(" } else { System.out.println(\"ERROR: cant find rightFactorGroup: '" + GrouperUtil.escapeDoubleQuotes(rightFactorName) + "'\"); gshTotalErrorCount++; } ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find leftFactorGroup: '" + leftFactorName + "'\"); } ");
+    writer.write(" } else { System.out.println(\"ERROR: cant find leftFactorGroup: '" + GrouperUtil.escapeDoubleQuotes(leftFactorName) + "'\"); gshTotalErrorCount++; } ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find overallGroup: '" + overallGroupName + "'\"); }\n");
+    writer.write(" } else { System.out.println(\"ERROR: cant find overallGroup: '" + GrouperUtil.escapeDoubleQuotes(ownerGroupName) + "'\"); gshTotalErrorCount++; }\n");
 
   }
 

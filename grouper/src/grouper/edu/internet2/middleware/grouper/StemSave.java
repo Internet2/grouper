@@ -383,7 +383,7 @@ public class StemSave {
 
                 
                 //now compare and put all attributes (then store if needed)
-                if (!StringUtils.equals(StringUtils.defaultString(theStem.getDescription()), 
+                if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theStem.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(StemSave.this.description)))) {
                   needsSave = true;
                   if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {

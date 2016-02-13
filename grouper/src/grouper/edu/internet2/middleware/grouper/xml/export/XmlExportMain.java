@@ -220,6 +220,14 @@ public class XmlExportMain {
   }
   
   /**
+   * increment by an index
+   * @param numberOfRecords
+   */
+  public void incrementRecordCount(int numberOfRecords) {
+    this.currentRecordIndex += numberOfRecords;
+  }
+  
+  /**
    * 
    * @param file
    */
@@ -291,7 +299,10 @@ public class XmlExportMain {
       thread.start();
       
       //note, cant use stax since you cant mix stax and non stax since it wont close elements
-      writer.write("grouperSession = GrouperSession.startRootSession();\n");
+      writer.write("GrouperSession grouperSession = GrouperSession.startRootSession();\n");
+      writer.write("long gshTotalObjectCount = 0L;\n");
+      writer.write("long gshTotalChangeCount = 0L;\n");
+      writer.write("long gshTotalErrorCount = 0L;\n");
 
       XmlExportStem.exportStemsGsh(writer, this);
       XmlExportGroup.exportGroupsGsh(writer, this);
@@ -311,6 +322,8 @@ public class XmlExportMain {
 
       XmlExportAttributeAssign.exportAttributeAssignsGsh(writer, this);
 
+      writer.write("System.out.println(\"Script complete: total objects: \" + gshTotalObjectCount + \", expected approx total: " + XmlExportMain.this.currentRecordIndex + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+      
       writer.flush();
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);

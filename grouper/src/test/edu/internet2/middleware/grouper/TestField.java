@@ -60,7 +60,7 @@ public class TestField extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestField("testXmlDifferentUpdateProperties"));
+    TestRunner.run(new TestField("testCache"));
     //TestRunner.run(TestField.class);
   }
   

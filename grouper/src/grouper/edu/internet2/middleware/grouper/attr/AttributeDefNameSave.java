@@ -400,7 +400,7 @@ public class AttributeDefNameSave {
 
                 //now compare and put all attributes (then store if needed)
                 //null throws exception? hmmm.  remove attribute if blank
-                if (!StringUtils.equals(StringUtils.defaultString(theAttributeDefName.getDescription()), 
+                if (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theAttributeDefName.getDescription())), 
                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.this.description)))) {
                   needsSave = true;
                   if (AttributeDefNameSave.this.saveResultType == SaveResultType.NO_CHANGE) {

@@ -314,11 +314,11 @@ public class XmlExportRoleSet {
     writer.write("if (thenHasRole != null) { ");
 
     //addCompositeMember(CompositeType type, Group left, Group right)
-    writer.write("ifHasRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(thenHasRole); ");
+    writer.write("boolean changed = ifHasRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(thenHasRole); if (changed) { gshTotalChangeCount++; System.out.println(\"Made change for role inheritance: \" + ifHasRole.getName() + \" then has role \" + thenHasRole.getName());  }");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasRole: '" + thenHasRoleName + "'\"); } ");
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasRole: \" + thenHasRole.getName()); gshTotalErrorCount++; } ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasRole: '" + ifHasRoleName + "'\"); }\n");
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasRole: \" + ifHasRole.getName()); gshTotalErrorCount++; }\n");
 
   }
 

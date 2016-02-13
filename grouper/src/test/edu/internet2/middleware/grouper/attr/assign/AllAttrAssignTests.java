@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,9 @@ public class AllAttrAssignTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.attr.assign");
     //$JUnit-BEGIN$
-    suite.addTestSuite(AttributeAssignActionTest.class);
     suite.addTestSuite(AttributeAssignActionSetTest.class);
+    suite.addTestSuite(AttributeAssignActionTest.class);
+    suite.addTestSuite(AttributeAssignSaveTest.class);
     //$JUnit-END$
     return suite;
   }

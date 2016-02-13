@@ -529,12 +529,15 @@ public class XmlExportAttributeDefScope {
     
     String scopeString = this.getScopeString() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotes(this.getScopeString()) + "\"");
     String scopeString2 = this.getScopeString2() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotes(this.getScopeString2()) + "\"");
-    
-    writer.write("attributeDef.getAttributeDefScopeDelegate().assignScope(attributeDefScopeType, "
-        + scopeString + ", " + scopeString2 + "); ");
-    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDefScopeType: '" + this.getAttributeDefScopeType() + "'\"); } ");
+    writer.write("gshTotalObjectCount++;  if (attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScope(attributeDefScopeType, \""
+        + GrouperUtil.escapeDoubleQuotes(scopeString) + "\", \"" + GrouperUtil.escapeDoubleQuotes(scopeString2) + "\") != null) { ");
+    writer.write("gshTotalChangeCount++; attributeDef.getAttributeDefScopeDelegate().assignScope(attributeDefScopeType, \""
+        + GrouperUtil.escapeDoubleQuotes(scopeString) + "\", \"" + GrouperUtil.escapeDoubleQuotes(scopeString2) + "\"); "
+            + "System.out.println(\"Made change for attributeDefScope on attributeDef: " + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + ", " 
+        + GrouperUtil.escapeDoubleQuotes(this.getScopeString()) + ", " + GrouperUtil.escapeDoubleQuotes(this.getScopeString2()) +  "\"); } ");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attributeDefScopeType: '" + GrouperUtil.escapeDoubleQuotes(this.getAttributeDefScopeType()) + "'\"); } ");
 
-    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" + nameOfAttributeDef + "'\"); }\n");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attributeDef: '" + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); }\n");
 
   }
 
