@@ -244,12 +244,15 @@ public class XmlExportMain {
     }
   }
 
+  
   /**
    * write the xml to a writer
    * @param writer
    * @param fileName for logging
    */
   public void writeAllTablesGsh(Writer writer, String fileName) {
+
+    XmlExportMembership.membershipFieldsAlreadyErrored.clear();
 
     this.done = false;
     this.currentRecordIndex = 0;

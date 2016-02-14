@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -416,6 +418,10 @@ public class XmlExportMembership {
   
   }
 
+  /** dont error twice */
+  public static Set<String> membershipFieldsAlreadyErrored = new HashSet<String>();
+
+  
   /**
    * convert this to GSH that is failsafe
    * @param grouperVersion
@@ -451,9 +457,11 @@ public class XmlExportMembership {
       
       writer.write("Privilege privilege = null;\n");
       if (!StringUtils.equals(Group.getDefaultList().getName(), fieldName)) {
-        
-        throw new RuntimeException("Not expecting field: '" + fieldName + "'");
-        
+        if (!membershipFieldsAlreadyErrored.contains(fieldName)) {
+          System.out.println("Error: Not expecting field: '" + fieldName + "'");
+          membershipFieldsAlreadyErrored.add(fieldName);
+        }
+        return;
       }
     }
 
