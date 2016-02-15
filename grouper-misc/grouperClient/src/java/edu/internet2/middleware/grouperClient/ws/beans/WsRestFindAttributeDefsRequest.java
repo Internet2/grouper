@@ -1,71 +1,26 @@
-/*******************************************************************************
+/**
  * Copyright 2016 Internet2
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
- ******************************************************************************/
-/**
- * @author vsachdeva $Id$
  */
-package edu.internet2.middleware.grouper.ws.rest.attribute;
-
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
-import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+/**
+ * @author vsachdeva
+ *
+ */
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * request bean in body of rest request
  */
 public class WsRestFindAttributeDefsRequest implements WsRequestBean {
-
-  /**
-   * subject if looking for privileges or service role
-   */
-  private WsSubjectLookup subjectLookup;
-
-  /**
-   * subject if looking for privileges or service role
-   * @return subject
-   */
-  public WsSubjectLookup getSubjectLookup() {
-    return this.subjectLookup;
-  }
-
-  /**
-   * subject if looking for privileges or service role
-   * @param subjectLookup1
-   */
-  public void setSubjectLookup(WsSubjectLookup subjectLookup1) {
-    this.subjectLookup = subjectLookup1;
-  }
-
-  /** privilege name to be checked for the logged in user or for actAsSubjectLookup **/
-  private String privilegeName;
-
-  /**
-  *  privilege name to be checked for the logged in user or for actAsSubjectLookup
-  * @return privilegeName
-  */
-  public String getPrivilegeName() {
-    return this.privilegeName;
-  }
-
-  /**
-   * privilege name to be checked for the logged in user or for actAsSubjectLookup
-   * @param privilegeName1
-   */
-  public void setPrivilegeName(String privilegeName1) {
-    this.privilegeName = privilegeName1;
-  }
 
   /**
    * search string with % as wildcards will search name, display name, description
@@ -109,35 +64,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   }
 
   /**
-   * @return the stemScope
-   */
-  public String getStemScope() {
-    return this.stemScope;
-  }
-
-  /**
-   * @param stemScope1 the stemScope to set
-   */
-  public void setStemScope(String stemScope1) {
-    this.stemScope = stemScope1;
-  }
-
-  /**
-   * @return the parentStemId
-   */
-  public String getParentStemId() {
-    return this.parentStemId;
-  }
-
-  /**
-   * @param parentStemId1 the parentStemId to set
-   */
-  public void setParentStemId(String parentStemId1) {
-    this.parentStemId = parentStemId1;
-  }
-
-  /**
-   * find attribute defs based on these lookups
+   * if you want to just pass in a list of uuids and/or names.
    * @return the wsAttributeDefLookups
    */
   public WsAttributeDefLookup[] getWsAttributeDefLookups() {
@@ -145,10 +72,11 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   }
 
   /**
-   * find attribute defs based on these lookups
-   * @param wsAttributeDefLookups1 the wsAttributeDefLookup to set
+   * if you want to just pass in a list of uuids and/or names.
+   * @param wsAttributeDefLookups1 the wsAttributeDefLookups to set
    */
-  public void setWsAttributeDefLookups(WsAttributeDefLookup[] wsAttributeDefLookups1) {
+  public void setWsAttributeDefLookups(
+      WsAttributeDefLookup[] wsAttributeDefLookups1) {
     this.wsAttributeDefLookups = wsAttributeDefLookups1;
   }
 
@@ -219,20 +147,6 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   }
 
   /**
-   * @return the findByUuidOrName
-   */
-  public String getFindByUuidOrName() {
-    return this.findByUuidOrName;
-  }
-
-  /**
-   * @param findByUuidOrName1 the findByUuidOrName to set
-   */
-  public void setFindByUuidOrName(String findByUuidOrName1) {
-    this.findByUuidOrName = findByUuidOrName1;
-  }
-
-  /**
    * splitScope T or F, if T will split the scope by whitespace, and find attribute def names with each token.
    * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
    * school:apps:pto_app:internal:the_permissions:whatever
@@ -240,22 +154,9 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   private String splitScope;
 
   /**
-   * find attribute defs based on these lookups
+   * attribute defs to be searched upon thses lookups
    */
   private WsAttributeDefLookup[] wsAttributeDefLookups;
-
-  /** stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem */
-  private String stemScope;
-
-  /**
-   * parent or ancestor stem of the attribute def
-   */
-  private String parentStemId;
-
-  /**
-   * only look by uuid or name
-   */
-  private String findByUuidOrName;
 
   /**
    * page size if paging on a sort filter or parent
@@ -277,14 +178,6 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * ascending or null for ascending, F for descending.  
    */
   private String ascending;
-
-  /**
-   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
-   */
-  @Override
-  public GrouperRestHttpMethod retrieveRestHttpMethod() {
-    return GrouperRestHttpMethod.GET;
-  }
 
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
   private String clientVersion;
@@ -341,6 +234,17 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    */
   public void setParams(WsParam[] params1) {
     this.params = params1;
+  }
+
+  /** privilege to be checked for the logged in user or for actAsSubject **/
+  private String privilegeName;
+
+  public String getPrivilegeName() {
+    return privilegeName;
+  }
+
+  public void setPrivilegeName(String privilegeName) {
+    this.privilegeName = privilegeName;
   }
 
 }

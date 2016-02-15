@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Internet2
+ * Copyright 2016 Internet2
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -85,6 +85,26 @@ public class WsRestFindAttributeDefsLiteRequest implements WsRequestBean {
    */
   public void setSubjectIdentifier(String subjectIdentifier1) {
     this.subjectIdentifier = subjectIdentifier1;
+  }
+  
+  /** privilege name to be checked for the logged in user or for actAsSubjectLookup **/
+  private String privilegeName;
+  
+  
+ /**
+  *  privilege name to be checked for the logged in user or for actAsSubjectLookup
+  * @return privilegeName
+  */
+  public String getPrivilegeName() {
+	return this.privilegeName;
+  }
+
+  /**
+   * privilege name to be checked for the logged in user or for actAsSubjectLookup
+   * @param privilegeName1
+   */
+  public void setPrivilegeName(String privilegeName1) {
+	this.privilegeName = privilegeName1;
   }
 
   /**

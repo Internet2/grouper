@@ -1,52 +1,46 @@
-/*******************************************************************************
+/**
  * Copyright 2016 Internet2
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
- ******************************************************************************/
-/**
- * @author vsachdeva $Id$
  */
-package edu.internet2.middleware.grouper.ws.rest.attribute;
-
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
-import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+/**
+ * @author vsachdeva
+ */
+package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * request bean in body of rest request
  */
-public class WsRestAttributeDefSaveRequest implements WsRequestBean {
+public class WsRestAttributeDefDeleteRequest implements WsRequestBean {
 
   /**
-   * AttributeDefs to save
+   * AttributeDefs to delete
    */
-  private WsAttributeDefToSave[] wsAttributeDefsToSave;
+  private WsAttributeDefLookup[] wsAttributeDefLookups;
 
   /**
-   * AttributeDefs to save
-   * @return attribute defs to save
+   * AttributeDefs to delete
+   * @return relatedWsAttributeDefLookups
    */
-  public WsAttributeDefToSave[] getWsAttributeDefsToSave() {
-    return this.wsAttributeDefsToSave;
+  public WsAttributeDefLookup[] getWsAttributeDefLookups() {
+    return this.wsAttributeDefLookups;
   }
 
   /**
-   * AttributeDefs to save
-   * @param wsAttributeDefsToSave1
+   * AttributeDefs to delete
+   * @param relatedWsAttributeDefLookups1
    */
-  public void setWsAttributeDefsToSave(
-      WsAttributeDefToSave[] wsAttributeDefsToSave1) {
-    this.wsAttributeDefsToSave = wsAttributeDefsToSave1;
+  public void setWsAttributeDefLookups(
+      WsAttributeDefLookup[] relatedWsAttributeDefLookups1) {
+    this.wsAttributeDefLookups = relatedWsAttributeDefLookups1;
   }
 
   /**
@@ -75,14 +69,6 @@ public class WsRestAttributeDefSaveRequest implements WsRequestBean {
    * are NONE (or blank), and READ_WRITE_NEW.
    */
   private String txType;
-
-  /**
-   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
-   */
-  @Override
-  public GrouperRestHttpMethod retrieveRestHttpMethod() {
-    return GrouperRestHttpMethod.PUT;
-  }
 
   /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
   private String clientVersion;

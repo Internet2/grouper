@@ -178,6 +178,16 @@ public class WsRestClassLookup {
     addAliasClass(WsRestAssignAttributeDefActionsRequest.class);
     addAliasClass(WsAttributeDefAssignActionResults.class);
     addAliasClass(WsAttributeDefActionOperationPerformed.class);
+    
+    addAliasClass(WsRestAttributeDefSaveRequest.class);
+    addAliasClass(WsAttributeDefSaveResults.class);
+    addAliasClass(WsAttributeDefSaveResult.class);
+    addAliasClass(WsAttributeDefToSave.class);
+    addAliasClass(WsAttributeDefDeleteResult.class);
+    addAliasClass(WsAttributeDefDeleteResults.class);
+    addAliasClass(WsRestAttributeDefDeleteRequest.class);
+    addAliasClass(WsFindAttributeDefsResults.class);
+    addAliasClass(WsRestFindAttributeDefsRequest.class);
   }
   
   /**

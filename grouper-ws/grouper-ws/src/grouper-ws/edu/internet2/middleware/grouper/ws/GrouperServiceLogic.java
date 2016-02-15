@@ -112,37 +112,128 @@ import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.*;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignActionTuple;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefActionOperationPerformed;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults.WsAttributeDefAssignActionsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult.WsAttributeDefDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup.AttributeDefNameFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult.WsAttributeDefSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults.WsFindAttributeDefsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGroupsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults.WsGetAttributeAssignActionsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup.GroupFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult.WsGroupSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
+import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup.StemFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult.WsStemSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.exceptions.WebServiceDoneException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -168,7 +259,6 @@ public class GrouperServiceLogic {
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperServiceLogic.class);
 
   /**
@@ -203,7 +293,6 @@ public class GrouperServiceLogic {
    * @return the results.  return the subject lookup only if there are problems retrieving the subject.
    * @see GrouperVersion
    */
-  @SuppressWarnings("unchecked")
   public static WsAddMemberResults addMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final boolean replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
@@ -246,6 +335,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
 
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -311,6 +401,7 @@ public class GrouperServiceLogic {
                   }
                   HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
                     
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       try {
@@ -496,7 +587,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsDeleteMemberResults deleteMember(final GrouperVersion clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final Field fieldName,
@@ -536,6 +626,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -709,7 +800,6 @@ public class GrouperServiceLogic {
    * in alphabetical order
    * @return the groups, or no groups if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindGroupsResults findGroups(final GrouperVersion clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail, WsParam[] params, WsGroupLookup[] wsGroupLookups) {
@@ -872,7 +962,6 @@ public class GrouperServiceLogic {
    * in alphabetical order
    * @return the stems, or no stems if none found
    */
-  @SuppressWarnings("unchecked")
   public static WsFindStemsResults findStems(final GrouperVersion clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params, WsStemLookup[] wsStemLookups) {
@@ -1053,7 +1142,6 @@ public class GrouperServiceLogic {
    *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetGroupsResults getGroups(final GrouperVersion clientVersion,
       WsSubjectLookup[] subjectLookups, WsMemberFilter memberFilter, 
       WsSubjectLookup actAsSubjectLookup, boolean includeGroupDetail,
@@ -1353,7 +1441,6 @@ public class GrouperServiceLogic {
    * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetMembersResults getMembers(
       final GrouperVersion clientVersion,
       WsGroupLookup[] wsGroupLookups, WsMemberFilter memberFilter,
@@ -1563,7 +1650,6 @@ public class GrouperServiceLogic {
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetMembershipsResults getMemberships(final GrouperVersion clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, WsMemberFilter wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
@@ -2037,7 +2123,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGroupDeleteResults groupDelete(final GrouperVersion clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
@@ -2068,6 +2153,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2213,7 +2299,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGroupSaveResults groupSave(final GrouperVersion clientVersion,
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final boolean includeGroupDetail,  final WsParam[] params) {
@@ -2244,11 +2329,11 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
               //convert the options to a map for easy access, and validate them
-              @SuppressWarnings("unused")
               final Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
                   params);
   
@@ -2269,6 +2354,7 @@ public class GrouperServiceLogic {
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
@@ -2413,7 +2499,6 @@ public class GrouperServiceLogic {
    *            minimum point in time to the time specified.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsHasMemberResults hasMember(final GrouperVersion clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
       WsMemberFilter memberFilter,
@@ -2727,7 +2812,6 @@ public class GrouperServiceLogic {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsMemberChangeSubjectResults memberChangeSubject(final GrouperVersion clientVersion,
       final WsMemberChangeSubject[] wsMemberChangeSubjects,
       final WsSubjectLookup actAsSubjectLookup, GrouperTransactionType txType, 
@@ -2761,6 +2845,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -2845,7 +2930,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsStemDeleteResults stemDelete(final GrouperVersion clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -2876,6 +2960,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -3012,7 +3097,6 @@ public class GrouperServiceLogic {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsStemSaveResults stemSave(final GrouperVersion clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       GrouperTransactionType txType, final WsParam[] params) {
@@ -3043,11 +3127,11 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
               //convert the options to a map for easy access, and validate them
-              @SuppressWarnings("unused")
               Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
                   params);
   
@@ -3069,8 +3153,6 @@ public class GrouperServiceLogic {
                   Stem stem = null;
 
                   String moveOrCopy = paramMap.get("moveOrCopy");
-                  
-                  Group group = null;
                   
                   if (!StringUtils.isBlank(moveOrCopy)) {
                     
@@ -3350,7 +3432,6 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member query
    */
-  @SuppressWarnings({ "cast", "unchecked" })
   public static WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(final GrouperVersion clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
       String groupName, String groupUuid, 
@@ -3864,7 +3945,7 @@ public class GrouperServiceLogic {
       final Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
       
       //if this change breaks an app, and you need a quick fix, you can whitelist users
-      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.getPropertyString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
+      final String groupNameOfUsersWhoCanCheckAllPrivileges = GrouperWsConfig.retrieveConfig().propertyValueString("ws.groupNameOfUsersWhoCanCheckAllPrivileges");
       
       //if there is a whitelist to preserve old broken behavior
       if (!StringUtils.isBlank(groupNameOfUsersWhoCanCheckAllPrivileges)) {
@@ -4412,7 +4493,6 @@ public class GrouperServiceLogic {
      * found in list is much lower e.g. 1000)
      * @return the results
      */
-    @SuppressWarnings("unchecked")
     public static WsGetSubjectsResults getSubjects(final GrouperVersion clientVersion,
         WsSubjectLookup[] wsSubjectLookups, String searchString, boolean includeSubjectDetail,
         String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, 
@@ -4441,7 +4521,6 @@ public class GrouperServiceLogic {
         session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
     
         //convert the options to a map for easy access, and validate them
-        @SuppressWarnings("unused")
         Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
             params);
         
@@ -5120,6 +5199,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
 
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -5361,7 +5441,6 @@ public class GrouperServiceLogic {
    * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetAttributeAssignmentsResults getAttributeAssignments(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -5865,7 +5944,6 @@ public class GrouperServiceLogic {
    * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       String attributeAssignId,
@@ -6207,7 +6285,6 @@ public class GrouperServiceLogic {
    * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesResults assignAttributes(
       final GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -6346,7 +6423,6 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesLiteResults assignAttributesLite(
       GrouperVersion clientVersion, AttributeAssignType attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -6527,10 +6603,11 @@ public class GrouperServiceLogic {
 
               //loop through all ws attribute defs and do the save
               for (WsAttributeDefToSave wsAttributeDefToSave : wsAttributeDefsToSave) {
-                final WsAttributeDefSaveResult wsAttributeDefSaveResult =
-                    new WsAttributeDefSaveResult(null, wsAttributeDefToSave
+                final WsAttributeDefSaveResult wsAttributeDefSaveResult = new WsAttributeDefSaveResult(
+                    null, wsAttributeDefToSave
                         .getWsAttributeDefLookup());
-                wsAttributeDefSaveResults.getResults()[resultIndex++] = wsAttributeDefSaveResult;
+                wsAttributeDefSaveResults
+                    .getResults()[resultIndex++] = wsAttributeDefSaveResult;
                 final WsAttributeDefToSave WS_ATTRIBUTE_DEF_TO_SAVE = wsAttributeDefToSave;
                 try {
                   //this should be autonomous, so that within one attribute def name, it is transactional
@@ -6538,40 +6615,40 @@ public class GrouperServiceLogic {
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
                       AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-                        @Override
-                        public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                            throws GrouperDAOException {
-                          //make sure everything is in order
-                          WS_ATTRIBUTE_DEF_TO_SAVE.validate();
-                          AttributeDef attributeDef = WS_ATTRIBUTE_DEF_TO_SAVE
-                              .save(SESSION);
-                          SaveResultType saveResultType = WS_ATTRIBUTE_DEF_TO_SAVE
-                              .saveResultType();
-                          wsAttributeDefSaveResult.setWsAttributeDef(new WsAttributeDef(
-                              attributeDef,
-                              WS_ATTRIBUTE_DEF_TO_SAVE.getWsAttributeDefLookup()));
+                    @Override
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      //make sure everything is in order
+                      WS_ATTRIBUTE_DEF_TO_SAVE.validate();
+                      AttributeDef attributeDef = WS_ATTRIBUTE_DEF_TO_SAVE
+                          .save(SESSION);
+                      SaveResultType saveResultType = WS_ATTRIBUTE_DEF_TO_SAVE
+                          .saveResultType();
+                      wsAttributeDefSaveResult.setWsAttributeDef(new WsAttributeDef(
+                          attributeDef,
+                          WS_ATTRIBUTE_DEF_TO_SAVE.getWsAttributeDefLookup()));
 
-                          if (saveResultType == SaveResultType.INSERT) {
-                            wsAttributeDefSaveResult.assignResultCode(
-                                WsAttributeDefSaveResultCode.SUCCESS_INSERTED,
-                                clientVersion);
-                          } else if (saveResultType == SaveResultType.UPDATE) {
-                            wsAttributeDefSaveResult.assignResultCode(
-                                WsAttributeDefSaveResultCode.SUCCESS_UPDATED,
-                                clientVersion);
-                          } else if (saveResultType == SaveResultType.NO_CHANGE) {
-                            wsAttributeDefSaveResult.assignResultCode(
-                                WsAttributeDefSaveResultCode.SUCCESS_NO_CHANGES_NEEDED,
-                                clientVersion);
-                          } else {
-                            throw new RuntimeException("Invalid saveType: "
-                                + saveResultType);
-                          }
+                      if (saveResultType == SaveResultType.INSERT) {
+                        wsAttributeDefSaveResult.assignResultCode(
+                            WsAttributeDefSaveResultCode.SUCCESS_INSERTED,
+                            clientVersion);
+                      } else if (saveResultType == SaveResultType.UPDATE) {
+                        wsAttributeDefSaveResult.assignResultCode(
+                            WsAttributeDefSaveResultCode.SUCCESS_UPDATED,
+                            clientVersion);
+                      } else if (saveResultType == SaveResultType.NO_CHANGE) {
+                        wsAttributeDefSaveResult.assignResultCode(
+                            WsAttributeDefSaveResultCode.SUCCESS_NO_CHANGES_NEEDED,
+                            clientVersion);
+                      } else {
+                        throw new RuntimeException("Invalid saveType: "
+                            + saveResultType);
+                      }
 
-                          return null;
-                        }
+                      return null;
+                    }
 
-                      });
+                  });
 
                 } catch (Exception e) {
                   wsAttributeDefSaveResult.assignResultCodeException(e,
@@ -6609,8 +6686,12 @@ public class GrouperServiceLogic {
    * @param attributeDefLookupName to lookup the attributeDef (mutually exclusive with attributeDefUuid)
    * @param uuidOfAttributeDef the uuid of the attributeDef to edit
    * @param nameOfAttributeDef the name of the attributeDefName to edit
-   * @param assignableTos
-   *    can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+   * @param assignableTo1
+   * @param assignableTo2
+   * @param assignableTo3
+   * @param assignableTo4
+   * @param assignableTo5
+   *    All the assignableTos can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
    *    EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
    *    IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
    * @param attributeDefType type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
@@ -6644,7 +6725,9 @@ public class GrouperServiceLogic {
       final GrouperVersion clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
       String uuidOfAttributeDef, String nameOfAttributeDef,
-      String[] assignableTos, String attributeDefType, String multiAssignable,
+      String assignableTo1, String assignableTo2, String assignableTo3,
+      String assignableTo4, String assignableTo5,
+      String attributeDefType, String multiAssignable,
       final String multiValued, String valueType,
       String description, SaveMode saveMode, Boolean createParentStemsIfNotExist,
       String actAsSubjectId, String actAsSubjectSourceId,
@@ -6655,7 +6738,8 @@ public class GrouperServiceLogic {
 
     WsAttributeDef wsAttributeDef = new WsAttributeDef();
     wsAttributeDef.setDescription(description);
-    wsAttributeDef.setAssignableTos(assignableTos);
+    wsAttributeDef.setAssignableTos(new String[] { assignableTo1, assignableTo2,
+        assignableTo3, assignableTo4, assignableTo5 });
     wsAttributeDef.setName(nameOfAttributeDef);
     wsAttributeDef.setUuid(uuidOfAttributeDef);
     wsAttributeDef.setAttributeDefType(attributeDefType);
@@ -6673,7 +6757,8 @@ public class GrouperServiceLogic {
 
     wsAttributeDefToSave.setSaveMode(saveMode == null ? null : saveMode.name());
 
-    WsAttributeDefToSave[] wsAttributeDefToSaves = new WsAttributeDefToSave[] { wsAttributeDefToSave };
+    WsAttributeDefToSave[] wsAttributeDefToSaves = new WsAttributeDefToSave[] {
+        wsAttributeDefToSave };
 
     WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
@@ -6687,7 +6772,7 @@ public class GrouperServiceLogic {
 
     return new WsAttributeDefSaveLiteResult(wsAttributeDefSaveResults);
   }
-  
+
   /**
    * delete attribute defs
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
@@ -6764,7 +6849,8 @@ public class GrouperServiceLogic {
 
                 WsAttributeDefDeleteResult wsAttributeDefDeleteResult = new WsAttributeDefDeleteResult(
                     null, wsAttributeDefLookup);
-                wsAttributeDefDeleteResults.getResults()[resultIndex++] = wsAttributeDefDeleteResult;
+                wsAttributeDefDeleteResults
+                    .getResults()[resultIndex++] = wsAttributeDefDeleteResult;
 
                 wsAttributeDefLookup.retrieveAttributeDefIfNeeded(SESSION);
                 AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDef();
@@ -6772,7 +6858,8 @@ public class GrouperServiceLogic {
                 if (attributeDef == null) {
 
                   wsAttributeDefDeleteResult
-                      .assignResultCode(WsAttributeDefDeleteResultCode.SUCCESS_ATTRIBUTE_DEF_NOT_FOUND);
+                      .assignResultCode(
+                          WsAttributeDefDeleteResultCode.SUCCESS_ATTRIBUTE_DEF_NOT_FOUND);
                   wsAttributeDefDeleteResult.getResultMetadata().setResultMessage(
                       "Cant find attribute def: '" + wsAttributeDefLookup + "'.  ");
                   //should we short circuit if transactional?
@@ -6800,7 +6887,8 @@ public class GrouperServiceLogic {
 
                 } catch (InsufficientPrivilegeException ipe) {
                   wsAttributeDefDeleteResult
-                      .assignResultCode(WsAttributeDefDeleteResultCode.INSUFFICIENT_PRIVILEGES);
+                      .assignResultCode(
+                          WsAttributeDefDeleteResultCode.INSUFFICIENT_PRIVILEGES);
                 } catch (Exception e) {
                   wsAttributeDefDeleteResult.assignResultCodeException(e,
                       wsAttributeDefLookup);
@@ -6825,8 +6913,7 @@ public class GrouperServiceLogic {
     //this should be the first and only return, or else it is exiting too early
     return wsAttributeDefDeleteResults;
   }
-  
-  
+
   /**
    * remove attribute definition based on name, id or uuid
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
@@ -6850,8 +6937,8 @@ public class GrouperServiceLogic {
       String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
-    WsAttributeDefLookup[] wsAttributeDefLookups =
-        new WsAttributeDefLookup[] { new WsAttributeDefLookup(
+    WsAttributeDefLookup[] wsAttributeDefLookups = new WsAttributeDefLookup[] {
+        new WsAttributeDefLookup(
             wsNameOfAttributeDef,
             wsIdOfAttributeDef, wsIdIndexOfAttributeDef) };
 
@@ -6878,6 +6965,7 @@ public class GrouperServiceLogic {
    * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
    * school:apps:pto_app:internal:the_permissions:whatever
    * @param wsAttributeDefLookups find attributeDefs associated with these attribute defs lookups
+   * @param privilegeName privilegeName or null. null will default to ATTR_VIEW
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
    * @param parentStemId search in this stem
    * @param findByUuidOrName
@@ -6894,8 +6982,8 @@ public class GrouperServiceLogic {
   public static WsFindAttributeDefsResults findAttributeDefs(
       final GrouperVersion clientVersion,
       String scope, Boolean splitScope, WsAttributeDefLookup[] wsAttributeDefLookups,
-      StemScope stemScope,
-      String parentStemId, boolean findByUuidOrName,
+      String privilegeName, StemScope stemScope,
+      String parentStemId, Boolean findByUuidOrName,
       Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
 
@@ -6911,6 +6999,7 @@ public class GrouperServiceLogic {
           + scope + ", splitScope: " + splitScope
           + ", wsAttributeDefLookup: "
           + GrouperUtil.toStringForLog(wsAttributeDefLookups)
+          + ", privilegeName: " + privilegeName
           + ", stemScope: " + stemScope + ", parentStemId: " + parentStemId
           + ", findByUuidOrName: " + findByUuidOrName
           + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber
@@ -6967,26 +7056,44 @@ public class GrouperServiceLogic {
       if (stemScope != null) {
         stemDotScope = stemScope.convertToScope();
       }
+
+      if (privilegeName != null && Privilege.getInstance(privilegeName) == null) {
+        throw new WsInvalidQueryException(
+            "Could not find privilege from privilegeName" + privilegeName);
+      }
+
+      Set<Privilege> privileges = new HashSet<Privilege>();
+      if (privilegeName == null) {
+        privileges = AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES;
+      } else {
+        privileges.add(Privilege.getInstance(privilegeName));
+      }
+
       StringBuilder errorMessage = new StringBuilder();
       Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(
           session, wsAttributeDefLookups, errorMessage, null, false, null, null);
+
+      Subject subject = actAsSubjectLookup == null
+          ? GrouperSession.staticGrouperSession().getSubject()
+          : actAsSubjectLookup.retrieveSubject();
+      boolean findByUuidName = findByUuidOrName == null ? false : findByUuidOrName;
       if (StringUtils.isBlank(scope)) {
 
         attributeDefs.addAll(GrouperDAOFactory
             .getFactory()
             .getAttributeDef()
             .findAllAttributeDefsSecure(scope, false,
-                actAsSubjectLookup.retrieveSubject(),
-                AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES, queryOptions,
-                parentStemId, stemDotScope, findByUuidOrName, attributeDefIds));
+                subject,
+                privileges, queryOptions,
+                parentStemId, stemDotScope, findByUuidName, attributeDefIds));
       } else {
         attributeDefs.addAll(GrouperDAOFactory
             .getFactory()
             .getAttributeDef()
             .findAllAttributeDefsSecure(scope, true,
-                actAsSubjectLookup.retrieveSubject(),
-                AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES, queryOptions,
-                parentStemId, stemDotScope, findByUuidOrName, attributeDefIds));
+                subject,
+                privileges, queryOptions,
+                parentStemId, stemDotScope, findByUuidName, attributeDefIds));
       }
 
       wsFindAttributeDefsResults.assignAttributeDefResult(attributeDefs);
@@ -7016,6 +7123,7 @@ public class GrouperServiceLogic {
    * @param uuidOfAttributeDef find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef
    * @param nameOfAttributeDef find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef
    * @param idIndexOfAttributeDef find attribute defs associated with this attribute def id index
+   * @param privilegeName privilegeName or null. null will default to ATTR_VIEW
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
    * @param parentStemId search in this stem
    * @param findByUuidOrName
@@ -7048,8 +7156,8 @@ public class GrouperServiceLogic {
       final GrouperVersion clientVersion,
       String scope, Boolean splitScope, String uuidOfAttributeDef,
       String nameOfAttributeDef, String idIndexOfAttributeDef,
-      StemScope stemScope,
-      String parentStemId, boolean findByUuidOrName,
+      String privilegeName, StemScope stemScope,
+      String parentStemId, Boolean findByUuidOrName,
       Integer pageSize, Integer pageNumber,
       String sortString, Boolean ascending,
       String actAsSubjectId, String actAsSubjectSourceId,
@@ -7073,7 +7181,7 @@ public class GrouperServiceLogic {
     // pass through to the more comprehensive method
     WsFindAttributeDefsResults wsFindAttributeDefsResults = findAttributeDefs(
         clientVersion,
-        scope, splitScope, wsAttributeDefLookups, stemScope, parentStemId,
+        scope, splitScope, wsAttributeDefLookups, privilegeName, stemScope, parentStemId,
         findByUuidOrName,
         pageSize, pageNumber, sortString, ascending,
         actAsSubjectLookup, params);
@@ -7251,7 +7359,6 @@ public class GrouperServiceLogic {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetPermissionAssignmentsResults getPermissionAssignments(
       GrouperVersion clientVersion, 
       WsAttributeDefLookup[] wsAttributeDefLookups, WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -7520,7 +7627,6 @@ public class GrouperServiceLogic {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
       GrouperVersion clientVersion, 
       String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -7614,7 +7720,6 @@ public class GrouperServiceLogic {
    * @param disallowed is disallowed
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignPermissionsResults assignPermissions(
       GrouperVersion clientVersion, PermissionType permissionType,
       WsAttributeDefNameLookup[] permissionDefNameLookups,
@@ -7726,7 +7831,6 @@ public class GrouperServiceLogic {
    * @param disallowed if the assignment is a disallow
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignPermissionsLiteResults assignPermissionsLite(
       GrouperVersion clientVersion, PermissionType permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -7940,6 +8044,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
@@ -7949,6 +8054,7 @@ public class GrouperServiceLogic {
                 HibernateSession.callbackHibernateSession(
                     GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
   
+                  @Override
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     
@@ -7973,6 +8079,7 @@ public class GrouperServiceLogic {
                 HibernateSession.callbackHibernateSession(
                     GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
   
+                  @Override
                   public Object callback(HibernateHandlerBean hibernateHandlerBean)
                       throws GrouperDAOException {
                     
@@ -8132,6 +8239,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -8299,6 +8407,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
   
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
   
@@ -8325,6 +8434,7 @@ public class GrouperServiceLogic {
                   HibernateSession.callbackHibernateSession(
                       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
+                    @Override
                     public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
@@ -8780,7 +8890,6 @@ public class GrouperServiceLogic {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public static WsAssignAttributesBatchResults assignAttributesBatch(
       final GrouperVersion clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
       final WsSubjectLookup actAsSubjectLookup, final boolean includeSubjectDetail, GrouperTransactionType txType,
@@ -8824,6 +8933,7 @@ public class GrouperServiceLogic {
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
 
+            @Override
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 

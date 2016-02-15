@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Internet2
+ * Copyright 2016 Internet2
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -145,10 +145,16 @@ public class WsAttributeDefToSave {
       throw new WsInvalidQueryException(
           "getWsAttributeDef is required to save an attributeDef");
     }
+    if (this.getWsAttributeDef().getAssignableTos() == null) {
+      throw new WsInvalidQueryException(
+          "atleast one assignable to is required.");
+    }
 
-    if (this.getWsAttributeDefLookup() == null || this.getWsAttributeDefLookup().blank()) {
-      WsAttributeDefLookup theWsAttributeDefLookup = this.getWsAttributeDefLookup() == null ? new WsAttributeDefLookup()
-          : this.getWsAttributeDefLookup();
+    if (this.getWsAttributeDefLookup() == null
+        || this.getWsAttributeDefLookup().blank()) {
+      WsAttributeDefLookup theWsAttributeDefLookup = this
+          .getWsAttributeDefLookup() == null ? new WsAttributeDefLookup()
+              : this.getWsAttributeDefLookup();
 
       if (!StringUtils.isBlank(this.getWsAttributeDef().getUuid())) {
         theWsAttributeDefLookup.setUuid(this.getWsAttributeDef().getUuid());

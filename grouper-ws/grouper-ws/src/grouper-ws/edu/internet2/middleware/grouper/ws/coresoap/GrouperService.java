@@ -100,7 +100,6 @@ public class GrouperService {
   
   
   /** logger */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperService.class);
 
   /**
@@ -208,7 +207,6 @@ public class GrouperService {
    * in alphabetical order
    * @return the stems, or no stems if none found
    */
-  @SuppressWarnings("unchecked")
   public WsFindStemsResults findStems(final String clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params, WsStemLookup[] wsStemLookups) {
@@ -247,7 +245,6 @@ public class GrouperService {
    * in alphabetical order
    * @return the groups, or no groups if none found
    */
-  @SuppressWarnings("unchecked")
   public WsFindGroupsResults findGroups(final String clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, 
@@ -430,7 +427,6 @@ public class GrouperService {
    * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetMembersResults getMembers(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, String memberFilter,
       WsSubjectLookup actAsSubjectLookup, final String fieldName,
@@ -530,7 +526,6 @@ public class GrouperService {
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetGroupsResults getGroups(final String clientVersion,
       WsSubjectLookup[] subjectLookups, String memberFilter, 
       WsSubjectLookup actAsSubjectLookup, String includeGroupDetail,
@@ -1021,7 +1016,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGroupSaveResults groupSave(final String clientVersion,
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
@@ -1069,7 +1063,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsStemSaveResults stemSave(final String clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
@@ -1113,7 +1106,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsStemDeleteResults stemDelete(final String clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
@@ -1158,7 +1150,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGroupDeleteResults groupDelete(final String clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
@@ -1222,7 +1213,6 @@ public class GrouperService {
      * @return the results
      * @see GrouperVersion
      */
-    @SuppressWarnings("unchecked")
     public WsAddMemberResults addMember(final String clientVersion,
         final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
         final String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
@@ -1298,7 +1288,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsDeleteMemberResults deleteMember(final String clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final String fieldName,
@@ -1939,7 +1928,6 @@ public class GrouperService {
    * @return the results
    * @see GrouperVersion
    */
-  @SuppressWarnings("unchecked")
   public WsMemberChangeSubjectResults memberChangeSubject(final String clientVersion,
       WsMemberChangeSubject[] wsMemberChangeSubjects, final WsSubjectLookup actAsSubjectLookup,
       final String txType, 
@@ -2394,7 +2382,6 @@ public class GrouperService {
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetMembershipsResults getMemberships(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, String wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
@@ -2581,7 +2568,6 @@ public class GrouperService {
    * found in list is much lower e.g. 1000)
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetSubjectsResults getSubjects(final String clientVersion,
       WsSubjectLookup[] wsSubjectLookups, String searchString, String includeSubjectDetail, 
       String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, String[] sourceIds, 
@@ -2870,7 +2856,6 @@ public class GrouperService {
    * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetAttributeAssignmentsResults getAttributeAssignments(
       String clientVersion, String attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -3003,7 +2988,6 @@ public class GrouperService {
    * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       String clientVersion, String attributeAssignType,
       String attributeAssignId,
@@ -3251,7 +3235,6 @@ public class GrouperService {
    * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsAssignAttributesResults assignAttributes(
       String clientVersion, String attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -3328,7 +3311,6 @@ public class GrouperService {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsAssignAttributesBatchResults assignAttributesBatch(
       final String clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
       final WsSubjectLookup actAsSubjectLookup, final String includeSubjectDetail, String txType,
@@ -3425,7 +3407,6 @@ public class GrouperService {
    *            reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsAssignAttributesLiteResults assignAttributesLite(
       String clientVersion, String attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -3884,7 +3865,6 @@ public class GrouperService {
    * @param disallowed T or F if the permission is disallowed
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsAssignPermissionsLiteResults assignPermissionsLite(
       String clientVersion, String permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -4120,8 +4100,12 @@ public class GrouperService {
    * @param attributeDefLookupName to lookup the attributeDef (mutually exclusive with attributeDefUuid)
    * @param uuidOfAttributeDef the uuid of the attributeDef to edit
    * @param nameOfAttributeDef the name of the attributeDef to edit
-   * @param assignableTos
-   *    can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+   * @param assignableTo1
+   * @param assignableTo2
+   * @param assignableTo3
+   * @param assignableTo4
+   * @param assignableTo5
+   *    All the assignableTos can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
    *    EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
    *    IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
    * @param attributeDefType type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
@@ -4154,7 +4138,9 @@ public class GrouperService {
   public WsAttributeDefSaveLiteResult attributeDefSaveLite(final String clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
       String uuidOfAttributeDef, String nameOfAttributeDef,
-      String[] assignableTos, String attributeDefType, String multiAssignable,
+      String assignableTo1, String assignableTo2, String assignableTo3,
+      String assignableTo4, String assignableTo5, String attributeDefType,
+      String multiAssignable,
       String multiValued, String valueType,
       String description, String saveMode, String createParentStemsIfNotExist,
       String actAsSubjectId, String actAsSubjectSourceId,
@@ -4180,8 +4166,8 @@ public class GrouperService {
       wsAttributeDefSaveLiteResult = GrouperServiceLogic.attributeDefSaveLite(
           grouperWsVersion,
           attributeDefLookupUuid, attributeDefLookupName, uuidOfAttributeDef,
-          nameOfAttributeDef, assignableTos, attributeDefType, multiAssignable,
-          multiValued,
+          nameOfAttributeDef, assignableTo1, assignableTo2, assignableTo3, assignableTo4,
+          assignableTo5, attributeDefType, multiAssignable, multiValued,
           valueType, description, saveModeEnum, createParentStemsIfNotExistBoolean,
           actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0, paramValue0,
@@ -4214,7 +4200,6 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
-  @SuppressWarnings("unchecked")
   public WsAttributeDefDeleteResults attributeDefDelete(final String clientVersion,
       final WsAttributeDefLookup[] wsAttributeDefLookups,
       final WsSubjectLookup actAsSubjectLookup,
@@ -4315,6 +4300,7 @@ public class GrouperService {
    * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
    * school:apps:pto_app:internal:the_permissions:whatever
    * @param wsAttributeDefLookups find attributeDefs associated with these attribute defs lookups
+   * @param privilegeName privilegeName or null. null will default to ATTR_VIEW
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
    * @param parentStemId search in this stem
    * @param findByUuidOrName
@@ -4330,6 +4316,7 @@ public class GrouperService {
    */
   public WsFindAttributeDefsResults findAttributeDefs(final String clientVersion,
       String scope, String splitScope, WsAttributeDefLookup[] wsAttributeDefLookups,
+      String privilegeName,
       String stemScope, String parentStemId, String findByUuidOrName,
       String pageSize, String pageNumber,
       String sortString, String ascending, WsSubjectLookup actAsSubjectLookup,
@@ -4362,6 +4349,7 @@ public class GrouperService {
       wsFindAttributeDefsResults = GrouperServiceLogic.findAttributeDefs(
           grouperWsVersion,
           scope, splitScopeBoolean, wsAttributeDefLookups,
+          privilegeName,
           stemScopeEnum, parentStemId, findByUuidOrNameBoolean,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
           actAsSubjectLookup, params);
@@ -4390,6 +4378,7 @@ public class GrouperService {
    * @param uuidOfAttributeDef find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef
    * @param nameOfAttributeDef find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef
    * @param idIndexOfAttributeDef find attribute defs associated with this attribute def id index
+   * @param privilegeName privilegeName or null. null will default to ATTR_VIEW
    * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
    * @param parentStemId search in this stem
    * @param findByUuidOrName
@@ -4421,7 +4410,8 @@ public class GrouperService {
   public WsFindAttributeDefsResults findAttributeDefsLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef,
       String nameOfAttributeDef,
-      String idIndexOfAttributeDef, String stemScope, String parentStemId,
+      String idIndexOfAttributeDef, String privilegeName,
+      String stemScope, String parentStemId,
       String findByUuidOrName,
       String pageSize, String pageNumber,
       String sortString, String ascending,
@@ -4457,7 +4447,7 @@ public class GrouperService {
       wsFindAttributeDefsResults = GrouperServiceLogic.findAttributeDefsLite(
           grouperWsVersion,
           scope, splitScopeBoolean, uuidOfAttributeDef, nameOfAttributeDef,
-          idIndexOfAttributeDef,
+          idIndexOfAttributeDef, privilegeName,
           stemScopeEnum, parentStemId, findByUuidOrNameBoolean,
           pageSizeInteger, pageNumberInteger, sortString, ascendingBoolean,
           actAsSubjectId, actAsSubjectSourceId,

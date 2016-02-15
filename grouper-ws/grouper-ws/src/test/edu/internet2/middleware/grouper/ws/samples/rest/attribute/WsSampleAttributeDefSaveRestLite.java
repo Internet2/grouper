@@ -27,11 +27,9 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestFindAttributeDefsRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -39,13 +37,13 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author vsachdeva
  */
-public class WsSampleFindAttributeDefsRest implements WsSampleRest {
+public class WsSampleAttributeDefSaveRestLite implements WsSampleRest {
 
   /**
-   * find group web service with REST
+   * attribute def save lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void findAttributeDefs(WsSampleRestType wsSampleRestType) {
+  public static void attributeDefSaveLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -58,11 +56,11 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
             + "/attributeDefs");
-
+      
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
           RestClientSettings.PASS);
-
+      
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
@@ -72,19 +70,20 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestFindAttributeDefsRequest findAttributeDefs = new WsRestFindAttributeDefsRequest();
+      WsRestAttributeDefSaveLiteRequest attributeDefSaveLite = new WsRestAttributeDefSaveLiteRequest();
 
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      findAttributeDefs.setActAsSubjectLookup(actAsSubject);
-
-      findAttributeDefs.setScope("test:");
+      attributeDefSaveLite.setAttributeDefType("attr");
+      attributeDefSaveLite.setAssignableTo1("ATTRIBUTE_DEF");
+      attributeDefSaveLite.setMultiAssignable("F");
+      attributeDefSaveLite.setMultiValued("F");
+      attributeDefSaveLite.setValueType("string");
+      attributeDefSaveLite.setCreateParentStemsIfNotExist("T");
+      attributeDefSaveLite.setDescription("This is a test description");
+      attributeDefSaveLite.setNameOfAttributeDef("test1:testAttributeDef");
       
-      WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup("test:test1", null);
-      findAttributeDefs.setWsAttributeDefLookups(new WsAttributeDefLookup[]{wsAttributeDefLookup});
-
+      
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(findAttributeDefs);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(attributeDefSaveLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -104,26 +103,25 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
-      Object result = wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
-      
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+    
       //see if problem
-      if (result instanceof WsRestResultProblem) {
-        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
       }
-      
+
       //convert to object (from xhtml, xml, json, etc)
-      WsFindAttributeDefsResults wsFindAttributeDefsResults = (WsFindAttributeDefsResults)result;
+      WsAttributeDefSaveLiteResult wsAttributeDefSaveLiteResult = (WsAttributeDefSaveLiteResult)resultObject;
       
-      String resultMessage = wsFindAttributeDefsResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsAttributeDefSaveLiteResult.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
-        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsFindAttributeDefsResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAttributeDefSaveLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -137,7 +135,7 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefs(WsSampleRestType.xhtml);
+    attributeDefSaveLite(WsSampleRestType.xhtml);
   }
 
   /**
@@ -145,7 +143,7 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
    */
   @Override
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    findAttributeDefs(wsSampleRestType);
+    attributeDefSaveLite(wsSampleRestType);
   }
 
   /**
@@ -153,7 +151,7 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
    */
   @Override
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    //dont allow http params
-    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+    //allow all
+    return true;
   }
 }

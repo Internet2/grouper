@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Internet2
+ * Copyright 2016 Internet2
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -110,7 +110,35 @@ public class WsRestAttributeDefSaveLiteRequest implements WsRequestBean {
    * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
    * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
    */
-  private String[] assignableTos;
+  private String assignableTo1;
+  
+  /**
+   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
+   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   */
+  private String assignableTo2;
+  
+  /**
+   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
+   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   */
+  private String assignableTo3;
+  
+  /**
+   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
+   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   */
+  private String assignableTo4;
+  
+  /**
+   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
+   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   */
+  private String assignableTo5;
 
   /** type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm **/
   private String attributeDefType;
@@ -162,27 +190,78 @@ public class WsRestAttributeDefSaveLiteRequest implements WsRequestBean {
     this.nameOfAttributeDef = nameOfAttributeDef1;
   }
 
+  
   /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   * @return assignableTos
+   * @return assignableTo1
    */
-  public String[] getAssignableTos() {
-    return this.assignableTos;
+  public String getAssignableTo1() {
+	return this.assignableTo1;
   }
 
   /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   * @param assignableTos1
+   * @param assignableTo
    */
-  public void setAssignableTos(String[] assignableTos1) {
-    this.assignableTos = assignableTos1;
+  public void setAssignableTo1(String assignableTo) {
+	this.assignableTo1 = assignableTo;
+  }
+	
+  /**
+   * @return assignableTo2
+   */
+  public String getAssignableTo2() {
+	return this.assignableTo2;
+  }
+	
+  /**
+   * @param assignableTo
+   */
+  public void setAssignableTo2(String assignableTo) {
+	this.assignableTo2 = assignableTo;
+  }
+	
+  /**
+   * @return assignableTo3
+   */
+  public String getAssignableTo3() {
+	return this.assignableTo3;
+  }
+	
+  /**
+   * @param assignableTo
+   */
+  public void setAssignableTo3(String assignableTo) {
+	this.assignableTo3 = assignableTo;
   }
 
-  /** 
+  /**
+   * @return assignableTo4
+   */
+  public String getAssignableTo4() {
+	return this.assignableTo4;
+  }
+	
+  /**
+   * @param assignableTo
+   */
+  public void setAssignableTo4(String assignableTo) {
+	this.assignableTo4 = assignableTo;
+  }
+	
+  /**
+   * @return assignableTo5
+   */
+  public String getAssignableTo5() {
+	return this.assignableTo5;
+  }
+
+  /**
+   * @param assignableTo
+   */
+  public void setAssignableTo5(String assignableTo) {
+	this.assignableTo5 = assignableTo;
+  }
+
+/** 
    * type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm 
    * @return attributeDefType
    */

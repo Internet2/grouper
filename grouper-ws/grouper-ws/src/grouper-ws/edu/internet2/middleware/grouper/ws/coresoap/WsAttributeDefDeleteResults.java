@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Internet2
+ * Copyright 2016 Internet2
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -229,7 +229,8 @@ public class WsAttributeDefDeleteResults implements WsResponseBean, ResultMetada
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
                 + " failures of deleting attribute defs.   ");
-        this.assignResultCode(WsAttributeDefDeleteResultsCode.PROBLEM_DELETING_ATTRIBUTE_DEFS);
+        this.assignResultCode(
+            WsAttributeDefDeleteResultsCode.PROBLEM_DELETING_ATTRIBUTE_DEFS);
         //this might not be a problem
         LOG.warn(this.getResultMetadata().getResultMessage());
 
