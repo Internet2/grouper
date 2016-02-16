@@ -444,22 +444,22 @@ public class XmlExportGroup {
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
 
     writer.write("GroupSave groupSave = new GroupSave(grouperSession).assignName(\""
-        + GrouperUtil.escapeDoubleQuotes(this.name) 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
       writer.write(".assignDescription(\""
-        + GrouperUtil.escapeDoubleQuotes(this.description)
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.description)
         + "\")");
     }
     writer.write(".assignDisplayName(\""
-        + GrouperUtil.escapeDoubleQuotes(this.displayName)
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.displayName)
         + "\")");
 
     writer.write(".assignTypeOfGroup(TypeOfGroup." + TypeOfGroup.valueOfIgnoreCase(this.typeOfGroup, true).name() + ");\n");
     
     writer.write("Group group = groupSave.save();\ngshTotalObjectCount++;\nif (groupSave.getSaveResultType() != SaveResultType.NO_CHANGE) { System.out.println(\"Made change for group: \" + group.getName()); gshTotalChangeCount++;}\n");
     if (!StringUtils.isBlank(this.alternateName)) {
-      writer.write("group.addAlternateName(\"" + GrouperUtil.escapeDoubleQuotes(this.alternateName) + "\");\n");
+      writer.write("group.addAlternateName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.alternateName) + "\");\n");
     }
   }
 
@@ -481,27 +481,33 @@ public class XmlExportGroup {
         Query query = session.createQuery(
             "select distinct theGroup " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
         try {
-  
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              Object object = results.get(0);
-              Group group = (Group)object;
-              XmlExportGroup xmlExportGroup = group.xmlToExportGroup(grouperVersion);
-              xmlExportGroup.toGsh(grouperVersion, writer);
-              xmlExportMain.incrementRecordCount();
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
+          results = query.scroll();
+          while(results.next()) {
+            Object object = results.get(0);
+            final Group group = (Group)object;
+            final XmlExportGroup xmlExportGroup = group.xmlToExportGroup(grouperVersion);
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportGroup.toGsh(grouperVersion, writer);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting group to gsh: " + group, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
           }
-          
-        } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming stems", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+          
         return null;
       }
     });

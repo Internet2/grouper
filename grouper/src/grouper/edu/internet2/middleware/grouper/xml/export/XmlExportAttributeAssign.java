@@ -840,35 +840,46 @@ public class XmlExportAttributeAssign {
         Query query = session.createQuery(
             "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         
+        
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
         try {
-  
           //keep a set of attribute assign ids (original assigns, not the attributes on attribute assignments)
           //so when merging with existing attributes we dont clobber existing one
           writer.write("Set attributeAssignIdsAlreadyUsed = new HashSet();\n");
-          
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              Object object = results.get(0);
-              final AttributeAssign attributeAssign = (AttributeAssign)object;
-              
-              if (attributeAssign.getAttributeAssignType().isAssignmentOnAssignment()) {
-                continue;
-              }
-              exportAttributeAssignGsh(writer, xmlExportMain, grouperVersion,
-                  attributeAssign);
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
-          }
 
+          results = query.scroll();
+          while(results.next()) {
+            Object object = results.get(0);
+            final AttributeAssign attributeAssign = (AttributeAssign)object;
+            
+            if (attributeAssign.getAttributeAssignType().isAssignmentOnAssignment()) {
+              continue;
+            }
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  exportAttributeAssignGsh(writer, xmlExportMain, grouperVersion,
+                      attributeAssign);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting attribute assign to gsh: " + attributeAssign, ioe);
+                }
+                return null;
+              }
+            });
+            
+          }
+          
         } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming attributeAssigns", ioe);
+          throw new RuntimeException("Problem exporting attribute assign to gsh", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+
         return null;
       }
 
@@ -1070,16 +1081,14 @@ public class XmlExportAttributeAssign {
     int numberOfObjectsInvolved = 0;
     
     // AttributeAssignSave attributeAssignSave = new AttributeAssignSave(grouperSession);
-    writer.write("AttributeAssignSave " + variableNameForAttributeAssignSave + " = new AttributeAssignSave(grouperSession);\n");
-
-    // attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
-    writer.write(variableNameForAttributeAssignSave + ".assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);\n");
+    writer.write("AttributeAssignSave " + variableNameForAttributeAssignSave 
+        + " = new AttributeAssignSave(grouperSession).assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed).assignPrintChangesToSystemOut(true);\n");
     
     // attributeAssignSave.assignAction("action");
     String action = attributeAssign.getAttributeAssignAction().getName();
     //if its not the default
     if (!StringUtils.equals("assign", action)) {
-      writer.write(variableNameForAttributeAssignSave + ".assignAction(\"" + GrouperUtil.escapeDoubleQuotes(action) + "\");\n");
+      writer.write(variableNameForAttributeAssignSave + ".assignAction(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(action) + "\");\n");
     }
 
     AttributeAssignDelegatable attributeAssignDelegatable = attributeAssign.getAttributeAssignDelegatable();
@@ -1100,9 +1109,9 @@ public class XmlExportAttributeAssign {
     //  attributeAssignSave.assignAttributeDefName(attributeDefName);
     AttributeDefName attributeDefName = AttributeDefNameFinder.findById(attributeAssign.getAttributeDefNameId(), true);
     writer.write("AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(\"" 
-        + GrouperUtil.escapeDoubleQuotes(attributeDefName.getName()) + "\", false);\n");
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeDefName.getName()) + "\", false);\n");
     writer.write("if (attributeDefName == null) { gshTotalErrorCount++;  System.out.println(\"Error: cant find attributeDefName: " 
-        + GrouperUtil.escapeDoubleQuotes(attributeDefName.getName()) + "\");  problemWithAttributeAssign = true; }\n");
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeDefName.getName()) + "\");  problemWithAttributeAssign = true; }\n");
     writer.write(variableNameForAttributeAssignSave + ".assignAttributeDefName(attributeDefName);\n");
 
     if (attributeAssign.getDisabledTimeDb() != null) {
@@ -1122,7 +1131,7 @@ public class XmlExportAttributeAssign {
 
     if (!StringUtils.isBlank(attributeAssign.getNotes())) {
       //attributeAssignSave.assignNotes("");
-      writer.write(variableNameForAttributeAssignSave + ".assignNotes(\"" + GrouperUtil.escapeDoubleQuotes(attributeAssign.getNotes()) + "\");\n");
+      writer.write(variableNameForAttributeAssignSave + ".assignNotes(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeAssign.getNotes()) + "\");\n");
     }
 
     if (!StringUtils.isBlank(attributeAssign.getOwnerAttributeDefId())) {
@@ -1134,8 +1143,8 @@ public class XmlExportAttributeAssign {
       //  attributeAssignSave.assignOwnerAttributeDef(ownerAttributeDef);
 
       AttributeDef ownerAttributeDef = AttributeDefFinder.findById(attributeAssign.getOwnerAttributeDefId(), true);
-      writer.write("AttributeDef ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(ownerAttributeDef.getName()) + "\", false);\n");
-      writer.write("if (ownerAttributeDef == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find attributeDef: " + GrouperUtil.escapeDoubleQuotes(ownerAttributeDef.getName()) + "\"); problemWithAttributeAssign = true; }\n");
+      writer.write("AttributeDef ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\", false);\n");
+      writer.write("if (ownerAttributeDef == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find attributeDef: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\"); problemWithAttributeAssign = true; }\n");
       writer.write(variableNameForAttributeAssignSave + ".assignOwnerAttributeDef(ownerAttributeDef);\n");
     }
     
@@ -1149,8 +1158,8 @@ public class XmlExportAttributeAssign {
       
       //attributeAssignSave.assignOwnerGroup(ownerGroup);
 
-      writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotes(group.getName()) + "\", false);\n");
-      writer.write("if (ownerGroup == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group: " + GrouperUtil.escapeDoubleQuotes(group.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
+      writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\", false);\n");
+      writer.write("if (ownerGroup == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
       writer.write(variableNameForAttributeAssignSave + ".assignOwnerGroup(ownerGroup);\n");
     }
 
@@ -1167,10 +1176,10 @@ public class XmlExportAttributeAssign {
       //   Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true);
       //   attributeAssignSave.assignOwnerMember(ownerMember);
       // }
-      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotes(member.getSubjectId()) 
-          + "\", \"" + GrouperUtil.escapeDoubleQuotes(member.getSubjectSourceId()) + "\", false);\n"); 
+      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
+          + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + "\", false);\n"); 
       writer.write("if (ownerSubject == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
-          + GrouperUtil.escapeDoubleQuotes(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotes(member.getSubjectId()) 
+          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
           + "\"); problemWithAttributeAssign = true; }\n"); 
       writer.write("if (ownerSubject != null) { gshTotalErrorCount++; Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true); "
           + variableNameForAttributeAssignSave + ".assignOwnerMember(ownerMember); }\n");
@@ -1187,8 +1196,8 @@ public class XmlExportAttributeAssign {
       
       //attributeAssignSave.assignOwnerStem(ownerStem);
 
-      writer.write("Stem ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotes(stem.getName()) + "\", false);\n");
-      writer.write("if (ownerStem == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find stem: " + GrouperUtil.escapeDoubleQuotes(stem.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
+      writer.write("Stem ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\", false);\n");
+      writer.write("if (ownerStem == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find stem: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
       writer.write(variableNameForAttributeAssignSave + ".assignOwnerStem(ownerStem);\n");
     }
 
@@ -1211,8 +1220,8 @@ public class XmlExportAttributeAssign {
         //    problemWithAttributeAssign = true; 
         //  }
         
-        writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotes(group.getName()) + "\", false);\n");
-        writer.write("if (ownerGroup == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group: " + GrouperUtil.escapeDoubleQuotes(group.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
+        writer.write("Group ownerGroup = GroupFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\", false);\n");
+        writer.write("if (ownerGroup == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(group.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
         writer.write(variableNameForAttributeAssignSave + ".assignOwnerGroup(ownerGroup);\n");
         
       }
@@ -1227,8 +1236,8 @@ public class XmlExportAttributeAssign {
         
         //attributeAssignSave.assignOwnerStem(ownerStem);
 
-        writer.write("Stem ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotes(stem.getName()) + "\", false);\n");
-        writer.write("if (ownerStem == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find stem: " + GrouperUtil.escapeDoubleQuotes(stem.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
+        writer.write("Stem ownerStem = StemFinder.findByName(grouperSession, \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\", false);\n");
+        writer.write("if (ownerStem == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find stem: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stem.getName()) + "\"); problemWithAttributeAssign = true;  }\n");
         writer.write(variableNameForAttributeAssignSave + ".assignOwnerStem(ownerStem);\n");
         
       }
@@ -1242,8 +1251,8 @@ public class XmlExportAttributeAssign {
         //  attributeAssignSave.assignOwnerAttributeDef(ownerAttributeDef);
 
         AttributeDef ownerAttributeDef = AttributeDefFinder.findById(membership.getOwnerAttrDefId(), true);
-        writer.write("AttributeDef ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(ownerAttributeDef.getName()) + "\", false);\n");
-        writer.write("if (ownerAttributeDef == null) {gshTotalErrorCount++;  System.out.println(\"Error: cant find attributeDef: " + GrouperUtil.escapeDoubleQuotes(ownerAttributeDef.getName()) + "\"); problemWithAttributeAssign = true; }\n");
+        writer.write("AttributeDef ownerAttributeDef = AttributeDefFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\", false);\n");
+        writer.write("if (ownerAttributeDef == null) {gshTotalErrorCount++;  System.out.println(\"Error: cant find attributeDef: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ownerAttributeDef.getName()) + "\"); problemWithAttributeAssign = true; }\n");
         writer.write(variableNameForAttributeAssignSave + ".assignOwnerAttributeDef(ownerAttributeDef);\n");
 
       }
@@ -1259,10 +1268,10 @@ public class XmlExportAttributeAssign {
       //   Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true);
       //   attributeAssignSave.assignOwnerMember(ownerMember);
       // }
-      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotes(member.getSubjectId()) 
-          + "\", \"" + GrouperUtil.escapeDoubleQuotes(member.getSubjectSourceId()) + "\", false);\n"); 
+      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
+          + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + "\", false);\n"); 
       writer.write("if (ownerSubject == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
-          + GrouperUtil.escapeDoubleQuotes(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotes(member.getSubjectId()) 
+          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
           + "\"); problemWithAttributeAssign = true; }\n"); 
       writer.write("if (ownerSubject != null) { Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true); "
           + variableNameForAttributeAssignSave + ".assignOwnerMember(ownerMember); }\n");
@@ -1271,32 +1280,27 @@ public class XmlExportAttributeAssign {
     
     // do values
     for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValues)) {
-      // AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      writer.write("AttributeAssignValue attributeAssignValue = new AttributeAssignValue();\n");
-      
+
       if (attributeAssignValue.getValueFloating() != null) {
-        // attributeAssignValue.setValueFloating(new Double(0));
-        writer.write("attributeAssignValue.setValueFloating(new Double(" + attributeAssignValue.getValueFloating() + "));\n");
+        // attributeAssignSave.addValue(new Double(0));
+        writer.write(variableNameForAttributeAssignSave + ".addValue(new Double(" + attributeAssignValue.getValueFloating() + "));\n");
       }
       
       if (attributeAssignValue.getValueInteger() != null) {
-        // attributeAssignValue.setValueInteger(new Long(0));
-        writer.write("attributeAssignValue.setValueInteger(new Long(" + attributeAssignValue.getValueInteger() + "));\n");
+        // attributeAssignSave.addValue(new Long(0));
+        writer.write(variableNameForAttributeAssignSave + ".addValue(new Long(" + attributeAssignValue.getValueInteger() + "));\n");
       }
       
       if (attributeAssignValue.getValueMemberId() != null) {
-        // attributeAssignValue.setValueMemberId("memberId");
-        writer.write("attributeAssignValue.setValueMemberId(\"" + GrouperUtil.escapeDoubleQuotes(attributeAssignValue.getValueMemberId()) + "\");\n");
+        // attributeAssignSave.addValue("memberId");
+        writer.write(variableNameForAttributeAssignSave + ".addValue(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeAssignValue.getValueMemberId()) + "\");\n");
       }
       
       if (attributeAssignValue.getValueString() != null) {
-        // attributeAssignValue.setValueString("string");
-        writer.write("attributeAssignValue.setValueString(\"" + GrouperUtil.escapeDoubleQuotes(attributeAssignValue.getValueString()) + "\");\n");
+        // attributeAssignSave.addValue("string");
+        writer.write(variableNameForAttributeAssignSave + ".addValue(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(attributeAssignValue.getValueString()) + "\");\n");
       }
       
-      // attributeAssignSave.addAttributeAssignValue(attributeAssignValue);
-      writer.write(variableNameForAttributeAssignSave + ".addAttributeAssignValue(attributeAssignValue);\n");
-
       numberOfObjectsInvolved++;
       
       //increment for value

@@ -443,15 +443,15 @@ public class XmlExportStem {
     //new StemSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
     writer.write("StemSave stemSave = new StemSave(grouperSession).assignName(\""
-        + GrouperUtil.escapeDoubleQuotes(this.name) 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
       writer.write(".assignDescription(\""
-        + GrouperUtil.escapeDoubleQuotes(this.description)
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.description)
         + "\")");
     }
     writer.write(".assignDisplayName(\""
-        + GrouperUtil.escapeDoubleQuotes(this.displayName)
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.displayName)
         + "\");\nstem = stemSave.save();\ngshTotalObjectCount++;\nif (stemSave.getSaveResultType() != SaveResultType.NO_CHANGE) { System.out.println(\"Made change for stem: \" + stem.getName()); gshTotalChangeCount++;}\n");
   }
 
@@ -608,27 +608,34 @@ public class XmlExportStem {
         Query query = session.createQuery(
             "select distinct theStem " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
-        try {
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
   
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              Object object = results.get(0);
-              Stem stem = (Stem)object;
-              XmlExportStem xmlExportStem = stem.xmlToExportStem(grouperVersion);
-              xmlExportStem.toGsh(grouperVersion, writer);
-              xmlExportMain.incrementRecordCount();
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
+        try {
+          results = query.scroll();
+          while(results.next()) {
+            Object object = results.get(0);
+            final Stem stem = (Stem)object;
+            final XmlExportStem xmlExportStem = stem.xmlToExportStem(grouperVersion);
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportStem.toGsh(grouperVersion, writer);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting stem to gsh: " + stem, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
           }
-          
-        } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming stems", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+          
         return null;
       }
     });

@@ -706,11 +706,11 @@ public class XmlExportAttributeDef {
     //.assignDescription(this.description).assignDisplayName(this.displayName).save();
 
     writer.write("AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession).assignName(\""
-        + GrouperUtil.escapeDoubleQuotes(this.name) 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.name) 
         + "\").assignCreateParentStemsIfNotExist(true)");
     if (!StringUtils.isBlank(this.description)) {
       writer.write(".assignDescription(\""
-        + GrouperUtil.escapeDoubleQuotes(this.description)
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.description)
         + "\")");
     }
       
@@ -789,27 +789,34 @@ public class XmlExportAttributeDef {
         Query query = session.createQuery(
             "select distinct theAttributeDef " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
-        try {
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
   
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              Object object = results.get(0);
-              AttributeDef attributeDef = (AttributeDef)object;
-              XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(grouperVersion);
-              xmlExportAttributeDef.toGsh(grouperVersion, writer);
-              xmlExportMain.incrementRecordCount();
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
+        try {
+          results = query.scroll();
+          while(results.next()) {
+            Object object = results.get(0);
+            final AttributeDef attributeDef = (AttributeDef)object;
+            final XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(grouperVersion);
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportAttributeDef.toGsh(grouperVersion, writer);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting attributeDef to gsh: " + attributeDef, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
           }
-          
-        } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming stems", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+        
         return null;
       }
     });

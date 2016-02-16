@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -206,6 +207,8 @@ public class AttributeAssignValueDelegate {
       AttributeAssignValue existing = existingValues.iterator().next();
       existing.assignValue(attributeAssignValue);
       
+      //link them together in case someone calls get value
+      attributeAssignValue.setAttributeAssignId(existing.getAttributeAssignId());
       if (!existing.getCurrentAssignValueType().compatibleWith(attributeDef.getValueType())) {
         throw new RuntimeException("Types not compatible: " 
             + attributeAssignValue.getCurrentAssignValueType() + ", " 
@@ -1795,11 +1798,19 @@ public class AttributeAssignValueDelegate {
         
         if (GrouperUtil.length(expectedAttributeAssignValues) == 1) {
           count++;
-          this.assignValue(expectedAttributeAssignValues.iterator().next());
+          AttributeAssignValue object = expectedAttributeAssignValues.iterator().next();
+          this.assignValue(object);
+          if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+            System.out.println("Made change assigned attribute value '" + object.valueString(true) + "' on " + this.attributeAssign);
+          }
         } else {
           count++;
           //must be a delete
-          this.deleteValue(existingAttributeAssignValues.iterator().next());
+          AttributeAssignValue object = existingAttributeAssignValues.iterator().next();
+          if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+            System.out.println("Deleted attribute value '" + object.valueString(true) + "' from " + this.attributeAssign);
+          }
+          this.deleteValue(object);
         }
         
       } else {
@@ -1816,11 +1827,18 @@ public class AttributeAssignValueDelegate {
 
           if (existingAttributeAssignValueIterator.hasNext()) {
             AttributeAssignValue existingAttributeAssignValue = existingAttributeAssignValueIterator.next();
+            String oldValue = existingAttributeAssignValue.valueString(true);
             existingAttributeAssignValue.assignValue(expectedAttributeAssignValue);
             existingAttributeAssignValue.saveOrUpdate();
+            if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+              System.out.println("Made change updated attribute value from '" + oldValue + "' to '" + existingAttributeAssignValue.valueString(true) + "' on " + this.attributeAssign);
+            }
           } else {
             expectedAttributeAssignValue.setAttributeAssignId(attributeAssign.getId());
             expectedAttributeAssignValue.saveOrUpdate();
+            if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+              System.out.println("Made change added attribute value '" + expectedAttributeAssignValue.valueString(true) + "' on " + this.attributeAssign);
+            }
           }
         }
         
@@ -1828,6 +1846,9 @@ public class AttributeAssignValueDelegate {
         while (existingAttributeAssignValueIterator.hasNext()) {
           count++;
           AttributeAssignValue attributeAssignValue = existingAttributeAssignValueIterator.next();
+          if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+            System.out.println("Made change deleted attribute value '" + attributeAssignValue.valueString(true) + "' from " + this.attributeAssign);
+          }
           attributeAssignValue.delete();
         }
       }
