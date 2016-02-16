@@ -401,7 +401,73 @@ public class GrouperUtil {
     return string.replace("\"", "&quot;");
   }
   
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeDoubleQuotesForString(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\"", "\\\"");
+  }
 
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeDoubleQuotesSlashesAndNewlinesForString(String string) {
+    //do slashes first... so they dont get done twice
+    string = escapeSlashesForString(string);
+    string = escapeNewlinesForString(string);
+    string = escapeDoubleQuotesForString(string);
+    return string;
+    
+//    if (string == null) {
+//      return string;
+//    }
+//    StringBuilder result = new StringBuilder();
+//    char[] stringCharArray = string.toCharArray();
+//    for (int i=0; i<string.length(); i++) {
+//      char curChar = stringCharArray[i];
+//      if (curChar == '\\') {
+//        result.append("\\\\");
+//      } else if (curChar == '"') {
+//        result.append("\\\"");
+//      } else if (curChar == '\n') {
+//        result.append("\\n");
+//      }
+//    }
+//    return string.replace("\n", "\\n");
+//    return string;
+  }
+
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeNewlinesForString(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\n", "\\n");
+  }
+  
+  /**
+   * escape slashes
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeSlashesForString(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\\", "\\\\");
+  }
+  
   /**
    * e.g. ('g:gsa', 'jdbc')
    * @param sources

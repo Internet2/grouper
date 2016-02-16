@@ -496,34 +496,41 @@ public class XmlExportAttributeDefNameSet {
             + " theAttributeDefNameSet "
             + exportFromOnQuery(xmlExportMain, true));
 
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
         try {
-  
-          GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+          results = query.scroll();
+          while(results.next()) {
+            final String ifHasAttributeDefName = (String)results.get(0);
+            final String thenHasAttributeDefName = (String)results.get(1);
+            final AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)results.get(2);
+            final XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(grouperVersion);
 
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              String ifHasAttributeDefName = (String)results.get(0);
-              String thenHasAttributeDefName = (String)results.get(1);
-              AttributeDefNameSet attributeDefNameSet = (AttributeDefNameSet)results.get(2);
-              XmlExportAttributeDefNameSet xmlExportAttributeDefNameSet = attributeDefNameSet.xmlToExportAttributeDefNameSet(grouperVersion);
-
-              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
-              //    + ", " + stemName + ", " + nameOfAttributeDef 
-              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+            //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+            //    + ", " + stemName + ", " + nameOfAttributeDef 
+            //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+            
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
               
-              xmlExportAttributeDefNameSet.toGsh(grouperVersion, writer, ifHasAttributeDefName, thenHasAttributeDefName);
-              xmlExportMain.incrementRecordCount();
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportAttributeDefNameSet.toGsh(grouperVersion, writer, ifHasAttributeDefName, thenHasAttributeDefName);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting attributeDefName hierarchy to gsh: " 
+                      + ifHasAttributeDefName + ", " + thenHasAttributeDefName, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
           }
-          
-        } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming memberships", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+          
         return null;
       }
     });
@@ -540,18 +547,18 @@ public class XmlExportAttributeDefNameSet {
       @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
       String ifHasAttributeDefName, String thenHasAttributeDefName) throws IOException {
     
-    writer.write("ifHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(ifHasAttributeDefName) + "\", false);\n");
-    writer.write("thenHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotes(thenHasAttributeDefName) + "\", false);\n");
+    writer.write("AttributeDefName ifHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasAttributeDefName) + "\", false);\n");
+    writer.write("AttributeDefName thenHasAttributeDefName = AttributeDefNameFinder.findByName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasAttributeDefName) + "\", false);\n");
 
     writer.write("if (ifHasAttributeDefName != null) { ");
 
     writer.write("if (thenHasAttributeDefName != null) { ");
 
-    writer.write(" boolean changed = ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName);  gshTotalObjectCount++;\nif (changed) {gshTotalChangeCount++; System.out.println(\"Made change for attributeDefName inheritance: \" + ifHasAttributeDefName.getName() + \" implies \" + thenHasAttributeDefName.getName()); ");
+    writer.write(" boolean changed = ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName);  gshTotalObjectCount++; if (changed) {gshTotalChangeCount++; System.out.println(\"Made change for attributeDefName inheritance: \" + ifHasAttributeDefName.getName() + \" implies \" + thenHasAttributeDefName.getName()); } ");
 
-    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find thenHasAttributeDefName: '" + GrouperUtil.escapeDoubleQuotes(thenHasAttributeDefName) + "'\"); }");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find thenHasAttributeDefName: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasAttributeDefName) + "'\"); }");
 
-    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find ifHasAttributeDefName: '" + GrouperUtil.escapeDoubleQuotes(ifHasAttributeDefName) + "'\"); } \n");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find ifHasAttributeDefName: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasAttributeDefName) + "'\"); } \n");
 
   }
 

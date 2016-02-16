@@ -308,24 +308,64 @@ public class XmlExportMain {
       writer.write("long gshTotalErrorCount = 0L;\n");
 
       XmlExportStem.exportStemsGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with folders, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportGroup.exportGroupsGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with groups, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportComposite.exportCompositesGsh(writer, this);
+      
+      writer.write("System.out.println(\"Done with composites, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportAttributeDef.exportAttributeDefsGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with attribute definitions, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportRoleSet.exportRoleSetsGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with role hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportAttributeAssignAction.exportAttributeAssignActionsGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with attribute actions, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportAttributeAssignActionSet.exportAttributeAssignActionSetsGsh(writer, this);
+      
+      writer.write("System.out.println(\"Done with attribute action hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
       
       XmlExportMembership.exportMembershipsGsh(writer, this);
 
+      writer.write("System.out.println(\"Done with memberships and privileges, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportAttributeDefName.exportAttributeDefNamesGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with attribute names, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeDefNameSet.exportAttributeDefNameSetsGsh(writer, this);
 
+      writer.write("System.out.println(\"Done with attribute name hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+
       XmlExportAttributeDefScope.exportAttributeDefScopesGsh(writer, this);
+
+      writer.write("System.out.println(\"Done with attribute definition scopes, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeAssign.exportAttributeAssignsGsh(writer, this);
 
-      writer.write("System.out.println(\"Script complete: total objects: \" + gshTotalObjectCount + \", expected approx total: " + XmlExportMain.this.currentRecordIndex + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
+      writer.write("System.out.println(\"Script complete: total objects, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+          + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
       
       writer.flush();
     } catch (IOException ioe) {

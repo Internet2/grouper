@@ -76,6 +76,49 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeAssignSave {
 
   /**
+   * if changes should be printed as system out
+   */
+  private boolean printChangesToSystemOut;
+  
+  /**
+   * if changes should be printed as system out
+   * @param thePrintChangesToSystemOut 
+   * @return this for chaining
+   */
+  public AttributeAssignSave assignPrintChangesToSystemOut(boolean thePrintChangesToSystemOut) {
+    this.printChangesToSystemOut = thePrintChangesToSystemOut;
+    return this;
+  }
+  
+  /**
+   * if should print changes to standard out
+   */
+  private static ThreadLocal<Boolean> printChangesToSystemOutThreadLocal = new InheritableThreadLocal<Boolean>();
+  
+  /**
+   * if should print changes to standard out
+   * @return if should print
+   */
+  public static boolean printChangesToSystemOutThreadlocal() {
+    Boolean theBoolean = printChangesToSystemOutThreadLocal.get();
+    return theBoolean == null ? false : theBoolean.booleanValue();
+  }
+  
+  /**
+   * if we are in the middle of saving (then maybe ignore some rules)
+   */
+  private static ThreadLocal<Boolean> inSaveThreadLocal = new InheritableThreadLocal<Boolean>();
+  
+  /**
+   * if we are in the middle of saving (then maybe ignore some rules)
+   * @return if in the middle of saving
+   */
+  public static boolean inSaveThreadlocal() {
+    Boolean theBoolean = inSaveThreadLocal.get();
+    return theBoolean == null ? false : theBoolean.booleanValue();
+  }
+  
+  /**
    * create a new attribute assign save
    * @param theGrouperSession
    */
@@ -323,7 +366,7 @@ public class AttributeAssignSave {
   public AttributeAssignSave assignOwnerAttributeDef(AttributeDef theOwnerAttributeDef) {
     this.ownerAttributeDef = theOwnerAttributeDef;
     this.ownerAttributeDefId = theOwnerAttributeDef == null ? null : theOwnerAttributeDef.getId();
-    this.nameOfAttributeDefName = theOwnerAttributeDef == null ? null : theOwnerAttributeDef.getName();
+    this.ownerNameOfAttributeDef = theOwnerAttributeDef == null ? null : theOwnerAttributeDef.getName();
     return this;
   }
   
@@ -655,6 +698,24 @@ public class AttributeAssignSave {
   }
   
   /**
+   * add a value to an attribute assignment
+   */
+  private List<Object> values = null;
+  
+  /**
+   * add a value to an attribute assignment
+   * @param theValue
+   * @return this for chaining
+   */
+  public AttributeAssignSave addValue(Object theValue) {
+    if (this.values == null) {
+      this.values = new ArrayList<Object>();
+    }
+    this.values.add(theValue);
+    return this;
+  }
+  
+  /**
    * if including assignments on this assignment, put them here
    */
   private Set<AttributeAssignSave> attributeAssignsOnThisAssignment = null;
@@ -700,14 +761,21 @@ public class AttributeAssignSave {
         throws AttributeDefNameNotFoundException, InsufficientPrivilegeException, StemNotFoundException, 
         GroupNotFoundException {
 
-    // figure out fields, validate them
-    massageAndValidateFields();
-
-    final SaveMode SAVE_MODE = AttributeAssignSave.this.saveMode;
-
-    final AttributeAssignSave THIS = this;
+    boolean setInSaveThreadLocal = false;
+    if (!inSaveThreadlocal()) {
+      inSaveThreadLocal.set(true);
+      setInSaveThreadLocal = true;
+    }
+    printChangesToSystemOutThreadLocal.set(this.printChangesToSystemOut);
     
     try {
+      // figure out fields, validate them
+      massageAndValidateFields();
+
+      final SaveMode SAVE_MODE = AttributeAssignSave.this.saveMode;
+
+      final AttributeAssignSave THIS = this;
+      
       GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
 
         @SuppressWarnings("cast")
@@ -759,10 +827,16 @@ public class AttributeAssignSave {
                   if (THIS.attributeDefName.getAttributeDef().isMultiAssignable()) {
                     THIS.attributeAssign = THIS.attributeAssignable.getAttributeDelegate()
                         .addAttribute(THIS.action, THIS.attributeDefName).getAttributeAssign();
+                    if (printChangesToSystemOutThreadlocal()) {
+                      System.out.println("Made change added attribute assignment " + THIS.attributeAssign);
+                    }
                     THIS.changesCount++;
                   } else {
                     THIS.attributeAssign = THIS.attributeAssignable.getAttributeDelegate().assignAttribute(
                         THIS.action, THIS.attributeDefName, THIS.disallowed ? PermissionAllowed.DISALLOWED : null).getAttributeAssign();
+                    if (printChangesToSystemOutThreadlocal()) {
+                      System.out.println("Made change assigned attribute assignment " + THIS.attributeAssign);
+                    }
                     THIS.changesCount++;
                   }
                 }
@@ -809,6 +883,9 @@ public class AttributeAssignSave {
 
                 //only store once
                 if (needsSave) {
+                  if (printChangesToSystemOutThreadlocal()) {
+                    System.out.println("Made change updated attribute assignment " + THIS.attributeAssign);
+                  }
                   THIS.changesCount++;
                   THIS.attributeAssign.saveOrUpdate();
                 }
@@ -843,6 +920,11 @@ public class AttributeAssignSave {
       }
       //must just be runtime
       throw re;
+    } finally {
+      printChangesToSystemOutThreadLocal.remove();
+      if (setInSaveThreadLocal) {
+        inSaveThreadLocal.remove();
+      }
     }
 
   }
@@ -883,6 +965,9 @@ public class AttributeAssignSave {
 
     for (AttributeAssign existingAttributeAssign : GrouperUtil.nonNull(existingAttributeAssigns)) {
       if (!attributeAssignAssignIdsAlreadyUsed.contains(existingAttributeAssign.getId())) {
+        if (printChangesToSystemOutThreadlocal()) {
+          System.out.println("Made change deleted attribute assignment " + existingAttributeAssign);
+        }
         existingAttributeAssign.delete();
         this.changesCount++;
       }
@@ -1216,13 +1301,31 @@ public class AttributeAssignSave {
     
     //default to insert or update
     this.saveMode = (SaveMode)ObjectUtils.defaultIfNull(this.saveMode, SaveMode.INSERT_OR_UPDATE);
+    
+    this.getAttributeAssignValues();
+  }
 
+  /**
+   * migrate values to attribute assign values if needed
+   * @return the attribute assign values
+   */
+  public Set<AttributeAssignValue> getAttributeAssignValues() {
+    if (this.values != null) {
+      for (Object value : this.values) {
+        AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+        attributeAssignValue.assignValue(value, this.attributeDefName.getAttributeDef());
+        this.addAttributeAssignValue(attributeAssignValue);
+      }
+      //clear this out since it was moved over
+      this.values = null;
+    }
+    return this.attributeAssignValues;
   }
   
   /**
    * find an existing assignment that is similar this request
    */
-  private void findExistingAttributeAssignment() {
+  public void findExistingAttributeAssignment() {
     //query to find all the assignments of this attribute on this owner, page this
     Set<AttributeAssign> existingAttributeAssigns = null;
     
@@ -1411,7 +1514,8 @@ public class AttributeAssignSave {
         Set<AttributeAssign> existingAttributeAssignmentsOnAssignment = existingAttributeAssignIdToAssignmentsOfAssignments.get(currentImmediateAssignment.getId());
         int currentScore = computeScoreForExistingAssignment(this.attributeAssignValues, 
             existingCurrentValuesOnImmediateAssignment, this.attributeAssignsOnThisAssignment, 
-            existingAttributeAssignmentsOnAssignment, existingAttributeAssignIdToValueSet);
+            existingAttributeAssignmentsOnAssignment, existingAttributeAssignIdToValueSet,
+            currentImmediateAssignment);
         
         if (currentScore > bestScore) {
           bestScore = currentScore;
@@ -1473,7 +1577,7 @@ public class AttributeAssignSave {
         List<Object> existingCurrentValuesOnImmediateAssignment = existingAttributeAssignIdToValueSet.get(currentImmediateAssignment.getId());
         int currentScore = computeScoreForExistingAssignment(this.attributeAssignValues, 
             existingCurrentValuesOnImmediateAssignment, null, 
-            null, existingAttributeAssignIdToValueSet);
+            null, existingAttributeAssignIdToValueSet, currentImmediateAssignment);
         
         if (currentScore > bestScore) {
           bestScore = currentScore;
@@ -1494,14 +1598,31 @@ public class AttributeAssignSave {
    * @param expectedAssignmentsOnAssignment
    * @param existingAssignmentsOnAssignment
    * @param valuesOnAttributeAssignments 
+   * @param existingAssignment
    * @return the score
    */
-  static int computeScoreForExistingAssignment(Set<AttributeAssignValue> expectedValues, 
+  int computeScoreForExistingAssignment(Set<AttributeAssignValue> expectedValues, 
       List<Object> existingValues, Set<AttributeAssignSave> expectedAssignmentsOnAssignment, 
-      Set<AttributeAssign> existingAssignmentsOnAssignment, Map<String, List<Object>> valuesOnAttributeAssignments) {
+      Set<AttributeAssign> existingAssignmentsOnAssignment, Map<String, List<Object>> valuesOnAttributeAssignments, AttributeAssign existingAssignment) {
 
     int score = 0;
 
+    //look at attributes
+    if (!this.disallowed == existingAssignment.isDisallowed()) {
+      score--;
+    }
+    if (!GrouperUtil.equals(this.disabledTimeDb, existingAssignment.getDisabledTimeDb())) {
+      score--;
+    }
+    if (!StringUtils.equals(GrouperUtil.defaultIfEmpty(this.notes, ""), GrouperUtil.defaultIfEmpty(existingAssignment.getNotes(), ""))) {
+      score--;
+    }
+    if (!GrouperUtil.equals(this.enabledTimeDb, existingAssignment.getEnabledTimeDb())) {
+      score--;
+    }
+    if (!GrouperUtil.equals(this.attributeAssignDelegatable, existingAssignment.getAttributeAssignDelegatable())) {
+      score--;
+    }
     score += computeValueScore(expectedValues, existingValues);
 
     //copy the set so we can remove things
@@ -1534,7 +1655,7 @@ public class AttributeAssignSave {
           
           //do the values
           List<Object> existingAttributeOnAttributeValues = valuesOnAttributeAssignments.get(existingAssign.getId());
-          Set<AttributeAssignValue> expectedAttributeOnAttributeValues = expectedAssignmentOnAssignment.attributeAssignValues;
+          Set<AttributeAssignValue> expectedAttributeOnAttributeValues = expectedAssignmentOnAssignment.getAttributeAssignValues();
           score += computeValueScore(expectedAttributeOnAttributeValues, existingAttributeOnAttributeValues);
           
           continue OUTER;

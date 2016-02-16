@@ -9,12 +9,13 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  *
@@ -34,26 +35,77 @@ public class AttributeAssignMain {
 
     //attributeAssignExample();
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    AttributeDef attributeDef = AttributeDefFinder.findByName("etc:attribute:loaderLdap:grouperLoaderLdapValueDef", false);
-    if (attributeDef != null) {  
-      AttributeDefNameSave attributeDefNameSave = new AttributeDefNameSave(grouperSession, attributeDef)
-        .assignName("etc:attribute:loaderLdap:grouperLoaderLdapType").assignCreateParentStemsIfNotExist(true)
-        .assignDescription("This holds the type of job from the GrouperLoaderType enum, currently the only "
-            + "valid values are LDAP_SIMPLE, LDAP_GROUP_LIST, LDAP_GROUPS_FROM_ATTRIBUTES. Simple is a group "
-            + "loaded from LDAP filter which returns subject ids or identifiers.  Group list is an LDAP "
-            + "filter which returns group objects, and the group objects have a list of subjects.  Groups "
-            + "from attributes is an LDAP filter that returns subjects which have a multi-valued attribute "
-            + "e.g. affiliations where groups will be created based on subject who have each attribute value  ")
-            .assignDisplayName("etc:attribute:loaderLdap:Grouper loader LDAP type");  
-      AttributeDefName attributeDefName = attributeDefNameSave.save();  
-      
-      if (attributeDefNameSave.getSaveResultType() != SaveResultType.NO_CHANGE) {
-        System.out.println("Made change for attributeDefName: " + attributeDefName.getName()); 
-      }   
-    } else { 
-      System.out.println("ERROR: cant find attributeDef: 'etc:attribute:loaderLdap:grouperLoaderLdapValueDef'"); 
-    } 
-    
+
+    long gshTotalObjectCount = 0L;
+    long gshTotalChangeCount = 0L;
+    long gshTotalErrorCount = 0L;
+    System.out.println("Hello0");
+    Set attributeAssignIdsAlreadyUsed = new HashSet();
+    boolean problemWithAttributeAssign = false;
+    AttributeAssignSave attributeAssignSave = new AttributeAssignSave(grouperSession);
+    attributeAssignSave.assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
+    attributeAssignSave.assignAttributeAssignType(AttributeAssignType.imm_mem);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(
+        "etc:attribute:userData:grouperUserData", false);
+    if (attributeDefName == null) {
+      gshTotalErrorCount++;
+      System.out
+          .println("Error: cant find attributeDefName: etc:attribute:userData:grouperUserData");
+      problemWithAttributeAssign = true;
+    }
+    attributeAssignSave.assignAttributeDefName(attributeDefName);
+    attributeAssignSave.assignPutAttributeAssignIdsToNotUseSet(true);
+    Group ownerGroup = GroupFinder.findByName(grouperSession,
+        "etc:grouperUi:grouperUiUserData", false);
+    if (ownerGroup == null) {
+      gshTotalErrorCount++;
+      System.out.println("Error: cant find group: etc:grouperUi:grouperUiUserData");
+      problemWithAttributeAssign = true;
+    }
+    attributeAssignSave.assignOwnerGroup(ownerGroup);
+    Subject ownerSubject = SubjectFinder.findByIdAndSource(
+        "5557e047c3214621819bd21c3b91d763", "grouperExternal", false);
+    if (ownerSubject == null) {
+      gshTotalErrorCount++;
+      System.out
+          .println("Error: cant find subject: grouperExternal: 5557e047c3214621819bd21c3b91d763");
+      problemWithAttributeAssign = true;
+    }
+    if (ownerSubject != null) {
+      Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true);
+      attributeAssignSave.assignOwnerMember(ownerMember);
+    }
+    AttributeAssignSave attributeAssignOnAssignSave = new AttributeAssignSave(
+        grouperSession);
+    attributeAssignOnAssignSave
+        .assignAttributeAssignIdsToNotUse(attributeAssignIdsAlreadyUsed);
+    attributeAssignOnAssignSave
+        .assignAttributeAssignType(AttributeAssignType.imm_mem_asgn);
+    attributeDefName = AttributeDefNameFinder.findByName(
+        "etc:attribute:userData:grouperUserDataRecentGroups", false);
+    if (attributeDefName == null) {
+      gshTotalErrorCount++;
+      System.out
+          .println("Error: cant find attributeDefName: etc:attribute:userData:grouperUserDataRecentGroups");
+      problemWithAttributeAssign = true;
+    }
+    attributeAssignOnAssignSave.assignAttributeDefName(attributeDefName);
+    attributeAssignOnAssignSave.assignPutAttributeAssignIdsToNotUseSet(true);
+    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+    attributeAssignValue
+        .setValueString("{&quot;list&quot;:[{&quot;timestamp&quot;:1453992092662,&quot;uuid&quot;:&quot;01d1ec77e56f4f63933b95887d67de30&quot;},{&quot;timestamp&quot;:1453991965490,&quot;uuid&quot;:&quot;8a860d07dadb46b5bcc65544a6e89350&quot;},{&quot;timestamp&quot;:1447190902786,&quot;uuid&quot;:&quot;9d25e467-b127-4229-880b-ba65d0506c02&quot;}]}");
+    attributeAssignOnAssignSave.addAttributeAssignValue(attributeAssignValue);
+    attributeAssignSave.addAttributeAssignOnThisAssignment(attributeAssignOnAssignSave);
+    gshTotalObjectCount += 3;
+    if (!problemWithAttributeAssign) {
+      AttributeAssign attributeAssign = attributeAssignSave.save();
+      if (attributeAssignSave.getChangesCount() > 0) {
+        gshTotalChangeCount += attributeAssignSave.getChangesCount();
+        System.out.println("Made " + attributeAssignSave.getChangesCount()
+            + " changes for attribute assign: " + attributeAssign.toString());
+      }
+    }
+
   }
 
   /**

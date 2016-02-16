@@ -474,29 +474,36 @@ public class XmlExportAttributeDefScope {
             "select ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theAttributeDefScope.attributeDefId ), "
             + " theAttributeDefScope " + exportFromOnQuery(xmlExportMain, true));
         
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
-        try {
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
   
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              String nameOfAttributeDef = (String)results.get(0);
-              Object object = results.get(1);
-              AttributeDefScope attributeDefScope = (AttributeDefScope)object;
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
+        try {
+          results = query.scroll();
+          while(results.next()) {
+            final String nameOfAttributeDef = (String)results.get(0);
+            Object object = results.get(1);
+            final AttributeDefScope attributeDefScope = (AttributeDefScope)object;
+            
+            final XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(grouperVersion);
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
               
-              XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(grouperVersion);
-              xmlExportAttributeDefScope.toGsh(grouperVersion, writer, nameOfAttributeDef);
-              xmlExportMain.incrementRecordCount();
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportAttributeDefScope.toGsh(grouperVersion, writer, nameOfAttributeDef);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting attributeDefScope to gsh: " + attributeDefScope, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
           }
-          
-        } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming attributeDefScopes", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+        
         return null;
       }
     });
@@ -517,9 +524,9 @@ public class XmlExportAttributeDefScope {
     }
     
     writer.write("attributeDef = AttributeDefFinder.findByName(\""
-        + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "\", false);\n");
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\", false);\n");
 
-    writer.write("attributeDefScopeType = AttributeDefScopeType.valueOfIgnoreCase(\"" + GrouperUtil.escapeDoubleQuotes(this.getAttributeDefScopeType()) + "\", true);\n");
+    writer.write("attributeDefScopeType = AttributeDefScopeType.valueOfIgnoreCase(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.getAttributeDefScopeType()) + "\", true);\n");
 
     writer.write("if (attributeDef != null) { ");
 
@@ -527,17 +534,17 @@ public class XmlExportAttributeDefScope {
 
     //addCompositeMember(CompositeType type, Group left, Group right)
     
-    String scopeString = this.getScopeString() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotes(this.getScopeString()) + "\"");
-    String scopeString2 = this.getScopeString2() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotes(this.getScopeString2()) + "\"");
+    String scopeString = this.getScopeString() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.getScopeString()) + "\"");
+    String scopeString2 = this.getScopeString2() == null ? "null" : ("\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.getScopeString2()) + "\"");
     writer.write("gshTotalObjectCount++;  if (attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScope(attributeDefScopeType, \""
-        + GrouperUtil.escapeDoubleQuotes(scopeString) + "\", \"" + GrouperUtil.escapeDoubleQuotes(scopeString2) + "\") != null) { ");
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(scopeString) + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(scopeString2) + "\") != null) { ");
     writer.write("gshTotalChangeCount++; attributeDef.getAttributeDefScopeDelegate().assignScope(attributeDefScopeType, \""
-        + GrouperUtil.escapeDoubleQuotes(scopeString) + "\", \"" + GrouperUtil.escapeDoubleQuotes(scopeString2) + "\"); "
-            + "System.out.println(\"Made change for attributeDefScope on attributeDef: " + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + ", " 
-        + GrouperUtil.escapeDoubleQuotes(this.getScopeString()) + ", " + GrouperUtil.escapeDoubleQuotes(this.getScopeString2()) +  "\"); } ");
-    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attributeDefScopeType: '" + GrouperUtil.escapeDoubleQuotes(this.getAttributeDefScopeType()) + "'\"); } ");
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(scopeString) + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(scopeString2) + "\"); "
+            + "System.out.println(\"Made change for attributeDefScope on attributeDef: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + ", " 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.getScopeString()) + ", " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.getScopeString2()) +  "\"); } ");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attributeDefScopeType: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.getAttributeDefScopeType()) + "'\"); } ");
 
-    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attributeDef: '" + GrouperUtil.escapeDoubleQuotes(nameOfAttributeDef) + "'\"); }\n");
+    writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attributeDef: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); }\n");
 
   }
 
