@@ -34,12 +34,21 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportMain;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -257,14 +266,14 @@ public class XmlExportMain {
     this.done = false;
     this.currentRecordIndex = 0;
     Thread thread = null;
-    final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    final java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm:ss");
     final SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
     try {
 
       final long totalRecordCount = XmlImportMain.dbCountGsh(this);
       final long startTime = System.currentTimeMillis();
       
-      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported to GSH (not exact, might be less)");
+      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported to GSH (not an exact count)");
       
       thread = new Thread(new Runnable() {
         
@@ -309,62 +318,62 @@ public class XmlExportMain {
 
       XmlExportStem.exportStemsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with folders, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with folders, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportGroup.exportGroupsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with groups, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with groups, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportComposite.exportCompositesGsh(writer, this);
       
-      writer.write("System.out.println(\"Done with composites, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with composites, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeDef.exportAttributeDefsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with attribute definitions, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with attribute definitions, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportRoleSet.exportRoleSetsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with role hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with role hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeAssignAction.exportAttributeAssignActionsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with attribute actions, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with attribute actions, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeAssignActionSet.exportAttributeAssignActionSetsGsh(writer, this);
       
-      writer.write("System.out.println(\"Done with attribute action hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with attribute action hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
       
       XmlExportMembership.exportMembershipsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with memberships and privileges, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with memberships and privileges, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeDefName.exportAttributeDefNamesGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with attribute names, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with attribute names, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeDefNameSet.exportAttributeDefNameSetsGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with attribute name hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with attribute name hierarchies, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeDefScope.exportAttributeDefScopesGsh(writer, this);
 
-      writer.write("System.out.println(\"Done with attribute definition scopes, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Done with attribute definition scopes, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
 
       XmlExportAttributeAssign.exportAttributeAssignsGsh(writer, this);
 
-      writer.write("System.out.println(\"Script complete: total objects, objects: \" + gshTotalObjectCount + \", expected approx total: " 
+      writer.write("System.out.println(new Date() + \" Script complete: total objects, objects: \" + gshTotalObjectCount + \", expected approx total: " 
           + GrouperUtil.formatNumberWithCommas(totalRecordCount) + ", changes: \" + gshTotalChangeCount + \", known errors (view output for full list): \" + gshTotalErrorCount);\n");
       
       writer.flush();
@@ -381,6 +390,153 @@ public class XmlExportMain {
     }
     XmlImportMain.logInfoAndPrintToScreen("DONE: " + format.format(new Date()) + ": exported "
         + GrouperUtil.formatNumberWithCommas(XmlExportMain.this.currentRecordIndex) + " records to: " + fileName);
+
+  }
+  
+  /**
+   * lazy init external subjects
+   */
+  private Set<String> externalSubjectIdentifiersInitialized = new HashSet<String>();
+
+  /**
+   * print one error per attribute name
+   */
+  private Set<String> externalSubjectAttributeErrored = new HashSet<String>();
+
+  /**
+   * write gsh script for subject, include error handling
+   * @param subjectId
+   * @param sourceId
+   * @param subjectVariableName
+   * @param writer
+   * @param errorVariable set to true if error if applicable
+   * @throws IOException
+   */
+  public void writeGshScriptForSubject(String subjectId, String sourceId, String subjectVariableName, Writer writer, String errorVariable) throws IOException {
+
+    String errorBoolean = StringUtils.isBlank(errorVariable) ? "" : (" " + errorVariable + " = true; ");
+    
+    // handle groups
+    if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), sourceId)) {
+      
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), subjectId, false);
+      
+      if (group != null) {
+        String groupName = group.getName();
+        
+        writer.write("Subject " + subjectVariableName + " = SubjectFinder.findByIdentifierAndSource(\"" 
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(groupName) 
+            + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n"); 
+
+        writer.write("if (" + subjectVariableName + " == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find group subject: " 
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + ": " 
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) + ": "
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(groupName)
+            + "\"); " + errorBoolean + " }\n"); 
+
+        return;
+      }
+    }
+
+    //handle external users
+    if (StringUtils.equals(ExternalSubject.sourceId(), sourceId)) {
+
+      Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
+      
+      if (subject != null) {
+
+        String subjectIdentifier = subject.getAttributeValue("identifier");
+        
+        writer.write("Subject " + subjectVariableName + " = SubjectFinder.findByIdentifierAndSource(\"" 
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectIdentifier) 
+            + "\", ExternalSubject.sourceId(), false);\n"); 
+  
+        if (!externalSubjectIdentifiersInitialized.contains(subjectIdentifier)) {
+          
+          this.incrementRecordCount();
+          
+          ExternalSubject externalSubject = GrouperDAOFactory.getFactory().getExternalSubject().findByIdentifier(subjectIdentifier, true, null);
+
+  //        gsh 2% 
+  //        gsh 3% externalSubject.setInstitution("My Institution");
+  //        gsh 4% externalSubject.setName("My Name");
+  //        gsh 5% externalSubject.setEmail("a@b.c");
+  //        gsh 6% externalSubject.store();
+  //         
+  //        //assign an attribute
+  //        gsh 7% externalSubject.assignAttribute("jabber", "e@r.t");
+          
+          //create the external subject
+          writer.write("if (" + subjectVariableName + " == null) { "
+              + " if (SourceManager.getInstance().getSource(ExternalSubject.sourceId()) != null) { "
+              + " ExternalSubject externalSubject = new ExternalSubject(); "
+              + " externalSubject.setIdentifier(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectIdentifier) + "\"); ");
+          
+          if (!StringUtils.isBlank(externalSubject.getInstitution())) {
+            writer.write(" externalSubject.setInstitution(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(externalSubject.getInstitution()) + "\"); ");
+          }
+  
+          if (!StringUtils.isBlank(externalSubject.getName())) {
+            writer.write(" externalSubject.setName(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(externalSubject.getName()) + "\"); ");
+          }
+  
+          if (!StringUtils.isBlank(externalSubject.getEmail())) {
+            writer.write(" externalSubject.setEmail(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(externalSubject.getEmail()) + "\"); ");
+          }
+  
+          writer.write(" externalSubject.store(); ");
+  
+          writer.write(" System.out.println(\"Made change for external subject: \" + externalSubject.getIdentifier()); gshTotalChangeCount++; ");
+          
+          Set<ExternalSubjectAttribute> externalSubjectAttributes = GrouperDAOFactory.getFactory().getExternalSubjectAttribute().findBySubject(externalSubject.getUuid(), null);
+          for (ExternalSubjectAttribute externalSubjectAttribute : GrouperUtil.nonNull(externalSubjectAttributes)) {
+            this.incrementRecordCount();
+            String escapedAttributeName = GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(externalSubjectAttribute.getAttributeSystemName());
+            writer.write(" if (ExternalSubjectAttribute.validAttribute(\"" + escapedAttributeName + "\", false)) { ");
+            writer.write(" externalSubject.assignAttribute(\"" + escapedAttributeName 
+                + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(externalSubjectAttribute.getAttributeValue()) + "\"); ");
+            writer.write(" System.out.println(\"Made change for external subject attr: " + escapedAttributeName + " \"); gshTotalChangeCount++; ");
+            writer.write(" } ");
+            if (!this.externalSubjectAttributeErrored.contains(escapedAttributeName)) {
+              writer.write(" else { gshTotalErrorCount++; System.out.println"
+                  + "(\"Error: external subject attribute not defined in grouper.properties: " + escapedAttributeName + "\"); } ");
+              this.externalSubjectAttributeErrored.add(escapedAttributeName);
+            }
+          }
+
+          //do a find by id so its not cached
+          writer.write(subjectVariableName + " = SubjectFinder.findByIdAndSource(externalSubject.getUuid()" 
+              + ", ExternalSubject.sourceId(), false); } ");
+
+          if (!this.externalSubjectAttributeErrored.contains("THESOURCEITSELF")) {
+            writer.write(" else { gshTotalErrorCount++; System.out.println"
+                + "(\"Error: external subject source not defined in grouper.properties: \" + ExternalSubject.sourceId() + \"); } ");
+            this.externalSubjectAttributeErrored.add("THESOURCEITSELF");
+          }
+
+          writer.write(" }\n"); 
+
+          externalSubjectIdentifiersInitialized.add(subjectIdentifier);
+
+        }
+  
+        writer.write("if (" + subjectVariableName + " == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find external subject: " 
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subject.getSourceId()) + ": " 
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subject.getId()) + ": "
+            + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectIdentifier)
+            + "\"); " + errorBoolean + " }\n"); 
+
+        return;
+      }
+    }
+    
+    writer.write("Subject " + subjectVariableName + " = SubjectFinder.findByIdAndSource(\"" 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) 
+        + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n"); 
+    writer.write("if (" + subjectVariableName + " == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + ": " 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) 
+        + "\"); " + errorBoolean + " }\n"); 
 
   }
   
@@ -404,7 +560,7 @@ public class XmlExportMain {
       final long totalRecordCount = XmlImportMain.dbCount(this);
       final long startTime = System.currentTimeMillis();
       
-      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported (not exact, might be less)");
+      XmlImportMain.logInfoAndPrintToScreen("Starting: " + GrouperUtil.formatNumberWithCommas(totalRecordCount) + " records in the DB to be exported (not an exact count)");
       
       thread = new Thread(new Runnable() {
         

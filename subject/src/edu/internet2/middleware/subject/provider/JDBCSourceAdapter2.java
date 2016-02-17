@@ -279,7 +279,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
         try {
           this.maxResults = Integer.parseInt(maxResultsString);
         } catch (NumberFormatException nfe) {
-          throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString, nfe);
+          throw new SourceUnavailableException("Cant parse maxResults: " + maxResultsString  + " in source: " + this.getId(), nfe);
         }
       }
     }
@@ -300,7 +300,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       Map<String, Subject> subjectMap = getSubjectsByIds(SubjectApiUtils.toSet(id1));
       
       if (SubjectApiUtils.length(subjectMap) > 1) {
-        throw new RuntimeException("Why are there more than one result??? " + id1 + ", " + SubjectApiUtils.length(subjectMap));
+        throw new RuntimeException("Why are there more than one result??? " + id1 + ", " + SubjectApiUtils.length(subjectMap) + " in source: " + this.getId());
       }
       
       Subject subject = null;
@@ -310,7 +310,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
       
       if (subject == null && exceptionIfNull) {
-        throw new SubjectNotFoundException("Subject not found by id: " + id1);
+        throw new SubjectNotFoundException("Subject not found by id: " + id1 + " in source: " + this.getId());
       }
       return subject;
     } finally {
@@ -346,7 +346,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       }
   
       if (subject == null && exceptionIfNull) {
-        throw new SubjectNotFoundException("Subject not found by identifier: " + identifier);
+        throw new SubjectNotFoundException("Subject not found by identifier: " + identifier + " in source: " + this.getId());
       }
       return subject;
     } finally {
@@ -1034,12 +1034,12 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     if (expectSingle) {
       if (results.size() > 1) {
         throw new SubjectNotUniqueException("Multiple subjects exist: " + query + ", "
-            + StringUtils.join(args.iterator(), ","));
+            + StringUtils.join(args.iterator(), ",") + " in source: " + this.getId());
       }
       if (results.size() == 0) {
         if (exceptionIfNull) {
           throw new SubjectNotFoundException("Subject not found: " + query + ", "
-              + StringUtils.join(args.iterator(), ","));
+              + StringUtils.join(args.iterator(), ",")  + " in source: " + this.getId());
         }
         results = null;
       }
@@ -1120,7 +1120,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       if (!foundValue) {
         throw new RuntimeException("Why did a query by identifier return a subject " +
         		"which cant be found by identifier??? " + SubjectApiUtils.subjectToString(subject)
-        		+ ", " + query);
+        		+ ", " + query + " in source: " + this.getId());
       }
     }
     

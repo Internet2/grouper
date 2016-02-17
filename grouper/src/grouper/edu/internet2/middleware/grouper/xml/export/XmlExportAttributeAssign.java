@@ -1176,11 +1176,12 @@ public class XmlExportAttributeAssign {
       //   Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true);
       //   attributeAssignSave.assignOwnerMember(ownerMember);
       // }
-      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
-          + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + "\", false);\n"); 
-      writer.write("if (ownerSubject == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
-          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
-          + "\"); problemWithAttributeAssign = true; }\n"); 
+//      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
+//          + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + "\", false);\n"); 
+//      writer.write("if (ownerSubject == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
+//          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
+//          + "\"); problemWithAttributeAssign = true; }\n"); 
+      xmlExportMain.writeGshScriptForSubject(member.getSubjectId(), member.getSubjectSourceId(), "ownerSubject", writer, "problemWithAttributeAssign");
       writer.write("if (ownerSubject != null) { gshTotalErrorCount++; Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true); "
           + variableNameForAttributeAssignSave + ".assignOwnerMember(ownerMember); }\n");
 
@@ -1268,16 +1269,18 @@ public class XmlExportAttributeAssign {
       //   Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true);
       //   attributeAssignSave.assignOwnerMember(ownerMember);
       // }
-      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
-          + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + "\", false);\n"); 
-      writer.write("if (ownerSubject == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
-          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
-          + "\"); problemWithAttributeAssign = true; }\n"); 
+//      writer.write("Subject ownerSubject = SubjectFinder.findByIdAndSource(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
+//          + "\", \"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + "\", false);\n"); 
+//      writer.write("if (ownerSubject == null) { gshTotalErrorCount++; System.out.println(\"Error: cant find subject: " 
+//          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectSourceId()) + ": " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(member.getSubjectId()) 
+//          + "\"); problemWithAttributeAssign = true; }\n"); 
+      xmlExportMain.writeGshScriptForSubject(member.getSubjectId(), member.getSubjectSourceId(), "ownerSubject", writer, "problemWithAttributeAssign");
+
       writer.write("if (ownerSubject != null) { Member ownerMember = MemberFinder.findBySubject(grouperSession, ownerSubject, true); "
           + variableNameForAttributeAssignSave + ".assignOwnerMember(ownerMember); }\n");
-    
+
     }
-    
+
     // do values
     for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValues)) {
 

@@ -434,16 +434,18 @@ public class XmlExportMembership {
    * @param nameOfAttributeDef
    * @param enabledTimestamp
    * @param disabledTimestamp
+   * @param xmlExportMain 
    * @throws IOException 
    */
   public static void toGsh(GrouperVersion grouperVersion, Writer writer, String subjectId, String sourceId, 
       String fieldName, String groupName, 
-      String stemName, String nameOfAttributeDef, Timestamp enabledTimestamp, Timestamp disabledTimestamp) throws IOException {
+      String stemName, String nameOfAttributeDef, Timestamp enabledTimestamp, Timestamp disabledTimestamp, XmlExportMain xmlExportMain) throws IOException {
 
     //SubjectFinder.findByIdAndSource("12345", "jdbc", true);
-    writer.write("Subject subject = SubjectFinder.findByIdAndSource(\""
-        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) + "\", \""
-        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n");
+//    writer.write("Subject subject = SubjectFinder.findByIdAndSource(\""
+//        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) + "\", \""
+//        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n");
+    xmlExportMain.writeGshScriptForSubject(subjectId, sourceId, "subject", writer, null);
     
     Field field = FieldFinder.find(fieldName, true);
 
@@ -534,8 +536,9 @@ public class XmlExportMembership {
       writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attribute definition: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); } ");
 
     }
-
-    writer.write("} else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find subject: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "' --> '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) + "'\");}");
+    
+    //subject error handling is already handled
+    writer.write("} ");
 
     if (hasPrivilege) {
       writer.write(" } " /* else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find privilege: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(fieldName) + "'\"); } "*/);
@@ -760,7 +763,7 @@ public class XmlExportMembership {
                   throws GrouperDAOException {
                 try {
                   XmlExportMembership.toGsh(grouperVersion, writer, subjectId, sourceId, listName, groupName, 
-                      stemName, nameOfAttributeDef, enabledTimestamp, disabledTimestamp);
+                      stemName, nameOfAttributeDef, enabledTimestamp, disabledTimestamp, xmlExportMain);
                 } catch (IOException ioe) {
                   throw new RuntimeException("Problem with membership: " + sourceId + ", " + subjectId + ", " + listName + "," + groupName
                       + ", " + stemName + ", " + nameOfAttributeDef, ioe);
