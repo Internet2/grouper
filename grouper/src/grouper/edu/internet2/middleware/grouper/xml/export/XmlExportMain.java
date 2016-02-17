@@ -510,7 +510,7 @@ public class XmlExportMain {
 
           if (!this.externalSubjectAttributeErrored.contains("THESOURCEITSELF")) {
             writer.write(" else { gshTotalErrorCount++; System.out.println"
-                + "(\"Error: external subject source not defined in grouper.properties: \" + ExternalSubject.sourceId() + \"); } ");
+                + "(\"Error: external subject source not defined in grouper.properties: \" + ExternalSubject.sourceId()); } ");
             this.externalSubjectAttributeErrored.add("THESOURCEITSELF");
           }
 
