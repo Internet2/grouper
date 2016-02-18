@@ -612,7 +612,7 @@ public class XmlExportAttributeAssign {
         //select all members in order
         //order by attributeAssignId so the ones not about assigns are first.
         Query query = session.createQuery(
-            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true));
+            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true, false, true, true));
   
         GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         
@@ -732,22 +732,13 @@ public class XmlExportAttributeAssign {
   /**
    * get db count
    * @param xmlExportMain 
+   * @param includeAttributesInThisStemOnly
    * @return db count
    */
-  public static long dbCount(XmlExportMain xmlExportMain) {
+  public static long dbCount(XmlExportMain xmlExportMain, boolean includeAttributesInThisStemOnly) {
     long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssign) " 
-        + exportFromOnQuery(xmlExportMain, false)).uniqueResult(Long.class);
+        + exportFromOnQuery(xmlExportMain, false, false, true, includeAttributesInThisStemOnly)).uniqueResult(Long.class);
     return result;
-  }
-
-  /**
-   * get the query from the FROM clause on to the end for export
-   * @param xmlExportMain
-   * @param includeOrderBy 
-   * @return the export query
-   */
-  private static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy) {
-    return exportFromOnQuery(xmlExportMain, includeOrderBy, false, true);
   }
 
   /**
@@ -756,59 +747,136 @@ public class XmlExportAttributeAssign {
    * @param includeOrderBy 
    * @param valuesOrAssigns
    * @param includeAssignsOnAssigns
+   * @param includeAttributesInThisStemOnly
    * @return the export query
    */
-  public static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy, boolean valuesOrAssigns, boolean includeAssignsOnAssigns) {
+  public static String exportFromOnQuery(XmlExportMain xmlExportMain, boolean includeOrderBy, boolean valuesOrAssigns, boolean includeAssignsOnAssigns,
+      boolean includeAttributesInThisStemOnly) {
+
     //select all members in order
     StringBuilder queryBuilder = new StringBuilder();
-    if (!xmlExportMain.filterStemsOrObjects()) {
-      if (valuesOrAssigns) {
-        queryBuilder.append(" from AttributeAssignValue as theAttributeAssignValue ");
+
+    if (includeAttributesInThisStemOnly) {
+    
+      if (!xmlExportMain.filterStemsOrObjects()) {
+        if (valuesOrAssigns) {
+          queryBuilder.append(" from AttributeAssignValue as theAttributeAssignValue ");
+        } else {
+          queryBuilder.append(" from AttributeAssign as theAttributeAssign ");
+        }
       } else {
-        queryBuilder.append(" from AttributeAssign as theAttributeAssign ");
+        queryBuilder.append(
+          " from AttributeAssign as theAttributeAssign, AttributeDefName theAttributeDefName, AttributeDef theAttributeDef " 
+          + (valuesOrAssigns ? ", AttributeAssignValue theAttributeAssignValue " : "") + " where "
+          + (valuesOrAssigns ? " theAttributeAssignValue.attributeAssignId = theAttributeAssign.id and " : "")            
+          + " theAttributeAssign.attributeDefNameId = theAttributeDefName.id and theAttributeDefName.attributeDefId = theAttributeDef.id "
+          + (includeAssignsOnAssigns ? "" : " and theAttributeAssign.ownerAttributeAssignId is null "));
+          
+        if (includeAttributesInThisStemOnly) {  
+          queryBuilder.append(" and ( ");
+          xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
+          queryBuilder.append(" ) and ( ");
+          xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
+          queryBuilder.append(" ) ");
+        }
+        queryBuilder.append(" and ( theAttributeAssign.ownerAttributeAssignId is not null or " +
+          " ( " +
+          " exists ( select theGroup from Group as theGroup " +
+          " where theAttributeAssign.ownerGroupId = theGroup.uuid and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+        queryBuilder.append(" ) ) ) ");
+        queryBuilder.append(" or ( " +
+          " exists ( select theStem from Stem as theStem " +
+          " where theAttributeAssign.ownerStemId = theStem.uuid and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
+        queryBuilder.append(" ) ) ) ");
+        queryBuilder.append(" or ( " +
+            " exists ( select theAttributeDefAssn from AttributeDef as theAttributeDefAssn " +
+            " where theAttributeAssign.ownerAttributeDefId = theAttributeDefAssn.id and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefAssn", "nameDb", true);
+        queryBuilder.append(" ) ) ) ");
+        queryBuilder.append(" or ( " +
+            " exists ( select theMembership from ImmediateMembershipEntry as theMembership " +
+            " where theAttributeAssign.ownerMembershipId = theMembership.immediateMembershipId and ( ");
+        queryBuilder.append(" exists ( select theGroup2 from Group as theGroup2 where theGroup2.uuid = theMembership.ownerGroupId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup2", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or exists ( select theStem2 from Stem as theStem2 where theStem2.uuid = theMembership.ownerStemId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem2", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or exists ( select theAttributeDef2 from AttributeDef as theAttributeDef2 where theAttributeDef2.id = theMembership.ownerAttrDefId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef2", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" ) ) ) ");
+        queryBuilder.append(" ) ");
       }
     } else {
-      queryBuilder.append(
-        " from AttributeAssign as theAttributeAssign, AttributeDefName theAttributeDefName, AttributeDef theAttributeDef" 
-        + (valuesOrAssigns ? ", AttributeAssignValue theAttributeAssignValue " : "") + "where "
-        + (valuesOrAssigns ? " theAttributeAssignValue.attributeAssignId = theAttributeAssign.id and " : "")            
-        + " theAttributeAssign.attributeDefNameId = theAttributeDefName.id and theAttributeDefName.attributeDefId = theAttributeDef.id "
-        + (includeAssignsOnAssigns ? "" : " and theAttributeAssign.ownerAttributeAssignId is null ")
-        + " and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefName", "nameDb", false);
-      queryBuilder.append(" ) and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef", "nameDb", false);
-      queryBuilder.append(" ) " +
-        " and ( theAttributeAssign.ownerAttributeAssignId is not null or " +
-        " ( " +
-        " exists ( select theGroup from Group as theGroup " +
-        " where theAttributeAssign.ownerGroupId = theGroup.uuid and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
-      queryBuilder.append(" ) ) ) ");
-      queryBuilder.append(" or ( " +
-        " exists ( select theStem from Stem as theStem " +
-        " where theAttributeAssign.ownerStemId = theStem.uuid and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
-      queryBuilder.append(" ) ) ) ");
-      queryBuilder.append(" or ( " +
-          " exists ( select theAttributeDefAssn from AttributeDef as theAttributeDefAssn " +
-          " where theAttributeAssign.ownerAttributeDefId = theAttributeDefAssn.id and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefAssn", "nameDb", true);
-      queryBuilder.append(" ) ) ) ");
-      queryBuilder.append(" or ( " +
-          " exists ( select theMembership from ImmediateMembershipEntry as theMembership " +
-          " where theAttributeAssign.ownerMembershipId = theMembership.immediateMembershipId and ( ");
-      queryBuilder.append(" exists ( select theGroup2 from Group as theGroup2 where theGroup2.uuid = theMembership.ownerGroupId and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup2", "nameDb", true);
-      queryBuilder.append(" ) ) ");
-      queryBuilder.append(" or exists ( select theStem2 from Stem as theStem2 where theStem2.uuid = theMembership.ownerStemId and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem2", "nameDb", true);
-      queryBuilder.append(" ) ) ");
-      queryBuilder.append(" or exists ( select theAttributeDef2 from AttributeDef as theAttributeDef2 where theAttributeDef2.id = theMembership.ownerAttrDefId and ( ");
-      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef2", "nameDb", true);
-      queryBuilder.append(" ) ) ");
-      queryBuilder.append(" ) ) ) ");
-      queryBuilder.append(" ) ");
+
+      if (!xmlExportMain.filterStemsOrObjects()) {
+        if (valuesOrAssigns) {
+          queryBuilder.append(" from AttributeAssignValue as theAttributeAssignValue ");
+        } else {
+          queryBuilder.append(" from AttributeAssign as theAttributeAssign ");
+        }
+      } else {
+        queryBuilder.append(
+          " from AttributeAssign as theAttributeAssign, AttributeAssign theAttributeAssign2 " 
+          + (valuesOrAssigns ? ", AttributeAssignValue theAttributeAssignValue " : "") + " where "
+          //if the first one is null we just need a result for the second one (same as first?)
+              + " ( (theAttributeAssign.ownerAttributeAssignId is null and theAttributeAssign.id = theAttributeAssign2.id) "
+              + "or theAttributeAssign.ownerAttributeAssignId = theAttributeAssign2.id) ");
+        
+        boolean needsAnd = true;
+        if (valuesOrAssigns) {
+          queryBuilder.append((needsAnd ? " and " : "") + " theAttributeAssignValue.attributeAssignId = theAttributeAssign.id ");
+          needsAnd = true;
+        }
+          
+        queryBuilder.append((needsAnd ? " and " : "") +
+          " ( " +
+          " exists ( select theGroup from Group as theGroup " +
+          " where ( theAttributeAssign.ownerGroupId = theGroup.uuid "
+          + "or theAttributeAssign2.ownerGroupId = theGroup.uuid "
+          + " ) "
+          + " and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or " +
+          " exists ( select theStem from Stem as theStem " +
+          " where ( theAttributeAssign.ownerStemId = theStem.uuid "
+          + " or theAttributeAssign2.ownerStemId = theStem.uuid ) "
+          + " and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or " +
+            " exists ( select theAttributeDefAssn from AttributeDef as theAttributeDefAssn " +
+            " where ( theAttributeAssign.ownerAttributeDefId = theAttributeDefAssn.id "
+            + " or theAttributeAssign2.ownerAttributeDefId = theAttributeDefAssn.id "
+            + "  ) "
+            + " and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDefAssn", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or " +
+            " exists ( select theMembership from ImmediateMembershipEntry as theMembership " +
+            " where ( theAttributeAssign.ownerMembershipId = theMembership.immediateMembershipId "
+            + " or theAttributeAssign2.ownerMembershipId = theMembership.immediateMembershipId "
+            + " ) "
+            + " and ( ");
+        queryBuilder.append(" exists ( select theGroup2 from Group as theGroup2 where theGroup2.uuid = theMembership.ownerGroupId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup2", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or exists ( select theStem2 from Stem as theStem2 where theStem2.uuid = theMembership.ownerStemId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem2", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" or exists ( select theAttributeDef2 from AttributeDef as theAttributeDef2 where theAttributeDef2.id = theMembership.ownerAttrDefId and ( ");
+        xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theAttributeDef2", "nameDb", true);
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" ) ) ");
+        queryBuilder.append(" ) ");
+      }
+
+      
+      
     }
     if (includeOrderBy) {
       if (valuesOrAssigns) {
@@ -838,7 +906,7 @@ public class XmlExportAttributeAssign {
         //select all members in order
         //order by attributeAssignId so the ones not about assigns are first.
         Query query = session.createQuery(
-            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true));
+            "select distinct theAttributeAssign " + exportFromOnQuery(xmlExportMain, true, false, true, false));
   
         final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
         

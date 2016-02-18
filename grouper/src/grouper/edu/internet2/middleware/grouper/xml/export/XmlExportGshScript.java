@@ -7,6 +7,10 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -37,12 +41,33 @@ public class XmlExportGshScript {
   }
 
   /**
+   * 
+   */
+  private String stemName = null;
+
+  /**
+   * 
+   */
+  private Set<String> objectNames = new HashSet<String>();
+  
+  /**
+   * 
+   * @param theObjectName
+   * @return this for chaining
+   */
+  public XmlExportGshScript addObjectName(String theObjectName) {
+    this.objectNames.add(theObjectName);
+    return this;
+  }
+  
+  /**
    * assign a parent stem
    * @param theStemName
    * @return this for chaining
    */
   public XmlExportGshScript assignStemName(String theStemName) {
-    this.stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), theStemName, true);
+    this.stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), theStemName, false);
+    this.stemName = theStemName;
     return this;
   }
 
@@ -77,8 +102,8 @@ public class XmlExportGshScript {
    */
   public void exportGsh() {
     
-    if (this.stem == null) {
-      throw new RuntimeException("A stem is required, pass one in");
+    if (this.stem == null && StringUtils.isBlank(this.stemName) && this.objectNames.size() == 0) {
+      throw new RuntimeException("A stem or objectName is required, pass one in");
     }
     if (this.fileToWriteTo == null) {
       throw new RuntimeException("A file to write to is required, pass one in");
@@ -90,9 +115,18 @@ public class XmlExportGshScript {
       
       XmlExportMain xmlExportMain = new XmlExportMain();
       
-      if (!this.stem.isRootStem()) {
-        xmlExportMain.addStem(this.stem.getName() + ":%");
-        xmlExportMain.addStem(this.stem.getName());
+      if (this.stem != null) {
+        if (!this.stem.isRootStem()) {
+          xmlExportMain.addStem(this.stem.getName() + ":%");
+          xmlExportMain.addStem(this.stem.getName());
+        }
+      } else if (!StringUtils.isBlank(this.stemName)) {
+        xmlExportMain.addStem(this.stemName + ":%");
+        xmlExportMain.addStem(this.stemName);
+      } else if (this.objectNames.size() > 0) {
+        for (String theObjectName : this.objectNames) {
+          xmlExportMain.addObjectName(theObjectName);
+        }
       }
 
       xmlExportMain.writeAllTablesGsh(fileWriter, GrouperUtil.fileCanonicalPath(this.fileToWriteTo));

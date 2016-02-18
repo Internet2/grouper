@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -114,7 +115,11 @@ public class XmlExportMain {
   public Set<String> getStemNamePatterns() {
     Set<String> result = new HashSet<String>();
     for (String stem : this.stems) {
-      result.add(stem + ":%");
+      if (!stem.endsWith("%")) {
+        result.add(stem + ":%");
+      } else {
+        result.add(stem);
+      }
     }
     return result;
   }
@@ -708,32 +713,39 @@ public class XmlExportMain {
    * @param queryBuilder
    * @param aliasName
    * @param fieldName
-   * @param forStemsOnly true to export stems, false to do other objects
+   * @param forStemsOnly this param doesnt matter right now.  used to let you specify an exact folder, but might as well specify any exact object
    */
   public void appendHqlStemLikeOrObjectEquals(StringBuilder queryBuilder, String aliasName, String fieldName, boolean forStemsOnly) {
     String[] stemNamePatternArray = GrouperUtil.toArray(this.getStemNamePatterns(), String.class);
     String[] stemNameArray = GrouperUtil.toArray(this.getStems(), String.class);
     
-    for (int i=0;i<GrouperUtil.length(stemNamePatternArray);i++) {
-      
-      if (i != 0) {
-        queryBuilder.append(" or ");
-      }
-      
-      queryBuilder.append(" ").append(aliasName).append(".")
-        .append(fieldName).append(" like '")
-        .append(HibUtils.escapeSqlString(stemNamePatternArray[i])).append("' ");
-
-      if (forStemsOnly) {
-
-        queryBuilder.append(" or ").append(aliasName).append(".")
-          .append(fieldName).append(" = '")
-          .append(HibUtils.escapeSqlString(stemNameArray[i])).append("' ");
+    Set<String> patterns = new LinkedHashSet<String>();
+    patterns.addAll(GrouperUtil.nonNull(GrouperUtil.toSet(stemNamePatternArray)));
+    patterns.addAll(GrouperUtil.nonNull(GrouperUtil.toSet(stemNameArray)));
+    
+    {
+      int i=0;
+      for (String pattern : patterns) {
         
+        if (i != 0) {
+          queryBuilder.append(" or ");
+        }
+        
+        queryBuilder.append(" ").append(aliasName).append(".")
+          .append(fieldName).append(" like '")
+          .append(HibUtils.escapeSqlString(pattern)).append("' ");
+  
+  //      if (forStemsOnly) {
+  //
+  //        queryBuilder.append(" or ").append(aliasName).append(".")
+  //          .append(fieldName).append(" = '")
+  //          .append(HibUtils.escapeSqlString(stemNameArray[i])).append("' ");
+  //        
+  //      }
+        i++;
       }
-      
     }
-
+    
     String[] objectNameArray = GrouperUtil.toArray(this.getObjectNames(), String.class);
     
     for (int i=0;i<GrouperUtil.length(objectNameArray);i++) {
