@@ -91,7 +91,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderTypes"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderUnresolvablesInLoaderDBGroupList"));
 //    new GrouperLoaderTest("whatever").ensureTestgrouperLoaderTables();
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
@@ -1731,7 +1731,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
-    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
   
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -1743,7 +1743,7 @@ public class GrouperLoaderTest extends GrouperTest {
 
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
-    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
     
     assertEquals(3, loaderGroup.getMembers().size());
     
@@ -1753,7 +1753,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
-    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
     assertEquals(3, loaderGroup.getMembers().size());
     
   }
@@ -1987,4 +1987,153 @@ public class GrouperLoaderTest extends GrouperTest {
 //    
 //  }
   
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderUnresolvablesInLoaderDBOneGroup() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    TestgrouperLoader subj0 = new TestgrouperLoader("test.subject.0", null, null);
+    testDataList.add(subj0);
+    TestgrouperLoader subj1 = new TestgrouperLoader("test.subject.1", null, null);
+    testDataList.add(subj1);
+    TestgrouperLoader subj2 = new TestgrouperLoader("test.subject.2", null, null);
+    testDataList.add(subj2);
+    TestgrouperLoader subj3 = new TestgrouperLoader("test.subject.3", null, null);
+    testDataList.add(subj3);
+    TestgrouperLoader subj4 = new TestgrouperLoader("test.subject.4", null, null);
+    testDataList.add(subj4);
+    TestgrouperLoader subj5 = new TestgrouperLoader("test.subject.5", null, null);
+    testDataList.add(subj5);
+    TestgrouperLoader subj6 = new TestgrouperLoader("test.subject.6", null, null);
+    testDataList.add(subj6);
+    TestgrouperLoader subj7 = new TestgrouperLoader("test.subject.7", null, null);
+    testDataList.add(subj7);
+    TestgrouperLoader subj8 = new TestgrouperLoader("test.subject.8", null, null);
+    testDataList.add(subj8);
+    TestgrouperLoader subj9 = new TestgrouperLoader("test.subject.9", null, null);
+    testDataList.add(subj9);
+    TestgrouperLoader u1 = new TestgrouperLoader("unresolvable1", null, null);
+    testDataList.add(u1);
+    TestgrouperLoader u2 = new TestgrouperLoader("unresolvable2", null, null);
+    testDataList.add(u2);
+    TestgrouperLoader u3 = new TestgrouperLoader("unresolvable3", null, null);
+    testDataList.add(u3);
+  
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID from testgrouper_loader");
+    
+    // no issues since high group size limit
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "14");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "22");
+    assertFalse(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));
+
+    // no issues since high percentage
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "13");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "23");
+    assertFalse(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));
+
+    // now this should be a problem
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "13");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "22");
+    assertTrue(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));    
+  }
+ 
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testLoaderUnresolvablesInLoaderDBGroupList() throws Exception {
+    
+    List<GrouperAPI> testDataList = new ArrayList<GrouperAPI>();
+    
+    TestgrouperLoader group1subj0 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ0_ID, null);
+    testDataList.add(group1subj0);
+    TestgrouperLoader group1subj1 = new TestgrouperLoader("loader:group1_systemOfRecord", SubjectTestHelper.SUBJ1_ID, null);
+    testDataList.add(group1subj1);
+    TestgrouperLoader group2subj1 = new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ1_ID, null);
+    testDataList.add(group2subj1);
+    TestgrouperLoader group2subj2 = new TestgrouperLoader("loader:group2_systemOfRecord", SubjectTestHelper.SUBJ2_ID, null);
+    testDataList.add(group2subj2);
+    TestgrouperLoader group3subj2 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ2_ID, null);
+    testDataList.add(group3subj2);
+    TestgrouperLoader group3subj3 = new TestgrouperLoader("loader:group3_systemOfRecord", SubjectTestHelper.SUBJ3_ID, null);
+    testDataList.add(group3subj3);
+    TestgrouperLoader group4subj3 = new TestgrouperLoader("loader:group4_systemOfRecord", SubjectTestHelper.SUBJ3_ID, null);
+    testDataList.add(group4subj3);
+    TestgrouperLoader group4subj4 = new TestgrouperLoader("loader:group4_systemOfRecord", SubjectTestHelper.SUBJ4_ID, null);
+    testDataList.add(group4subj4);
+    TestgrouperLoader group6subj5 = new TestgrouperLoader("loader:group6_systemOfRecord", SubjectTestHelper.SUBJ5_ID, null);
+    testDataList.add(group6subj5);
+    TestgrouperLoader group6subj6 = new TestgrouperLoader("loader:group6_systemOfRecord", SubjectTestHelper.SUBJ6_ID, null);
+    testDataList.add(group6subj6);
+    
+    // this one is not in the groupQuery so the group won't be added...
+    TestgrouperLoader group5subj6 = new TestgrouperLoader("loader:group5_systemOfRecord", SubjectTestHelper.SUBJ6_ID, null);
+    testDataList.add(group5subj6);
+    
+    // unresolvables
+    TestgrouperLoader u1 = new TestgrouperLoader("loader:group6_systemOfRecord", "unresolvable1", null);
+    testDataList.add(u1);
+    TestgrouperLoader u2 = new TestgrouperLoader("loader:group6_systemOfRecord", "unresolvable2", null);
+    testDataList.add(u2);
+    TestgrouperLoader u3 = new TestgrouperLoader("loader:group6_systemOfRecord", "unresolvable3", null);
+    testDataList.add(u3);
+
+    TestgrouperLoaderGroups group1meta = new TestgrouperLoaderGroups("loader:group1_systemOfRecord", 
+        "The loader:group 1 system of record", "This is the first group");
+    testDataList.add(group1meta);
+    TestgrouperLoaderGroups group2meta = new TestgrouperLoaderGroups("loader:group2_systemOfRecord", 
+        "The loader:group 2 system of record", null);
+    testDataList.add(group2meta);
+    TestgrouperLoaderGroups group3meta = new TestgrouperLoaderGroups("loader:group3_systemOfRecord", 
+        "The loader:group3_systemOfRecord", "This is the third group");
+    testDataList.add(group3meta);
+    TestgrouperLoaderGroups group4meta = new TestgrouperLoaderGroups("loader:group4_systemOfRecord", 
+        "The loader:group4_systemOfRecord", "This is the forth group");
+    testDataList.add(group4meta);
+    TestgrouperLoaderGroups group6meta = new TestgrouperLoaderGroups("loader:group6_systemOfRecord", 
+        "The loader:group6_systemOfRecord", "This is the sixth group");
+    testDataList.add(group6meta);
+    TestgrouperLoaderGroups group7meta = new TestgrouperLoaderGroups("loader:group7_systemOfRecord", 
+        "The loader:group7_systemOfRecord", "This is the seventh group");
+    testDataList.add(group7meta);
+    
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader2:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
+        "addIncludeExclude");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_display_name, group_description from testgrouper_loader_groups");
+    
+    // no issues since high group size limit
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "14");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "22");
+    assertFalse(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));
+
+    // no issues since high percentage
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "13");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "23");
+    assertFalse(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));
+
+    // now this should be a problem
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.minGroupSize", "13");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.unresolvables.maxPercentForSuccess", "22");
+    assertTrue(GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup).contains("with subject problems"));    
+  }
 }
