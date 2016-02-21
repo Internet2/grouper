@@ -100,6 +100,7 @@ public class GrouperService {
   
   
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperService.class);
 
   /**
@@ -207,6 +208,7 @@ public class GrouperService {
    * in alphabetical order
    * @return the stems, or no stems if none found
    */
+  @SuppressWarnings("unchecked")
   public WsFindStemsResults findStems(final String clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params, WsStemLookup[] wsStemLookups) {
@@ -245,6 +247,7 @@ public class GrouperService {
    * in alphabetical order
    * @return the groups, or no groups if none found
    */
+  @SuppressWarnings("unchecked")
   public WsFindGroupsResults findGroups(final String clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, 
@@ -427,6 +430,7 @@ public class GrouperService {
    * @param ascending T or null for ascending, F for descending.  
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGetMembersResults getMembers(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, String memberFilter,
       WsSubjectLookup actAsSubjectLookup, final String fieldName,
@@ -526,6 +530,7 @@ public class GrouperService {
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGetGroupsResults getGroups(final String clientVersion,
       WsSubjectLookup[] subjectLookups, String memberFilter, 
       WsSubjectLookup actAsSubjectLookup, String includeGroupDetail,
@@ -1016,6 +1021,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGroupSaveResults groupSave(final String clientVersion,
       final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
@@ -1063,6 +1069,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsStemSaveResults stemSave(final String clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
@@ -1106,6 +1113,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsStemDeleteResults stemDelete(final String clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
@@ -1150,6 +1158,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGroupDeleteResults groupDelete(final String clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
@@ -1213,6 +1222,7 @@ public class GrouperService {
      * @return the results
      * @see GrouperVersion
      */
+    @SuppressWarnings("unchecked")
     public WsAddMemberResults addMember(final String clientVersion,
         final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
         final String replaceAllExisting, final WsSubjectLookup actAsSubjectLookup,
@@ -1288,6 +1298,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsDeleteMemberResults deleteMember(final String clientVersion,
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final String fieldName,
@@ -1928,6 +1939,7 @@ public class GrouperService {
    * @return the results
    * @see GrouperVersion
    */
+  @SuppressWarnings("unchecked")
   public WsMemberChangeSubjectResults memberChangeSubject(final String clientVersion,
       WsMemberChangeSubject[] wsMemberChangeSubjects, final WsSubjectLookup actAsSubjectLookup,
       final String txType, 
@@ -2382,6 +2394,7 @@ public class GrouperService {
    * @param serviceLookup if filtering by users in a service, then this is the service to look in
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGetMembershipsResults getMemberships(final String clientVersion,
       WsGroupLookup[] wsGroupLookups, WsSubjectLookup[] wsSubjectLookups, String wsMemberFilter,
       WsSubjectLookup actAsSubjectLookup, String fieldName, String includeSubjectDetail,
@@ -2568,6 +2581,7 @@ public class GrouperService {
    * found in list is much lower e.g. 1000)
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGetSubjectsResults getSubjects(final String clientVersion,
       WsSubjectLookup[] wsSubjectLookups, String searchString, String includeSubjectDetail, 
       String[] subjectAttributeNames, WsSubjectLookup actAsSubjectLookup, String[] sourceIds, 
@@ -2856,6 +2870,7 @@ public class GrouperService {
    * @param wsAssignAssignOwnerActions if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGetAttributeAssignmentsResults getAttributeAssignments(
       String clientVersion, String attributeAssignType,
       WsAttributeAssignLookup[] wsAttributeAssignLookups,
@@ -2988,6 +3003,7 @@ public class GrouperService {
    * @param wsAssignAssignOwnerAction if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       String clientVersion, String attributeAssignType,
       String attributeAssignId,
@@ -3235,6 +3251,7 @@ public class GrouperService {
    * related attributeDefTypes, if blank, then just do all
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsAssignAttributesResults assignAttributes(
       String clientVersion, String attributeAssignType,
       WsAttributeDefNameLookup[] wsAttributeDefNameLookups,
@@ -3311,6 +3328,7 @@ public class GrouperService {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsAssignAttributesBatchResults assignAttributesBatch(
       final String clientVersion, final WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries,
       final WsSubjectLookup actAsSubjectLookup, final String includeSubjectDetail, String txType,
@@ -3407,6 +3425,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsAssignAttributesLiteResults assignAttributesLite(
       String clientVersion, String attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -3865,6 +3884,7 @@ public class GrouperService {
    * @param disallowed T or F if the permission is disallowed
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsAssignPermissionsLiteResults assignPermissionsLite(
       String clientVersion, String permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -4200,6 +4220,7 @@ public class GrouperService {
    * @param params optional: reserved for future use
    * @return the results
    */
+  @SuppressWarnings("unchecked")
   public WsAttributeDefDeleteResults attributeDefDelete(final String clientVersion,
       final WsAttributeDefLookup[] wsAttributeDefLookups,
       final WsSubjectLookup actAsSubjectLookup,

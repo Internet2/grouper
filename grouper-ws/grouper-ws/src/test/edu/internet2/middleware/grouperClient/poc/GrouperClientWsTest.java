@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -81,7 +83,6 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
-import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
@@ -93,7 +94,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.subject.Subject;
-import junit.textui.TestRunner;
 
 /**
  *
@@ -276,10 +276,10 @@ public class GrouperClientWsTest extends GrouperTest {
     //
     // //give permissions
     // String wsUserLabel =
-    // GrouperClientCommonUtils.propertiesValue("grouperClient.webService.user.label",
+    // GrouperClientUtils.propertiesValue("grouperClient.webService.user.label",
     // true);
     // String wsUserString =
-    // GrouperClientCommonUtils.propertiesValue("grouperClient.webService." +
+    // GrouperClientUtils.propertiesValue("grouperClient.webService." +
     // wsUserLabel, true);
     // Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
 
@@ -294,7 +294,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1",
                   " "));
@@ -303,7 +303,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.*+)$");
@@ -329,7 +329,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -338,7 +338,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -362,7 +362,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0 --enabledTime=2010/02/03",
                   " "));
@@ -371,7 +371,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -382,7 +382,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("test.subject.0", matcher.group(3));
 
       Membership membership = group.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ0, false, true);
-      assertEquals(GrouperClientCommonUtils.stringToDate("2010/02/03 00:00:00.000"), membership.getEnabledTime());
+      assertEquals(GrouperClientUtils.stringToDate("2010/02/03 00:00:00.000"), membership.getEnabledTime());
       assertEquals(null, membership.getDisabledTime());
 
       // #####################################################
@@ -391,7 +391,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0 --disabledTime=2010/02/03",
                   " "));
@@ -400,7 +400,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -411,7 +411,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("test.subject.0", matcher.group(3));
 
       membership = group.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ0, false, true);
-      assertEquals(GrouperClientCommonUtils.stringToDate("2010/02/03 00:00:00.000"), membership.getDisabledTime());
+      assertEquals(GrouperClientUtils.stringToDate("2010/02/03 00:00:00.000"), membership.getDisabledTime());
       assertEquals(null, membership.getEnabledTime());
 
       // #####################################################
@@ -420,7 +420,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0",
                   " "));
@@ -429,7 +429,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -449,7 +449,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupUuid=" + group.getUuid() + " --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -458,7 +458,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -482,7 +482,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupIdIndex=" + group.getIdIndex() + " --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -491,7 +491,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -517,7 +517,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=${index}",
                     " "));
@@ -535,7 +535,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}",
                   " "));
@@ -554,7 +554,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members",
                   " "));
@@ -563,7 +563,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -592,7 +592,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --txType=NONE",
                   " "));
@@ -601,7 +601,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -639,7 +639,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true",
                   " "));
@@ -648,7 +648,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -677,7 +677,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsAddMemberResult.wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -686,7 +686,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -704,7 +704,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc",
                   " "));
@@ -713,7 +713,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -739,14 +739,14 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       String subjectIdsFileName = "subjectIdsFile_"
-          + GrouperClientCommonUtils.uniqueId() + ".txt";
+          + GrouperClientUtils.uniqueId() + ".txt";
       File subjectIdsFile = new File(subjectIdsFileName);
 
-      GrouperClientCommonUtils.saveStringIntoFile(subjectIdsFile,
+      GrouperClientUtils.saveStringIntoFile(subjectIdsFile,
           "test.subject.0\ntest.subject.1");
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdsFile="
                 + subjectIdsFileName, " "));
         System.out.flush();
@@ -754,7 +754,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -778,7 +778,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --paramName0=whatever --paramValue0=someValue",
                     " "));
@@ -787,7 +787,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -815,7 +815,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         //NOTE FOR THIS TO WORK YOU NEED TO ENABLE (externalSubjects.autoCreateSource = true) AUTO CREATE EXTERNAL SUBJECTS IN GROUPER.PROPERTIES ON WS
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=a@b.c --addExternalSubjectIfNotFound=true",
                     " "));
@@ -824,7 +824,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
         assertEquals(1, outputLines.length);
 
         matcher = pattern.matcher(outputLines[0]);
@@ -845,7 +845,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --replaceAllExisting=true",
                     " "));
@@ -854,7 +854,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -882,7 +882,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1",
                     " "));
@@ -891,7 +891,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         pattern = Pattern
             .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.+): (false|true)$");
@@ -937,7 +937,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0",
                   " "));
@@ -946,13 +946,13 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (group|stem): (.+): subject: (.+): (.+): (.+)$");
       Matcher matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 3);
+      assertEquals(GrouperClientUtils.length(outputLines), 3);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -993,7 +993,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectIdentifier=id.test.subject.0 --privilegeType=access",
                   " "));
@@ -1002,11 +1002,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 3);
+      assertEquals(GrouperClientUtils.length(outputLines), 3);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -1055,7 +1055,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --ousdfsdfate=${index}",
                     " "));
@@ -1073,7 +1073,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --pennKey=id.test.subject.0 --outputTemplate=${index}",
                   " "));
@@ -1093,7 +1093,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --pennKey=id.test.subject.0 --privilegeName=admin",
                   " "));
@@ -1104,11 +1104,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(output, GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(output, GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -1131,7 +1131,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --stemName=aStem --pennKey=id.test.subject.0",
                   " "));
@@ -1140,11 +1140,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 2);
+      assertEquals(GrouperClientUtils.length(outputLines), 2);
       assertTrue(outputLines[0], matcher.matches());
 
       // #####################################################
@@ -1153,7 +1153,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --stemName=aStem --pennKey=id.test.subject.6",
                   " "));
@@ -1195,7 +1195,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --includeGroupDetail=true --includeSubjectDetail=true",
                   " "));
@@ -1204,11 +1204,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(3, GrouperClientCommonUtils.length(outputLines));
+      assertEquals(3, GrouperClientUtils.length(outputLines));
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -1253,7 +1253,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -1262,7 +1262,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -1280,7 +1280,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -1289,11 +1289,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 3);
+      assertEquals(GrouperClientUtils.length(outputLines), 3);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -1350,7 +1350,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --privilegeName=optin --allowed=true",
                   " "));
@@ -1359,13 +1359,13 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Success: T: code: ([A-Z_]+): (group|stem): (.+): subject: (.+): (.+): (.+)$");
       Matcher matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_ALLOWED", matcher.group(1));
@@ -1381,7 +1381,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectIdentifier=id.test.subject.0 --privilegeType=access --privilegeName=optin --allowed=true",
                   " "));
@@ -1390,11 +1390,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_ALLOWED_ALREADY_EXISTED", matcher.group(1));
@@ -1418,7 +1418,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --privilegeName=optin --allowed=true --ousdfsdfate=${index}",
                     " "));
@@ -1436,7 +1436,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --pennKey=id.test.subject.0 --privilegeName=optin --allowed=true --outputTemplate=${wsSubject.identifierLookup}",
                   " "));
@@ -1455,7 +1455,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --stemName=aStem --pennKey=id.test.subject.0 --privilegeName=stem --allowed=true",
                   " "));
@@ -1464,11 +1464,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_ALLOWED_ALREADY_EXISTED", matcher.group(1));
@@ -1484,7 +1484,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --includeGroupDetail=true --includeSubjectDetail=true --privilegeName=optin --allowed=false",
                   " "));
@@ -1493,11 +1493,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_NOT_ALLOWED", matcher.group(1));
@@ -1517,7 +1517,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --subjectAttributeNames=name --privilegeName=optin --allowed=false --outputTemplate=${index}:$space$${wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -1526,7 +1526,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -1541,7 +1541,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --privilegeName=optin --allowed=false --subjectId=test.subject.0 --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -1550,11 +1550,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("SUCCESS_NOT_ALLOWED_DIDNT_EXIST", matcher.group(1));
@@ -1585,14 +1585,14 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupDeleteWs --groupNames=aStem:aGroup", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.*+)$");
@@ -1609,14 +1609,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupDeleteWs --groupNames=aStem:aGroup", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -1634,7 +1634,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupDeleteWs --groupNames=aStem:aGroup --ousdfsdfate=${index}",
                     " "));
@@ -1652,7 +1652,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupDeleteWs --groupNames=aStem:aGroup --outputTemplate=${index}",
                   " "));
@@ -1670,7 +1670,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupDeleteWs --groupNames=aStem:aGroup --txType=NONE",
           " "));
       System.out.flush();
@@ -1678,7 +1678,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -1698,7 +1698,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupDeleteWs --groupNames=aStem:aGroup --includeGroupDetail=true",
                   " "));
@@ -1707,7 +1707,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -1727,7 +1727,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupDeleteWs --groupNames=aStem:aGroup --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -1736,7 +1736,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -1767,14 +1767,14 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemDeleteWs --stemNames=aStem:aStem0", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.*+)$");
@@ -1791,14 +1791,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemDeleteWs --stemNames=aStem:aStem0", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -1816,7 +1816,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=stemDeleteWs --stemNames=aStem:aStem0 --ousdfsdfate=${index}",
                     " "));
@@ -1834,7 +1834,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemDeleteWs --stemNames=aStem:aStem0 --outputTemplate=${index}",
                   " "));
@@ -1852,7 +1852,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemDeleteWs --stemNames=aStem:aStem0 --txType=NONE",
           " "));
       System.out.flush();
@@ -1860,7 +1860,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -1880,7 +1880,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemDeleteWs --stemNames=aStem:aStem0 --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -1889,7 +1889,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2098,7 +2098,7 @@ public class GrouperClientWsTest extends GrouperTest {
     Matcher matcher = null;
     try {
       //try with name with slash
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=test:testGroupToCopy --paramName0=moveOrCopy --paramValue0=copy "
           + "--paramName1=moveOrCopyToStemName --paramValue1=test:stemDestination "
           + "--paramName2=copyPrivilegesOfGroup --paramValue2=true "
@@ -2114,7 +2114,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2148,7 +2148,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=test:testGroupToCopy --paramName0=moveOrCopy --paramValue0=move "
           + "--paramName1=moveOrCopyToStemUuid --paramValue1=" + toStem.getUuid() + " "
           + "--paramName2=moveAssignAlternateName --paramValue2=false", " "));
@@ -2157,7 +2157,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2216,7 +2216,7 @@ public class GrouperClientWsTest extends GrouperTest {
     Matcher matcher = null;
     try {
       //try with name with slash
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemSaveWs --name=test:testStemToCopy --paramName0=moveOrCopy --paramValue0=copy "
           + "--paramName1=moveOrCopyToStemName --paramValue1=test:stemDestination "
           + "--paramName2=copyPrivilegesOfGroup --paramValue2=true "
@@ -2233,7 +2233,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2267,7 +2267,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemSaveWs --name=test:testStemToCopy --paramName0=moveOrCopy --paramValue0=move "
           + "--paramName1=moveOrCopyToStemUuid --paramValue1=" + toStem.getUuid() + " "
           + "--paramName2=moveAssignAlternateName --paramValue2=false", " "));
@@ -2276,7 +2276,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2334,7 +2334,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
       systemOut.println("Umlaut: äöüß");
       //try with name with slash
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0äöüß", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -2343,7 +2343,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 //äöüß
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2359,14 +2359,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0/1", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2382,14 +2382,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       matcher = pattern.matcher(outputLines[0]);
@@ -2406,7 +2406,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupSaveWs --name=aStem:newGroup0 --clientVersion=v1_3_000",
                   " "));
@@ -2415,7 +2415,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2429,14 +2429,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2451,7 +2451,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupSaveWs --name=aStem:newGroup0 --displayExtension=newGroup0displayExtension",
                   " "));
@@ -2460,7 +2460,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2477,7 +2477,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup0 --ousdfsdfate=${index}",
                     " "));
@@ -2495,7 +2495,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupSaveWs --name=aStem:newGroup0 --outputTemplate=${index}",
                   " "));
@@ -2513,7 +2513,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0 --saveMode=UPDATE",
           " "));
       System.out.flush();
@@ -2521,7 +2521,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2539,14 +2539,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0 --txType=NONE", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2567,7 +2567,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupSaveWs --name=aStem:newGroup0 --includeGroupDetail=true",
                   " "));
@@ -2576,7 +2576,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2595,7 +2595,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=groupSaveWs --name=aStem:newGroup1 --groupLookupName=aStem:newGroup0",
                   " "));
@@ -2604,7 +2604,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2627,7 +2627,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup3 --saveMode=INSERT",
           " "));
       System.out.flush();
@@ -2635,7 +2635,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2654,7 +2654,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup0 --description=aDescription",
                     " "));
@@ -2663,7 +2663,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2681,7 +2681,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup0 --paramName0=whatever --paramValue0=someValue",
                     " "));
@@ -2690,7 +2690,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2707,7 +2707,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=groupSaveWs --name=aStem:newGroup0 --typeNames=aType",
             " "));
         System.out.flush();
@@ -2715,7 +2715,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2733,7 +2733,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup0 --typeNames=aType --attributeName0=attr_1 --attributeValue0=whatever",
                     " "));
@@ -2742,7 +2742,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2760,7 +2760,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup0 --groupDetailParamName0=something --groupDetailParamValue0=whatever",
                     " "));
@@ -2769,7 +2769,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2784,16 +2784,16 @@ public class GrouperClientWsTest extends GrouperTest {
         // #####################################################
         // run again, with composite
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=groupSaveWs --name=aStem:leftGroup", " "));
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=groupSaveWs --name=aStem:rightGroup", " "));
 
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup0 --compositeType=union --leftGroupName=aStem:leftGroup --rightGroupName=aStem:rightGroup --includeGroupDetail=true",
                     " "));
@@ -2802,7 +2802,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2822,7 +2822,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup4 --typeOfGroup=entity",
                     " "));
@@ -2831,7 +2831,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2849,7 +2849,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup5 --idIndex=12345",
                     " "));
@@ -2858,7 +2858,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2876,7 +2876,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=groupSaveWs --name=aStem:newGroup5 --groupLookupIdIndex=12345 --description=newDescription",
                     " "));
@@ -2885,7 +2885,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -2921,14 +2921,14 @@ public class GrouperClientWsTest extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemSaveWs --name=aStem:newStem0", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       Matcher matcher = pattern.matcher(outputLines[0]);
@@ -2945,7 +2945,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem0 --clientVersion=v1_3_000",
                   " "));
@@ -2954,7 +2954,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2968,14 +2968,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemSaveWs --name=aStem:newStem0", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -2990,7 +2990,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem0 --displayExtension=newStem0displayExtension",
                   " "));
@@ -2999,7 +2999,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3016,7 +3016,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=stemSaveWs --name=aStem:newStem0 --ousdfsdfate=${index}",
                     " "));
@@ -3034,7 +3034,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem0 --outputTemplate=${index}",
                   " "));
@@ -3054,9 +3054,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=stemSaveWs --name=aStem:newStem0 --outputTemplate=a${GrouperClientCommonUtils.defaultString(wsStemSaveResult.resultMetadata.resfsdfCode)}",
+                  "--operation=stemSaveWs --name=aStem:newStem0 --outputTemplate=a${grouperClientUtils.defaultString(wsStemSaveResult.resultMetadata.resfsdfCode)}",
                   " "));
 
       System.out.flush();
@@ -3072,7 +3072,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils
+      GrouperClient.main(GrouperClientUtils
           .splitTrim(
               "--operation=stemSaveWs --name=aStem:newStem0 --saveMode=UPDATE",
               " "));
@@ -3081,7 +3081,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3099,14 +3099,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=stemSaveWs --name=aStem:newStem0 --txType=NONE", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3127,7 +3127,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem1 --stemLookupName=aStem:newStem0",
                   " "));
@@ -3136,7 +3136,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3164,7 +3164,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils
+      GrouperClient.main(GrouperClientUtils
           .splitTrim(
               "--operation=stemSaveWs --name=aStem:newStem0 --saveMode=INSERT",
               " "));
@@ -3173,7 +3173,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3191,7 +3191,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem0 --description=aDescription",
                   " "));
@@ -3200,7 +3200,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3218,7 +3218,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem0 --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -3227,7 +3227,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3245,7 +3245,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=aStem:newStem5 --idIndex=12345",
                   " "));
@@ -3254,7 +3254,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3272,7 +3272,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=stemSaveWs --name=someStem --description=myDescription --stemLookupIdIndex=" + someStem.getIdIndex(),
                   " "));
@@ -3281,7 +3281,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3369,7 +3369,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1",
           " "));
       System.out.flush();
@@ -3379,7 +3379,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.out.println(output);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^SubjectIndex (\\d+): success: T: code: ([A-Z_]+): subject: (.*): groupIndex: (\\d+): (.*+)$");
@@ -3391,9 +3391,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -3403,9 +3403,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[2]);
 
@@ -3415,9 +3415,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[3]);
 
@@ -3427,9 +3427,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       // ######################################################
       // Try point in time
@@ -3440,8 +3440,8 @@ public class GrouperClientWsTest extends GrouperTest {
       ArrayList<String> args = new ArrayList<String>();
       args.add("--operation=getGroupsWs");
       args.add("--subjectIds=test.subject.0,test.subject.1");
-      args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTimeFrom));
-      args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTimeTo));
+      args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTimeFrom));
+      args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTimeTo));
       GrouperClient.main(args.toArray(new String[0]));
 
       System.out.flush();
@@ -3451,7 +3451,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.out.println(output);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3461,9 +3461,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup", matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup5", matcher.group(5)));
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+          || GrouperClientUtils.equals("aStem:aGroup5", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -3473,9 +3473,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup", matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup5", matcher.group(5)));
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+          || GrouperClientUtils.equals("aStem:aGroup5", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[2]);
 
@@ -3485,9 +3485,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("2", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup", matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup5", matcher.group(5)));
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+          || GrouperClientUtils.equals("aStem:aGroup5", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[3]);
 
@@ -3497,9 +3497,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[4]);
 
@@ -3509,9 +3509,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       // #####################################################
       // run with invalid args
@@ -3521,7 +3521,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=whatever",
                     " "));
@@ -3539,7 +3539,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${subjectIndex}",
                   " "));
@@ -3558,7 +3558,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true",
                   " "));
@@ -3567,7 +3567,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3577,9 +3577,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -3589,9 +3589,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[2]);
 
@@ -3601,9 +3601,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[3]);
 
@@ -3613,9 +3613,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       assertTrue(GrouperClientWs.mostRecentRequest
           .contains("includeGroupDetail")
@@ -3627,7 +3627,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${subjectIndex}:$space$${wsGetGroupsResult.wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -3636,7 +3636,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(output, outputLines[0].contains("my name is test.subject.0"));
 
@@ -3652,7 +3652,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc",
                   " "));
@@ -3661,7 +3661,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -3671,9 +3671,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -3683,9 +3683,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[2]);
 
@@ -3695,9 +3695,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("0", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       matcher = pattern.matcher(outputLines[3]);
 
@@ -3707,9 +3707,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("SUCCESS", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       assertEquals("1", matcher.group(4));
-      assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+      assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
           matcher.group(5))
-          || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+          || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
       assertTrue(GrouperClientWs.mostRecentRequest.contains("jdbc"));
 
@@ -3719,14 +3719,14 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       String subjectIdsFileName = "subjectIdsFile_"
-          + GrouperClientCommonUtils.uniqueId() + ".txt";
+          + GrouperClientUtils.uniqueId() + ".txt";
       File subjectIdsFile = new File(subjectIdsFileName);
 
-      GrouperClientCommonUtils.saveStringIntoFile(subjectIdsFile,
+      GrouperClientUtils.saveStringIntoFile(subjectIdsFile,
           "test.subject.0\ntest.subject.1");
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getGroupsWs --subjectIdsFile=" + subjectIdsFileName,
             " "));
         System.out.flush();
@@ -3734,7 +3734,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -3746,9 +3746,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
         assertEquals("0", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
         matcher = pattern.matcher(outputLines[1]);
 
@@ -3758,9 +3758,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
         assertEquals("1", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
         matcher = pattern.matcher(outputLines[2]);
 
@@ -3770,9 +3770,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.1", matcher.group(3));
         assertEquals("0", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
         matcher = pattern.matcher(outputLines[3]);
 
@@ -3782,9 +3782,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.1", matcher.group(3));
         assertEquals("1", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
         // #####################################################
         // run again, with params
@@ -3792,7 +3792,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --memberFilter=Immediate",
                     " "));
@@ -3801,7 +3801,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -3811,9 +3811,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
         assertEquals("0", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
         matcher = pattern.matcher(outputLines[1]);
 
@@ -3823,9 +3823,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
         assertEquals("1", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup2", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
 
         matcher = pattern.matcher(outputLines[2]);
 
@@ -3835,9 +3835,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.1", matcher.group(3));
         assertEquals("0", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
         matcher = pattern.matcher(outputLines[3]);
 
@@ -3847,9 +3847,9 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("SUCCESS", matcher.group(2));
         assertEquals("test.subject.1", matcher.group(3));
         assertEquals("1", matcher.group(4));
-        assertTrue(matcher.group(5), GrouperClientCommonUtils.equals("aStem:aGroup2",
+        assertTrue(matcher.group(5), GrouperClientUtils.equals("aStem:aGroup2",
             matcher.group(5))
-            || GrouperClientCommonUtils.equals("aStem:aGroup3", matcher.group(5)));
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
 
         assertTrue(GrouperClientWs.mostRecentRequest.contains("memberFilter")
             && GrouperClientWs.mostRecentRequest.contains("Immediate"));
@@ -3897,7 +3897,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=rwjdfskjlwirwklj",
                   " "));
@@ -3906,7 +3906,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -3980,7 +3980,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1",
                   " "));
@@ -3989,7 +3989,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.+): (false|true)$");
@@ -4019,7 +4019,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=${index}",
                     " "));
@@ -4037,7 +4037,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}",
                   " "));
@@ -4056,7 +4056,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members",
                   " "));
@@ -4065,7 +4065,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4096,7 +4096,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupUuid=" + group.getUuid() + " --pennKeys=id.test.subject.0,id.test.subject.1",
                   " "));
@@ -4105,7 +4105,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4135,7 +4135,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupIdIndex=" + group.getIdIndex() + " --pennKeys=id.test.subject.0,id.test.subject.1",
                   " "));
@@ -4144,7 +4144,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4173,7 +4173,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true",
                   " "));
@@ -4182,7 +4182,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4213,7 +4213,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsHasMemberResult.wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -4222,7 +4222,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -4240,7 +4240,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc",
                   " "));
@@ -4249,7 +4249,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4277,14 +4277,14 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       String subjectIdsFileName = "subjectIdsFile_"
-          + GrouperClientCommonUtils.uniqueId() + ".txt";
+          + GrouperClientUtils.uniqueId() + ".txt";
       File subjectIdsFile = new File(subjectIdsFileName);
 
-      GrouperClientCommonUtils.saveStringIntoFile(subjectIdsFile,
+      GrouperClientUtils.saveStringIntoFile(subjectIdsFile,
           "test.subject.0\ntest.subject.1");
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIdsFile="
                 + subjectIdsFileName, " "));
         System.out.flush();
@@ -4292,7 +4292,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -4318,7 +4318,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --paramName0=whatever --paramValue0=someValue",
                     " "));
@@ -4327,7 +4327,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -4355,7 +4355,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --memberFilter=Immediate",
                     " "));
@@ -4364,7 +4364,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -4397,8 +4397,8 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=hasMemberWs");
         args.add("--groupName=aStem:aGroup");
         args.add("--subjectIds=test.subject.0,test.subject.1,test.subject.2,test.subject.3,test.subject.4,test.subject.5");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTimeFrom));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTimeTo));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTimeFrom));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTimeTo));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -4406,7 +4406,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
         assertTrue(outputLines[0], matcher.matches());
@@ -4493,7 +4493,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1",
                   " "));
       System.out.flush();
@@ -4501,7 +4501,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): success: T: code: ([A-Z_]+): (.*+)$");
@@ -4526,7 +4526,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils
+      GrouperClient.main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -4535,7 +4535,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4559,7 +4559,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils
+      GrouperClient.main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupIdIndex=" + group.getIdIndex() + " --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -4568,7 +4568,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4591,7 +4591,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils
+      GrouperClient.main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupUuid=" + group.getUuid() + " --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -4600,7 +4600,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4626,7 +4626,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=${index}",
                     " "));
@@ -4644,7 +4644,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}",
                   " "));
@@ -4663,7 +4663,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members",
                   " "));
@@ -4672,7 +4672,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4701,7 +4701,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --txType=NONE",
                   " "));
@@ -4710,7 +4710,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4748,7 +4748,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true",
                   " "));
@@ -4757,7 +4757,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4786,7 +4786,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsDeleteMemberResult.wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -4795,7 +4795,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -4813,7 +4813,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc",
                   " "));
@@ -4822,7 +4822,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -4848,14 +4848,14 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       String subjectIdsFileName = "subjectIdsFile_"
-          + GrouperClientCommonUtils.uniqueId() + ".txt";
+          + GrouperClientUtils.uniqueId() + ".txt";
       File subjectIdsFile = new File(subjectIdsFileName);
 
-      GrouperClientCommonUtils.saveStringIntoFile(subjectIdsFile,
+      GrouperClientUtils.saveStringIntoFile(subjectIdsFile,
           "test.subject.0\ntest.subject.1");
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIdsFile="
                 + subjectIdsFileName, " "));
         System.out.flush();
@@ -4863,7 +4863,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -4887,7 +4887,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --paramName0=whatever --paramValue0=someValue",
                     " "));
@@ -4896,7 +4896,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         matcher = pattern.matcher(outputLines[0]);
 
@@ -4941,7 +4941,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem",
                   " "));
@@ -4950,7 +4950,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Success: T: code: ([A-Z_]+): oldSubject: (.+), newSubject: (.+)$");
@@ -4971,7 +4971,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // this should fail with member not found
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem",
                     " "));
@@ -4991,7 +4991,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem --ousdfsdfate=${index}",
                     " "));
@@ -5009,7 +5009,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=memberChangeSubjectWs --oldPennKey=id.test.subject.1 --newPennKey=id.test.subject.0 --actAsPennId=GrouperSystem --outputTemplate=${index}",
                   " "));
@@ -5028,7 +5028,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=memberChangeSubjectWs --oldSubjectIdentifier=id.test.subject.0 --newSubjectIdentifier=id.test.subject.1 --actAsSubjectId=GrouperSystem --deleteOldMember=false",
                   " "));
@@ -5037,7 +5037,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5057,7 +5057,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.1 --newSubjectId=test.subject.0 --actAsSubjectId=GrouperSystem --includeSubjectDetail=true",
                   " "));
@@ -5066,7 +5066,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5086,7 +5086,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsSubjectOld.getAttributeValue(0)}$newline$",
                   " "));
@@ -5095,7 +5095,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -5110,7 +5110,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.1 --newSubjectId=test.subject.0 --actAsSubjectId=GrouperSystem --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -5119,7 +5119,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5158,10 +5158,10 @@ public class GrouperClientWsTest extends GrouperTest {
           + "<subjectLookups><WsSubjectLookup>"
           + "<subjectId>test.subject.0</subjectId></WsSubjectLookup>"
           + "</subjectLookups></WsRestAddMemberRequest>";
-      GrouperClientCommonUtils.saveStringIntoFile(file, contents);
+      GrouperClientUtils.saveStringIntoFile(file, contents);
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=sendFile --fileName=testSendFile.txt --urlSuffix=groups/aStem:aGroup/members",
                   " "));
@@ -5179,7 +5179,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=sendFile --fileContents="
                       + contents
@@ -5223,7 +5223,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup",
                   " "));
@@ -5232,7 +5232,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): name: (.+), displayName: (.+)$");
@@ -5252,7 +5252,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=findGroupsWs --queryFilterType=FIND_BY_STEM_NAME --stemName=a:b:doesntExist",
                 " "));
@@ -5261,7 +5261,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 0, GrouperUtil.length(outputLines));
 
@@ -5278,7 +5278,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --ousdfsdfate=${index}",
                     " "));
@@ -5296,7 +5296,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --outputTemplate=${index}",
                   " "));
@@ -5315,7 +5315,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs  --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --includeGroupDetail=true",
                   " "));
@@ -5324,7 +5324,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5344,7 +5344,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -5353,7 +5353,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5373,7 +5373,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_UUID --groupUuid=abc",
                   " "));
@@ -5382,9 +5382,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      assertTrue(output, GrouperClientCommonUtils.isBlank(output));
+      assertTrue(output, GrouperClientUtils.isBlank(output));
 
       assertTrue(GrouperClientWs.mostRecentRequest.contains("groupUuid")
           && GrouperClientWs.mostRecentRequest.contains("abc"));
@@ -5395,7 +5395,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --stemName=aStem",
                   " "));
@@ -5404,7 +5404,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5424,7 +5424,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_TYPE --groupTypeName=aType",
                   " "));
@@ -5433,7 +5433,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5454,7 +5454,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_EXACT_ATTRIBUTE --groupAttributeName=attr_1 --groupAttributeValue=something",
                   " "));
@@ -5463,7 +5463,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5485,7 +5485,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=OR --queryFilterType0=OR --queryFilterType00=FIND_BY_GROUP_NAME_APPROXIMATE --groupName00=aStem:aGroup --queryFilterType01=FIND_BY_GROUP_NAME_APPROXIMATE --groupName01=aStem:aGroup --queryFilterType1=FIND_BY_GROUP_NAME_APPROXIMATE --groupName1=aStem:aGroup",
                   " "));
@@ -5494,7 +5494,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5518,7 +5518,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --groupNames=aStem:aGroup,aStem:aGroup1",
                   " "));
@@ -5527,7 +5527,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -5555,7 +5555,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --groupIdIndexes=" + group1.getIdIndex(),
                   " "));
@@ -5564,7 +5564,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 1, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -5583,7 +5583,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --groupUuids=" + group.getId() + "," + group1.getId(),
                   " "));
@@ -5592,7 +5592,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -5620,7 +5620,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:a% --stemName=aStem --ascending=T --sortString=name --pageNumber=1 --pageSize=2",
                   " "));
@@ -5629,7 +5629,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -5655,7 +5655,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:a% --stemName=aStem --ascending=T --sortString=name --pageNumber=1 --pageSize=2",
                   " "));
@@ -5664,7 +5664,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -5691,7 +5691,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_STEM_NAME --stemName=aStem --ascending=T --sortString=name --pageNumber=2 --pageSize=2",
                   " "));
@@ -5700,7 +5700,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 1, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -5717,7 +5717,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --stemName=aStem --typeOfGroups=group",
                   " "));
@@ -5726,7 +5726,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5760,7 +5760,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --stemName=aStem --typeOfGroups=role",
                   " "));
@@ -5769,7 +5769,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 0, GrouperUtil.length(outputLines));
 
@@ -5797,7 +5797,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --stemName=aStem",
                   " "));
@@ -5806,7 +5806,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+): name: (.+), displayName: (.+)$");
@@ -5827,7 +5827,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --groupName=aStem:aGroup --ousdfsdfate=${index}",
                     " "));
@@ -5845,7 +5845,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --stemName=aStem --outputTemplate=${index}",
                   " "));
@@ -5864,7 +5864,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs  --stemQueryFilterType=FIND_BY_PARENT_STEM_NAME --parentStemName=aStem --parentStemNameScope=ALL_IN_SUBTREE",
                   " "));
@@ -5873,7 +5873,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5895,7 +5895,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --stemName=aStem --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -5904,7 +5904,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5924,7 +5924,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_UUID --stemUuid=abc",
                   " "));
@@ -5933,9 +5933,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      assertTrue(output, GrouperClientCommonUtils.isBlank(output));
+      assertTrue(output, GrouperClientUtils.isBlank(output));
 
       assertTrue(GrouperClientWs.mostRecentRequest.contains("stemUuid")
           && GrouperClientWs.mostRecentRequest.contains("abc"));
@@ -5946,7 +5946,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_APPROXIMATE_ATTRIBUTE --stemAttributeName=name --stemAttributeValue=aStem",
                   " "));
@@ -5955,7 +5955,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -5984,7 +5984,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=OR --stemQueryFilterType0=OR --stemQueryFilterType00=FIND_BY_STEM_NAME --stemName00=aStem --stemQueryFilterType01=FIND_BY_STEM_NAME --stemName01=aStem --stemQueryFilterType1=FIND_BY_STEM_NAME --stemName1=aStem",
                   " "));
@@ -5993,7 +5993,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -6017,7 +6017,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemNames=aStem,aStem:aStem0",
                   " "));
@@ -6026,7 +6026,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -6052,7 +6052,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemIdIndexes=" + aStem.getIdIndex(),
                   " "));
@@ -6061,7 +6061,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 1, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -6079,7 +6079,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemUuids=" + aStem.getUuid() + "," + aStem0.getUuid(),
                   " "));
@@ -6088,7 +6088,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -6118,7 +6118,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE --stemName=aStem:a% --parentStemName=aStem  --ascending=T --sortString=name --pageNumber=1 --pageSize=2",
                   " "));
@@ -6127,7 +6127,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -6156,7 +6156,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=findStemsWs --stemQueryFilterType=FIND_BY_PARENT_STEM_NAME --parentStemName=aStem  --ascending=T --sortString=name --pageNumber=2 --pageSize=2",
                   " "));
@@ -6165,7 +6165,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 1, outputLines.length);
       matcher = pattern.matcher(outputLines[0]);
@@ -6218,7 +6218,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       //add member
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=addMemberWs --groupName=aStem:aGroup/1 --subjectIds=test.subject.0 --outputTemplate=Index${index}:success:${resultMetadata.success}:code:${resultMetadata.resultCode}:${wsSubject.id}:${wsAddMemberResults.wsGroupAssigned.name}$newline$${index}",
               " "));
       System.out.flush();
@@ -6226,7 +6226,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       //match this: Index0:success:T:code:SUCCESS:test.subject.0:aStem:aGroup/1
       Pattern pattern = Pattern
@@ -6245,7 +6245,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembersWs --groupNames=aStem:aGroup/1",
           " "));
       System.out.flush();
@@ -6253,7 +6253,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: ^GroupIndex (\d+)\: success\: ([TF])\: code: ([A-Z_]+)\: group\:
       // (.*)\: subjectIndex\: (\d+)\: (.*)$
@@ -6269,7 +6269,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[0], "aStem:aGroup/1", matcher.group(4));
       assertEquals(outputLines[0], "0", matcher.group(5));
       String subjectId = matcher.group(6);
-      assertTrue(outputLines[0], GrouperClientCommonUtils.equals("test.subject.0",
+      assertTrue(outputLines[0], GrouperClientUtils.equals("test.subject.0",
           subjectId));
     } finally {
       System.setOut(systemOut);
@@ -6334,7 +6334,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2",
           " "));
       System.out.flush();
@@ -6342,7 +6342,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: ^GroupIndex (\d+)\: success\: ([TF])\: code: ([A-Z_]+)\: group\:
       // (.*)\: subjectIndex\: (\d+)\: (.*)$
@@ -6358,9 +6358,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[0], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[0], "0", matcher.group(5));
       String subjectId = matcher.group(6);
-      assertTrue(outputLines[0], GrouperClientCommonUtils.equals("test.subject.0",
+      assertTrue(outputLines[0], GrouperClientUtils.equals("test.subject.0",
           subjectId)
-          || GrouperClientCommonUtils.equals("test.subject.1", subjectId));
+          || GrouperClientUtils.equals("test.subject.1", subjectId));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -6372,9 +6372,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[1], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[1], "1", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[1], GrouperClientCommonUtils.equals("test.subject.0",
+      assertTrue(outputLines[1], GrouperClientUtils.equals("test.subject.0",
           subjectId)
-          || GrouperClientCommonUtils.equals("test.subject.1", subjectId));
+          || GrouperClientUtils.equals("test.subject.1", subjectId));
 
       matcher = pattern.matcher(outputLines[2]);
 
@@ -6386,9 +6386,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[2], "aStem:aGroup2", matcher.group(4));
       assertEquals(outputLines[2], "0", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[2], GrouperClientCommonUtils.equals("test.subject.2",
+      assertTrue(outputLines[2], GrouperClientUtils.equals("test.subject.2",
           subjectId)
-          || GrouperClientCommonUtils.equals("test.subject.3", subjectId));
+          || GrouperClientUtils.equals("test.subject.3", subjectId));
 
       matcher = pattern.matcher(outputLines[3]);
 
@@ -6400,9 +6400,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[3], "aStem:aGroup2", matcher.group(4));
       assertEquals(outputLines[3], "1", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[3], GrouperClientCommonUtils.equals("test.subject.2",
+      assertTrue(outputLines[3], GrouperClientUtils.equals("test.subject.2",
           subjectId)
-          || GrouperClientCommonUtils.equals("test.subject.3", subjectId));
+          || GrouperClientUtils.equals("test.subject.3", subjectId));
 
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
@@ -6446,7 +6446,7 @@ public class GrouperClientWsTest extends GrouperTest {
       output = new String(baos.toByteArray());
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -6460,7 +6460,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[0], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[0], "0", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[0], GrouperClientCommonUtils.equals("test.subject.1",
+      assertTrue(outputLines[0], GrouperClientUtils.equals("test.subject.1",
           subjectId));
 
 
@@ -6483,15 +6483,15 @@ public class GrouperClientWsTest extends GrouperTest {
       args = new ArrayList<String>();
       args.add("--operation=getMembersWs");
       args.add("--groupNames=aStem:aGroup,aStem:aGroup2");
-      args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTimeFrom));
-      args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTimeTo));
+      args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTimeFrom));
+      args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTimeTo));
       GrouperClient.main(args.toArray(new String[0]));
 
       System.out.flush();
       output = new String(baos.toByteArray());
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
@@ -6503,10 +6503,10 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[0], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[0], "0", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[0], GrouperClientCommonUtils.equals("test.subject.0", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.1", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.5", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.6", subjectId));
+      assertTrue(outputLines[0], GrouperClientUtils.equals("test.subject.0", subjectId) ||
+          GrouperClientUtils.equals("test.subject.1", subjectId) ||
+          GrouperClientUtils.equals("test.subject.5", subjectId) ||
+          GrouperClientUtils.equals("test.subject.6", subjectId));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -6518,10 +6518,10 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[1], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[1], "1", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[1], GrouperClientCommonUtils.equals("test.subject.0", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.1", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.5", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.6", subjectId));
+      assertTrue(outputLines[1], GrouperClientUtils.equals("test.subject.0", subjectId) ||
+          GrouperClientUtils.equals("test.subject.1", subjectId) ||
+          GrouperClientUtils.equals("test.subject.5", subjectId) ||
+          GrouperClientUtils.equals("test.subject.6", subjectId));
 
       matcher = pattern.matcher(outputLines[2]);
 
@@ -6533,10 +6533,10 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[2], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[2], "2", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[2], GrouperClientCommonUtils.equals("test.subject.0", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.1", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.5", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.6", subjectId));
+      assertTrue(outputLines[2], GrouperClientUtils.equals("test.subject.0", subjectId) ||
+          GrouperClientUtils.equals("test.subject.1", subjectId) ||
+          GrouperClientUtils.equals("test.subject.5", subjectId) ||
+          GrouperClientUtils.equals("test.subject.6", subjectId));
 
       matcher = pattern.matcher(outputLines[3]);
 
@@ -6548,10 +6548,10 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[3], "aStem:aGroup", matcher.group(4));
       assertEquals(outputLines[3], "3", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[3], GrouperClientCommonUtils.equals("test.subject.0", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.1", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.5", subjectId) ||
-          GrouperClientCommonUtils.equals("test.subject.6", subjectId));
+      assertTrue(outputLines[3], GrouperClientUtils.equals("test.subject.0", subjectId) ||
+          GrouperClientUtils.equals("test.subject.1", subjectId) ||
+          GrouperClientUtils.equals("test.subject.5", subjectId) ||
+          GrouperClientUtils.equals("test.subject.6", subjectId));
 
       matcher = pattern.matcher(outputLines[4]);
 
@@ -6563,9 +6563,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[4], "aStem:aGroup2", matcher.group(4));
       assertEquals(outputLines[4], "0", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[4], GrouperClientCommonUtils.equals("test.subject.2",
+      assertTrue(outputLines[4], GrouperClientUtils.equals("test.subject.2",
           subjectId)
-          || GrouperClientCommonUtils.equals("test.subject.3", subjectId));
+          || GrouperClientUtils.equals("test.subject.3", subjectId));
 
       matcher = pattern.matcher(outputLines[5]);
 
@@ -6577,9 +6577,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[5], "aStem:aGroup2", matcher.group(4));
       assertEquals(outputLines[5], "1", matcher.group(5));
       subjectId = matcher.group(6);
-      assertTrue(outputLines[5], GrouperClientCommonUtils.equals("test.subject.2",
+      assertTrue(outputLines[5], GrouperClientUtils.equals("test.subject.2",
           subjectId)
-          || GrouperClientCommonUtils.equals("test.subject.3", subjectId));
+          || GrouperClientUtils.equals("test.subject.3", subjectId));
 
 
       // ######################################################
@@ -6588,7 +6588,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=jdbc,g:gsa",
           " "));
 
@@ -6597,14 +6597,14 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=g:gsa",
           " "));
 
@@ -6613,7 +6613,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -6627,7 +6627,7 @@ public class GrouperClientWsTest extends GrouperTest {
       Group aGroup = GroupFinder.findByName(grouperSession, "aStem:aGroup", true);
       Group aGroup2 = GroupFinder.findByName(grouperSession, "aStem:aGroup2", true);
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembersWs --groupUuids=" + aGroup.getUuid() + "," + aGroup2.getUuid(),
           " "));
 
@@ -6636,7 +6636,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -6647,7 +6647,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembersWs --groupIdIndexes=" + aGroup.getIdIndex() + "," + aGroup2.getIdIndex(),
           " "));
 
@@ -6656,7 +6656,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -6668,7 +6668,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=a,name --outputTemplate=${wsSubject.getAttributeValue(1)}$newline$",
                   " "));
@@ -6677,7 +6677,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Arrays.sort(outputLines);
 
@@ -6693,7 +6693,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=Effective",
                   " "));
@@ -6724,7 +6724,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=NonImmediate",
                   " "));
@@ -6755,7 +6755,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeGroupDetail=true",
                   " "));
@@ -6786,7 +6786,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeSubjectDetail=true",
                   " "));
@@ -6817,7 +6817,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=name",
                   " "));
@@ -6848,7 +6848,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --paramName0=someParam --paramValue0=someValue",
                   " "));
@@ -6882,7 +6882,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --fieldName=members",
                   " "));
@@ -6914,7 +6914,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsSubjectId=GrouperSystem",
                   " "));
@@ -6946,7 +6946,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsPennId=GrouperSystem",
                   " "));
@@ -7039,7 +7039,7 @@ public class GrouperClientWsTest extends GrouperTest {
     //assertTrue(groups.contains(compRight));
     //assertTrue(groups.contains(uofc));
 
-    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+    GrouperClient.main(GrouperClientUtils.splitTrim(
         "--operation=getGroupsWs --subjectIds=test.subject.0 --memberFilter=Immediate --sortString=name",
         " "));
     System.out.flush();
@@ -7049,7 +7049,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(3, outputLines.length);
 
@@ -7097,7 +7097,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.0 --memberFilter=NonImmediate --sortString=name",
                 " "));
@@ -7110,7 +7110,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(2, outputLines.length);
 
@@ -7145,7 +7145,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Effective",
                 " "));
@@ -7158,9 +7158,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-    assertEquals(0, GrouperClientCommonUtils.length(outputLines));
+    assertEquals(0, GrouperClientUtils.length(outputLines));
 
     // #####################################################
     //groups = member1.getImmediateGroups(Group.getDefaultList(), "whatever", null, null, null, true);
@@ -7171,7 +7171,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --fieldName=members --enabled=T --scope=whatever",
                 " "));
@@ -7184,9 +7184,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-    assertEquals(0, GrouperClientCommonUtils.length(outputLines));
+    assertEquals(0, GrouperClientUtils.length(outputLines));
 
     // #####################################################
     //groups = member1.getImmediateGroups(Group.getDefaultList(), "edu:eduSub", null, null, null, true);
@@ -7198,7 +7198,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --scope=edu:eduSub",
                 " "));
@@ -7211,7 +7211,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(1, outputLines.length);
 
@@ -7237,7 +7237,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --scope=edu2",
                 " "));
@@ -7250,7 +7250,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(1, outputLines.length);
 
@@ -7275,7 +7275,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --fieldName=members --enabled=F --scope=edu2",
                 " "));
@@ -7288,9 +7288,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-    assertEquals(0, GrouperClientCommonUtils.length(outputLines));
+    assertEquals(0, GrouperClientUtils.length(outputLines));
 
 
     // #####################################################
@@ -7307,7 +7307,7 @@ public class GrouperClientWsTest extends GrouperTest {
     // test a command line template
     try {
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --stem=" + edu.getName(),
                   " "));
@@ -7333,7 +7333,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --stemName=" + edu.getName() + " --stemScope=ONE_LEVEL",
                 " "));
@@ -7346,9 +7346,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-    assertEquals(0, GrouperClientCommonUtils.length(outputLines));
+    assertEquals(0, GrouperClientUtils.length(outputLines));
 
     // #####################################################
     //groups = member1.getImmediateGroups(Group.getDefaultList(), null, edu2, Scope.ONE, null, true);
@@ -7360,7 +7360,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --stemName=" + edu2.getName() + " --stemScope=ONE_LEVEL",
                 " "));
@@ -7373,7 +7373,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(1, outputLines.length);
 
@@ -7399,7 +7399,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --stemName=" + edu.getName() + " --stemScope=ALL_IN_SUBTREE",
                 " "));
@@ -7412,7 +7412,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(1, outputLines.length);
 
@@ -7438,7 +7438,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.1 --memberFilter=Immediate --stemName=" + edu2.getName() + " --stemScope=ALL_IN_SUBTREE",
                 " "));
@@ -7451,7 +7451,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(1, outputLines.length);
 
@@ -7478,7 +7478,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // test a command line template
     GrouperClient
-        .main(GrouperClientCommonUtils
+        .main(GrouperClientUtils
             .splitTrim(
                 "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.0 --memberFilter=Immediate --pageSize=1 --pageNumber=1 --sortString=name",
                 " "));
@@ -7491,7 +7491,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     System.out.println(output);
 
-    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+    outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
     assertEquals(1, outputLines.length);
 
@@ -7523,7 +7523,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.0 --memberFilter=Immediate --pageSize=1 --pageNumber=1 --sortString=doesntExist",
                   " "));
@@ -7633,7 +7633,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // ##################### subject 0 and 1 are in the jira service...
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --serviceId=" + jiraService.getId() + " --serviceRole=user",
           " "));
       System.out.flush();
@@ -7641,7 +7641,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, GrouperUtil.length(outputLines));
 
@@ -7700,7 +7700,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --serviceName=" + confluenceService.getName() + " --serviceRole=admin",
           " "));
       System.out.flush();
@@ -7708,7 +7708,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, GrouperUtil.length(outputLines));
 
@@ -7838,7 +7838,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2",
           " "));
       System.out.flush();
@@ -7846,7 +7846,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // OLD match: Index: 0: type: group, ownerName: aStem:aGroup, subject: GrouperSystem, list: members, type: immediate, enabled: T
       // NEW match: Index: 0: group: aStem:aGroup, subject: test.subject.0, list: members, type: immediate, enabled: T
@@ -7929,7 +7929,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=jdbc,g:gsa",
           " "));
 
@@ -7938,7 +7938,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -7948,7 +7948,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --sourceIds=g:gsa",
           " "));
 
@@ -7957,7 +7957,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -7971,7 +7971,7 @@ public class GrouperClientWsTest extends GrouperTest {
       Group aGroup = GroupFinder.findByName(grouperSession, "aStem:aGroup", true);
       Group aGroup2 = GroupFinder.findByName(grouperSession, "aStem:aGroup2", true);
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --groupUuids=" + aGroup.getUuid() + "," + aGroup2.getUuid(),
           " "));
 
@@ -7980,7 +7980,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -7994,7 +7994,7 @@ public class GrouperClientWsTest extends GrouperTest {
       aGroup2 = GroupFinder.findByName(grouperSession, "aStem:aGroup2", true);
       Stem aStem = StemFinder.findByName(grouperSession, "aStem", true);
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getMembershipsWs --groupIdIndexes=" + aGroup.getIdIndex() + "," + aGroup2.getIdIndex(),
           " "));
 
@@ -8003,7 +8003,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8015,7 +8015,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=a,name --outputTemplate=${wsSubject.getAttributeValue(1)}$newline$",
                   " "));
@@ -8024,7 +8024,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Arrays.sort(outputLines);
 
@@ -8040,7 +8040,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=Effective",
                   " "));
@@ -8049,7 +8049,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -8075,7 +8075,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --memberFilter=NonImmediate",
                   " "));
@@ -8084,7 +8084,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -8110,7 +8110,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeGroupDetail=true",
                   " "));
@@ -8119,7 +8119,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8145,7 +8145,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --includeSubjectDetail=true",
                   " "));
@@ -8154,7 +8154,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8180,7 +8180,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=name",
                   " "));
@@ -8189,7 +8189,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8215,7 +8215,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --paramName0=someParam --paramValue0=someValue",
                   " "));
@@ -8224,7 +8224,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8253,7 +8253,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --fieldName=members",
                   " "));
@@ -8262,7 +8262,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8289,7 +8289,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsSubjectId=GrouperSystem",
                   " "));
@@ -8298,7 +8298,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8325,7 +8325,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsPennId=GrouperSystem",
                   " "));
@@ -8334,7 +8334,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8379,7 +8379,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --enabled=F",
                   " "));
@@ -8388,7 +8388,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -8431,7 +8431,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --subjectIds=test.subject.0,test.subject.1",
                   " "));
@@ -8440,7 +8440,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, GrouperUtil.length(outputLines));
 
@@ -8505,7 +8505,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=access",
                   " "));
@@ -8514,7 +8514,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8618,7 +8618,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=naming --stemIdIndex=" + aStem.getParentStem().getIdIndex() + " --stemScope=ONE_LEVEL",
                   " "));
@@ -8627,7 +8627,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 4, GrouperUtil.length(outputLines));
 
@@ -8738,7 +8738,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --subjectIds=test.subject.7,test.subject.8 --fieldType=naming",
                   " "));
@@ -8747,7 +8747,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8856,7 +8856,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --groupNames=aStem:aGroup,aStem:aGroup2 --stemName=aStem --stemScope=ALL_IN_SUBTREE",
                   " "));
@@ -8865,7 +8865,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, GrouperUtil.length(outputLines));
 
@@ -8914,7 +8914,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getMembershipsWs --subjectIds=test.subject.0,test.subject.1",
                   " "));
@@ -8923,7 +8923,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, GrouperUtil.length(outputLines));
 
@@ -9005,7 +9005,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ1_ID,
           " "));
       System.out.flush();
@@ -9013,7 +9013,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -9064,7 +9064,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ1_ID + " --subjectSources=jdbc,g:gsa",
           " "));
 
@@ -9073,7 +9073,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, GrouperUtil.length(outputLines));
 
@@ -9120,7 +9120,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ1_ID + " --subjectSources=jdbc",
           " "));
 
@@ -9129,7 +9129,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, GrouperUtil.length(outputLines));
 
@@ -9175,7 +9175,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ1_ID + " --subjectSources=g:gsa",
           " "));
 
@@ -9184,7 +9184,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, GrouperUtil.length(outputLines));
 
@@ -9231,7 +9231,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ1_ID + " --subjectSources=g:gsa,g:gsa",
           " "));
 
@@ -9240,7 +9240,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, GrouperUtil.length(outputLines));
 
@@ -9287,7 +9287,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --subjectIdentifiers=id.test.subject.0,id.test.subject.1",
           " "));
 
@@ -9296,7 +9296,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 2, GrouperUtil.length(outputLines));
 
@@ -9345,7 +9345,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       Group aGroup = GroupFinder.findByName(grouperSession, "aStem:aGroup", true);
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --groupUuid=" + aGroup.getUuid() + " --subjectIds=" + SubjectTestHelper.SUBJ5_ID + "," + SubjectTestHelper.SUBJ6_ID,
           " "));
 
@@ -9354,7 +9354,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 0, GrouperUtil.length(outputLines));
 
@@ -9364,7 +9364,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --groupUuid=" + aGroup.getUuid() + " --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ7_ID,
           " "));
 
@@ -9373,7 +9373,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9410,7 +9410,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --groupIdIndex=" + aGroup.getIdIndex() + " --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ7_ID,
           " "));
 
@@ -9419,7 +9419,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9456,7 +9456,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getSubjectsWs --groupName=" + aGroup.getName() + " --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "," + SubjectTestHelper.SUBJ7_ID,
           " "));
 
@@ -9465,7 +9465,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9503,7 +9503,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + " --subjectAttributeNames=a,name --outputTemplate=${wsSubject.getAttributeValue(1)}$newline$",
                   " "));
@@ -9512,7 +9512,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
       assertEquals(outputLines[0], "my name is test.subject.0");
@@ -9524,7 +9524,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --groupName=" + aGroup.getName() + " --subjectIds=" + SubjectTestHelper.SUBJ0_ID + " --memberFilter=Effective",
                   " "));
@@ -9533,7 +9533,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -9559,7 +9559,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --groupName=" + aGroup.getName() + " --subjectIds=" + SubjectTestHelper.SUBJ0_ID + " --memberFilter=Immediate",
                   " "));
@@ -9568,7 +9568,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9604,7 +9604,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --groupName=" + aGroup.getName() + " --subjectIds=" + SubjectTestHelper.SUBJ0_ID + " --includeGroupDetail=true",
                   " "));
@@ -9613,7 +9613,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9639,7 +9639,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "  --includeSubjectDetail=true",
                   " "));
@@ -9648,7 +9648,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9674,7 +9674,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "  --subjectAttributeNames=name",
                   " "));
@@ -9683,7 +9683,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9709,7 +9709,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "  --paramName0=someParam --paramValue0=someValue",
                   " "));
@@ -9718,7 +9718,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9747,7 +9747,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --groupName=aStem:aGroup --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "  --fieldName=members",
                   " "));
@@ -9756,7 +9756,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9783,7 +9783,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "  --actAsSubjectId=GrouperSystem",
                   " "));
@@ -9792,7 +9792,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9819,7 +9819,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --subjectIds=" + SubjectTestHelper.SUBJ0_ID + "  --actAsPennId=GrouperSystem",
                   " "));
@@ -9828,7 +9828,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, GrouperUtil.length(outputLines));
 
@@ -9858,7 +9858,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --searchString=test",
                   " "));
@@ -9867,7 +9867,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(output, 8 < GrouperUtil.length(outputLines));
 
@@ -9899,7 +9899,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --searchString=test --sourceIds=jdbc",
                   " "));
@@ -9908,7 +9908,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(output, 8 < GrouperUtil.length(outputLines));
 
@@ -9940,7 +9940,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getSubjectsWs --searchString=test --sourceIds=g:gsa",
                   " "));
@@ -9949,7 +9949,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(output, 0, GrouperUtil.length(outputLines));
 
@@ -9994,7 +9994,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --privilegeNames=optin --allowed=true",
                   " "));
@@ -10003,13 +10003,13 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index: ([0-9]+), success: (T|F), code: (.+), (group|stem): (.*), subject: (.+), (.+): (.+)$");
       Matcher matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(output, 1, GrouperClientCommonUtils.length(outputLines));
+      assertEquals(output, 1, GrouperClientUtils.length(outputLines));
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -10027,7 +10027,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0 --privilegeType=access --privilegeNames=optin --allowed=true",
                   " "));
@@ -10036,11 +10036,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -10066,7 +10066,7 @@ public class GrouperClientWsTest extends GrouperTest {
       // test a command line template
       try {
         GrouperClient
-            .main(GrouperClientCommonUtils
+            .main(GrouperClientUtils
                 .splitTrim(
                     "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --privilegeNames=optin --allowed=true --ousdfsdfate=${index}",
                     " "));
@@ -10084,7 +10084,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // test a command line template
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0 --privilegeNames=optin --allowed=true --outputTemplate=${wsSubject.identifierLookup}",
                   " "));
@@ -10103,7 +10103,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --stemName=aStem --pennKeys=id.test.subject.0 --privilegeNames=stem --allowed=true",
                   " "));
@@ -10112,11 +10112,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -10134,7 +10134,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --includeGroupDetail=true --includeSubjectDetail=true --privilegeNames=optin --allowed=false",
                   " "));
@@ -10143,11 +10143,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -10169,7 +10169,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --subjectIds=test.subject.0 --subjectAttributeNames=name --privilegeNames=optin --allowed=false --outputTemplate=${index}:$space$${wsSubject.getAttributeValue(0)}$newline$",
                   " "));
@@ -10178,7 +10178,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines[0], outputLines[0]
           .contains("my name is test.subject.0"));
@@ -10193,7 +10193,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:aGroup --privilegeNames=optin --allowed=false --subjectIds=test.subject.0 --paramName0=whatever --paramValue0=someValue",
                   " "));
@@ -10202,11 +10202,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -10238,7 +10238,7 @@ public class GrouperClientWsTest extends GrouperTest {
       replaceGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE);
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignGrouperPrivilegesWs --groupName=aStem:replaceExisting --privilegeNames=update --allowed=true --subjectIds=test.subject.4 --replaceAllExisting=true",
                   " "));
@@ -10247,11 +10247,11 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       matcher = pattern.matcher(outputLines[0]);
 
-      assertEquals(GrouperClientCommonUtils.length(outputLines), 1);
+      assertEquals(GrouperClientUtils.length(outputLines), 1);
       assertTrue(outputLines[0], matcher.matches());
 
       assertEquals("0", matcher.group(1));
@@ -10313,7 +10313,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefNames=test:testAttributeAssignDefNameDef",
           " "));
       System.out.flush();
@@ -10321,7 +10321,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -10386,7 +10386,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId(),
           " "));
 
@@ -10396,7 +10396,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10458,7 +10458,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefIdIndexes=" + attributeDef.getIdIndex(),
           " "));
 
@@ -10468,7 +10468,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10530,7 +10530,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefNameNames=" + attributeDefName.getName(),
           " "));
 
@@ -10540,7 +10540,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10603,7 +10603,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefNameUuids=" + attributeDefName.getId(),
           " "));
 
@@ -10613,7 +10613,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10674,7 +10674,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefNameIdIndexes=" + attributeDefName.getIdIndex(),
           " "));
 
@@ -10684,7 +10684,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10746,7 +10746,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupNames=" + group.getName(),
           " "));
 
@@ -10756,7 +10756,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10820,7 +10820,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId(),
           " "));
 
@@ -10830,7 +10830,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10892,7 +10892,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupIdIndexes=" + group.getIdIndex(),
           " "));
 
@@ -10902,7 +10902,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -10965,7 +10965,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --enabled=F",
           " "));
@@ -10976,7 +10976,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -11026,7 +11026,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --actions=a",
           " "));
@@ -11037,7 +11037,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -11087,7 +11087,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --includeAssignmentsOnAssignments=T",
           " "));
@@ -11098,7 +11098,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
 //      assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -11181,7 +11181,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --includeGroupDetail=T",
           " "));
@@ -11192,7 +11192,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11258,7 +11258,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --includeSubjectDetail=T",
           " "));
@@ -11269,7 +11269,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11334,7 +11334,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --subjectAttributeNames=abc",
           " "));
@@ -11345,7 +11345,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11410,7 +11410,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --ownerGroupUuids=" + group.getId()
           + " --paramName0=a --paramValue0=b",
           " "));
@@ -11421,7 +11421,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11484,7 +11484,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeAssignUuids=" + attributeAssign.getId(),
           " "));
 
@@ -11494,7 +11494,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11557,7 +11557,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeAssignUuids=" + attributeAssign.getId()
           + " --outputTemplate=${wsAttributeAssign.attributeAssignType}$newline$",
           " "));
@@ -11568,9 +11568,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      outputLine = GrouperClientCommonUtils.trim(outputLines[0]);
+      outputLine = GrouperClientUtils.trim(outputLines[0]);
 
       assertEquals(outputLine, "group", outputLine);
 
@@ -11620,7 +11620,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeAssignUuids=" + attributeAssign.getId()
           + " --actAsSubjectId=GrouperSystem",
           " "));
@@ -11631,7 +11631,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11714,7 +11714,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignActionsWs --namesOfAttributeDefs=test:testAttributeAssignDefNameDef",
           " "));
       System.out.flush();
@@ -11722,7 +11722,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index: (\\d+)\\: nameOfAttributeDef\\: (.+), action: (.+)$");
@@ -11762,7 +11762,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignActionsWs --uuidsOfAttributeDefs=" + attributeDef.getId(),
           " "));
 
@@ -11772,7 +11772,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11808,7 +11808,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignActionsWs --idIndexesOfAttributeDefs=" + attributeDef.getIdIndex(),
           " "));
 
@@ -11818,7 +11818,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11854,7 +11854,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignActionsWs --idIndexesOfAttributeDefs=" + attributeDef.getIdIndex() +" --actions=read", " "));
 
 
@@ -11863,7 +11863,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertTrue(outputLines.length == 1);
 
@@ -11884,7 +11884,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignActionsWs --idIndexesOfAttributeDefs=" + attributeDef.getIdIndex() +" --paramName0=a --paramValue0=b",
           " "));
 
@@ -11894,7 +11894,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11930,7 +11930,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignActionsWs --idIndexesOfAttributeDefs=" + attributeDef.getIdIndex() +" --actAsSubjectId=GrouperSystem", " "));
 
 
@@ -11939,7 +11939,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -11993,7 +11993,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=assignAttributeDefActionsWs --nameOfAttributeDef=test:testAttributeAssignDefNameDef --actions=read,assign --assign=T",
                   " "));
@@ -12002,7 +12002,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       Pattern pattern = Pattern
           .compile("^Index (\\d+)\\: nameOfAttributeDef\\: (.+), action: (.+), status: (.+)$");
@@ -12043,7 +12043,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefActionsWs --uuidOfAttributeDef="
               + attributeDef.getId() + " --actions=read,assign --assign=T",
           " "));
@@ -12053,7 +12053,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12092,7 +12092,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
               + attributeDef.getIdIndex() + " --actions=delete,assign --assign=T",
           " "));
@@ -12102,7 +12102,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12141,7 +12141,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
               + attributeDef.getIdIndex()
               + " --actions=view --assign=T --replaceAllExisting=T",
@@ -12152,7 +12152,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12214,7 +12214,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
               + attributeDef.getIdIndex() + " --actions=view --assign=F",
           " "));
@@ -12224,7 +12224,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12254,7 +12254,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
               + attributeDef.getIdIndex()
               + " --actions=view --assign=T --paramName0=a --paramValue0=b",
@@ -12265,7 +12265,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12295,7 +12295,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefActionsWs --idIndexOfAttributeDef="
               + attributeDef.getIdIndex()
               + " --actions=view --assign=T --actAsSubjectId=GrouperSystem",
@@ -12306,7 +12306,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12364,7 +12364,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefNames=test:testAttributeAssignDefNameDef",
           " "));
       System.out.flush();
@@ -12372,7 +12372,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: stem, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: none, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -12437,7 +12437,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --ownerStemUuids=" + stem.getUuid(),
           " "));
 
@@ -12447,7 +12447,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12509,7 +12509,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --ownerStemNames=" + stem.getName(),
           " "));
 
@@ -12519,7 +12519,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12611,7 +12611,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefNames=test:testAttributeAssignDefNameDef",
           " "));
       System.out.flush();
@@ -12619,7 +12619,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: member, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: none, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -12684,7 +12684,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=member --owner0SubjectId=" + member.getSubjectId(),
           " "));
 
@@ -12694,7 +12694,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12756,7 +12756,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=member --owner0SubjectIdentifier=id.test.subject.0",
           " "));
 
@@ -12766,7 +12766,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -12863,7 +12863,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefNames=test:testAttributeAssignDefNameDef",
           " "));
       System.out.flush();
@@ -12871,7 +12871,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: member, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: none, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -12936,7 +12936,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --ownerMembershipUuids=" + membership.getUuid(),
           " "));
 
@@ -12946,7 +12946,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13052,7 +13052,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefNames=test:testAttributeAssignDefNameDef",
           " "));
       System.out.flush();
@@ -13060,7 +13060,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: any_mem, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: none, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -13125,7 +13125,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --ownerMembershipAny0SubjectId=" + member.getSubjectId()
           + " --ownerMembershipAny0GroupName=" + group1.getName(),
           " "));
@@ -13136,7 +13136,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13198,7 +13198,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --ownerMembershipAny0SubjectId=" + member.getSubjectId()
           + " --ownerMembershipAny0GroupIdIndex=" + group1.getIdIndex(),
           " "));
@@ -13209,7 +13209,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13301,7 +13301,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefNames=test:testAttributeAssignDefNameDef",
                   " "));
@@ -13310,7 +13310,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: stem, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: none, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -13377,7 +13377,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient
-          .main(GrouperClientCommonUtils
+          .main(GrouperClientUtils
               .splitTrim(
                   "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --ownerAttributeDefUuids="
                       + attributeDefAssignTo.getUuid(),
@@ -13388,7 +13388,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13481,7 +13481,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign",
           " "));
@@ -13493,7 +13493,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -13575,7 +13575,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameUuids=" + attributeDefName.getId() +  " --ownerGroupNames=test:groupTestAttrAssign",
           " "));
@@ -13587,7 +13587,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13662,7 +13662,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameIdIndexes=" + attributeDefName.getIdIndex() +  " --ownerGroupNames=test:groupTestAttrAssign",
           " "));
@@ -13674,7 +13674,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13749,7 +13749,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupUuids=" + group.getUuid(),
           " "));
@@ -13761,7 +13761,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13837,7 +13837,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupIdIndexes=" + group.getIdIndex(),
           " "));
@@ -13849,7 +13849,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -13925,7 +13925,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --assignmentEnabledTime=2010/03/05_17:05:13.123",
@@ -13938,7 +13938,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14016,7 +14016,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --assignmentDisabledTime=2010/03/05_17:05:13.123",
@@ -14029,7 +14029,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14107,7 +14107,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --assignmentNotes=theNotes",
@@ -14120,7 +14120,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14199,7 +14199,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --delegatable=FALSE",
@@ -14212,7 +14212,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14290,7 +14290,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --actions=assign",
@@ -14303,7 +14303,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14380,7 +14380,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --values0System=3 --values1System=4 --values2System=5 --attributeAssignValueOperation=replace_values",
@@ -14393,7 +14393,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14474,7 +14474,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --includeGroupDetail=T",
@@ -14487,7 +14487,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14564,7 +14564,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --includeSubjectDetail=T",
@@ -14577,7 +14577,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14654,7 +14654,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --subjectAttributeNames=abc",
@@ -14667,7 +14667,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14744,7 +14744,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerGroupNames=test:groupTestAttrAssign "
           + " --paramName0=a --paramValue0=b",
@@ -14757,7 +14757,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14838,7 +14838,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       String attributeAssignId = attributeAssign.getId();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=remove_attr "
           + " --attributeAssignUuids=" + attributeAssign.getId(),
           " "));
@@ -14852,7 +14852,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -14932,7 +14932,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       attributeAssignId = attributeAssign.getId();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=remove_attr "
           + " --attributeAssignUuids=" + attributeAssign.getId() + " --outputTemplate=${wsAttributeAssign.attributeAssignType}$newline$",
           " "));
@@ -14946,9 +14946,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      outputLine = GrouperClientCommonUtils.trim(outputLines[0]);
+      outputLine = GrouperClientUtils.trim(outputLines[0]);
 
       assertEquals(outputLine, "group", outputLine);
 
@@ -15014,7 +15014,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       attributeAssignId = attributeAssign.getId();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=group --attributeAssignOperation=remove_attr "
           + " --attributeAssignUuids=" + attributeAssign.getId() + " --actAsSubjectId=GrouperSystem",
           " "));
@@ -15028,7 +15028,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -15135,7 +15135,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=stem --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerStemNames=test:stemTestAttrAssign",
           " "));
@@ -15147,7 +15147,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -15224,7 +15224,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=stem --attributeAssignOperation=assign_attr " +
           "--attributeDefNameUuids=" + attributeDefName.getId() +  " --ownerStemUuids=" + stem.getUuid(),
           " "));
@@ -15236,7 +15236,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -15341,7 +15341,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=member --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --owner0SubjectId=" + SubjectTestHelper.SUBJ0_ID,
           " "));
@@ -15353,7 +15353,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -15430,7 +15430,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=member --attributeAssignOperation=assign_attr " +
           "--attributeDefNameUuids=" + attributeDefName.getId() +  " --owner0SubjectIdentifier=id.test.subject.0",
           " "));
@@ -15442,7 +15442,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -15543,7 +15543,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=attr_def --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerAttributeDefNames=test:testAttributeDefAssignTo",
           " "));
@@ -15555,7 +15555,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -15632,7 +15632,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=attr_def --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerAttributeDefUuids=" + attributeDefAssignTo.getUuid(),
           " "));
@@ -15644,7 +15644,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -15717,7 +15717,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=attr_def --attributeAssignOperation=assign_attr " +
           "--attributeDefNameIdIndexes=" + attributeDefName.getIdIndex() + " --ownerAttributeDefIdIndexes=" + attributeDefAssignTo.getIdIndex(),
           " "));
@@ -15729,7 +15729,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -15837,7 +15837,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=imm_mem --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerMembershipUuids=" + membership.getUuid(),
           " "));
@@ -15849,7 +15849,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -15971,7 +15971,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=any_mem --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName --ownerMembershipAny0SubjectId=" + member.getSubjectId()
           + " --ownerMembershipAny0GroupName=" + group1.getName(),
@@ -15984,7 +15984,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -16106,7 +16106,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesWs --attributeAssignType=imm_mem_asgn --attributeAssignOperation=assign_attr " +
           "--attributeDefNameNames=test:testAttributeAssignDefName2 --ownerAttributeAssignUuids=" + attributeAssign.getId(),
           " "));
@@ -16118,7 +16118,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -16237,7 +16237,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       try {
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --attributeDefNames=aStem:permissionDef",
             " "));
         System.out.flush();
@@ -16245,7 +16245,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, allowedOverall: T, enabled: T
         // match: ^Index: (\d+)\: permissionType\: (.+), role\: (.+), subject\: (.+), attributeDefNameName\: (.+), action\: (.+), allowedOverall: (T|F), enabled\: (T|F)
@@ -16325,7 +16325,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --attributeDefUuids=" + permissionDef.getId(),
             " "));
 
@@ -16333,7 +16333,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16408,7 +16408,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --attributeDefIdIndexes=" + permissionDef.getIdIndex(),
             " "));
 
@@ -16416,7 +16416,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16493,7 +16493,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --attributeDefNameNames=" + permissionDefName.getName(),
             " "));
 
@@ -16501,7 +16501,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16563,7 +16563,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --attributeDefNameUuids=" + permissionDefName.getId(),
             " "));
 
@@ -16571,7 +16571,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16632,7 +16632,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --attributeDefNameIdIndexes=" + permissionDefName.getIdIndex(),
             " "));
 
@@ -16640,7 +16640,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16702,7 +16702,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName(),
             " "));
 
@@ -16710,7 +16710,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16772,7 +16772,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleUuids=" + role.getId(),
             " "));
 
@@ -16780,7 +16780,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16843,7 +16843,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleIdIndexes=" + role.getIdIndex(),
             " "));
 
@@ -16851,7 +16851,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -16912,7 +16912,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --enabled=F",
             " "));
 
@@ -16921,7 +16921,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -16967,7 +16967,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --actions=a",
             " "));
 
@@ -16976,7 +16976,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -17022,14 +17022,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --includeAttributeAssignments=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17093,14 +17093,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --includeAttributeAssignments=T --includeAssignmentsOnAssignments=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17166,14 +17166,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --includePermissionAssignDetail=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17239,14 +17239,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --includeAttributeDefNames=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17310,14 +17310,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --includeGroupDetail=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17381,14 +17381,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --includeSubjectDetail=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17452,14 +17452,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --subjectAttributeNames=abc",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17523,14 +17523,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --paramName0=a --paramValue0=b",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17594,14 +17594,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --outputTemplate=${wsPermissionAssign.permissionType}$newline$",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17657,7 +17657,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --actAsSubjectId=" + SubjectTestHelper.SUBJ0_ID,
               " "));
         } catch (Exception e) {
@@ -17675,14 +17675,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --immediateOnly=T",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17735,14 +17735,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --permissionType=role_subject",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17799,14 +17799,14 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getPermissionAssignmentsWs --roleNames=" + role.getName() + " --permissionProcessor=FILTER_REDUNDANT_PERMISSIONS",
             " "));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -17924,8 +17924,8 @@ public class GrouperClientWsTest extends GrouperTest {
         ArrayList<String> args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--attributeDefNames=aStem:permissionDef");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -17933,7 +17933,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, enabled: null
         // match: Index: 0: permissionType: role, role: aStem:role, subject: jdbc - test.subject.0, attributeDefNameName: aStem:permissionDefName, action: action, allowedOverall: T, enabled:
@@ -18013,14 +18013,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--attributeDefUuids=" + permissionDef.getId());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18096,14 +18096,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--attributeDefNameNames=" + permissionDefName.getName());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18166,14 +18166,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--attributeDefNameUuids=" + permissionDefName.getId());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18236,14 +18236,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18306,14 +18306,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleUuids=" + role.getId());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18376,8 +18376,8 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--actions=a");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -18385,7 +18385,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -18435,14 +18435,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--includeAttributeAssignments=T");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18509,14 +18509,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--roleNames=" + role.getName());
         args.add("--includeAttributeAssignments=T");
         args.add("--includeAssignmentsOnAssignments=T");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18584,14 +18584,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--includePermissionAssignDetail=T");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18659,14 +18659,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--includeAttributeDefNames=T");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18732,14 +18732,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--includeSubjectDetail=T");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18805,14 +18805,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--subjectAttributeNames=abc");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18879,14 +18879,14 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--roleNames=" + role.getName());
         args.add("--paramName0=a");
         args.add("--paramValue0=b");
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
         output = new String(baos.toByteArray());
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         System.setOut(systemOut);
 
@@ -18952,8 +18952,8 @@ public class GrouperClientWsTest extends GrouperTest {
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
         args.add("--actAsSubjectId=" + SubjectTestHelper.SUBJ0_ID);
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(pointInTime));
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(pointInTime));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(pointInTime));
 
         try {
           GrouperClient.main(args.toArray(new String[0]));
@@ -18975,7 +18975,7 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(after));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(after));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -18983,7 +18983,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -18996,7 +18996,7 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
-        args.add("--pointInTimeFrom=" + GrouperClientCommonUtils.timestampToString(before));
+        args.add("--pointInTimeFrom=" + GrouperClientUtils.timestampToString(before));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -19004,7 +19004,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertEquals(1, outputLines.length);
         outputLine = outputLines[0];
@@ -19029,7 +19029,7 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(before));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(before));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -19037,7 +19037,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertTrue(outputLines == null || outputLines.length == 0 || StringUtils.isBlank(outputLines[0]));
 
@@ -19050,7 +19050,7 @@ public class GrouperClientWsTest extends GrouperTest {
         args = new ArrayList<String>();
         args.add("--operation=getPermissionAssignmentsWs");
         args.add("--roleNames=" + role.getName());
-        args.add("--pointInTimeTo=" + GrouperClientCommonUtils.timestampToString(after));
+        args.add("--pointInTimeTo=" + GrouperClientUtils.timestampToString(after));
         GrouperClient.main(args.toArray(new String[0]));
 
         System.out.flush();
@@ -19058,7 +19058,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertEquals(1, outputLines.length);
         outputLine = outputLines[0];
@@ -19113,7 +19113,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign",
           " "));
@@ -19125,7 +19125,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -19193,7 +19193,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameUuids=" + attributeDefName.getId() +  " --roleNames=test:groupTestAttrAssign",
           " "));
@@ -19205,7 +19205,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19270,7 +19270,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameIdIndexes=" + attributeDefName.getIdIndex() +  " --roleNames=test:groupTestAttrAssign",
           " "));
@@ -19282,7 +19282,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19346,7 +19346,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleUuids=" + group.getUuid(),
           " "));
@@ -19358,7 +19358,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19422,7 +19422,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleIdIndexes=" + group.getIdIndex(),
           " "));
@@ -19434,7 +19434,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19498,7 +19498,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --assignmentEnabledTime=2010/03/05_17:05:13.123",
@@ -19511,7 +19511,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19578,7 +19578,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --assignmentDisabledTime=2010/03/05_17:05:13.123",
@@ -19591,7 +19591,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19658,7 +19658,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --assignmentNotes=theNotes",
@@ -19671,7 +19671,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19739,7 +19739,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --delegatable=FALSE",
@@ -19752,7 +19752,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19819,7 +19819,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --actions=assign",
@@ -19832,7 +19832,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19898,7 +19898,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --includeGroupDetail=T",
@@ -19911,7 +19911,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -19975,7 +19975,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --includeSubjectDetail=T",
@@ -19988,7 +19988,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -20052,7 +20052,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --subjectAttributeNames=abc",
@@ -20065,7 +20065,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -20129,7 +20129,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign "
           + " --paramName0=a --paramValue0=b",
@@ -20142,7 +20142,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -20210,7 +20210,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       String attributeAssignId = attributeAssign.getId();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=remove_permission "
           + " --attributeAssignUuids=" + attributeAssign.getId(),
           " "));
@@ -20224,7 +20224,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -20292,7 +20292,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       attributeAssignId = attributeAssign.getId();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=remove_permission "
           + " --attributeAssignUuids=" + attributeAssign.getId() + " --outputTemplate=${wsAttributeAssign.attributeAssignType}$newline$",
           " "));
@@ -20306,9 +20306,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      outputLine = GrouperClientCommonUtils.trim(outputLines[0]);
+      outputLine = GrouperClientUtils.trim(outputLines[0]);
 
       assertEquals(outputLine, "group", outputLine);
 
@@ -20362,7 +20362,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       attributeAssignId = attributeAssign.getId();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=remove_permission "
           + " --attributeAssignUuids=" + attributeAssign.getId() + " --actAsSubjectId=GrouperSystem",
           " "));
@@ -20376,7 +20376,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -20442,7 +20442,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       group.getAttributeDelegate().removeAttribute(attributeDefName);
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --roleNames=test:groupTestAttrAssign --disallowed=true",
           " "));
@@ -20457,7 +20457,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -20567,7 +20567,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignPermissionsWs --permissionType=role_subject --permissionAssignOperation=assign_permission " +
           "--permissionDefNameNames=test:testAttributeAssignDefName --subjectRole0SubjectId=" + member.getSubjectId()
           + " --subjectRole0RoleName=" + group1.getName(),
@@ -20580,7 +20580,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -20716,7 +20716,7 @@ public class GrouperClientWsTest extends GrouperTest {
       AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignName("aStem:newAttributeDef")
         .assignCreateParentStemsIfNotExist(true).save();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -20725,7 +20725,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20744,14 +20744,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName0/1 --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20772,14 +20772,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName0/1 --nameOfAttributeDef=aStem:newAttributeDef --saveMode=UPDATE", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20803,14 +20803,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --attributeDefNameLookupName=aStem:newAttributeDefName --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20836,14 +20836,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --attributeDefNameLookupUuid=" + newAttributeDefName.getId() + " --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20867,14 +20867,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --attributeDefNameLookupIdIndex=" + newAttributeDefName.getIdIndex() + " --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20898,14 +20898,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --description=theDescription --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20927,14 +20927,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName5 --idIndex=12345 --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20958,14 +20958,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --displayExtension=theDisplayExtension --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -20989,14 +20989,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --createParentStemsIfNotExist=true --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21021,14 +21021,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --uuidOfAttributeDef=" + attributeDef.getId(), " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21052,14 +21052,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --actAsSubjectId=GrouperSystem --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21083,14 +21083,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --actAsSubjectIdentifier=GrouperSystem --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21114,14 +21114,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameSaveWs --name=aStem:newAttributeDefName --actAsSubjectIdentifier=GrouperSystem --actAsSubjectSource=g:isa --nameOfAttributeDef=aStem:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21168,7 +21168,7 @@ public class GrouperClientWsTest extends GrouperTest {
       AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef).assignName("aStem:newAttributeDefName")
         .assignCreateParentStemsIfNotExist(true).save();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameDeleteWs --attributeDefNameNames=aStem:newAttributeDefName,aStem:newAttributeDefName2", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21177,7 +21177,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -21205,14 +21205,14 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefNameDeleteWs --attributeDefNameNames=aStem:newAttributeDefName,aStem:newAttributeDefName2 --txType=READ_WRITE_NEW", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -21278,7 +21278,7 @@ public class GrouperClientWsTest extends GrouperTest {
       AttributeDefName attributeDefName4 = new AttributeDefNameSave(grouperSession, attributeDef).assignName("aStem2:newAttributeDefName4")
         .assignCreateParentStemsIfNotExist(true).save();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21287,7 +21287,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, outputLines.length);
 
@@ -21312,7 +21312,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem --splitScope=T", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21321,7 +21321,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, outputLines.length);
 
@@ -21347,7 +21347,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --attributeDefNameNames=aStem1:newAttributeDefName1,aStem1:newAttributeDefName2", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21356,7 +21356,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -21382,7 +21382,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --attributeDefNameUuids=" + attributeDefName.getId() + "," + attributeDefName2.getId(), " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21391,7 +21391,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -21419,7 +21419,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --attributeDefNameIdIndexes=" + attributeDefName.getIdIndex() + "," + attributeDefName2.getIdIndex(), " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21428,7 +21428,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -21456,7 +21456,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=% --nameOfAttributeDef=aStem1:newAttributeDef", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21465,7 +21465,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, outputLines.length);
 
@@ -21491,7 +21491,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=% --uuidOfAttributeDef=" + attributeDef.getId(), " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21500,7 +21500,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, outputLines.length);
 
@@ -21528,7 +21528,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=% --idIndexOfAttributeDef=" + attributeDef.getIdIndex(), " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21537,7 +21537,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(4, outputLines.length);
 
@@ -21565,7 +21565,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem1 --attributeAssignType=stem", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21574,7 +21574,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -21587,7 +21587,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem1 --attributeAssignType=group", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21596,7 +21596,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(3, outputLines.length);
 
@@ -21620,7 +21620,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem1 --attributeDefType=attr", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21629,7 +21629,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 
@@ -21646,7 +21646,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem1 --attributeDefType=perm", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21655,7 +21655,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(3, outputLines.length);
 
@@ -21683,7 +21683,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --attributeDefNameNames=aStem1:newAttributeDefName1 --inheritanceSetRelation=IMPLIED_BY_THIS", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21692,7 +21692,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21725,7 +21725,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=aStem --sortString=extension --ascending=F --pageNumber=2 --pageSize=2", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21734,7 +21734,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -21796,7 +21796,7 @@ public class GrouperClientWsTest extends GrouperTest {
       AttributeDefName attributeDefName3 = new AttributeDefNameSave(grouperSession, attributeDef).assignName("aStem:newAttributeDefName3")
         .assignCreateParentStemsIfNotExist(true).save();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefNameInheritanceWs --attributeDefNameName=aStem:newAttributeDefName --relatedAttributeDefNameNames=aStem:newAttributeDefName2,aStem:newAttributeDefName3 --assign=T", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -21805,7 +21805,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21826,7 +21826,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefNameInheritanceWs --attributeDefNameName=aStem:newAttributeDefName " +
           "--relatedAttributeDefNameNames=aStem:newAttributeDefName2,aStem:newAttributeDefName3 --assign=T --replaceAllExisting=T", " "));
       System.out.flush();
@@ -21836,7 +21836,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21856,7 +21856,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributeDefNameInheritanceWs --attributeDefNameName=aStem:newAttributeDefName " +
           "--relatedAttributeDefNameNames=aStem:newAttributeDefName2,aStem:newAttributeDefName3 --assign=F --txType=READ_WRITE_NEW", " "));
       System.out.flush();
@@ -21866,7 +21866,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -21936,7 +21936,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group " +
           "--attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=abc",
@@ -21946,7 +21946,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22035,7 +22035,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=123",
@@ -22047,7 +22047,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 //      outputLine = outputLines[0];
@@ -22123,7 +22123,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             " --operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=123" + attributeDef.getId() +
             " --attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=123",
@@ -22139,7 +22139,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=attr",
           " "));
@@ -22150,7 +22150,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22239,7 +22239,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=limit",
           " "));
@@ -22249,7 +22249,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22327,7 +22327,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId(),
           " "));
 
@@ -22336,7 +22336,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22426,7 +22426,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=1" + attributeDef2.getId(),
             " "));
 
@@ -22435,7 +22435,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22515,7 +22515,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=123 ",
         " "));
@@ -22525,7 +22525,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22615,7 +22615,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=1234 ",
         " "));
@@ -22625,7 +22625,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22702,7 +22702,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --includeAssignmentsFromAssignments=T ",
         " "));
@@ -22712,7 +22712,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22817,7 +22817,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
             ,
           " "));
@@ -22827,7 +22827,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -22912,7 +22912,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
           ,
         " "));
@@ -22922,7 +22922,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23015,7 +23015,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
           ,
         " "));
@@ -23025,7 +23025,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23120,7 +23120,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
             ,
           " "));
@@ -23130,7 +23130,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23216,7 +23216,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -23226,7 +23226,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23319,7 +23319,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -23329,7 +23329,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23424,7 +23424,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
             ,
           " "));
@@ -23434,7 +23434,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23521,7 +23521,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
           ,
         " "));
@@ -23531,7 +23531,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23622,7 +23622,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
             ,
           " "));
@@ -23632,7 +23632,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23716,7 +23716,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           ,
         " "));
@@ -23726,7 +23726,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23817,7 +23817,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
             ,
           " "));
@@ -23827,7 +23827,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -23910,7 +23910,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign",
         " "));
@@ -23920,7 +23920,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24009,7 +24009,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign2",
         " "));
@@ -24019,7 +24019,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24095,7 +24095,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=group_asgn --ownerGroupNames=" + group.getName()
           ,
         " "));
@@ -24105,7 +24105,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24234,7 +24234,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       try {
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem " +
             "--attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=abc",
@@ -24244,7 +24244,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24333,7 +24333,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=" + attributeDef.getId() +
             " --attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=123",
@@ -24345,7 +24345,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertEquals(0, GrouperUtil.length(outputLines));
   //      outputLine = outputLines[0];
@@ -24421,7 +24421,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               " --operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=123" + attributeDef.getId() +
               " --attributeDefNames=test:testAttributeAssignDefNameDef " +
               "--attributeDefValueType=string --value=123",
@@ -24437,7 +24437,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=" + attributeDef.getId() +
             " --attributeDefValueType=string --value=abc --attributeDefType=attr",
             " "));
@@ -24448,7 +24448,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24537,7 +24537,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem --attributeDefUuids=" + attributeDef.getId() +
             " --attributeDefValueType=string --value=abc --attributeDefType=limit",
             " "));
@@ -24547,7 +24547,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group, owner: test:stemTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24625,7 +24625,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId(),
             " "));
 
@@ -24634,7 +24634,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24724,7 +24724,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
               " "));
 
@@ -24733,7 +24733,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24813,7 +24813,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId()
             + " --attributeDefValueType=integer --value=123 ",
           " "));
@@ -24823,7 +24823,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -24913,7 +24913,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId()
             + " --attributeDefValueType=integer --value=1234 ",
           " "));
@@ -24923,7 +24923,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25000,7 +25000,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --attributeDefUuids=" + attributeDef2.getId()
             + " --includeAssignmentsFromAssignments=T ",
           " "));
@@ -25010,7 +25010,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25115,7 +25115,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
               ,
             " "));
@@ -25125,7 +25125,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25210,7 +25210,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
             ,
           " "));
@@ -25220,7 +25220,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25313,7 +25313,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
             ,
           " "));
@@ -25323,7 +25323,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25418,7 +25418,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
               ,
             " "));
@@ -25428,7 +25428,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25514,7 +25514,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
             ,
           " "));
@@ -25524,7 +25524,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25617,7 +25617,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
             ,
           " "));
@@ -25627,7 +25627,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25722,7 +25722,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
               ,
             " "));
@@ -25732,7 +25732,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25819,7 +25819,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
             ,
           " "));
@@ -25829,7 +25829,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -25920,7 +25920,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
               ,
             " "));
@@ -25930,7 +25930,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26014,7 +26014,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
             ,
           " "));
@@ -26024,7 +26024,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26115,7 +26115,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
               ,
             " "));
@@ -26125,7 +26125,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26208,7 +26208,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
             + " --assignAssignOwnerActions=assign",
           " "));
@@ -26218,7 +26218,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26307,7 +26307,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
             + " --assignAssignOwnerActions=assign2",
           " "));
@@ -26317,7 +26317,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26393,7 +26393,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=stem_asgn --ownerStemNames=" + stem.getName()
             ,
           " "));
@@ -26403,7 +26403,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: stem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26530,7 +26530,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       try {
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=member " +
             "--attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=abc",
@@ -26540,7 +26540,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group, owner: jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26629,7 +26629,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=" + attributeDef.getId() +
             " --attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=123",
@@ -26641,7 +26641,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         assertEquals(0, GrouperUtil.length(outputLines));
   //      outputLine = outputLines[0];
@@ -26717,7 +26717,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               " --operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=123" + attributeDef.getId() +
               " --attributeDefNames=test:testAttributeAssignDefNameDef " +
               "--attributeDefValueType=string --value=123",
@@ -26733,7 +26733,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=" + attributeDef.getId() +
             " --attributeDefValueType=string --value=abc --attributeDefType=attr",
             " "));
@@ -26744,7 +26744,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group, owner: jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26833,7 +26833,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=member --attributeDefUuids=" + attributeDef.getId() +
             " --attributeDefValueType=string --value=abc --attributeDefType=limit",
             " "));
@@ -26843,7 +26843,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group, owner: jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -26921,7 +26921,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId(),
             " "));
 
@@ -26930,7 +26930,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27020,7 +27020,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
               " "));
 
@@ -27029,7 +27029,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27109,7 +27109,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId()
             + " --attributeDefValueType=integer --value=123 ",
           " "));
@@ -27119,7 +27119,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27209,7 +27209,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId()
             + " --attributeDefValueType=integer --value=1234 ",
           " "));
@@ -27219,7 +27219,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27296,7 +27296,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --attributeDefUuids=" + attributeDef2.getId()
             + " --includeAssignmentsFromAssignments=T ",
           " "));
@@ -27306,7 +27306,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27411,7 +27411,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
               ,
             " "));
@@ -27421,7 +27421,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27506,7 +27506,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
             ,
           " "));
@@ -27516,7 +27516,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27609,7 +27609,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
             ,
           " "));
@@ -27619,7 +27619,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27714,7 +27714,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
               ,
             " "));
@@ -27724,7 +27724,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27810,7 +27810,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
             ,
           " "));
@@ -27820,7 +27820,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -27913,7 +27913,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
             ,
           " "));
@@ -27923,7 +27923,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28018,7 +28018,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
               ,
             " "));
@@ -28028,7 +28028,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28115,7 +28115,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
             ,
           " "));
@@ -28125,7 +28125,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28216,7 +28216,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
               ,
             " "));
@@ -28226,7 +28226,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28310,7 +28310,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
             ,
           " "));
@@ -28320,7 +28320,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28411,7 +28411,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
 
         try {
-          GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+          GrouperClient.main(GrouperClientUtils.splitTrim(
               "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
               ,
             " "));
@@ -28421,7 +28421,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
           System.setOut(systemOut);
 
-          outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
           // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
           // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28504,7 +28504,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
             + " --assignAssignOwnerActions=assign",
           " "));
@@ -28514,7 +28514,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28603,7 +28603,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
             + " --assignAssignOwnerActions=assign2",
           " "));
@@ -28613,7 +28613,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28689,7 +28689,7 @@ public class GrouperClientWsTest extends GrouperTest {
         baos = new ByteArrayOutputStream();
         System.setOut(new PrintStream(baos));
 
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=mem_asgn --owner0SubjectId=" + SubjectTestHelper.SUBJ0_ID
             ,
           " "));
@@ -28699,7 +28699,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: mem_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28831,7 +28831,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def " +
           "--attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=abc",
@@ -28841,7 +28841,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef, owner: test:attributeDefTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -28930,7 +28930,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=123",
@@ -28942,7 +28942,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 //      outputLine = outputLines[0];
@@ -29018,7 +29018,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             " --operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=123" + attributeDef.getId() +
             " --attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=123",
@@ -29034,7 +29034,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=attr",
           " "));
@@ -29045,7 +29045,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef, owner: test:attributeDefTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29134,7 +29134,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=limit",
           " "));
@@ -29144,7 +29144,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef, owner: test:attributeDefTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29222,7 +29222,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId(),
           " "));
 
@@ -29231,7 +29231,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29321,7 +29321,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=1" + attributeDef2.getId(),
             " "));
 
@@ -29330,7 +29330,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29410,7 +29410,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=123 ",
         " "));
@@ -29420,7 +29420,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29510,7 +29510,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=1234 ",
         " "));
@@ -29520,7 +29520,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29597,7 +29597,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --includeAssignmentsFromAssignments=T ",
         " "));
@@ -29607,7 +29607,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29712,7 +29712,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
             ,
           " "));
@@ -29722,7 +29722,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29807,7 +29807,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
           ,
         " "));
@@ -29817,7 +29817,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -29910,7 +29910,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
           ,
         " "));
@@ -29920,7 +29920,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30015,7 +30015,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
             ,
           " "));
@@ -30025,7 +30025,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30111,7 +30111,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -30121,7 +30121,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30214,7 +30214,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -30224,7 +30224,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attr_def_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30319,7 +30319,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
             ,
           " "));
@@ -30329,7 +30329,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30416,7 +30416,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
           ,
         " "));
@@ -30426,7 +30426,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30517,7 +30517,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
             ,
           " "));
@@ -30527,7 +30527,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30611,7 +30611,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           ,
         " "));
@@ -30621,7 +30621,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attr_def_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30712,7 +30712,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
             ,
           " "));
@@ -30722,7 +30722,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30805,7 +30805,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign",
         " "));
@@ -30815,7 +30815,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30904,7 +30904,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign2",
         " "));
@@ -30914,7 +30914,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -30990,7 +30990,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=attr_def_asgn --ownerAttributeDefNames=" + ownerAttributeDef.getName()
           ,
         " "));
@@ -31000,7 +31000,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: attributeDef_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: attributeDef\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31135,7 +31135,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem " +
           "--attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=abc",
@@ -31145,7 +31145,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31234,7 +31234,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=123",
@@ -31246,7 +31246,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 //      outputLine = outputLines[0];
@@ -31322,7 +31322,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             " --operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=123" + attributeDef.getId() +
             " --attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=123",
@@ -31338,7 +31338,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=attr",
           " "));
@@ -31349,7 +31349,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31438,7 +31438,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=limit",
           " "));
@@ -31448,7 +31448,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31526,7 +31526,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId(),
           " "));
 
@@ -31535,7 +31535,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31625,7 +31625,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
             " "));
 
@@ -31634,7 +31634,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31714,7 +31714,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=123 ",
         " "));
@@ -31724,7 +31724,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31814,7 +31814,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=1234 ",
         " "));
@@ -31824,7 +31824,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -31901,7 +31901,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --includeAssignmentsFromAssignments=T ",
         " "));
@@ -31911,7 +31911,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32016,7 +32016,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
             ,
           " "));
@@ -32026,7 +32026,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32111,7 +32111,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
           ,
         " "));
@@ -32121,7 +32121,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32214,7 +32214,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
           ,
         " "));
@@ -32224,7 +32224,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32319,7 +32319,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
             ,
           " "));
@@ -32329,7 +32329,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32415,7 +32415,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -32425,7 +32425,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32518,7 +32518,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -32528,7 +32528,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32623,7 +32623,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
             ,
           " "));
@@ -32633,7 +32633,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32720,7 +32720,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
           ,
         " "));
@@ -32730,7 +32730,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32821,7 +32821,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
             ,
           " "));
@@ -32831,7 +32831,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -32915,7 +32915,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           ,
         " "));
@@ -32925,7 +32925,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33016,7 +33016,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
             ,
           " "));
@@ -33026,7 +33026,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33109,7 +33109,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign",
         " "));
@@ -33119,7 +33119,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33208,7 +33208,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign2",
         " "));
@@ -33218,7 +33218,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33294,7 +33294,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=imm_mem_asgn --ownerMembershipUuids=" + membership.getImmediateMembershipId()
           ,
         " "));
@@ -33304,7 +33304,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33448,7 +33448,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem " +
           "--attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=abc",
@@ -33458,7 +33458,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33547,7 +33547,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefNames=test:testAttributeAssignDefNameDef " +
           "--attributeDefValueType=string --value=123",
@@ -33559,7 +33559,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(0, GrouperUtil.length(outputLines));
 //      outputLine = outputLines[0];
@@ -33635,7 +33635,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             " --operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=123" + attributeDef.getId() +
             " --attributeDefNames=test:testAttributeAssignDefNameDef " +
             "--attributeDefValueType=string --value=123",
@@ -33651,7 +33651,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=attr",
           " "));
@@ -33662,7 +33662,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:anyMembershipTestAttrAssign - jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33751,7 +33751,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem --attributeDefUuids=" + attributeDef.getId() +
           " --attributeDefValueType=string --value=abc --attributeDefType=limit",
           " "));
@@ -33761,7 +33761,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group, owner: test:anyMembershipTestAttrAssign - jdbc - test.subject.0, attributeDefNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33839,7 +33839,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId(),
           " "));
 
@@ -33848,7 +33848,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -33938,7 +33938,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefIdIndexes=" + attributeDef2.getIdIndex(),
           " "));
 
@@ -33947,7 +33947,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34037,7 +34037,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=1" + attributeDef2.getId(),
             " "));
 
@@ -34046,7 +34046,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34126,7 +34126,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=123 ",
         " "));
@@ -34136,7 +34136,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34226,7 +34226,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --attributeDefValueType=integer --value=1234 ",
         " "));
@@ -34236,7 +34236,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34313,7 +34313,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --attributeDefUuids=" + attributeDef2.getId()
           + " --includeAssignmentsFromAssignments=T ",
         " "));
@@ -34323,7 +34323,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34428,7 +34428,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerAttributeAssignUuids=1" + attributeAssign.getId()
             ,
           " "));
@@ -34438,7 +34438,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34523,7 +34523,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerAttributeAssignUuids=" + attributeAssign.getId()
           ,
         " "));
@@ -34533,7 +34533,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34626,7 +34626,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=" + attributeDef.getName()
           ,
         " "));
@@ -34636,7 +34636,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34731,7 +34731,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefs=1" + attributeDef.getName()
             ,
           " "));
@@ -34741,7 +34741,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34827,7 +34827,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -34837,7 +34837,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -34930,7 +34930,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=" + attributeDef.getId()
           ,
         " "));
@@ -34940,7 +34940,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35035,7 +35035,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefs=1" + attributeDef.getId()
             ,
           " "));
@@ -35045,7 +35045,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35132,7 +35132,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=" + attributeDefName.getName()
           ,
         " "));
@@ -35142,7 +35142,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35233,7 +35233,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerNamesOfAttributeDefNames=1" + attributeDefName.getName()
             ,
           " "));
@@ -35243,7 +35243,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35327,7 +35327,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           ,
         " "));
@@ -35337,7 +35337,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35428,7 +35428,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       try {
-        GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+        GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=1" + attributeDefName.getId()
             ,
           " "));
@@ -35438,7 +35438,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
         System.setOut(systemOut);
 
-        outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
         // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
         // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35521,7 +35521,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign",
         " "));
@@ -35531,7 +35531,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35620,7 +35620,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --assignAssignOwnerUuidsOfAttributeDefNames=" + attributeDefName.getId()
           + " --assignAssignOwnerActions=assign2",
         " "));
@@ -35630,7 +35630,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35706,7 +35706,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=getAttributeAssignmentsWs --attributeAssignType=any_mem_asgn --ownerMembershipAny0SubjectId=" + member.getSubjectId()
           + " --ownerMembershipAny0GroupName=" + group1.getName()
           ,
@@ -35717,7 +35717,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: 0: attributeAssignType: group_asgn, owner: 91dba6fbe4e9483c876f3af32039ed19, attributeDefNameName: test:testAttributeAssignAssignName, action: assign, values: 123, enabled: T, id: b0cccccf4af14af9be9c5df294f875e1
       // match: ^Index: (\d+)\: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F)$
@@ -35838,7 +35838,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign",
           " "));
@@ -35850,7 +35850,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       // match: Index: ${assignIndex}, itemIndex: ${assignItemIndex}: attributeAssignType: group, owner: test:groupTestAttrAssign, attributeDefNameNameName test:testAttributeAssignDefName, action: assign, values: 15,5,5, enable: T, id: a9c83eeb78c04ae5befcea36272d318c, changed: true, valuesChanged: false
       // match: ^Index: (\d+), \: group\: (.+), subject\: (.+), list: (.+), type\: (.+), enabled\: (T|F), changed\: (T|F), valuesChanged\: (T|F)$
@@ -35933,7 +35933,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_uuidOfAttributeDefName=" + attributeDefName.getId() +  " --entry_0_ownerGroupName=test:groupTestAttrAssign",
           " "));
@@ -35945,7 +35945,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36021,7 +36021,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_idIndexOfAttributeDefName=" + attributeDefName.getIdIndex() +  " --entry_0_ownerGroupName=test:groupTestAttrAssign",
           " "));
@@ -36033,7 +36033,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36109,7 +36109,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupUuid=" + group.getUuid(),
           " "));
@@ -36121,7 +36121,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36198,7 +36198,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupIdIndex=" + group.getIdIndex(),
           " "));
@@ -36210,7 +36210,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36287,7 +36287,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
           + " --entry_0_assignmentEnabledTime=2010/03/05_17:05:13.123",
@@ -36300,7 +36300,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36379,7 +36379,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
           + " --entry_0_assignmentDisabledTime=2010/03/05_17:05:13.123",
@@ -36392,7 +36392,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36471,7 +36471,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
           + " --entry_0_assignmentNotes=theNotes",
@@ -36484,7 +36484,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36564,7 +36564,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
           + " --entry_0_delegatable=FALSE",
@@ -36577,7 +36577,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36656,7 +36656,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
           + " --entry_0_action=assign",
@@ -36669,7 +36669,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36747,7 +36747,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
           "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
           + " --entry_0_values0System=3 --entry_0_values1System=4 --entry_0_values2System=5 --entry_0_attributeAssignValueOperation=replace_values",
@@ -36760,7 +36760,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       outputLine = outputLines[0];
 
@@ -36842,7 +36842,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //    baos = new ByteArrayOutputStream();
   //    System.setOut(new PrintStream(baos));
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
   //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
   //        + " --includeGroupDetail=T",
@@ -36855,7 +36855,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
   //    outputLine = outputLines[0];
   //
@@ -36933,7 +36933,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //    baos = new ByteArrayOutputStream();
   //    System.setOut(new PrintStream(baos));
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
   //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
   //        + " --includeSubjectDetail=T",
@@ -36946,7 +36946,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
   //    outputLine = outputLines[0];
   //
@@ -37024,7 +37024,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //    baos = new ByteArrayOutputStream();
   //    System.setOut(new PrintStream(baos));
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
   //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
   //        + " --subjectAttributeNames=abc",
@@ -37037,7 +37037,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
   //    outputLine = outputLines[0];
   //
@@ -37115,7 +37115,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //    baos = new ByteArrayOutputStream();
   //    System.setOut(new PrintStream(baos));
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=assign_attr " +
   //        "--entry_0_nameOfAttributeDefName=test:testAttributeAssignDefName --entry_0_ownerGroupName=test:groupTestAttrAssign "
   //        + " --paramName0=a --paramValue0=b",
@@ -37128,7 +37128,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
   //    outputLine = outputLines[0];
   //
@@ -37210,7 +37210,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    String attributeAssignId = attributeAssign.getId();
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=remove_attr "
   //        + " --attributeAssignUuids=" + attributeAssign.getId(),
   //        " "));
@@ -37224,7 +37224,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
   //    outputLine = outputLines[0];
   //
@@ -37305,7 +37305,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    attributeAssignId = attributeAssign.getId();
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=remove_attr "
   //        + " --attributeAssignUuids=" + attributeAssign.getId() + " --outputTemplate=${wsAttributeAssign.attributeAssignType}$newline$",
   //        " "));
@@ -37319,9 +37319,9 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
-  //    outputLine = GrouperClientCommonUtils.trim(outputLines[0]);
+  //    outputLine = GrouperClientUtils.trim(outputLines[0]);
   //
   //    assertEquals(outputLine, "group", outputLine);
   //
@@ -37387,7 +37387,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    attributeAssignId = attributeAssign.getId();
   //
-  //    GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+  //    GrouperClient.main(GrouperClientUtils.splitTrim(
   //        "--operation=assignAttributesBatchWs --entry_0_attributeAssignType=group --entry_0_attributeAssignOperation=remove_attr "
   //        + " --attributeAssignUuids=" + attributeAssign.getId() + " --actAsSubjectId=GrouperSystem",
   //        " "));
@@ -37401,7 +37401,7 @@ public class GrouperClientWsTest extends GrouperTest {
   //
   //    System.setOut(systemOut);
   //
-  //    outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+  //    outputLines = GrouperClientUtils.splitTrim(output, "\n");
   //
   //    outputLine = outputLines[0];
   //
@@ -37554,7 +37554,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       // ##################### subject 0 is in the jira service...
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=% --serviceRole=user --subjectId=" + SubjectTestHelper.SUBJ0_ID , " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -37563,7 +37563,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37588,7 +37588,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefNamesWs --scope=% --serviceRole=user --subjectIdentifier=" + SubjectTestHelper.SUBJ1_IDENTIFIER + " --subjectSource=jdbc" , " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -37597,7 +37597,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -37652,7 +37652,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       GrouperSession grouperSession = GrouperSession.startRootSession();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
       System.out.flush();
@@ -37662,7 +37662,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37681,7 +37681,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=true --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
 
@@ -37690,7 +37690,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37711,7 +37711,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=true "
               + "--attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF --saveMode=UPDATE",
           " "));
@@ -37721,7 +37721,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37745,7 +37745,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
               + "--attributeDefLookupName=aStem:newAttributeDef --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
@@ -37755,7 +37755,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37783,7 +37783,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
               + "--attributeDefLookupUuid=" + newAttributeDef.getId()
               + " --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
@@ -37794,7 +37794,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37818,7 +37818,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
               + "--attributeDefLookupIdIndex=" + newAttributeDef.getIdIndex()
               + " --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
@@ -37829,7 +37829,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37854,7 +37854,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
               + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
@@ -37864,7 +37864,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37886,7 +37886,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef5 --idIndex=12345 --createParentStemsIfNotExist=true "
               + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
@@ -37896,7 +37896,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37920,7 +37920,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectId=GrouperSystem --createParentStemsIfNotExist=true "
               + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
@@ -37930,7 +37930,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37953,7 +37953,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem --createParentStemsIfNotExist=true "
               + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
           " "));
@@ -37963,7 +37963,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -37987,7 +37987,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem"
               + " --actAsSubjectSource=g:isa --createParentStemsIfNotExist=true"
               + " --description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
@@ -37998,7 +37998,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 
@@ -38044,7 +38044,7 @@ public class GrouperClientWsTest extends GrouperTest {
           .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
           .assignToEffMembership(true).save();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefDeleteWs --attributeDefNames=aStem:newAttributeDef,aStem:newAttributeDef2",
           " "));
       System.out.flush();
@@ -38054,7 +38054,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38082,7 +38082,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefDeleteWs --attributeDefNames=aStem:newAttributeDef,aStem:newAttributeDef2 --txType=READ_WRITE_NEW",
           " "));
 
@@ -38091,7 +38091,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38152,7 +38152,7 @@ public class GrouperClientWsTest extends GrouperTest {
           .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
           .assignDescription("attribute def 2").save();
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2 --scope=aStem",
           " "));
       System.out.flush();
@@ -38162,7 +38162,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38187,7 +38187,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2 --scope=aStem --splitScope=T",
           " "));
       System.out.flush();
@@ -38197,7 +38197,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38223,7 +38223,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2",
           " "));
       System.out.flush();
@@ -38233,7 +38233,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38259,7 +38259,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefsWs --attributeDefUuids=" + attributeDef1.getId()
               + "," + attributeDef2.getId(),
           " "));
@@ -38270,7 +38270,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38296,7 +38296,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefsWs --attributeDefIdIndexes="
               + attributeDef1.getIdIndex() + "," + attributeDef2.getIdIndex(),
           " "));
@@ -38307,7 +38307,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(2, outputLines.length);
 
@@ -38333,7 +38333,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(new PrintStream(baos));
 
-      GrouperClient.main(GrouperClientCommonUtils.splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2 --scope=aStem --sortString=extension --ascending=T --pageNumber=2 --pageSize=1",
           " "));
       System.out.flush();
@@ -38343,7 +38343,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
       System.setOut(systemOut);
 
-      outputLines = GrouperClientCommonUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
       assertEquals(1, outputLines.length);
 

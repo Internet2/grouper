@@ -2024,9 +2024,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //subject 0 has a "role" permission of attributeDefName with "action" in 
     //subject 1 has a "role_subject" permission of attributeDefName2 with action2
     
-    role.getPermissionRoleDelegate().assignRolePermission("action", attrDefName, PermissionAllowed.ALLOWED);
+    role.getPermissionRoleDelegate().assignRolePermission("action", attrDefName);
     AttributeAssignResult attributeAssignResult = role2.getPermissionRoleDelegate()
-      .assignSubjectRolePermission("action2", attrDefName2, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      .assignSubjectRolePermission("action2", attrDefName2, SubjectTestHelper.SUBJ1);
 
     AttributeDef assignOnAssignDef = top.addChildAttributeDef("assignOnAssignDef", AttributeDefType.limit);
     assignOnAssignDef.setAssignToGroupAssn(true);
@@ -2534,9 +2534,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
     //subject 0 has a "role" permission of attributeDefName with "action" in 
     //subject 1 has a "role_subject" permission of attributeDefName2 with action2
     
-    role.getPermissionRoleDelegate().assignRolePermission("action", attrDefName, PermissionAllowed.ALLOWED);
+    role.getPermissionRoleDelegate().assignRolePermission("action", attrDefName);
     AttributeAssignResult attributeAssignResult = role2.getPermissionRoleDelegate()
-      .assignSubjectRolePermission("action2", attrDefName2, SubjectTestHelper.SUBJ1, PermissionAllowed.ALLOWED);
+      .assignSubjectRolePermission("action2", attrDefName2, SubjectTestHelper.SUBJ1);
 
     AttributeDef assignOnAssignDef = top.addChildAttributeDef("assignOnAssignDef", AttributeDefType.limit);
     assignOnAssignDef.setAssignToGroupAssn(true);
