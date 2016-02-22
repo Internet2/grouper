@@ -1156,13 +1156,22 @@ public enum GrouperLoaderType {
         Set<String> groupNamesManaged = HibernateSession.byHqlStatic()
           .createQuery("select g.nameDb from Group g where g.nameDb like :thePattern")
           .setString("thePattern", groupLikeString).listSet(String.class);
+        
+        int totalManagedGroupsCount = groupNamesManaged.size();
+        int totalManagedGroupsBeingClearedCount = 0;
+        int totalManagedGroupsAlreadyEmptyCount = 0;
+        
+        // cache data gathered during first round
+        Map<String, Long> getDataTimes = new HashMap<String, Long>();
+        Map<String, Set<Member>> immediateMembers = new HashMap<String, Set<Member>>();
+        Map<String, Group> groups = new HashMap<String, Group>();
       
         //take out the ones which exist
         groupNamesManaged.removeAll(groupNames);
         
         Boolean isIncludeExclude = null;
         
-        for (String groupNameEmpty : groupNamesManaged) {
+        for (String groupNameEmpty : new LinkedHashSet<String>(groupNamesManaged)) {
           
           //if we need to figure this out
           if (isIncludeExclude == null) {
@@ -1183,30 +1192,64 @@ public enum GrouperLoaderType {
           if (isIncludeExclude) {
             //make sure this is the system of record group
             if (!groupNameEmpty.endsWith(GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix())) {
+              groupNamesManaged.remove(groupNameEmpty);
+              totalManagedGroupsCount--;
               continue;
             }
           }
+          
+          Long millisGetData = 0L;
+          Group groupEmpty = GroupFinder.findByName(grouperSession, groupNameEmpty, false);
+          if (groupEmpty == null) {
+            continue;
+          }
+            
+          millisGetData = System.currentTimeMillis();
+          Set<Member> members = GrouperUtil.nonNull(groupEmpty.getImmediateMembers());
+          millisGetData = System.currentTimeMillis() - millisGetData;
+
+          if (members.size() > 0) {
+            totalManagedGroupsBeingClearedCount++;
+          } else {
+            totalManagedGroupsAlreadyEmptyCount++;
+          }
+          
+          getDataTimes.put(groupNameEmpty, millisGetData);
+          immediateMembers.put(groupNameEmpty, members);
+          groups.put(groupNameEmpty, groupEmpty);
+        }
+        
+        int totalManagedGroupsWithMembersCount = totalManagedGroupsCount - totalManagedGroupsAlreadyEmptyCount;
+        if (shouldAbortDueToTooManyGroupListManagedGroupsBeingCleared(totalManagedGroupsWithMembersCount, totalManagedGroupsBeingClearedCount)) {
+          statusOverall[0] = GrouperLoaderStatus.ERROR;
+          hib3GrouploaderLogOverall.insertJobMessage("Can't clear out "
+              + totalManagedGroupsBeingClearedCount + " groups (totalManagedGroupsWithMembersCount: "
+              + totalManagedGroupsWithMembersCount + ")"
+              + " unless loader.failsafe.groupList.managedGroups.use is false, or loader.failsafe.groupList.managedGroups.minManagedGroups"
+              + " or loader.failsafe.groupList.managedGroups.maxPercentRemove properties are changed.");
+          hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+          hib3GrouploaderLogOverall.store();
+          return;
+        } 
+                  
+        for (String groupNameEmpty : groupNamesManaged) {
+          Group groupEmpty = groups.get(groupNameEmpty);
+          if (groupEmpty == null) {
+            continue;
+          }
+          
+          long millisGetData = getDataTimes.get(groupNameEmpty);
+          Set<Member> members = immediateMembers.get(groupNameEmpty);
           
           long groupStartedMillis = System.currentTimeMillis();
           int memberCount = 0;
           GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
           StringBuilder jobDescription = new StringBuilder();
           boolean didSomething = false;
-          long millisGetData = 0;
           long millisSetData = 0;
           try {
             
             //first of all remove members
-            Group groupEmpty = GroupFinder.findByName(grouperSession, groupNameEmpty, false);
-  
-            //not sure why it would be null
-            if (groupEmpty == null) {
-              continue;
-            }
-            millisGetData = System.currentTimeMillis();
-            Set<Member> members = GrouperUtil.nonNull(groupEmpty.getImmediateMembers());
-            millisGetData = System.currentTimeMillis() - millisGetData;
-            
             millisSetData = System.currentTimeMillis();
             memberCount = members.size();
             for (Member member : members) {
@@ -2532,6 +2575,25 @@ public enum GrouperLoaderType {
     //must be a group of a minimum size, and not so many members removed
     return originalGroupSize >= GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.minGroupSize")
         && ((membersToRemoveSize * 100)/originalGroupSize)  > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.maxPercentRemove");
+  }
+  
+  /**
+   * Group list fail safe.
+   * See if too many groups managed by the loader via grouperLoaderGroupsLike used to have members but now all would be deleted.
+   * @param originalManagedGroupsWithMembersCount
+   * @param groupsBeingClearedCount
+   * @return true if should abort
+   */
+  private static boolean shouldAbortDueToTooManyGroupListManagedGroupsBeingCleared(final int originalManagedGroupsWithMembersCount, final int groupsBeingClearedCount) {
+    
+    //maybe dont use this feature
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.failsafe.groupList.managedGroups.use", false)) {
+      return false;
+    }
+    
+    //must be a group of a minimum size, and not so many members removed
+    return originalManagedGroupsWithMembersCount >= GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.groupList.managedGroups.minManagedGroups")
+        && ((groupsBeingClearedCount * 100)/originalManagedGroupsWithMembersCount)  > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.groupList.managedGroups.maxPercentRemove");
   }
   
   /**
