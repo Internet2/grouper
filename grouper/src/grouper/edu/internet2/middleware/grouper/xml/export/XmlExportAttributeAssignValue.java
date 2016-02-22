@@ -349,11 +349,12 @@ public class XmlExportAttributeAssignValue {
   /**
    * get db count
    * @param xmlExportMain 
+   * @param includeAttributesInThisStemOnly
    * @return db count
    */
-  public static long dbCount(XmlExportMain xmlExportMain) {
+  public static long dbCount(XmlExportMain xmlExportMain, boolean includeAttributesInThisStemOnly) {
     long result = HibernateSession.byHqlStatic().createQuery("select count(theAttributeAssignValue) " 
-        + XmlExportAttributeAssign.exportFromOnQuery(xmlExportMain, false, true, true)).uniqueResult(Long.class);
+        + XmlExportAttributeAssign.exportFromOnQuery(xmlExportMain, false, true, true, includeAttributesInThisStemOnly)).uniqueResult(Long.class);
     return result;
   }
 

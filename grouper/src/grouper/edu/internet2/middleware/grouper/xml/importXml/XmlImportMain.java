@@ -417,8 +417,8 @@ public class XmlImportMain {
     total += XmlExportRoleSet.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignAction.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignActionSet.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssign.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssignValue.dbCount();
+    total += XmlExportAttributeAssign.dbCount(xmlExportMain, true);
+    total += XmlExportAttributeAssignValue.dbCount(xmlExportMain, true);
     total += XmlExportAttributeDefNameSet.dbCount(xmlExportMain);
     total += XmlExportAttributeDefScope.dbCount(xmlExportMain);
     total += XmlExportAuditType.dbCount();
@@ -444,8 +444,8 @@ public class XmlImportMain {
     total += XmlExportAttributeAssignActionSet.dbCount(xmlExportMain);
     total += XmlExportAttributeDefNameSet.dbCount(xmlExportMain);
     total += XmlExportAttributeDefScope.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssign.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssignValue.dbCount(xmlExportMain);
+    total += XmlExportAttributeAssign.dbCount(xmlExportMain, false);
+    total += XmlExportAttributeAssignValue.dbCount(xmlExportMain, false);
     return total;
   }
   
