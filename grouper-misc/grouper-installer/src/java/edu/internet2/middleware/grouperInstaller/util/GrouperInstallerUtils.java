@@ -9576,7 +9576,7 @@ public class GrouperInstallerUtils  {
       }
       return sb.toString();
     } catch (Exception e) {
-      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath());
+      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath(), e);
     }
   }
 
