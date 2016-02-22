@@ -44,8 +44,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
@@ -448,7 +448,7 @@ public class GrouperLoaderResultset {
       GrouperUtil.closeQuietly(statement);
       GrouperUtil.closeQuietly(connection);
     }
-    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null, true);
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null);
 
   }
 
@@ -491,13 +491,11 @@ public class GrouperLoaderResultset {
    * @param jobName for logging if problem
    * @param hib3GrouperLoaderLog 
    * @param ldapSubjectExpression
-   * @param errorUnresolvable 
    */
   public GrouperLoaderResultset(String ldapServerId, String filter,
       String searchDn, String subjectAttribute, String sourceId,
       String subjectIdType, String ldapSearchScope, String jobName,
-      Hib3GrouperLoaderLog hib3GrouperLoaderLog, String ldapSubjectExpression,
-      boolean errorUnresolvable) {
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog, String ldapSubjectExpression) {
 
     //run the query
     LdapSearchScope ldapSearchScopeEnum = LdapSearchScope.valueOfIgnoreCase(
@@ -531,8 +529,7 @@ public class GrouperLoaderResultset {
         rowData[1] = sourceId;
       }
     }
-    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, ldapSubjectExpression,
-        errorUnresolvable);
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, ldapSubjectExpression);
   }
 
   /**
@@ -554,7 +551,6 @@ public class GrouperLoaderResultset {
    * @param jobName for logging if problem
    * @param hib3GrouperLoaderLog 
    * @param subjectExpression 
-   * @param errorUnresolvable 
    * @param extraAttributes 
    * @param groupNameExpression 
    * @param groupDisplayNameExpression 
@@ -568,7 +564,7 @@ public class GrouperLoaderResultset {
       final String subjectIdType, final String ldapSearchScope, final String jobName,
       final Hib3GrouperLoaderLog hib3GrouperLoaderLog,
       final String subjectExpression,
-      final boolean errorUnresolvable, final String extraAttributes,
+      final String extraAttributes,
       final String groupNameExpression, final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
       final Map<String, String> groupNameToDisplayName,
@@ -797,8 +793,7 @@ public class GrouperLoaderResultset {
         }
       }
     }
-    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, subjectExpression,
-        errorUnresolvable);
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, subjectExpression);
   }
 
   /**
@@ -814,7 +809,6 @@ public class GrouperLoaderResultset {
    * @param jobName for logging if problem
    * @param hib3GrouperLoaderLog 
    * @param subjectExpression 
-   * @param errorUnresolvable 
    * @param extraAttributes 
    * @param groupNameExpression 
    * @param groupDisplayNameExpression 
@@ -830,7 +824,7 @@ public class GrouperLoaderResultset {
       final String subjectIdType, final String ldapSearchScope, final String jobName,
       final Hib3GrouperLoaderLog hib3GrouperLoaderLog,
       final String subjectExpression,
-      final boolean errorUnresolvable, final String extraAttributes,
+      final String extraAttributes,
       final String groupNameExpression, 
       final String groupDisplayNameExpression, 
       final String groupDescriptionExpression,  
@@ -1160,8 +1154,7 @@ public class GrouperLoaderResultset {
         }
       }
     }
-    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null,
-        errorUnresolvable);
+    this.convertToSubjectIdIfNeeded(jobName, hib3GrouperLoaderLog, null);
   }
 
   /**
@@ -1169,11 +1162,9 @@ public class GrouperLoaderResultset {
    * @param jobName for logging
    * @param hib3GrouperLoaderLog 
    * @param ldapSubjectExpression 
-   * @param errorUnresolvable 
    */
   private void convertToSubjectIdIfNeeded(String jobName,
-      Hib3GrouperLoaderLog hib3GrouperLoaderLog, String ldapSubjectExpression,
-      boolean errorUnresolvable) {
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog, String ldapSubjectExpression) {
 
     int subjectIdColIndex = this.columnIndex("SUBJECT_ID", false);
     subjectIdColIndex = subjectIdColIndex == -1 ? this.columnIndex("SUBJECT_IDENTIFIER",
@@ -1223,14 +1214,12 @@ public class GrouperLoaderResultset {
       while (iterator.hasNext()) {
 
         Row row = iterator.next();
-        Subject subject = row.getSubject(jobName, errorUnresolvable);
+        Subject subject = row.getSubject(jobName);
         if (subject == null) {
           //subject error
           hib3GrouperLoaderLog.addUnresolvableSubjectCount(1);
-          if (errorUnresolvable) {
-            hib3GrouperLoaderLog.appendJobMessage(row.getSubjectError());
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUBJECT_PROBLEMS.toString());
-          }
+          hib3GrouperLoaderLog.appendJobMessage(row.getSubjectError());
+          
           iterator.remove();
           continue;
         }
@@ -1311,10 +1300,9 @@ public class GrouperLoaderResultset {
 
     /**
      * @param jobName for logging
-     * @param errorUnresolvable if there should be an error if unresolvable
      * @return the subject
      */
-    public Subject getSubject(String jobName, boolean errorUnresolvable) {
+    public Subject getSubject(String jobName) {
       if (this.subject != null || this.subjectError != null) {
         return this.subject;
       }
@@ -1346,14 +1334,14 @@ public class GrouperLoaderResultset {
           subjectColForLog = "subjectId";
           if (!StringUtils.isBlank(subjectSourceId)) {
             this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId,
-                errorUnresolvable);
+                false);
             //CH 20091013: we need the loader to be based on subjectId to eliminate lookups...
             //this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId, false);
             //if (this.subject == null) {
             //  this.subject = SubjectFinder.getSource(subjectSourceId).getSubjectByIdentifier(subjectId, true);
             //}
           } else {
-            this.subject = SubjectFinder.findById(subjectId, errorUnresolvable);
+            this.subject = SubjectFinder.findById(subjectId, false);
             //this.subject = SubjectFinder.findByIdOrIdentifier(subjectId, true);
           }
         } else if (!StringUtils.isBlank(subjectIdentifier)) {
@@ -1361,9 +1349,9 @@ public class GrouperLoaderResultset {
           subjectColForLog = "subjectIdentifier";
           if (!StringUtils.isBlank(subjectSourceId)) {
             this.subject = SubjectFinder.findByIdentifierAndSource(subjectIdentifier,
-                subjectSourceId, errorUnresolvable);
+                subjectSourceId, false);
           } else {
-            this.subject = SubjectFinder.findByIdentifier(subjectIdentifier, errorUnresolvable);
+            this.subject = SubjectFinder.findByIdentifier(subjectIdentifier, false);
           }
 
         } else if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
@@ -1371,10 +1359,10 @@ public class GrouperLoaderResultset {
           subjectColForLog = "subjectIdOrIdentifier";
           if (!StringUtils.isBlank(subjectSourceId)) {
             this.subject = SubjectFinder.findByIdOrIdentifierAndSource(
-                subjectIdOrIdentifier, subjectSourceId, errorUnresolvable);
+                subjectIdOrIdentifier, subjectSourceId, false);
           } else {
             this.subject = SubjectFinder
-                .findByIdOrIdentifier(subjectIdOrIdentifier, errorUnresolvable);
+                .findByIdOrIdentifier(subjectIdOrIdentifier, false);
           }
 
         } else {
@@ -1386,10 +1374,14 @@ public class GrouperLoaderResultset {
                       .getColumnNames()));
         }
         
-        if (this.subject == null && !errorUnresolvable) {
+        if (this.subject == null) {
           String subjectWarning = "Subject is unresolvable '" + subjectIdForLog + "' col: " + subjectColForLog + ", jobName: " + jobName;
           LOG.warn(subjectWarning);
           this.subjectError = subjectWarning;
+          
+          if (GrouperShell.runFromGsh) {
+            System.out.println(subjectWarning);
+          }
         }
         
       } catch (Exception e) {
@@ -1397,6 +1389,11 @@ public class GrouperLoaderResultset {
             + subjectIdForLog + ", subjectSourceId: " + subjectSourceId
             + ", in jobName: " + jobName;
         LOG.error(this.subjectError, e);
+        
+        if (GrouperShell.runFromGsh) {
+          System.out.println(this.subjectError);
+        }
+        
         if (e instanceof SubjectNotFoundException
             || e instanceof SubjectNotUniqueException
             || e instanceof SourceUnavailableException) {

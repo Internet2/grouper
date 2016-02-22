@@ -2242,11 +2242,6 @@ public class GrouperCheckConfig {
                 "Grouper loader LDAP extra attributes", 
                 "Attribute names (comma separated) to get LDAP data for expressions in group name, displayExtension, description, " +
                 "optional, for LDAP_GROUP_LIST", wasInCheckConfig);
-            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_ERROR_UNRESOLVABLE, 
-                "Grouper loader LDAP error unresolvable", 
-                "Value could be true or false (default to true).  If true, then there will be an error if there are unresolvable " +
-                "subjects in the results.  If you know there are subjects in LDAP which are not resolvable by Grouper, " +
-                "set to false, they will be ignored", wasInCheckConfig);
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_LDAP_GROUP_NAME_EXPRESSION, 
                 "Grouper loader LDAP group name expression", 
                 "JEXL expression language fragment that evaluates to the group name (relative in the stem as the " +

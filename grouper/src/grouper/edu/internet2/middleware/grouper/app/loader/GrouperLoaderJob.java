@@ -484,7 +484,6 @@ public class GrouperLoaderJob implements Job {
       String grouperLoaderLdapGroupAttributeName = null;
       String grouperLoaderLdapAttributeFilterExpression = null;
       String grouperLoaderLdapExtraAttributes = null;
-      String grouperLoaderLdapErrorUnresolvable = null;
       String grouperLoaderLdapGroupNameExpression = null;
       String grouperLoaderLdapGroupDisplayExtensionExpression = null;
       String grouperLoaderLdapGroupDescriptionExpression = null;
@@ -518,7 +517,6 @@ public class GrouperLoaderJob implements Job {
       grouperLoaderLdapGroupAttributeName = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupAttributeName());
       grouperLoaderLdapAttributeFilterExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
       grouperLoaderLdapExtraAttributes = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
-      grouperLoaderLdapErrorUnresolvable = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName());
       grouperLoaderLdapGroupNameExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
       grouperLoaderLdapGroupDisplayExtensionExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName());
       grouperLoaderLdapGroupDescriptionExpression = GrouperLoaderType.attributeValueOrDefaultOrNull(attributeAssign, LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName());
@@ -569,7 +567,7 @@ public class GrouperLoaderJob implements Job {
           grouperLoaderLdapSubjectIdType, 
           grouperLoaderLdapSearchScope, startTime, grouperLoaderTypeEnum, groupName, hib3GrouploaderLog, 
           grouperSession, andGroups, grouperLoaderLdapGroupAttributeName, grouperLoaderLdapExtraAttributes,
-          grouperLoaderLdapErrorUnresolvable, grouperLoaderLdapGroupNameExpression,
+          grouperLoaderLdapGroupNameExpression,
           grouperLoaderLdapGroupDisplayExtensionExpression, grouperLoaderLdapGroupDescriptionExpression,
           grouperLoaderLdapSubjectExpression, groupTypes, grouperLoaderLdapGroupReaders, 
           grouperLoaderLdapGroupViewers, grouperLoaderLdapGroupAdmins, grouperLoaderLdapGroupUpdaters, 

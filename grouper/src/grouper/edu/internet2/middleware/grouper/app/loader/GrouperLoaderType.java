@@ -722,7 +722,6 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAndGroupsName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapPriorityName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
-            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), attributeName)
             ;
         // not allowed: || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupAttributeName(), attributeName)
@@ -752,14 +751,12 @@ public enum GrouperLoaderType {
         //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
         //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
         //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
-        
-        boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
-        
+                
         final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(loaderJobBean.getLdapServerId(), 
             loaderJobBean.getLdapFilter(), loaderJobBean.getLdapSearchDn(), loaderJobBean.getLdapSubjectAttribute(), 
             loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
             loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
-            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getLdapSubjectExpression(), errorUnresolvable);
+            loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getLdapSubjectExpression());
         
         syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
@@ -802,7 +799,6 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapExtraAttributesName(), attributeName)
-            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDescriptionExpressionName(), attributeName)
@@ -841,9 +837,7 @@ public enum GrouperLoaderType {
           //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
           //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
           //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
-          
-          boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
-  
+            
           String ldapSubjectAttribute = loaderJobBean.getLdapSubjectAttribute();
 
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
@@ -859,7 +853,7 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
               hib3GrouploaderLogOverall.getJobName(), 
               hib3GrouploaderLogOverall, 
-              loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
+              loaderJobBean.getLdapSubjectExpression(), loaderJobBean.getLdapExtraAttributes(),
               loaderJobBean.getLdapGroupNameExpression(), loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(), groupNameToDisplayName, 
               groupNameToDescription, groupNames);
@@ -939,7 +933,6 @@ public enum GrouperLoaderType {
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupsLikeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), attributeName)
-            || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName(), attributeName)
             || StringUtils.equals(LoaderLdapUtils.grouperLoaderLdapGroupDisplayNameExpressionName(), attributeName)
@@ -981,9 +974,7 @@ public enum GrouperLoaderType {
           //      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
           //      attributeLoaderAttrQuery, attributeLoaderAttrSetQuery, attributeLoaderAttrsLike
           //   attributeLoaderActionQuery, attributeLoaderActionSetQuery
-          
-          boolean errorUnresolvable = GrouperUtil.booleanValue(loaderJobBean.getLdapErrorUnresolvable(), true);
-  
+            
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
 
@@ -995,7 +986,7 @@ public enum GrouperLoaderType {
               loaderJobBean.getLdapSourceId(), loaderJobBean.getLdapSubjectIdType(), loaderJobBean.getLdapSearchScope(), 
               hib3GrouploaderLogOverall.getJobName(), 
               hib3GrouploaderLogOverall, 
-              loaderJobBean.getLdapSubjectExpression(), errorUnresolvable, loaderJobBean.getLdapExtraAttributes(),
+              loaderJobBean.getLdapSubjectExpression(), loaderJobBean.getLdapExtraAttributes(),
               loaderJobBean.getLdapGroupNameExpression(), 
               loaderJobBean.getLdapGroupDisplayNameExpression(),
               loaderJobBean.getLdapGroupDescriptionExpression(),
@@ -1418,6 +1409,8 @@ public enum GrouperLoaderType {
 
     } finally {
       hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+      statusOverall[0] = getFinalStatusAfterUnresolvables(statusOverall[0], 
+          hib3GrouploaderLogOverall.getTotalCount(), hib3GrouploaderLogOverall.getUnresolvableSubjectCount());
     }
     
   }
@@ -2262,7 +2255,7 @@ public enum GrouperLoaderType {
         if (row != null) {
           boolean andGroupsDoesntHaveSubject = false;
           if (GrouperUtil.nonNull(andGroups).size() > 0) {
-            Subject subject = row.getSubject(groupName, true);
+            Subject subject = row.getSubject(groupName);
             if (subject == null) {
               if (LOG.isDebugEnabled()) {
                 LOG.debug(groupName + " found unresolvable subject: " + row.getSubjectError() + ", " + count + " of " + numberOfRows + " subjects");
@@ -2314,7 +2307,7 @@ public enum GrouperLoaderType {
       for (int i=0;i<numberOfRows;i++) {
         
         Row row = grouperLoaderResultset.retrieveRow(i);
-        Subject subject = row.getSubject(groupName, true);
+        Subject subject = row.getSubject(groupName);
         if (subject != null) {
           //make sure it is not in the restricted list
           boolean andGroupsDoesntHaveSubject = false;
@@ -2335,9 +2328,7 @@ public enum GrouperLoaderType {
           
           //put something in log
           hib3GrouploaderLog.appendJobMessage(row.getSubjectError());
-          hib3GrouploaderLog.addUnresolvableSubjectCount(1);
-          status = GrouperLoaderStatus.SUBJECT_PROBLEMS;
-           
+          hib3GrouploaderLog.addUnresolvableSubjectCount(1);  
         }
         count++;
         totalCount++;
@@ -2503,6 +2494,8 @@ public enum GrouperLoaderType {
       throw new RuntimeException("Problem with group: " + groupName, e);
     } finally {
       hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+      hib3GrouploaderLog.setStatus(getFinalStatusAfterUnresolvables(GrouperLoaderStatus.valueOf(hib3GrouploaderLog.getStatus()), 
+          hib3GrouploaderLog.getTotalCount(), hib3GrouploaderLog.getUnresolvableSubjectCount()).name());
       try {
         hib3GrouploaderLog.store();
       } catch (Exception e) {
@@ -2539,6 +2532,29 @@ public enum GrouperLoaderType {
     //must be a group of a minimum size, and not so many members removed
     return originalGroupSize >= GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.minGroupSize")
         && ((membersToRemoveSize * 100)/originalGroupSize)  > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.failsafe.maxPercentRemove");
+  }
+  
+  /**
+   * If the current status is success and there are too many unresolvables, the status should be subject problems.
+   * @param currentStatus
+   * @param membershipCount
+   * @param unresolvableCount
+   * @return final status
+   */
+  private static GrouperLoaderStatus getFinalStatusAfterUnresolvables(GrouperLoaderStatus currentStatus, int membershipCount, int unresolvableCount) {
+    if (GrouperLoaderStatus.SUCCESS != currentStatus) {
+      return currentStatus;
+    }
+    
+    if (membershipCount < GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.unresolvables.minGroupSize")) {
+      return currentStatus;
+    }
+    
+    if ((unresolvableCount * 100) / membershipCount > GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.unresolvables.maxPercentForSuccess")) {
+      return GrouperLoaderStatus.SUBJECT_PROBLEMS;
+    }
+    
+    return currentStatus;
   }
   
   /**
@@ -3595,8 +3611,6 @@ public enum GrouperLoaderType {
               LoaderLdapUtils.grouperLoaderLdapAttributeFilterExpressionName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapExtraAttributesName());
-          grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
-              LoaderLdapUtils.grouperLoaderLdapErrorUnresolvableName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 
               LoaderLdapUtils.grouperLoaderLdapGroupNameExpressionName());
           grouperLoaderTypeEnum.attributeValueValidateRequiredAttributeAssign(attributeAssign, groupName, 

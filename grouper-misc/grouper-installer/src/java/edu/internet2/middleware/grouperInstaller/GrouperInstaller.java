@@ -3380,6 +3380,39 @@ public class GrouperInstaller {
       }
     }
 
+    {
+      boolean lessThan2_3_0 = giGrouperVersion.lessThanArg(new GiGrouperVersion("2.3.0"));
+      String autorunRun2_3_0gshUpgradeScript = null;
+      if (lessThan2_3_0) {
+        System.out.println("You are upgrading from pre API version 2.3.0, do you want to "
+            + "run the 2.3.0 upgrade GSH script (recommended) (t|f)? [t]: ");
+        autorunRun2_3_0gshUpgradeScript = "grouperInstaller.autorun.run2.3.0gshUpgradeScriptPre2.3.0";
+      } else {
+        System.out.println("You are upgrading from after API version 2.3.0, so you dont have to do this,\n  "
+            + "but do you want to run the 2.3.0 upgrade GSH script (not recommended) (t|f)? [f]: ");
+        autorunRun2_3_0gshUpgradeScript = "grouperInstaller.autorun.run2.3.0gshUpgradeScriptPost2.3.0";
+      }
+      boolean runScript = readFromStdInBoolean(lessThan2_3_0, autorunRun2_3_0gshUpgradeScript);
+      
+      if (runScript) {
+        
+        File gshFile = new File(this.untarredApiDir.getAbsolutePath() + File.separator + "misc" + File.separator + "postGrouper2_3_0Upgrade.gsh");
+        
+        List<String> commands = new ArrayList<String>();
+
+        addGshCommands(commands);
+        commands.add(gshFile.getAbsolutePath());
+
+        System.out.println("\n##################################");
+        System.out.println("Running 2.3.0 upgrade GSH with command:\n  " + convertCommandsIntoCommand(commands) + "\n");
+
+        GrouperInstallerUtils.execCommand(
+            GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+           new File(this.gshCommand()).getParentFile(), null, true);
+
+      }
+    }
+
   }
 
   /**
