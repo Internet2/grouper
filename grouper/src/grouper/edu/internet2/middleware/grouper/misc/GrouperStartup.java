@@ -356,8 +356,8 @@ public class GrouperStartup {
 
     final String someUtfString = "ٹٺٻټكلل";
 
-    final String id = GrouperUuid.getUuid();
     final String name = "grouperUtf_" + GrouperUuid.getUuid();
+    final String id = GrouperUuid.getUuid();
     
     if (detectUtf8FileProblems && !utfProblems) {
       String theStringFromFile = null;
