@@ -6701,14 +6701,18 @@ public class GrouperServiceLogic {
    * @param attributeDefLookupName to lookup the attributeDef (mutually exclusive with attributeDefUuid)
    * @param uuidOfAttributeDef the uuid of the attributeDef to edit
    * @param nameOfAttributeDef the name of the attributeDefName to edit
-   * @param assignableTo1
-   * @param assignableTo2
-   * @param assignableTo3
-   * @param assignableTo4
-   * @param assignableTo5
-   *    All the assignableTos can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   *    EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   *    IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   * @param assignToAttributeDef 
+   * @param assignToAttributeDefAssignment
+   * @param assignToEffectiveMembership
+   * @param assignToEffectiveMembershipAssignment
+   * @param assignToGroup
+   * @param assignToGroupAssignment
+   * @param assignToImmediateMembership
+   * @param assignToImmediateMembershipAssignment
+   * @param assignToMember
+   * @param assignToMemberAssignment
+   * @param assignToStem
+   * @param assignToStemAssignment
    * @param attributeDefType type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
    * @param multiAssignable  T of F for if can be assigned multiple times to one object
    * @param multiValued T or F, if has values, if can assign multiple values to one assignment
@@ -6736,25 +6740,69 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
+
   public static WsAttributeDefSaveLiteResult attributeDefSaveLite(
       final GrouperVersion clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
       String uuidOfAttributeDef, String nameOfAttributeDef,
-      String assignableTo1, String assignableTo2, String assignableTo3,
-      String assignableTo4, String assignableTo5,
+      Boolean assignToAttributeDef, Boolean assignToAttributeDefAssignment,
+      Boolean assignToEffectiveMembership, Boolean assignToEffectiveMembershipAssignment,
+      Boolean assignToGroup, Boolean assignToGroupAssignment, 
+      Boolean assignToImmediateMembership, Boolean assignToImmediateMembershipAssignment,
+      Boolean assignToMember, Boolean assignToMemberAssignment,
+      Boolean assignToStem, Boolean assignToStemAssignment,
       String attributeDefType, String multiAssignable,
       final String multiValued, String valueType,
       String description, SaveMode saveMode, Boolean createParentStemsIfNotExist,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
-    // setup the group lookup
+    
+    // setup the attributeDef lookup
     WsAttributeDefToSave wsAttributeDefToSave = new WsAttributeDefToSave();
 
     WsAttributeDef wsAttributeDef = new WsAttributeDef();
     wsAttributeDef.setDescription(description);
-    wsAttributeDef.setAssignableTos(new String[] { assignableTo1, assignableTo2,
-        assignableTo3, assignableTo4, assignableTo5 });
+
+    List<String> assignableTos = new ArrayList<String>();
+    if (assignToAttributeDef != null && assignToAttributeDef != false) {
+      assignableTos.add("ATTRIBUTE_DEF");
+    }
+    if (assignToAttributeDefAssignment != null && assignToAttributeDefAssignment != false) {
+      assignableTos.add("ATTRIBUTE_DEF_ASSIGNMENT");
+    }
+    if (assignToEffectiveMembership != null && assignToEffectiveMembership != false) {
+      assignableTos.add("EFFECTIVE_MEMBERSHIP");
+    }
+    if (assignToEffectiveMembershipAssignment != null && assignToEffectiveMembershipAssignment != false) {
+      assignableTos.add("EFFECTIVE_MEMBERSHIP_ASSIGNMENT");
+    }
+    if (assignToGroup != null && assignToGroup != false) {
+      assignableTos.add("GROUP");
+    }
+    if (assignToGroupAssignment != null && assignToGroupAssignment != false) {
+      assignableTos.add("GROUP_ASSIGNMENT");
+    }
+    if (assignToImmediateMembership != null && assignToImmediateMembership != false) {
+      assignableTos.add("IMMEDIATE_MEMBERSHIP");
+    }
+    if (assignToImmediateMembershipAssignment != null && assignToImmediateMembershipAssignment != false) {
+      assignableTos.add("IMMEDIATE_MEMBERSHIP_ASSIGNMENT");
+    }
+    if (assignToMember != null && assignToMember != false) {
+      assignableTos.add("MEMBER");
+    }
+    if (assignToMemberAssignment != null && assignToMemberAssignment != false) {
+      assignableTos.add("MEMBER_ASSIGNMENT");
+    }
+    if (assignToStem != null && assignToStem != false) {
+      assignableTos.add("STEM");
+    }
+    if (assignToStemAssignment != null && assignToStemAssignment != false) {
+      assignableTos.add("STEM_ASSIGNMENT");
+    }
+    
+    wsAttributeDef.setAssignableTos(assignableTos.toArray(new String[assignableTos.size()]));
     wsAttributeDef.setName(nameOfAttributeDef);
     wsAttributeDef.setUuid(uuidOfAttributeDef);
     wsAttributeDef.setAttributeDefType(attributeDefType);

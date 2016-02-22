@@ -104,41 +104,42 @@ public class WsRestAttributeDefSaveLiteRequest implements WsRequestBean {
 
   /** name of attribute def to edit  **/
   private String nameOfAttributeDef;
-
-  /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   */
-  private String assignableTo1;
   
-  /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   */
-  private String assignableTo2;
+  /** assign to another attribute def? **/
+  private String assignToAttributeDef;
   
-  /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   */
-  private String assignableTo3;
+  /** assign to attribute def assignment? **/
+  private String assignToAttributeDefAssignment;
   
-  /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   */
-  private String assignableTo4;
+  /** assign to effective membership? **/
+  private String assignToEffectiveMembership;
   
-  /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
-   */
-  private String assignableTo5;
+  /** assign to effective membership assignment? **/
+  private String assignToEffectiveMembershipAssignment;
+  
+  /** assign to group? **/
+  private String assignToGroup;
+  
+  /** assign to group assignment? **/
+  private String assignToGroupAssignment;
+  
+  /** assign to immediate membership? **/
+  private String assignToImmediateMembership;
+  
+  /** assign to immediate membership assignment? **/
+  private String assignToImmediateMembershipAssignment;
+  
+  /** assign to member? **/
+  private String assignToMember;
+  
+  /** assign to member assignment? **/
+  private String assignToMemberAssignment;
+  
+  /** assign to stem? **/
+  private String assignToStem;
+  
+  /** assign to stem assignment? **/
+  private String assignToStemAssignment;
 
   /** type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm **/
   private String attributeDefType;
@@ -189,79 +190,179 @@ public class WsRestAttributeDefSaveLiteRequest implements WsRequestBean {
   public void setNameOfAttributeDef(String nameOfAttributeDef1) {
     this.nameOfAttributeDef = nameOfAttributeDef1;
   }
-
   
   /**
-   * @return assignableTo1
+   * @return assignToAttributeDef
    */
-  public String getAssignableTo1() {
-	return this.assignableTo1;
+  public String getAssignToAttributeDef() {
+    return this.assignToAttributeDef;
   }
 
   /**
-   * @param assignableTo
+   * @param assignToAttributeDef1
    */
-  public void setAssignableTo1(String assignableTo) {
-	this.assignableTo1 = assignableTo;
-  }
-	
-  /**
-   * @return assignableTo2
-   */
-  public String getAssignableTo2() {
-	return this.assignableTo2;
-  }
-	
-  /**
-   * @param assignableTo
-   */
-  public void setAssignableTo2(String assignableTo) {
-	this.assignableTo2 = assignableTo;
-  }
-	
-  /**
-   * @return assignableTo3
-   */
-  public String getAssignableTo3() {
-	return this.assignableTo3;
-  }
-	
-  /**
-   * @param assignableTo
-   */
-  public void setAssignableTo3(String assignableTo) {
-	this.assignableTo3 = assignableTo;
+  public void setAssignToAttributeDef(String assignToAttributeDef1) {
+    this.assignToAttributeDef = assignToAttributeDef1;
   }
 
   /**
-   * @return assignableTo4
+   * @return assignToAttributeDefAssignment
    */
-  public String getAssignableTo4() {
-	return this.assignableTo4;
-  }
-	
-  /**
-   * @param assignableTo
-   */
-  public void setAssignableTo4(String assignableTo) {
-	this.assignableTo4 = assignableTo;
-  }
-	
-  /**
-   * @return assignableTo5
-   */
-  public String getAssignableTo5() {
-	return this.assignableTo5;
+  public String getAssignToAttributeDefAssignment() {
+    return this.assignToAttributeDefAssignment;
   }
 
   /**
-   * @param assignableTo
+   * @param assignToAttributeDefAssignment1
    */
-  public void setAssignableTo5(String assignableTo) {
-	this.assignableTo5 = assignableTo;
+  public void setAssignToAttributeDefAssignment(String assignToAttributeDefAssignment1) {
+    this.assignToAttributeDefAssignment = assignToAttributeDefAssignment1;
   }
 
-/** 
+  /**
+   * @return assignToEffectiveMembership
+   */
+  public String getAssignToEffectiveMembership() {
+    return this.assignToEffectiveMembership;
+  }
+
+  /**
+   * @param assignToEffectiveMembership1
+   */
+  public void setAssignToEffectiveMembership(String assignToEffectiveMembership1) {
+    this.assignToEffectiveMembership = assignToEffectiveMembership1;
+  }
+
+  /**
+   * @return assignToEffectiveMembershipAssignment
+   */
+  public String getAssignToEffectiveMembershipAssignment() {
+    return this.assignToEffectiveMembershipAssignment;
+  }
+
+  /**
+   * @param assignToEffectiveMembershipAssignment1
+   */
+  public void setAssignToEffectiveMembershipAssignment(
+      String assignToEffectiveMembershipAssignment1) {
+    this.assignToEffectiveMembershipAssignment = assignToEffectiveMembershipAssignment1;
+  }
+
+  /**
+   * @return assignToGroup
+   */
+  public String getAssignToGroup() {
+    return this.assignToGroup;
+  }
+
+  /**
+   * @param assignToGroup1
+   */
+  public void setAssignToGroup(String assignToGroup1) {
+    this.assignToGroup = assignToGroup1;
+  }
+
+  /**
+   * @return assignToGroupAssignment
+   */
+  public String getAssignToGroupAssignment() {
+    return this.assignToGroupAssignment;
+  }
+
+  /**
+   * 
+   * @param assignToGroupAssignment1
+   */
+  public void setAssignToGroupAssignment(String assignToGroupAssignment1) {
+    this.assignToGroupAssignment = assignToGroupAssignment1;
+  }
+
+  /**
+   * @return assignToImmediateMembership
+   */
+  public String getAssignToImmediateMembership() {
+    return this.assignToImmediateMembership;
+  }
+
+  /**
+   * @param assignToImmediateMembership1
+   */
+  public void setAssignToImmediateMembership(String assignToImmediateMembership1) {
+    this.assignToImmediateMembership = assignToImmediateMembership1;
+  }
+
+  /**
+   * @return assignToImmediateMembershipAssignment
+   */
+  public String getAssignToImmediateMembershipAssignment() {
+    return this.assignToImmediateMembershipAssignment;
+  }
+
+  /**
+   * @param assignToImmediateMembershipAssignment1
+   */
+  public void setAssignToImmediateMembershipAssignment(
+      String assignToImmediateMembershipAssignment1) {
+    this.assignToImmediateMembershipAssignment = assignToImmediateMembershipAssignment1;
+  }
+
+  /**
+   * @return assignToMember
+   */
+  public String getAssignToMember() {
+    return this.assignToMember;
+  }
+
+  /**
+   * @param assignToMember1
+   */
+  public void setAssignToMember(String assignToMember1) {
+    this.assignToMember = assignToMember1;
+  }
+
+  /**
+   * @return assignToMemberAssignment
+   */
+  public String getAssignToMemberAssignment() {
+    return this.assignToMemberAssignment;
+  }
+
+  /**
+   * @param assignToMemberAssignment1
+   */
+  public void setAssignToMemberAssignment(String assignToMemberAssignment1) {
+    this.assignToMemberAssignment = assignToMemberAssignment1;
+  }
+
+  /**
+   * @return assignToStem
+   */
+  public String getAssignToStem() {
+    return this.assignToStem;
+  }
+
+  /**
+   * @param assignToStem1
+   */
+  public void setAssignToStem(String assignToStem1) {
+    this.assignToStem = assignToStem1;
+  }
+
+  /**
+   * @return assignToStemAssignment
+   */
+  public String getAssignToStemAssignment() {
+    return this.assignToStemAssignment;
+  }
+
+  /**
+   * @param assignToStemAssignment1
+   */
+  public void setAssignToStemAssignment(String assignToStemAssignment1) {
+    this.assignToStemAssignment = assignToStemAssignment1;
+  }
+
+  /** 
    * type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm 
    * @return attributeDefType
    */

@@ -73,7 +73,7 @@ public class WsSampleAttributeDefSaveRestLite implements WsSampleRest {
       WsRestAttributeDefSaveLiteRequest attributeDefSaveLite = new WsRestAttributeDefSaveLiteRequest();
 
       attributeDefSaveLite.setAttributeDefType("attr");
-      attributeDefSaveLite.setAssignableTo1("ATTRIBUTE_DEF");
+      attributeDefSaveLite.setAssignToAttributeDef("T");
       attributeDefSaveLite.setMultiAssignable("F");
       attributeDefSaveLite.setMultiValued("F");
       attributeDefSaveLite.setValueType("string");

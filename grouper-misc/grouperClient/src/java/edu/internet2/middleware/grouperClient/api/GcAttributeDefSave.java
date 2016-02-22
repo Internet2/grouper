@@ -190,7 +190,6 @@ public class GcAttributeDefSave {
 
     WsAttributeDefToSave wsAttributeDefToSave = new WsAttributeDefToSave();
     wsAttributeDefToSave.setSaveMode("INSERT");
-    //wsGroupToSave.setWsGroupLookup(new WsGroupLookup("aStem:aGroup5", null));
 
     WsAttributeDef wsAttributeDef1 = new WsAttributeDef();
     wsAttributeDef1.setName("test1:attributeDef1");

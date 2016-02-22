@@ -4120,14 +4120,18 @@ public class GrouperService {
    * @param attributeDefLookupName to lookup the attributeDef (mutually exclusive with attributeDefUuid)
    * @param uuidOfAttributeDef the uuid of the attributeDef to edit
    * @param nameOfAttributeDef the name of the attributeDef to edit
-   * @param assignableTo1
-   * @param assignableTo2
-   * @param assignableTo3
-   * @param assignableTo4
-   * @param assignableTo5
-   *    All the assignableTos can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   *    EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   *    IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   * @param assignToAttributeDef 
+   * @param assignToAttributeDefAssignment
+   * @param assignToEffectiveMembership
+   * @param assignToEffectiveMembershipAssignment
+   * @param assignToGroup
+   * @param assignToGroupAssignment
+   * @param assignToImmediateMembership
+   * @param assignToImmediateMembershipAssignment
+   * @param assignToMember
+   * @param assignToMemberAssignment
+   * @param assignToStem
+   * @param assignToStemAssignment
    * @param attributeDefType type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
    * @param multiAssignable  T of F for if can be assigned multiple times to one object
    * @param multiValued T or F, if has values, if can assign multiple values to one assignment
@@ -4158,9 +4162,13 @@ public class GrouperService {
   public WsAttributeDefSaveLiteResult attributeDefSaveLite(final String clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
       String uuidOfAttributeDef, String nameOfAttributeDef,
-      String assignableTo1, String assignableTo2, String assignableTo3,
-      String assignableTo4, String assignableTo5, String attributeDefType,
-      String multiAssignable,
+      String assignToAttributeDef, String assignToAttributeDefAssignment,
+      String assignToEffectiveMembership, String assignToEffectiveMembershipAssignment,
+      String assignToGroup, String assignToGroupAssignment, 
+      String assignToImmediateMembership, String assignToImmediateMembershipAssignment,
+      String assignToMember, String assignToMemberAssignment,
+      String assignToStem, String assignToStemAssignment,
+      String attributeDefType, String multiAssignable,
       String multiValued, String valueType,
       String description, String saveMode, String createParentStemsIfNotExist,
       String actAsSubjectId, String actAsSubjectSourceId,
@@ -4182,12 +4190,24 @@ public class GrouperService {
 
       SaveMode saveModeEnum = GrouperServiceUtils.enumValueOfIgnoreCase(SaveMode.class,
           saveMode, false);
-
+      
       wsAttributeDefSaveLiteResult = GrouperServiceLogic.attributeDefSaveLite(
           grouperWsVersion,
           attributeDefLookupUuid, attributeDefLookupName, uuidOfAttributeDef,
-          nameOfAttributeDef, assignableTo1, assignableTo2, assignableTo3, assignableTo4,
-          assignableTo5, attributeDefType, multiAssignable, multiValued,
+          nameOfAttributeDef, 
+          GrouperUtil.booleanObjectValue(assignToAttributeDef), 
+          GrouperUtil.booleanObjectValue(assignToAttributeDefAssignment), 
+          GrouperUtil.booleanObjectValue(assignToEffectiveMembership), 
+          GrouperUtil.booleanObjectValue(assignToEffectiveMembershipAssignment), 
+          GrouperUtil.booleanObjectValue(assignToGroup), 
+          GrouperUtil.booleanObjectValue(assignToGroupAssignment), 
+          GrouperUtil.booleanObjectValue(assignToImmediateMembership),
+          GrouperUtil.booleanObjectValue(assignToImmediateMembershipAssignment), 
+          GrouperUtil.booleanObjectValue(assignToMember), 
+          GrouperUtil.booleanObjectValue(assignToMemberAssignment),
+          GrouperUtil.booleanObjectValue(assignToStem), 
+          GrouperUtil.booleanObjectValue(assignToStemAssignment),
+          attributeDefType, multiAssignable, multiValued,
           valueType, description, saveModeEnum, createParentStemsIfNotExistBoolean,
           actAsSubjectId, actAsSubjectSourceId,
           actAsSubjectIdentifier, paramName0, paramValue0,

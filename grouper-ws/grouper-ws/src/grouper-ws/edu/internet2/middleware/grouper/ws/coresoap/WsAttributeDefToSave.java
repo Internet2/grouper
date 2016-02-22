@@ -120,6 +120,9 @@ public class WsAttributeDefToSave {
         //make sure it exists
         SaveMode.valueOfIgnoreCase(this.saveMode);
       }
+      if (this.getWsAttributeDef().getAssignableTos() == null || this.getWsAttributeDef().getAssignableTos().length == 0) {
+        throw new WsInvalidQueryException("select at least one object type that this attribute type can be assigned to "); 
+      }
     } catch (RuntimeException e) {
       throw new WsInvalidQueryException("Problem with save mode: " + e.getMessage()
           + ", " + this, e);
