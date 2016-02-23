@@ -4,9 +4,17 @@
  */
 package edu.internet2.middleware.grouper.messaging;
 
-import junit.textui.TestRunner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
@@ -21,8 +29,23 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
    * 
    * @param args
    */
-  public static void main(String[] args) {
-    TestRunner.run(new GrouperBuiltinMessagingSystemTest("testMessageSecurity"));
+  public static void main(String[] args) throws Exception {
+//    TestRunner.run(new GrouperBuiltinMessagingSystemTest("testSend"));
+
+    
+    //Class clazz = Class.forName("org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider");
+    
+    
+//    Runtime.getRuntime().addShutdownHook(new Thread() {
+//        public void run() {
+//            Hib3DAO.getSessionFactory().close();
+//            System.out.println("session factory closed");
+//        }
+//    });
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    GroupFinder.findByName(grouperSession, "abc", false);
+    
   }
   
   
@@ -94,24 +117,34 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
 
     final int NUM_OF_THREADS = 9;
     final int NUM_OF_MESSAGES = 500;
-    
-    Thread[] threads = new Thread[NUM_OF_THREADS];
-    
-    //threads
-    for (int i=0;i<NUM_OF_THREADS;i++) {
 
-      Runnable runnable = new Runnable() {
+    GrouperBuiltinMessagingSystem.createQueue("abc");
+    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
 
-        public void run() {
-          //messages
-          for (int j=0;j<500;j++) {
-            GrouperMessagingEngine.send(
-                new GrouperMessageSendParam().assignGropuerMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME));
-          }
-        }
-        
-      };
-    }
+    
+    GrouperMessagingEngine.send(
+        new GrouperMessageSendParam().assignGropuerMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+          .assignQueueOrTopic("abc").addMessageBody("message body"));
+
+    
+    
+//    Thread[] threads = new Thread[NUM_OF_THREADS];
+//    
+//    //threads
+//    for (int i=0;i<NUM_OF_THREADS;i++) {
+//
+//      Runnable runnable = new Runnable() {
+//
+//        public void run() {
+//          //messages
+//          for (int j=0;j<500;j++) {
+//            GrouperMessagingEngine.send(
+//                new GrouperMessageSendParam().assignGropuerMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME));
+//          }
+//        }
+//        
+//      };
+//    }
     
   }
 
