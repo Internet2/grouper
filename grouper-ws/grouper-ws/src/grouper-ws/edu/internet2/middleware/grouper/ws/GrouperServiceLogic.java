@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -111,34 +112,128 @@ import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.*;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignActionTuple;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefActionOperationPerformed;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults.WsAttributeDefAssignActionsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult.WsAttributeDefDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup.AttributeDefNameFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult.WsAttributeDefSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults.WsFindAttributeDefsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGroupsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults.WsGetAttributeAssignActionsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup.GroupFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult.WsGroupSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
+import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup.StemFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult.WsStemSaveResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.exceptions.WebServiceDoneException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -6454,6 +6549,707 @@ public class GrouperServiceLogic {
     WsAssignAttributesLiteResults wsAssignAttributesLiteResults = new WsAssignAttributesLiteResults(wsAssignAttributesResults);
     
     return wsAssignAttributesLiteResults; 
+
+  }
+  
+  /**
+   * save an AttributeDef or many (insert or update).  Note, you cannot rename an existing AttributeDef.
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @see {@link AttributeDefSave#save()}
+   * @param wsAttributeDefsToSave AttributeDefs to save
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public static WsAttributeDefSaveResults attributeDefSave(
+      final GrouperVersion clientVersion,
+      final WsAttributeDefToSave[] wsAttributeDefsToSave,
+      final WsSubjectLookup actAsSubjectLookup,
+      GrouperTransactionType txType, final WsParam[] params) {
+
+    final WsAttributeDefSaveResults wsAttributeDefSaveResults = new WsAttributeDefSaveResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsAttributeDefSaveResults.getResponseMetadata().warnings());
+
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+
+      theSummary = "clientVersion: " + clientVersion + ", wsAttributeDefsToSave: "
+          + GrouperUtil.toStringForLog(wsAttributeDefsToSave, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      final String THE_SUMMARY = theSummary;
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      final GrouperSession SESSION = session;
+
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+
+            @Override
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+
+              int wsAttributeDefLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+                  wsAttributeDefsToSave, GrouperWsConfig.WS_ATTRIBUTE_DEF_SAVE_MAX,
+                  1000000, "attributeDefsToSave");
+
+              wsAttributeDefSaveResults
+                  .setResults(new WsAttributeDefSaveResult[wsAttributeDefLength]);
+
+              int resultIndex = 0;
+
+              //loop through all ws attribute defs and do the save
+              for (WsAttributeDefToSave wsAttributeDefToSave : wsAttributeDefsToSave) {
+                final WsAttributeDefSaveResult wsAttributeDefSaveResult = new WsAttributeDefSaveResult(
+                    null, wsAttributeDefToSave
+                        .getWsAttributeDefLookup());
+                wsAttributeDefSaveResults
+                    .getResults()[resultIndex++] = wsAttributeDefSaveResult;
+                final WsAttributeDefToSave WS_ATTRIBUTE_DEF_TO_SAVE = wsAttributeDefToSave;
+                try {
+                  //this should be autonomous, so that within one attribute def name, it is transactional
+                  HibernateSession.callbackHibernateSession(
+                      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+                      AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+                    @Override
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      //make sure everything is in order
+                      WS_ATTRIBUTE_DEF_TO_SAVE.validate();
+                      AttributeDef attributeDef = WS_ATTRIBUTE_DEF_TO_SAVE
+                          .save(SESSION);
+                      SaveResultType saveResultType = WS_ATTRIBUTE_DEF_TO_SAVE
+                          .saveResultType();
+                      wsAttributeDefSaveResult.setWsAttributeDef(new WsAttributeDef(
+                          attributeDef,
+                          WS_ATTRIBUTE_DEF_TO_SAVE.getWsAttributeDefLookup()));
+
+                      if (saveResultType == SaveResultType.INSERT) {
+                        wsAttributeDefSaveResult.assignResultCode(
+                            WsAttributeDefSaveResultCode.SUCCESS_INSERTED,
+                            clientVersion);
+                      } else if (saveResultType == SaveResultType.UPDATE) {
+                        wsAttributeDefSaveResult.assignResultCode(
+                            WsAttributeDefSaveResultCode.SUCCESS_UPDATED,
+                            clientVersion);
+                      } else if (saveResultType == SaveResultType.NO_CHANGE) {
+                        wsAttributeDefSaveResult.assignResultCode(
+                            WsAttributeDefSaveResultCode.SUCCESS_NO_CHANGES_NEEDED,
+                            clientVersion);
+                      } else {
+                        throw new RuntimeException("Invalid saveType: "
+                            + saveResultType);
+                      }
+
+                      return null;
+                    }
+
+                  });
+
+                } catch (Exception e) {
+                  wsAttributeDefSaveResult.assignResultCodeException(e,
+                      wsAttributeDefToSave, clientVersion);
+                }
+              }
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsAttributeDefSaveResults.tallyResults(TX_TYPE, THE_SUMMARY,
+                  clientVersion)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsAttributeDefSaveResults.assignResultCodeException(null, theSummary, e,
+          clientVersion);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefSaveResults;
+
+  }
+
+  /**
+   * save an AttributeDef (insert or update).  Note you cannot currently move an existing AttributeDef.
+   * 
+   * @see {@link AttributeDefSave#save()}
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param attributeDefLookupUuid to lookup the attributeDef (mutually exclusive with attributeDefName)
+   * @param attributeDefLookupName to lookup the attributeDef (mutually exclusive with attributeDefUuid)
+   * @param uuidOfAttributeDef the uuid of the attributeDef to edit
+   * @param nameOfAttributeDef the name of the attributeDefName to edit
+   * @param assignToAttributeDef 
+   * @param assignToAttributeDefAssignment
+   * @param assignToEffectiveMembership
+   * @param assignToEffectiveMembershipAssignment
+   * @param assignToGroup
+   * @param assignToGroupAssignment
+   * @param assignToImmediateMembership
+   * @param assignToImmediateMembershipAssignment
+   * @param assignToMember
+   * @param assignToMemberAssignment
+   * @param assignToStem
+   * @param assignToStemAssignment
+   * @param attributeDefType type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
+   * @param multiAssignable  T of F for if can be assigned multiple times to one object
+   * @param multiValued T or F, if has values, if can assign multiple values to one assignment
+   * @param valueType what type of value on assignments: AttributeDefValueType: e.g. integer, timestamp, string, floating, marker, memberId
+   * @param description of the attributeDef, empty will be ignored
+   * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
+   * @param createParentStemsIfNotExist T or F (default F) if parent stems should be created if not exist
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+   * duplicates
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the result of one member add
+   */
+
+  public static WsAttributeDefSaveLiteResult attributeDefSaveLite(
+      final GrouperVersion clientVersion,
+      String attributeDefLookupUuid, String attributeDefLookupName,
+      String uuidOfAttributeDef, String nameOfAttributeDef,
+      Boolean assignToAttributeDef, Boolean assignToAttributeDefAssignment,
+      Boolean assignToEffectiveMembership, Boolean assignToEffectiveMembershipAssignment,
+      Boolean assignToGroup, Boolean assignToGroupAssignment, 
+      Boolean assignToImmediateMembership, Boolean assignToImmediateMembershipAssignment,
+      Boolean assignToMember, Boolean assignToMemberAssignment,
+      Boolean assignToStem, Boolean assignToStemAssignment,
+      String attributeDefType, String multiAssignable,
+      final String multiValued, String valueType,
+      String description, SaveMode saveMode, Boolean createParentStemsIfNotExist,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {
+    
+    // setup the attributeDef lookup
+    WsAttributeDefToSave wsAttributeDefToSave = new WsAttributeDefToSave();
+
+    WsAttributeDef wsAttributeDef = new WsAttributeDef();
+    wsAttributeDef.setDescription(description);
+
+    List<String> assignableTos = new ArrayList<String>();
+    if (assignToAttributeDef != null && assignToAttributeDef != false) {
+      assignableTos.add("ATTRIBUTE_DEF");
+    }
+    if (assignToAttributeDefAssignment != null && assignToAttributeDefAssignment != false) {
+      assignableTos.add("ATTRIBUTE_DEF_ASSIGNMENT");
+    }
+    if (assignToEffectiveMembership != null && assignToEffectiveMembership != false) {
+      assignableTos.add("EFFECTIVE_MEMBERSHIP");
+    }
+    if (assignToEffectiveMembershipAssignment != null && assignToEffectiveMembershipAssignment != false) {
+      assignableTos.add("EFFECTIVE_MEMBERSHIP_ASSIGNMENT");
+    }
+    if (assignToGroup != null && assignToGroup != false) {
+      assignableTos.add("GROUP");
+    }
+    if (assignToGroupAssignment != null && assignToGroupAssignment != false) {
+      assignableTos.add("GROUP_ASSIGNMENT");
+    }
+    if (assignToImmediateMembership != null && assignToImmediateMembership != false) {
+      assignableTos.add("IMMEDIATE_MEMBERSHIP");
+    }
+    if (assignToImmediateMembershipAssignment != null && assignToImmediateMembershipAssignment != false) {
+      assignableTos.add("IMMEDIATE_MEMBERSHIP_ASSIGNMENT");
+    }
+    if (assignToMember != null && assignToMember != false) {
+      assignableTos.add("MEMBER");
+    }
+    if (assignToMemberAssignment != null && assignToMemberAssignment != false) {
+      assignableTos.add("MEMBER_ASSIGNMENT");
+    }
+    if (assignToStem != null && assignToStem != false) {
+      assignableTos.add("STEM");
+    }
+    if (assignToStemAssignment != null && assignToStemAssignment != false) {
+      assignableTos.add("STEM_ASSIGNMENT");
+    }
+    
+    wsAttributeDef.setAssignableTos(assignableTos.toArray(new String[assignableTos.size()]));
+    wsAttributeDef.setName(nameOfAttributeDef);
+    wsAttributeDef.setUuid(uuidOfAttributeDef);
+    wsAttributeDef.setAttributeDefType(attributeDefType);
+    wsAttributeDef.setMultiAssignable(multiAssignable);
+    wsAttributeDef.setMultiValued(multiValued);
+    wsAttributeDef.setValueType(valueType);
+
+    wsAttributeDefToSave.setWsAttributeDef(wsAttributeDef);
+    wsAttributeDefToSave
+        .setCreateParentStemsIfNotExist(createParentStemsIfNotExist == null ? null
+            : (createParentStemsIfNotExist ? "T" : "F"));
+    WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup(
+        attributeDefLookupName, attributeDefLookupUuid);
+    wsAttributeDefToSave.setWsAttributeDefLookup(wsAttributeDefLookup);
+
+    wsAttributeDefToSave.setSaveMode(saveMode == null ? null : saveMode.name());
+
+    WsAttributeDefToSave[] wsAttributeDefToSaves = new WsAttributeDefToSave[] {
+        wsAttributeDefToSave };
+
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1,
+        paramValue1);
+
+    WsAttributeDefSaveResults wsAttributeDefSaveResults = attributeDefSave(clientVersion,
+        wsAttributeDefToSaves,
+        actAsSubjectLookup, null, params);
+
+    return new WsAttributeDefSaveLiteResult(wsAttributeDefSaveResults);
+  }
+
+  /**
+   * delete attribute defs
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsAttributeDefLookups find assignments in these attribute defs
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  public static WsAttributeDefDeleteResults attributeDefDelete(
+      final GrouperVersion clientVersion,
+      final WsAttributeDefLookup[] wsAttributeDefLookups, GrouperTransactionType txType,
+      final WsSubjectLookup actAsSubjectLookup,
+      final WsParam[] params) {
+
+    final WsAttributeDefDeleteResults wsAttributeDefDeleteResults = new WsAttributeDefDeleteResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsAttributeDefDeleteResults.getResponseMetadata().warnings());
+
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+
+      theSummary = "clientVersion: " + clientVersion
+          + ", wsAttributeDefLookups: "
+          + GrouperUtil.toStringForLog(wsAttributeDefLookups, 200)
+          + ", actAsSubject: "
+          + actAsSubjectLookup
+          + "\n, paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      final String THE_SUMMARY = theSummary;
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      final GrouperSession SESSION = session;
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+
+            @Override
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+
+              int attributeDefsSize = GrouperServiceUtils.arrayLengthAtLeastOne(
+                  wsAttributeDefLookups,
+                  GrouperWsConfig.WS_ATTRIBUTE_DEF_DELETE_MAX, 1000000,
+                  "attributeDefDelete");
+
+              wsAttributeDefDeleteResults
+                  .setResults(new WsAttributeDefDeleteResult[attributeDefsSize]);
+
+              int resultIndex = 0;
+
+              //loop through all attribute defs and do the delete
+              for (WsAttributeDefLookup wsAttributeDefLookup : wsAttributeDefLookups) {
+
+                WsAttributeDefDeleteResult wsAttributeDefDeleteResult = new WsAttributeDefDeleteResult(
+                    null, wsAttributeDefLookup);
+                wsAttributeDefDeleteResults
+                    .getResults()[resultIndex++] = wsAttributeDefDeleteResult;
+
+                wsAttributeDefLookup.retrieveAttributeDefIfNeeded(SESSION);
+                AttributeDef attributeDef = wsAttributeDefLookup.retrieveAttributeDef();
+
+                if (attributeDef == null) {
+
+                  wsAttributeDefDeleteResult
+                      .assignResultCode(
+                          WsAttributeDefDeleteResultCode.SUCCESS_ATTRIBUTE_DEF_NOT_FOUND);
+                  wsAttributeDefDeleteResult.getResultMetadata().setResultMessage(
+                      "Cant find attribute def: '" + wsAttributeDefLookup + "'.  ");
+                  //should we short circuit if transactional?
+                  continue;
+                }
+
+                //make each attribute def failsafe
+                try {
+                  wsAttributeDefDeleteResult.assignAttributeDef(attributeDef,
+                      wsAttributeDefLookup);
+
+                  //if there was already a problem, then dont continue
+                  if (!GrouperUtil.booleanValue(wsAttributeDefDeleteResult
+                      .getResultMetadata()
+                      .getSuccess(), true)) {
+                    continue;
+                  }
+
+                  attributeDef.delete();
+
+                  wsAttributeDefDeleteResult
+                      .assignResultCode(WsAttributeDefDeleteResultCode.SUCCESS);
+                  wsAttributeDefDeleteResult.getResultMetadata().setResultMessage(
+                      "Attribute def '" + attributeDef.getName() + "' was deleted.");
+
+                } catch (InsufficientPrivilegeException ipe) {
+                  wsAttributeDefDeleteResult
+                      .assignResultCode(
+                          WsAttributeDefDeleteResultCode.INSUFFICIENT_PRIVILEGES);
+                } catch (Exception e) {
+                  wsAttributeDefDeleteResult.assignResultCodeException(e,
+                      wsAttributeDefLookup);
+                }
+              }
+
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsAttributeDefDeleteResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsAttributeDefDeleteResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsAttributeDefDeleteResults;
+  }
+
+  /**
+   * remove attribute definition based on name, id or uuid
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsNameOfAttributeDef find assignments in this attribute def
+   * @param wsIdOfAttributeDef find assignments in this attribute def (optional)
+   * @param wsIdIndexOfAttributeDef find assignments in this attribute def (optional)
+   * @param actAsSubjectId act as this subject
+   * @param actAsSubjectSourceId act as this subject
+   * @param actAsSubjectIdentifier act as this subject
+   * @param paramName0 reserved for future use
+   * @param paramValue0 reserved for future use
+   * @param paramName1 reserved for future use
+   * @param paramValue1 reserved for future use
+   * @return the results
+   */
+  public static WsAttributeDefDeleteLiteResult attributeDefDeleteLite(
+      final GrouperVersion clientVersion,
+      String wsNameOfAttributeDef, String wsIdOfAttributeDef,
+      String wsIdIndexOfAttributeDef,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+
+    WsAttributeDefLookup[] wsAttributeDefLookups = new WsAttributeDefLookup[] {
+        new WsAttributeDefLookup(
+            wsNameOfAttributeDef,
+            wsIdOfAttributeDef, wsIdIndexOfAttributeDef) };
+
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId,
+        actAsSubjectIdentifier);
+
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramName0,
+        paramName1);
+
+    WsAttributeDefDeleteResults wsAttributeDefDeleteResults = attributeDefDelete(
+        clientVersion, wsAttributeDefLookups, null, actAsSubjectLookup,
+        params);
+
+    return new WsAttributeDefDeleteLiteResult(wsAttributeDefDeleteResults);
+  }
+  
+  /**
+   * find an attribute def or attribute defs.  Each additional parameter sent will narow the search,
+   * except the lookups will just lookup whatever is sent.
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param scope search string with % as wildcards will search name, display name, description
+   * @param splitScope T or F, if T will split the scope by whitespace, and find attribute defs with each token.
+   * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
+   * school:apps:pto_app:internal:the_permissions:whatever
+   * @param wsAttributeDefLookups find attributeDefs associated with these attribute defs lookups
+   * @param privilegeName privilegeName or null. null will default to ATTR_VIEW
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param parentStemId search in this stem
+   * @param findByUuidOrName
+   * @param actAsSubjectLookup if searching as someone else, pass in that subject here, note the caller must
+   * be allowed to act as that other subject
+   * @param params optional: reserved for future use
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  
+   * @return the attribute defs, or no attribute def if none found
+   */
+  public static WsFindAttributeDefsResults findAttributeDefs(
+      final GrouperVersion clientVersion,
+      String scope, Boolean splitScope, WsAttributeDefLookup[] wsAttributeDefLookups,
+      String privilegeName, StemScope stemScope,
+      String parentStemId, Boolean findByUuidOrName,
+      Integer pageSize, Integer pageNumber, String sortString, Boolean ascending,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+
+    final WsFindAttributeDefsResults wsFindAttributeDefsResults = new WsFindAttributeDefsResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsFindAttributeDefsResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", scope: "
+          + scope + ", splitScope: " + splitScope
+          + ", wsAttributeDefLookup: "
+          + GrouperUtil.toStringForLog(wsAttributeDefLookups)
+          + ", privilegeName: " + privilegeName
+          + ", stemScope: " + stemScope + ", parentStemId: " + parentStemId
+          + ", findByUuidOrName: " + findByUuidOrName
+          + ", pageSize: " + pageSize + ", pageNumber: " + pageNumber
+          + ", sortString: " + sortString + ", ascending: " + ascending
+          + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+
+      final Set<AttributeDef> attributeDefs = new LinkedHashSet<AttributeDef>();
+
+      if (GrouperUtil.length(wsAttributeDefLookups) == 0) {
+        throw new WsInvalidQueryException(
+            "You need to pass in attribute def lookups");
+      }
+
+      if (splitScope != null && StringUtils.isBlank(scope)) {
+        throw new WsInvalidQueryException(
+            "If you pass in a splitScope, then you need to pass in a scope");
+      }
+
+      if ((pageNumber != null) && (pageSize == null)) {
+        throw new WsInvalidQueryException(
+            "If you pass in pageNumber you need to pass in pageSize");
+      }
+
+      QueryOptions queryOptions = new QueryOptions();
+      if (pageNumber != null || pageSize != null) {
+        //default page number to 1
+        if (pageNumber == null) {
+          pageNumber = 1;
+        }
+        queryOptions.paging(pageSize, pageNumber, false);
+      }
+      if (ascending != null || !StringUtils.isBlank(sortString)) {
+        //default sort string to displayName
+        if (StringUtils.isBlank(sortString)) {
+          sortString = "displayName";
+        }
+        if (ascending == null || ascending) {
+          queryOptions.sortAsc(sortString);
+        } else {
+          queryOptions.sortDesc(sortString);
+        }
+      }
+
+      Scope stemDotScope = null;
+      if (stemScope != null) {
+        stemDotScope = stemScope.convertToScope();
+      }
+
+      if (privilegeName != null && Privilege.getInstance(privilegeName) == null) {
+        throw new WsInvalidQueryException(
+            "Could not find privilege from privilegeName" + privilegeName);
+      }
+
+      Set<Privilege> privileges = new HashSet<Privilege>();
+      if (privilegeName == null) {
+        privileges = AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES;
+      } else {
+        privileges.add(Privilege.getInstance(privilegeName));
+      }
+
+      StringBuilder errorMessage = new StringBuilder();
+      Set<String> attributeDefIds = WsAttributeDefLookup.convertToAttributeDefIds(
+          session, wsAttributeDefLookups, errorMessage, null, false, null, null);
+
+      Subject subject = actAsSubjectLookup == null
+          ? GrouperSession.staticGrouperSession().getSubject()
+          : actAsSubjectLookup.retrieveSubject();
+      boolean findByUuidName = findByUuidOrName == null ? false : findByUuidOrName;
+      if (StringUtils.isBlank(scope)) {
+
+        attributeDefs.addAll(GrouperDAOFactory
+            .getFactory()
+            .getAttributeDef()
+            .findAllAttributeDefsSecure(scope, false,
+                subject,
+                privileges, queryOptions,
+                parentStemId, stemDotScope, findByUuidName, attributeDefIds));
+      } else {
+        attributeDefs.addAll(GrouperDAOFactory
+            .getFactory()
+            .getAttributeDef()
+            .findAllAttributeDefsSecure(scope, true,
+                subject,
+                privileges, queryOptions,
+                parentStemId, stemDotScope, findByUuidName, attributeDefIds));
+      }
+
+      wsFindAttributeDefsResults.assignAttributeDefResult(attributeDefs);
+      wsFindAttributeDefsResults.assignResultCode(WsFindAttributeDefsResultsCode.SUCCESS);
+
+      wsFindAttributeDefsResults.getResultMetadata().appendResultMessage(
+          "Success for: " + theSummary);
+
+    } catch (Exception e) {
+      wsFindAttributeDefsResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+
+    return wsFindAttributeDefsResults;
+  }
+
+  /**
+   * find an attribute def name attribute defs.  Each additional parameter sent will narow the search,
+   * except the lookups will just lookup whatever is sent.
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param scope search string with % as wildcards will search name, display name, description
+   * @param splitScope T or F, if T will split the scope by whitespace, and find attribute defs with each token.
+   * e.g. if you have a scope of "pto permissions", and split scope T, it will return 
+   * school:apps:pto_app:internal:the_permissions:whatever
+   * @param uuidOfAttributeDef find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef
+   * @param nameOfAttributeDef find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef
+   * @param idIndexOfAttributeDef find attribute defs associated with this attribute def id index
+   * @param privilegeName privilegeName or null. null will default to ATTR_VIEW
+   * @param stemScope is if in this stem, or in any stem underneath.  You must pass stemScope if you pass a stem
+   * @param parentStemId search in this stem
+   * @param findByUuidOrName
+   * @param pageSize page size if paging
+   * @param pageNumber page number 1 indexed if paging
+   * @param sortString must be an hql query field, e.g. 
+   * can sort on name, displayName, extension, displayExtension
+   * @param ascending or null for ascending, F for descending.  
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId
+   *            optional to narrow the act as subject search to a particular source 
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the attribute defs, or no attribute defs if none found
+   */
+  public static WsFindAttributeDefsResults findAttributeDefsLite(
+      final GrouperVersion clientVersion,
+      String scope, Boolean splitScope, String uuidOfAttributeDef,
+      String nameOfAttributeDef, String idIndexOfAttributeDef,
+      String privilegeName, StemScope stemScope,
+      String parentStemId, Boolean findByUuidOrName,
+      Integer pageSize, Integer pageNumber,
+      String sortString, Boolean ascending,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+
+    WsSubjectLookup actAsSubjectLookup = WsSubjectLookup.createIfNeeded(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1,
+        paramValue1);
+
+    WsAttributeDefLookup[] wsAttributeDefLookups = null;
+
+    if (!StringUtils.isBlank(nameOfAttributeDef)
+        || !StringUtils.isBlank(uuidOfAttributeDef)) {
+      wsAttributeDefLookups = new WsAttributeDefLookup[] { new WsAttributeDefLookup(
+          nameOfAttributeDef, uuidOfAttributeDef) };
+    }
+
+    // pass through to the more comprehensive method
+    WsFindAttributeDefsResults wsFindAttributeDefsResults = findAttributeDefs(
+        clientVersion,
+        scope, splitScope, wsAttributeDefLookups, privilegeName, stemScope, parentStemId,
+        findByUuidOrName,
+        pageSize, pageNumber, sortString, ascending,
+        actAsSubjectLookup, params);
+
+    return wsFindAttributeDefsResults;
 
   }
   

@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
@@ -104,7 +105,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAssignActionsToAttributeDef"));
+    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefs"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -37633,4 +37634,744 @@ public class GrouperClientWsTest extends GrouperTest {
     }
 
   }
+  
+  /**
+   * @throws Exception
+   */
+  public void testAttributeDefSave() throws Exception {
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      pattern = Pattern.compile("^Success: (T|F): code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_INSERTED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      // ##########################
+      //try with name with slash
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=true --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_INSERTED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef0/1", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("saveMode"));
+
+      //########################################################
+      // run again with save mode  --saveMode=INSERT_OR_UPDATE|INSERT|UPDATE
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=true "
+              + "--attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF --saveMode=UPDATE",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef0/1", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("saveMode")
+              && GrouperClientWs.mostRecentRequest.contains(">UPDATE<"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookup"));
+
+      //########################################################
+      // run again with lookup  --attributeDefLookupName=aStem:newAttributeDef
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
+              + "--attributeDefLookupName=aStem:newAttributeDef --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("saveMode"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("createParentStemsIfNotExist"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<wsAttributeDefLookup>"));
+
+      //########################################################
+      // run again with lookup  --attributeDefLookupUuid=aStem:newAttributeDef
+
+      AttributeDef newAttributeDef = AttributeDefFinder
+          .findByName("aStem:newAttributeDef", true);
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
+              + "--attributeDefLookupUuid=" + newAttributeDef.getId()
+              + " --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("description"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<wsAttributeDefLookup>")
+              && GrouperClientWs.mostRecentRequest.contains(newAttributeDef.getId()));
+
+      //########################################################
+      // run again with lookup  --attributeDefLookupUuid=aStem:newAttributeDef
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
+              + "--attributeDefLookupIdIndex=" + newAttributeDef.getIdIndex()
+              + " --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("description"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<wsAttributeDefLookup>")
+              && GrouperClientWs.mostRecentRequest
+                  .contains(newAttributeDef.getIdIndex().toString()));
+
+      //########################################################
+      // run again with --description=theDescription
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_UPDATED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<description>")
+              && GrouperClientWs.mostRecentRequest.contains("theDescription"));
+
+      //########################################################
+      // run again with --idIndex=12345
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef5 --idIndex=12345 --createParentStemsIfNotExist=true "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_INSERTED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef5", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<idIndex>")
+              && GrouperClientWs.mostRecentRequest.contains("12345"));
+      assertTrue(GrouperClientWs.mostRecentResponse,
+          GrouperClientWs.mostRecentResponse.contains("<idIndex>12345"));
+
+      //########################################################
+      // run again with --actAsSubjectId=subjId
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectId=GrouperSystem --createParentStemsIfNotExist=true "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("subjectIdentifier"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("<actAsSubjectLookup><subjectId>"));
+
+      //########################################################
+      // run again with --actAsSubjectIdentifier=subjId
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem --createParentStemsIfNotExist=true "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("sourceId"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest
+              .contains("<actAsSubjectLookup><subjectIdentifier>"));
+
+      //########################################################
+      // run again with --actAsSubjectSource=subjId
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem"
+              + " --actAsSubjectSource=g:isa --createParentStemsIfNotExist=true"
+              + " --description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_NO_CHANGES_NEEDED", matcher.group(2));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("somethingelse"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("subjectSourceId")
+              && GrouperClientWs.mostRecentRequest.contains("g:isa"));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testAttributeDefDelete() throws Exception {
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      AttributeDef testAttributeDef1 = new AttributeDefSave(grouperSession)
+          .assignName("aStem:newAttributeDef")
+          .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+          .assignToEffMembership(true).save();
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefDeleteWs --attributeDefNames=aStem:newAttributeDef,aStem:newAttributeDef2",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      pattern = Pattern.compile("^Index (\\d+): success: (T|F): code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "T", matcher.group(2));
+      assertEquals(outputLines[0], "SUCCESS", matcher.group(3));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(4));
+
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(outputLines[1], "1", matcher.group(1));
+      assertEquals(outputLines[1], "T", matcher.group(2));
+      assertEquals(outputLines[1], "SUCCESS_ATTRIBUTE_DEF_NOT_FOUND", matcher.group(3));
+      assertEquals(outputLines[1], "aStem:newAttributeDef2", matcher.group(4));
+
+      // ##########################
+      // [--txType=NONE|READ_WRITE_NEW]
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=attributeDefDeleteWs --attributeDefNames=aStem:newAttributeDef,aStem:newAttributeDef2 --txType=READ_WRITE_NEW",
+          " "));
+
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "T", matcher.group(2));
+      assertEquals(outputLines[0], "SUCCESS_ATTRIBUTE_DEF_NOT_FOUND", matcher.group(3));
+      assertEquals(outputLines[0], "aStem:newAttributeDef", matcher.group(4));
+
+      matcher = pattern.matcher(outputLines[1]);
+
+      assertTrue(outputLines[1], matcher.matches());
+
+      assertEquals(outputLines[1], "1", matcher.group(1));
+      assertEquals(outputLines[1], "T", matcher.group(2));
+      assertEquals(outputLines[1], "SUCCESS_ATTRIBUTE_DEF_NOT_FOUND", matcher.group(3));
+      assertEquals(outputLines[1], "aStem:newAttributeDef2", matcher.group(4));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("txType")
+              && GrouperClientWs.mostRecentRequest.contains("READ_WRITE_NEW"));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testFindAttributeDefs() throws Exception {
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      AttributeDef attributeDef1 = new AttributeDefSave(grouperSession)
+          .assignName("aStem1:newAttributeDef1")
+          .assignCreateParentStemsIfNotExist(true)
+          .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+          .assignDescription("attribute def 1").save();
+
+      AttributeDef attributeDef2 = new AttributeDefSave(grouperSession)
+          .assignName("aStem1:newAttributeDef2")
+          .assignCreateParentStemsIfNotExist(true)
+          .assignAttributeDefType(AttributeDefType.perm).assignToGroup(true)
+          .assignDescription("attribute def 2").save();
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2 --scope=aStem",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      //Index ${index}: name: ${wsAttributeDef.name}, description: ${wsAttributeDef.description}$newline$
+      pattern = Pattern.compile("^Index (\\d+): name: (.*), description: (.*)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "aStem1:newAttributeDef1", matcher.group(2));
+      assertEquals(outputLines[0], "attribute def 1", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("scope"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("splitScope"));
+
+      // ############################
+      //[--splitScope=T|F]
+      baos = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2 --scope=aStem --splitScope=T",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      //Index ${index}: name: ${wsAttributeDef.name}, description: ${wsAttributeDef.description}$newline$
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "aStem1:newAttributeDef1", matcher.group(2));
+      assertEquals(outputLines[0], "attribute def 1", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("scope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("splitScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+
+      // ############################
+      //[--attributeDefNames=a:b]
+      baos = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      //Index ${index}: name: ${wsAttributeDef.name}, description: ${wsAttributeDef.description}$newline$
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "aStem1:newAttributeDef1", matcher.group(2));
+      assertEquals(outputLines[0], "attribute def 1", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("scope"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("splitScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+
+      // ############################
+      //[--attributeDefUuids=12ab,34cd]
+      baos = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefsWs --attributeDefUuids=" + attributeDef1.getId()
+              + "," + attributeDef2.getId(),
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      //Index ${index}: name: ${wsAttributeDef.name}, description: ${wsAttributeDef.description}$newline$
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "aStem1:newAttributeDef1", matcher.group(2));
+      assertEquals(outputLines[0], "attribute def 1", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("scope"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("splitScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+
+      // ############################
+      //[--attributeDefIdIndexes=12,34]
+      baos = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefsWs --attributeDefIdIndexes="
+              + attributeDef1.getIdIndex() + "," + attributeDef2.getIdIndex(),
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(2, outputLines.length);
+
+      //Index ${index}: name: ${wsAttributeDef.name}, description: ${wsAttributeDef.description}$newline$
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "aStem1:newAttributeDef1", matcher.group(2));
+      assertEquals(outputLines[0], "attribute def 1", matcher.group(3));
+
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("scope"));
+      assertFalse(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("splitScope"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+
+      // ############################
+      //[--sortString=name|extension|displayExtension] [--ascending=T|F] [--pageNumber=2] [--pageSize=50]
+      baos = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findAttributeDefsWs --attributeDefNames=aStem1:newAttributeDef1,aStem1:newAttributeDef2 --scope=aStem --sortString=extension --ascending=T --pageNumber=2 --pageSize=1",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      //Index ${index}: name: ${wsAttributeDef.name}, description: ${wsAttributeDef.description}$newline$
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "aStem1:newAttributeDef2", matcher.group(2));
+      assertEquals(outputLines[0], "attribute def 2", matcher.group(3));
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("wsAttributeDefLookups"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("sortString"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("ascending"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("pageNumber"));
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("pageSize"));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
+
+  
 }
