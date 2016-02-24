@@ -44,15 +44,6 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
   public static final String LOADER_RETAIN_DB_LOGS_DAYS = "loader.retain.db.logs.days";
 
   /**
-   * name of param: loader.thread.pool.size
-   * number of threads in the loader threadpool.  Only this number of jobs can run at once
-   * jobs which are on deck will block, or will fail if the blocking timeout occurs
-   * a job is running if it is loading (not just scheduled).
-   * default is 10
-   */
-  public static final String LOADER_THREAD_POOL_SIZE = "loader.thread.pool.size";
-
-  /**
    * name of param: default.subject.source.id
    * if you want queries which do not specify subject source to come from a certain
    * source, specify here (improves performance so it doesnt search through all sources)
