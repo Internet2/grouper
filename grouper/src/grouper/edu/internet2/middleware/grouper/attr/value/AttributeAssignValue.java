@@ -205,6 +205,15 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
 
   /**
+   * termporary method for v2.2.2.patch that isnt needed afterwards...
+   * assign a value to any type
+   * @param value
+   */
+  public void assignValue(String value) {
+    this.assignValue((Object)value);
+  }
+
+  /**
    * assign a value to any type
    * @param value
    */
