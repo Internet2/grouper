@@ -866,9 +866,8 @@ public class MembershipFinder {
    */
   public MembershipFinder addStem(String name) {
     
-    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), name, true);
-    
-    return this.addGroupId(group.getId());
+    Stem stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), name, true);
+    return this.addStemId(stem.getId());
   }
 
   /**
