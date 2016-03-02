@@ -6892,11 +6892,6 @@ public class GrouperServiceLogic {
             public Object callback(GrouperTransaction grouperTransaction)
                 throws GrouperDAOException {
 
-              //convert the options to a map for easy access, and validate them
-              @SuppressWarnings("unused")
-              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-                  params);
-
               int attributeDefsSize = GrouperServiceUtils.arrayLengthAtLeastOne(
                   wsAttributeDefLookups,
                   GrouperWsConfig.WS_ATTRIBUTE_DEF_DELETE_MAX, 1000000,
