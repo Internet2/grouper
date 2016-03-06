@@ -16,7 +16,7 @@ public enum AsasRestGet {
     /**
      * handle the incoming request based on GET HTTP method and groups resource
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/authzStandardApi/authzStandardApi/v1/groups.json
+     * for http://localhost/tierApiAuthz/tierApiAuthz/v1/groups.json
      * @param requestObject is the request body converted to object
      * @return the result object
      */

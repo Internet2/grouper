@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
@@ -27,10 +26,10 @@ import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging
  * @author mchyzer
  * 
  */
-public class AsasFilterJ2ee implements Filter {
+public class TaasFilterJ2ee implements Filter {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(AsasFilterJ2ee.class);
+  private static final Log LOG = LogFactory.getLog(TaasFilterJ2ee.class);
 
   /**
    * if in request, get the start time

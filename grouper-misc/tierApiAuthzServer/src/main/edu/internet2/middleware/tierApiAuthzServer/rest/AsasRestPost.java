@@ -7,7 +7,7 @@ import edu.internet2.middleware.tierApiAuthzServer.contentType.AsasRestContentTy
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolderSaveRequest;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasResponseBeanBase;
 import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidRequest;
-import edu.internet2.middleware.tierApiAuthzServer.j2ee.AsasRestServlet;
+import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasRestServlet;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 
 /**
@@ -23,7 +23,7 @@ public enum AsasRestPost {
     /**
      * handle the incoming request based on POST HTTP method and folders resource
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/authzStandardApi/authzStandardApi/v1/folders/id:123.json
+     * for http://localhost/tierApiAuthz/tierApiAuthz/v1/folders/id:123.json
      * @param requestObject is the request body converted to object
      * @return the result object
      */
@@ -35,7 +35,7 @@ public enum AsasRestPost {
       if (!StandardApiServerUtils.isBlank(body)) {
         AsasRestContentType asasRestContentType = AsasRestContentType.retrieveContentType();
         asasFolderSaveRequest = asasRestContentType.parseString(AsasFolderSaveRequest.class, body, 
-            AsasRestServlet.threadLocalWarnings());
+            TaasRestServlet.threadLocalWarnings());
       }
 
       if (StandardApiServerUtils.length(urlStrings) != 1) {

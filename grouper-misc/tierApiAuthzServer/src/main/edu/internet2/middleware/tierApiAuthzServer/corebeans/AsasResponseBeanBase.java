@@ -2,7 +2,7 @@ package edu.internet2.middleware.tierApiAuthzServer.corebeans;
 
 import java.util.Date;
 
-import edu.internet2.middleware.tierApiAuthzServer.j2ee.AsasRestServlet;
+import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasRestServlet;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 
 /**
@@ -13,7 +13,7 @@ public abstract class AsasResponseBeanBase {
 
   public AsasResponseBeanBase() {
     this.getResponseMeta().setHttpStatusCode(200);
-    this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(AsasRestServlet.getStartupTime())));
+    this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(TaasRestServlet.getStartupTime())));
   }
 
 

@@ -4,7 +4,7 @@ import edu.internet2.middleware.tierApiAuthzServer.config.AsasConfigPropertiesCa
 
 
 /**
- * hierarchical config class for authzStandardApi.server.properties
+ * hierarchical config class for tierApiAuthz.server.properties
  * @author mchyzer
  *
  */
@@ -46,7 +46,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "authzStandardApi.server.properties";
+    return "tierApiAuthz.server.properties";
   }
   
   /**
@@ -54,7 +54,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "authzStandardApi.server.base.properties";
+    return "tierApiAuthz.server.base.properties";
   }
 
   /**
