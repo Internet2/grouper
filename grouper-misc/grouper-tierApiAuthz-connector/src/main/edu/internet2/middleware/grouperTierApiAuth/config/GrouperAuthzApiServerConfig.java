@@ -1,19 +1,19 @@
-package edu.internet2.middleware.tierApiAuthzServer.util;
+package edu.internet2.middleware.grouperTierApiAuth.config;
 
 import edu.internet2.middleware.tierApiAuthzServer.config.AsasConfigPropertiesCascadeBase;
 
 
 /**
- * hierarchical config class for authzStandardApi.server.properties
+ * hierarchical config class for grouperAuthzApi.server.properties
  * @author mchyzer
  *
  */
-public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
+public class GrouperAuthzApiServerConfig extends AsasConfigPropertiesCascadeBase {
 
   /**
    * use the factory
    */
-  private StandardApiServerConfig() {
+  private GrouperAuthzApiServerConfig() {
     
   }
   
@@ -21,8 +21,8 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static StandardApiServerConfig retrieveConfig() {
-    return retrieveConfig(StandardApiServerConfig.class);
+  public static GrouperAuthzApiServerConfig retrieveConfig() {
+    return retrieveConfig(GrouperAuthzApiServerConfig.class);
   }
 
   /**
@@ -38,7 +38,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getHierarchyConfigKey() {
-    return "tierApiAuthzServer.config.hierarchy";
+    return "grouperAuthzApiServer.config.hierarchy";
   }
 
   /**
@@ -46,7 +46,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "authzStandardApi.server.properties";
+    return "grouperAuthzApi.server.properties";
   }
   
   /**
@@ -54,7 +54,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "authzStandardApi.server.base.properties";
+    return "grouperAuthzApi.server.base.properties";
   }
 
   /**
@@ -62,7 +62,7 @@ public class StandardApiServerConfig extends AsasConfigPropertiesCascadeBase {
    */
   @Override
   protected String getSecondsToCheckConfigKey() {
-    return "tierApiAuthzServer.config.secondsBetweenUpdateChecks";
+    return "grouperAuthzApiServer.config.secondsBetweenUpdateChecks";
   }
 
   

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="TIER_API_AUTHZ_SERVER_SOURCE"/>
+	<classpathentry kind="src" path="src/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/tierApiAuthzServer"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
