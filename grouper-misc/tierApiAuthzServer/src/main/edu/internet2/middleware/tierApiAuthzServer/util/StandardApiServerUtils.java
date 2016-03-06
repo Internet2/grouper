@@ -325,7 +325,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    */
   public static AsasApiGroupInterface interfaceGroupInstance() {
     
-    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.interface.group");
+    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("tierApiAuthzServer.interface.group");
     
     @SuppressWarnings("unchecked")
     Class<AsasApiGroupInterface> theClass = (Class<AsasApiGroupInterface>)forName(className);
@@ -339,7 +339,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    */
   public static AsasApiFolderInterface interfaceFolderInstance() {
     
-    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.interface.folder");
+    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("tierApiAuthzServer.interface.folder");
     
     @SuppressWarnings("unchecked")
     Class<AsasApiFolderInterface> theClass = (Class<AsasApiFolderInterface>)forName(className);
@@ -398,9 +398,9 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
     HttpServletRequest httpServletRequest = AsasFilterJ2ee.retrieveHttpServletRequest();
     
     if (httpServletRequest == null) {
-      String servletUrl = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("authzStandardApiServer.servletUrl");
+      String servletUrl = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("tierApiAuthzServer.servletUrl");
       if (StandardApiServerUtils.isBlank(servletUrl)) {
-        throw new RuntimeException("Cant find servlet URL!  you can set it in authzStandardapi.server.properties as authzStandardApiServer.servletUrl");
+        throw new RuntimeException("Cant find servlet URL!  you can set it in authzStandardapi.server.properties as tierApiAuthzServer.servletUrl");
       }
       return servletUrl;
     }

@@ -143,7 +143,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
       Enumeration enumeration = super.getParameterNames();
       Set<String> paramsToIgnore = new HashSet<String>();
       {
-        String paramsToIgnoreString = StandardApiServerConfig.retrieveConfig().propertyValueString("authzStandardApiServer.httpParamsToIgnore");
+        String paramsToIgnoreString = StandardApiServerConfig.retrieveConfig().propertyValueString("tierApiAuthzServer.httpParamsToIgnore");
         if (!StandardApiServerUtils.isBlank(paramsToIgnoreString)) {
           paramsToIgnore.addAll(StandardApiServerUtils.splitTrimToList(paramsToIgnoreString, ","));
         }

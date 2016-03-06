@@ -20,10 +20,10 @@ public class AsasDefaultVersionResource {
     this.v1Uri = "/" 
         + StandardApiServerUtils.version() + "." + AsasRestContentType.retrieveContentType();
     this.serverType = StandardApiServerConfig.retrieveConfig()
-        .propertyValueStringRequired("authzStandardApiServer.serverType");
+        .propertyValueStringRequired("tierApiAuthzServer.serverType");
     
     if (StandardApiServerUtils.isBlank(this.serverType)) {
-      throw new RuntimeException("Why is authzStandardApiServer.serverType not defined in the the standardapi.server.properties");
+      throw new RuntimeException("Why is tierApiAuthzServer.serverType not defined in the the standardapi.server.properties");
     }
     
   }

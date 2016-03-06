@@ -1019,7 +1019,7 @@ public class StandardApiServerCommonUtils  {
     } catch (UnsupportedEncodingException ex) {
       throw new RuntimeException("UTF-8 not supported", ex);
     }
-    if (!StandardApiServerConfig.retrieveConfig().propertyValueBoolean("authzStandardApiServer.escapeUriColons", false)) {
+    if (!StandardApiServerConfig.retrieveConfig().propertyValueBoolean("tierApiAuthzServer.escapeUriColons", false)) {
       result = replace(result, "%3A", ":");
       result = replace(result, "%3a", ":");
     }

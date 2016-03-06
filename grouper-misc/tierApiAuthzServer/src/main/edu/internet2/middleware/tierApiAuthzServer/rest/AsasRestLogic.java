@@ -57,8 +57,8 @@ public class AsasRestLogic {
     //lets setup the default
     if (!pagingDisabled && asasApiQueryParams.getLimit() == null) {
       //# if there is no limit set for a group search, this is the limit that will be applied, -1 to not have a limit
-      //authzStandardApiServer.groupsSearch.defaultLimit = 100
-      int defaultLimit = StandardApiServerConfig.retrieveConfig().propertyValueInt("authzStandardApiServer.groupsSearch.defaultLimit", 100);
+      //tierApiAuthzServer.groupsSearch.defaultLimit = 100
+      int defaultLimit = StandardApiServerConfig.retrieveConfig().propertyValueInt("tierApiAuthzServer.groupsSearch.defaultLimit", 100);
       if (defaultLimit != -1) {
         asasApiQueryParams.setLimit(Long.valueOf(defaultLimit));
         asasApiQueryParams.setOffset(0L);
@@ -66,8 +66,8 @@ public class AsasRestLogic {
     }
     
     //# max number of groups returned from the search.  -1 to not have a limit
-    //authzStandardApiServer.groupsSearch.maxLimit = 1000
-    int maxLimit = StandardApiServerConfig.retrieveConfig().propertyValueInt("authzStandardApiServer.groupsSearch.maxLimit", 1000);
+    //tierApiAuthzServer.groupsSearch.maxLimit = 1000
+    int maxLimit = StandardApiServerConfig.retrieveConfig().propertyValueInt("tierApiAuthzServer.groupsSearch.maxLimit", 1000);
 
     //lets setup the max limit
     if (maxLimit != -1) {
@@ -80,7 +80,7 @@ public class AsasRestLogic {
 
     if (StandardApiServerUtils.isBlank(asasApiQueryParams.getSortField())) {
       String defaultSortField = StandardApiServerConfig
-          .retrieveConfig().propertyValueString("authzStandardApiServer.groupsSearch.defaultSortField", "name");
+          .retrieveConfig().propertyValueString("tierApiAuthzServer.groupsSearch.defaultSortField", "name");
       
       asasApiQueryParams.setSortField(defaultSortField);
     }
