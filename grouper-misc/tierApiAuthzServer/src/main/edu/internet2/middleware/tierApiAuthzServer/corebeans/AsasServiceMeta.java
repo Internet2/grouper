@@ -29,7 +29,7 @@ public class AsasServiceMeta {
   private String serverVersion;
   /**
    * points to the default resource with no formatting on the end
-   * e.g. https://groups.school.edu/authzStandardApi/authzStandardApi
+   * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
    */
   private String serviceRootUri;
 
@@ -45,7 +45,7 @@ public class AsasServiceMeta {
 
   /**
    * points to the default resource with no formatting on the end
-   * e.g. https://groups.school.edu/authzStandardApi/authzStandardApi
+   * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
    * @return service root uri
    */
   public String getServiceRootUri() {
@@ -64,7 +64,7 @@ public class AsasServiceMeta {
 
   /**
    * points to the default resource with no formatting on the end
-   * e.g. https://groups.school.edu/authzStandardApi/authzStandardApi
+   * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
    * @param serviceRootUri1
    */
   public void setServiceRootUri(String serviceRootUri1) {

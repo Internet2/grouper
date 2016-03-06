@@ -1,6 +1,6 @@
 package edu.internet2.middleware.tierApiAuthzServer.interfaces.entity;
 
-import edu.internet2.middleware.tierApiAuthzServer.j2ee.AsasFilterJ2ee;
+import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasFilterJ2ee;
 
 /**
  * lookup entity lookup
@@ -16,7 +16,7 @@ public class AsasApiEntityLookup {
   public static AsasApiEntityLookup retrieveLoggedInUser() {
 
     AsasApiEntityLookup asasApiEntityLookup = new AsasApiEntityLookup();
-    String lookupString = AsasFilterJ2ee.retrieveUserPrincipalNameFromRequest();
+    String lookupString = TaasFilterJ2ee.retrieveUserPrincipalNameFromRequest();
     asasApiEntityLookup.setLookupString(lookupString);
     return asasApiEntityLookup;
 

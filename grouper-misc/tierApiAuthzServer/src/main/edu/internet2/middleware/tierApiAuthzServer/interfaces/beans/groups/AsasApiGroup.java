@@ -8,7 +8,7 @@ import java.util.Collection;
 import edu.internet2.middleware.tierApiAuthzServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasGroup;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServer.version.AsasWsVersion;
+import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
 
 
 /**
@@ -57,7 +57,7 @@ public class AsasApiGroup {
     asasGroup.setStatus(asasApiGroup.getStatus());
     
     String groupUriBase = "/" 
-        + AsasWsVersion.retrieveCurrentClientVersion().name() + "/groups/name" 
+        + TaasWsVersion.retrieveCurrentClientVersion().name() + "/groups/name" 
         + StandardApiServerUtils.escapeUrlEncode(":")
         + StandardApiServerUtils.escapeUrlEncode(asasApiGroup.getName());
     
@@ -66,7 +66,7 @@ public class AsasApiGroup {
     asasGroup.setUri(groupUriBase + groupUriSuffix);
 
     asasGroup.setParentFolderUri("/" 
-        + AsasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
+        + TaasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
         + StandardApiServerUtils.escapeUrlEncode(":")
         + StandardApiServerUtils.escapeUrlEncode(StandardApiServerUtils.pathParentFolderName(asasApiGroup.getName()) + groupUriSuffix));
     

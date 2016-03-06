@@ -10,7 +10,7 @@ import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
  * @author mchyzer
  *
  */
-public enum AsasWsVersion {
+public enum TaasWsVersion {
   
   /** the first version available */
   v1;
@@ -28,20 +28,20 @@ public enum AsasWsVersion {
    * current grouper version
    * @return current grouper version
    */
-  public static AsasWsVersion serverVersion() {
+  public static TaasWsVersion serverVersion() {
     return v1;
   }
 
   
   /** current client version */
-  public static ThreadLocal<AsasWsVersion> currentClientVersion = new ThreadLocal<AsasWsVersion>();
+  public static ThreadLocal<TaasWsVersion> currentClientVersion = new ThreadLocal<TaasWsVersion>();
 
   /**
    * put the current client version
    * @param clientVersion
    * @param warnings 
    */
-  public static void assignCurrentClientVersion(AsasWsVersion clientVersion, StringBuilder warnings) {
+  public static void assignCurrentClientVersion(TaasWsVersion clientVersion, StringBuilder warnings) {
     currentClientVersion.set(clientVersion);
   }
   
@@ -56,7 +56,7 @@ public enum AsasWsVersion {
    * return current client version or null
    * @return the current client version or null
    */
-  public static AsasWsVersion retrieveCurrentClientVersion() {
+  public static TaasWsVersion retrieveCurrentClientVersion() {
     return currentClientVersion.get();
   }
 
@@ -68,9 +68,9 @@ public enum AsasWsVersion {
    * @return the enum or null or exception if not found
    * @throws AsasRestInvalidRequest problem
    */
-  public static AsasWsVersion valueOfIgnoreCase(String string,
+  public static TaasWsVersion valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws AsasRestInvalidRequest {
-    return StandardApiServerUtils.enumValueOfIgnoreCase(AsasWsVersion.class, string, exceptionOnNotFound);
+    return StandardApiServerUtils.enumValueOfIgnoreCase(TaasWsVersion.class, string, exceptionOnNotFound);
   }
 
 }

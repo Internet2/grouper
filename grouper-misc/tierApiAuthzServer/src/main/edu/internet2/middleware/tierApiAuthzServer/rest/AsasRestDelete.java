@@ -16,7 +16,7 @@ public enum AsasRestDelete {
     /**
      * handle the incoming request based on DELETE HTTP method and folders resource
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/authzStandardApi/authzStandardApi/v1/folders/id:123.json
+     * for http://localhost/tierApiAuthz/tierApiAuthz/v1/folders/id:123.json
      * @param requestObject is the request body converted to object
      * @return the result object
      */

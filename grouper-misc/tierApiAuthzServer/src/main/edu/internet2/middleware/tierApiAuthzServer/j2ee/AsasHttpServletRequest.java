@@ -29,7 +29,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
    * @return the request
    */
   public static AsasHttpServletRequest retrieve() {
-    return (AsasHttpServletRequest)AsasFilterJ2ee.retrieveHttpServletRequest();
+    return (AsasHttpServletRequest)TaasFilterJ2ee.retrieveHttpServletRequest();
   }
   
   /**

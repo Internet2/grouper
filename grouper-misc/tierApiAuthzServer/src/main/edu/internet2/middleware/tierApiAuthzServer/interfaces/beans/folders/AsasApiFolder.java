@@ -10,7 +10,7 @@ import java.util.List;
 import edu.internet2.middleware.tierApiAuthzServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolder;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServer.version.AsasWsVersion;
+import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
 
 
 /**
@@ -57,7 +57,7 @@ public class AsasApiFolder {
     asasFolder.setStatus(asasApiFolder.getStatus());
     
     String folderUriBase = "/" 
-        + AsasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
+        + TaasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
         + StandardApiServerUtils.escapeUrlEncode(":")
         + StandardApiServerUtils.escapeUrlEncode(asasApiFolder.getName());
     
@@ -68,7 +68,7 @@ public class AsasApiFolder {
     //if we are a the root, dont set this since it is null
     if (!StandardApiServerUtils.pathIsRootFolder(asasApiFolder.getName())) {
       asasFolder.setParentFolderUri("/" 
-          + AsasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
+          + TaasWsVersion.retrieveCurrentClientVersion().name() + "/folders/name" 
           + StandardApiServerUtils.escapeUrlEncode(":")
           + StandardApiServerUtils.escapeUrlEncode(StandardApiServerUtils.pathParentFolderName(asasApiFolder.getName()) + folderUriSuffix));
     }

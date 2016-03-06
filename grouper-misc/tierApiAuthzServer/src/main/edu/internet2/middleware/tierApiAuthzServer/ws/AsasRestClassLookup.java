@@ -6,7 +6,6 @@ import java.util.Map;
 
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasDefaultResource;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasDefaultResourceContainer;
-import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasDefaultVersionResource;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasDefaultVersionResourceContainer;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolder;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolderDeleteResponse;
@@ -38,7 +37,6 @@ public class AsasRestClassLookup {
 
     addAliasClass(AsasDefaultResource.class);
     addAliasClass(AsasDefaultResourceContainer.class);
-    addAliasClass(AsasDefaultVersionResource.class);
     addAliasClass(AsasDefaultVersionResourceContainer.class);
     addAliasClass(AsasFolder.class);
     addAliasClass(AsasFolderDeleteResponse.class);

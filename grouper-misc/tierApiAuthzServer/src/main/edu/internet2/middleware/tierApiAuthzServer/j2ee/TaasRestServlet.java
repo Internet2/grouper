@@ -24,17 +24,17 @@ import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidReq
 import edu.internet2.middleware.tierApiAuthzServer.rest.AsasRestHttpMethod;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServer.version.AsasWsVersion;
+import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
 
 /**
  * servlet for rest web services
  */
-public class AsasRestServlet extends HttpServlet {
+public class TaasRestServlet extends HttpServlet {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(AsasRestServlet.class);
+  private static final Log LOG = LogFactory.getLog(TaasRestServlet.class);
 
   /** when this servlet was started */
   private static long startupTime = System.currentTimeMillis();
@@ -62,7 +62,7 @@ public class AsasRestServlet extends HttpServlet {
    * @return the startupTime
    */
   public static long getStartupTime() {
-    return AsasRestServlet.startupTime;
+    return TaasRestServlet.startupTime;
   }
 
   /**
@@ -75,7 +75,7 @@ public class AsasRestServlet extends HttpServlet {
 
     long servetStarted = System.nanoTime();
     
-    AsasFilterJ2ee.assignHttpServlet(this);
+    TaasFilterJ2ee.assignHttpServlet(this);
     List<String> urlStrings = null;
     StringBuilder warnings = new StringBuilder();
     threadLocalWarnings.set(warnings);
@@ -103,7 +103,7 @@ public class AsasRestServlet extends HttpServlet {
       //get the body and convert to an object
       String body = StandardApiServerUtils.toString(request.getReader());
 
-      AsasWsVersion clientVersion = null;
+      TaasWsVersion clientVersion = null;
 
       //get the method and validate (either from object, or HTTP method
       AsasRestHttpMethod asasRestHttpMethod = null;
@@ -114,20 +114,23 @@ public class AsasRestServlet extends HttpServlet {
       
       //if there are other content types, detect them here
       boolean foundContentType = false;
-      if (request.getRequestURI().endsWith(".json")) {
+      
+      //we are always json
+      if (request.getRequestURI().endsWith(".json") || true) {
         wsRestContentType = AsasRestContentType.json;
         foundContentType = true;
       }
       AsasRestContentType.assignContentType(wsRestContentType);
 
-      if (foundContentType && urlStringsLength > 0) {
-        
-        String lastUrlString = urlStrings.get(urlStringsLength-1);
-        if (lastUrlString.endsWith("." + wsRestContentType.name())) {
-          lastUrlString = lastUrlString.substring(0, lastUrlString.length()-(1+wsRestContentType.name().length()));
-        }
-        urlStrings.set(urlStringsLength-1, lastUrlString);
-      }
+//   we could strip off extension if we had different types
+//      if (foundContentType && urlStringsLength > 0) {
+//        
+//        String lastUrlString = urlStrings.get(urlStringsLength-1);
+//        if (lastUrlString.endsWith("." + wsRestContentType.name())) {
+//          lastUrlString = lastUrlString.substring(0, lastUrlString.length()-(1+wsRestContentType.name().length()));
+//        }
+//        urlStrings.set(urlStringsLength-1, lastUrlString);
+//      }
       
       if (urlStringsLength == 0) {
         
@@ -149,9 +152,9 @@ public class AsasRestServlet extends HttpServlet {
         }
         
         //first see if version
-        clientVersion = AsasWsVersion.valueOfIgnoreCase(StandardApiServerUtils.popUrlString(urlStrings), true);
+        clientVersion = TaasWsVersion.valueOfIgnoreCase(StandardApiServerUtils.popUrlString(urlStrings), true);
 
-        AsasWsVersion.assignCurrentClientVersion(clientVersion, warnings);
+        TaasWsVersion.assignCurrentClientVersion(clientVersion, warnings);
         
   //      WsRequestBean requestObject = null;
   //
@@ -284,7 +287,7 @@ public class AsasRestServlet extends HttpServlet {
     } finally {
 
       StandardApiServerUtils.closeQuietly(response.getWriter());
-      AsasWsVersion.removeCurrentClientVersion();
+      TaasWsVersion.removeCurrentClientVersion();
       AsasRestContentType.clearContentType();
 
     }

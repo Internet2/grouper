@@ -29,8 +29,8 @@ import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidReq
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiFolderInterface;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiGroupInterface;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolderLookup;
-import edu.internet2.middleware.tierApiAuthzServer.j2ee.AsasFilterJ2ee;
-import edu.internet2.middleware.tierApiAuthzServer.version.AsasWsVersion;
+import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasFilterJ2ee;
+import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
 import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONObject;
 import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JsonConfig;
 import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.util.PropertyFilter;
@@ -90,7 +90,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    */
   public static String version() {
     //TODO: this should be based on the request
-    return AsasWsVersion.serverVersion().name();
+    return TaasWsVersion.serverVersion().name();
   }
 
   /**
@@ -395,7 +395,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    */
   public static String servletUrl() {
     
-    HttpServletRequest httpServletRequest = AsasFilterJ2ee.retrieveHttpServletRequest();
+    HttpServletRequest httpServletRequest = TaasFilterJ2ee.retrieveHttpServletRequest();
     
     if (httpServletRequest == null) {
       String servletUrl = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("tierApiAuthzServer.servletUrl");
