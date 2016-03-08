@@ -10,3 +10,10 @@ sourceSets {
     }
   }
 }
+
+task jarprep(type: Copy) {
+    from 'src'
+	include '**/*.java'
+	into 'build/bin'
+	description = "Prepare the jar file"
+}

@@ -51,6 +51,7 @@ subprojects {
     tests testJar
 
     archives sourcesJar
+    archives sourcesZip
     archives javadocJar
     archives testJar
   }
@@ -159,6 +160,10 @@ subprojects {
             contributor {
               name 'Jim Fox'
               email 'fox@washington.edu'
+            }
+            contributor {
+              name 'Lasbrey Nwachukwu'
+              email 'lnwachukwu@unicon.net'
             }
           }
 

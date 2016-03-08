@@ -39,4 +39,14 @@ sourceSets {
   }
 }
 
-
+task gzipfile(type: Tar) {
+  from projectDir
+  include 'doc'
+  include 'lib'
+  include 'src'
+  include 'build.gradle'
+  into projectDir
+  extension = 'tgz'
+  compression = Compression.GZIP
+  description = "Create gzip file from doc, lib, src directories and output jar file"
+}
