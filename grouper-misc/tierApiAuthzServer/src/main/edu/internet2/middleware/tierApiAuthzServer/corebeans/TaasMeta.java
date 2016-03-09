@@ -8,15 +8,86 @@ import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
  * @author mchyzer
  *
  */
-public class AsasMeta {
+public class TaasMeta {
+    
+  private String resourceType;
   
+  /**
+   * @return the resourceType
+   */
+  public String getResourceType() {
+    return this.resourceType;
+  }
+
+  
+  /**
+   * @param resourceType the resourceType to set
+   */
+  public void setResourceType(String resourceType) {
+    this.resourceType = resourceType;
+  }
+
+
+  /**
+   * version of the API, which is the main version (largest), and dot, and the
+   * build number of the release.  this is two number, i.e. 1.3 is less than 1.21
+   * e.g. 1.4, this is the point in time version of the spec which is implemented
+   */
+  private String serverVersion;
+  /**
+   * points to the default resource with no formatting on the end
+   * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
+   */
+  private String serviceRootUri;
+
+  /**
+   * version of the API, which is the main version (largest), and dot, and the
+   * build number of the release.  this is two number, i.e. 1.3 is less than 1.21
+   * e.g. 1.4, this is the point in time version of the spec which is implemented
+   * @return the server version
+   */
+  public String getServerVersion() {
+    return this.serverVersion;
+  }
+
+  /**
+   * points to the default resource with no formatting on the end
+   * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
+   * @return service root uri
+   */
+  public String getServiceRootUri() {
+    return this.serviceRootUri;
+  }
+
+  /**
+   * version of the API, which is the main version (largest), and dot, and the
+   * build number of the release.  this is two number, i.e. 1.3 is less than 1.21
+   * e.g. 1.4, this is the point in time version of the spec which is implemented
+   * @param serverVersion1
+   */
+  public void setServerVersion(String serverVersion1) {
+    this.serverVersion = serverVersion1;
+  }
+
+  /**
+   * points to the default resource with no formatting on the end
+   * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
+   * @param serviceRootUri1
+   */
+  public void setServiceRootUri(String serviceRootUri1) {
+    this.serviceRootUri = serviceRootUri1;
+  }
+
   /**
    * 
    */
-  public AsasMeta() {
+  public TaasMeta() {
     super();
     this.setSuccess(true);
-    this.setStatus("SUCCESS");
+    this.setResultCode("SUCCESS");
+    this.serverVersion = "1.0";
+    this.serviceRootUri = StandardApiServerUtils.servletUrl();
+
   }
 
   /**
@@ -25,7 +96,7 @@ public class AsasMeta {
    */
   public static void main(String[] args) {
     
-    AsasMeta asacMetaResponse = new AsasMeta();
+    TaasMeta asacMetaResponse = new TaasMeta();
     asacMetaResponse.setLastModified("abc");
     asacMetaResponse.setSelfUri("bcd");
     
@@ -35,14 +106,14 @@ public class AsasMeta {
     
     System.out.println(json);
     
-    asacMetaResponse = (AsasMeta)StandardApiServerUtils.jsonConvertFrom(json, AsasMeta.class);
+    asacMetaResponse = (TaasMeta)StandardApiServerUtils.jsonConvertFrom(json, TaasMeta.class);
 
     System.out.println(asacMetaResponse.getLastModified());
     System.out.println(asacMetaResponse.getSelfUri());
     
     json = "{\"lastModified\":\"abc\", \"selfUri\":\"bcd\", \"xyzWhatever\":\"cde\"}";
 
-    asacMetaResponse = (AsasMeta)StandardApiServerUtils.jsonConvertFrom(json, AsasMeta.class);
+    asacMetaResponse = (TaasMeta)StandardApiServerUtils.jsonConvertFrom(json, TaasMeta.class);
 
     System.out.println(asacMetaResponse.getLastModified());
     System.out.println(asacMetaResponse.getSelfUri());
@@ -116,14 +187,14 @@ public class AsasMeta {
   /**
    * response status text code
    */
-  private String status;
+  private String resultCode;
   
   /**
    * response status text code
    * @return the statusCode
    */
-  public String getStatus() {
-    return this.status;
+  public String getResultCode() {
+    return this.resultCode;
   }
 
   
@@ -131,8 +202,8 @@ public class AsasMeta {
    * response status text code
    * @param statusCode1 the statusCode to set
    */
-  public void setStatus(String statusCode1) {
-    this.status = statusCode1;
+  public void setResultCode(String statusCode1) {
+    this.resultCode = statusCode1;
   }
 
   /**
@@ -157,6 +228,49 @@ public class AsasMeta {
     this.success = success;
   }
 
+  private String version;
+  
+  
+  
+  
+  /**
+   * @return the version
+   */
+  public String getVersion() {
+    return this.version;
+  }
+
+
+  
+  /**
+   * @param version the version to set
+   */
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+
+  private String created;
+  
+  
+
+
+  
+  /**
+   * @return the created
+   */
+  public String getCreated() {
+    return this.created;
+  }
+
+
+  
+  /**
+   * @param created the created to set
+   */
+  public void setCreated(String created) {
+    this.created = created;
+  }
 
 
   /** timestamp this resource was last modified, e.g. 2012-10-04T03:10Z */
@@ -325,5 +439,98 @@ public class AsasMeta {
   public void setTotalCount(Long totalCount1) {
     this.totalCount = totalCount1;
   }
+  
+  
+  
+  /**
+   * the timestamp that this was sent from the server (at the end of the processing)
+   */
+  private String responseTimestamp;
+  
+  /**
+   * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
+   */
+  private String requestProcessed;
+
+  /**
+   * the timestamp that this was sent from the server (at the end of the processing)
+   * @return the responseTimestamp
+   */
+  public String getResponseTimestamp() {
+    return this.responseTimestamp;
+  }
+
+  
+  /**
+   * the timestamp that this was sent from the server (at the end of the processing)
+   * @param responseTimestamp1 the responseTimestamp to set
+   */
+  public void setResponseTimestamp(String responseTimestamp1) {
+    this.responseTimestamp = responseTimestamp1;
+  }
+
+
+  /**
+   * number of milliseconds that the server took in processing this request
+   */
+  private Long millis;
+  
+  /**
+   * number of milliseconds that the server took in processing this request
+   * @return the millis
+   */
+  public Long getMillis() {
+    return this.millis;
+  }
+
+  /**
+   * number of milliseconds that the server took in processing this request
+   * @param millis1 the millis to set
+   */
+  public void setMillis(Long millis1) {
+    this.millis = millis1;
+  }
+
+  
+  /**
+   * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
+   * @return the requestProcessed
+   */
+  public String getRequestProcessed() {
+    return this.requestProcessed;
+  }
+
+  
+  /**
+   * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
+   * @param requestProcessed1 the requestProcessed to set
+   */
+  public void setRequestProcessed(String requestProcessed1) {
+    this.requestProcessed = requestProcessed1;
+  }
+
+  /**
+   * number of the HTTP httpStatusCode code
+   */
+  private Integer httpStatusCode;
+  
+
+  /**
+   * number of the HTTP httpStatusCode code
+   * @return the httpgetHttpStatusCodee
+   */
+  public Integer getHttpStatusCode() {
+    return this.httpStatusCode;
+  }
+
+  
+  /**
+   * number of the HTTP httpStatusCode code
+   *setHttpStatusCodetatus1 the httpStatusCode to set
+   */
+  public void setHttpStatusCode(Integer status1) {
+    this.httpStatusCode = status1;
+  }
+
   
 }

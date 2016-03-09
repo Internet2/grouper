@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.StemAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,6 +36,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GaasFolderInterfaceImpl implements AsasApiFolderInterface {
 
+  public GaasFolderInterfaceImpl() {
+    GrouperStartup.startup();
+  }
+  
   /**
    * save a folder
    * @see AsasApiFolderInterface

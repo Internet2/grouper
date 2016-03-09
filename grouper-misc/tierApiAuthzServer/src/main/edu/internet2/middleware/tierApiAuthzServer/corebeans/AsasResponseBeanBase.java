@@ -1,9 +1,5 @@
 package edu.internet2.middleware.tierApiAuthzServer.corebeans;
 
-import java.util.Date;
-
-import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasRestServlet;
-import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 
 /**
  * base class that beans extends
@@ -12,21 +8,41 @@ import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 public abstract class AsasResponseBeanBase {
 
   public AsasResponseBeanBase() {
-    this.getResponseMeta().setHttpStatusCode(200);
-    this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(TaasRestServlet.getStartupTime())));
+    this.getMeta().setHttpStatusCode(200);
+    //this.getMeta().setLastModified(StandardApiServerUtils.convertToIso8601(new Date(TaasRestServlet.getStartupTime())));
   }
 
+  /**
+   * 
+   */
+  private String[] schemas = null;
+
+  
+  /**
+   * @return the schemas
+   */
+  public String[] getSchemas() {
+    return this.schemas;
+  }
+
+  
+  /**
+   * @param schemas the schemas to set
+   */
+  public void setSchemas(String[] schemas) {
+    this.schemas = schemas;
+  }
 
   /**
    * meta about resource
    */
-  private AsasMeta meta = new AsasMeta();
+  private TaasMeta meta = new TaasMeta();
   
   /**
    * meta about resource
    * @return the meta
    */
-  public AsasMeta getMeta() {
+  public TaasMeta getMeta() {
     return meta;
   }
   
@@ -34,7 +50,7 @@ public abstract class AsasResponseBeanBase {
    * meta about resource
    * @param meta the meta to set
    */
-  public void setMeta(AsasMeta _meta) {
+  public void setMeta(TaasMeta _meta) {
     this.meta = _meta;
   }
 
@@ -108,42 +124,5 @@ public abstract class AsasResponseBeanBase {
     this.error_uri = error_uri1;
   }
 
-  /** metadata about this particular resource */
-  private AsasResponseMeta responseMeta = new AsasResponseMeta();
-  
-  /**
-   * @return the _requestMeta
-   */
-  public AsasResponseMeta getResponseMeta() {
-    return responseMeta;
-  }
-  
-  /**
-   * @param _requestMeta the _requestMeta to set
-   */
-  public void setResponseMeta(AsasResponseMeta _requestMeta) {
-    this.responseMeta = _requestMeta;
-  }
-  
-  /**
-   * metadata about the service
-   */
-  private AsasServiceMeta serviceMeta = new AsasServiceMeta();
-
-  /**
-   * metadata about the service
-   * @return metadata about the service
-   */
-  public AsasServiceMeta getServiceMeta() {
-    return this.serviceMeta;
-  }
-
-  /**
-   * metadata about the service
-   * @param serviceMeta1
-   */
-  public void setServiceMeta(AsasServiceMeta serviceMeta1) {
-    this.serviceMeta = serviceMeta1;
-  }
   
 }

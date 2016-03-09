@@ -9,9 +9,11 @@ import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolderDeleteRes
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolderSaveRequest;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasFolderSaveResponse;
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasGroupSearchContainer;
+import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasGroupsMemberSearchContainer;
 import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidRequest;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiFolderInterface;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiGroupInterface;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiGroupsMemberInterface;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.AsasApiQueryParams;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.AsasSaveMode;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolder;
@@ -21,6 +23,9 @@ import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.Asas
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolderSaveParam;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolderSaveResult;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupLookup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupsMemberSearchParam;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupsMemberSearchResult;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupsSearchParam;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupsSearchResult;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
@@ -100,6 +105,40 @@ public class AsasRestLogic {
   }
 
   /**
+   * groups list or search
+   * @param params
+   * @return the result container
+   */
+  public static AsasGroupsMemberSearchContainer getGroupsMember(String groupUri, String entityUri, Map<String, String> params) {
+    
+    //lets get the groups interface
+    AsasApiGroupsMemberInterface asasApiGroupsMemberInterface = StandardApiServerUtils.interfaceGroupsMemberInstance();
+    AsasApiEntityLookup authenticatedSubject = AsasApiEntityLookup.retrieveLoggedInUser();
+    
+    AsasApiGroupsMemberSearchParam asasApiGroupsMemberSearchParam = new AsasApiGroupsMemberSearchParam();
+    
+    AsasApiQueryParams asasApiQueryParams = AsasApiQueryParams.convertFromQueryString();
+    
+    asasApiGroupsMemberSearchParam.setQueryParams(asasApiQueryParams);
+    
+    AsasApiGroupLookup asasApiGroupLookup = StandardApiServerUtils.groupConvertUriToLookup(groupUri);
+    AsasApiEntityLookup asasApiEntityLookup = StandardApiServerUtils.entityConvertUriToLookup(entityUri);
+
+    asasApiGroupsMemberSearchParam.setAsasApiGroupLookup(asasApiGroupLookup);
+    asasApiGroupsMemberSearchParam.setAsasApiEntityLookup(asasApiEntityLookup);
+    
+    AsasApiGroupsMemberSearchResult asasApiGroupsMemberSearchResult = asasApiGroupsMemberInterface.search(authenticatedSubject, asasApiGroupsMemberSearchParam);
+    
+    AsasGroupsMemberSearchContainer asasGroupsMemberSearchContainer = AsasApiGroupsMemberSearchResult
+        .convertTo(asasApiGroupsMemberSearchResult);
+        
+    //merge in the meta
+    AsasApiQueryParams.convertTo(asasApiGroupsMemberSearchResult.getQueryParams(), asasGroupsMemberSearchContainer.getMeta());
+    
+    return asasGroupsMemberSearchContainer;
+  }
+
+  /**
    * folder save
    * @param folderUri
    * @param params
@@ -155,24 +194,24 @@ public class AsasRestLogic {
     
     //if parent folder doent exist
     if (asasApiFolderSaveResult.getParentFolderDoesntExist() != null && asasApiFolderSaveResult.getParentFolderDoesntExist()) {
-      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(400);
-      asasFolderSaveResponse.getMeta().setStatus("PARENT_FOLDER_NOT_EXIST");
+      asasFolderSaveResponse.getMeta().setHttpStatusCode(400);
+      asasFolderSaveResponse.getMeta().setResultCode("PARENT_FOLDER_NOT_EXIST");
       asasFolderSaveResponse.getMeta().setSuccess(true);
       return asasFolderSaveResponse;
     }
     
     //if insert already there
     if (asasApiFolderSaveResult.getInsertAlreadyExists() != null && asasApiFolderSaveResult.getInsertAlreadyExists()) {
-      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(409);
-      asasFolderSaveResponse.getMeta().setStatus("FOLDER_EXISTS");
+      asasFolderSaveResponse.getMeta().setHttpStatusCode(409);
+      asasFolderSaveResponse.getMeta().setResultCode("FOLDER_EXISTS");
       asasFolderSaveResponse.getMeta().setSuccess(false);
       return asasFolderSaveResponse;
     }
     
     //if update not there
     if (asasApiFolderSaveResult.getUpdateDoesntExist() != null && asasApiFolderSaveResult.getUpdateDoesntExist()) {
-      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(409);
-      asasFolderSaveResponse.getMeta().setStatus("FOLDER_NOT_EXIST");
+      asasFolderSaveResponse.getMeta().setHttpStatusCode(409);
+      asasFolderSaveResponse.getMeta().setResultCode("FOLDER_NOT_EXIST");
       asasFolderSaveResponse.getMeta().setSuccess(false);
       return asasFolderSaveResponse;
     }
@@ -187,10 +226,10 @@ public class AsasRestLogic {
     }
     
     if (asasFolderSaveResponse.getCreated()) {
-      asasFolderSaveResponse.getResponseMeta().setHttpStatusCode(201);
-      asasFolderSaveResponse.getMeta().setStatus("FOLDER_CREATED");
+      asasFolderSaveResponse.getMeta().setHttpStatusCode(201);
+      asasFolderSaveResponse.getMeta().setResultCode("FOLDER_CREATED");
     } else {
-      asasFolderSaveResponse.getMeta().setStatus("FOLDER_UPDATED");
+      asasFolderSaveResponse.getMeta().setResultCode("FOLDER_UPDATED");
     }
     
     return asasFolderSaveResponse;
@@ -235,10 +274,10 @@ public class AsasRestLogic {
     }
     
     if (asasFolderDeleteResponse.getDeleted()) {
-      asasFolderDeleteResponse.getMeta().setStatus("FOLDER_DELETED");
+      asasFolderDeleteResponse.getMeta().setResultCode("FOLDER_DELETED");
     } else {
-      asasFolderDeleteResponse.getResponseMeta().setHttpStatusCode(404);
-      asasFolderDeleteResponse.getMeta().setStatus("FOLDER_NOT_EXIST");
+      asasFolderDeleteResponse.getMeta().setHttpStatusCode(404);
+      asasFolderDeleteResponse.getMeta().setResultCode("FOLDER_NOT_EXIST");
     }
     
     return asasFolderDeleteResponse;

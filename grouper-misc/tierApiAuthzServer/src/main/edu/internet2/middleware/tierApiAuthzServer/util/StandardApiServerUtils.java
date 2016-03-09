@@ -2,6 +2,7 @@ package edu.internet2.middleware.tierApiAuthzServer.util;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,20 +27,26 @@ import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.tierApiAuthzServer.contentType.AsasRestContentType;
 import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidRequest;
+import edu.internet2.middleware.tierApiAuthzServer.exceptions.ExpressionLanguageMissingVariableException;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiFolderInterface;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiGroupInterface;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiGroupsMemberInterface;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolderLookup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupLookup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasFilterJ2ee;
 import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
 import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONObject;
 import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JsonConfig;
 import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.util.PropertyFilter;
+import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.collections.keyvalue.MultiKey;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.Expression;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.JexlContext;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.JexlEngine;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.JexlException;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.MapContext;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
+import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.exception.ExceptionUtils;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.impl.Jdk14Logger;
@@ -51,6 +58,593 @@ import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging
  *
  */
 public class StandardApiServerUtils extends StandardApiServerCommonUtils {
+
+  /**
+   * <pre>
+   * split trim but dont deal with things in single or double quotes
+   * e.g. if input is:     "someField:complicate.whatever"."someField:complicate.another"[2]
+   * and you splitOn dot
+   * then you should get two strings back:  "someField:complicate.whatever" and "someField:complicate.another"[2]
+   * @param input
+   * @param splitOn
+   * @return the strings that are splittrimmed
+   */
+  public static String[] splitTrimQuoted(String input, String splitOn) {
+    if (input == null) {
+      return null;
+    }
+    
+    // this is just too confusing, dont allow
+    if (splitOn.contains("\"") || splitOn.contains("'")) {
+      throw new RuntimeException("splitOn cannot contain single or double quotes: '" + splitOn + "'");
+    }
+    
+    //if nothing to split on, dont worry about it
+    if (!input.contains(splitOn)) {
+      return new String[]{input.trim()};
+    }
+    //dont mess with it if no quotes
+    if (!input.contains("\"") && !input.contains("'")) {
+      return splitTrim(input, splitOn);
+    }
+    
+    List<Integer> indices = indexOfsQuoted(input, splitOn);
+    
+    if (indices.size() == 0) {
+      return new String[]{input.trim()};
+    }
+    
+    List<String> resultList = new ArrayList<String>();
+    
+    int currentStart = 0;
+    
+    for (int i=0;i<indices.size();i++){
+      int index = indices.get(i);
+      
+      //dont add an empty string at the beginning
+      if (currentStart == 0 && index == 0) {
+        currentStart += splitOn.length();
+        continue;
+      }
+      
+      //add the string
+      String substring = input.substring(currentStart, index);
+      resultList.add(substring.trim());
+      
+      currentStart += substring.length() + splitOn.length();
+      
+      //if we end with an empty string, ignore it
+      if (currentStart >= input.length()-1) {
+        break;
+      }
+    }
+
+    //lets add the last string
+    if (currentStart < input.length()) {
+      String substring = input.substring(currentStart, input.length());
+      resultList.add(substring.trim());
+      
+    }
+    
+    return resultList.toArray(new String[0]);
+  }
+
+  /**
+   * <pre>
+   * split trim but dont deal with things in single or double quotes or things in brackets
+   * e.g. if input is:     "someField:complicate.whatever"."someField:complicate.another"[@attr='val']
+   * and you splitOn dot
+   * then you should get two strings back:  "someField:complicate.whatever" and "someField:complicate.another"[2]
+   * @param input
+   * @param splitOn
+   * @return the strings that are splittrimmed
+   */
+  public static String[] splitTrimQuotedBracketed(String input, String splitOn) {
+    if (input == null) {
+      return null;
+    }
+    
+    // this is just too confusing, dont allow
+    if (splitOn.contains("\"") || splitOn.contains("'") || splitOn.contains("[") || splitOn.contains("]")) {
+      throw new RuntimeException("splitOn cannot contain single or double quotes or brackets: '" + splitOn + "'");
+    }
+    
+    //if nothing to split on, dont worry about it
+    if (!input.contains(splitOn)) {
+      return new String[]{input.trim()};
+    }
+
+    //dont mess with it if no quotes
+    if (!input.contains("\"") && !input.contains("'") && !input.contains("[")) {
+      return splitTrim(input, splitOn);
+    }
+    
+    List<Integer> indices = indexOfsQuotedBracketed(input, splitOn);
+    
+    if (indices.size() == 0) {
+      return new String[]{input.trim()};
+    }
+    
+    List<String> resultList = new ArrayList<String>();
+    
+    int currentStart = 0;
+    
+    for (int i=0;i<indices.size();i++){
+      int index = indices.get(i);
+      
+      //dont add an empty string at the beginning
+      if (currentStart == 0 && index == 0) {
+        currentStart += splitOn.length();
+        continue;
+      }
+      
+      //add the string
+      String substring = input.substring(currentStart, index);
+      resultList.add(substring.trim());
+      
+      currentStart += substring.length() + splitOn.length();
+      
+      //if we end with an empty string, ignore it
+      if (currentStart >= input.length()-1) {
+        break;
+      }
+    }
+
+    //lets add the last string
+    if (currentStart < input.length()) {
+      String substring = input.substring(currentStart, input.length());
+      resultList.add(substring.trim());
+      
+    }
+    
+    return resultList.toArray(new String[0]);
+  }
+
+  /**
+   * see if a string contains a substring, but ignore things that are quoted (single or double)
+   * @param input
+   * @param substring
+   * @return true if contains and false if not
+   */
+  public static boolean containsQuoted(String input, String substring) {
+    List<Integer> indices = indexOfsQuoted(input, substring);
+    return length(indices) > 0;
+  }
+
+  /**
+   * find the first index of a substring but ignore quoted strings
+   * @param input
+   * @param substring
+   * @return the first index or -1 if not there
+   */
+  public static int indexOfQuoted(String input, String substring) {
+    List<Integer> indices = indexOfsQuoted(input, substring);
+    if (length(indices) == 0) {
+      return -1;
+    }
+    return indices.get(0);
+  }
+  
+  /**
+   * see if a string contains a substring, but ignore things that are quoted (single or double), or bracketed
+   * @param input
+   * @param substring
+   * @return true if contains and false if not
+   */
+  public static boolean containsQuotedBracketed(String input, String substring) {
+    List<Integer> indices = indexOfsQuotedBracketed(input, substring);
+    return length(indices) > 0;
+  }
+
+  /**
+   * find the first index of a substring but ignore quoted and bracketed strings
+   * @param input
+   * @param substring
+   * @return the first index or -1 if not there
+   */
+  public static int indexOfQuotedBracketed(String input, String substring) {
+    List<Integer> indices = indexOfsQuotedBracketed(input, substring);
+    if (length(indices) == 0) {
+      return -1;
+    }
+    return indices.get(0);
+  }
+  
+  /**
+   * find the last index of a substring but ignore quoted strings
+   * @param input
+   * @param substring
+   * @return the last index or -1 if not there
+   */
+  public static int lastIndexOfQuoted(String input, String substring) {
+    List<Integer> indices = indexOfsQuoted(input, substring);
+    if (length(indices) == 0) {
+      return -1;
+    }
+    return indices.get(indices.size()-1);
+  }
+  
+  /**
+   * find the last index of a substring but ignore quoted strings and bracketed strings
+   * @param input
+   * @param substring
+   * @return the last index or -1 if not there
+   */
+  public static int lastIndexOfQuotedBracketed(String input, String substring) {
+    List<Integer> indices = indexOfsQuotedBracketed(input, substring);
+    if (length(indices) == 0) {
+      return -1;
+    }
+    return indices.get(indices.size()-1);
+  }
+  
+  /**
+   * <pre>
+   * get the indices where the substring occurs (dont worry about overlaps), and ignore quoted strings
+   * if the input is ab..cd..ef
+   * and the substring is ..
+   * then return 2,6
+   * if the input is ab..c"e..\" '.."d..ef
+   * and the substring is ..
+   * then return 2,17
+   * 
+   * </pre>
+   * @param input
+   * @param substring
+   * @return the list of indices
+   */
+  public static List<Integer> indexOfsQuoted(String input, String substring) {
+    
+    if (input == null) {
+      return null;
+    }
+
+    //ok, we have quotes...  lets get the indices
+    List<Integer> indices = new ArrayList<Integer>();
+    
+    int inputLength = input.length();
+    
+    boolean inSingleQuotes = false;
+    boolean inDoubleQuotes = false;
+    
+    OUTER:
+    for (int i=0;i<inputLength;i++) {
+      char curChar = input.charAt(i);
+      boolean isSingleQuote = curChar == '\'';
+      boolean isDoubleQuote = curChar == '\"';
+      boolean isSlash = curChar == '\\';
+      
+      //if its a single quote, and you are not in quotes, then you are now in single quotes
+      if (isSingleQuote && !inSingleQuotes && !inDoubleQuotes) {
+        inSingleQuotes = true;
+        continue;
+      }
+      //if its a double quote, and you are not in quotes, then you are now in double quotes
+      if (isDoubleQuote && !inSingleQuotes && !inDoubleQuotes) {
+        inDoubleQuotes = true;
+        continue;
+      }
+      //if its a single quote, and you are in double quotes, then ignore
+      if (isSingleQuote && inDoubleQuotes) {
+        continue;
+      }
+      //if its a double quote, and you are in single quotes, then ignore
+      if (isDoubleQuote && inSingleQuotes) {
+        continue;
+      }
+      //if its a single quote, and we are in single quotes, then we arent in single quotes anymore
+      if (isSingleQuote && inSingleQuotes) {
+        inSingleQuotes = false;
+        continue;
+      }
+      //if its a double quote, and we are in double quotes, then we arent in double quotes anymore
+      if (isDoubleQuote && inDoubleQuotes) {
+        inDoubleQuotes = false;
+        continue;
+      }
+      //if its a slash and we are in quotes, then ignore the next char
+      if (isSlash && (inDoubleQuotes || inSingleQuotes)) {
+
+        //not sure why this would happen
+        if (i == inputLength-1) {
+          break;
+        }
+        //we are processing the escaped char
+        i++;
+        continue;
+      }
+      //if we are in single quotes or double quotes, ignore checking for 
+      if (inSingleQuotes || inDoubleQuotes) {
+        continue;
+      }
+      //lets see if we found the string
+      //lets see if there is even space
+      //string is ab..cd..ef
+      //length is 10
+      //index is 6
+      //splitOn is ..
+      //remaining length of string is length-index
+      int remainingLength = inputLength - i;
+      //we are done
+      if (remainingLength < substring.length()) {
+        break;
+      }
+      //see if equals
+      for (int splitOnIndex = 0; splitOnIndex < substring.length(); splitOnIndex++) {
+        if (input.charAt(i+splitOnIndex) != substring.charAt(splitOnIndex)) {
+          continue OUTER;
+        }
+      }
+      //the string was found!
+      //keep track that we found it
+      indices.add(i);
+      //move the pointer forward
+      i += substring.length()-1;
+    }
+    
+    //now we have the indices
+    return indices;
+  }
+  
+  /**
+   * <pre>
+   * get the indices where the substring occurs (dont worry about overlaps), and ignore quoted strings, ignore bracketed strings.
+   * inside bracketed strings, ignore quoted string.
+   * if the input is ab..c[rf..yh]d..ef
+   * and the substring is ..
+   * then return 2,14
+   * if the input is ab..c"e..\" '.."d..ef
+   * and the substring is ..
+   * then return 2,17
+   * if the input is ab..c"e..\" '.."d["re..][]..rf"]..ef
+   * and the substring is ..
+   * then return 2,32
+   * 
+   * </pre>
+   * @param input
+   * @param substring
+   * @return the list of indices
+   */
+  public static List<Integer> indexOfsQuotedBracketed(String input, String substring) {
+    
+    if (input == null) {
+      return null;
+    }
+
+    // this is just too confusing, dont allow
+    if (substring.contains("\"") || substring.contains("'") || substring.contains("[") || substring.contains("]")) {
+      throw new RuntimeException("splitOn cannot contain single or double quotes or brackets: '" + substring + "'");
+    }
+
+    //ok, we have quotes...  lets get the indices
+    List<Integer> indices = new ArrayList<Integer>();
+    
+    int inputLength = input.length();
+    
+    boolean inBrackets = false;
+    boolean inSingleQuotes = false;
+    boolean inDoubleQuotes = false;
+    
+    OUTER:
+    for (int i=0;i<inputLength;i++) {
+      char curChar = input.charAt(i);
+      boolean isSingleQuote = curChar == '\'';
+      boolean isDoubleQuote = curChar == '\"';
+      boolean isOpenBracket = curChar == '[';
+      boolean isCloseBracket = curChar == ']';
+      boolean isSlash = curChar == '\\';
+      
+      //if its a single quote, and you are not in quotes, then you are now in single quotes
+      if (isSingleQuote && !inSingleQuotes && !inDoubleQuotes) {
+        inSingleQuotes = true;
+        continue;
+      }
+      //if its a double quote, and you are not in quotes, then you are now in double quotes
+      if (isDoubleQuote && !inSingleQuotes && !inDoubleQuotes) {
+        inDoubleQuotes = true;
+        continue;
+      }
+      //if its an open bracket, and you are not in brackets, then you are now in brackets
+      if (isOpenBracket && !inSingleQuotes && !inDoubleQuotes) {
+        inBrackets = true;
+        continue;
+      }
+      //if its a single quote, and you are in double quotes, then ignore
+      if (isSingleQuote && inDoubleQuotes) {
+        continue;
+      }
+      //if its a double quote, and you are in single quotes, then ignore
+      if (isDoubleQuote && inSingleQuotes) {
+        continue;
+      }
+      //brackets dont count in quotes
+      if ((isOpenBracket || isCloseBracket) && (inSingleQuotes || inDoubleQuotes)) {
+        continue;
+      }
+      //if its a single quote, and we are in single quotes, then we arent in single quotes anymore
+      if (isSingleQuote && inSingleQuotes) {
+        inSingleQuotes = false;
+        continue;
+      }
+      //if its a double quote, and we are in double quotes, then we arent in double quotes anymore
+      if (isDoubleQuote && inDoubleQuotes) {
+        inDoubleQuotes = false;
+        continue;
+      }
+      //if its a close bracket and in brackets, then we arent in brackets anymore
+      if (isCloseBracket && inBrackets) {
+        inBrackets = false;
+        continue;
+      }
+      //if its a slash and we are in quotes, then ignore the next char
+      if (isSlash && (inDoubleQuotes || inSingleQuotes)) {
+
+        //not sure why this would happen
+        if (i == inputLength-1) {
+          break;
+        }
+        //we are processing the escaped char
+        i++;
+        continue;
+      }
+      //if we are in single quotes or double quotes or brackets, ignore checking for 
+      if (inSingleQuotes || inDoubleQuotes || inBrackets) {
+        continue;
+      }
+      //lets see if we found the string
+      //lets see if there is even space
+      //string is ab..cd..ef
+      //length is 10
+      //index is 6
+      //splitOn is ..
+      //remaining length of string is length-index
+      int remainingLength = inputLength - i;
+      //we are done
+      if (remainingLength < substring.length()) {
+        break;
+      }
+      //see if equals
+      for (int splitOnIndex = 0; splitOnIndex < substring.length(); splitOnIndex++) {
+        if (input.charAt(i+splitOnIndex) != substring.charAt(splitOnIndex)) {
+          continue OUTER;
+        }
+      }
+      //the string was found!
+      //keep track that we found it
+      indices.add(i);
+      //move the pointer forward
+      i += substring.length()-1;
+    }
+    
+    //now we have the indices
+    return indices;
+  }
+  
+  /**
+   * make sure two arrays are equal (of simple objects)
+   * @param a
+   * @param b
+   */
+  public static void assertEqualsArray(Object a, Object b) {
+    if (a == b) {
+      return;
+    }
+    if (a == null) {
+      throw new RuntimeException("expected null, but didnt get null");
+    }
+    if (b == null) {
+      throw new RuntimeException("expected not null, but got null");
+    }
+    int lengthA = Array.getLength(a);
+    int lengthB = Array.getLength(b);
+    if (lengthA != lengthB) {
+      throw new RuntimeException("Expected array of length " + lengthA + ", but received array of length: " + lengthB);
+    }
+    //loop through and see if equal
+    for (int i=0;i<lengthA;i++) {
+      Object objectA = Array.get(a, i);
+      Object objectB = Array.get(b, i);
+      if (!equals(objectA, objectB)) {
+        throw new RuntimeException("Index " + i + ", not equal, expected: " + objectA + ", but received: " + objectB);
+      }
+    }
+    //all good
+  }
+
+  /**
+   * make sure two lists are equal (of simple objects)
+   * @param a
+   * @param b
+   */
+  public static void assertEqualsList(List<?> a, List<?> b) {
+    if (a == b) {
+      return;
+    }
+    if (a == null) {
+      throw new RuntimeException("expected null, but didnt get null");
+    }
+    if (b == null) {
+      throw new RuntimeException("expected not null, but got null");
+    }
+    int lengthA = a.size();
+    int lengthB = b.size();
+    if (lengthA != lengthB) {
+      throw new RuntimeException("Expected array of length " + lengthA + ", but received list of length: " + lengthB);
+    }
+    //loop through and see if equal
+    for (int i=0;i<lengthA;i++) {
+      Object objectA = a.get(i);
+      Object objectB = b.get(i);
+      if (!equals(objectA, objectB)) {
+        throw new RuntimeException("Index " + i + ", not equal, expected: " + objectA + ", but received: " + objectB);
+      }
+    }
+    //all good
+  }
+
+  /**
+   * if this string is surrounded by double or single quotes, then take the quotes
+   * off and unescape the quotes inside.  Note, the things that will be changed inside are
+   * \\ will go to \, and \" will go to " or a double quoted string, or \' will go to '
+   * for a single quoted string
+   * @param input
+   * @return the unquoted string
+   */
+  public static String unquoteString(String input) {
+    
+    if (input == null) {
+      return null;
+    }
+    
+    if ((input.startsWith("\"") && input.endsWith("\""))
+        || (input.startsWith("'") && input.endsWith("'")) ){
+    
+      StringBuilder result = new StringBuilder();
+
+      //single or double
+      char quoteChar = input.charAt(0);
+
+      for (int i=0; i<input.length(); i++) {
+
+        //strip off the start and end
+        if (i==0 || i==input.length()-1) {
+          continue;
+        }
+
+        char curChar = input.charAt(i);
+        
+        if (curChar == '\\') {
+          
+          if (i == input.length()-2) {
+            throw new RuntimeException("Why is there a slash right before the last quote???? '" + input + "'");
+          }
+          
+          char nextChar = input.charAt(i+1);
+          
+          if (nextChar == '\\') {
+            result.append('\\');
+            i++;
+            continue;
+          }
+          
+          if (nextChar == quoteChar) {
+            result.append(quoteChar);
+            i++;
+            continue;
+          }
+          
+          throw new RuntimeException("Should only be escaping slash \\ or quote char: " + quoteChar + ", '" + nextChar + "'");
+          
+        }
+        result.append(curChar);
+        
+      }
+      
+      return result.toString();
+    }
+    
+    return input;
+  }
 
   /**
    * convert a uri to folder lookup
@@ -835,7 +1429,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
   /**
    * 
    */
-  private static class ElMapContext extends MapContext {
+  private static class JexlCustomMapContext extends MapContext {
   
     /**
      * retrieve class if class
@@ -932,91 +1526,105 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    */
   public static String substituteExpressionLanguage(String stringToParse, 
       Map<String, Object> variableMap, boolean allowStaticClasses, boolean silent, boolean lenient, boolean logOnNull) {
+    if (!jexlEnginesInitialized) {
+      synchronized (StandardApiServerUtils.class) {
+        if (!jexlEnginesInitialized) {
+          
+          int cacheSize = StandardApiServerConfig.retrieveConfig().propertyValueInt("jexl.cacheSize", 10000);
+          for (JexlEngine jexlEngine : jexlEngines.values()) {
+            jexlEngine.setCache(cacheSize);
+          }
+          
+          jexlEnginesInitialized = true;
+        }
+      }
+    }
+
+    
     if (isBlank(stringToParse)) {
       return stringToParse;
     }
     String overallResult = null;
     Exception exception = null;
     try {
-      JexlContext jc = allowStaticClasses ? new ElMapContext() : new MapContext();
+      JexlContext jc = allowStaticClasses ? new JexlCustomMapContext() : new MapContext();
 
+      //start index of section
       int index = 0;
-      
-      variableMap = nonNull(variableMap);
-      
+
       for (String key: variableMap.keySet()) {
         jc.set(key, variableMap.get(key));
       }
-      
+
       //allow utility methods
-      jc.set("elUtils", new AsasElUtilsSafe());
+      jc.set("personWsServerUtils", new AsasElUtilsSafe());
       //if you add another one here, add it in the logs below
-      
+
       // matching ${ exp }   (non-greedy)
-      Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
-      Matcher matcher = pattern.matcher(stringToParse);
-      
+      List<Integer> sectionIndexes = indexOfsQuoted(stringToParse, "${"); 
+
       StringBuilder result = new StringBuilder();
-  
+
+      int count = 0;
+      
       //loop through and find each script
-      while(matcher.find()) {
-        result.append(stringToParse.substring(index, matcher.start()));
+      for (int sectionIndex : nonNull(sectionIndexes)) {
+
+        //get the stuff in between
+        result.append(stringToParse.substring(index, sectionIndex));
+
+        String scriptletSection = null;
         
-        //here is the script inside the curlies
-        String script = matcher.group(1);
-        
-        index = matcher.end();
-  
-        if (script.contains("{")) {
-          //we need to match up some curlies here...
-          int scriptStart = matcher.start(1);
-          int openCurlyCount = 0;
-          for (int i=scriptStart; i<stringToParse.length();i++) {
-            char curChar = stringToParse.charAt(i);
-            if (curChar == '{') {
-              openCurlyCount++;
-            }
-            if (curChar == '}') {
-              openCurlyCount--;
-              //negative 1 since we need to get to the close of the parent one...
-              if (openCurlyCount <= -1) {
-                script = stringToParse.substring(scriptStart, i);
-                index = i+1;
-                break;
-              }
-            }
-          }
+        //if we are on the last one
+        if (count == length(sectionIndexes)-1) {
+          //add two since two chars in ${
+          scriptletSection = stringToParse.substring(sectionIndex+2, stringToParse.length());
+        } else {
+          
+          int nextSectionIndex = sectionIndexes.get(count+1);
+          
+          scriptletSection = stringToParse.substring(sectionIndex+2, nextSectionIndex);
         }
         
-        JexlEngine jexlEngine = new JexlEngine();
-        jexlEngine.setSilent(silent);
-        jexlEngine.setLenient(lenient);
-  
-        Expression e = jexlEngine.createExpression(script);
-  
+        //where is the end?
+        int endCurlyIndex = indexOfQuoted(scriptletSection, "}");
+        
+        //here is the script inside the curlies
+        String script = scriptletSection.substring(0, endCurlyIndex);
+
+        //add one for the end index, add two for the ${ opening
+        index = sectionIndex+endCurlyIndex+1+2;
+
+        Expression e = jexlEngines.get(new MultiKey(silent, lenient)).createExpression(script);
+
         //this is the result of the evaluation
         Object o = null;
-        
+
         try {
           o = e.evaluate(jc);
         } catch (JexlException je) {
           //exception-scrape to see if missing variable
-          if (!lenient && trimToEmpty(je.getMessage()).contains("undefined variable")) {
+          if (!lenient && StringUtils.trimToEmpty(je.getMessage()).contains("undefined variable")) {
             //clean up the message a little bit
-            // e.g. edu.internet2.middleware.grouper.util.GrouperUtil.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
+            // e.g. org.personWebService.server.util.PersonWsServerUtils.substituteExpressionLanguage@8846![0,6]: 'amount < 50000 && amount2 < 23;' undefined variable amount
             String message = je.getMessage();
-            //Pattern exceptionPattern = Pattern.compile("^" + GrouperUtil.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
+            //Pattern exceptionPattern = Pattern.compile("^" + PersonWsServerUtils.class.getName() + "\\.substituteExpressionLanguage.*?]: '(.*)");
             Pattern exceptionPattern = Pattern.compile("^.*undefined variable (.*)");
             Matcher exceptionMatcher = exceptionPattern.matcher(message);
             if (exceptionMatcher.matches()) {
               //message = "'" + exceptionMatcher.group(1);
               message = "variable '" + exceptionMatcher.group(1) + "' is not defined in script: '" + script + "'";
             }
-            throw new AsasExpressionLanguageMissingVariableException(message, je);
+            throw new ExpressionLanguageMissingVariableException(message, je);
           }
           throw je;
         }
-          
+
+        //we dont want "null" in the result I think...
+        if (o == null && lenient) {
+          o = "";
+        }
+        
         if (o == null) {
           if (logOnNull) {
             LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
@@ -1027,31 +1635,30 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
                   + toStringForLog(variableMap.keySet()));
             }            
           }
-          o = "";
         }
-        
+
         if (o instanceof RuntimeException) {
           throw (RuntimeException)o;
         }
-        
+
         result.append(o);
-        
+        count++;
       }
-      
+
       result.append(stringToParse.substring(index, stringToParse.length()));
       overallResult = result.toString();
       return overallResult;
-      
+
     } catch (Exception e) {
       exception = e;
-      if (e instanceof AsasExpressionLanguageMissingVariableException) {
-        throw (AsasExpressionLanguageMissingVariableException)e;
+      if (e instanceof ExpressionLanguageMissingVariableException) {
+        throw (ExpressionLanguageMissingVariableException)e;
       }
       throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
     } finally {
       if (LOG.isDebugEnabled()) {
         Set<String> keysSet = new LinkedHashSet<String>(nonNull(variableMap).keySet());
-        keysSet.add("elUtils");
+        keysSet.add("personWsServerUtils");
         StringBuilder logMessage = new StringBuilder();
         logMessage.append("Subsituting EL: '").append(stringToParse).append("', and with env vars: ");
         String[] keys = keysSet.toArray(new String[]{});
@@ -1063,7 +1670,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
         }
         logMessage.append(" with result: '" + overallResult + "'");
         if (exception != null) {
-          logMessage.append(", and exception: " + exception + ", " + getFullStackTrace(exception));
+          logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
         }
         LOG.debug(logMessage.toString());
       }
@@ -1121,7 +1728,251 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
     }
     return null;
   }
+
+  /**
+   * 
+   * @param object
+   * @param length
+   * @return abbreviate an object tostring
+   */
+  public static String abbreviate(Object object, int length) {
+    if (object == null) {
+      return null;
+    }
+    return abbreviate(toStringSafe(object), length);
+  }
+
+  /**
+   * <p>Abbreviates a String using ellipses. This will turn
+   * "Now is the time for all good men" into "Now is the time for..."</p>
+   *
+   * <p>Specifically:
+   * <ul>
+   *   <li>If <code>str</code> is less than <code>maxWidth</code> characters
+   *       long, return it.</li>
+   *   <li>Else abbreviate it to <code>(substring(str, 0, max-3) + "...")</code>.</li>
+   *   <li>If <code>maxWidth</code> is less than <code>4</code>, throw an
+   *       <code>IllegalArgumentException</code>.</li>
+   *   <li>In no case will it return a String of length greater than
+   *       <code>maxWidth</code>.</li>
+   * </ul>
+   * </p>
+   *
+   * <pre>
+   * StringUtils.abbreviate(null, *)      = null
+   * StringUtils.abbreviate("", 4)        = ""
+   * StringUtils.abbreviate("abcdefg", 6) = "abc..."
+   * StringUtils.abbreviate("abcdefg", 7) = "abcdefg"
+   * StringUtils.abbreviate("abcdefg", 8) = "abcdefg"
+   * StringUtils.abbreviate("abcdefg", 4) = "a..."
+   * StringUtils.abbreviate("abcdefg", 3) = IllegalArgumentException
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param maxWidth  maximum length of result String, must be at least 4
+   * @return abbreviated String, <code>null</code> if null String input
+   * @throws IllegalArgumentException if the width is too small
+   * @since 2.0
+   */
+  public static String abbreviate(String str, int maxWidth) {
+    return abbreviate(str, 0, maxWidth);
+  }
+
+  /**
+   * <p>Abbreviates a String using ellipses. This will turn
+   * "Now is the time for all good men" into "...is the time for..."</p>
+   *
+   * <p>Works like <code>abbreviate(String, int)</code>, but allows you to specify
+   * a "left edge" offset.  Note that this left edge is not necessarily going to
+   * be the leftmost character in the result, or the first character following the
+   * ellipses, but it will appear somewhere in the result.
+   *
+   * <p>In no case will it return a String of length greater than
+   * <code>maxWidth</code>.</p>
+   *
+   * <pre>
+   * StringUtils.abbreviate(null, *, *)                = null
+   * StringUtils.abbreviate("", 0, 4)                  = ""
+   * StringUtils.abbreviate("abcdefghijklmno", -1, 10) = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 0, 10)  = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 1, 10)  = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 4, 10)  = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 5, 10)  = "...fghi..."
+   * StringUtils.abbreviate("abcdefghijklmno", 6, 10)  = "...ghij..."
+   * StringUtils.abbreviate("abcdefghijklmno", 8, 10)  = "...ijklmno"
+   * StringUtils.abbreviate("abcdefghijklmno", 10, 10) = "...ijklmno"
+   * StringUtils.abbreviate("abcdefghijklmno", 12, 10) = "...ijklmno"
+   * StringUtils.abbreviate("abcdefghij", 0, 3)        = IllegalArgumentException
+   * StringUtils.abbreviate("abcdefghij", 5, 6)        = IllegalArgumentException
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param offset  left edge of source String
+   * @param maxWidth  maximum length of result String, must be at least 4
+   * @return abbreviated String, <code>null</code> if null String input
+   * @throws IllegalArgumentException if the width is too small
+   * @since 2.0
+   */
+  public static String abbreviate(String str, int offset, int maxWidth) {
+    if (str == null) {
+      return null;
+    }
+    if (maxWidth < 4) {
+      throw new IllegalArgumentException("Minimum abbreviation width is 4");
+    }
+    if (str.length() <= maxWidth) {
+      return str;
+    }
+    if (offset > str.length()) {
+      offset = str.length();
+    }
+    if ((str.length() - offset) < (maxWidth - 3)) {
+      offset = str.length() - (maxWidth - 3);
+    }
+    if (offset <= 4) {
+      return str.substring(0, maxWidth - 3) + "...";
+    }
+    if (maxWidth < 7) {
+      throw new IllegalArgumentException("Minimum abbreviation width with offset is 7");
+    }
+    if ((offset + (maxWidth - 3)) < str.length()) {
+      return "..." + abbreviate(str.substring(offset), maxWidth - 3);
+    }
+    return "..." + str.substring(str.length() - (maxWidth - 3));
+  }
+
+  /**
+   * Return the zero element of the list, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param list is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T listPopOne(List<T> list) {
+    int size = length(list);
+    if (size == 1) {
+      return list.get(0);
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type " + className(list.get(0))
+        + " was returned when only one was expected. (size:" + size +")" );
+  }
+
+  /**
+   * create one set of jexlEngine instances (one per type of setting) so we can cache expressions
+   */
+  private final static Map<MultiKey, JexlEngine> jexlEngines = new HashMap<MultiKey, JexlEngine>();
+
+  /**
+   * if the jexl engine instances are all initialized completely
+   */
+  private static boolean jexlEnginesInitialized = false;
   
+  /**
+   * initialize the instances
+   */
+  static {
+    {
+      Boolean silent = true;
+      Boolean lenient = true;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+    {
+      Boolean silent = false;
+      Boolean lenient = true;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+    {
+      Boolean silent = true;
+      Boolean lenient = false;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+    {
+      Boolean silent = false;
+      Boolean lenient = false;
+      final JexlEngine jexlEngine = new JexlEngine();
+      jexlEngine.setSilent(silent);
+      jexlEngine.setLenient(lenient);
+      jexlEngines.put(new MultiKey(silent, lenient), jexlEngine);
+    }
+  }
+
+  /**
+   * see which groupsMember interface is configured and make an instance of it
+   * @return an instance of the groupsMember interface
+   */
+  public static AsasApiGroupsMemberInterface interfaceGroupsMemberInstance() {
+    
+    String className = StandardApiServerConfig.retrieveConfig().propertyValueStringRequired("tierApiAuthzServer.interface.groupsMember");
+    
+    @SuppressWarnings("unchecked")
+    Class<AsasApiGroupsMemberInterface> theClass = (Class<AsasApiGroupsMemberInterface>)forName(className);
+    
+    return newInstance(theClass);
+  }
+
+  /**
+   * convert a uri to group lookup
+   * @param groupUri
+   */
+  public static AsasApiGroupLookup groupConvertUriToLookup(String groupUri) {
+  
+    AsasApiGroupLookup asasApiGroupLookup = new AsasApiGroupLookup();
+  
+    if (groupUri.startsWith("name:")) {
+  
+      String name = groupUri.substring(5);
+      asasApiGroupLookup.setName(name);
+  
+    } else if (groupUri.startsWith("id:")) {
+  
+      String id = groupUri.substring(3);
+      asasApiGroupLookup.setId(id);
+  
+    } else if (groupUri.contains(":")) {
+  
+      String handleName = StandardApiServerUtils.prefixOrSuffix(groupUri, ":", true);
+      String handleValue = StandardApiServerUtils.prefixOrSuffix(groupUri, ":", false);
+      asasApiGroupLookup.setHandleName(handleName);
+      asasApiGroupLookup.setHandleValue(handleValue);
+      
+    } else {
+      throw new AsasRestInvalidRequest("groupUri needs to contain a colon, start " +
+          "with name: id: or another uri prefix that is server specific: '" + groupUri + "'");
+    }
+    return asasApiGroupLookup;
+  }
+
+  /**
+   * convert a uri to folder lookup
+   * @param entityUri
+   */
+  public static AsasApiEntityLookup entityConvertUriToLookup(String entityUri) {
+  
+    AsasApiEntityLookup asasApiEntityLookup = new AsasApiEntityLookup();
+  
+    if (entityUri.contains(":")) {
+  
+      String handleName = StandardApiServerUtils.prefixOrSuffix(entityUri, ":", true);
+      String handleValue = StandardApiServerUtils.prefixOrSuffix(entityUri, ":", false);
+      asasApiEntityLookup.setHandleName(handleName);
+      asasApiEntityLookup.setHandleValue(handleValue);
+      
+    } else {
+      throw new AsasRestInvalidRequest("entityUri needs to contain a colon: '" + entityUri + "'");
+    }
+    return asasApiEntityLookup;
+  }
   
   
 }

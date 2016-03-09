@@ -25,6 +25,12 @@ public class AsasApiEntityLookup {
   /** string to lookup entity */
   private String lookupString;
 
+  /** handle name of a way to refer to an entity */
+  private String handleName;
+  
+  /** handle value of a way to refer to an entity */
+  private String handleValue;
+
   /**
    * string to lookup entity
    * @return the lookupString
@@ -39,6 +45,38 @@ public class AsasApiEntityLookup {
    */
   public void setLookupString(String lookupString1) {
     this.lookupString = lookupString1;
+  }
+
+  /**
+   * handle name of a way to refer to an entity
+   * @return the handleName
+   */
+  public String getHandleName() {
+    return handleName;
+  }
+
+  /**
+   * handle value of a way to refer to an entity
+   * @return the handleValue
+   */
+  public String getHandleValue() {
+    return handleValue;
+  }
+
+  /**
+   * handle name of a way to refer to an entity
+   * @param handleName the handleName to set
+   */
+  public void setHandleName(String handleName) {
+    this.handleName = handleName;
+  }
+
+  /**
+   * handle value of a way to refer to an entity
+   * @param handleValue the handleValue to set
+   */
+  public void setHandleValue(String handleValue) {
+    this.handleValue = handleValue;
   }
   
 }

@@ -46,7 +46,7 @@ public class GrouperAuthzApiServerConfig extends AsasConfigPropertiesCascadeBase
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "grouperAuthzApi.server.properties";
+    return "grouperTierApiAuthz.server.properties";
   }
   
   /**
@@ -54,7 +54,7 @@ public class GrouperAuthzApiServerConfig extends AsasConfigPropertiesCascadeBase
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "grouperAuthzApi.server.base.properties";
+    return "grouperTierApiAuthz.server.base.properties";
   }
 
   /**

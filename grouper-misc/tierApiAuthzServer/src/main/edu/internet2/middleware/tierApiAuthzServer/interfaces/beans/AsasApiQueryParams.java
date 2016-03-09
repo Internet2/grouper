@@ -3,7 +3,7 @@
  */
 package edu.internet2.middleware.tierApiAuthzServer.interfaces.beans;
 
-import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasMeta;
+import edu.internet2.middleware.tierApiAuthzServer.corebeans.TaasMeta;
 import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidRequest;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.AsasApiQueryParams;
 import edu.internet2.middleware.tierApiAuthzServer.j2ee.AsasHttpServletRequest;
@@ -130,7 +130,7 @@ public class AsasApiQueryParams {
    * @param asasPaging
    * @return the asas api paging
    */
-  public static AsasApiQueryParams convertTo(AsasMeta asasMeta) {
+  public static AsasApiQueryParams convertTo(TaasMeta asasMeta) {
     if (asasMeta == null) {
       return null;
     }
@@ -153,7 +153,7 @@ public class AsasApiQueryParams {
    * @param asasApiGroups
    * @return the api bean
    */
-  public static void convertTo(AsasApiQueryParams asasApiPaging, AsasMeta asasMeta) {
+  public static void convertTo(AsasApiQueryParams asasApiPaging, TaasMeta asasMeta) {
     if (asasApiPaging == null) {
       return;
     }
