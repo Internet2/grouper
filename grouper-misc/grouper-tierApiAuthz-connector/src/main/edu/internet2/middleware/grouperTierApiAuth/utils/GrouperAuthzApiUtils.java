@@ -6,12 +6,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.AsasApiQueryParams;
-import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolder;
-import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolderLookup;
-import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroup;
-import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
-import edu.internet2.middleware.tierApiAuthzServer.util.ExpirableCache;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -26,6 +20,13 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperTierApiAuth.config.GrouperAuthzApiServerConfig;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.AsasApiQueryParams;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolder;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.folders.AsasApiFolderLookup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupLookup;
+import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
+import edu.internet2.middleware.tierApiAuthzServer.util.ExpirableCache;
 
 
 public class GrouperAuthzApiUtils {
@@ -86,6 +87,75 @@ public class GrouperAuthzApiUtils {
     return stem;
   }
   
+  
+  /**
+   * convert a group lookup to a group
+   * @param grouperSession
+   * @param asasApiGroupLookup
+   * @param errorIfNotFound
+   * @return the stem
+   */
+  public static Group groupLookupConvertToGroup(GrouperSession grouperSession, AsasApiGroupLookup asasApiGroupLookup, boolean errorIfNotFound) {
+    Group group = null;
+    boolean lookedForGroup = false;
+    if (asasApiGroupLookup == null) {
+      throw new RuntimeException("groupLookup is null");
+    }
+      
+    //TODO do handles (idIndex?)
+    
+    if (asasApiGroupLookup.getId() != null) {
+      group = GroupFinder.findByUuid(grouperSession, asasApiGroupLookup.getId(), errorIfNotFound);
+      lookedForGroup = true;
+    }
+    
+    if (asasApiGroupLookup.getName() != null) {
+      group = GroupFinder.findByName(grouperSession, asasApiGroupLookup.getName(), errorIfNotFound);
+      lookedForGroup = true;
+    }
+
+    if (!lookedForGroup) {
+      throw new RuntimeException("Invalid groupLookup! " + asasApiGroupLookup.getId() + ", " + asasApiGroupLookup.getName()
+          + ", " + asasApiGroupLookup.getHandleName() + ", " + asasApiGroupLookup.getHandleValue());
+    }
+    
+    return group;
+  }
+
+  /**
+   * convert an entity lookup to a subject
+   * @param grouperSession
+   * @param asasApiEntityLookup
+   * @param errorIfNotFound
+   * @return the stem
+   */
+  public static Subject entityLookupConvertToSubject(GrouperSession grouperSession, AsasApiEntityLookup asasApiEntityLookup, boolean errorIfNotFound) {
+    Subject subject = null;
+    boolean lookedForSubject = false;
+    if (asasApiEntityLookup == null) {
+      throw new RuntimeException("entityLookup is null");
+    }
+      
+    //TODO do handles
+    //TODO implement this correctly
+    if (asasApiEntityLookup.getHandleValue() != null) {
+      subject = SubjectFinder.findByIdOrIdentifier(asasApiEntityLookup.getHandleValue(), errorIfNotFound);
+      lookedForSubject = true;
+    }
+    
+    if (asasApiEntityLookup.getLookupString() != null) {
+      subject = SubjectFinder.findByIdOrIdentifier(asasApiEntityLookup.getLookupString(), errorIfNotFound);
+      lookedForSubject = true;
+    }
+
+    if (!lookedForSubject) {
+      throw new RuntimeException("Invalid entityLookup! " + asasApiEntityLookup.getHandleName() + ", " + asasApiEntityLookup.getHandleValue()
+          + ", " + asasApiEntityLookup.getLookupString() + ", " + asasApiEntityLookup.getHandleValue());
+    }
+    
+    return subject;
+  }
+
   /**
    * successes cache
    */
@@ -236,7 +306,7 @@ public class GrouperAuthzApiUtils {
    * @return the subject or throw an exception if not found
    */
   public static Subject loggedInSubject(AsasApiEntityLookup authenticatedSubject) {
-      
+
     if (authenticatedSubject == null) {
       throw new NullPointerException("Why is authenticatedSubject null?");
     }
@@ -265,90 +335,95 @@ public class GrouperAuthzApiUtils {
     
     // if we dont know that it is not resolvable or not in a group
     if (hadFailure == null) {
-    
-      //lets resolve
-      String lookupBy = GrouperAuthzApiServerConfig.retrieveConfig().propertyValueString("grouperAuthzApiServer.loggedInSubject.lookupBy", "subjectIdOrIdentifier");
       
-      String sourceId = GrouperAuthzApiServerConfig.retrieveConfig().propertyValueString("grouperAuthzApiServer.loggedInSubject.sourceId", "subjectIdOrIdentifier");
+      GrouperSession grouperSession = GrouperSession.startRootSession();
       
-      if (StringUtils.equalsIgnoreCase("subjectId", lookupBy)) {
-        
-        if (!StringUtils.isBlank(sourceId)) {
-          subject = SubjectFinder.findByIdAndSource(subjectString, sourceId, false);        
-        } else {
-          subject = SubjectFinder.findById(subjectString, false);        
-        }
-        
-      } else if (StringUtils.equalsIgnoreCase("subjectIdentifier", lookupBy)) {
-        
-        if (!StringUtils.isBlank(sourceId)) {
-          subject = SubjectFinder.findByIdentifierAndSource(subjectString, sourceId, false);        
-        } else {
-          subject = SubjectFinder.findByIdentifier(subjectString, false);        
-        }
-        
-        
-      } else if (StringUtils.equalsIgnoreCase("subjectIdOrIdentifier", lookupBy) || StringUtils.isBlank(lookupBy)) {
-        
-        if (!StringUtils.isBlank(sourceId)) {
-          subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectString, sourceId, false);        
-        } else {
-          subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);        
-        }
-        
-      } else {
-        throw new RuntimeException("Not expecting value: '" + lookupBy + "', expecting subjectId, subjectIdentifier, or subjectIdOrIdentifier");
-      }
+      try {
       
-      //see if we are checking a group
-      if (subject != null) {
+        //lets resolve
+        String lookupBy = GrouperAuthzApiServerConfig.retrieveConfig().propertyValueString("grouperAuthzApiServer.loggedInSubject.lookupBy", "subjectIdOrIdentifier");
         
-        final String requireGroup = GrouperAuthzApiServerConfig.retrieveConfig().propertyValueString(
-            "grouperAuthzApiServer.loggedInSubject.requireInGroup");
+        String sourceId = GrouperAuthzApiServerConfig.retrieveConfig().propertyValueString("grouperAuthzApiServer.loggedInSubject.sourceId", "subjectIdOrIdentifier");
         
-        if (!StringUtils.isBlank(requireGroup)) {
+        if (StringUtils.equalsIgnoreCase("subjectId", lookupBy)) {
           
-          GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-          boolean startedSession = grouperSession == null;
-          grouperSession = grouperSession == null ? GrouperSession.startRootSession() : grouperSession.internal_getRootSession();
-          try {
-            
-            final Subject SUBJECT = subject;
-            
-            boolean hasMember = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-              
-              @Override
-              public Object callback(GrouperSession grouperSessionAdmin) throws GrouperSessionException {
-                
-                Group group = GroupFinder.findByName(grouperSessionAdmin, requireGroup, true);
-                
-                return group.hasMember(SUBJECT);
-                
-              }
-            });
-            
-            if (!hasMember) {
-              additionalErrorMessage = ", subject '" + GrouperUtil.subjectToString(subject) + "' is not in group: " + requireGroup;
-              subject = null;
-            }
-            
-          } finally {
-            if (startedSession) {
-              GrouperSession.stopQuietly(grouperSession);
-            }
+          if (!StringUtils.isBlank(sourceId)) {
+            subject = SubjectFinder.findByIdAndSource(subjectString, sourceId, false);        
+          } else {
+            subject = SubjectFinder.findById(subjectString, false);        
           }
-        }        
+          
+        } else if (StringUtils.equalsIgnoreCase("subjectIdentifier", lookupBy)) {
+          
+          if (!StringUtils.isBlank(sourceId)) {
+            subject = SubjectFinder.findByIdentifierAndSource(subjectString, sourceId, false);        
+          } else {
+            subject = SubjectFinder.findByIdentifier(subjectString, false);        
+          }
+          
+          
+        } else if (StringUtils.equalsIgnoreCase("subjectIdOrIdentifier", lookupBy) || StringUtils.isBlank(lookupBy)) {
+          
+          if (!StringUtils.isBlank(sourceId)) {
+            subject = SubjectFinder.findByIdOrIdentifierAndSource(subjectString, sourceId, false);        
+          } else {
+            subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);        
+          }
+          
+        } else {
+          throw new RuntimeException("Not expecting value: '" + lookupBy + "', expecting subjectId, subjectIdentifier, or subjectIdOrIdentifier");
+        }
+        
+        //see if we are checking a group
+        if (subject != null) {
+          
+          final String requireGroup = GrouperAuthzApiServerConfig.retrieveConfig().propertyValueString(
+              "grouperAuthzApiServer.loggedInSubject.requireInGroup");
+          
+          if (!StringUtils.isBlank(requireGroup)) {
+            
+            boolean startedSession = grouperSession == null;
+            grouperSession = grouperSession == null ? GrouperSession.startRootSession() : grouperSession.internal_getRootSession();
+            try {
+              
+              final Subject SUBJECT = subject;
+              
+              boolean hasMember = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+                
+                @Override
+                public Object callback(GrouperSession grouperSessionAdmin) throws GrouperSessionException {
+                  
+                  Group group = GroupFinder.findByName(grouperSessionAdmin, requireGroup, true);
+                  
+                  return group.hasMember(SUBJECT);
+                  
+                }
+              });
+              
+              if (!hasMember) {
+                additionalErrorMessage = ", subject '" + GrouperUtil.subjectToString(subject) + "' is not in group: " + requireGroup;
+                subject = null;
+              }
+              
+            } finally {
+              if (startedSession) {
+                GrouperSession.stopQuietly(grouperSession);
+              }
+            }
+          }        
+        }
+        
+        //add to cache
+        if (subject == null && failureCache != null) {
+          failureCache.put(subjectString, true);
+        }
+        
+        if (subject != null && successCache != null) {
+          successCache.put(subjectString, subject);
+        }
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
       }
-      
-      //add to cache
-      if (subject == null && failureCache != null) {
-        failureCache.put(subjectString, true);
-      }
-      
-      if (subject != null && successCache != null) {
-        successCache.put(subjectString, subject);
-      }
-      
     }
     
     if (subject == null) {

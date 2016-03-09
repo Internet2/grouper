@@ -7,39 +7,34 @@ import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasResponseBeanBas
 import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidRequest;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 
-
-public enum AsasRestGet {
+/**
+ * something under /Groups/id:whatever/{something}
+ */
+public enum AsasRestGetGroups {
 
   /** group get requests */
-  groups {
+  Members {
 
     /**
      * handle the incoming request based on GET HTTP method and groups resource
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/tierApiAuthz/tierApiAuthz/v1/groups.json
-     * @param requestObject is the request body converted to object
+     * for http://localhost/tierApiAuthz/tierApiAuthz/v1/Groups/id:whatever/Members/id:whatever2
+     * @param body is the request body converted to object
      * @return the result object
      */
     @Override
-    public AsasResponseBeanBase service(List<String> urlStrings,
+    public AsasResponseBeanBase service(String groupUri, List<String> urlStrings,
         Map<String, String> params, String body) {
       
       if (!StandardApiServerUtils.isBlank(body)) {
         throw new AsasRestInvalidRequest("Not expecting body in request (size: " + StandardApiServerUtils.length(body) + ")");
       }
-      if (StandardApiServerUtils.length(urlStrings) == 0) {
-        throw new AsasRestInvalidRequest("Not expecting more url strings: " + StandardApiServerUtils.toStringForLog(urlStrings));
-      }
-      if (StandardApiServerUtils.length(urlStrings) == 1) {
-        return AsasRestLogic.getGroups(params);
-      }
-      String groupUri = StandardApiServerUtils.popUrlString(urlStrings);
-      String nextResource = StandardApiServerUtils.popUrlString(urlStrings);
-      AsasRestGetGroups asasRestGetGroups = AsasRestGetGroups.valueOfIgnoreCase(
-          nextResource, true);
       
-      return asasRestGetGroups.service(groupUri, urlStrings, params, body);
-
+      if (StandardApiServerUtils.length(urlStrings) == 1) {
+        String entityUri = StandardApiServerUtils.popUrlString(urlStrings);
+        return AsasRestLogic.getGroupsMember(groupUri, entityUri, params);
+      }
+      throw new AsasRestInvalidRequest("Not expecting more url strings: " + StandardApiServerUtils.toStringForLog(urlStrings));
     }
   };
 
@@ -51,9 +46,9 @@ public enum AsasRestGet {
    * @return the enum or null or exception if not found
    * @throws GrouperRestInvalidRequest if there is a problem
    */
-  public static AsasRestGet valueOfIgnoreCase(String string,
+  public static AsasRestGetGroups valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws AsasRestInvalidRequest {
-    return StandardApiServerUtils.enumValueOfIgnoreCase(AsasRestGet.class, 
+    return StandardApiServerUtils.enumValueOfIgnoreCase(AsasRestGetGroups.class, 
         string, exceptionOnNotFound);
   }
 
@@ -65,7 +60,7 @@ public enum AsasRestGet {
    * @param requestObject is the request body converted to object
    * @return the result object
    */
-  public abstract AsasResponseBeanBase service(
+  public abstract AsasResponseBeanBase service(String groupUri,
       List<String> urlStrings,
       Map<String, String> params, String body);
 

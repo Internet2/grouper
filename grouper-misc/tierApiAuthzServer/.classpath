@@ -20,6 +20,7 @@
 	<classpathentry kind="lib" path="lib/xstream/xml-writer-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xom-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/jsonpath/json-path-2.2.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

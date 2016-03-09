@@ -25,6 +25,7 @@ import edu.internet2.middleware.tierApiAuthzServer.rest.AsasRestHttpMethod;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
+import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
 
@@ -183,22 +184,23 @@ public class TaasRestServlet extends HttpServlet {
 
       asasResponseBean.setError_description(error + StandardApiServerUtils.getFullStackTrace(arir));
       asasResponseBean.getMeta().setSuccess(false);
-      asasResponseBean.getMeta().setStatus("INVALID_QUERY");
+      asasResponseBean.getMeta().setResultCode("INVALID_QUERY");
       asasResponseBean.setError("INVALID_QUERY");
-      asasResponseBean.getResponseMeta().setHttpStatusCode(400);
+      asasResponseBean.getMeta().setHttpStatusCode(400);
 
     } catch (RuntimeException e) {
 
       //this is not a user error, is a big problem
-
+      e.printStackTrace();
+      
       asasResponseBean = new AsasResultProblem();
       LOG.error("Problem with request: " + requestDebugInfo(request), e);
       asasResponseBean.setError_description("Problem with request: "
           + requestDebugInfo(request) + ",\n" + StandardApiServerUtils.getFullStackTrace(e));
       asasResponseBean.getMeta().setSuccess(false);
-      asasResponseBean.getMeta().setStatus("EXCEPTION");
+      asasResponseBean.getMeta().setResultCode("EXCEPTION");
       asasResponseBean.setError("ERROR");
-      asasResponseBean.getResponseMeta().setHttpStatusCode(500);
+      asasResponseBean.getMeta().setHttpStatusCode(500);
 
     }
     
@@ -249,9 +251,17 @@ public class TaasRestServlet extends HttpServlet {
       //structure name
       asasResponseBean.getMeta().setStructureName(StandardApiServerUtils.structureName(asasResponseBean.getClass()));
       
+      if (asasResponseBean.getMeta().getSuccess() != null && asasResponseBean.getMeta().getSuccess()) {
+        response.setHeader("X-TIER-success", "true");
+      }
+      if (!StringUtils.isBlank(asasResponseBean.getMeta().getResultCode())) {
+        
+      }
+      response.setHeader("X-TIER-success", "true");
+      
       //headers should be there by now
       //set the status code
-      response.setStatus(asasResponseBean.getResponseMeta().getHttpStatusCode());
+      response.setStatus(asasResponseBean.getMeta().getHttpStatusCode());
 
       String restCharset = StandardApiServerConfig.retrieveConfig().propertyValueString("tierApiAuthzServer.restHttpContentTypeCharset");
       String responseContentType = wsRestContentType.getContentType();
@@ -265,7 +275,7 @@ public class TaasRestServlet extends HttpServlet {
       //temporarily set to uuid, so we can time the content generation
       long millisUuid = -314253647586987L;
       
-      asasResponseBean.getResponseMeta().setMillis(millisUuid);
+      asasResponseBean.getMeta().setMillis(millisUuid);
       
       String responseString = wsRestContentType.writeString(asasResponseBean);
       

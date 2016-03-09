@@ -1,5 +1,5 @@
 
-<project name="authzStandardApiServer" default="build" basedir=".">
+<project name="tierApiAuthzServer" default="build" basedir=".">
 
   <!-- ant contrib allows conditionals in ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -29,7 +29,7 @@
 
     <property name="main.outputDir" value="dist" />
 
-    <property name="main.appName" value="authzStandardApiServer" />
+    <property name="main.appName" value="tierApiAuthzServer" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
 
     <path id="main.extClasspath">
@@ -156,7 +156,7 @@
     <mkdir dir="dist/binary/${binName}"/>
     <copy todir="dist/binary/${binName}">    
       <fileset dir="${main.confDir}">
-        <include name="authzStandardApi.server*.properties"/>
+        <include name="tierApiAuthz.server*.properties"/>
       </fileset>
       <fileset dir="dist">
         <include name="${main.appName}.jar"/>
@@ -181,7 +181,7 @@
     <javadoc destdir="javadoc/api" access="public"
       additionalparam="-notimestamp" >
       <packageset dir="src/java" defaultexcludes="yes">
-        <include name="edu/internet2/middleware/authzStandardApiServer/**" />
+        <include name="edu/internet2/middleware/tierApiAuthzServer/**" />
 
       </packageset>
 
@@ -200,7 +200,7 @@
     <javadoc destdir="doc/api" access="public"
       additionalparam="-notimestamp" >
       <packageset dir="src/java" defaultexcludes="yes">
-        <include name="edu/internet2/middleware/authzStandardApiServer/**" />
+        <include name="edu/internet2/middleware/tierApiAuthzServer/**" />
 
       </packageset>
 

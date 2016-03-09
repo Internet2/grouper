@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouperTierApiAuth.utils.GrouperAuthzApiUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -36,6 +37,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GaasGroupInterfaceImpl implements AsasApiGroupInterface {
 
+  public GaasGroupInterfaceImpl() {
+    GrouperStartup.startup();
+  }
+  
   /**
    * @see edu.internet2.middleware.tierApiAuthzServer.interfaces.AsasApiGroupInterface#search(edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiGroupsSearchParam)
    */

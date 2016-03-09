@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.Writer;
 
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServer.ws.AsasRestClassLookup;
 
 
 
