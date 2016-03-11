@@ -50,7 +50,11 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
@@ -78,6 +82,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -4411,4 +4416,82 @@ public class UiV2Group {
     }
   }
 
+  /**
+   * schedule loader job
+   * don't throw exception, display success or error message directly on New Ui screen
+   * @param request
+   * @param response
+   */
+  public void scheduleLoaderGroup(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      try {
+        boolean foundLoaderType = false;
+    
+        // check sql first
+        AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
+            .findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false);
+    
+        if (grouperLoader != null) {
+          if (group.getAttributeDelegate().hasAttribute(grouperLoader)) {
+            foundLoaderType = true;
+            GrouperLoaderType.validateAndScheduleSqlLoad(group, null, false);
+          }
+        }
+        
+        // ok now check ldap
+        if (!foundLoaderType) {
+          AttributeDefName grouperLoaderLdapName = GrouperDAOFactory.getFactory().getAttributeDefName()
+              .findByNameSecure(LoaderLdapUtils.grouperLoaderLdapName(), false);
+          
+          if (grouperLoaderLdapName != null) {
+            AttributeAssign assign = group.getAttributeDelegate().retrieveAssignment("assign", grouperLoaderLdapName, true, false);
+            if (assign != null) {
+              foundLoaderType = true;
+              GrouperLoaderType.validateAndScheduleLdapLoad(assign, null, false);
+            }
+          }
+        }
+        
+        if (!foundLoaderType) {
+          throw new RuntimeException("Group is not a loader group.");
+        }
+      } catch (Exception e) {
+
+        LOG.error("Error scheduling loader job from ui for group: " + group.getName(), e);
+        
+        //lets show an error message on the new screen  
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText().get("loaderGroupScheduleError") + "<br />"
+                + e.getMessage()));
+        return;
+      }
+
+      //lets show a success message on the new screen
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("loaderGroupScheduleSuccess")));
+
+      filterHelper(request, response, group);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
 }
