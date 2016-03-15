@@ -41,6 +41,19 @@ public class TaasFilterJ2ee implements Filter {
   }
 
   /**
+   * client ip address
+   * @return the address
+   */
+  public static String clientIp() {
+    HttpServletRequest request = retrieveHttpServletRequest();
+    String ipAddress = request.getHeader("X-FORWARDED-FOR");  
+    if (ipAddress == null) {  
+      ipAddress = request.getRemoteAddr();  
+    }
+    return ipAddress;
+  }
+  
+  /**
    * retrieve the user principal (who is authenticated) from the (threadlocal)
    * request object
    * 
@@ -145,7 +158,7 @@ public class TaasFilterJ2ee implements Filter {
     // not needed
 
   }
-
+  
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 

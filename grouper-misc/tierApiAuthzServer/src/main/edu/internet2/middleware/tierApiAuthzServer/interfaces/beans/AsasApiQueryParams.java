@@ -28,16 +28,16 @@ public class AsasApiQueryParams {
    */
   public void validate() {
     if (this.offset != null && this.limit == null) {
-      throw new AsasRestInvalidRequest("You cannot have an offset if not sending a limit");
+      throw new AsasRestInvalidRequest("You cannot have an offset if not sending a limit", "400", "ERROR_PAGING_INVALID");
     }
     if (this.offset != null && this.offset < 0) {
-      throw new AsasRestInvalidRequest("You cannot have an offset less than 0");
+      throw new AsasRestInvalidRequest("You cannot have an offset less than 0", "400", "ERROR_PAGING_INVALID");
     }
     if (this.limit != null && this.limit < 1) {
-      throw new AsasRestInvalidRequest("You cannot have a limit less than 1");
+      throw new AsasRestInvalidRequest("You cannot have a limit less than 1", "400", "ERROR_PAGING_INVALID");
     }
     if (this.offset != null && !StandardApiServerUtils.isBlank(this.offsetFieldValue)) {
-      throw new AsasRestInvalidRequest("You cannot have an offset and an offsetFieldValue");
+      throw new AsasRestInvalidRequest("You cannot have an offset and an offsetFieldValue", "400", "ERROR_PAGING_INVALID");
     }
   }
   
@@ -138,11 +138,11 @@ public class AsasApiQueryParams {
     //do some logic?
     
     AsasApiQueryParams asasApiPaging = new AsasApiQueryParams();
-    asasApiPaging.setAscending(asasMeta.getAscending());
-    asasApiPaging.setLimit(asasMeta.getLimit());
-    asasApiPaging.setOffset(asasMeta.getOffset());
-    asasApiPaging.setSortField(asasMeta.getSortField());
-    asasApiPaging.setTotalCount(asasMeta.getTotalCount());
+//    asasApiPaging.setAscending(asasMeta.getAscending());
+//    asasApiPaging.setLimit(asasMeta.getLimit());
+//    asasApiPaging.setOffset(asasMeta.getOffset());
+//    asasApiPaging.setSortField(asasMeta.getSortField());
+//    asasApiPaging.setTotalCount(asasMeta.getTotalCount());
     return asasApiPaging;
   }
   
@@ -157,12 +157,12 @@ public class AsasApiQueryParams {
     if (asasApiPaging == null) {
       return;
     }
-    asasMeta.setAscending(asasApiPaging.getAscending());
-    asasMeta.setLimit(asasApiPaging.getLimit());
-    asasMeta.setOffset(asasApiPaging.getOffset());
-    asasMeta.setSortField(asasApiPaging.getSortField());
-    asasMeta.setTotalCount(asasApiPaging.getTotalCount());
-    asasMeta.setOffsetFieldValue(asasApiPaging.getOffsetFieldValue());
+//    asasMeta.setAscending(asasApiPaging.getAscending());
+//    asasMeta.setLimit(asasApiPaging.getLimit());
+//    asasMeta.setOffset(asasApiPaging.getOffset());
+//    asasMeta.setSortField(asasApiPaging.getSortField());
+//    asasMeta.setTotalCount(asasApiPaging.getTotalCount());
+//    asasMeta.setOffsetFieldValue(asasApiPaging.getOffsetFieldValue());
   }
 
   /** record 0-indexed to start with... second page would be offset 100 */

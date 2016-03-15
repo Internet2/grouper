@@ -26,11 +26,11 @@ public enum AsasRestDelete {
 
       //eventually we will process a request body
       if (!StandardApiServerUtils.isBlank(body)) {
-        throw new AsasRestInvalidRequest("Not expecting body in request (size: " + StandardApiServerUtils.length(body) + ")");
+        throw new AsasRestInvalidRequest("Not expecting body in request (size: " + StandardApiServerUtils.length(body) + ")", "400", "ERROR_INVALID_REQUEST_BODY");
       }
 
       if (StandardApiServerUtils.length(urlStrings) != 1) {
-        throw new AsasRestInvalidRequest("Expecting 1 url string after 'folders': " + StandardApiServerUtils.toStringForLog(urlStrings));
+        throw new AsasRestInvalidRequest("Expecting 1 url string after 'folders': " + StandardApiServerUtils.toStringForLog(urlStrings), "400", "ERROR_ID_EXPECTED");
       }
       
       String folderUri = StandardApiServerUtils.popUrlString(urlStrings);

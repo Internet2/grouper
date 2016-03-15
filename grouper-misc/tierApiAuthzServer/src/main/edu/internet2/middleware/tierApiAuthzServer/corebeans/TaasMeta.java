@@ -10,6 +10,54 @@ import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
  */
 public class TaasMeta {
     
+  /**
+   * tier error message: If this is an error this can hold the free form error message
+   */
+  private String tierErrorMessage;
+  
+  
+  /**
+   * tier error message: If this is an error this can hold the free form error message
+   * @return the tierErrorMessage
+   */
+  public String getTierErrorMessage() {
+    return this.tierErrorMessage;
+  }
+
+  /**
+   * 
+   */
+  private String tierRequestId;
+  
+  /**
+   * @return the tierRequestId
+   */
+  public String getTierRequestId() {
+    return this.tierRequestId;
+  }
+  
+  /**
+   * @param tierRequestId1 the tierRequestId to set
+   */
+  public void setTierRequestId(String tierRequestId1) {
+    this.tierRequestId = tierRequestId1;
+  }
+
+
+  /**
+   * tier error message: If this is an error this can hold the free form error message
+   * @param tierErrorMessage1 the tierErrorMessage to set
+   */
+  public void setTierErrorMessage(String tierErrorMessage1) {
+    this.tierErrorMessage = tierErrorMessage1;
+  }
+
+
+  /**
+   * The name of the resource type of the resource. This
+   * attribute has a mutability of "readOnly" and "caseExact" as
+   * "true".
+   */
   private String resourceType;
   
   /**
@@ -21,10 +69,10 @@ public class TaasMeta {
 
   
   /**
-   * @param resourceType the resourceType to set
+   * @param resourceType1 the resourceType to set
    */
-  public void setResourceType(String resourceType) {
-    this.resourceType = resourceType;
+  public void setResourceType(String resourceType1) {
+    this.resourceType = resourceType1;
   }
 
 
@@ -33,12 +81,12 @@ public class TaasMeta {
    * build number of the release.  this is two number, i.e. 1.3 is less than 1.21
    * e.g. 1.4, this is the point in time version of the spec which is implemented
    */
-  private String serverVersion;
+  private String tierServerVersion;
   /**
    * points to the default resource with no formatting on the end
    * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
    */
-  private String serviceRootUri;
+  private String tierServiceRootUri;
 
   /**
    * version of the API, which is the main version (largest), and dot, and the
@@ -46,8 +94,8 @@ public class TaasMeta {
    * e.g. 1.4, this is the point in time version of the spec which is implemented
    * @return the server version
    */
-  public String getServerVersion() {
-    return this.serverVersion;
+  public String getTierServerVersion() {
+    return this.tierServerVersion;
   }
 
   /**
@@ -55,8 +103,8 @@ public class TaasMeta {
    * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
    * @return service root uri
    */
-  public String getServiceRootUri() {
-    return this.serviceRootUri;
+  public String getTierServiceRootUri() {
+    return this.tierServiceRootUri;
   }
 
   /**
@@ -65,8 +113,8 @@ public class TaasMeta {
    * e.g. 1.4, this is the point in time version of the spec which is implemented
    * @param serverVersion1
    */
-  public void setServerVersion(String serverVersion1) {
-    this.serverVersion = serverVersion1;
+  public void setTierServerVersion(String serverVersion1) {
+    this.tierServerVersion = serverVersion1;
   }
 
   /**
@@ -74,8 +122,8 @@ public class TaasMeta {
    * e.g. https://groups.school.edu/tierApiAuthz/tierApiAuthz
    * @param serviceRootUri1
    */
-  public void setServiceRootUri(String serviceRootUri1) {
-    this.serviceRootUri = serviceRootUri1;
+  public void setTierServiceRootUri(String serviceRootUri1) {
+    this.tierServiceRootUri = serviceRootUri1;
   }
 
   /**
@@ -83,10 +131,10 @@ public class TaasMeta {
    */
   public TaasMeta() {
     super();
-    this.setSuccess(true);
-    this.setResultCode("SUCCESS");
-    this.serverVersion = "1.0";
-    this.serviceRootUri = StandardApiServerUtils.servletUrl();
+    this.setTierSuccess(true);
+    this.setTierResultCode("SUCCESS");
+    this.tierServerVersion = "1.0";
+    this.tierServiceRootUri = StandardApiServerUtils.servletUrl();
 
   }
 
@@ -98,7 +146,7 @@ public class TaasMeta {
     
     TaasMeta asacMetaResponse = new TaasMeta();
     asacMetaResponse.setLastModified("abc");
-    asacMetaResponse.setSelfUri("bcd");
+    asacMetaResponse.setLocation("bcd");
     
     String json = StandardApiServerUtils.jsonConvertToNoWrap(asacMetaResponse);
     
@@ -109,15 +157,14 @@ public class TaasMeta {
     asacMetaResponse = (TaasMeta)StandardApiServerUtils.jsonConvertFrom(json, TaasMeta.class);
 
     System.out.println(asacMetaResponse.getLastModified());
-    System.out.println(asacMetaResponse.getSelfUri());
+    System.out.println(asacMetaResponse.getLocation());
     
     json = "{\"lastModified\":\"abc\", \"selfUri\":\"bcd\", \"xyzWhatever\":\"cde\"}";
 
     asacMetaResponse = (TaasMeta)StandardApiServerUtils.jsonConvertFrom(json, TaasMeta.class);
 
     System.out.println(asacMetaResponse.getLastModified());
-    System.out.println(asacMetaResponse.getSelfUri());
-
+    System.out.println(asacMetaResponse.getLocation());
     
   }
   
@@ -143,7 +190,7 @@ public class TaasMeta {
    * if there are warnings, they will be there
    * @return any warnings
    */
-  public String getWarning() {
+  public String getTierWarning() {
     return StandardApiServerUtils.trimToNull(this.resultWarning.toString());
   }
 
@@ -164,37 +211,37 @@ public class TaasMeta {
   }
 
 
-  /** with paging, retrieve records after this value */
-  private String offsetFieldValue;
-
-  /**
-   * with paging, retrieve records after this value
-   * @return the offsetFieldValue
-   */
-  public String getOffsetFieldValue() {
-    return this.offsetFieldValue;
-  }
-  
-  /**
-   * with paging, retrieve records after this value
-   * @param offsetFieldValue1 the offsetFieldValue to set
-   */
-  public void setOffsetFieldValue(String offsetFieldValue1) {
-    this.offsetFieldValue = offsetFieldValue1;
-  }
+//  /** with paging, retrieve records after this value */
+//  private String offsetFieldValue;
+//
+//  /**
+//   * with paging, retrieve records after this value
+//   * @return the offsetFieldValue
+//   */
+//  public String getOffsetFieldValue() {
+//    return this.offsetFieldValue;
+//  }
+//  
+//  /**
+//   * with paging, retrieve records after this value
+//   * @param offsetFieldValue1 the offsetFieldValue to set
+//   */
+//  public void setOffsetFieldValue(String offsetFieldValue1) {
+//    this.offsetFieldValue = offsetFieldValue1;
+//  }
 
 
   /**
    * response status text code
    */
-  private String resultCode;
+  private String tierResultCode;
   
   /**
    * response status text code
    * @return the statusCode
    */
-  public String getResultCode() {
-    return this.resultCode;
+  public String getTierResultCode() {
+    return this.tierResultCode;
   }
 
   
@@ -202,38 +249,64 @@ public class TaasMeta {
    * response status text code
    * @param statusCode1 the statusCode to set
    */
-  public void setResultCode(String statusCode1) {
-    this.resultCode = statusCode1;
+  public void setTierResultCode(String statusCode1) {
+    this.tierResultCode = statusCode1;
   }
 
   /**
    * true or false if valid request
    */
-  private Boolean success;
+  private Boolean tierSuccess;
   
   /**
    * true or false if valid request
    * @return the success
    */
-  public Boolean getSuccess() {
-    return this.success;
+  public Boolean getTierSuccess() {
+    return this.tierSuccess;
   }
 
   
   /**
    * true or false if valid request
-   * @param success the success to set
+   * @param success1 the success to set
    */
-  public void setSuccess(Boolean success) {
-    this.success = success;
+  public void setTierSuccess(Boolean success1) {
+    this.tierSuccess = success1;
   }
 
+  /**
+   * The version of the resource being returned. This value
+   * must be the same as the entity-tag (ETag) HTTP response header
+   * (see Sections 2.1 and 2.3 of [RFC7232]). This attribute has
+   * "caseExact" as "true". Service provider support for this
+   * attribute is optional and subject to the service provider's
+   * support for versioning (see Section 3.14 of [RFC7644]). If a
+   * service provider provides "version" (entity-tag) for a
+   * representation and the generation of that entity-tag does not
+   * satisfy all of the characteristics of a strong validator (see
+   * Section 2.1 of [RFC7232]), then the origin server MUST mark the
+   * "version" (entity-tag) as weak by prefixing its opaque value
+   * with "W/" (case sensitive).
+   */
   private String version;
   
   
   
   
   /**
+   * The version of the resource being returned. This value
+   * must be the same as the entity-tag (ETag) HTTP response header
+   * (see Sections 2.1 and 2.3 of [RFC7232]). This attribute has
+   * "caseExact" as "true". Service provider support for this
+   * attribute is optional and subject to the service provider's
+   * support for versioning (see Section 3.14 of [RFC7644]). If a
+   * service provider provides "version" (entity-tag) for a
+   * representation and the generation of that entity-tag does not
+   * satisfy all of the characteristics of a strong validator (see
+   * Section 2.1 of [RFC7232]), then the origin server MUST mark the
+   * "version" (entity-tag) as weak by prefixing its opaque value
+   * with "W/" (case sensitive).
    * @return the version
    */
   public String getVersion() {
@@ -243,35 +316,44 @@ public class TaasMeta {
 
   
   /**
-   * @param version the version to set
+   * The version of the resource being returned. This value
+   * must be the same as the entity-tag (ETag) HTTP response header
+   * (see Sections 2.1 and 2.3 of [RFC7232]). This attribute has
+   * "caseExact" as "true". Service provider support for this
+   * attribute is optional and subject to the service provider's
+   * support for versioning (see Section 3.14 of [RFC7644]). If a
+   * service provider provides "version" (entity-tag) for a
+   * representation and the generation of that entity-tag does not
+   * satisfy all of the characteristics of a strong validator (see
+   * Section 2.1 of [RFC7232]), then the origin server MUST mark the
+   * "version" (entity-tag) as weak by prefixing its opaque value
+   * with "W/" (case sensitive).
+   * @param version1 the version to set
    */
-  public void setVersion(String version) {
-    this.version = version;
+  public void setVersion(String version1) {
+    this.version = version1;
   }
 
-
+  /**
+   * The "DateTime" that the resource was added to the service provider
+   */
   private String created;
   
-  
-
-
-  
   /**
+   * The "DateTime" that the resource was added to the service provider
    * @return the created
    */
   public String getCreated() {
     return this.created;
   }
 
-
-  
   /**
-   * @param created the created to set
+   * The "DateTime" that the resource was added to the service provider
+   * @param created1 the created to set
    */
-  public void setCreated(String created) {
-    this.created = created;
+  public void setCreated(String created1) {
+    this.created = created1;
   }
-
 
   /** timestamp this resource was last modified, e.g. 2012-10-04T03:10Z */
   private String lastModified;
@@ -296,15 +378,15 @@ public class TaasMeta {
    * Self URI to this resource 
    * e.g. https://groups.institution.edu/groupsApp/groupsApi 
    */
-  private String selfUri;
+  private String location;
   
   /**
    * Self URI to this resource 
    * e.g. https://groups.institution.edu/groupsApp/groupsApi 
    * @return the selfUri
    */
-  public String getSelfUri() {
-    return this.selfUri;
+  public String getLocation() {
+    return this.location;
   }
 
   
@@ -313,182 +395,140 @@ public class TaasMeta {
    * e.g. https://groups.institution.edu/groupsApp/groupsApi 
    * @param selfUri1 the selfUri to set
    */
-  public void setSelfUri(String selfUri1) {
-    this.selfUri = selfUri1;
+  public void setLocation(String selfUri1) {
+    this.location = selfUri1;
   }
   
-  /** name of the structure (struct) returned, the same as the xml outer element */
-  private String structureName;
-
-  /** true or false sorting ascending or descending */
-  private Boolean ascending;
-
-  /** number of records that are being returned */
-  private Long limit;
-
-  /** record 0-indexed to start with... second page would be offset 100 */
-  private Long offset;
-
-  /** field name is dependent on the search, e.g. displayName */
-  private String sortField;
-
-  /** total number of records (not just the ones being returned, but overall) */
-  private Long totalCount;
-
-  /**
-   * name of the structure (struct) returned, the same as the xml outer element
-   * @return the structure name
-   */
-  public String getStructureName() {
-    return structureName;
-  }
-
-  /**
-   * name of the structure (struct) returned, the same as the xml outer element
-   * @param structureName1
-   */
-  public void setStructureName(String structureName1) {
-    this.structureName = structureName1;
-  }
-
-
-  /**
-   * true or false sorting ascending or descending
-   * @return the ascending
-   */
-  public Boolean getAscending() {
-    return this.ascending;
-  }
-
-
-  /**
-   * number of records that are being returned
-   * @return the limit
-   */
-  public Long getLimit() {
-    return this.limit;
-  }
-
-
-  /**
-   * record 0-indexed to start with... second page would be offset 100
-   * @return the offset
-   */
-  public Long getOffset() {
-    return this.offset;
-  }
-
-
-  /**
-   * field name is dependent on the search, e.g. displayName
-   * @return the sortField
-   */
-  public String getSortField() {
-    return this.sortField;
-  }
-
-
-  /**
-   * total number of records (not just the ones being returned, but overall)
-   * @return the totalCount
-   */
-  public Long getTotalCount() {
-    return this.totalCount;
-  }
-
-
-  /**
-   * true or false sorting ascending or descending
-   * @param ascending1 the ascending to set
-   */
-  public void setAscending(Boolean ascending1) {
-    this.ascending = ascending1;
-  }
-
-
-  /**
-   * number of records that are being returned
-   * @param count1 the limit to set
-   */
-  public void setLimit(Long count1) {
-    this.limit = count1;
-  }
-
-
-  /**
-   * record 0-indexed to start with... second page would be offset 100
-   * @param offset1 the offset to set
-   */
-  public void setOffset(Long offset1) {
-    this.offset = offset1;
-  }
-
-
-  /**
-   * field name is dependent on the search, e.g. displayName
-   * @param sortField1 the sortField to set
-   */
-  public void setSortField(String sortField1) {
-    this.sortField = sortField1;
-  }
-
-
-  /**
-   * @param totalCount1 the totalCount to set
-   */
-  public void setTotalCount(Long totalCount1) {
-    this.totalCount = totalCount1;
-  }
+//  /** true or false sorting ascending or descending */
+//  private Boolean ascending;
+//
+//  /** number of records that are being returned */
+//  private Long limit;
+//
+//  /** record 0-indexed to start with... second page would be offset 100 */
+//  private Long offset;
+//
+//  /** field name is dependent on the search, e.g. displayName */
+//  private String sortField;
+//
+//  /** total number of records (not just the ones being returned, but overall) */
+//  private Long totalCount;
+//
+//
+//  /**
+//   * true or false sorting ascending or descending
+//   * @return the ascending
+//   */
+//  public Boolean getAscending() {
+//    return this.ascending;
+//  }
+//
+//
+//  /**
+//   * number of records that are being returned
+//   * @return the limit
+//   */
+//  public Long getLimit() {
+//    return this.limit;
+//  }
+//
+//
+//  /**
+//   * record 0-indexed to start with... second page would be offset 100
+//   * @return the offset
+//   */
+//  public Long getOffset() {
+//    return this.offset;
+//  }
+//
+//
+//  /**
+//   * field name is dependent on the search, e.g. displayName
+//   * @return the sortField
+//   */
+//  public String getSortField() {
+//    return this.sortField;
+//  }
+//
+//
+//  /**
+//   * total number of records (not just the ones being returned, but overall)
+//   * @return the totalCount
+//   */
+//  public Long getTotalCount() {
+//    return this.totalCount;
+//  }
+//
+//
+//  /**
+//   * true or false sorting ascending or descending
+//   * @param ascending1 the ascending to set
+//   */
+//  public void setAscending(Boolean ascending1) {
+//    this.ascending = ascending1;
+//  }
+//
+//
+//  /**
+//   * number of records that are being returned
+//   * @param count1 the limit to set
+//   */
+//  public void setLimit(Long count1) {
+//    this.limit = count1;
+//  }
+//
+//
+//  /**
+//   * record 0-indexed to start with... second page would be offset 100
+//   * @param offset1 the offset to set
+//   */
+//  public void setOffset(Long offset1) {
+//    this.offset = offset1;
+//  }
+//
+//
+//  /**
+//   * field name is dependent on the search, e.g. displayName
+//   * @param sortField1 the sortField to set
+//   */
+//  public void setSortField(String sortField1) {
+//    this.sortField = sortField1;
+//  }
+//
+//
+//  /**
+//   * @param totalCount1 the totalCount to set
+//   */
+//  public void setTotalCount(Long totalCount1) {
+//    this.totalCount = totalCount1;
+//  }
+//  
   
-  
-  
-  /**
-   * the timestamp that this was sent from the server (at the end of the processing)
-   */
-  private String responseTimestamp;
   
   /**
    * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
    */
-  private String requestProcessed;
-
-  /**
-   * the timestamp that this was sent from the server (at the end of the processing)
-   * @return the responseTimestamp
-   */
-  public String getResponseTimestamp() {
-    return this.responseTimestamp;
-  }
-
-  
-  /**
-   * the timestamp that this was sent from the server (at the end of the processing)
-   * @param responseTimestamp1 the responseTimestamp to set
-   */
-  public void setResponseTimestamp(String responseTimestamp1) {
-    this.responseTimestamp = responseTimestamp1;
-  }
-
+  private String tierDebugMessage;
 
   /**
    * number of milliseconds that the server took in processing this request
    */
-  private Long millis;
+  private Long tierResponseDurationMillis;
   
   /**
    * number of milliseconds that the server took in processing this request
    * @return the millis
    */
-  public Long getMillis() {
-    return this.millis;
+ public Long getTierResponseDurationMillis() {
+    return this.tierResponseDurationMillis;
   }
 
   /**
    * number of milliseconds that the server took in processing this request
    * @param millis1 the millis to set
    */
-  public void setMillis(Long millis1) {
-    this.millis = millis1;
+  public void setTierResponseDurationMillis(Long millis1) {
+    this.tierResponseDurationMillis = millis1;
   }
 
   
@@ -496,8 +536,8 @@ public class TaasMeta {
    * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
    * @return the requestProcessed
    */
-  public String getRequestProcessed() {
-    return this.requestProcessed;
+  public String getTierDebugMessage() {
+    return this.tierDebugMessage;
   }
 
   
@@ -505,31 +545,47 @@ public class TaasMeta {
    * freeform text about the request that the server processed, when debugging to make sure the server is processing the right params
    * @param requestProcessed1 the requestProcessed to set
    */
-  public void setRequestProcessed(String requestProcessed1) {
-    this.requestProcessed = requestProcessed1;
+  public void setTierDebugMessage(String requestProcessed1) {
+    this.tierDebugMessage = requestProcessed1;
   }
 
   /**
    * number of the HTTP httpStatusCode code
    */
-  private Integer httpStatusCode;
+  private Integer tierHttpStatusCode;
   
 
   /**
    * number of the HTTP httpStatusCode code
    * @return the httpgetHttpStatusCodee
    */
-  public Integer getHttpStatusCode() {
-    return this.httpStatusCode;
+  public Integer getTierHttpStatusCode() {
+    return this.tierHttpStatusCode;
   }
 
-  
+  /**
+   * override this for subject objects to scimify
+   * make this a scim response
+   */
+  public void scimify() {
+    this.resultWarning.setLength(0);
+    this.setTierDebugMessage(null);
+    this.setTierErrorMessage(null);
+    this.setTierHttpStatusCode(null);
+    this.setTierRequestId(null);
+    this.setTierResponseDurationMillis(null);
+    this.setTierResultCode(null);
+    this.setTierServerVersion(null);
+    this.setTierServiceRootUri(null);
+    this.setTierSuccess(null);
+  }
+
   /**
    * number of the HTTP httpStatusCode code
-   *setHttpStatusCodetatus1 the httpStatusCode to set
+   * @param status1 the httpStatusCode to set
    */
-  public void setHttpStatusCode(Integer status1) {
-    this.httpStatusCode = status1;
+  public void setTierHttpStatusCode(Integer status1) {
+    this.tierHttpStatusCode = status1;
   }
 
   

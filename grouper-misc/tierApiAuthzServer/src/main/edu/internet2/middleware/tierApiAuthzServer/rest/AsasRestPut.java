@@ -20,7 +20,7 @@ public enum AsasRestPut {
      * handle the incoming request based on PUT HTTP method and folders resource
      * @param urlStrings not including the app name or servlet.  
      * for http://localhost/tierApiAuthz/tierApiAuthz/v1/folders/id:123.json
-     * @param requestObject is the request body converted to object
+     * @param body is the request body converted to object
      * @return the result object
      */
     @Override
@@ -36,7 +36,7 @@ public enum AsasRestPut {
 
       if (StandardApiServerUtils.length(urlStrings) != 1) {
         throw new AsasRestInvalidRequest("Expecting 1 url string after 'folders': " 
-            + StandardApiServerUtils.toStringForLog(urlStrings));
+            + StandardApiServerUtils.toStringForLog(urlStrings), "404", "ERROR_INVALID_PATH");
       }
       
       String folderUri = StandardApiServerUtils.popUrlString(urlStrings);

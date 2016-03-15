@@ -39,7 +39,8 @@ public enum AsasRestPost {
       }
 
       if (StandardApiServerUtils.length(urlStrings) != 1) {
-        throw new AsasRestInvalidRequest("Expecting 1 url string after 'folders': " + StandardApiServerUtils.toStringForLog(urlStrings));
+        throw new AsasRestInvalidRequest("Expecting 1 url string after 'folders': " 
+            + StandardApiServerUtils.toStringForLog(urlStrings), "404", "ERROR_INVALID_PATH");
       }
       
       String folderUri = StandardApiServerUtils.popUrlString(urlStrings);

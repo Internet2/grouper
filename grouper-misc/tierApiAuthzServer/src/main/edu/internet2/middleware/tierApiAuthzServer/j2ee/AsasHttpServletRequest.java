@@ -72,9 +72,11 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
       "extraFields", 
       "indent", 
       "limit", 
+      "membershipType",
       "method", 
       "offset", 
       "offsetFieldValue", 
+      "recursive",
       "recursive",
       "saveMode",
       "sortField" 
@@ -178,7 +180,7 @@ public class AsasHttpServletRequest extends HttpServletRequestWrapper {
       if (valuesProblem) {
         throw new AsasRestInvalidRequest(
             "Multiple request parameter values where detected for key: " + StandardApiServerUtils.toStringForLog(valuesProblemName)
-                + ", when only one is expected");
+                + ", when only one is expected", "400", "ERROR_MULTIPLE_PARAMS");
       }
     }
     return this.parameterMap;
