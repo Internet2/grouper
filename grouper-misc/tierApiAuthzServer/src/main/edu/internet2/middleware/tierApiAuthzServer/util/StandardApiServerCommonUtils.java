@@ -20,8 +20,10 @@ package edu.internet2.middleware.tierApiAuthzServer.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,6 +46,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -441,10 +444,35 @@ public class StandardApiServerCommonUtils  {
     URL url = null;
 
     try {
+      
+      if (canBeNull && resourceName == null) {
+        return null;
+      }
+
+      if (resourceName.startsWith("file:")) {
+        String fileName = null;
+        //if its not URL file, make it a URL file
+        if (resourceName.startsWith("file://")) {
+          fileName = resourceName.substring("file://".length());
+        }
+        if (resourceName.startsWith("file:")) {
+          fileName = resourceName.substring("file:".length());
+        }
+        File file = new File(fileName);
+        return file.toURI().toURL();
+      }
+      
+      if (resourceName.startsWith("classpath:")) {
+        resourceName = resourceName.substring("classpath:".length());
+      }
+      
       //CH 20081012: sometimes it starts with slash and it shouldnt...
       String newResourceName = resourceName.startsWith("/") 
         ? resourceName.substring(1) : resourceName;
       url = cl.getResource(newResourceName);
+    } catch (MalformedURLException mue) {
+      String error = "computeUrl() Could not compute URL: " + resourceName;
+      throw new RuntimeException(error, mue);
     } catch (NullPointerException npe) {
       String error = "computeUrl() Could not find resource file: " + resourceName;
       throw new RuntimeException(error, npe);
@@ -457,6 +485,101 @@ public class StandardApiServerCommonUtils  {
     return url;
   }
 
+  /** 
+   * list files with a certain extension.  Note, there cannot be more than 10000
+   * files or exception will be throws
+   * @param dir
+   * @param extension if this is the empty string it should list all
+   * @return the array of files
+   */
+  public static List listFilesByExtensionRecursive(File dir, String extension) {
+    List theList = new ArrayList();
+    listFilesByExtensionRecursiveHelper(dir, extension, theList);
+    return theList;
+  }
+
+  /** 
+   * list files with a certain extension 
+   * @param dir
+   * @param extension if this is the empty string it should list all
+   * @param theList is the current list to append to
+   */
+  private static void listFilesByExtensionRecursiveHelper(File dir, String extension,
+      List theList) {
+    //see if its a directory
+    if (!dir.exists()) {
+      throw new RuntimeException("The directory: " + dir + " does not exist");
+    }
+    if (!dir.isDirectory()) {
+      throw new RuntimeException("The directory: " + dir + " is not a directory");
+    }
+
+    //get the files into a list
+    File[] allFiles = listFilesByExtension(dir, extension);
+
+    //loop through the array
+    for (int i = 0; i < allFiles.length; i++) {
+      if (contains(allFiles[i].getName(), "..")) {
+        continue; //dont go to the parent directory
+      }
+
+      if (allFiles[i].isFile()) {
+
+        //make sure not too big
+        if (theList.size() > 10000) {
+          throw new RuntimeException("File list too large: " + dir.getAbsolutePath()
+              + ", " + extension);
+        }
+
+        //add to list
+        theList.add(allFiles[i]);
+      } else {
+        //ignore, we will do all dirs in good time
+      }
+    }
+
+    //do all the subdirs
+    File[] allSubdirs = listSubdirs(dir);
+    int allSubdirsLength = allSubdirs == null ? 0 : allSubdirs.length;
+    for (int i = 0; i < allSubdirsLength; i++) {
+      listFilesByExtensionRecursiveHelper(allSubdirs[i], extension, theList);
+    }
+
+  }
+
+  /** 
+   * list files with a certain extension 
+   * @param dir
+   * @param extension if this is the empty string it should list all
+   * @return the array of files
+   */
+  public static File[] listFilesByExtension(File dir, String extension) {
+    final String finalExtension = extension;
+
+    FilenameFilter fileFilter = new FilenameFilter() {
+
+      /*
+       * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
+       */
+      public boolean accept(File theDir, String name) {
+        if ((name != null) && name.endsWith(finalExtension)) {
+          //doubt we would ever look for .., but in case
+          if (contains(finalExtension, "..")) {
+            return true;
+          }
+          //if the file is .., then its not what we are looking for
+          if (contains(name, "..")) {
+            return false;
+          }
+          return true;
+        }
+
+        return false;
+      }
+    };
+
+    return dir.listFiles(fileFilter);
+  }
 
   /**
    * fast class loader
@@ -814,7 +937,7 @@ public class StandardApiServerCommonUtils  {
         result.append(", ");
       }
       first = false;
-      result.append(object).append(": ").append(map.get(object));
+      result.append(object).append(": ").append(StandardApiServerUtils.stringValue(map.get(object)));
     }
     return result.toString();
   }
@@ -9427,6 +9550,39 @@ public class StandardApiServerCommonUtils  {
     
     return input;
     
+  }
+
+  /**
+   * get the subdirs of a dir (not ..)
+   * @param dir
+   * @return the dirs
+   */
+  public static File[] listSubdirs(File dir) {
+    //see if its a directory
+    if (!dir.exists()) {
+      throw new RuntimeException("The directory: " + dir + " does not exist");
+    }
+    if (!dir.isDirectory()) {
+      throw new RuntimeException("The directory: " + dir + " is not a directory");
+    }
+  
+    File[] subdirs = dir.listFiles(new FileFilter() {
+  
+      public boolean accept(File pathname) {
+        if (contains(pathname.getName(), "..")) {
+          return false; //dont go to the parent directory
+        }
+        //allow dirs
+        if (pathname.isDirectory()) {
+          return true;
+        }
+        //must not be a dir
+        return false;
+      }
+  
+    });
+  
+    return subdirs;
   }
 
 }

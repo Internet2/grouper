@@ -33,6 +33,32 @@ public class AsasApiGroupsMemberSearchResult {
     this.queryParams = asasApiPaging1;
   }
 
+  /**
+   * 
+   */
+  private AsasApiGroup asasApiGroup;
+  
+  
+  
+  
+  /**
+   * @return the asasApiGroup
+   */
+  public AsasApiGroup getAsasApiGroup() {
+    return this.asasApiGroup;
+  }
+
+  
+  /**
+   * @param asasApiGroup the asasApiGroup to set
+   */
+  public void setAsasApiGroup(AsasApiGroup asasApiGroup) {
+    this.asasApiGroup = asasApiGroup;
+  }
+
+  /**
+   * 
+   */
   private AsasApiUser asasApiUser;
   
   /**
@@ -44,10 +70,10 @@ public class AsasApiGroupsMemberSearchResult {
 
   
   /**
-   * @param asasApiUser the asasApiUser to set
+   * @param asasApiUser1 the asasApiUser to set
    */
-  public void setAsasApiUser(AsasApiUser asasApiUser) {
-    this.asasApiUser = asasApiUser;
+  public void setAsasApiUser(AsasApiUser asasApiUser1) {
+    this.asasApiUser = asasApiUser1;
   }
 
   /**
@@ -60,23 +86,31 @@ public class AsasApiGroupsMemberSearchResult {
       return null;
     }
     AsasGroupsMemberSearchContainer asasGroupMemberContainer = new AsasGroupsMemberSearchContainer();
-    asasGroupMemberContainer.getMeta().setSuccess(true);
+    asasGroupMemberContainer.getMeta().setTierSuccess(true);
     if (asasApiGroupMemberSearch.getAsasApiUser() != null) {
-      asasGroupMemberContainer.setId(asasApiGroupMemberSearch.getAsasApiUser().getId());
-      asasGroupMemberContainer.setTierNetId(asasApiGroupMemberSearch.getAsasApiUser().getTierNetId());
-      if (asasApiGroupMemberSearch.getAsasApiUser().getName() != null) {
-        AsasApiName asasApiName = asasApiGroupMemberSearch.getAsasApiUser().getName();
+      AsasApiUser asasApiUser = asasApiGroupMemberSearch.getAsasApiUser();
+      asasGroupMemberContainer.setId(asasApiUser.getId());
+      asasGroupMemberContainer.setTierNetId(asasApiUser.getTierNetId());
+      if (asasApiUser.getName() != null) {
+        AsasApiName asasApiName = asasApiUser.getName();
         AsasName asasName = AsasApiName.convertToAsasName(asasApiName);
         asasGroupMemberContainer.setName(asasName);
       }
       asasGroupMemberContainer.setUserName(asasGroupMemberContainer.getUserName());
-      asasGroupMemberContainer.getMeta().setHttpStatusCode(200);
-      asasGroupMemberContainer.getMeta().setResultCode("SUCCESS_IS_MEMBER");
+      asasGroupMemberContainer.getMeta().setTierHttpStatusCode(200);
+      asasGroupMemberContainer.getMeta().setTierResultCode("SUCCESS_IS_MEMBER");
+    } else if (asasApiGroupMemberSearch.getAsasApiGroup() != null) {
+      AsasApiGroup asasApiGroup = asasApiGroupMemberSearch.getAsasApiGroup();
+      asasGroupMemberContainer.setId(asasApiGroup.getId());
+      asasGroupMemberContainer.setDisplayName(asasApiGroup.getDisplayName());
+      asasGroupMemberContainer.setTierSystemName(asasApiGroup.getName());
+      asasGroupMemberContainer.getMeta().setTierHttpStatusCode(200);
+      asasGroupMemberContainer.getMeta().setTierResultCode("SUCCESS_IS_MEMBER");
     } else {
-      asasGroupMemberContainer.getMeta().setHttpStatusCode(404);
-      asasGroupMemberContainer.getMeta().setResultCode("SUCCESS_IS_NOT_MEMBER");
+      asasGroupMemberContainer.getMeta().setTierHttpStatusCode(404);
+      asasGroupMemberContainer.getMeta().setTierResultCode("SUCCESS_IS_NOT_MEMBER");
     }
     return asasGroupMemberContainer;
   }
-
+  
 }

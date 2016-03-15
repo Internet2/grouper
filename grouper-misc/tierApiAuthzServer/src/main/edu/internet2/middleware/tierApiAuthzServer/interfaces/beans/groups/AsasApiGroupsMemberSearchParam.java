@@ -14,6 +14,25 @@ import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEnti
 public class AsasApiGroupsMemberSearchParam {
 
   /**
+   * membershipType
+   */
+  private AsasApiMembershipTypeParam membershipType;
+
+  /**
+   * @return the membershipType
+   */
+  public AsasApiMembershipTypeParam getMembershipType() {
+    return this.membershipType;
+  }
+  
+  /**
+   * @param membershipType1 the membershipType to set
+   */
+  public void setMembershipType(AsasApiMembershipTypeParam membershipType1) {
+    this.membershipType = membershipType1;
+  }
+
+  /**
    * queryParams object for which objects to request
    */
   private AsasApiQueryParams queryParams;

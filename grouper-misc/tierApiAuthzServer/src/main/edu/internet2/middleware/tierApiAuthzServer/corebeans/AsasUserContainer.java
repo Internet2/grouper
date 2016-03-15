@@ -14,17 +14,32 @@ import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
  */
 public class AsasUserContainer extends AsasResponseBeanBase {
 
+  /**
+   * constructor
+   */
   public AsasUserContainer() {
     super();
     this.getMeta().setResourceType("User");
   }
-  
+
+  /**
+   * user id
+   */
   private String id;
   
+  /**
+   * tierNetId
+   */
   private String tierNetId;
 
+  /**
+   * userName
+   */
   private String userName;
 
+  /**
+   * name
+   */
   private AsasName name;
   
   
@@ -41,10 +56,10 @@ public class AsasUserContainer extends AsasResponseBeanBase {
 
   
   /**
-   * @param id the id to set
+   * @param id1 the id to set
    */
-  public void setId(String id) {
-    this.id = id;
+  public void setId(String id1) {
+    this.id = id1;
   }
 
 
@@ -61,10 +76,10 @@ public class AsasUserContainer extends AsasResponseBeanBase {
 
   
   /**
-   * @param tierNetId the tierNetId to set
+   * @param tierNetId1 the tierNetId to set
    */
-  public void setTierNetId(String tierNetId) {
-    this.tierNetId = tierNetId;
+  public void setTierNetId(String tierNetId1) {
+    this.tierNetId = tierNetId1;
   }
 
 
@@ -81,10 +96,10 @@ public class AsasUserContainer extends AsasResponseBeanBase {
 
   
   /**
-   * @param userName the userName to set
+   * @param userName1 the userName to set
    */
-  public void setUserName(String userName) {
-    this.userName = userName;
+  public void setUserName(String userName1) {
+    this.userName = userName1;
   }
 
 
@@ -101,10 +116,10 @@ public class AsasUserContainer extends AsasResponseBeanBase {
 
   
   /**
-   * @param name the name to set
+   * @param name1 the name to set
    */
-  public void setName(AsasName name) {
-    this.name = name;
+  public void setName(AsasName name1) {
+    this.name = name1;
   }
 
 

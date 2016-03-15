@@ -25,10 +25,10 @@ public enum AsasRestGet {
         Map<String, String> params, String body) {
       
       if (!StandardApiServerUtils.isBlank(body)) {
-        throw new AsasRestInvalidRequest("Not expecting body in request (size: " + StandardApiServerUtils.length(body) + ")");
+        throw new AsasRestInvalidRequest("Not expecting body in request (size: " + StandardApiServerUtils.length(body) + ")", "400", "ERROR_INVALID_REQUEST_BODY");
       }
       if (StandardApiServerUtils.length(urlStrings) == 0) {
-        throw new AsasRestInvalidRequest("Not expecting more url strings: " + StandardApiServerUtils.toStringForLog(urlStrings));
+        throw new AsasRestInvalidRequest("Not expecting more url strings: " + StandardApiServerUtils.toStringForLog(urlStrings), "404", "ERROR_INVALID_PATH");
       }
       if (StandardApiServerUtils.length(urlStrings) == 1) {
         return AsasRestLogic.getGroups(params);

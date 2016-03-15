@@ -673,7 +673,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
       
     } else {
       throw new AsasRestInvalidRequest("folderUri needs to contain a colon, start " +
-          "with name: id: or another uri prefix that is server specific: '" + folderUri + "'");
+          "with name: id: or another uri prefix that is server specific: '" + folderUri + "'", "404", "ERROR_INVALID_PARAM");
     }
     return asasApiFolderLookup;
   }
@@ -949,6 +949,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
    * @param string
    * @param exceptionOnNotFound true if exception should be thrown on not found
    * @return the enum or null or exception if not found
+   * @throws AsasRestInvalidRequest 
    * @throws RuntimeException if there is a problem
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
@@ -958,7 +959,8 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
       return StandardApiServerCommonUtils.enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound);
     } catch (RuntimeException re) {
       if (!(re instanceof AsasRestInvalidRequest)) {
-        throw new AsasRestInvalidRequest(re.getMessage(), re);
+        throw new AsasRestInvalidRequest(re.getMessage(), re, 
+            "400", "ERROR_INVALID_PATH");
       }
       throw re;
     }
@@ -1948,7 +1950,7 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
       
     } else {
       throw new AsasRestInvalidRequest("groupUri needs to contain a colon, start " +
-          "with name: id: or another uri prefix that is server specific: '" + groupUri + "'");
+          "with name: id: or another uri prefix that is server specific: '" + groupUri + "'", "404", "ERROR_INVALID_PATH");
     }
     return asasApiGroupLookup;
   }
@@ -1969,7 +1971,8 @@ public class StandardApiServerUtils extends StandardApiServerCommonUtils {
       asasApiEntityLookup.setHandleValue(handleValue);
       
     } else {
-      throw new AsasRestInvalidRequest("entityUri needs to contain a colon: '" + entityUri + "'");
+      throw new AsasRestInvalidRequest("entityUri needs to contain a colon: '" + entityUri + "'", 
+          "404", "ERROR_INVALID_PATH");
     }
     return asasApiEntityLookup;
   }

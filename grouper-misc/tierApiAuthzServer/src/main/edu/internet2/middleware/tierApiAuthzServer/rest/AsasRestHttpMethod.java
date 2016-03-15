@@ -66,7 +66,7 @@ public enum AsasRestHttpMethod {
 
       }
 
-      throw new AsasRestInvalidRequest("Not expecting this request");
+      throw new AsasRestInvalidRequest("Not expecting this request", "404", "ERROR_INVALID_PATH");
     }
 
   },
@@ -93,7 +93,7 @@ public enum AsasRestHttpMethod {
 
       }
       
-      throw new AsasRestInvalidRequest("Not expecting this request");
+      throw new AsasRestInvalidRequest("Not expecting this request", "404", "ERROR_INVALID_PATH");
     }
 
   },
@@ -120,7 +120,7 @@ public enum AsasRestHttpMethod {
 
       }
 
-      throw new AsasRestInvalidRequest("Not expecting this request");
+      throw new AsasRestInvalidRequest("Not expecting this request", "404", "ERROR_INVALID_PATH");
     }
 
   };

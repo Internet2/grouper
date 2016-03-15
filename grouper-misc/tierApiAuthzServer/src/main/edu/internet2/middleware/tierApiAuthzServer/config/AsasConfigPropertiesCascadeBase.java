@@ -451,7 +451,7 @@ public abstract class AsasConfigPropertiesCascadeBase {
   /**
    * config file cache
    */
-  private static Map<Class<? extends AsasConfigPropertiesCascadeBase>, AsasConfigPropertiesCascadeBase> configFileCache = null;
+  private static Map<String, AsasConfigPropertiesCascadeBase> configFileCache = null;
   
   /**
    * config file type
@@ -788,6 +788,15 @@ public abstract class AsasConfigPropertiesCascadeBase {
   }
   
   /**
+   * if there is more to cache than just the class of the config, then return it here.
+   * e.g. if there is a path or something to append to the cache key
+   * @return the cache suffix
+   */
+  protected String cacheSuffix() {
+    return null;
+  }
+  
+  /**
    * see if there is one in cache, if so, use it, if not, get from config files
    * @return the config from file or cache
    */
@@ -795,17 +804,19 @@ public abstract class AsasConfigPropertiesCascadeBase {
     
     if (configFileCache == null) {
       configFileCache = 
-        new HashMap<Class<? extends AsasConfigPropertiesCascadeBase>, AsasConfigPropertiesCascadeBase>();
+        new HashMap<String, AsasConfigPropertiesCascadeBase>();
     }
+
+    String cacheKey = this.cacheSuffix() == null ? this.getClass().getName() : (this.getClass().getName() + this.cacheSuffix());
     
-    AsasConfigPropertiesCascadeBase configObject = configFileCache.get(this.getClass());
+    AsasConfigPropertiesCascadeBase configObject = configFileCache.get(cacheKey);
     
     if (configObject == null) {
       
       logDebug("Config file has not be created yet, will create now: " + this.getMainConfigClasspath());
       
       configObject = retrieveFromConfigFiles();
-      configFileCache.put(this.getClass(), configObject);
+      configFileCache.put(cacheKey, configObject);
       
     } else {
       
@@ -814,23 +825,23 @@ public abstract class AsasConfigPropertiesCascadeBase {
         
         synchronized (configObject) {
           
-          configObject = configFileCache.get(this.getClass());
+          configObject = configFileCache.get(cacheKey);
           
           //check again in case another thread did it
           if (configObject.needToCheckIfFilesNeedReloading()) {
             
             if (configObject.filesNeedReloadingBasedOnContents()) {
               configObject = retrieveFromConfigFiles();
-              configFileCache.put(this.getClass(), configObject);
+              configFileCache.put(cacheKey, configObject);
             }
           }
         }
       }
     }
-    
+
     return configObject;
   }
-  
+
   /**
    * 
    * @return true if need to reload this config, false if not
@@ -948,6 +959,18 @@ public abstract class AsasConfigPropertiesCascadeBase {
     if (StandardApiServerUtils.isBlank(value) && required) {
       throw new RuntimeException("Cant find boolean property " + key + " in properties file: " + this.getMainConfigClasspath() + ", it is required, expecting true or false");
     }
+    return booleanValueOfString(value, key);
+    
+  }
+
+
+  /**
+   * convert string to boolean
+   * @param value 
+   * @param keyForLogging
+   * @return boolean or null if not found
+   */
+  protected boolean booleanValueOfString(String value, String keyForLogging) {
     if ("true".equalsIgnoreCase(value)) {
       return true;
     }
@@ -972,9 +995,8 @@ public abstract class AsasConfigPropertiesCascadeBase {
     if ("n".equalsIgnoreCase(value)) {
       return false;
     }
-    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + key 
+    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + keyForLogging
         + " in properties file: " + this.getMainConfigClasspath() + ", expecting true or false");
-    
   }
 
   /**
