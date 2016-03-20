@@ -411,6 +411,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "import edu.internet2.middleware.subject.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.subject.provider.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.userData.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.messaging.*;");
       
     }
     catch (bsh.EvalError eBBB) {

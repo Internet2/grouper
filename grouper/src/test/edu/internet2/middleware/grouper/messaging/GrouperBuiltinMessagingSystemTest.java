@@ -118,6 +118,10 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
     GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
 
+//    grouperSession = GrouperSession.startRootSession();
+//    subject = SubjectFinder.findById("GrouperSystem", true); 
+//    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", subject);
+
     GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
         
     GrouperMessageSendResult grouperMessageSendResult = GrouperMessagingEngine.send(
