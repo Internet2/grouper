@@ -11,7 +11,6 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem.GrouperBuiltinMessageState;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -99,7 +98,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     }
 
     GrouperBuiltinMessagingSystem.createTopic("def");
-    
+    GrouperBuiltinMessagingSystem.topicSendsToQueue("def", "abc");
     assertFalse(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0, true));
     GrouperBuiltinMessagingSystem.allowSendToTopic("def", SubjectTestHelper.SUBJ0);
     assertTrue(GrouperBuiltinMessagingSystem.allowedToSendToTopic("def", SubjectTestHelper.SUBJ0, true));
@@ -215,7 +214,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
 
     
     GrouperMessagingEngine.send(
-        new GrouperMessageSendParam().assignGropuerMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+        new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
           .assignQueueOrTopic("abc").addMessageBody("message body"));
 
     
@@ -231,7 +230,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
 //          //messages
 //          for (int j=0;j<500;j++) {
 //            GrouperMessagingEngine.send(
-//                new GrouperMessageSendParam().assignGropuerMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME));
+//                new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME));
 //          }
 //        }
 //        

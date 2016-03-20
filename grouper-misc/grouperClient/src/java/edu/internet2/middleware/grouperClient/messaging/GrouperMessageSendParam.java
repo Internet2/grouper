@@ -36,7 +36,7 @@ public class GrouperMessageSendParam {
    * @param theGrouperMessageSystemName
    * @return this for chaining
    */
-  public GrouperMessageSendParam assignGropuerMessageSystemName(String theGrouperMessageSystemName) {
+  public GrouperMessageSendParam assignGrouperMessageSystemName(String theGrouperMessageSystemName) {
     if (this.grouperMessageSystemParam == null) {
       this.grouperMessageSystemParam = new GrouperMessageSystemParam();
     }
