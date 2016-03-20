@@ -63,11 +63,13 @@ public class GrouperMessagingEngine {
   public static String retrieveGrouperMessageSystemName(
       GrouperMessageSystemParam grouperMessageSystemConfig) {
     String grouperMessageSystemName = null;
-    if (GrouperClientUtils.isBlank(grouperMessageSystemConfig.getMessageSystemName())) {
+    if (grouperMessageSystemConfig == null || GrouperClientUtils.isBlank(grouperMessageSystemConfig.getMessageSystemName())) {
       grouperMessageSystemName = GrouperClientConfig.retrieveConfig().propertyValueString("grouper.messaging.default.name.of.messaging.system");
       if (GrouperClientUtils.isBlank(grouperMessageSystemName)) {
         throw new RuntimeException("You either need to specify the messageSystemName in a message send config or you need to have a grouper.client.properties entry for grouper.messaging.default.name.of.messaging.system");
       }
+    } else {
+      grouperMessageSystemName = grouperMessageSystemConfig.getMessageSystemName();
     }
     return grouperMessageSystemName;
   }

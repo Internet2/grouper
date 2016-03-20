@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
@@ -310,6 +311,18 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else if (StringUtils.equals(GROUPER_BUILTIN_MESSAGING_DAEMON, hib3GrouploaderLog.getJobName())) {
+
+          int processedRecords = GrouperBuiltinMessagingSystem.cleanOldProcessedMessages();
+          
+          int unprocessedRecords = GrouperBuiltinMessagingSystem.cleanOldUnprocessedMessages();
+          
+          hib3GrouploaderLog.setUpdateCount(processedRecords + unprocessedRecords);
+
+          hib3GrouploaderLog.setJobMessage("Ran builtin messaging daemon, deleted " + processedRecords + " processed records, deleted " + unprocessedRecords + " unprocessed records.");
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+
         } else if (StringUtils.equals(GROUPER_EXTERNAL_SUBJ_CALC_FIELDS, hib3GrouploaderLog.getJobName())) {
 
           int records = ExternalSubject.internal_daemonCalcFields();
@@ -1580,6 +1593,11 @@ public enum GrouperLoaderType {
    * maintenance enabledDisabled name
    */
   public static final String GROUPER_ENABLED_DISABLED = "MAINTENANCE__enabledDisabled";
+
+  /**
+   * maintenance builtinMessagingDaemon name
+   */
+  public static final String GROUPER_BUILTIN_MESSAGING_DAEMON = "MAINTENANCE__builtinMessagingDaemon";
 
   /**
    * maintenance, calculate enabled/disabled fields

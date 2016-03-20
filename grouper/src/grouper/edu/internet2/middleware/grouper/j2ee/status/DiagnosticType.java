@@ -128,6 +128,12 @@ public enum DiagnosticType {
       }
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE_cleanLogs", GrouperLoaderType.MAINTENANCE));
 
+      if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.builtinMessagingDaemon.quartz.cron"))) {
+        diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.GROUPER_BUILTIN_MESSAGING_DAEMON, GrouperLoaderType.MAINTENANCE));
+      }
+      
+      diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.GROUPER_ENABLED_DISABLED, GrouperLoaderType.MAINTENANCE));
+
       {
         //expand these out
         Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
