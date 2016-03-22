@@ -94,6 +94,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
+import edu.internet2.middleware.grouper.messaging.MessagingListenerController;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
@@ -645,6 +647,110 @@ public enum GrouperLoaderType {
           }
         }, 
         
+  /** 
+   * various messaging jobs on the system
+   */
+  MESSAGE_LISTENER {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+     */
+    @Override
+    public boolean attributeRequired(String attributeName) {
+      return false;
+    }
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+     */
+    @Override
+    public boolean attributeOptional(String attributeName) {
+      return false;
+    }
+
+    /**
+     * sync up a group membership based on query and db
+     * @param loaderJobBean
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void runJob(LoaderJobBean loaderJobBean) {
+
+      Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>()
+          : null;
+
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("operation", "runMessagingJob");
+      }
+
+      try {
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
+        Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean
+            .getHib3GrouploaderLogOverall();
+
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("jobName", hib3GrouploaderLog.getJobName());
+        }
+
+        if (hib3GrouploaderLog.getJobName().startsWith(
+            GROUPER_MESSAGING_LISTENER_PREFIX)) {
+
+          String listenerName = hib3GrouploaderLog.getJobName().substring(
+              GROUPER_MESSAGING_LISTENER_PREFIX.length());
+
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("listenerName", listenerName);
+          }
+
+          try {
+            //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
+            //consumer
+            String theClassName = GrouperLoaderConfig.retrieveConfig()
+                .propertyValueString("messaging.listener." + listenerName + ".class");
+
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("className", theClassName);
+            }
+
+            Class<?> theClass = GrouperUtil.forName(theClassName);
+
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("class found", true);
+            }
+
+            MessagingListenerBase messagingListenerBase = (MessagingListenerBase) GrouperUtil
+                .newInstance(theClass);
+
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("instance created", true);
+            }
+
+            MessagingListenerController.processRecords(listenerName, hib3GrouploaderLog,
+                messagingListenerBase);
+
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("success", true);
+              debugMap.put("recordsProcessed", hib3GrouploaderLog.getTotalCount());
+            }
+          } catch (RuntimeException re) {
+            LOG.error("Problem with change log consumer: " + listenerName, re);
+            throw re;
+          }
+        } else {
+          throw new RuntimeException("Cant find implementation for job: "
+              + hib3GrouploaderLog.getJobName());
+        }
+      } finally {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(GrouperUtil.mapToString(debugMap));
+        }
+      }
+    }
+  },
+
     /** 
      * simple sql query where all results are all members of group.
      * must have a subject_id col, and optionally a subject_source_id col
@@ -1623,6 +1729,11 @@ public enum GrouperLoaderType {
    * change log consumer prefix
    */
   public static final String GROUPER_CHANGE_LOG_CONSUMER_PREFIX = "CHANGE_LOG_consumer_";
+
+  /**
+   * change log consumer prefix
+   */
+  public static final String GROUPER_MESSAGING_LISTENER_PREFIX = GrouperLoaderType.MESSAGE_LISTENER.name() + "_";
 
   /**
    * other jobs prefix

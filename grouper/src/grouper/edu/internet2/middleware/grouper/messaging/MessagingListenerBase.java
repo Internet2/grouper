@@ -16,9 +16,11 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.changeLog;
+package edu.internet2.middleware.grouper.messaging;
 
-import java.util.List;
+import java.util.Collection;
+
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 
 
 /**
@@ -26,15 +28,17 @@ import java.util.List;
  * @author mchyzer
  *
  */
-public abstract class ChangeLogConsumerBase {
+public abstract class MessagingListenerBase {
 
   /**
-   * process the change logs
-   * @param changeLogEntryList  NOTE, DO NOT CHANGE OR EDIT THE OBJECTS IN THIS LIST, THEY MIGHT BE SHARED!
-   * @param changeLogProcessorMetadata
-   * @return which sequence number it got up to (which sequence number was the last one processed).  or -1 if none processed
+   * process the messages.  mark them as processed
+   * @param messageSystemName
+   * @param queue
+   * @param grouperMessageList  NOTE, DO NOT CHANGE OR EDIT THE OBJECTS IN THIS LIST, THEY MIGHT BE SHARED!
+   * @param messagingListenerMetadata
+   * @return which message id it got up to (which id was the last one processed).  or null if none processed
    */
-  public abstract long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList, 
-      ChangeLogProcessorMetadata changeLogProcessorMetadata);
+  public abstract String processMessages(String messageSystemName, String queue, Collection<GrouperMessage> grouperMessageList, 
+      MessagingListenerMetadata messagingListenerMetadata);
   
 }

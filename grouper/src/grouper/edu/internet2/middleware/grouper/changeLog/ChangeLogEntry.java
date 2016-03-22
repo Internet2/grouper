@@ -21,8 +21,14 @@ package edu.internet2.middleware.grouper.changeLog;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -1009,4 +1015,122 @@ public class ChangeLogEntry extends GrouperAPI {
       && this.getChangeLogType().equalsCategoryAndAction(changeLogTypeIdentifier);
   }
 
+  /**
+   * convert json to a collection (generally of size one) of change log entries
+   * @param json
+   * @return the change log entry
+   */
+  public static Collection<ChangeLogEntry> fromJsonToCollection(String json) {
+    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( json );
+    JSONArray jsonArray = jsonObject.getJSONArray("event");
+    if (jsonArray == null) {
+      return null;
+    }
+    if (jsonArray.size() == 0) {
+      return null;
+    }
+    Set<ChangeLogEntry> result = new LinkedHashSet<ChangeLogEntry>();
+    for (int i=0;i<jsonArray.size();i++) {
+      JSONObject currentEvent = jsonArray.getJSONObject(i);
+      ChangeLogEntry currentEntry = new ChangeLogEntry();
+      currentEntry.fromJsonHelper(currentEvent);
+      result.add(currentEntry);
+    }
+    return result;
+  }
+
+  /**
+   * convert to one json object
+   * @param jsonObject
+   */
+  public void fromJsonHelper(JSONObject jsonObject) {
+    
+    this.changeLogTypeId = jsonObject.getString("changeLogTypeId");
+    if (jsonObject.containsKey("contextId")) {
+      this.contextId = jsonObject.getString("contextId");
+    }
+    if (jsonObject.containsKey("createdOnDb")) {
+      this.createdOnDb = jsonObject.getLong("createdOnDb");
+    }
+    if (jsonObject.containsKey("changeLogEntryId")) {
+      this.id = jsonObject.getString("changeLogEntryId");
+    }
+    if (jsonObject.containsKey("sequenceNumber")) {
+      this.sequenceNumber = jsonObject.getLong("sequenceNumber");
+    }
+    if (jsonObject.containsKey("changeLogTypeCategory")) {
+      if (!StringUtils.equals(this.getChangeLogType().getChangeLogCategory(), jsonObject.getString("changeLogTypeCategory"))) {
+        throw new RuntimeException("Wrong category: expecting: " 
+            + this.getChangeLogType().getChangeLogCategory() + ", but was: " + jsonObject.getString("changeLogTypeCategory"));
+      }
+    }
+    if (jsonObject.containsKey("changeLogTypeAction")) {
+      if (!StringUtils.equals(this.getChangeLogType().getActionName(), jsonObject.getString("changeLogTypeAction"))) {
+        throw new RuntimeException("Wrong action: expecting: " 
+            + this.getChangeLogType().getActionName() + ", but was: " + jsonObject.getString("changeLogTypeAction"));
+      }
+    }
+    ChangeLogType changeLogType = this.getChangeLogType();
+    
+    for (String key : (Set<String>)(Object)jsonObject.keySet()) {
+      if (key.startsWith("field_")) {
+
+        //get string value
+        String value = jsonObject.getString(key);
+        String fieldName = key.substring("field_".length());
+        this.assignStringValue(changeLogType, fieldName, value);
+
+      }
+    }
+  }
+  
+  /**
+   * @param includeContainer true will include a container and an array of events
+   * @return json
+   */
+  public String toJson(boolean includeContainer) {
+    JSONObject event = new JSONObject();
+    event.element("changeLogTypeId", this.changeLogTypeId);
+    event.element("contextId", this.contextId);
+    event.element("createdOnDb", this.createdOnDb);
+    event.element("changeLogEntryId", this.id);
+    event.element("sequenceNumber", this.sequenceNumber);
+    event.element("changeLogTypeCategory", this.getChangeLogType().getChangeLogCategory());
+    event.element("changeLogTypeAction", this.getChangeLogType().getActionName());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString01());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString02());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString03());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString04());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString05());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString06());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString07());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString08());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString09());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString10());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString11());
+    this.toJsonHelper(event, this.getChangeLogType().getLabelString12());
+    if (includeContainer) {
+      JSONObject container = new JSONObject();
+      container.element("event", GrouperUtil.toSet(event));
+      return container.toString();
+    }
+    return event.toString();
+  }
+  
+  /**
+   * do some reflection to get the change log label into a field
+   * @param event
+   * @param labelString
+   */
+  private void toJsonHelper(JSONObject event, String labelString) {
+    if (StringUtils.isBlank(labelString)) {
+      return;
+    }
+    //even if null, put it in there?  i guess not
+    Object fieldValue = this.retrieveValueForLabel(labelString);
+    if (fieldValue != null) {
+      event.element("field_" + labelString, fieldValue);
+    }
+  }
+  
 }

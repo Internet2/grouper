@@ -140,7 +140,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     
     assertNotNull(grouperMessageHibernate);
 
-    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueOrTopic("abc"));
+    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
     
     assertEquals(1, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
     
@@ -162,7 +162,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     assertNotNull(grouperMessageHibernate);
 
     //lets mark as processed
-    GrouperMessageProcessedResult grouperMessageProcessedResult = GrouperMessagingEngine.markAsProcessed(new GrouperMessageProcessedParam().assignQueueOrTopic("abc").addGrouperMessage(grouperMessage));
+    GrouperMessageProcessedResult grouperMessageProcessedResult = GrouperMessagingEngine.markAsProcessed(new GrouperMessageProcessedParam().assignQueue("abc").addGrouperMessage(grouperMessage));
     
     
     assertEquals(0, GrouperBuiltinMessagingSystem.cleanOldProcessedMessages());

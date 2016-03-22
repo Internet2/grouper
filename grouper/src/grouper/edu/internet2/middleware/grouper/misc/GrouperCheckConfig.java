@@ -1471,6 +1471,12 @@ public class GrouperCheckConfig {
       "^changeLog\\.consumer\\.(\\w+)\\.(class|quartzCron)$");
   
   /**
+   * match something like this: changeLog.consumer.ldappc.class, changeLog.consumer.ldappc.quartzCron
+   */
+  public static Pattern messagingListenerConsumerPattern = Pattern.compile(
+      "^messaging\\.listener\\.(\\w+)\\.(.*)$");
+  
+  /**
    * match something like this: otherJob.duo.class, otherJob.duo.quartzCron, otherJob.duo.priority
    */
   public static Pattern grouperLoaderOtherJobPattern = Pattern.compile(

@@ -254,8 +254,10 @@ public class ChangeLogHelper {
               + ExceptionUtils.getFullStackTrace(e));
           error = true;
         }
-        changeLogConsumer.setLastSequenceProcessed(lastProcessed);
-        GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+        if (lastProcessed != -1) {
+          changeLogConsumer.setLastSequenceProcessed(lastProcessed);
+          GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+        }
         
         long lastSequenceInBatch = changeLogEntryList.get(changeLogEntryList.size()-1).getSequenceNumber();
   
