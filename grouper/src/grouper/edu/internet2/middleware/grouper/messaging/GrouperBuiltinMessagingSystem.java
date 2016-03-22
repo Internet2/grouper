@@ -16,7 +16,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
-import org.mortbay.log.Log;
+import org.apache.commons.logging.Log;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -34,7 +34,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -61,6 +60,8 @@ import edu.internet2.middleware.subject.Subject;
  * built in messaging system from database
  */
 public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
+
+  private static final Log LOG = GrouperUtil.getLog(GrouperBuiltinMessagingSystem.class);
 
   /**
    * action for send to topic
@@ -997,7 +998,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
         grouperMessageHibernate.setGetTimeMillis(System.currentTimeMillis());
         grouperMessageHibernate.saveOrUpdate();
       } else {
-        Log.warn("Grouper message doesnt exist, cant mark as processed: " + grouperMessage.getId());
+        LOG.warn("Grouper message doesnt exist, cant mark as processed: " + grouperMessage.getId());
       }
     }
     return new GrouperMessageProcessedResult();
