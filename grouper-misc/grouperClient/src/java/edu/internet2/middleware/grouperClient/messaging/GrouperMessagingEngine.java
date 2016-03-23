@@ -159,4 +159,38 @@ public class GrouperMessagingEngine {
     
   }
   
+  /**
+   * mark messages that we received and processed
+   * @param grouperMessageReturnToQueueParam
+   * @return result
+   */
+  public static GrouperMessageReturnToQueueResult returnToQueue(GrouperMessageReturnToQueueParam grouperMessageReturnToQueueParam) {
+   Collection<GrouperMessage> grouperMessages = grouperMessageReturnToQueueParam.getGrouperMessages();
+
+    if (GrouperClientUtils.length(grouperMessages) == 0) {
+      throw new NullPointerException("Why no messages to return to queue?");
+    }
+    
+    String grouperMessageSystemName = retrieveGrouperMessageSystemName(grouperMessageReturnToQueueParam.getGrouperMessageSystemParam());
+
+    GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageReturnToQueueParam.getGrouperMessageQueueParam();
+    
+    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
+      throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
+    }
+
+    for (GrouperMessage grouperMessage : grouperMessages) {
+      
+      if (grouperMessage == null) {
+        throw new RuntimeException("grouperMessage is null");
+      }
+      
+    }
+    
+    GrouperMessagingSystem grouperMessagingSystem = retrieveGrouperMessageSystem(grouperMessageSystemName);
+
+    return grouperMessagingSystem.returnToQueue(grouperMessageReturnToQueueParam);
+    
+  }
+  
 }

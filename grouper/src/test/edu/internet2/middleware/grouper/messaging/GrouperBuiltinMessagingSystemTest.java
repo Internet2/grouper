@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedP
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReturnToQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
@@ -198,6 +199,47 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     assertEquals(0, GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(member.getId()).size());
     
     
+    //send a message
+    grouperMessageSendResult = GrouperMessagingEngine.send(
+        new GrouperMessageSendParam()
+          .assignQueueOrTopic("abc").addMessageBody("message body"));
+    
+    //receive it
+    grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
+    
+    assertEquals(1, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
+    
+    grouperMessage = grouperMessageReceiveResult.getGrouperMessages().iterator().next();
+    
+    grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(member.getId()).iterator().next();
+    
+    assertEquals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState());
+    
+    //receive it
+    grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
+    
+    assertEquals(0, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
+    
+    //put it back on the queue
+    GrouperMessagingEngine.returnToQueue(new GrouperMessageReturnToQueueParam().assignQueue("abc").addGrouperMessage(grouperMessage));
+
+    //receive it
+    grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
+    
+    assertEquals(1, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
+    
+    grouperMessage = grouperMessageReceiveResult.getGrouperMessages().iterator().next();
+    
+    grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(member.getId()).iterator().next();
+    
+    assertEquals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState());
+
+    grouperMessageProcessedResult = GrouperMessagingEngine.markAsProcessed(new GrouperMessageProcessedParam().assignQueue("abc").addGrouperMessage(grouperMessage));
+
+    grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
+    
+    assertEquals(0, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
+
   }
 
   

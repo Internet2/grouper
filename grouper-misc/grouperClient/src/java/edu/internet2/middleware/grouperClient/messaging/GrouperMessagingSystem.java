@@ -37,6 +37,17 @@ public interface GrouperMessagingSystem {
   public GrouperMessageProcessedResult markAsProcessed(GrouperMessageProcessedParam grouperMessageProcessedParam);
 
   /**
+   * tell the messaging system that these messages werent processed and return to queue
+   * to be processed again.
+   * generally the message system will use the message id.  Note, the objects
+   * sent to this method must be the same that were received in the
+   * receiveMessages method
+   * @param grouperMessageReturnToQueueParam
+   * @return result
+   */
+  public GrouperMessageReturnToQueueResult returnToQueue(GrouperMessageReturnToQueueParam grouperMessageReturnToQueueParam);
+
+  /**
    * this will generally block until there are messages to process.  These messages
    * are ordered in the order that they were sent.
    * @param grouperMessageReceiveParam grouper messaging receive param

@@ -27,11 +27,10 @@ public class MessagingListenerPrint extends MessagingListenerBase {
    * @see edu.internet2.middleware.grouper.messaging.MessagingListenerBase#processMessages(java.lang.String, java.lang.String, java.util.Collection, edu.internet2.middleware.grouper.messaging.MessagingListenerMetadata)
    */
   @Override
-  public String processMessages(String messageSystemName, String queue,
+  public void processMessages(String messageSystemName, String queue,
       Collection<GrouperMessage> grouperMessageList,
       MessagingListenerMetadata messagingListenerMetadata) {
     
-    String lastIdProcessed = null;
     for (GrouperMessage grouperMessage : grouperMessageList) {
       try {
         
@@ -58,9 +57,7 @@ public class MessagingListenerPrint extends MessagingListenerBase {
         messagingListenerMetadata.registerProblem(e, "Problem in message: " + grouperMessage.getId(), grouperMessage.getId());
         break;
       }
-      lastIdProcessed = grouperMessage.getId();
     }
-    return lastIdProcessed;
   }
 
 }

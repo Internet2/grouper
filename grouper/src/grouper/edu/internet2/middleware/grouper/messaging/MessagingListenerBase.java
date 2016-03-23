@@ -36,9 +36,8 @@ public abstract class MessagingListenerBase {
    * @param queue
    * @param grouperMessageList  NOTE, DO NOT CHANGE OR EDIT THE OBJECTS IN THIS LIST, THEY MIGHT BE SHARED!
    * @param messagingListenerMetadata
-   * @return which message id it got up to (which id was the last one processed).  or null if none processed
    */
-  public abstract String processMessages(String messageSystemName, String queue, Collection<GrouperMessage> grouperMessageList, 
+  public abstract void processMessages(String messageSystemName, String queue, Collection<GrouperMessage> grouperMessageList, 
       MessagingListenerMetadata messagingListenerMetadata);
   
 }

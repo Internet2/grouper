@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
@@ -147,12 +146,11 @@ public class MessagingListenerController {
         }
         
         //pass this to the consumer
-        String lastIdProcessed = null;
         try {
-          lastIdProcessed = messagingListenerBase.processMessages(messagingSystemName, queue, grouperMessages, messagingListenerMetadata);
+          messagingListenerBase.processMessages(messagingSystemName, queue, grouperMessages, messagingListenerMetadata);
           
           if (LOG.isDebugEnabled()) {
-            debugMap.put(i + ": processed to ID", lastIdProcessed);
+            debugMap.put(i + ": has error?", messagingListenerMetadata.isHadProblem());
           }
 
         } catch (Exception e) {
@@ -166,7 +164,7 @@ public class MessagingListenerController {
           error = true;
         }
                 
-        if (messagingListenerMetadata.isHadProblem() || !StringUtils.equals(lastIdShouldBe, lastIdProcessed)) {
+        if (messagingListenerMetadata.isHadProblem()) {
           if (LOG.isDebugEnabled()) {
             debugMap.put(i + ": hadProblem", true + ", " + messagingListenerMetadata.getRecordProblemText());
           }
@@ -177,18 +175,6 @@ public class MessagingListenerController {
           LOG.error(errorString);
           hib3GrouploaderLog.appendJobMessage(errorString);
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-          error = true;
-          //find how many we processed
-          if (lastIdProcessed != null) {
-            int count = 0;
-            for (GrouperMessage grouperMessage : grouperMessages) {
-              count++;
-              if (!StringUtils.equals(lastIdProcessed, grouperMessage.getId())) {
-                hib3GrouploaderLog.addTotalCount(count);
-                break;
-              }
-            }
-          }
           error = true;
         } else {
 
