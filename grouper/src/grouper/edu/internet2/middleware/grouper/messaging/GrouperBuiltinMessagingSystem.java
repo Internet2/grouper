@@ -34,7 +34,12 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -46,12 +51,11 @@ import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReturnToQueueParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReturnToQueueResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
@@ -937,6 +941,14 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       throw new RuntimeException("This is not a queue or topic: '" + queueOrTopic + "'");
     }
 
+    if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.queue && !isQueue) {
+      throw new RuntimeException("expecting queue but is not queue: " + queueOrTopic);
+    }
+    
+    if (grouperMessageSendParam.getGrouperMessageQueueParam().getQueueType() == GrouperMessageQueueType.topic && !isTopic) {
+      throw new RuntimeException("expecting topic but is not topic: " + queueOrTopic);
+    }
+    
     Set<String> queues = null;
     if (isQueue) {
       if (!allowedToSendToQueue(queueOrTopic, grouperSession.getSubject(), false)) {
@@ -971,56 +983,6 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       }
     }
     return new GrouperMessageSendResult();
-  }
-
-  /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#markAsProcessed(edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedParam)
-   */
-  public GrouperMessageProcessedResult markAsProcessed(GrouperMessageProcessedParam grouperMessageProcessedParam) {
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
-
-    String queue = grouperMessageProcessedParam.getGrouperMessageQueueParam().getQueueOrTopic();
-
-    //must be queue
-    if (!retrieveCache().queueExists(queue)) {
-      throw new RuntimeException("Queue doesnt exist '" + queue + "'");
-    }
-    
-    boolean deleteOnProcessed = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.builtin.messaging.deleteProcessedMessagesMoreThanMinutesOld", 180) <= 0;
-    
-    if (!allowedToReceiveFromQueue(queue, grouperSession.getSubject(), false)) {
-      throw new RuntimeException(grouperSession.getSubject() + " is not allowed to receive (or mark as processed) from queue: '" + queue + "'");
-    }
-    
-    for (GrouperMessage grouperMessage : GrouperUtil.nonNull(grouperMessageProcessedParam.getGrouperMessages())) {
-
-      if (StringUtils.isBlank(grouperMessage.getId())) {
-        throw new RuntimeException("id cant be null in a message");
-      }
-      GrouperMessageHibernate grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findById(grouperMessage.getId(), false);
-
-      //if not there, i guess thats ok
-      if (grouperMessageHibernate != null && !StringUtils.equals(GrouperBuiltinMessageState.PROCESSED.name(), grouperMessageHibernate.getState())) {
-        
-        if (!StringUtils.equals(queue, grouperMessageHibernate.getQueueName())) {
-          throw new RuntimeException("Message to mark as processed: " + grouperMessageHibernate.getId() + ", expected queue: '" 
-              + queue + "', doesnt equal actual queue: '" + grouperMessageHibernate.getQueueName() + "'");
-        }
-        
-        if (deleteOnProcessed) {
-          grouperMessageHibernate.delete();
-        } else {
-          grouperMessageHibernate.setState(GrouperBuiltinMessageState.PROCESSED.name());
-          grouperMessageHibernate.setGetTimeMillis(System.currentTimeMillis());
-          grouperMessageHibernate.saveOrUpdate();
-        }
-      } else if (grouperMessageHibernate == null) {
-        LOG.warn("Grouper message doesnt exist, cant mark as processed: " + grouperMessage.getId());
-      } else {
-        LOG.warn("Grouper message was already processed: " + grouperMessage.getId());
-      }
-    }
-    return new GrouperMessageProcessedResult();
   }
 
   /**
@@ -1115,47 +1077,125 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
 
 
   /**
-   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#returnToQueue(GrouperMessageReturnToQueueParam)
+   * @see edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem#acknowledge(edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam)
    */
-  public GrouperMessageReturnToQueueResult returnToQueue(GrouperMessageReturnToQueueParam grouperMessageReturnToQueueParam) {
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
-  
-    String queue = grouperMessageReturnToQueueParam.getGrouperMessageQueueParam().getQueueOrTopic();
+  public GrouperMessageAcknowledgeResult acknowledge(
+      final GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
+    final GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+
+    String queue = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopic();
 
     //must be queue
     if (!retrieveCache().queueExists(queue)) {
       throw new RuntimeException("Queue doesnt exist '" + queue + "'");
     }
     
+    boolean deleteOnProcessed = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.builtin.messaging.deleteProcessedMessagesMoreThanMinutesOld", 180) <= 0;
+    
     if (!allowedToReceiveFromQueue(queue, grouperSession.getSubject(), false)) {
-      throw new RuntimeException(grouperSession.getSubject() + " is not allowed to receive (or mark as processed) from queue: '" + queue + "'");
+      throw new RuntimeException(grouperSession.getSubject() + " is not allowed to receive (or acknowledge) from queue: '" + queue + "'");
     }
     
-    for (GrouperMessage grouperMessage : GrouperUtil.nonNull(grouperMessageReturnToQueueParam.getGrouperMessages())) {
-  
+    for (GrouperMessage grouperMessage : GrouperUtil.nonNull(grouperMessageAcknowledgeParam.getGrouperMessages())) {
+
       if (StringUtils.isBlank(grouperMessage.getId())) {
         throw new RuntimeException("id cant be null in a message");
       }
-      
       GrouperMessageHibernate grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findById(grouperMessage.getId(), false);
 
-      if (!StringUtils.equals(queue, grouperMessageHibernate.getQueueName())) {
-        throw new RuntimeException("Message to return to queue: " + grouperMessageHibernate.getId() + ", expected queue: '" 
-            + queue + "', doesnt equal actual queue: '" + grouperMessageHibernate.getQueueName() + "'");
-      }
-      
-      //if it is get attempted, set it back
-      if (grouperMessageHibernate != null && StringUtils.equals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState())) {
-        grouperMessageHibernate.setState(GrouperBuiltinMessageState.IN_QUEUE.name());
-        grouperMessageHibernate.saveOrUpdate();
+      //if not there, i guess thats ok
+      if (grouperMessageHibernate != null) {
+        
+        if (!StringUtils.equals(queue, grouperMessageHibernate.getQueueName())) {
+          throw new RuntimeException("Message to mark as processed: " + grouperMessageHibernate.getId() + ", expected queue: '" 
+              + queue + "', doesnt equal actual queue: '" + grouperMessageHibernate.getQueueName() + "'");
+        }
+        switch(grouperMessageAcknowledgeParam.getAcknowledgeType()) {
+
+          case mark_as_processed:
+            
+            if (deleteOnProcessed) {
+              grouperMessageHibernate.delete();
+            } else if (StringUtils.equals(GrouperBuiltinMessageState.PROCESSED.name(), grouperMessageHibernate.getState())) {
+              LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
+            } else {
+              grouperMessageHibernate.setState(GrouperBuiltinMessageState.PROCESSED.name());
+              grouperMessageHibernate.setGetTimeMillis(System.currentTimeMillis());
+              grouperMessageHibernate.saveOrUpdate();
+            }
+
+            break;
+            
+          case return_to_queue:
+            
+            //if it is get attempted, set it back
+            if (StringUtils.equals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState())) {
+              grouperMessageHibernate.setState(GrouperBuiltinMessageState.IN_QUEUE.name());
+              grouperMessageHibernate.saveOrUpdate();
+            } else if (grouperMessageHibernate == null) {
+              //if not there, i guess thats ok
+              LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
+            } else {
+              LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
+            }
+            break;
+            
+          case return_to_end_of_queue:
+            
+            //if it is get attempted, set it back
+            if (StringUtils.equals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState())) {
+              grouperMessageHibernate.setState(GrouperBuiltinMessageState.IN_QUEUE.name());
+              grouperMessageHibernate.setSentTimeMicros(messageSentTimeMicros());
+              grouperMessageHibernate.saveOrUpdate();
+            } else if (grouperMessageHibernate == null) {
+              //if not there, i guess thats ok
+              LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
+            } else {
+              LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
+            }
+            break;
+            
+          case send_to_another_queue:
+
+            //if it is get attempted, set it back
+            if (StringUtils.equals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState())) {
+
+              LOG.warn("Sending message to another queue: " + grouperMessage.getId());
+
+              final GrouperMessageHibernate GROUPER_MESSAGE_HIBERNATE = grouperMessageHibernate;
+              
+              //this could be going to a topic, so send, and delete this one
+              HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                
+                public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                    throws GrouperDAOException {
+                  
+                  GrouperBuiltinMessagingSystem.this.send(new GrouperMessageSendParam().assignGrouperMessageQueueParam(
+                      grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam())
+                      .assignGrouperMessageSystemParam(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam())
+                      .addGrouperMessage(GROUPER_MESSAGE_HIBERNATE));
+                  
+                  GROUPER_MESSAGE_HIBERNATE.delete();
+                  
+                  return null;
+                }
+              });
+              
+            } else if (grouperMessageHibernate == null) {
+              //if not there, i guess thats ok
+              LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
+            } else {
+              LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
+            }
+            break;
+        }
       } else if (grouperMessageHibernate == null) {
-        //if not there, i guess thats ok
-        LOG.warn("Grouper message doesnt exist, cant return to queue: " + grouperMessage.getId());
+        LOG.warn("Grouper message doesnt exist, cant mark as processed: " + grouperMessage.getId());
       } else {
-        LOG.warn("Grouper message already had state: " + grouperMessageHibernate.getState());
+        LOG.warn("Grouper message was already processed: " + grouperMessage.getId());
       }
     }
-    return new GrouperMessageReturnToQueueResult();
+    return new GrouperMessageAcknowledgeResult();
   }
 
 }

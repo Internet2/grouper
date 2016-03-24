@@ -8,7 +8,8 @@ import java.util.Collection;
 
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 
 
@@ -49,7 +50,8 @@ public class MessagingListenerPrint extends MessagingListenerBase {
         }
         
         //mark it as processed
-        GrouperMessagingEngine.markAsProcessed(new GrouperMessageProcessedParam()
+        GrouperMessagingEngine.acknowledge(new GrouperMessageAcknowledgeParam()
+          .assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed)
           .assignQueue(queue).assignGropuerMessageSystemName(messageSystemName)
           .addGrouperMessage(grouperMessage));
         

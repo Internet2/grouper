@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -40,6 +41,10 @@ public class GrouperMessagingEngine {
     
     if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
       throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
+    }
+
+    if (grouperMessageQueueParam.getQueueType() == null) {
+      throw new RuntimeException("You must specify a queue type in grouperMessageQueueConfig");
     }
 
     for (GrouperMessage grouperMessage : grouperMessages) {
@@ -119,6 +124,10 @@ public class GrouperMessagingEngine {
       throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
     }
 
+    if (grouperMessageQueueParam.getQueueType() != null && grouperMessageQueueParam.getQueueType() != GrouperMessageQueueType.queue) {
+      throw new RuntimeException("Can only receive messages from queues");
+    }
+
     GrouperMessagingSystem grouperMessagingSystem = retrieveGrouperMessageSystem(grouperMessageSystemName);
     
     return grouperMessagingSystem.receive(grouperMessageReceiveParam);
@@ -126,25 +135,45 @@ public class GrouperMessagingEngine {
   }
   
   /**
-   * mark messages that we received and processed
-   * @param grouperMessageProcessedParam
+   * mark messages that we received and processed, or return to queue, or whatever
+   * @param grouperMessageAcknowledgeParam
    * @return result
    */
-  public static GrouperMessageProcessedResult markAsProcessed(GrouperMessageProcessedParam grouperMessageProcessedParam) {
-   Collection<GrouperMessage> grouperMessages = grouperMessageProcessedParam.getGrouperMessages();
+  public static GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
+   Collection<GrouperMessage> grouperMessages = grouperMessageAcknowledgeParam.getGrouperMessages();
     
     if (GrouperClientUtils.length(grouperMessages) == 0) {
       throw new NullPointerException("Why no messages to send?");
     }
     
-    String grouperMessageSystemName = retrieveGrouperMessageSystemName(grouperMessageProcessedParam.getGrouperMessageSystemParam());
+    String grouperMessageSystemName = retrieveGrouperMessageSystemName(grouperMessageAcknowledgeParam.getGrouperMessageSystemParam());
 
-    GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageProcessedParam.getGrouperMessageQueueParam();
+    GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam();
     
     if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
       throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
     }
-
+    
+    if (grouperMessageQueueParam.getQueueType() != null && grouperMessageQueueParam.getQueueType() != GrouperMessageQueueType.queue) {
+      throw new RuntimeException("Can only acknowledge messages from queues");
+    }
+    
+    if (grouperMessageAcknowledgeParam.getAcknowledgeType() == null) {
+      throw new RuntimeException("AcknowledgeType is required!");
+    }
+    
+    if (grouperMessageAcknowledgeParam.getAcknowledgeType() == GrouperMessageAcknowledgeType.send_to_another_queue) {
+      if (grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam() == null) {
+        throw new RuntimeException("If sending to another queue or topic you need to specify which one");
+      }
+      if (StringUtils.isBlank(grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam().getQueueOrTopic())) {
+        throw new RuntimeException("If sending to another queue or topic you need to specify the name");
+      }
+      if (grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam().getQueueType() == null) {
+        throw new RuntimeException("If sending to another queue or topic you need to specify the type");
+      }
+    }
+    
     for (GrouperMessage grouperMessage : grouperMessages) {
       
       if (grouperMessage == null) {
@@ -155,41 +184,7 @@ public class GrouperMessagingEngine {
     
     GrouperMessagingSystem grouperMessagingSystem = retrieveGrouperMessageSystem(grouperMessageSystemName);
 
-    return grouperMessagingSystem.markAsProcessed(grouperMessageProcessedParam);
-    
-  }
-  
-  /**
-   * mark messages that we received and processed
-   * @param grouperMessageReturnToQueueParam
-   * @return result
-   */
-  public static GrouperMessageReturnToQueueResult returnToQueue(GrouperMessageReturnToQueueParam grouperMessageReturnToQueueParam) {
-   Collection<GrouperMessage> grouperMessages = grouperMessageReturnToQueueParam.getGrouperMessages();
-
-    if (GrouperClientUtils.length(grouperMessages) == 0) {
-      throw new NullPointerException("Why no messages to return to queue?");
-    }
-    
-    String grouperMessageSystemName = retrieveGrouperMessageSystemName(grouperMessageReturnToQueueParam.getGrouperMessageSystemParam());
-
-    GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageReturnToQueueParam.getGrouperMessageQueueParam();
-    
-    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
-      throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
-    }
-
-    for (GrouperMessage grouperMessage : grouperMessages) {
-      
-      if (grouperMessage == null) {
-        throw new RuntimeException("grouperMessage is null");
-      }
-      
-    }
-    
-    GrouperMessagingSystem grouperMessagingSystem = retrieveGrouperMessageSystem(grouperMessageSystemName);
-
-    return grouperMessagingSystem.returnToQueue(grouperMessageReturnToQueueParam);
+    return grouperMessagingSystem.acknowledge(grouperMessageAcknowledgeParam);
     
   }
   

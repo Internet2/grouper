@@ -72,7 +72,20 @@ public class GrouperMessageSendParam {
     return this;
   }
   
-  
+  /**
+   * assign if queue or topic
+   * @param grouperMessageQueueType
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignQueueType(GrouperMessageQueueType grouperMessageQueueType) {
+    if (this.grouperMessageQueueParam == null) {
+      this.grouperMessageQueueParam = new GrouperMessageQueueParam();
+    }
+    this.grouperMessageQueueParam.assignQueueType(grouperMessageQueueType);
+    return this;
+  }
+
+
   /**
    * message body for the message
    */

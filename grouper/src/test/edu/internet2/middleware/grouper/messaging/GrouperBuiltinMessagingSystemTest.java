@@ -15,11 +15,12 @@ import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem.
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageProcessedResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReturnToQueueParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
@@ -125,7 +126,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
         
     GrouperMessageSendResult grouperMessageSendResult = GrouperMessagingEngine.send(
-        new GrouperMessageSendParam()
+        new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
           .assignQueueOrTopic("abc").addMessageBody("message body"));
 
     Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
@@ -163,8 +164,9 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     assertNotNull(grouperMessageHibernate);
 
     //lets mark as processed
-    GrouperMessageProcessedResult grouperMessageProcessedResult = GrouperMessagingEngine.markAsProcessed(new GrouperMessageProcessedParam().assignQueue("abc").addGrouperMessage(grouperMessage));
-    
+    GrouperMessageAcknowledgeResult grouperMessageProcessedResult = GrouperMessagingEngine.acknowledge(
+        new GrouperMessageAcknowledgeParam().assignAcknowledgeType(
+            GrouperMessageAcknowledgeType.mark_as_processed).assignQueue("abc").addGrouperMessage(grouperMessage));
     
     assertEquals(0, GrouperBuiltinMessagingSystem.cleanOldProcessedMessages());
     assertEquals(0 ,GrouperBuiltinMessagingSystem.cleanOldUnprocessedMessages());
@@ -184,7 +186,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     
     //make another message which is just old
     grouperMessageSendResult = GrouperMessagingEngine.send(
-        new GrouperMessageSendParam()
+        new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
           .assignQueueOrTopic("abc").addMessageBody("message body"));
 
     grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(member.getId()).iterator().next();
@@ -201,7 +203,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     
     //send a message
     grouperMessageSendResult = GrouperMessagingEngine.send(
-        new GrouperMessageSendParam()
+        new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
           .assignQueueOrTopic("abc").addMessageBody("message body"));
     
     //receive it
@@ -221,7 +223,9 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     assertEquals(0, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
     
     //put it back on the queue
-    GrouperMessagingEngine.returnToQueue(new GrouperMessageReturnToQueueParam().assignQueue("abc").addGrouperMessage(grouperMessage));
+    grouperMessageProcessedResult = GrouperMessagingEngine.acknowledge(
+        new GrouperMessageAcknowledgeParam().assignAcknowledgeType(
+            GrouperMessageAcknowledgeType.return_to_queue).assignQueue("abc").addGrouperMessage(grouperMessage));
 
     //receive it
     grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
@@ -234,7 +238,9 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     
     assertEquals(GrouperBuiltinMessageState.GET_ATTEMPTED.name(), grouperMessageHibernate.getState());
 
-    grouperMessageProcessedResult = GrouperMessagingEngine.markAsProcessed(new GrouperMessageProcessedParam().assignQueue("abc").addGrouperMessage(grouperMessage));
+    grouperMessageProcessedResult = GrouperMessagingEngine.acknowledge(
+        new GrouperMessageAcknowledgeParam().assignAcknowledgeType(
+            GrouperMessageAcknowledgeType.mark_as_processed).assignQueue("abc").addGrouperMessage(grouperMessage));
 
     grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
     
@@ -256,7 +262,8 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
 
     
     GrouperMessagingEngine.send(
-        new GrouperMessageSendParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
+        new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
+          .assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
           .assignQueueOrTopic("abc").addMessageBody("message body"));
 
     

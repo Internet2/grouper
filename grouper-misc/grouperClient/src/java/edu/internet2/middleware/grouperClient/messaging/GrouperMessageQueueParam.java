@@ -17,6 +17,29 @@ public class GrouperMessageQueueParam {
   }
 
   /**
+   * queue type: queue or topic
+   */
+  private GrouperMessageQueueType queueType;
+  
+  /**
+   * assign the queue type
+   * @param theGrouperMessageQueueType
+   * @return this for chaining
+   */
+  public GrouperMessageQueueParam assignQueueType(GrouperMessageQueueType theGrouperMessageQueueType) {
+    this.queueType = theGrouperMessageQueueType;
+    return this;
+  }
+  
+  /**
+   * assign the queue type
+   * @return the queueType
+   */
+  public GrouperMessageQueueType getQueueType() {
+    return this.queueType;
+  }
+
+  /**
    * queue or topic name
    */
   private String queueOrTopic;
