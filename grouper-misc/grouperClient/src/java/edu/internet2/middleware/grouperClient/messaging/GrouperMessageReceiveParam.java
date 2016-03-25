@@ -115,7 +115,7 @@ public class GrouperMessageReceiveParam {
     if (this.grouperMessageQueueParam == null) {
       this.grouperMessageQueueParam = new GrouperMessageQueueParam();
     }
-    this.grouperMessageQueueParam.assignQueueOrTopic(theQueue);
+    this.grouperMessageQueueParam.assignQueueOrTopicName(theQueue);
     return this;
   }
 

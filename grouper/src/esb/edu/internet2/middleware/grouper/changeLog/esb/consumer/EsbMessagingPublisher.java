@@ -51,7 +51,7 @@ public class EsbMessagingPublisher extends EsbListenerBase {
             + consumerName + ".publisher.queueOrTopic");
     GrouperMessagingEngine.send(new GrouperMessageSendParam()
         .assignGrouperMessageSystemName(messagingSystemName)
-        .addMessageBody(eventJsonString).assignQueueOrTopic(queueOrTopic));
+        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopic));
     return true;
   }
 

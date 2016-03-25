@@ -61,14 +61,14 @@ public class GrouperMessageSendParam {
 
   /**
    * assign queue or topic to send the message to
-   * @param theQueueOrTopic
+   * @param theQueueOrTopicName
    * @return this for chaining
    */
-  public GrouperMessageSendParam assignQueueOrTopic(String theQueueOrTopic) {
+  public GrouperMessageSendParam assignQueueOrTopicName(String theQueueOrTopicName) {
     if (this.grouperMessageQueueParam == null) {
       this.grouperMessageQueueParam = new GrouperMessageQueueParam();
     }
-    this.grouperMessageQueueParam.assignQueueOrTopic(theQueueOrTopic);
+    this.grouperMessageQueueParam.assignQueueOrTopicName(theQueueOrTopicName);
     return this;
   }
   

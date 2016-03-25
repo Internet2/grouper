@@ -52,7 +52,7 @@ public class MessagingListenerPrint extends MessagingListenerBase {
         //mark it as processed
         GrouperMessagingEngine.acknowledge(new GrouperMessageAcknowledgeParam()
           .assignAcknowledgeType(GrouperMessageAcknowledgeType.mark_as_processed)
-          .assignQueue(queue).assignGropuerMessageSystemName(messageSystemName)
+          .assignQueueName(queue).assignGropuerMessageSystemName(messageSystemName)
           .addGrouperMessage(grouperMessage));
         
       } catch (Exception e) {

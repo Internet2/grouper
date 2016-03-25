@@ -34,6 +34,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
   /**
    * 
    * @param args
+   * @throws Exception 
    */
   public static void main(String[] args) throws Exception {
     TestRunner.run(new GrouperBuiltinMessagingSystemTest("testCleanMessages"));
@@ -127,7 +128,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
         
     GrouperMessageSendResult grouperMessageSendResult = GrouperMessagingEngine.send(
         new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
-          .assignQueueOrTopic("abc").addMessageBody("message body"));
+          .assignQueueOrTopicName("abc").addMessageBody("message body"));
 
     Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     
@@ -166,7 +167,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     //lets mark as processed
     GrouperMessageAcknowledgeResult grouperMessageProcessedResult = GrouperMessagingEngine.acknowledge(
         new GrouperMessageAcknowledgeParam().assignAcknowledgeType(
-            GrouperMessageAcknowledgeType.mark_as_processed).assignQueue("abc").addGrouperMessage(grouperMessage));
+            GrouperMessageAcknowledgeType.mark_as_processed).assignQueueName("abc").addGrouperMessage(grouperMessage));
     
     assertEquals(0, GrouperBuiltinMessagingSystem.cleanOldProcessedMessages());
     assertEquals(0 ,GrouperBuiltinMessagingSystem.cleanOldUnprocessedMessages());
@@ -187,7 +188,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     //make another message which is just old
     grouperMessageSendResult = GrouperMessagingEngine.send(
         new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
-          .assignQueueOrTopic("abc").addMessageBody("message body"));
+          .assignQueueOrTopicName("abc").addMessageBody("message body"));
 
     grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(member.getId()).iterator().next();
 
@@ -204,7 +205,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     //send a message
     grouperMessageSendResult = GrouperMessagingEngine.send(
         new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
-          .assignQueueOrTopic("abc").addMessageBody("message body"));
+          .assignQueueOrTopicName("abc").addMessageBody("message body"));
     
     //receive it
     grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
@@ -225,7 +226,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     //put it back on the queue
     grouperMessageProcessedResult = GrouperMessagingEngine.acknowledge(
         new GrouperMessageAcknowledgeParam().assignAcknowledgeType(
-            GrouperMessageAcknowledgeType.return_to_queue).assignQueue("abc").addGrouperMessage(grouperMessage));
+            GrouperMessageAcknowledgeType.return_to_queue).assignQueueName("abc").addGrouperMessage(grouperMessage));
 
     //receive it
     grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
@@ -240,7 +241,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
 
     grouperMessageProcessedResult = GrouperMessagingEngine.acknowledge(
         new GrouperMessageAcknowledgeParam().assignAcknowledgeType(
-            GrouperMessageAcknowledgeType.mark_as_processed).assignQueue("abc").addGrouperMessage(grouperMessage));
+            GrouperMessageAcknowledgeType.mark_as_processed).assignQueueName("abc").addGrouperMessage(grouperMessage));
 
     grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
     
@@ -264,7 +265,7 @@ public class GrouperBuiltinMessagingSystemTest extends GrouperTest {
     GrouperMessagingEngine.send(
         new GrouperMessageSendParam().assignQueueType(GrouperMessageQueueType.queue)
           .assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-          .assignQueueOrTopic("abc").addMessageBody("message body"));
+          .assignQueueOrTopicName("abc").addMessageBody("message body"));
 
     
     

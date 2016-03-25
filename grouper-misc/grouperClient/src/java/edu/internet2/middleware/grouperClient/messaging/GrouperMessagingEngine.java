@@ -39,7 +39,7 @@ public class GrouperMessagingEngine {
 
     GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageSendParam.getGrouperMessageQueueParam();
     
-    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
+    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopicName())) {
       throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
     }
 
@@ -120,7 +120,7 @@ public class GrouperMessagingEngine {
 
     GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageReceiveParam.getGrouperMessageQueueParam();
     
-    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
+    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopicName())) {
       throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
     }
 
@@ -150,7 +150,7 @@ public class GrouperMessagingEngine {
 
     GrouperMessageQueueParam grouperMessageQueueParam = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam();
     
-    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopic())) {
+    if (grouperMessageQueueParam == null || GrouperClientUtils.isBlank(grouperMessageQueueParam.getQueueOrTopicName())) {
       throw new RuntimeException("You must specify a queue or topic in grouperMessageQueueConfig");
     }
     
@@ -166,7 +166,7 @@ public class GrouperMessagingEngine {
       if (grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam() == null) {
         throw new RuntimeException("If sending to another queue or topic you need to specify which one");
       }
-      if (StringUtils.isBlank(grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam().getQueueOrTopic())) {
+      if (StringUtils.isBlank(grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam().getQueueOrTopicName())) {
         throw new RuntimeException("If sending to another queue or topic you need to specify the name");
       }
       if (grouperMessageAcknowledgeParam.getGrouperMessageAnotherQueueParam().getQueueType() == null) {

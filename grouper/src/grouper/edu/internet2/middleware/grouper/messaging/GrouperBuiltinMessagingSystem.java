@@ -930,7 +930,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
     Member fromMember = grouperSession.getMember();
 
-    String queueOrTopic = grouperMessageSendParam.getGrouperMessageQueueParam().getQueueOrTopic();
+    String queueOrTopic = grouperMessageSendParam.getGrouperMessageQueueParam().getQueueOrTopicName();
     
     GrouperBuiltinMessagingCache grouperMessagingCache = retrieveCache();
 
@@ -1013,7 +1013,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
 
-    String queueOrTopic = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopic();
+    String queueOrTopic = grouperMessageReceiveParam.getGrouperMessageQueueParam().getQueueOrTopicName();
 
     //must be queue
     if (!retrieveCache().queueExists(queueOrTopic)) {
@@ -1083,7 +1083,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       final GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam) {
     final GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
 
-    String queue = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopic();
+    String queue = grouperMessageAcknowledgeParam.getGrouperMessageQueueParam().getQueueOrTopicName();
 
     //must be queue
     if (!retrieveCache().queueExists(queue)) {

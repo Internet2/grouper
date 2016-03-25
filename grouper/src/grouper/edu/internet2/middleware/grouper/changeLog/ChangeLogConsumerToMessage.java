@@ -44,7 +44,7 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
 
       try {
         String json = changeLogEntry.toJson(true);
-        GrouperMessagingEngine.send(new GrouperMessageSendParam().assignGrouperMessageSystemName(messagingSystemName).assignQueueOrTopic(queueOrTopic).addMessageBody(json));
+        GrouperMessagingEngine.send(new GrouperMessageSendParam().assignGrouperMessageSystemName(messagingSystemName).assignQueueOrTopicName(queueOrTopic).addMessageBody(json));
         lastProcessed = changeLogEntry.getSequenceNumber();
       } catch (Exception e) {
         LOG.error("Error processing event: " + changeLogEntry.getId(), e);

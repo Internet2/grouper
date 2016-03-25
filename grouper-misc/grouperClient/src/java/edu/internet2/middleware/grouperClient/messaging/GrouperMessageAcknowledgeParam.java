@@ -148,11 +148,11 @@ public class GrouperMessageAcknowledgeParam {
    * @param theQueue
    * @return this for chaining
    */
-  public GrouperMessageAcknowledgeParam assignQueue(String theQueue) {
+  public GrouperMessageAcknowledgeParam assignQueueName(String theQueue) {
     if (this.grouperMessageQueueParam == null) {
       this.grouperMessageQueueParam = new GrouperMessageQueueParam();
     }
-    this.grouperMessageQueueParam.assignQueueOrTopic(theQueue);
+    this.grouperMessageQueueParam.assignQueueOrTopicName(theQueue);
     return this;
   }
 
