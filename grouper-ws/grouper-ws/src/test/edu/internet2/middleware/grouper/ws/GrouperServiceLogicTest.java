@@ -70,6 +70,8 @@ import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.messaging.GrouperMessageHibernate;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -150,6 +152,9 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults.WsHasMemb
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembership;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessage;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults.WsMessageResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionAssign;
 import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
@@ -164,6 +169,12 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelati
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -194,7 +205,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testFindAttributeDefs"));
+    TestRunner.run(new GrouperServiceLogicTest("testReceiveMessages"));
   }
 
   /**
@@ -9664,6 +9675,113 @@ public class GrouperServiceLogicTest extends GrouperTest {
         wsAttributeDefSaveResults.getResults()[1].getResultMetadata().getResultCode());
 
   }
+  
+  /**
+   * test send messages
+   */
+  public void testSendMessages() {
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.name", "grouperBuiltinMessaging");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.class","edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem");
+    
+    GrouperBuiltinMessagingSystem.createQueue("abc");
+    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
+
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    WsMessage wsMessage = new WsMessage();
+    wsMessage.setMessageBody("test message body");
+    
+    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+   
+    // happy path
+    WsMessageResults wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, "abc", null, new WsMessage[] {wsMessage}, actAsSubjectLookup, null);
+
+    assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
+            WsMessageResultsCode.SUCCESS.name(), 
+            wsMessageResults.getResultMetadata().getResultCode());
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    GrouperMessageHibernate grouperMessageHibernate = GrouperDAOFactory.getFactory().getMessage().findByFromMemberId(member.getId()).iterator().next();
+    
+    assertNotNull(grouperMessageHibernate);
+    
+    // null/blank queueTopicName not allowed
+    wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, null, null, new WsMessage[] {wsMessage}, actAsSubjectLookup, null);
+    assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(), 
+        wsMessageResults.getResultMetadata().getResultCode());
+  
+    // there has to be at least one message
+    wsMessageResults = GrouperServiceLogic.sendMessage(GROUPER_VERSION, GrouperMessageQueueType.queue, "abc", null, new WsMessage[] {}, actAsSubjectLookup, null);
+    assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(), 
+        wsMessageResults.getResultMetadata().getResultCode());
+    
+  }
+  
+  /**
+   * test receive messages 
+   */
+  public void testReceiveMessages() {
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.name", "grouperBuiltinMessaging");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.class","edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem");
+    
+    GrouperBuiltinMessagingSystem.createQueue("abc");
+    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ1);
+
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+        
+    GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
+        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+    
+    
+    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
+    // happy path
+    GrouperSession.start(SubjectTestHelper.SUBJ1);
+    WsMessageResults wsMessageResults = GrouperServiceLogic.receiveMessage(GROUPER_VERSION, "abc", null, 0, 10, actAsSubjectLookup, null);
+    assertTrue("test", wsMessageResults.getMessages().length > 0);
+    
+    // null/blank queueTopicName not allowed
+    wsMessageResults = GrouperServiceLogic.receiveMessage(GROUPER_VERSION, null, null, 0, 10, actAsSubjectLookup, null);
+    assertEquals(wsMessageResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(), 
+        wsMessageResults.getResultMetadata().getResultCode());
+    
+  }
+  
+  /**
+   * test mark acknowledge messages
+   */
+//  public void testAcknowledgeMessages() {
+//    
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.name", "grouperBuiltinMessaging");
+//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.class","edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem");
+//    
+//    GrouperBuiltinMessagingSystem.createQueue("abc");
+//    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+//    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
+//
+//    GrouperMessageSendResult grouperMessageSendResult = GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
+//        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+//
+//    GrouperSession.start(SubjectTestHelper.SUBJ0);
+//    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+//    
+//    GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, GrouperMessageAcknowledgeType.mark_as_processed,
+//        new String[] {}, null, null, actAsSubjectLookup, null);
+//    
+//  }
     
     
 }

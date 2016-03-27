@@ -69,8 +69,11 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
@@ -122,6 +125,9 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubject
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestMessageAcknowledgeRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestReceiveMessageRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
@@ -135,6 +141,7 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 
 /**
  * consolidated static list of of rest web services (only web service methods here
@@ -2448,4 +2455,93 @@ public class GrouperServiceRest {
         
     return wsAssignAttributesBatchResults;
   }
+  
+  /**
+   * send message(s)
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestSendMessageRequest 
+   * @return the messages sent
+   */
+  public static WsMessageResults sendMessage(GrouperVersion clientVersion,
+      WsRestSendMessageRequest wsRestSendMessageRequest) {
+
+    //cant be null
+    wsRestSendMessageRequest = wsRestSendMessageRequest == null
+        ? new WsRestSendMessageRequest() : wsRestSendMessageRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestSendMessageRequest.getClientVersion()),
+        false, "clientVersion");
+
+    WsMessageResults wsSendMessageResults = new GrouperService(false).sendMessage(
+        clientVersionString, wsRestSendMessageRequest.getQueueOrTopic(),
+        wsRestSendMessageRequest.getQueueOrTopicName(),
+        wsRestSendMessageRequest.getMessageSystemName(),
+        wsRestSendMessageRequest.getMessages(),
+        wsRestSendMessageRequest.getActAsSubjectLookup(),
+        wsRestSendMessageRequest.getParams());
+
+    return wsSendMessageResults;
+  }
+
+  /**
+   * receive message(s)
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestReceiveMessageRequest 
+   * @return the messages received
+   */
+  public static WsMessageResults receiveMessage(GrouperVersion clientVersion,
+      WsRestReceiveMessageRequest wsRestReceiveMessageRequest) {
+
+    //cant be null
+    wsRestReceiveMessageRequest = wsRestReceiveMessageRequest == null
+        ? new WsRestReceiveMessageRequest() : wsRestReceiveMessageRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestReceiveMessageRequest.getClientVersion()),
+        false, "clientVersion");
+
+    WsMessageResults wsSendMessageResults = new GrouperService(false).receiveMessage(
+        clientVersionString, wsRestReceiveMessageRequest.getQueueOrTopicName(),
+        wsRestReceiveMessageRequest.getMessageSystemName(),
+        wsRestReceiveMessageRequest.getBlockMillis(),
+        wsRestReceiveMessageRequest.getMaxMessagesToReceiveAtOnce(),
+        wsRestReceiveMessageRequest.getActAsSubjectLookup(),
+        wsRestReceiveMessageRequest.getParams());
+
+    return wsSendMessageResults;
+  }
+
+  /**
+   * acknowledge message(s)
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsRestMessageAcknowledgeRequest 
+   * @return the processed messages
+   */
+  public static WsMessageAcknowledgeResults acknowledgeMessages(
+      GrouperVersion clientVersion,
+      WsRestMessageAcknowledgeRequest wsRestMessageAcknowledgeRequest) {
+
+    //cant be null
+    wsRestMessageAcknowledgeRequest = wsRestMessageAcknowledgeRequest == null
+        ? new WsRestMessageAcknowledgeRequest() : wsRestMessageAcknowledgeRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(
+            wsRestMessageAcknowledgeRequest.getClientVersion()),
+        false, "clientVersion");
+
+    WsMessageAcknowledgeResults results = new GrouperService(false).acknowledge(
+        clientVersionString, wsRestMessageAcknowledgeRequest.getQueueOrTopicName(),
+        wsRestMessageAcknowledgeRequest.getMessageSystemName(),
+        wsRestMessageAcknowledgeRequest.getAcknowledgeType(),
+        wsRestMessageAcknowledgeRequest.getMessageIds(),
+        wsRestMessageAcknowledgeRequest.getAnotherQueueOrTopicName(),
+        wsRestMessageAcknowledgeRequest.getAnotherQueueOrTopic(),
+        wsRestMessageAcknowledgeRequest.getActAsSubjectLookup(),
+        wsRestMessageAcknowledgeRequest.getParams());
+
+    return results;
+  }
+  
 }

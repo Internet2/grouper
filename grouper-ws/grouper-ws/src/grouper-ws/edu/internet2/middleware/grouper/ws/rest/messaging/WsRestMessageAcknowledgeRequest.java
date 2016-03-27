@@ -1,0 +1,207 @@
+/*******************************************************************************
+ * Copyright 2016 Internet2
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+/**
+ * @author vsachdeva
+ * $Id$
+ */
+package edu.internet2.middleware.grouper.ws.rest.messaging;
+
+import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
+import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+
+
+/**
+ * request bean in body of rest request
+ */
+public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
+  
+  
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
+   */
+  @Override
+  public GrouperRestHttpMethod retrieveRestHttpMethod() {
+    return GrouperRestHttpMethod.PUT;
+  }
+  
+  /** queue or topic name **/
+  private String queueOrTopicName;
+  
+  /** messaging system name **/
+  private String messageSystemName;
+  
+  /** what to do with the message. valid options are: MARK_AS_PROCESSED, RETURN_TO_QUEUE, RETURN_TO_END_OF_QUEUE,  SEND_TO_ANOTHER_TOPIC_OR_QUEUE **/
+  private String acknowledgeType;
+  
+  /** messages to be marked as processed **/
+  private String[] messageIds;
+  
+  /** destination of the message if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE **/
+  private String anotherQueueOrTopicName;
+  
+  /** destination type if acknowledge type is SEND_TO_ANOTHER_TOPIC_OR_QUEUE. Valid values are QUEUE and TOPIC**/
+  private String anotherQueueOrTopic;
+  
+  /**
+   * @return the messages to be marked as processed
+   */
+  public String[] getMessageIds() {
+    return this.messageIds;
+  }
+
+  /**
+   * @param messageIds1 to be marked as processed
+   */
+  public void setMessageIds(String[] messageIds1) {
+    this.messageIds = messageIds1;
+  }
+  
+  /** 
+   * @return queueOrTopicName
+   */
+  public String getQueueOrTopicName() {
+    return this.queueOrTopicName;
+  }
+
+  /**
+   * @param queueOrTopicName1
+   */
+  public void setQueueOrTopicName(String queueOrTopicName1) {
+    this.queueOrTopicName = queueOrTopicName1;
+  }
+
+  /**
+   * @return messageSystemName
+   */
+  public String getMessageSystemName() {
+    return this.messageSystemName;
+  }
+
+  /**
+   * @param messageSystemName1
+   */
+  public void setMessageSystemName(String messageSystemName1) {
+    this.messageSystemName = messageSystemName1;
+  }
+  
+  /** 
+   *  what to do with the message. valid options are: MARK_AS_PROCESSED, RETURN_TO_QUEUE, RETURN_TO_END_OF_QUEUE,  SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @return acknowledgeType
+   */
+  public String getAcknowledgeType() {
+    return this.acknowledgeType;
+  }
+
+  /**
+   *  what to do with the message. valid options are: MARK_AS_PROCESSED, RETURN_TO_QUEUE, RETURN_TO_END_OF_QUEUE,  SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @param acknowledgeType1
+   */
+  public void setAcknowledgeType(String acknowledgeType1) {
+    this.acknowledgeType = acknowledgeType1;
+  }
+
+  /**
+   * destination of the message if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @return anotherQueueOrTopicName
+   */
+  public String getAnotherQueueOrTopicName() {
+    return this.anotherQueueOrTopicName;
+  }
+
+  /**
+   * destination of the message if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @param anotherQueueOrTopicName1
+   */
+  public void setAnotherQueueOrTopicName(String anotherQueueOrTopicName1) {
+    this.anotherQueueOrTopicName = anotherQueueOrTopicName1;
+  }
+
+  /**
+   * destination type if acknowledge type is SEND_TO_ANOTHER_TOPIC_OR_QUEUE. Valid values are QUEUE and TOPIC
+   * @return anotherQueueOrTopic
+   */
+  public String getAnotherQueueOrTopic() {
+    return this.anotherQueueOrTopic;
+  }
+
+  /**
+   * destination type if acknowledge type is SEND_TO_ANOTHER_TOPIC_OR_QUEUE. Valid values are QUEUE and TOPIC
+   * @param anotherQueueOrTopic1
+   */
+  public void setAnotherQueueOrTopic(String anotherQueueOrTopic1) {
+    this.anotherQueueOrTopic = anotherQueueOrTopic1;
+  }
+
+  /** is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
+  private String clientVersion;
+  
+  /**
+   * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @return version
+   */
+  public String getClientVersion() {
+    return this.clientVersion;
+  }
+
+  /**
+   * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param clientVersion1
+   */
+  public void setClientVersion(String clientVersion1) {
+    this.clientVersion = clientVersion1;
+  }
+
+  /** if acting as someone else */
+  private WsSubjectLookup actAsSubjectLookup;
+  
+  /**
+   * if acting as someone else
+   * @return act as subject
+   */
+  public WsSubjectLookup getActAsSubjectLookup() {
+    return this.actAsSubjectLookup;
+  }
+
+  /**
+   * if acting as someone else
+   * @param actAsSubjectLookup1
+   */
+  public void setActAsSubjectLookup(WsSubjectLookup actAsSubjectLookup1) {
+    this.actAsSubjectLookup = actAsSubjectLookup1;
+  }
+
+  /** optional: reserved for future use */
+  private  WsParam[] params;
+
+  /**
+   * optional: reserved for future use
+   * @return params
+   */
+  public WsParam[] getParams() {
+    return this.params;
+  }
+
+  /**
+   * optional: reserved for future use
+   * @param params1
+   */
+  public void setParams(WsParam[] params1) {
+    this.params = params1;
+  }
+
+}

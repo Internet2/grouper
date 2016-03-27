@@ -54,6 +54,8 @@ import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelation;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 
 /**
  * <pre>
@@ -4913,6 +4915,119 @@ public class GrouperService {
     //this should be the first and only return, or else it is exiting too early
     return wsFindAttributeDefNamesResults; 
 
+  }
+  
+  /**
+   * @param clientVersion
+   * @param queueType - queue or topic (required)
+   * @param queueOrTopicName
+   * @param messageSystemName
+   * @param messages
+   * @param actAsSubjectLookup
+   * @param params
+   * @return the results of message send call
+   */
+  public WsMessageResults sendMessage(final String clientVersion,
+      String queueType, String queueOrTopicName, String messageSystemName,
+      WsMessage[] messages,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+
+    WsMessageResults wsSendMessageResults = new WsMessageResults();
+
+    GrouperVersion grouperWsVersion = null;
+
+    try {
+
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      GrouperMessageQueueType messageQueueType = GrouperMessageQueueType
+          .valueOfIgnoreCase(queueType, true);
+
+      wsSendMessageResults = GrouperServiceLogic.sendMessage(grouperWsVersion,
+          messageQueueType,
+          queueOrTopicName, messageSystemName, messages, actAsSubjectLookup, params);
+
+    } catch (Exception e) {
+      wsSendMessageResults.assignResultCodeException(null, null, e);
+    }
+    return wsSendMessageResults;
+  }
+
+  /**
+   * @param clientVersion
+   * @param queueOrTopicName
+   * @param messageSystemName
+   * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)
+   * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)
+   * @param actAsSubjectLookup
+   * @param params
+   * @return the results of message receive call
+   */
+  public WsMessageResults receiveMessage(final String clientVersion,
+      String queueOrTopicName, String messageSystemName,
+      final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+
+    WsMessageResults wsReceiveMessageResults = new WsMessageResults();
+
+    GrouperVersion grouperWsVersion = null;
+
+    try {
+
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      wsReceiveMessageResults = GrouperServiceLogic.receiveMessage(grouperWsVersion,
+          queueOrTopicName, messageSystemName,
+          blockMillis, maxMessagesToReceiveAtOnce, actAsSubjectLookup, params);
+
+    } catch (Exception e) {
+      wsReceiveMessageResults.assignResultCodeException(null, null, e);
+    }
+    return wsReceiveMessageResults;
+  }
+
+  /**
+   * @param clientVersion
+   * @param queueOrTopicName
+   * @param messageSystemName
+   * @param acknowledgeType specify what to do with the messages (required)
+   * @param messageIds - messageIds to be marked as processed (required)
+   * @param anotherQueueOrTopicName - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @param anotherQueueType - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @param actAsSubjectLookup
+   * @param params
+   * @return the results of message receive call
+   */
+  public WsMessageAcknowledgeResults acknowledge(final String clientVersion,
+      String queueOrTopicName, String messageSystemName, String acknowledgeType,
+      String[] messageIds, String anotherQueueOrTopicName, String anotherQueueType,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+
+    WsMessageAcknowledgeResults wsMessageResults = new WsMessageAcknowledgeResults();
+
+    GrouperVersion grouperWsVersion = null;
+
+    try {
+
+      grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      GrouperMessageAcknowledgeType messageAcknowledgeType = GrouperMessageAcknowledgeType
+          .valueOfIgnoreCase(acknowledgeType, true);
+      GrouperMessageQueueType messageQueueType = GrouperMessageQueueType
+          .valueOfIgnoreCase(anotherQueueType, true);
+
+      wsMessageResults = GrouperServiceLogic.acknowledge(grouperWsVersion,
+          queueOrTopicName, messageSystemName,
+          messageAcknowledgeType, messageIds, anotherQueueOrTopicName, messageQueueType,
+          actAsSubjectLookup, params);
+
+    } catch (Exception e) {
+      wsMessageResults.assignResultCodeException(null, null, e);
+    }
+    return wsMessageResults;
   }
 
 }

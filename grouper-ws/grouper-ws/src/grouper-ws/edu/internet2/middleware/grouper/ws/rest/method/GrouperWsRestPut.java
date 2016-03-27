@@ -47,6 +47,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteReques
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestMessageAcknowledgeRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
@@ -469,6 +471,39 @@ public enum GrouperWsRestPut {
 
       throw new WsInvalidQueryException("Invalid request object: "
           + (requestObject == null ? null : requestObject.getClass()));
+    }
+
+  },
+  /** messaging put requests **/
+  messaging {
+
+    @Override
+    public WsResponseBean service(GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/messages
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException(
+            "Cant pass anything after 'messages' in URL");
+      }
+
+      if (requestObject instanceof WsRestSendMessageRequest) {
+        //send messages
+        return GrouperServiceRest.sendMessage(clientVersion,
+            (WsRestSendMessageRequest) requestObject);
+      }
+      if (requestObject instanceof WsRestMessageAcknowledgeRequest) {
+        //acknowledge messages
+        return GrouperServiceRest.acknowledgeMessages(clientVersion,
+            (WsRestMessageAcknowledgeRequest) requestObject);
+
+      }
+
+      throw new WsInvalidQueryException("Invalid request object: "
+          + (requestObject == null ? null : requestObject.getClass()));
+
     }
 
   };
