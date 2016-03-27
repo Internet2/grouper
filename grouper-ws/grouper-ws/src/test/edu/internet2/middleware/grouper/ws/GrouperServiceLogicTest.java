@@ -153,6 +153,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsMembership;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessage;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults.WsMessageResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
@@ -169,8 +170,11 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelati
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
@@ -205,7 +209,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testReceiveMessages"));
+    TestRunner.run(new GrouperServiceLogicTest("testAcknowledgeMessages"));
   }
 
   /**
@@ -9759,29 +9763,72 @@ public class GrouperServiceLogicTest extends GrouperTest {
   }
   
   /**
-   * test mark acknowledge messages
+   * test acknowledge messages
    */
-//  public void testAcknowledgeMessages() {
-//    
-//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
-//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
-//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.name", "grouperBuiltinMessaging");
-//    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.class","edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem");
-//    
-//    GrouperBuiltinMessagingSystem.createQueue("abc");
-//    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
-//    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
-//
-//    GrouperMessageSendResult grouperMessageSendResult = GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
-//        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
-//
-//    GrouperSession.start(SubjectTestHelper.SUBJ0);
-//    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
-//    
-//    GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, GrouperMessageAcknowledgeType.mark_as_processed,
-//        new String[] {}, null, null, actAsSubjectLookup, null);
-//    
-//  }
+  public void testAcknowledgeMessages() {
+    
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.use.builtin.messaging", "true");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.default.name.of.messaging.system", "grouperBuiltinMessaging");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.name", "grouperBuiltinMessaging");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("grouper.messaging.system.grouperBuiltinMessaging.class","edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem");
+    
+    GrouperBuiltinMessagingSystem.createQueue("abc");
+    GrouperBuiltinMessagingSystem.allowSendToQueue("abc", SubjectTestHelper.SUBJ0);
+    GrouperBuiltinMessagingSystem.allowReceiveFromQueue("abc", SubjectTestHelper.SUBJ0);
+
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+    GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
+        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+    
+    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
+    
+    assertEquals(1, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
+    
+    GrouperMessage grouperMessage = grouperMessageReceiveResult.getGrouperMessages().iterator().next();
+
+    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
+    
+    WsMessageAcknowledgeResults messageAcknowledgeResults = GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, 
+        GrouperMessageAcknowledgeType.mark_as_processed,
+        new String[] {grouperMessage.getId()}, null, null, actAsSubjectLookup, null);
+    
+    assertEquals(grouperMessage.getId(), messageAcknowledgeResults.getMessageIds()[0]);
+    
+    // null/blank queueTopicName not allowed
+    messageAcknowledgeResults = GrouperServiceLogic.acknowledge(GROUPER_VERSION, null, null, 
+        GrouperMessageAcknowledgeType.mark_as_processed,
+        new String[] {grouperMessage.getId()}, null, null, actAsSubjectLookup, null);
+    
+    assertEquals(messageAcknowledgeResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(),
+        messageAcknowledgeResults.getResultMetadata().getResultCode());
+  
+    // there has to be at least one message
+    messageAcknowledgeResults = GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, 
+        GrouperMessageAcknowledgeType.mark_as_processed,
+        new String[] {}, null, null, actAsSubjectLookup, null);
+    
+    assertEquals(messageAcknowledgeResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(),
+        messageAcknowledgeResults.getResultMetadata().getResultCode());
+    
+    // anotherQueueOrTopicName and anotherQueueType both has to be passed in
+    messageAcknowledgeResults = GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, 
+        GrouperMessageAcknowledgeType.mark_as_processed,
+        new String[] {grouperMessage.getId()}, null, GrouperMessageQueueType.queue, actAsSubjectLookup, null);
+    
+    assertEquals(messageAcknowledgeResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(),
+        messageAcknowledgeResults.getResultMetadata().getResultCode());
+    
+    messageAcknowledgeResults = GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, 
+        GrouperMessageAcknowledgeType.mark_as_processed,
+        new String[] {grouperMessage.getId()}, "def", null, actAsSubjectLookup, null);
+    
+    assertEquals(messageAcknowledgeResults.getResultMetadata().getResultMessage(),
+        WsMessageResultsCode.INVALID_QUERY.name(),
+        messageAcknowledgeResults.getResultMetadata().getResultCode());
+  }
     
     
 }
