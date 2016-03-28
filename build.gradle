@@ -51,7 +51,7 @@ subprojects {
     tests testJar
 
     archives sourcesJar
-    archives sourcesZip
+//    archives sourcesZip
     archives javadocJar
     archives testJar
   }

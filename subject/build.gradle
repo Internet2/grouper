@@ -21,11 +21,14 @@ sourceSets {
   main {
     java {
       srcDir 'src'
+      include '**/*.java'
     }
     resources {
       srcDirs 'conf', 'src/grouper/'
       include '**/*.xml', '**/*.properties'
     }
+    output.resourcesDir = 'dist/build'
+    output.classesDir   = 'dist/bin'
   }
   test {
     java {
@@ -34,19 +37,53 @@ sourceSets {
     }
     resources {
       srcDirs 'tests', 'confForTest'
-      include '**/*.properties', '**/*.xml'
+      include '**/*.properties', '**/*.xml', '**/*Test.class', '**/*Tests.class'
     }
+    output.resourcesDir = 'dist/build'
+    output.classesDir   = 'dist/bin'
   }
 }
 
-task gzipfile(type: Tar) {
-  from projectDir
-  include 'doc'
-  include 'lib'
-  include 'src'
-  include 'build.gradle'
-  into projectDir
-  extension = 'tgz'
-  compression = Compression.GZIP
-  description = "Create gzip file from doc, lib, src directories and output jar file"
+task sourcesJar(type: Jar, overwrite: true) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+  destinationDir = new File(projectDir, 'dist/libs')
 }
+
+task testJar(type: Jar, dependsOn: testClasses, description: "archive the testClasses", overwrite: true) {
+  baseName = "${project.archivesBaseName}-tests"
+  classifier = "tests"
+  from sourceSets.test.output
+  destinationDir = new File(projectDir, 'dist/libs')
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc, overwrite: true) {
+  classifier = 'javadoc'
+  from javadoc.destinationDir
+  destinationDir = new File(projectDir, 'dist/libs')
+}
+
+task sourcesZip(type: Zip) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    destinationDir = new File(projectDir, 'dist')
+    // into projectDir
+    description = "Create zip file of every source output and store it inside build/distributions/version directory"
+}
+
+task gzipFile(type: Tar) {
+    from 'doc'
+    from 'lib'
+    from 'src'
+    from 'build.gradle'
+    extension = 'tgz'
+    compression = Compression.GZIP
+    description = "Create gzip file from doc, lib, src directories and output jar file"
+    destinationDir = new File(projectDir, 'dist')
+}
+
+clean{
+    delete 'archive', 'dist'
+}
+
+build.finalizedBy(gzipFile, sourcesZip, sourcesJar, testJar, javadocJar)

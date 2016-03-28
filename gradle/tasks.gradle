@@ -9,14 +9,14 @@ task sourcesJar(type: Jar, dependsOn: classes) {
   from sourceSets.main.allSource
 }
 
-task sourcesZip(type: Zip, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    // destinationDir = file("${buildDir}/arcive")
-    destinationDir = new File(projectDir, 'archive')
+//task sourcesZip(type: Zip, dependsOn: classes) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//    // destinationDir = file("${buildDir}/arcive")
+//    destinationDir = new File(projectDir, 'dist')
 //    into projectDir
-    description = "Create zip file of every source output and store it inside build/distributions/version directory"
-}
+//    description = "Create zip file of every source output and store it inside build/distributions/version directory"
+//}
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
   classifier = 'javadoc'
@@ -27,3 +27,6 @@ task wrapper(type: Wrapper, description: "Gradle's wrapper") {
   gradleVersion = project.gradleVersion
 }
 
+clean{
+    delete 'archive', 'dist', 'build'
+}

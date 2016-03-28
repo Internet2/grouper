@@ -7,13 +7,54 @@ sourceSets {
   main{
     java {
       srcDir 'src'
+      include '**/*.java'
     }
+    output.classesDir   = 'dist/bin'
   }
 }
 
 task jarprep(type: Copy) {
+  copy {
+    from 'build.gradle'
+    into 'dist/cmuBillingBuild'
+  }
+  copy {
+    from 'build/libs/**'
+    into 'dist/bin'
+  }
+}
+
+task sourcesJar(type: Jar, overwrite: true) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+  destinationDir = new File(projectDir, 'dist/libs')
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc, overwrite: true) {
+  classifier = 'javadoc'
+  from javadoc.destinationDir
+  destinationDir = new File(projectDir, 'dist/libs')
+}
+
+task sourcesZip(type: Zip) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    destinationDir = new File(projectDir, 'dist')
+    // into projectDir
+    description = "Create zip file of every source output and store it inside build/distributions/version directory"
+}
+
+task gzipFile(type: Tar) {
     from 'src'
-	include '**/*.java'
-	into 'build/bin'
-	description = "Prepare the jar file"
+    from 'build.gradle'
+    extension = 'tgz'
+    compression = Compression.GZIP
+    description = "Create gzip file from doc, lib, src directories and output jar file"
+    destinationDir = new File(projectDir, 'dist')
+}
+
+build.finalizedBy(gzipFile, sourcesZip, jarprep, sourcesJar, javadocJar)
+
+clean{
+    delete 'archive', 'dist', 'build'
 }
