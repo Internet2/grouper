@@ -4,6 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient.messaging;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * this is what you can do when acknowledging a message
@@ -29,5 +30,15 @@ public enum GrouperMessageAcknowledgeType {
    * send to a dead letter queue or another error queue or topic or whatever
    */
   send_to_another_queue;
+  
+  /**
+   * convert a string to an acknowledge type
+   * @param input
+   * @param exceptionIfNotFound
+   * @return the state or null
+   */
+  public static GrouperMessageAcknowledgeType valueOfIgnoreCase(String input, boolean exceptionIfNotFound) {
+    return GrouperClientUtils.enumValueOfIgnoreCase(GrouperMessageAcknowledgeType.class, input, exceptionIfNotFound);
+  }
   
 }

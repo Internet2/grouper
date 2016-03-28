@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestReceiveMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
@@ -534,6 +535,35 @@ public enum GrouperWsRestGet {
       
     }
   
+  },
+  
+  /** messaging get requests **/
+  messaging {
+
+    @Override
+    public WsResponseBean service(GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //url should be: /xhtml/v1_3_000/messages
+      String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(somethingElse)) {
+        throw new RuntimeException("Cant pass anything after 'messages' in URL");
+      }
+
+      if (requestObject instanceof WsRestReceiveMessageRequest) {
+
+        //receive messages
+        return GrouperServiceRest.receiveMessage(clientVersion,
+            (WsRestReceiveMessageRequest) requestObject);
+
+      }
+      throw new RuntimeException("Must pass in a request object of type "
+          + WsRestReceiveMessageRequest.class.getSimpleName() + ". It was "
+          + (requestObject == null ? null : requestObject.getClass()));
+
+    }
+
   };
 
   /**

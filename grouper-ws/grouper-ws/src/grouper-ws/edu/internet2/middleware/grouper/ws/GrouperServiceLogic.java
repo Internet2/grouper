@@ -216,6 +216,11 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessage;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults.WsMessageAcknowledgeResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults.WsMessageResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
@@ -247,6 +252,17 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelati
 import edu.internet2.middleware.grouper.ws.rest.subject.TooManyResultsWhenFilteringByGroupException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageDefault;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -9127,5 +9143,258 @@ public class GrouperServiceLogic {
     return wsAssignAttributesBatchResults; 
   
   }
+  
+  /**
+   * @param clientVersion
+   * @param queueType - queue or topic (required)
+   * @param queueOrTopicName - queue or topic to send to (required)
+   * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
+   * @param messages - payload to be sent (required)
+   * @param actAsSubjectLookup
+   * @param params
+   * @return the results
+   */
+  public static WsMessageResults sendMessage(final GrouperVersion clientVersion,
+      final GrouperMessageQueueType queueType, final String queueOrTopicName,
+      final String messageSystemName,
+      final WsMessage[] messages, final WsSubjectLookup actAsSubjectLookup,
+      final WsParam[] params) {
+
+    final WsMessageResults wsSendMessageResults = new WsMessageResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsSendMessageResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", queueOrTopicName: "
+          + queueOrTopicName + ", messageSystemName: " + messageSystemName
+          + "\nmessages: " + GrouperUtil.toStringForLog(messages)
+          + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      if (StringUtils.isBlank(queueOrTopicName)) {
+        throw new WsInvalidQueryException(
+            "You need to pass in queueOrTopicName to which the messages need to be sent.");
+      }
+      if (GrouperUtil.length(messages) == 0) {
+        throw new WsInvalidQueryException("You need to pass in at least one message.");
+      }
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+
+      Collection<GrouperMessage> grouperMessages = new ArrayList<GrouperMessage>();
+
+      for (WsMessage wsMessage : messages) {
+        GrouperMessageDefault grouperMessageDefault = new GrouperMessageDefault();
+        grouperMessageDefault.setMessageBody(wsMessage.getMessageBody());
+        grouperMessages.add(grouperMessageDefault);
+      }
+
+      GrouperMessageSendParam grouperMessageSendParam = new GrouperMessageSendParam()
+          .assignGrouperMessageSystemName(messageSystemName)
+          .assignQueueOrTopicName(queueOrTopicName)
+          .assignQueueType(queueType)
+          .assignGrouperMessages(grouperMessages);
+
+      GrouperMessagingEngine.send(grouperMessageSendParam);
+
+      wsSendMessageResults.setMessages(messages);
+      wsSendMessageResults.setMessageSystemName(messageSystemName);
+      wsSendMessageResults.setQueueOrTopicName(queueOrTopicName);
+      wsSendMessageResults.assignResultCode(WsMessageResultsCode.SUCCESS);
+      wsSendMessageResults.getResultMetadata().setResultMessage(
+          messages.length + " messages were sent to " + queueOrTopicName);
+
+    } catch (Exception e) {
+      wsSendMessageResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+
+    return wsSendMessageResults;
+
+  }
+
+  /**
+   * @param clientVersion
+   * @param queueOrTopicName - queue or topic to receive from (required)
+   * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
+   * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)
+   * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)
+   * @param actAsSubjectLookup
+   * @param params
+   * @return the results
+   */
+  public static WsMessageResults receiveMessage(final GrouperVersion clientVersion,
+      final String queueOrTopicName, final String messageSystemName,
+      final Integer blockMillis, final Integer maxMessagesToReceiveAtOnce,
+      final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+
+    final WsMessageResults wsReceiveMessageResults = new WsMessageResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsReceiveMessageResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", queueOrTopicName: "
+          + queueOrTopicName + ", messageSystemName: " + messageSystemName
+          + "\nblockMillis: " + blockMillis + ", maxMessagesToReceiveAtOnce: "
+          + maxMessagesToReceiveAtOnce
+          + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      if (StringUtils.isBlank(queueOrTopicName)) {
+        throw new WsInvalidQueryException(
+            "You need to pass in queueOrTopicName from which the messages need to be received.");
+      }
+
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+
+      GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
+          .assignGrouperMessageSystemName(messageSystemName)
+          .assignLongPollMillis(blockMillis)
+          .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce)
+          .assignQueue(queueOrTopicName);
+
+      GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
+          .receive(grouperMessageReceiveParam);
+
+      WsMessage[] wsMessages = new WsMessage[grouperMessageReceiveResult
+          .getGrouperMessages().size()];
+      int i = 0;
+      for (GrouperMessage grouperMessage : grouperMessageReceiveResult
+          .getGrouperMessages()) {
+        wsMessages[i++] = new WsMessage(grouperMessage);
+      }
+
+      wsReceiveMessageResults.setMessages(wsMessages);
+      wsReceiveMessageResults.setMessageSystemName(messageSystemName);
+      wsReceiveMessageResults.setQueueOrTopicName(queueOrTopicName);
+      wsReceiveMessageResults.assignResultCode(WsMessageResultsCode.SUCCESS);
+      wsReceiveMessageResults.getResultMetadata().setResultMessage(
+          wsMessages.length + " messages were received from " + queueOrTopicName);
+
+    } catch (Exception e) {
+      wsReceiveMessageResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+
+    return wsReceiveMessageResults;
+
+  }
+
+  /**
+   * @param clientVersion
+   * @param queueOrTopicName - queue or topic to receive from (required)
+   * @param messageSystemName - if there are multiple messaging systems, specify which one (optional)
+   * @param acknowledgeType specify what to do with the messages (required)
+   * @param messageIds - messageIds to be marked as processed (required)
+   * @param anotherQueueOrTopicName - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @param anotherQueueType - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * @param actAsSubjectLookup
+   * @param params
+   * @return the results
+   */
+  public static WsMessageAcknowledgeResults acknowledge(
+      final GrouperVersion clientVersion,
+      final String queueOrTopicName, final String messageSystemName,
+      final GrouperMessageAcknowledgeType acknowledgeType, final String[] messageIds,
+      final String anotherQueueOrTopicName,
+      final GrouperMessageQueueType anotherQueueType,
+      final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
+
+    final WsMessageAcknowledgeResults wsMessageAcknowledgedResults = new WsMessageAcknowledgeResults();
+
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion,
+          wsMessageAcknowledgedResults.getResponseMetadata().warnings());
+
+      theSummary = "clientVersion: " + clientVersion + ", queueOrTopicName: "
+          + queueOrTopicName + ", messageSystemName: " + messageSystemName
+          + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      if (StringUtils.isBlank(queueOrTopicName)) {
+        throw new WsInvalidQueryException("You need to pass in queueOrTopicName.");
+      }
+      if (GrouperUtil.length(messageIds) == 0) {
+        throw new WsInvalidQueryException("You need to pass in at least one messageId.");
+      }
+      if (StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType != null) {
+        throw new WsInvalidQueryException(
+            "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
+      }
+      if (!StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType == null) {
+        throw new WsInvalidQueryException(
+            "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
+      }
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+
+      Collection<GrouperMessage> grouperMessages = new ArrayList<GrouperMessage>();
+
+      for (String id : messageIds) {
+        GrouperMessageDefault grouperMessageDefault = new GrouperMessageDefault();
+        grouperMessageDefault.setId(id);
+        grouperMessages.add(grouperMessageDefault);
+      }
+
+      GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam = new GrouperMessageAcknowledgeParam();
+      grouperMessageAcknowledgeParam.assignAcknowledgeType(acknowledgeType);
+      grouperMessageAcknowledgeParam.assignQueueName(queueOrTopicName);
+      grouperMessageAcknowledgeParam.assignGropuerMessageSystemName(messageSystemName);
+      grouperMessageAcknowledgeParam.assignGrouperMessages(grouperMessages);
+
+      if (!StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType != null) {
+        GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
+        queueParam.assignQueueOrTopicName(anotherQueueOrTopicName);
+        queueParam.assignQueueType(anotherQueueType);
+        grouperMessageAcknowledgeParam.assignAnotherQueueParam(queueParam);
+      }
+
+      GrouperMessagingEngine.acknowledge(grouperMessageAcknowledgeParam);
+
+      wsMessageAcknowledgedResults.setMessageIds(messageIds);
+      wsMessageAcknowledgedResults.setMessageSystemName(messageSystemName);
+      wsMessageAcknowledgedResults.setQueueOrTopicName(queueOrTopicName);
+      wsMessageAcknowledgedResults
+          .assignResultCode(WsMessageAcknowledgeResultsCode.SUCCESS);
+      wsMessageAcknowledgedResults.getResultMetadata().setResultMessage(
+          messageIds.length + " messages were acknowledged in " + queueOrTopicName);
+
+    } catch (Exception e) {
+      wsMessageAcknowledgedResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+
+    return wsMessageAcknowledgedResults;
+
+  }
+  
         
 }
