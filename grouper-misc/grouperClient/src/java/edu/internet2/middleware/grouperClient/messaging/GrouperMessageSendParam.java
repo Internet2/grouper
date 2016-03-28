@@ -45,6 +45,20 @@ public class GrouperMessageSendParam {
   }
   
   /**
+   * if objects should be auto created if not there, e.g. 
+   * queues, topics, privileges
+   * @param theAutocreate
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignAutocreateObjects(boolean theAutocreate) {
+    if (this.grouperMessageSystemParam == null) {
+      this.grouperMessageSystemParam = new GrouperMessageSystemParam();
+    }
+    this.grouperMessageSystemParam.assignAutocreateObjects(theAutocreate);
+    return this;
+  }
+
+  /**
    * describes the queue or topic
    */
   private GrouperMessageQueueParam grouperMessageQueueParam;

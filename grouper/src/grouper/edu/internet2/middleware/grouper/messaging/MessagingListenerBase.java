@@ -33,11 +33,11 @@ public abstract class MessagingListenerBase {
   /**
    * process the messages.  mark them as processed
    * @param messageSystemName
-   * @param queue
+   * @param queueName
    * @param grouperMessageList  NOTE, DO NOT CHANGE OR EDIT THE OBJECTS IN THIS LIST, THEY MIGHT BE SHARED!
    * @param messagingListenerMetadata
    */
-  public abstract void processMessages(String messageSystemName, String queue, Collection<GrouperMessage> grouperMessageList, 
+  public abstract void processMessages(String messageSystemName, String queueName, Collection<GrouperMessage> grouperMessageList, 
       MessagingListenerMetadata messagingListenerMetadata);
   
 }

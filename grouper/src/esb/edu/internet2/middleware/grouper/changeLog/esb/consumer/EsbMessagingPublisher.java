@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 
@@ -46,12 +47,18 @@ public class EsbMessagingPublisher extends EsbListenerBase {
     String messagingSystemName = GrouperLoaderConfig.retrieveConfig()
         .propertyValueString("changeLog.consumer."
             + consumerName + ".publisher.messagingSystemName", "grouperBuiltinMessaging");
-    String queueOrTopic = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+    String queueOrTopicName = GrouperLoaderConfig.retrieveConfig().propertyValueString(
         "changeLog.consumer."
-            + consumerName + ".publisher.queueOrTopic");
+            + consumerName + ".publisher.queueOrTopicName");
+    
+    String messageQueueType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." 
+        + consumerName + ".publisher.messageQueueType");
+    GrouperMessageQueueType grouperMessageQueueType = GrouperMessageQueueType.valueOfIgnoreCase(messageQueueType, true);
+    
     GrouperMessagingEngine.send(new GrouperMessageSendParam()
         .assignGrouperMessageSystemName(messagingSystemName)
-        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopic));
+        .assignQueueType(grouperMessageQueueType)
+        .addMessageBody(eventJsonString).assignQueueOrTopicName(queueOrTopicName));
     return true;
   }
 

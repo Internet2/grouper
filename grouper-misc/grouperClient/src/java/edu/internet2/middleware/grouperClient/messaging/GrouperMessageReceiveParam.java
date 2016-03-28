@@ -74,6 +74,20 @@ public class GrouperMessageReceiveParam {
   }
 
   /**
+   * if objects should be auto created if not there, e.g. 
+   * queues, topics, privileges
+   * @param theAutocreate
+   * @return this for chaining
+   */
+  public GrouperMessageReceiveParam assignAutocreateObjects(boolean theAutocreate) {
+    if (this.grouperMessageSystemParam == null) {
+      this.grouperMessageSystemParam = new GrouperMessageSystemParam();
+    }
+    this.grouperMessageSystemParam.assignAutocreateObjects(theAutocreate);
+    return this;
+  }
+
+  /**
    * assign the grouper messaging system
    * @param theGrouperMessageSystemName
    * @return this for chaining
@@ -108,14 +122,14 @@ public class GrouperMessageReceiveParam {
 
   /**
    * assign queue or topic to send the message to
-   * @param theQueue
+   * @param theQueueName
    * @return this for chaining
    */
-  public GrouperMessageReceiveParam assignQueue(String theQueue) {
+  public GrouperMessageReceiveParam assignQueueName(String theQueueName) {
     if (this.grouperMessageQueueParam == null) {
       this.grouperMessageQueueParam = new GrouperMessageQueueParam();
     }
-    this.grouperMessageQueueParam.assignQueueOrTopicName(theQueue);
+    this.grouperMessageQueueParam.assignQueueOrTopicName(theQueueName);
     return this;
   }
 

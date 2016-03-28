@@ -1021,6 +1021,9 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return the change log entry
    */
   public static Collection<ChangeLogEntry> fromJsonToCollection(String json) {
+    if (StringUtils.isBlank(json)) {
+      return null;
+    }
     JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( json );
     JSONArray jsonArray = jsonObject.getJSONArray("event");
     if (jsonArray == null) {

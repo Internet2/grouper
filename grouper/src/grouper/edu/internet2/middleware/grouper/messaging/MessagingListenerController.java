@@ -76,8 +76,10 @@ public class MessagingListenerController {
     try {
 
       String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("messaging.listener." + listenerName + ".messagingSystemName");
-      String queue = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queue");
+      String queueName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("messaging.listener." + listenerName + ".queueName");
       
+      boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
+
       int numberOfTriesPerIteration = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".numberOfTriesPerIteration", 3);
       int pollingTimeoutSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".pollingTimeoutSeconds", 18);
       int sleepSecondsInBetweenIterations = GrouperLoaderConfig.retrieveConfig().propertyValueInt("messaging.listener." + listenerName + ".sleepSecondsInBetweenIterations", 0);
@@ -113,7 +115,8 @@ public class MessagingListenerController {
         for (int j=0;j<numberOfTriesPerIteration;j++) {
           GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
               new GrouperMessageReceiveParam().assignLongPollMillis(pollingTimeoutSeconds * 1000)
-              .assignGrouperMessageSystemName(messagingSystemName).assignQueue(queue).assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce));
+                .assignAutocreateObjects(autocreateObjects)
+                .assignGrouperMessageSystemName(messagingSystemName).assignQueueName(queueName).assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce));
           numberOfTries++;
           grouperMessages = grouperMessageReceiveResult.getGrouperMessages();
 
@@ -138,16 +141,10 @@ public class MessagingListenerController {
 
           GrouperUtil.sleep(sleepSecondsInBetweenIterations * 1000);
         }
-
-        //what should it be
-        String lastIdShouldBe = null;
-        for (GrouperMessage grouperMessage : grouperMessages) {
-          lastIdShouldBe = grouperMessage.getId();
-        }
         
         //pass this to the consumer
         try {
-          messagingListenerBase.processMessages(messagingSystemName, queue, grouperMessages, messagingListenerMetadata);
+          messagingListenerBase.processMessages(messagingSystemName, queueName, grouperMessages, messagingListenerMetadata);
           
           if (LOG.isDebugEnabled()) {
             debugMap.put(i + ": has error?", messagingListenerMetadata.isHadProblem());
