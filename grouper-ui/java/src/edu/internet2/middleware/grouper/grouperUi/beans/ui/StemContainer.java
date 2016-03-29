@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem.StemSear
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -40,6 +41,69 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class StemContainer {
+
+  /**
+   * if can view privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanReadPrivilegeInheritance() {
+
+    //at least you have to be able to admin privileges on this folder
+    if (!this.isCanAdminPrivileges()) {
+      return false;
+    }
+    
+    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
+    
+    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
+      return true;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadRules();
+  }
+  
+  /**
+   * if can update privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanUpdatePrivilegeInheritance() {
+
+    //at least you have to be able to read attributes on this folder
+    if (!this.isCanAdminPrivileges()) {
+      return false;
+    }
+    
+    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
+    
+    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
+      return true;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanUpdateRules();
+  }
+  
+  /**
+   * if show add inherited privileges
+   */
+  private boolean showAddInheritedPrivileges = false;
+  
+  /**
+   * if show add inherited privileges
+   * @return the showAddInheritedPrivileges
+   */
+  public boolean isShowAddInheritedPrivileges() {
+    return this.showAddInheritedPrivileges;
+  }
+  
+  /**
+   * if show add inherited privileges
+   * @param showAddInheritedPrivileges1 the showAddInheritedPrivileges to set
+   */
+  public void setShowAddInheritedPrivileges(boolean showAddInheritedPrivileges1) {
+    this.showAddInheritedPrivileges = showAddInheritedPrivileges1;
+  }
 
   /**
    * if show add member on the folder privileges screen
@@ -387,6 +451,16 @@ public class StemContainer {
   private GuiSorting guiSorting;
 
   /**
+   * how many failures
+   */
+  private int failureCount;
+
+  /**
+   * how many successes
+   */
+  private int successCount;
+
+  /**
    * when searching for parent stems, these are the results
    * @return stems
    */
@@ -526,6 +600,38 @@ public class StemContainer {
    */
   public void setGuiSorting(GuiSorting guiSorting1) {
     this.guiSorting = guiSorting1;
+  }
+
+  /**
+   * how many failures
+   * @return failures
+   */
+  public int getFailureCount() {
+    return this.failureCount;
+  }
+
+  /**
+   * how many successes
+   * @return successes
+   */
+  public int getSuccessCount() {
+    return this.successCount;
+  }
+
+  /**
+   * how many failures
+   * @param failuresCount1
+   */
+  public void setFailureCount(int failuresCount1) {
+    this.failureCount = failuresCount1;
+  }
+
+  /**
+   * how many successes
+   * @param successCount1
+   */
+  public void setSuccessCount(int successCount1) {
+    this.successCount = successCount1;
   }
 
   
