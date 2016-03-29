@@ -87,7 +87,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testReassignGroupPrivilegesIfFromGroup"));
+    TestRunner.run(new RuleApiTest("testInheritGroupPrivilegesFindManage"));
   }
 
   /**
@@ -1738,6 +1738,42 @@ public class RuleApiTest extends GrouperTest {
 
   }
 
+  
+  
+  /**
+   * 
+   */
+  public void testInheritGroupPrivilegesFindManage() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem2 = new StemSave(grouperSession).assignName("stem2").assignCreateParentStemsIfNotExist(true).save();
+
+    Group groupA = new GroupSave(grouperSession).assignName("stem1:admins").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+    groupA.addMember(subject0);
+    
+    RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("read, update"));
+    RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ1, Privilege.getInstances("read, update"));
+
+    RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stem, create"));
+    RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.ONE, SubjectTestHelper.SUBJ1, Privilege.getInstances("create"));
+
+    Stem stem23 = new StemSave(grouperSession).assignName("stem2:stem3").assignCreateParentStemsIfNotExist(true).save();
+    
+    RuleApi.inheritGroupPrivileges(SubjectFinder.findRootSubject(), stem23, Scope.SUB, SubjectTestHelper.SUBJ2, Privilege.getInstances("read, update"));
+    RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem23, Scope.SUB, SubjectTestHelper.SUBJ2, Privilege.getInstances("stem"));
+    
+    Group groupB = new GroupSave(grouperSession).assignName("stem2:b").assignCreateParentStemsIfNotExist(true).save();
+    Group group23B = new GroupSave(grouperSession).assignName("stem2:stem3:b").assignCreateParentStemsIfNotExist(true).save();
+
+//    Set<RuleDefinition> ruleDefinitions = RuleFinder.findGroupPrivilegeInheritRules(group23B.getParentStem());
+    Set<RuleDefinition> ruleDefinitions = RuleFinder.findFolderPrivilegeInheritRules(group23B.getParentStem());
+    
+    for (RuleDefinition ruleDefinition : ruleDefinitions) {
+      System.out.println(ruleDefinition);
+    }
+  }
+
   /**
    * 
    */
@@ -1751,7 +1787,7 @@ public class RuleApiTest extends GrouperTest {
     groupA.addMember(subject0);
     
     RuleApi.inheritFolderPrivileges(SubjectFinder.findRootSubject(), stem2, Scope.SUB, groupA.toSubject(), Privilege.getInstances("stem, create"));
-  
+
     long initialFirings = RuleEngine.ruleFirings;
     
     

@@ -73,6 +73,7 @@
               </div>
             </div>
 
-            <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
-
+            <c:if test="${grouperRequestContainer.indexContainer.menuRefreshOnView}">
+              <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
+            </c:if>
             <!-- end group/viewGroup.jsp -->

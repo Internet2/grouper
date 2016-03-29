@@ -160,6 +160,16 @@ public class StemContainer {
   private Boolean canCreateGroups;
   
   /**
+   * if the logged in user can read attributes, lazy loaded
+   */
+  private Boolean canReadAttributes;
+  
+  /**
+   * if the logged in user can update attributes, lazy loaded
+   */
+  private Boolean canUpdateAttributes;
+  
+  /**
    * if the logged in user can create stems, lazy loaded
    */
   private Boolean canCreateStems;
@@ -218,6 +228,56 @@ public class StemContainer {
    * if the logged in user can admin privileges, lazy loaded
    */
   private Boolean canAdminPrivileges;
+
+  /**
+   * if the logged in user can read attributes, lazy loaded
+   * @return if can read attributes
+   */
+  public boolean isCanReadAttributes() {
+    if (this.canReadAttributes == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canReadAttributes = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ATTR_READ.getName(), false);
+            }
+          });
+      
+    }
+    
+    return this.canReadAttributes;
+
+  }
+  
+  
+  /**
+   * if the logged in user can update attributes, lazy loaded
+   * @return if can update attributes
+   */
+  public boolean isCanUpdateAttributes() {
+    if (this.canUpdateAttributes == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canUpdateAttributes = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ATTR_UPDATE.getName(), false);
+            }
+          });
+      
+    }
+    
+    return this.canUpdateAttributes;
+
+  }
+  
   
   /**
    * if the logged in user can admin privileges, lazy loaded

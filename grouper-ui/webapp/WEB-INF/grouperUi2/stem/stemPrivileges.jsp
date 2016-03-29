@@ -58,7 +58,7 @@
                   confirmedChanges = false;
                 </script>
                 <div id="stemPrivilegeFilterResultsId">
-                </div>
+                </div>                
               </div>
             </div>
             

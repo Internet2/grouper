@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +33,6 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -53,6 +52,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic;
@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -71,12 +72,14 @@ import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -1108,6 +1111,91 @@ public class UiV2Stem {
     }
   }
 
+  /**
+   * view stem privileges
+   * @param request
+   * @param response
+   */
+  public void privilegesInheritedToObjectsInFolder(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/privilegesInheritedToObjects.jsp"));
+      privilegesInheritedToObjectsHelper(request, response, stem);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * privileges Inherited To Objects in folder
+   * @param request
+   * @param response
+   * @param stem
+   */
+  private void privilegesInheritedToObjectsHelper(HttpServletRequest request, HttpServletResponse response, Stem stem) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    StemContainer stemContainer = grouperRequestContainer.getStemContainer();
+    RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+    
+    Set<GuiRuleDefinition> guiRuleDefinitions = new TreeSet<GuiRuleDefinition>();
+
+    {
+      Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+      for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
+        guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+      }
+    }
+    
+    {
+      Set<RuleDefinition> stemRuleDefinitions  = RuleFinder.findFolderPrivilegeInheritRules(stem);
+      for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(stemRuleDefinitions)) {
+        guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+      }
+    }
+    
+    {
+      Set<RuleDefinition> attributeDefRuleDefinitions  = RuleFinder.findAttributeDefPrivilegeInheritRules(stem);
+      for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(attributeDefRuleDefinitions)) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        
+        guiRuleDefinitions.add(guiRuleDefinition);
+      }
+    }
+    for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitions) {
+      if (StringUtils.equals(stem.getUuid(), guiRuleDefinition.getOwnerGuiStem().getStem().getUuid())) {
+        guiRuleDefinition.setDirect(true);
+      }
+      
+      
+    }
+    rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#privilegesInheritedResultsId", 
+        "/WEB-INF/grouperUi2/stem/privilegesInheritedContents.jsp"));
+  
+  }
 
   /**
    * the filter button was pressed for privileges, or paging or sorting, or view Stem privileges or something

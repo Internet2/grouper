@@ -17,6 +17,11 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
@@ -26,8 +31,13 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -374,6 +384,19 @@ public class CommonRequestContainer {
   private GuiSubject guiSubject;
 
   /**
+   * if the logged in user can read rules, lazy loaded
+   */
+  private Boolean canReadRules;
+
+  /**
+   * if the logged in user can update rules, lazy loaded
+   */
+  private Boolean canUpdateRules;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(CommonRequestContainer.class);
+
+  /**
    * gui subject
    * @return gui subject
    */
@@ -387,6 +410,70 @@ public class CommonRequestContainer {
    */
   public void setGuiSubject(GuiSubject guiSubject1) {
     this.guiSubject = guiSubject1;
+  }
+
+  /**
+   * if the logged in user can read rules, lazy loaded
+   * @return if can read rules
+   */
+  public boolean isCanReadRules() {
+    if (this.canReadRules == null) {
+      try {
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+        this.canReadRules = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                AttributeDef attributeDef = RuleUtils.ruleTypeAttributeDef();
+                return attributeDef.getPrivilegeDelegate().canAttrRead(loggedInSubject);
+              }
+            });
+        
+
+      } catch (Exception e) {
+        //ignore
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("problem checking rule", e);
+        }
+      }
+    }
+    
+    return this.canReadRules;
+  
+  }
+
+  /**
+   * if the logged in user can update rules, lazy loaded
+   * @return if can update rules
+   */
+  public boolean isCanUpdateRules() {
+    if (this.canUpdateRules == null) {
+      try {
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+        this.canUpdateRules = (Boolean)GrouperSession.callbackGrouperSession(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                AttributeDef attributeDef = RuleUtils.ruleTypeAttributeDef();
+                return attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject);
+              }
+            });
+        
+
+      } catch (Exception e) {
+        //ignore
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("problem checking rule", e);
+        }
+      }
+    }
+    
+    return this.canUpdateRules;
+  
   }
 
   
