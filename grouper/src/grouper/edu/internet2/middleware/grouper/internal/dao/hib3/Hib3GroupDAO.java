@@ -97,7 +97,7 @@ import edu.internet2.middleware.subject.Subject;
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
-
+  
   /** */
   private static GrouperCache<String, Boolean> existsCache = null;
   
@@ -107,8 +107,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   private static GrouperCache<String, Boolean> getExistsCache() {
     if(existsCache==null) {
-      existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO.exists",
-            1000, false, 30, 120, false); 
+      synchronized(Hib3GroupDAO.class) {
+        if (existsCache == null) {
+          existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO.exists",
+                1000, false, 30, 120, false);
+        }
+      }
     }
     return existsCache;
   }
