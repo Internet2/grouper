@@ -9780,7 +9780,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("abc")
         .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
     
-    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueue("abc"));
+    GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(new GrouperMessageReceiveParam().assignQueueName("abc"));
     
     assertEquals(1, GrouperUtil.length(grouperMessageReceiveResult.getGrouperMessages()));
     
