@@ -9270,7 +9270,7 @@ public class GrouperServiceLogic {
           .assignGrouperMessageSystemName(messageSystemName)
           .assignLongPollMillis(blockMillis)
           .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce)
-          .assignQueue(queueOrTopicName);
+          .assignQueueName(queueOrTopicName);
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
           .receive(grouperMessageReceiveParam);
@@ -9366,7 +9366,7 @@ public class GrouperServiceLogic {
       GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam = new GrouperMessageAcknowledgeParam();
       grouperMessageAcknowledgeParam.assignAcknowledgeType(acknowledgeType);
       grouperMessageAcknowledgeParam.assignQueueName(queueOrTopicName);
-      grouperMessageAcknowledgeParam.assignGropuerMessageSystemName(messageSystemName);
+      grouperMessageAcknowledgeParam.assignGrouperMessageSystemName(messageSystemName);
       grouperMessageAcknowledgeParam.assignGrouperMessages(grouperMessages);
 
       if (!StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType != null) {
