@@ -289,7 +289,12 @@ public class GrouperServiceJ2ee implements Filter {
   private static GrouperCache<MultiKey, Boolean> actAsCache() {
     if (actAsCache == null) {
       int actAsTimeoutMinutes = actAsCacheMinutes();
-      actAsCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsActAsCache", 10000, false, 60*60*24, actAsTimeoutMinutes*60, false);
+
+      synchronized(GrouperServiceJ2ee.class) {
+        if (actAsCache == null) {
+          actAsCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsActAsCache", 10000, false, 60*60*24, actAsTimeoutMinutes*60, false);
+        }
+      }
     }
     return actAsCache;
   }
@@ -311,8 +316,12 @@ public class GrouperServiceJ2ee implements Filter {
     if (subjectAllowedCache == null) {
       int subjectAllowedTimeoutMinutes = GrouperWsConfig.retrieveConfig().propertyValueInt(
           GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 5);
-      subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsAllowedCache", 10000, false, 60*60*24, subjectAllowedTimeoutMinutes*60, false);
-
+      
+      synchronized(GrouperServiceJ2ee.class) {
+        if (subjectAllowedCache == null) {
+          subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsAllowedCache", 10000, false, 60*60*24, subjectAllowedTimeoutMinutes*60, false);
+        }
+      }
     }
     return subjectAllowedCache;
   }
