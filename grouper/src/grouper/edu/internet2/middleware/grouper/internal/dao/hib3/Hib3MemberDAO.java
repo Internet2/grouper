@@ -474,18 +474,26 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
   
   private static GrouperCache<String, Boolean> getExistsCache() {
-	  if(existsCache==null) {
-		  existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
-	          1000, false, 30, 120, false); 
-	  }
+    if(existsCache==null) {
+      synchronized(Hib3MemberDAO.class) {
+    	  if(existsCache==null) {
+    		  existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
+    	          1000, false, 30, 120, false); 
+    	  }
+      }
+    }
 	  return existsCache;
   }
   
   private static GrouperCache<String, Member> getUuid2dtoCache() {
-	  if(uuid2dtoCache==null) {
-		  uuid2dtoCache=new GrouperCache<String, Member>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.uuid2dtoCache",
-	          1000, false, 30, 120, false); 
-	  }
+    if(uuid2dtoCache==null) {
+      synchronized(Hib3MemberDAO.class) {
+    	  if(uuid2dtoCache==null) {
+    		  uuid2dtoCache=new GrouperCache<String, Member>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.uuid2dtoCache",
+    	          1000, false, 30, 120, false); 
+    	  }
+      }
+    }
 	  return uuid2dtoCache;
   }
 

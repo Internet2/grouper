@@ -40,7 +40,11 @@ public class EntitySubject {
    */
   private static GrouperCache<String, String> grouperCache() {
     if (grouperCache == null) {
-      grouperCache = new GrouperCache(EntitySubject.class.getName() + ".EntityAttributeIdCache");
+      synchronized(EntitySubject.class) {
+        if (grouperCache == null) {
+          grouperCache = new GrouperCache(EntitySubject.class.getName() + ".EntityAttributeIdCache");
+        }
+      }
     }
     return grouperCache;
   }
