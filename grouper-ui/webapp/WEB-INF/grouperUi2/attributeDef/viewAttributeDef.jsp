@@ -14,6 +14,9 @@
                   <c:if test="${grouperRequestContainer.attributeDefContainer.canAdmin}">
                     <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.attributeDefPrivileges&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefPrivilegesTab'] }</a></li>
                   </c:if>
+                  <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">
+                    <%@ include file="attributeDefMoreTab.jsp" %>
+                  </c:if>
                 </ul>
 
                 <p class="lead">${textContainer.text['attributeDefViewAttributeDefNamesDescription'] }</p>

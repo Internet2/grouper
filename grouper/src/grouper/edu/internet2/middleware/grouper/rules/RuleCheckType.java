@@ -1645,22 +1645,7 @@ public enum RuleCheckType {
      */
     @Override
     public RuleCheck checkKey(RuleDefinition ruleDefinition) {
-
-      RuleCheck ruleCheck = ruleDefinition.getCheck();
-      if (StringUtils.isBlank(ruleCheck.getCheckOwnerId()) && StringUtils.isBlank(ruleCheck.getCheckOwnerName())) {
-        //if this is assigned to a stem
-        if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerStemId())) {
-  
-          //clone so we dont edit the object
-          ruleCheck = ruleCheck.clone();
-          //set the owner to this stem
-          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ruleDefinition.getAttributeAssignType().getOwnerStemId(), true);
-          ruleCheck.setCheckOwnerName(stem.getName());
-        } else {
-          LOG.error("Not sure why no check owner if not assigned to stem");
-        }
-      }
-      return ruleCheck;
+      return checkKeyForStem(ruleDefinition);
     }
   
     /**

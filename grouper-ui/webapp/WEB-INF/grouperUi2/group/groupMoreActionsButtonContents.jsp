@@ -2,10 +2,10 @@
 
                     <!-- start group/groupMoreActionsButtonContents.jsp -->
 
-                    <c:if test="${grouperRequestContainer.groupContainer.canUpdate}">
-                      
+                    <c:if test="${grouperRequestContainer.groupContainer.canUpdate && grouperRequestContainer.groupContainer.showAddMember}">
+
                       <a id="show-add-block" href="#" onclick="$('#add-block-container').toggle('slow'); return false;" class="btn btn-medium btn-primary btn-block"><i class="fa fa-plus"></i> ${textContainer.text['groupViewMoreActionsAddMembers'] }</a>
-                      
+
                     </c:if>
                     <div class="btn-group btn-block">
                     

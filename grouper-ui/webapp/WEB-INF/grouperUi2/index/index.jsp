@@ -74,6 +74,10 @@
                   onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
                      <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myActivity');">${textContainer.text['indexMyActivityButton'] }</a></li>
+                  <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showMiscellaneousLink}">
+                    <li><a href="#" 
+                      onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['indexMiscellaneousButton'] }</a></li>
+                  </c:if>
                    
                   <c:if test="${grouperRequestContainer.indexContainer.adminUIQuickLinkDisplayed=='true'}">
                   	<li><a id="adminiu-link" href="../../populateAllGroups.do">${textContainer.text['ui-lite.fromInvite-admin-link'] }</a></li>

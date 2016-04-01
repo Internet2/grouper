@@ -29,7 +29,6 @@ import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem.StemSear
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -53,14 +52,7 @@ public class StemContainer {
       return false;
     }
     
-    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
-        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
-    
-    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
-      return true;
-    }
-    
-    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadRules();
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance();
   }
   
   /**
@@ -74,14 +66,7 @@ public class StemContainer {
       return false;
     }
     
-    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
-        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
-    
-    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
-      return true;
-    }
-    
-    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanUpdateRules();
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanUpdatePrivilegeInheritance();
   }
   
   /**

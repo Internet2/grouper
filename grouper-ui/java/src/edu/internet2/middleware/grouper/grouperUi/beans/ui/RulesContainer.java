@@ -6,15 +6,20 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -29,6 +34,95 @@ public class RulesContainer {
    */
   public RulesContainer() {
   }
+
+  /**
+   * if can view privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanReadPrivilegeInheritance() {
+
+    boolean privilegeInheritanceReadRequireAdmin = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceReadRequireAdmin", false);
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (privilegeInheritanceReadRequireAdmin && !PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return false;
+    }
+    
+    final String privilegeInheritanceReadRequireGroup = GrouperUiConfig.retrieveConfig()
+        .propertyValueString("uiV2.privilegeInheritanceReadRequireGroup");
+
+    if (!StringUtils.isBlank(privilegeInheritanceReadRequireGroup)) {
+      
+      if (false == (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group group = GroupFinder.findByName(grouperSession, privilegeInheritanceReadRequireGroup, true);
+          if (!group.hasMember(loggedInSubject)) {
+            return false;
+          }
+          return true;
+        }
+      })) {
+        return false;
+      }
+
+    }
+    
+    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
+    
+    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
+      return true;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadRules();
+  }
+
+  /**
+   * if can update privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanUpdatePrivilegeInheritance() {
+
+    boolean privilegeInheritanceUpdateRequireAdmin = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceUpdateRequireAdmin", false);
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (privilegeInheritanceUpdateRequireAdmin && !PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return false;
+    }
+    
+    final String privilegeInheritanceUpdateRequireGroup = GrouperUiConfig.retrieveConfig()
+        .propertyValueString("uiV2.privilegeInheritanceUpdateRequireGroup");
+
+    if (!StringUtils.isBlank(privilegeInheritanceUpdateRequireGroup)) {
+      
+      if (false == (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Group group = GroupFinder.findByName(grouperSession, privilegeInheritanceUpdateRequireGroup, true);
+          if (!group.hasMember(loggedInSubject)) {
+            return false;
+          }
+          return true;
+        }
+      })) {
+        return false;
+      }
+    }
+    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
+    
+    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
+      return true;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanUpdateRules();
+  }
+  
 
   /**
    * rules to show on screen

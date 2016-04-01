@@ -54,6 +54,22 @@ import edu.internet2.middleware.subject.Subject;
 public class IndexContainer {
 
   /**
+   * show miscellaneous list
+   * @return true if show
+   */
+  public boolean isShowMiscellaneousLink() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.showMiscellaneousLink", true);
+  }
+
+  /**
+   * 
+   * @return if show global inherited privileges link
+   */
+  public boolean isShowGlobalInheritedPrivilegesLink() {
+    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.showGlobalInheritedPrivilegesLink", true);
+  }
+  
+  /**
    * if we should run widgets in threads (main page performance)
    */
   private boolean runWidgetsInThreads = false;

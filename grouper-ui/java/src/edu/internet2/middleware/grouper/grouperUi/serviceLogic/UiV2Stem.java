@@ -36,7 +36,9 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
@@ -87,6 +89,7 @@ import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -1280,11 +1283,10 @@ public class UiV2Stem {
     
     RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
     
-    if (rulesContainer.getGuiRuleDefinitions() == null) {
-      Set<GuiRuleDefinition> guiRuleDefinitions = existingPrivilegeInheritedGuiRuleDefinitions(stem);
-      
-      rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
-    }
+    Set<GuiRuleDefinition> guiRuleDefinitions = existingPrivilegeInheritedGuiRuleDefinitions(stem);
+    
+    rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
+
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#privilegesInheritedResultsId", 
         "/WEB-INF/grouperUi2/stem/privilegesInheritedContents.jsp"));
   
@@ -2307,6 +2309,63 @@ public class UiV2Stem {
   
   }
   
+  /**
+   * view this stem privileges inherited from folders
+   * @param request
+   * @param response
+   */
+  public void thisStemsPrivilegesInheritedFromFolders(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, true, false, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+  
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanReadPrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to read privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      RulesContainer rulesContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer();
+      
+      Set<GuiRuleDefinition> guiRuleDefinitions = new TreeSet<GuiRuleDefinition>();
+      
+      //cant be root stem :)
+      if (!stem.isRootStem()) {
+      
+        Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findFolderPrivilegeInheritRules(stem.getParentStem());
+        for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
+          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+        }
+      }
+      
+      for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitions) {
+        if (StringUtils.equals(stem.getParentStem().getUuid(), guiRuleDefinition.getOwnerGuiStem().getStem().getUuid())) {
+          guiRuleDefinition.setDirect(true);
+        }
+      }
+      rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/thisFoldersPrivilegesInheritedFromFolders.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
   
 
   /**
@@ -2350,6 +2409,15 @@ public class UiV2Stem {
         return;
       }      
 
+      if (StringUtils.equals(subject.getSourceId(), GrouperSourceAdapter.groupSourceId())) {
+        GrouperSubject grouperSubject = (GrouperSubject)subject;
+        Group group = grouperSubject.internal_getGroup();
+        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+          throw new RuntimeException("Cant assign group that you cannot read! " 
+              + GrouperUtil.subjectToString(loggedInSubject) + ", " + group);
+        }
+      }
+      
       final Subject SUBJECT = subject;
       
       boolean inheritedPrivilegeStemChecked = GrouperUtil.booleanValue(request.getParameter("inherited_privilege_stem"), false);
