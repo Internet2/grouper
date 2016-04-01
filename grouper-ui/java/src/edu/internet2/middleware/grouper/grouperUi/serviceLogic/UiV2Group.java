@@ -211,7 +211,10 @@ public class UiV2Group {
       {
         Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(group.getParentStem());
         for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
         }
       }
       
@@ -4602,7 +4605,10 @@ public class UiV2Group {
       {
         Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findSubjectPrivilegeInheritRules(grouperSubject, true);
         for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
         }
       }
       

@@ -1346,7 +1346,10 @@ public class UiV2Main extends UiServiceLogicBase {
       {
         Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findPrivilegeInheritRules(true);
         for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
         }
       }
       

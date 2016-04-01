@@ -133,7 +133,10 @@ public class UiV2Subject {
       {
         Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findSubjectPrivilegeInheritRules(subject, true);
         for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
         }
       }
       

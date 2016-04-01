@@ -213,7 +213,7 @@ public class GuiRuleDefinition implements Serializable, Comparable {
   public GuiStem getOwnerGuiStem() {
     if (this.ownerGuiStem == null) {
       if (this.assignedToStem) {
-        Stem stem = this.ruleDefinition.getAttributeAssignType().getOwnerStem();
+        Stem stem = this.ruleDefinition.getAttributeAssignType().getOwnerStemFailsafe();
         if (stem != null) {
           this.ownerGuiStem = new GuiStem(stem);
         }

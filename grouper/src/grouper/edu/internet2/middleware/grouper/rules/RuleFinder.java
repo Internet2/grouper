@@ -94,7 +94,7 @@ public class RuleFinder {
             case assignStemPrivilegeToStemId:
 
               //get the stem
-              Stem stem = ruleDefinition.getAttributeAssignType().getOwnerStem();
+              Stem stem = ruleDefinition.getAttributeAssignType().getOwnerStemFailsafe();
               if (stem == null) {
                 //why?
                 continue;
@@ -204,7 +204,7 @@ public class RuleFinder {
               if (subject != null && SubjectHelper.eq(currentSubject, subject)) {
                 
                 //get the stem
-                Stem stem = ruleDefinition.getAttributeAssignType().getOwnerStem();
+                Stem stem = ruleDefinition.getAttributeAssignType().getOwnerStemFailsafe();
                 if (stem == null) {
                   //why?
                   continue;

@@ -178,7 +178,10 @@ public class UiV2AttributeDef {
       {
         Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findAttributeDefPrivilegeInheritRules(attributeDef.getParentStem());
         for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
         }
       }
       

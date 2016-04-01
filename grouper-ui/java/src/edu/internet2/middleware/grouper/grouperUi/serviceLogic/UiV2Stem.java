@@ -1302,14 +1302,20 @@ public class UiV2Stem {
     {
       Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
       for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-        guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        if (guiRuleDefinition.getOwnerGuiStem() != null) {
+          guiRuleDefinitions.add(guiRuleDefinition);
+        }
       }
     }
     
     {
       Set<RuleDefinition> stemRuleDefinitions  = RuleFinder.findFolderPrivilegeInheritRules(stem);
       for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(stemRuleDefinitions)) {
-        guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        if (guiRuleDefinition.getOwnerGuiStem() != null) {
+          guiRuleDefinitions.add(guiRuleDefinition);
+        }
       }
     }
     
@@ -1317,8 +1323,9 @@ public class UiV2Stem {
       Set<RuleDefinition> attributeDefRuleDefinitions  = RuleFinder.findAttributeDefPrivilegeInheritRules(stem);
       for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(attributeDefRuleDefinitions)) {
         GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
-        
-        guiRuleDefinitions.add(guiRuleDefinition);
+        if (guiRuleDefinition.getOwnerGuiStem() != null) {
+          guiRuleDefinitions.add(guiRuleDefinition);
+        }
       }
     }
     for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitions) {
@@ -2347,7 +2354,10 @@ public class UiV2Stem {
       
         Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findFolderPrivilegeInheritRules(stem.getParentStem());
         for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
-          guiRuleDefinitions.add(new GuiRuleDefinition(ruleDefinition));
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
         }
       }
       
@@ -2389,7 +2399,11 @@ public class UiV2Stem {
       if (stem == null) {
         return;
       }
-    
+
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanUpdatePrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to update privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+
       String subjectString = request.getParameter("groupAddMemberComboName");
   
       Subject subject = null;
