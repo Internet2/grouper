@@ -182,6 +182,7 @@ public class AllTests extends GrouperTest {
     TestSuite suite = new TestSuite();
 
     //$JUnit-BEGIN$
+    suite.addTestSuite(MembershipFinderTest.class);
     suite.addTestSuite(TestStemFinder.class);
     suite.addTestSuite(TestComposite.class);
     suite.addTestSuite(TestGroupType.class);
