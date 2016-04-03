@@ -36,7 +36,7 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogConsumerBaseImplTest("testMarkParentFolder"));
+    TestRunner.run(new ChangeLogConsumerBaseImplTest("testRemoveAttributeFromFolder"));
   }
   
   /**
@@ -134,6 +134,8 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     group2.addMember(ann);
     group2.addMember(bill);
 
+    //wait for grouper_debug.log: changeLog.consumer.print skipping addMembership for subject Bill Brown 
+    //since group testFolder:parentFolder:subFolder:group2 is not marked for sync
     runJobs();
 
     assertEquals(0, PrintChangeLogConsumer.eventsProcessed.size());
@@ -143,12 +145,12 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     Stem parentFolder = StemFinder.findByName(gs, parentFolderName, true);
     parentFolder.getAttributeDelegate().assignAttribute(syncAttr);
 
-    runJobs();
-    
     // added syncAttribute to parent folder")
     // wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships");
     // wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships");
     // print("end of Test 1.0.1 Marking a parent folder");
+    runJobs();
+    
     assertEquals(2, PrintChangeLogConsumer.eventsProcessed.size());
     assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
         PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " add group " + group1.getName() + " and memberships."));
@@ -157,12 +159,73 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
   }
 
   /**
+   * test removing marker from parent
+   */
+  public void testRemoveAttributeFromFolder() {
+ 
+    // Grouper action: 1.1 Remove a marker from a folder
+    // Target outcome: remove groups under that folder and any subfolder (and implicitly all the memberships), unless otherwise marked from a parent folder or has a direct assignment 
+    // Test 1.1.1: Removing mark from parent folder with subfolders and groups (and no other marks)
+    // 1) Test 1.0.1
+    // 2) Remove syncAttribute marker from parent folder
+    // Outcome:
+    // 1) all groups within folder structure removed from target
+    // GSH:
+    // Test 1.1.1 Removing mark from parent folder with subfolders and groups (and no other marks)
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject bob = SubjectTestHelper.SUBJ0;
+    Subject ann = SubjectTestHelper.SUBJ1;
+    Subject bill = SubjectTestHelper.SUBJ2;
+    String testFolderName = "testFolder";
+
+    // add group1 and membership to parent folder
+    String parentFolderName = testFolderName + ":parentFolder";
+    String group1Name = parentFolderName + ":group1";
+    Group group1 = new GroupSave(grouperSession).assignName(group1Name).assignGroupNameToEdit(group1Name)
+        .assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignCreateParentStemsIfNotExist(true).save();
+    group1.addMember(bob);
+    group1.addMember(ann);
+    group1.addMember(bill);
+
+    // add group2 and membership to subfolder
+    String subFolderName = parentFolderName + ":subFolder";
+    String group2Name = subFolderName + ":group2";
+    Group group2 = new GroupSave(grouperSession).assignName(group2Name).assignGroupNameToEdit(group2Name).assignSaveMode(SaveMode.INSERT_OR_UPDATE).assignCreateParentStemsIfNotExist(true).save();
+    group2.addMember(bob);
+    group2.addMember(ann);
+    group2.addMember(bill);
+
+    // add syncAttribute mark to parent folder
+    AttributeDefName syncAttr = AttributeDefNameFinder.findByName(this.provisioningMarkerAttributeName.getName(), true);
+    Stem parentFolder = StemFinder.findByName(grouperSession, parentFolderName, true);
+    parentFolder.getAttributeDelegate().assignAttribute(syncAttr);
+
+    //add syncAttribute mark to parent folder
+    //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:group1 and memberships.
+    //wait for grouper_debug.log: changeLog.consumer.print add group testFolder:parentFolder:subFolder:group2 and memberships.
+    //hit return to continue
+    runJobs();
+    PrintChangeLogConsumer.eventsProcessed.clear();
+
+    // remove syncAttribute mark
+    parentFolder.getAttributeDelegate().removeAttribute(syncAttr);
+    runJobs();
+
+    //removed syncAttribute mark");
+    //wait for group_debug.log: changeLog.consumer.print processed deleteAttributeAssign etc:attribute:changeLogConsumer:printSync for folder testFolder:parentFolder, no other mark found for group testFolder:parentFolder:group1 so calling removeGroup");
+    assertEquals(2, PrintChangeLogConsumer.eventsProcessed.size());
+    assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
+        PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " remove group " + group1.getName()));
+    assertTrue(GrouperUtil.toStringForLog(PrintChangeLogConsumer.eventsProcessed), 
+        PrintChangeLogConsumer.eventsProcessed.contains(JOB_NAME + " remove group " + group2.getName()));
+
+  }
+  
+  /**
    * 
    */
   private void runJobs() {
     
-    //wait for grouper_debug.log: changeLog.consumer.print skipping addMembership for subject Bill Brown 
-    //since group testFolder:parentFolder:subFolder:group2 is not marked for sync
     ChangeLogTempToEntity.convertRecords();
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
