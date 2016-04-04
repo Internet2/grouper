@@ -19,6 +19,31 @@ import edu.internet2.middleware.subject.Subject;
 public class PrintChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 
   /**
+   * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl#renameGroup(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.changeLog.ChangeLogEntry, edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl)
+   */
+  @Override
+  protected void renameGroup(String oldGroupName, String newGroupName,
+      ChangeLogEntry changeLogEntry, ChangeLogConsumerBaseImpl consumer) {
+  
+    String event =  consumer.getConsumerName() + " rename group " + oldGroupName + " to " + newGroupName;
+    addEvent(event);
+    LOG.debug(event);
+
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl#removeMovedGroup(java.lang.String, edu.internet2.middleware.grouper.changeLog.ChangeLogEntry, edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBaseImpl)
+   */
+  @Override
+  protected void removeMovedGroup(String oldGroupName, ChangeLogEntry changeLogEntry,
+      ChangeLogConsumerBaseImpl consumer) {
+    String event =  consumer.getConsumerName() + " remove moved group " + oldGroupName;
+    addEvent(event);
+    LOG.debug(event);
+  }
+
+  /**
    * list used for testing
    */
   public static List<String> eventsProcessed = new ArrayList<String>();
@@ -63,7 +88,7 @@ public class PrintChangeLogConsumer extends ChangeLogConsumerBaseImpl {
   protected void addGroupAndMemberships(Group group, ChangeLogEntry changeLogEntry,
       ChangeLogConsumerBaseImpl consumer) {
     // changeLogEntry type is attributeAssign_addAttributeAssign on group or folder
-    String event = consumer.getConsumerName() + " add group " + group.getName() + " and memberships.";
+    String event = consumer.getConsumerName() + " add group " + group.getName() + " and memberships";
     addEvent(event);
     LOG.debug(event);
   }
@@ -116,7 +141,7 @@ public class PrintChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 //    final String subjectId = changeLogEntry
 //        .retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
 
-    String event = consumer.getConsumerName() + " add subject " + subject.getName() + " to group " + group.getName();
+    String event = consumer.getConsumerName() + " add subject " + subject.getId() + " to group " + group.getName();
     addEvent(event);
     LOG.debug(event);
     
@@ -133,7 +158,7 @@ public class PrintChangeLogConsumer extends ChangeLogConsumerBaseImpl {
 //        .retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
 //    final String subjectId = changeLogEntry
 //        .retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
-    String event = consumer.getConsumerName() + " remove subject " + subject.getName() + " from group " + group.getName();
+    String event = consumer.getConsumerName() + " remove subject " + subject.getId() + " from group " + group.getName();
     addEvent(event);
     LOG.debug(event);
   }
