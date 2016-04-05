@@ -69,7 +69,6 @@
 	<classpathentry kind="lib" path="lib/grouper/hibernate-ehcache-5.0.4.Final.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/jandex-2.0.0.CR1.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/jboss-logging-3.3.0.Final.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/hibernate-core-5.0.4.Final-sources.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/c3p0-0.9.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/c3p0-oracle-thin-extras-0.9.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/mchange-commons-java-0.2.11.jar"/>
