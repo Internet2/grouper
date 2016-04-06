@@ -544,7 +544,7 @@ public enum GrouperWsRestGet {
     public WsResponseBean service(GrouperVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
 
-      //url should be: /xhtml/v1_3_000/messages
+      //url should be: /xhtml/v1_3_000/messaging
       String somethingElse = GrouperServiceUtils.popUrlString(urlStrings);
 
       if (!StringUtils.isBlank(somethingElse)) {

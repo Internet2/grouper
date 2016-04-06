@@ -72,6 +72,9 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubject
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestMessageAcknowledgeRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestReceiveMessageRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
@@ -287,6 +290,13 @@ public class WsRestClassLookup {
     addAliasClass(WsAttributeDefSaveResults.class);
     addAliasClass(WsAttributeDefSaveResult.class);
     addAliasClass(WsAttributeDefSaveLiteResult.class);
+    
+    addAliasClass(WsRestSendMessageRequest.class);
+    addAliasClass(WsRestReceiveMessageRequest.class);
+    addAliasClass(WsRestMessageAcknowledgeRequest.class);
+    addAliasClass(WsMessage.class);
+    addAliasClass(WsMessageResults.class);
+    addAliasClass(WsMessageAcknowledgeResults.class);
     
   }
   

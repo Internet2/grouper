@@ -9268,9 +9268,14 @@ public class GrouperServiceLogic {
 
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
-          .assignLongPollMillis(blockMillis)
-          .assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce)
           .assignQueueName(queueOrTopicName);
+      
+      if (blockMillis != null) {
+        grouperMessageReceiveParam.assignLongPollMillis(blockMillis);
+      }
+      if (maxMessagesToReceiveAtOnce != null) {
+        grouperMessageReceiveParam.assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce);
+      }
 
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine
           .receive(grouperMessageReceiveParam);

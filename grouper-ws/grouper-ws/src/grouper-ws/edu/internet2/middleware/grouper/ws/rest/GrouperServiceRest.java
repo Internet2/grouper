@@ -2501,7 +2501,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestReceiveMessageRequest.getClientVersion()),
         false, "clientVersion");
 
-    WsMessageResults wsSendMessageResults = new GrouperService(false).receiveMessage(
+    WsMessageResults wsReceiveMessageResults = new GrouperService(false).receiveMessage(
         clientVersionString, wsRestReceiveMessageRequest.getQueueOrTopicName(),
         wsRestReceiveMessageRequest.getMessageSystemName(),
         wsRestReceiveMessageRequest.getBlockMillis(),
@@ -2509,7 +2509,7 @@ public class GrouperServiceRest {
         wsRestReceiveMessageRequest.getActAsSubjectLookup(),
         wsRestReceiveMessageRequest.getParams());
 
-    return wsSendMessageResults;
+    return wsReceiveMessageResults;
   }
 
   /**
