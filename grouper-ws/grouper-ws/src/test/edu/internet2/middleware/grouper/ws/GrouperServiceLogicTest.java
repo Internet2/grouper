@@ -9788,6 +9788,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
     
+    // happy path
     WsMessageAcknowledgeResults messageAcknowledgeResults = GrouperServiceLogic.acknowledge(GROUPER_VERSION, "abc", null, 
         GrouperMessageAcknowledgeType.mark_as_processed,
         new String[] {grouperMessage.getId()}, null, null, actAsSubjectLookup, null);

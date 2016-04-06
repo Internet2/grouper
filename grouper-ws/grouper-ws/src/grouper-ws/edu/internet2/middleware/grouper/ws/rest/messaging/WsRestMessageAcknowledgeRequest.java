@@ -45,16 +45,16 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   /** messaging system name **/
   private String messageSystemName;
   
-  /** what to do with the message. valid options are: MARK_AS_PROCESSED, RETURN_TO_QUEUE, RETURN_TO_END_OF_QUEUE,  SEND_TO_ANOTHER_TOPIC_OR_QUEUE **/
+  /** what to do with the message. valid options are: mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue **/
   private String acknowledgeType;
   
   /** messages to be marked as processed **/
   private String[] messageIds;
   
-  /** destination of the message if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE **/
+  /** destination of the message if acknowledgeType is send_to_another_queue **/
   private String anotherQueueOrTopicName;
   
-  /** destination type if acknowledge type is SEND_TO_ANOTHER_TOPIC_OR_QUEUE. Valid values are QUEUE and TOPIC**/
+  /** destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic **/
   private String anotherQueueOrTopic;
   
   /**
@@ -100,7 +100,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   }
   
   /** 
-   *  what to do with the message. valid options are: MARK_AS_PROCESSED, RETURN_TO_QUEUE, RETURN_TO_END_OF_QUEUE,  SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   *  what to do with the message. valid options are: mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue
    * @return acknowledgeType
    */
   public String getAcknowledgeType() {
@@ -108,7 +108,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   }
 
   /**
-   *  what to do with the message. valid options are: MARK_AS_PROCESSED, RETURN_TO_QUEUE, RETURN_TO_END_OF_QUEUE,  SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   *  what to do with the message. valid options are: mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue
    * @param acknowledgeType1
    */
   public void setAcknowledgeType(String acknowledgeType1) {
@@ -116,7 +116,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   }
 
   /**
-   * destination of the message if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * destination of the message if acknowledgeType is send_to_another_queue
    * @return anotherQueueOrTopicName
    */
   public String getAnotherQueueOrTopicName() {
@@ -124,7 +124,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   }
 
   /**
-   * destination of the message if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE
+   * destination of the message if acknowledgeType is send_to_another_queue
    * @param anotherQueueOrTopicName1
    */
   public void setAnotherQueueOrTopicName(String anotherQueueOrTopicName1) {
@@ -132,7 +132,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   }
 
   /**
-   * destination type if acknowledge type is SEND_TO_ANOTHER_TOPIC_OR_QUEUE. Valid values are QUEUE and TOPIC
+   * destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic
    * @return anotherQueueOrTopic
    */
   public String getAnotherQueueOrTopic() {
@@ -140,7 +140,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   }
 
   /**
-   * destination type if acknowledge type is SEND_TO_ANOTHER_TOPIC_OR_QUEUE. Valid values are QUEUE and TOPIC
+   * destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic
    * @param anotherQueueOrTopic1
    */
   public void setAnotherQueueOrTopic(String anotherQueueOrTopic1) {

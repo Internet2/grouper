@@ -5016,8 +5016,13 @@ public class GrouperService {
 
       GrouperMessageAcknowledgeType messageAcknowledgeType = GrouperMessageAcknowledgeType
           .valueOfIgnoreCase(acknowledgeType, true);
-      GrouperMessageQueueType messageQueueType = GrouperMessageQueueType
-          .valueOfIgnoreCase(anotherQueueType, true);
+      
+      GrouperMessageQueueType messageQueueType = null;
+      if (anotherQueueType != null) {
+        messageQueueType = GrouperMessageQueueType
+            .valueOfIgnoreCase(anotherQueueType, true);
+      }
+     
 
       wsMessageResults = GrouperServiceLogic.acknowledge(grouperWsVersion,
           queueOrTopicName, messageSystemName,
