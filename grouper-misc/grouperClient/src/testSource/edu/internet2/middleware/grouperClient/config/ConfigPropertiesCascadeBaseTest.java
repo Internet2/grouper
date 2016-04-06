@@ -16,12 +16,15 @@
 package edu.internet2.middleware.grouperClient.config;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * 
@@ -34,7 +37,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testOriginalHasHierarchy"));
+    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testEnvironmentVariables"));
   }
   
   /**
@@ -45,6 +48,23 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     super(name);
   }
 
+  /**
+   * testCascadeConfig.properties
+   */
+  public void testEnvironmentVariables() {
+    Map<String, String> env = System.getenv();
+    String javaHome = env.get("JAVA_HOME");
+    
+    if (StringUtils.isBlank(javaHome)) {
+      fail("Sorry, but you need JAVA_HOME set for this test to work!");
+    }
+
+    //some.config.1.elConfig = ${elUtils.append('a', 'b')}
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever.elConfig", "${java.lang.System.getenv().get('JAVA_HOME')}");
+    
+    assertEquals(javaHome, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever"));
+  }
+  
   /**
    * testCascadeConfig.properties
    */
