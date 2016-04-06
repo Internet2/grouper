@@ -9576,7 +9576,7 @@ public class GrouperInstallerUtils  {
       }
       return sb.toString();
     } catch (Exception e) {
-      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath());
+      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath(), e);
     }
   }
 
@@ -10539,7 +10539,7 @@ public class GrouperInstallerUtils  {
       return null;
     }
     if (nodes.getLength() != 1) {
-      throw new RuntimeException("There is more than 1 Server element in server.xml: " + xmlFile.getAbsolutePath());
+      throw new RuntimeException("There is more than 1 xpath expression: '" + xpathExpression + "' element in server.xml: " + xmlFile.getAbsolutePath());
     }
     
     
