@@ -9268,7 +9268,7 @@ public class GrouperServiceLogic {
 
       GrouperMessageReceiveParam grouperMessageReceiveParam = new GrouperMessageReceiveParam()
           .assignGrouperMessageSystemName(messageSystemName)
-          .assignQueue(queueOrTopicName);
+          .assignQueueName(queueOrTopicName);
       
       if (blockMillis != null) {
         grouperMessageReceiveParam.assignLongPollMillis(blockMillis);
@@ -9371,7 +9371,7 @@ public class GrouperServiceLogic {
       GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam = new GrouperMessageAcknowledgeParam();
       grouperMessageAcknowledgeParam.assignAcknowledgeType(acknowledgeType);
       grouperMessageAcknowledgeParam.assignQueueName(queueOrTopicName);
-      grouperMessageAcknowledgeParam.assignGropuerMessageSystemName(messageSystemName);
+      grouperMessageAcknowledgeParam.assignGrouperMessageSystemName(messageSystemName);
       grouperMessageAcknowledgeParam.assignGrouperMessages(grouperMessages);
 
       if (!StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType != null) {
