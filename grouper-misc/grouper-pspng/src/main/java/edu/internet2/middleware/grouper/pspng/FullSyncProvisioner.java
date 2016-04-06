@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.pspng;
  ******************************************************************************/
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,6 +47,44 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  *
  */
 public class FullSyncProvisioner  {
+  protected static class FullSyncQueueItem {
+	  Date queuedTime = new Date();
+	  
+	  // Either a group or 'null' to indicate that a sweep of extra groups
+	  // should be performed
+	  Group groupToProcess;
+	  
+	  public FullSyncQueueItem(Group g) {
+		  this.groupToProcess = g;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((groupToProcess == null) ? 0 : groupToProcess.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FullSyncQueueItem other = (FullSyncQueueItem) obj;
+		if (groupToProcess == null) {
+			if (other.groupToProcess != null)
+				return false;
+		} else if (!groupToProcess.equals(other.groupToProcess))
+			return false;
+		return true;
+	}
+  }
+  
   final private Logger LOG;
   
   final protected Provisioner provisioner;
@@ -56,15 +95,15 @@ public class FullSyncProvisioner  {
   Condition notEmptyCondition = groupListLock.newCondition();
   
   // What groups need to be Full-Synced?
-  List<Group> groupsToSync = new LinkedList<Group>();
+  List<FullSyncQueueItem> groupsToSync = new LinkedList<FullSyncQueueItem>();
   
   // What groups need to be Full-Synced as soon as possible?
   // This is a Set (instead of a List or a PriorityQueue) to avoid duplicates. 
-  Set<Group> groupsToSyncAsap = new HashSet<Group>();
+  Set<FullSyncQueueItem> groupsToSyncAsap = new HashSet<FullSyncQueueItem>();
   
   // What groups failed in their full-sync at least once and need to be Full-Synced again?
   // This is a Set (instead of a List or a PriorityQueue) to avoid duplicates. 
-  Set<Group> groupsToSyncRetry = new HashSet<Group>();
+  Set<FullSyncQueueItem> groupsToSyncRetry = new HashSet<FullSyncQueueItem>();
   
   /**
    * Constructor used by the getfullSyncer() factory method to construct a full-sync wrapper
@@ -115,7 +154,7 @@ public class FullSyncProvisioner  {
     GrouperSession.startRootSession();
     
     while (true) {
-      Group group = null;
+    	FullSyncQueueItem queueItem = null;
       
       try {
         groupListLock.lock();
@@ -129,12 +168,12 @@ public class FullSyncProvisioner  {
         //       hammering away at retry after retry
         
         if ( groupsToSyncAsap.size() > 0 ) {
-          group = groupsToSyncAsap.iterator().next();
-          groupsToSyncAsap.remove(group);
+          queueItem = groupsToSyncAsap.iterator().next();
+          groupsToSyncAsap.remove(queueItem);
         } else if ( groupsToSync.size() > 0 )
-          group = groupsToSync.remove(0);
+          queueItem = groupsToSync.remove(0);
         else if ( groupsToSyncRetry.size() > 0 ) {
-          group = groupsToSyncRetry.iterator().next();
+          queueItem = groupsToSyncRetry.iterator().next();
           
           // Sleep to prevent hammering away
           try {
@@ -146,21 +185,37 @@ public class FullSyncProvisioner  {
         else {
           LOG.info("No groups ready for FullSync. Waiting....");
           notEmptyCondition.awaitUninterruptibly();
+          
+          // Did not pull a group, so jump to the top of the loop
+          continue;
         }
       }
       finally {
         groupListLock.unlock();
       }
       
-      if ( group != null ) {
-        try {
-          MDC.put("what", group.getName()+"/");
-          processGroup(group);
-        }
-        finally {
-          MDC.remove("what");
-        }
+      // We pulled a work element from a queue. Time to get busy.
+      if ( queueItem == null )
+    	  throw new IllegalStateException("Should always have pulled a queue item or gone back to top of loop");
+      
+      Group group = queueItem.groupToProcess;
+      
+      try {
+    	  if ( group != null ) {
+    		  MDC.put("what", group.getName()+"/");
+    		  processGroup(group);
+    	  }
+    	  else {
+    		  // Time to look for extra groups
+    		  if ( provisioner.config.isGrouperAuthoritative() ) {
+    			MDC.put("what", "group_cleanup");
+    			processGroupCleanup();
+    		  }
+    	  }
       }
+      finally {
+	      MDC.remove("what");
+	  }
     }
   }
   
@@ -175,11 +230,15 @@ public class FullSyncProvisioner  {
     for ( Group group : allGroups ) 
       if ( provisioner.shouldGroupBeProvisioned(group) )
         scheduleGroupForSync(group, false);
+    
+    if ( provisioner.config.isGrouperAuthoritative())
+    	scheduleGroupForSync(null, false);
   }
   
   
   /**
-   * Put the given group in the priority lane for full syncing
+   * Put the given group in a queue for full syncing
+   * @param asap: Should this group be done before others that were queued with !asap?
    * @param group
    */
   public void scheduleGroupForSync(Group group, boolean asap) {
@@ -188,13 +247,22 @@ public class FullSyncProvisioner  {
   }
   
   /**
+   * Put the given group in the priority lane for full syncing
+   * @param group
+   */
+  public void scheduleGroupCleanup() {
+    LOG.info("Scheduling group cleanup");
+    queueGroupForSync(null, groupsToSync);
+  }
+  
+  /**
    * Put the given group in the given full-sync queue
    * @param group
    */
-  private void queueGroupForSync(Group group, Collection<Group> queue) {
+  private void queueGroupForSync(Group group, Collection<FullSyncQueueItem> queue) {
     try {
       groupListLock.lock();
-      queue.add(group);
+      queue.add(new FullSyncQueueItem(group));
       
       notEmptyCondition.signal();
     }
@@ -226,6 +294,21 @@ public class FullSyncProvisioner  {
       // Put the group into the error queue
       queueGroupForSync(group, groupsToSyncRetry);
     }
+  }
+  
+  protected void processGroupCleanup() {
+    try {
+      LOG.info("{}: Starting Group Cleanup", provisioner.getName());
+      provisioner.doFullSync_cleanupExtraGroups();
+    } catch (PspException e) {
+      LOG.error("{}: Problem doing group cleanup: {}",
+          provisioner.getName(), e.getMessage() );
+    }
+    catch (Throwable e) {
+      LOG.error("{}: Problem doing group cleanup",
+          provisioner.getName(), e );
+    }
+  
   }
   
   

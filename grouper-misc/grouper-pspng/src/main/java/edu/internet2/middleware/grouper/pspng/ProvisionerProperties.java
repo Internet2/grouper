@@ -34,7 +34,21 @@ public class ProvisionerProperties {
     private static final Logger LOG = LoggerFactory.getLogger(ProvisionerProperties.class);
     public static final String PARAMETER_NAMESPACE = "changeLog.consumer.";
     protected final String provisionerName;
+
+    /**
+     * Should this provisioner be active, or should it simply report 
+     * success when changelog entries occur and skip full-sync requests?
+     */
+    private boolean enabled;
+    protected boolean enabled_defaultValue = true;
     
+    /**
+     * Should groups in the groupSearchBaseDn/allGroupSearchFilter be removed 
+     * if they no longer exist in Grouper?
+     */
+    private boolean grouperIsAuthoritative;
+    protected boolean grouperIsAuthoritative_defaultValue = false;
+
     private int sleepTimeAfterError_ms;
     protected int sleepTimeAfterError_ms_defaultValue = 1000;
     
@@ -46,6 +60,8 @@ public class ProvisionerProperties {
     protected int grouperSubjectCacheSize_defaultValue = 10000;
 
     protected String groupSelectionExpression;
+    
+
 
     // This expression says that the provisionerName has to be in a group or stem provision_to attribute
     // and NOT in neither a group or stem do_not_provision_to attribute
@@ -91,6 +107,14 @@ public class ProvisionerProperties {
         final String qualifiedParameterNamespace = PARAMETER_NAMESPACE + provisionerName + ".";
 
         LOG.debug("Ldap Group Provisioner - Setting properties for {} consumer/provisioner.", provisionerName);
+
+        enabled =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "enabled", enabled_defaultValue);
+        LOG.debug("Provisioner {} - Setting enabled to {}", provisionerName, enabled);
+
+        grouperIsAuthoritative =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "grouperIsAuthoritative", grouperIsAuthoritative_defaultValue);
+        LOG.debug("Provisioner {} - Setting grouperIsAuthoritative to {}", provisionerName, grouperIsAuthoritative);
 
         grouperDataCacheTime_secs =
             GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "grouperGroupCacheTime_secs", grouperGroupCacheTime_secs_defaultValue);
@@ -138,13 +162,14 @@ public class ProvisionerProperties {
     }
 
 
+    public boolean isEnabled() {
+    	return enabled;
+    }
     
     public int getGrouperDataCacheTime_secs() {
       return grouperDataCacheTime_secs;
     }
 
-
-    
     public int getGrouperGroupCacheSize() {
       return grouperGroupCacheSize;
     }
@@ -187,5 +212,9 @@ public class ProvisionerProperties {
 
     public long getSleepTimeAfterError_ms() {
       return sleepTimeAfterError_ms;
+    }
+    
+    public boolean isGrouperAuthoritative() {
+    	return grouperIsAuthoritative;
     }
 }

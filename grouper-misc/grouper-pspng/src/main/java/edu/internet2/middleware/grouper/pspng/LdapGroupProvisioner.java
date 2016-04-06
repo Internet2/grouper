@@ -171,6 +171,13 @@ public class LdapGroupProvisioner extends LdapProvisioner {
     }
   }
   
+  @Override
+	protected void duFullSync_cleanupExtraGroups(
+			Set<Group> groupsForThisProvisioner,
+			Map<Group, TargetSystemGroup> tsGroups) throws PspException {
+		// TODO Auto-generated method stub
+		
+	}
   
   @Override
   protected TargetSystemGroup createGroup(Group grouperGroup) throws PspException {

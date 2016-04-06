@@ -45,7 +45,17 @@ public class LdapAttributeProvisionerProperties extends LdapProvisionerPropertie
      *   TODO
      */
     private String provisionedAttributeValueFormat;
-    private static final String provisionedAttributeValueFormat_defaultValue = "${group.name}";
+    protected static final String provisionedAttributeValueFormat_defaultValue = "${group.name}";
+    
+    /**
+     * Wildcard attribute value can identify all users that attribute values
+     * provisioned by this provisioner. This is used to find attribute values
+     * no longer justified by the configuration, either by a deleted group or
+     * by a previous configuration. 
+     *  
+     * This is only used if grouperIsAuthoritative=true.
+     */
+    private String wildcardValueForFindingAllProvisionedValues;
     
     public LdapAttributeProvisionerProperties(String provisionerName) {
       super(provisionerName);

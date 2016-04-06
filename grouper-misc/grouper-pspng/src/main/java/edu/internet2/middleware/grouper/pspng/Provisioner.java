@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -48,28 +49,24 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Top-Level provisioner class of PSP. 
  * 
  * We expect that all subclasses would override the following two methods:
- *     provisionItem_addMembership_personSubject
- *   and
- *     provisionItem_deleteMembership_personSubject
+ *     addMembership & deleteMembership
  *   
  * And that some subclasses would override these two methods:
- *     provisionItem_addGroup 
- *   and, possibly, 
- *     provisionItem_deleteGroup
+ *     createGroup & deleteGroup
  *   
  *   
  * The Provisioner lifecycle is as follows:
  * -Constructed(Name and ProvisionerProperties subclass)
  *   (setup empty caches)
  * 
- * Loop forever
+ * Invoked with a batch of changes
  *   -startProvisioningBatch(A collection of change events)
  *      (refresh caches as necessary, do any bulk fetching that will help provisioning go faster)
- *   -provisionItem or a more specific provisionItem_* (for each event in the batch)
+ *   -provisionItem or addMember/deleMembership/createGroup/deleteGroup (for each event in the batch)
  *      (Determine and/or make the necessary changes)
  *      
  *   -finishProvisioningBatch(A collection of change events)
- *      (Perform any batch updates that were determined by not performed by provisionItem step)
+ *      (Perform any batch updates that were determined, but not performed, by provisionItem step)
  *      (Clear any caches specific to batch)
  *      
  * @author Bert Bee-Lindgren
@@ -697,8 +694,40 @@ public abstract class Provisioner {
     }
   }
   
+  final void doFullSync_cleanupExtraGroups() throws PspException {
+	  if ( !config.isGrouperAuthoritative() ) {
+		  LOG.warn("{}: Not doing group cleanup because grouper is not marked as authoritative in provisioner configuration", getName());
+		  return;
+	  }
+	  
+	  tsUserCache_shortTerm.clear();
+	  tsGroupCache_shortTerm.clear();
+	  try {
+		MDC.put("step", "setup");
+		Set<Group> groupsForThisProvisioner = new HashSet<Group>();
+		
+	    Collection<Group> allGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+	    
+	    for ( Group group : allGroups ) 
+	      if ( shouldGroupBeProvisioned(group) )
+	        groupsForThisProvisioner.add(group);
+	    
+	    Map<Group, TargetSystemGroup> tsGroups = fetchTargetSystemGroups(groupsForThisProvisioner);
+	    
+	    MDC.put("step", "clean");
+	    duFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups);
+	  }
+	  catch (PspException e) {
+		  LOG.error("Problem while looking for and removing extra groups: {}", e.getMessage());
+		  throw e;
+	  }
+	  finally {
+		  MDC.remove("step");
+	  }
+  }
   
-  /**
+
+/**
    * This is called by the FullSync thread, and is responsible for getting the
    * list of correct subjects together and cached. 
    * 
@@ -711,6 +740,11 @@ public abstract class Provisioner {
    * @throws PspException
    */
   final void doFullSync(Group group) throws PspException {
+	  
+	if ( !config.isEnabled() ) {
+		LOG.warn("{} is diabled. Full-sync not being done.", getName());
+		return;
+	}
     tsUserCache_shortTerm.clear();
     tsGroupCache_shortTerm.clear();
     
@@ -775,6 +809,23 @@ public abstract class Provisioner {
   protected abstract void doFullSync(
       Group group, TargetSystemGroup tsGroup, 
       Set<Subject> correctSubjects, Set<? extends TargetSystemUser> correctTSUsers) throws PspException;
+
+  /**
+   * This method's responsibility is find extra groups within Grouper's responsibility that
+   * exist in the target system. These extra groups should be removed.
+   * 
+   * Note: This is only called when grouperIsAuthoritative=true in the provisioner's properties.
+   * 
+   * The groups that should exist are passed in as a parameter.
+   * 
+   * @param groupsForThisProvisioner The correct list of groups for this provisioner
+   * @param tsGroups The correct list of Target System groups for this provisioner.
+   * for provisioners that do not use TargetSystemUsers.
+   */
+  protected abstract void duFullSync_cleanupExtraGroups(
+		  Set<Group> groupsForThisProvisioner, 
+		  Map<Group, TargetSystemGroup> tsGroups) throws PspException;
+  
 
   /**
    * Action method that handles membership additions where a person-subject is added to a 
@@ -913,6 +964,19 @@ public abstract class Provisioner {
   }
 
   public void provisionBatchOfItems(List<ProvisioningWorkItem> workItems) {
+	  
+	// Mark the items as successful if we are not enabled.
+	// Note: They are being marked as successful so that there is an easy mechanism
+	// to get a provisioner up to date with the changelog (or other event system). 
+	// Additionally, if you just don't want to process events, then you can remove
+	// this provisioner from the configuration.
+	if ( ! config.isEnabled() ) {
+		LOG.warn("{} is disabled. Provisioning not being done, and marking requested items as complete.", getName());
+		for ( ProvisioningWorkItem workItem : workItems ) 
+			workItem.markAsSuccess("Provisioner %s is not enabled", getName());
+		return;
+	}
+	
     // Tell the provisioner about this batch of workItems
     MDC.put("step", "start/");
     try {

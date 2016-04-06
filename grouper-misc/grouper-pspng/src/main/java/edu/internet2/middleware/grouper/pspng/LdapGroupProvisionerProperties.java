@@ -79,13 +79,6 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
     private String groupCreationBaseDn;
    
     /**
-     * Should groups in the groupSearchBaseDn/allGroupSearchFilter be removed 
-     * if they no longer exist in Grouper?
-     */
-    private boolean grouperIsAuthoritative;
-    protected boolean grouperIsAuthoritative_defaultValue = false;
-    
-    /**
      * How to find the group objects. This is required.
      */
     private String groupSearchBaseDn;

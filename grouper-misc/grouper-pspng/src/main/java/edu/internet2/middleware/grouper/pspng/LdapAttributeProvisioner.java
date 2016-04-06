@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.ldaptive.AttributeModification;
@@ -148,5 +149,12 @@ public class LdapAttributeProvisioner extends LdapProvisioner {
         extraMatches.size(), missingMatches.size());
     
   }
-
+  
+  @Override
+	protected void duFullSync_cleanupExtraGroups(
+			Set<Group> groupsForThisProvisioner,
+			Map<Group, TargetSystemGroup> tsGroups) throws PspException {
+		// TODO Auto-generated method stub
+		
+	}
 }
