@@ -105,7 +105,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefs"));
+    TestRunner.run(new GrouperClientWsTest("testAttributeDefSave"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -37653,7 +37653,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperSession grouperSession = GrouperSession.startRootSession();
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=T --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
       System.out.flush();
       output = new String(baos.toByteArray());
@@ -37682,7 +37682,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=true --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=T --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37712,8 +37712,8 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=true "
-              + "--attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF --saveMode=UPDATE",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef0/1 --createParentStemsIfNotExist=T "
+              + "--attributeDefType=attr --valueType=string --assignToAttributeDef=T --saveMode=UPDATE",
           " "));
 
       System.out.flush();
@@ -37746,8 +37746,8 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
-              + "--attributeDefLookupName=aStem:newAttributeDef --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=T "
+              + "--attributeDefLookupName=aStem:newAttributeDef --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37784,9 +37784,9 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=T "
               + "--attributeDefLookupUuid=" + newAttributeDef.getId()
-              + " --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+              + " --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37819,9 +37819,9 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=T "
               + "--attributeDefLookupIdIndex=" + newAttributeDef.getIdIndex()
-              + " --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+              + " --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37855,8 +37855,8 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=true "
-              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --createParentStemsIfNotExist=T "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37887,8 +37887,8 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef5 --idIndex=12345 --createParentStemsIfNotExist=true "
-              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef5 --idIndex=12345 --createParentStemsIfNotExist=T "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37921,8 +37921,8 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectId=GrouperSystem --createParentStemsIfNotExist=true "
-              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectId=GrouperSystem --createParentStemsIfNotExist=T "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37954,8 +37954,8 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem --createParentStemsIfNotExist=true "
-              + "--description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+          "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem --createParentStemsIfNotExist=T "
+              + "--description=theDescription --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();
@@ -37989,8 +37989,8 @@ public class GrouperClientWsTest extends GrouperTest {
 
       GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=attributeDefSaveWs --name=aStem:newAttributeDef --actAsSubjectIdentifier=GrouperSystem"
-              + " --actAsSubjectSource=g:isa --createParentStemsIfNotExist=true"
-              + " --description=theDescription --attributeDefType=attr --valueType=string --assignableTos=ATTRIBUTE_DEF",
+              + " --actAsSubjectSource=g:isa --createParentStemsIfNotExist=T"
+              + " --description=theDescription --attributeDefType=attr --valueType=string --assignToAttributeDef=T",
           " "));
 
       System.out.flush();

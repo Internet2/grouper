@@ -176,7 +176,6 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -209,7 +208,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAcknowledgeMessages"));
+    TestRunner.run(new GrouperServiceLogicTest("testAttributeDefSave"));
   }
 
   /**
@@ -9537,7 +9536,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
     wsAttributeDef1.setName("test1:attributeDef1");
     wsAttributeDef1.setAttributeDefType("perm");
     wsAttributeDef1.setDescription("Perm Attribute Def");
-    wsAttributeDef1.setAssignableTos(new String[] { "GROUP", "EFFECTIVE_MEMBERSHIP" });
+    wsAttributeDef1.setAssignToGroup("T");
+    wsAttributeDef1.setAssignToEffectiveMembership("T");
     wsAttributeDef1.setValueType("marker");
     wsAttributeDefToSave1.setWsAttributeDef(wsAttributeDef1);
     //wsAttributeDefToSave1.setCreateParentStemsIfNotExist("T");
@@ -9545,7 +9545,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     WsAttributeDefToSave wsAttributeDefToSave2 = new WsAttributeDefToSave();
 
     WsAttributeDef wsAttributeDef2 = new WsAttributeDef();
-    wsAttributeDef2.setAssignableTos(new String[] { "ATTRIBUTE_DEF" });
+    wsAttributeDef2.setAssignToAttributeDef("T");
     wsAttributeDef2.setAttributeDefType("attr");
     wsAttributeDef2.setMultiAssignable("F");
     wsAttributeDef2.setMultiValued("F");
@@ -9593,7 +9593,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
     wsAttributeDef1.setName("test1:attributeDef1");
     wsAttributeDef1.setAttributeDefType("perm");
     wsAttributeDef1.setDescription("Perm Attribute Def");
-    wsAttributeDef1.setAssignableTos(new String[] { "GROUP", "EFFECTIVE_MEMBERSHIP" });
+    wsAttributeDef1.setAssignToGroup("T");
+    wsAttributeDef1.setAssignToEffectiveMembership("T");
     wsAttributeDef1.setValueType("marker");
     wsAttributeDefToSave1.setWsAttributeDef(wsAttributeDef1);
     //wsAttributeDefToSave1.setCreateParentStemsIfNotExist("T");
@@ -9601,7 +9602,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
     wsAttributeDefToSave2 = new WsAttributeDefToSave();
 
     wsAttributeDef2 = new WsAttributeDef();
-    wsAttributeDef2.setAssignableTos(new String[] { "ATTRIBUTE_DEF" });
+    wsAttributeDef2.setAssignToAttributeDef("T");
     wsAttributeDef2.setAttributeDefType("attr");
     wsAttributeDef2.setMultiAssignable("F");
     wsAttributeDef2.setMultiValued("F");
@@ -9644,14 +9645,15 @@ public class GrouperServiceLogicTest extends GrouperTest {
     wsAttributeDef1.setName("test1:attributeDef1");
     wsAttributeDef1.setAttributeDefType("perm");
     wsAttributeDef1.setDescription("Perm Attribute Def");
-    wsAttributeDef1.setAssignableTos(new String[] { "GROUP", "EFFECTIVE_MEMBERSHIP" });
+    wsAttributeDef1.setAssignToGroup("T");
+    wsAttributeDef1.setAssignToEffectiveMembership("T");
     wsAttributeDef1.setValueType("marker");
     wsAttributeDefToSave1.setWsAttributeDef(wsAttributeDef1);
 
     wsAttributeDefToSave2 = new WsAttributeDefToSave();
 
     wsAttributeDef2 = new WsAttributeDef();
-    wsAttributeDef2.setAssignableTos(new String[] { "ATTRIBUTE_DEF" });
+    wsAttributeDef2.setAssignToAttributeDef("T");
     wsAttributeDef2.setAttributeDefType("attr");
     wsAttributeDef2.setMultiAssignable("F");
     wsAttributeDef2.setMultiValued("F");
