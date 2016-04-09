@@ -15,18 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 
 /**
  * returned from the send/receive message web service
@@ -36,9 +26,6 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
  */
 public class WsMessageResults {
   
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsMessageResults.class);
-
   /**
    * result code of a request
    */
@@ -189,62 +176,5 @@ public class WsMessageResults {
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
-  }
-
-  /**
-   * put message in the results
-   * @param message
-   */
-  public void assignMessage(GrouperMessage message) {
-    this.assignMessages(GrouperUtil.toSet(message));
-  }
-
-  /**
-   * put message in the results
-   * @param messageSet
-   */
-  public void assignMessages(Set<GrouperMessage> messageSet) {
-    this.setMessages(WsMessage.convertMessages(messageSet));
-  }
-
-  /**
-   * assign the code from the enum
-   * 
-   * @param wsMessageResultsCode
-   */
-  public void assignResultCode(WsMessageResultsCode wsMessageResultsCode) {
-    this.getResultMetadata().assignResultCode(wsMessageResultsCode);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsMessageResultsCodeOverride 
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsMessageResultsCode wsMessageResultsCodeOverride, String theError,
-      Exception e) {
-  
-    if (e instanceof WsInvalidQueryException) {
-      wsMessageResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsMessageResultsCodeOverride, WsMessageResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsMessageResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
-    } else {
-      wsMessageResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsMessageResultsCodeOverride, WsMessageResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsMessageResultsCodeOverride);
-  
-    }
   }
 }

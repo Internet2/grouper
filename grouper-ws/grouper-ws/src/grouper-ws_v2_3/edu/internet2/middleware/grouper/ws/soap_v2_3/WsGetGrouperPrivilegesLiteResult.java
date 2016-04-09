@@ -18,22 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.WsSubjectLookup.SubjectFindResult;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Result of retrieving privileges for a user/group combo (and perhaps 
@@ -45,110 +30,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 public class WsGetGrouperPrivilegesLiteResult {
 
   /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  /**
-   * assign the code from the enum
-   * @param wsSubjectLookup1
-   * @param theSubjectAttributeNames
-   */
-  public void processSubject(WsSubjectLookup wsSubjectLookup1,
-      String[] theSubjectAttributeNames) {
-
-    SubjectFindResult subjectFindResult = wsSubjectLookup1.retrieveSubjectFindResult();
-
-    switch (subjectFindResult) {
-      case INVALID_QUERY:
-        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.INVALID_QUERY);
-        break;
-      case SOURCE_UNAVAILABLE:
-        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.EXCEPTION);
-        break;
-      case SUBJECT_DUPLICATE:
-        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUBJECT_DUPLICATE);
-        break;
-      case SUBJECT_NOT_FOUND:
-        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUBJECT_NOT_FOUND);
-        break;
-      case SUCCESS:
-        return;
-    }
-
-    this.getResultMetadata().setResultMessage(
-        "Subject: " + wsSubjectLookup1 + " had problems: " + subjectFindResult);
-
-  }
-
-  /**
    * empty
    */
   public WsGetGrouperPrivilegesLiteResult() {
     //empty
-  }
-
-  /** logger */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsGetGrouperPrivilegesLiteResult.class);
-
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsMemberChangeSubjectLiteResultCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsGetGrouperPrivilegesLiteResultCode wsMemberChangeSubjectLiteResultCodeOverride, 
-      String theError, Exception e) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsMemberChangeSubjectLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsMemberChangeSubjectLiteResultCodeOverride, WsGetGrouperPrivilegesLiteResultCode.INVALID_QUERY);
-      if (e.getCause() instanceof StemNotFoundException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.STEM_NOT_FOUND;
-      }
-      if (e.getCause() instanceof GroupNotFoundException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.GROUP_NOT_FOUND;
-      }
-      if (e.getCause() instanceof SubjectNotFoundException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.SUBJECT_NOT_FOUND;
-      }
-      if (e.getCause() instanceof SubjectNotUniqueException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.SUBJECT_DUPLICATE;
-      }
-      if (e.getCause() instanceof InsufficientPrivilegeException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES;
-      }
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsMemberChangeSubjectLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsMemberChangeSubjectLiteResultCodeOverride, WsGetGrouperPrivilegesLiteResultCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
-
-    }
-  }
-
-  /**
-   * assign the code from the enum
-   * @param memberChangeSubjectLiteResultCode1
-   */
-  public void assignResultCode(WsGetGrouperPrivilegesLiteResultCode memberChangeSubjectLiteResultCode1) {
-    this.getResultMetadata().assignResultCode(memberChangeSubjectLiteResultCode1);
   }
 
   /**
@@ -166,82 +51,6 @@ public class WsGetGrouperPrivilegesLiteResult {
    */
   private WsGrouperPrivilegeResult[] privilegeResults;
   
-  /**
-   * result code of a request
-   */
-  public static enum WsGetGrouperPrivilegesLiteResultCode implements WsResultCode {
-
-    /** didnt have problems (rest http status code 200) (success: T) */
-    SUCCESS(200),
-
-    /** didnt have problems, queried for one privilege, and it is allowed (rest http status code 200) (success: T) */
-    SUCCESS_ALLOWED(200),
-
-    /** didnt have problems, queried for one privilege, and it wasnt allowed (rest http status code 200) (success: T) */
-    SUCCESS_NOT_ALLOWED(200),
-
-    /** some exception occurred (rest http status code 500) (success: F) */
-    EXCEPTION(500),
-
-    /** if one request, and that is a duplicate (rest http status code 409) (success: F) */
-    SUBJECT_DUPLICATE(409),
-
-    /** if one request, and that is a subject not found (rest http status code 404) (success: F) */
-    SUBJECT_NOT_FOUND(404),
-
-    /** cant find group (rest http status code 404) (success: F) */
-    GROUP_NOT_FOUND(404),
-
-    /** cant find stem (rest http status code 404) (success: F) */
-    STEM_NOT_FOUND(404),
-
-    /** cant find type (rest http status code 404) (success: F) */
-    TYPE_NOT_FOUND(404),
-
-    /** cant find name (rest http status code 404) (success: F) */
-    NAME_NOT_FOUND(404),
-
-    /** if one request, and that is a insufficient privileges (rest http status code 403) (success: F) */
-    INSUFFICIENT_PRIVILEGES(403),
-
-    /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
-    INVALID_QUERY(400);
-
-    /** get the name label for a certain version of client 
-     * @param clientVersion 
-     * @return */
-    public String nameForVersion(GrouperVersion clientVersion) {
-      return this.name();
-    }
-
-    /**
-     * if this is a successful result
-     * 
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this.name().startsWith("SUCCESS");
-    }
-
-    /** http status code for rest/lite e.g. 200 */
-    private int httpStatusCode;
-
-    /**
-     * status code for rest/lite e.g. 200
-     * @param statusCode
-     */
-    private WsGetGrouperPrivilegesLiteResultCode(int statusCode) {
-      this.httpStatusCode = statusCode;
-    }
-
-    /**
-     * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
-     */
-    public int getHttpStatusCode() {
-      return this.httpStatusCode;
-    }
-  }
-
   /**
    * @return the resultMetadata
    */

@@ -16,13 +16,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.ws.soap_v2_3.WsAttributeDefDeleteLiteResult.WsAttributeDefDeleteLiteResultCode;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * Result of one attribute def being deleted.  The number of
@@ -33,35 +27,11 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsAttributeDefDeleteResult {
 
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefDeleteResult.class);
-
   /**
    * empty constructor
    */
   public WsAttributeDefDeleteResult() {
     //nothing to do
-  }
-
-  /**
-   * @param attributeDef attributeDef to assign
-   * @param wsAttributeDefLookup is the attribute lookup to assign
-   * 
-   */
-  public WsAttributeDefDeleteResult(AttributeDef attributeDef,
-      WsAttributeDefLookup wsAttributeDefLookup) {
-    this.wsAttributeDef = new WsAttributeDef(attributeDef, wsAttributeDefLookup);
-
-  }
-
-  /**
-   * create a result based on attribute def
-   * @param attributeDef
-   * @param wsAttributeDefLookup
-   */
-  public void assignAttributeDef(AttributeDef attributeDef,
-      WsAttributeDefLookup wsAttributeDefLookup) {
-    this.setWsAttributeDef(new WsAttributeDef(attributeDef, wsAttributeDefLookup));
   }
 
   /**
@@ -179,21 +149,6 @@ public class WsAttributeDefDeleteResult {
   }
 
   /**
-   * assign the code from the enum
-   * @param attributeDefDeleteResultCode
-   */
-  public void assignResultCode(
-      WsAttributeDefDeleteResultCode attributeDefDeleteResultCode) {
-    this.getResultMetadata()
-        .assignResultCode(
-            attributeDefDeleteResultCode == null ? null : attributeDefDeleteResultCode
-                .name());
-    this.getResultMetadata().assignSuccess(
-        GrouperServiceUtils.booleanToStringOneChar(attributeDefDeleteResultCode
-            .isSuccess()));
-  }
-
-  /**
    * @return the wsAttributeDef
    */
   public WsAttributeDef getWsAttributeDef() {
@@ -208,18 +163,6 @@ public class WsAttributeDefDeleteResult {
   }
 
   /**
-   * assign a resultcode of exception, and process/log the exception
-   * @param e
-   * @param wsAttributeDefLookup
-   */
-  public void assignResultCodeException(Exception e,
-      WsAttributeDefLookup wsAttributeDefLookup) {
-    this.assignResultCode(WsAttributeDefDeleteResultCode.EXCEPTION);
-    this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
-    LOG.error(wsAttributeDefLookup + ", " + e, e);
-  }
-
-  /**
    * @return the resultMetadata
    */
   public WsResultMeta getResultMetadata() {
@@ -231,15 +174,6 @@ public class WsAttributeDefDeleteResult {
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
-  }
-
-  /**
-   * convert string to result code
-   * @return the result code
-   */
-  public WsAttributeDefDeleteResultCode resultCode() {
-    return WsAttributeDefDeleteResultCode.valueOf(this.getResultMetadata()
-        .getResultCode());
   }
 
 }

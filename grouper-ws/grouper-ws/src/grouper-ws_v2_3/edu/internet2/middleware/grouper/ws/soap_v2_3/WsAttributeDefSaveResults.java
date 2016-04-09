@@ -13,17 +13,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.WsAttributeDefSaveResult.WsAttributeDefSaveResultCode;
 
 /**
  * <pre>
@@ -111,11 +102,6 @@ public class WsAttributeDefSaveResults {
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefSaveResults.class);
-
-  /**
    * results for each attribute def sent in
    * @return the results
    */
@@ -158,131 +144,6 @@ public class WsAttributeDefSaveResults {
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
-  }
-
-  /**
-   * assign the code from the enum
-   * @param attributeDefSaveResultCode
-   * @param clientVersion 
-   */
-  public void assignResultCode(WsAttributeDefSaveResultsCode attributeDefSaveResultCode,
-      GrouperVersion clientVersion) {
-    this.getResultMetadata().assignResultCode(attributeDefSaveResultCode, clientVersion);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsAttributeDefSaveResultsCodeOverride
-   * @param theError
-   * @param e
-   * @param clientVersion 
-   */
-  public void assignResultCodeException(
-      WsAttributeDefSaveResultsCode wsAttributeDefSaveResultsCodeOverride,
-      String theError, Exception e, GrouperVersion clientVersion) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsAttributeDefSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefSaveResultsCodeOverride,
-          WsAttributeDefSaveResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsAttributeDefSaveResultsCodeOverride, clientVersion);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsAttributeDefSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefSaveResultsCodeOverride, WsAttributeDefSaveResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsAttributeDefSaveResultsCodeOverride, clientVersion);
-
-    }
-  }
-
-  /**
-   * convert the result code back to enum
-   * @return the enum code
-   */
-  public WsAttributeDefSaveResultsCode retrieveResultCode() {
-    if (StringUtils.isBlank(this.getResultMetadata().getResultCode())) {
-      return null;
-    }
-    return WsAttributeDefSaveResultsCode
-        .valueOf(this.getResultMetadata().getResultCode());
-  }
-
-  /**
-   * make sure if there is an error, to record that as an error
-   * @param grouperTransactionType for request
-   * @param theSummary
-   * @param clientVersion 
-   * @return true if success, false if not
-   */
-  public boolean tallyResults(GrouperTransactionType grouperTransactionType,
-      String theSummary, GrouperVersion clientVersion) {
-    //maybe already a failure
-    boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
-        .getSuccess(), true);
-    if (this.getResults() != null) {
-      // check all entries
-      int successes = 0;
-      int failures = 0;
-      for (WsAttributeDefSaveResult wsAttributeDefSaveResult : this.getResults()) {
-        boolean theSuccess = "T".equalsIgnoreCase(wsAttributeDefSaveResult
-            .getResultMetadata()
-            .getSuccess());
-        if (theSuccess) {
-          successes++;
-        } else {
-          failures++;
-        }
-      }
-
-      //if transaction rolled back all line items, 
-      if ((!successOverall || failures > 0) && grouperTransactionType.isTransactional()
-          && !grouperTransactionType.isReadonly()) {
-        for (WsAttributeDefSaveResult wsAttributeDefSaveResult : this.getResults()) {
-          if (GrouperUtil.booleanValue(wsAttributeDefSaveResult.getResultMetadata()
-              .getSuccess(),
-              true)) {
-            wsAttributeDefSaveResult
-                .assignResultCode(WsAttributeDefSaveResultCode.TRANSACTION_ROLLED_BACK,
-                    clientVersion);
-            failures++;
-          }
-        }
-      }
-
-      if (failures > 0) {
-        this.getResultMetadata().appendResultMessage(
-            "There were " + successes + " successes and " + failures
-                + " failures of saving attribute defs.   ");
-        this.assignResultCode(
-            WsAttributeDefSaveResultsCode.PROBLEM_SAVING_ATTRIBUTE_DEFS, clientVersion);
-        //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
-
-      } else {
-        this.assignResultCode(WsAttributeDefSaveResultsCode.SUCCESS, clientVersion);
-      }
-    } else {
-      //none is not ok
-      this.assignResultCode(WsAttributeDefSaveResultsCode.INVALID_QUERY, clientVersion);
-      this.getResultMetadata().setResultMessage(
-          "Must pass in at least one attribute def to save");
-    }
-    //make response descriptive
-    if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
-      this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
-      return true;
-    }
-    //false if need rollback
-    return !grouperTransactionType.isTransactional();
   }
 
 }

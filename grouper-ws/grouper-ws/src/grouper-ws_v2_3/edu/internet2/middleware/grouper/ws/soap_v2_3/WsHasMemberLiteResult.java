@@ -15,17 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -40,72 +30,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author mchyzer
  */
 public class WsHasMemberLiteResult {
-
-  /**
-   * logger 
-   */
-  @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsHasMemberLiteResult.class);
-
-  /**
-   * result code of a request
-   */
-  public static enum WsHasMemberLiteResultCode implements WsResultCode {
-
-    /** discovered if each was a member of not (lite http status code 404) (success: F) */
-    GROUP_NOT_FOUND(404),
-
-    /** had an exception while figuring out if the subjects were members (lite http status code 500) (success: F) */
-    EXCEPTION(500),
-
-    /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
-    INVALID_QUERY(400), 
-    
-    /** the subject is a member (lite http status code 200) (success = T) */
-    IS_MEMBER(200), 
-    
-    /** the subject was found and is not a member (lite http status code 200) (success = T) */
-    IS_NOT_MEMBER(200), 
-    
-    /** found multiple results (lite http status code 409) (success = F) */
-    SUBJECT_DUPLICATE(409), 
-    
-    /** cant find the subject (lite http status code 404) (success = F) */
-    SUBJECT_NOT_FOUND(404);
-
-    /** get the name label for a certain version of client 
-     * @param clientVersion 
-     * @return */
-    public String nameForVersion(GrouperVersion clientVersion) {
-      return this.name();
-    }
-
-    /** http status code for rest/lite e.g. 200 */
-    private int httpStatusCode;
-
-    /**
-     * status code for rest/lite e.g. 200
-     * @param statusCode
-     */
-    private WsHasMemberLiteResultCode(int statusCode) {
-      this.httpStatusCode = statusCode;
-    }
-
-    /**
-     * @see edu.internet2.middleware.grouper.ws.WsResultCode#getHttpStatusCode()
-     */
-    public int getHttpStatusCode() {
-      return this.httpStatusCode;
-    }
-
-    /**
-     * if this is a successful result
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this.equals(IS_MEMBER) || this.equals(IS_NOT_MEMBER);
-    }
-  }
 
   /**
    * results for each assignment sent in
@@ -226,74 +150,10 @@ public class WsHasMemberLiteResult {
     //empty
   }
   /**
-   * construct from results of other
-   * @param wsHasMemberResults
-   */
-  public WsHasMemberLiteResult(WsHasMemberResults wsHasMemberResults) {
-
-    this.getResultMetadata().copyFields(wsHasMemberResults.getResultMetadata());
-    this.setSubjectAttributeNames(wsHasMemberResults.getSubjectAttributeNames());
-    this.setWsGroup(wsHasMemberResults.getWsGroup());
-
-    WsHasMemberResult wsHasMemberResult = GrouperServiceUtils
-        .firstInArrayOfOne(wsHasMemberResults.getResults());
-    if (wsHasMemberResult != null) {
-      this.getResultMetadata().copyFields(wsHasMemberResult.getResultMetadata());
-      this.getResultMetadata().assignResultCode(
-          wsHasMemberResult.resultCode().convertToLiteCode());
-      this.setWsSubject(wsHasMemberResult.getWsSubject());
-    }
-  }
-
-  
-  /**
    * @param resultMetadata1 the resultMetadata to set
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
-  }
-
-  /**
-   * assign the code from the enum
-   * @param addMemberLiteResultCode1
-   */
-  public void assignResultCode(WsHasMemberLiteResultCode addMemberLiteResultCode1) {
-    this.getResultMetadata().assignResultCode(addMemberLiteResultCode1);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsHasMemberLiteResultCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsHasMemberLiteResultCode wsHasMemberLiteResultCodeOverride, 
-      String theError, Exception e) {
-  
-    if (e instanceof WsInvalidQueryException) {
-      wsHasMemberLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsHasMemberLiteResultCodeOverride, WsHasMemberLiteResultCode.INVALID_QUERY);
-      if (e.getCause() instanceof GroupNotFoundException) {
-        wsHasMemberLiteResultCodeOverride = WsHasMemberLiteResultCode.GROUP_NOT_FOUND;
-      }
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsHasMemberLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
-    } else {
-      wsHasMemberLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsHasMemberLiteResultCodeOverride, WsHasMemberLiteResultCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsHasMemberLiteResultCodeOverride);
-  
-    }
   }
 
 }

@@ -15,14 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap_v2_3.WsAssignAttributesResults.WsAssignAttributesResultsCode;
 
 /**
  * <pre>
@@ -46,27 +39,6 @@ public class WsAssignPermissionsResults {
     //empty
   }
 
-  /**
-   * convert
-   * @param wsAssignAttributesResults
-   */
-  public WsAssignPermissionsResults(WsAssignAttributesResults wsAssignAttributesResults) {
-    this.responseMetadata = wsAssignAttributesResults.getResponseMetadata();
-    this.resultMetadata = wsAssignAttributesResults.getResultMetadata();
-    this.subjectAttributeNames = wsAssignAttributesResults.getSubjectAttributeNames();
-    int assignAttributesLength = GrouperUtil.length(wsAssignAttributesResults.getWsAttributeAssignResults());
-    if (assignAttributesLength > 0) {
-      this.wsAssignPermissionResults = new WsAssignPermissionResult[assignAttributesLength];
-      for (int i=0;i<assignAttributesLength;i++) {
-        this.wsAssignPermissionResults[i] = new WsAssignPermissionResult(wsAssignAttributesResults.getWsAttributeAssignResults()[i]);
-      }
-    }
-    this.wsAttributeDefNames = wsAssignAttributesResults.getWsAttributeDefNames();
-    this.wsAttributeDefs = wsAssignAttributesResults.getWsAttributeDefs();
-    this.wsGroups = wsAssignAttributesResults.getWsGroups();
-    this.wsSubjects = wsAssignAttributesResults.getWsSubjects();
-  }
-  
   /**
    * attribute def references in the assignments or inputs (and able to be read)
    */
@@ -179,11 +151,6 @@ public class WsAssignPermissionsResults {
   private WsSubject[] wsSubjects;
 
   /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAssignPermissionsResults.class);
-
-  /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
    * @return the response metadata
    */
@@ -235,45 +202,5 @@ public class WsAssignPermissionsResults {
    */
   public void setWsSubjects(WsSubject[] wsSubjects1) {
     this.wsSubjects = wsSubjects1;
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsGetAttributeAssignmentsResultsCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAssignAttributesResultsCode wsGetAttributeAssignmentsResultsCodeOverride, String theError,
-      Exception e) {
-  
-    if (e instanceof WsInvalidQueryException) {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
-    } else {
-      wsGetAttributeAssignmentsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsGetAttributeAssignmentsResultsCodeOverride, WsAssignAttributesResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGetAttributeAssignmentsResultsCodeOverride);
-  
-    }
-  }
-
-  /**
-   * assign the code from the enum
-   * @param getAttributeAssignmentsResultCode
-   */
-  public void assignResultCode(WsAssignAttributesResultsCode getAttributeAssignmentsResultCode) {
-    this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
   }
 }

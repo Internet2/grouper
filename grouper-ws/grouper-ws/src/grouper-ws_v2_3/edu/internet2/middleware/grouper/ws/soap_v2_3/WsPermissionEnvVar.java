@@ -19,8 +19,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
 
 /**
  * param for permission query if there are run time limits this is the runtime data
@@ -122,15 +120,6 @@ public class WsPermissionEnvVar {
    */
   public void setParamValue(String paramValue1) {
     this.paramValue = paramValue1;
-  }
-  
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this);
   }
   
 }

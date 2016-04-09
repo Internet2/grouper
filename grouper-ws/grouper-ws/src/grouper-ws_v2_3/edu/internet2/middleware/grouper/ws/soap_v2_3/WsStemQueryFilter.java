@@ -18,15 +18,12 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import edu.internet2.middleware.grouper.GrouperSession;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 /**
  * this represents a query which can be and'ed or or'ed
  */
 public class WsStemQueryFilter {
-
-  /** grouper session */
-  private GrouperSession grouperSession = null;
 
   /**
    * findStemType is the WsStemQueryFilterType enum for which type of find is happening:  e.g.
@@ -253,6 +250,16 @@ public class WsStemQueryFilter {
    */
   public void setStemQueryFilter1(WsStemQueryFilter theQueryFilter1) {
     this.stemQueryFilter1 = theQueryFilter1;
+  }
+
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    //delegate here
+    return new ReflectionToStringBuilder(this).toString();
   }
 
   /**

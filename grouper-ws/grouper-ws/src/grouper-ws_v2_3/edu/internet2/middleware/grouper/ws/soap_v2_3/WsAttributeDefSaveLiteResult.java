@@ -13,16 +13,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -122,11 +114,6 @@ public class WsAttributeDefSaveLiteResult {
   private WsAttributeDef wsAttributeDef;
 
   /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefSaveLiteResult.class);
-
-  /**
    * @return the resultMetadata
    */
   public WsResultMeta getResultMetadata() {
@@ -170,88 +157,10 @@ public class WsAttributeDefSaveLiteResult {
   }
 
   /**
-   * assign the code from the enum
-   * @param attributeDefSaveLiteResultCode
-   * @param clientVersion 
-   */
-  public void assignResultCode(
-      WsAttributeDefSaveLiteResultCode attributeDefSaveLiteResultCode,
-      GrouperVersion clientVersion) {
-    this.getResultMetadata().assignResultCode(attributeDefSaveLiteResultCode,
-        clientVersion);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsAttributeDefSaveResultsCodeOverride
-   * @param theError
-   * @param e
-   * @param clientVersion
-   */
-  public void assignResultCodeException(
-      WsAttributeDefSaveLiteResultCode wsAttributeDefSaveResultsCodeOverride,
-      String theError, Exception e, GrouperVersion clientVersion) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsAttributeDefSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefSaveResultsCodeOverride,
-          WsAttributeDefSaveLiteResultCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsAttributeDefSaveResultsCodeOverride, clientVersion);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsAttributeDefSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefSaveResultsCodeOverride,
-          WsAttributeDefSaveLiteResultCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsAttributeDefSaveResultsCodeOverride, clientVersion);
-
-    }
-  }
-
-  /**
-   * convert the result code back to enum
-   * @return the enum code
-   */
-  public WsAttributeDefSaveLiteResultCode retrieveResultCode() {
-    if (StringUtils.isBlank(this.getResultMetadata().getResultCode())) {
-      return null;
-    }
-    return WsAttributeDefSaveLiteResultCode.valueOf(this.getResultMetadata()
-        .getResultCode());
-  }
-
-  /**
    * empty
    */
   public WsAttributeDefSaveLiteResult() {
     //empty
-  }
-
-  /**
-   * construct from results of other
-   * @param wsAttributeDefSaveResults
-   */
-  public WsAttributeDefSaveLiteResult(WsAttributeDefSaveResults wsAttributeDefSaveResults) {
-
-    this.getResultMetadata().copyFields(wsAttributeDefSaveResults.getResultMetadata());
-
-    WsAttributeDefSaveResult wsAttributeDefSaveResult = GrouperServiceUtils
-        .firstInArrayOfOne(wsAttributeDefSaveResults.getResults());
-    if (wsAttributeDefSaveResult != null) {
-      this.getResultMetadata().copyFields(wsAttributeDefSaveResult.getResultMetadata());
-
-      this.getResultMetadata().assignResultCode(
-          wsAttributeDefSaveResult.resultCode().convertToLiteCode());
-      this.setWsAttributeDef(wsAttributeDefSaveResult.getWsAttributeDef());
-    }
   }
 
 }

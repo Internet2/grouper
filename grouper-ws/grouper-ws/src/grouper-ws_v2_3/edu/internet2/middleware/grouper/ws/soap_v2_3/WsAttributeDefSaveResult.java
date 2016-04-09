@@ -200,11 +200,6 @@ public class WsAttributeDefSaveResult {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefSaveResult.class);
-
-  /**
    * @return the resultMetadata
    */
   public WsResultMeta getResultMetadata() {
@@ -233,78 +228,9 @@ public class WsAttributeDefSaveResult {
   }
 
   /**
-   * assign the code from the enum
-   * @param attributeDefSaveResultCode
-   * @param clientVersion 
-   */
-  public void assignResultCode(WsAttributeDefSaveResultCode attributeDefSaveResultCode,
-      GrouperVersion clientVersion) {
-    this.getResultMetadata().assignResultCode(
-        attributeDefSaveResultCode == null ? null : attributeDefSaveResultCode
-            .nameForVersion(clientVersion));
-    this.getResultMetadata()
-        .assignSuccess(
-            GrouperServiceUtils.booleanToStringOneChar(attributeDefSaveResultCode
-                .isSuccess()));
-  }
-
-  /**
-   * assign a resultcode of exception, and process/log the exception
-   * @param e
-   * @param wsAttributeDefToSave
-   * @param clientVersion
-   */
-  public void assignResultCodeException(Exception e,
-      WsAttributeDefToSave wsAttributeDefToSave, GrouperVersion clientVersion) {
-
-    //get root exception (might be wrapped in wsInvalidQuery)
-    Throwable mainThrowable = (e instanceof WsInvalidQueryException
-        && e.getCause() != null) ? e.getCause() : e;
-
-    if (mainThrowable instanceof InsufficientPrivilegeException) {
-      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsAttributeDefSaveResultCode.INSUFFICIENT_PRIVILEGES,
-          clientVersion);
-
-    } else if (mainThrowable instanceof AttributeDefNotFoundException) {
-      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsAttributeDefSaveResultCode.ATTRIBUTE_DEF_NOT_FOUND,
-          clientVersion);
-    } else if (mainThrowable instanceof StemNotFoundException) {
-      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsAttributeDefSaveResultCode.STEM_NOT_FOUND, clientVersion);
-    } else if (e instanceof WsInvalidQueryException) {
-      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsAttributeDefSaveResultCode.INVALID_QUERY, clientVersion);
-    } else {
-      this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(WsAttributeDefSaveResultCode.EXCEPTION, clientVersion);
-    }
-    LOG.error(wsAttributeDefToSave + ", " + e, e);
-  }
-
-  /**
-   * convert string to result code
-   * @return the result code
-   */
-  public WsAttributeDefSaveResultCode resultCode() {
-    return WsAttributeDefSaveResultCode.valueOf(this.getResultMetadata().getResultCode());
-  }
-
-  /**
    * empty
    */
   public WsAttributeDefSaveResult() {
     //empty
-  }
-
-  /**
-   * construct initially with lookup
-   * @param attributeDef
-   * @param wsAttributeDefLookup 
-   */
-  public WsAttributeDefSaveResult(AttributeDef attributeDef,
-      WsAttributeDefLookup wsAttributeDefLookup) {
-    this.wsAttributeDef = new WsAttributeDef(attributeDef, wsAttributeDefLookup);
   }
 }

@@ -13,18 +13,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
  * returned from the attribute def find query
@@ -118,9 +108,6 @@ public class WsFindAttributeDefsResults {
    */
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsFindAttributeDefsResults.class);
-
   /**
    * @return the resultMetadata
    */
@@ -148,66 +135,5 @@ public class WsFindAttributeDefsResults {
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
-  }
-
-  /**
-   * put an attribute def in the results
-   * @param attributeDef
-   */
-  public void assignAttributeDefResult(AttributeDef attributeDef) {
-    this.assignAttributeDefResult(GrouperUtil.toSet(attributeDef));
-  }
-
-  /**
-   * put an attribute def in the results
-   * @param attributeDefSet
-   */
-  public void assignAttributeDefResult(Set<AttributeDef> attributeDefSet) {
-    this.setAttributeDefResults(WsAttributeDef.convertAttributeDefs(attributeDefSet));
-  }
-
-  /**
-   * assign the code from the enum
-   * 
-   * @param wsFindAttributeDefsResultsCode
-   */
-  public void assignResultCode(
-      WsFindAttributeDefsResultsCode wsFindAttributeDefsResultsCode) {
-    this.getResultMetadata().assignResultCode(wsFindAttributeDefsResultsCode);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsFindAttributeDefsResultsCodeOverride 
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsFindAttributeDefsResultsCode wsFindAttributeDefsResultsCodeOverride,
-      String theError,
-      Exception e) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsFindAttributeDefsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsFindAttributeDefsResultsCodeOverride,
-          WsFindAttributeDefsResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsFindAttributeDefsResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsFindAttributeDefsResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsFindAttributeDefsResultsCodeOverride,
-          WsFindAttributeDefsResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsFindAttributeDefsResultsCodeOverride);
-
-    }
   }
 }

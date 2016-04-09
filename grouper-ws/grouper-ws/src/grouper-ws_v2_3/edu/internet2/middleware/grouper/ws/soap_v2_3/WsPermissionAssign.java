@@ -19,22 +19,12 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import java.util.Map;
-import java.util.Set;
-
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
-import edu.internet2.middleware.grouper.pit.PITAttributeDef;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * result of permission entry query represents an assignment in the DB
  */
-public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
+public class WsPermissionAssign {
 
   /** if retrieving limits, these are the limits */
   private WsPermissionLimit[] limits;
@@ -54,11 +44,9 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   public void setLimits(WsPermissionLimit[] limits1) {
     this.limits = limits1;
   }
-
-
   /** detail on the permission */
   private WsPermissionAssignDetail detail;
-
+  
   /**
    * detail on the permission
    * @return detail
@@ -98,7 +86,6 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   
   /** name of attribute def in this assignment */
   private String attributeDefName;
-
 
   /**
    * id of attribute def in this assignment
@@ -158,53 +145,16 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   private String membershipId;
 
   /**
-   * compare and sort so results are reproducible for tests
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
+   * considering limits, and the limit is false, then this will be false for a permission where
+   * the disallow is set to false
    */
-  public int compareTo(WsPermissionAssign o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (o2 == null) {
-      return 1;
-    }
-    int compare;
-    
-    compare = GrouperUtil.compare(this.permissionType, o2.permissionType);
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeDefName(), o2.getAttributeDefName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeDefNameName(), o2.getAttributeDefNameName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.action, o2.action);
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getRoleName(), o2.getRoleName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getSourceId(), o2.getSourceId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getSubjectId(), o2.getSubjectId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeAssignId(), o2.getAttributeAssignId());
-    if (compare != 0) {
-      return compare;
-    }
-    return GrouperUtil.compare(this.membershipId, o2.membershipId);
-  }
+  private String allowedOverall;
+
+  /**
+   * T or F, if this is a permission, then if this permission assignment is allowed or not 
+   */
+  private String disallowed;
 
   /**
    *  name of action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT
@@ -385,14 +335,7 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   public void setMembershipId(String ownerMembershipId1) {
     this.membershipId = ownerMembershipId1;
   }
-  
-  /**
-   * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
-   * considering limits, and the limit is false, then this will be false for a permission where
-   * the disallow is set to false
-   */
-  private String allowedOverall;
-  
+
   /**
    * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
    * considering limits, and the limit is false, then this will be false for a permission where
@@ -402,7 +345,15 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
   public String getAllowedOverall() {
     return this.allowedOverall;
   }
-  
+
+  /**
+   * if this is a permission, then if this permission assignment is allowed or not 
+   * @return if disallowed
+   */
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
   /**
    * T or F, this will be if this permissions is allowed (not in DB/assignment, but overall).  So if we are
    * considering limits, and the limit is false, then this will be false for a permission where
@@ -421,111 +372,11 @@ public class WsPermissionAssign implements Comparable<WsPermissionAssign> {
     this.disallowed = disallowed1;
   }
 
-
-  /**
-   * T or F, if this is a permission, then if this permission assignment is allowed or not 
-   */
-  private String disallowed;
-  
-  /**
-   * if this is a permission, then if this permission assignment is allowed or not 
-   * @return if disallowed
-   */
-  public String getDisallowed() {
-    return this.disallowed;
-  }
-
-  /**
-   * convert permission assigns
-   * @param permissionEntrySet 
-   * @param permissionLimitMap limits for the permission
-   * @param includePermissionAssignDetail 
-   * @param attributeAssignSet should be the membership, group, and member objects in a row
-   * @return the subject results
-   */
-  public static WsPermissionAssign[] convertPermissionEntries(
-      Set<PermissionEntry> permissionEntrySet, Map<PermissionEntry, Set<PermissionLimitBean>> permissionLimitMap,
-      boolean includePermissionAssignDetail) {
-    int permissionEntrySetLength = GrouperUtil.length(permissionEntrySet);
-    if (permissionEntrySetLength == 0) {
-      return null;
-    }
-  
-    WsPermissionAssign[] wsAttributeAssignResultArray = new WsPermissionAssign[permissionEntrySetLength];
-    int index = 0;
-    
-    permissionLimitMap = GrouperUtil.nonNull(permissionLimitMap);
-    
-    for (PermissionEntry permissionEntry : permissionEntrySet) {
-
-      Set<PermissionLimitBean> permissionLimitBeans = permissionLimitMap.get(permissionEntry);
-      
-      wsAttributeAssignResultArray[index++] = new WsPermissionAssign(permissionEntry, permissionLimitBeans, includePermissionAssignDetail);
-      
-    }
-    return wsAttributeAssignResultArray;
-  }
-
   /**
    * 
    */
   public WsPermissionAssign() {
     //default constructor
   }
-  
-  /**
-   * construct with attribute assign to set internal fields
-   * 
-   * @param permissionEntry
-   * @param permissionLimitBeans are the limits on this permission
-   * @param includePermissionAssignDetail if detail should be added
-   */
-  public WsPermissionAssign(PermissionEntry permissionEntry, 
-      Set<PermissionLimitBean> permissionLimitBeans, boolean includePermissionAssignDetail) {
-    
-    boolean pit = false;
-    this.action =  permissionEntry.getAction();
-    
-    if (permissionEntry instanceof PITPermissionAllView) {
-      pit = true;
-      PITAttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef()
-        .findById(permissionEntry.getAttributeDefId(), true);
-      this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-    } else {
-      AttributeDef theAttributeDef = GrouperDAOFactory.getFactory().getAttributeDef()
-        .findById(permissionEntry.getAttributeDefId(), true);
-      this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-      this.enabled = permissionEntry.isEnabled() ? "T" : "F";
-    }
 
-    this.attributeDefId = pit ? ((PITPermissionAllView)permissionEntry).getAttributeDefSourceId() : permissionEntry.getAttributeDefId();
-    this.attributeDefNameId = pit ? ((PITPermissionAllView)permissionEntry).getAttributeDefNameSourceId() : permissionEntry.getAttributeDefNameId();
-    this.attributeDefNameName = permissionEntry.getAttributeDefNameName();
-    
-    if (includePermissionAssignDetail) {
-      this.detail = new WsPermissionAssignDetail(permissionEntry);
-    }
-    
-    this.attributeAssignId = pit ? ((PITPermissionAllView)permissionEntry).getAttributeAssignSourceId() : permissionEntry.getAttributeAssignId();
-    
-    this.membershipId = pit ? ((PITPermissionAllView)permissionEntry).getMembershipSourceId() : permissionEntry.getMembershipId();
-    this.permissionType = permissionEntry.getPermissionTypeDb();
-    this.roleId = pit ? ((PITPermissionAllView)permissionEntry).getRoleSourceId() : permissionEntry.getRoleId();
-    this.roleName = permissionEntry.getRoleName();
-    this.sourceId = permissionEntry.getSubjectSourceId();
-    this.subjectId = permissionEntry.getSubjectId();
-    
-    this.disallowed = permissionEntry.isDisallowed() ? "T" : "F";
-    this.allowedOverall = pit || permissionEntry.isAllowedOverall() ? "T" : "F";
-    if (GrouperUtil.length(permissionLimitBeans) > 0) {
-      this.limits = new WsPermissionLimit[GrouperUtil.length(permissionLimitBeans)];
-      
-      int index = 0;
-      for (PermissionLimitBean permissionLimitBean : GrouperUtil.nonNull(permissionLimitBeans)) {
-        
-        this.limits[index] = new WsPermissionLimit(permissionLimitBean);
-        index++;
-      }
-    }    
-  }
 }

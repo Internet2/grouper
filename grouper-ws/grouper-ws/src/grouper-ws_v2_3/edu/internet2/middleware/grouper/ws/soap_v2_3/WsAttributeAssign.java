@@ -19,64 +19,13 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import java.sql.Timestamp;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionType;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
-import edu.internet2.middleware.grouper.pit.PITAttributeAssignAction;
-import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
-import edu.internet2.middleware.grouper.pit.PITAttributeDef;
-import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
-import edu.internet2.middleware.grouper.pit.PITGroup;
-import edu.internet2.middleware.grouper.pit.PITMember;
-import edu.internet2.middleware.grouper.pit.PITStem;
-import edu.internet2.middleware.grouper.pit.finder.PITAttributeAssignValueFinder;
-import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefFinder;
-import edu.internet2.middleware.grouper.pit.finder.PITAttributeDefNameFinder;
-import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 
 /**
  * result of attribute assign query represents an assignment in the DB
  */
-public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
-
-  /** T of F for if this is disallowed.  Defaults to false, only available in 2.0+ */
-  private String disallowed;
-
-  
-  /**
-   * @return the disallowed
-   */
-  public String getDisallowed() {
-    return this.disallowed;
-  }
-
-  
-  /**
-   * @param disallowed1 the disallowed to set
-   */
-  public void setDisallowed(String disallowed1) {
-    this.disallowed = disallowed1;
-  }
-
+public class WsAttributeAssign {
 
   /** type of assignment from enum AttributeAssignActionType e.g. effective, immediate */
   private String attributeAssignActionType;
@@ -271,62 +220,8 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
   /** if this is a stem attribute, this is the stem of the foreign key */
   private String ownerStemName;
 
-  /**
-   * compare and sort so results are reproducible for tests
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsAttributeAssign o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (o2 == null) {
-      return 1;
-    }
-    int compare;
-    
-    compare = GrouperUtil.compare(this.attributeAssignType, o2.attributeAssignType);
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeDefName(), o2.getAttributeDefName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getAttributeDefNameName(), o2.getAttributeDefNameName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.attributeAssignActionName, o2.attributeAssignActionName);
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getOwnerGroupName(), o2.getOwnerGroupName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getOwnerStemName(), o2.getOwnerStemName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getOwnerMemberSourceId(), o2.getOwnerMemberSourceId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getOwnerMemberSubjectId(), o2.getOwnerMemberSubjectId());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getOwnerAttributeDefName(), o2.getOwnerAttributeDefName());
-    if (compare != 0) {
-      return compare;
-    }
-    compare = GrouperUtil.compare(this.getOwnerAttributeAssignId(), o2.getOwnerAttributeAssignId());
-    if (compare != 0) {
-      return compare;
-    }
-    return GrouperUtil.compare(this.id, o2.id);
-  }
+  /** T of F for if this is disallowed.  Defaults to false, only available in 2.0+ */
+  private String disallowed;
 
   /**
    * id of action for this assignment (e.g. assign).  Generally this will be AttributeDef.ACTION_DEFAULT
@@ -707,24 +602,18 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
   }
 
   /**
-   * convert attribute assigns
-   * @param attributeAssignSet should be the membership, group, and member objects in a row
-   * @return the subject results
+   * @return the disallowed
    */
-  public static WsAttributeAssign[] convertAttributeAssigns(Set<AttributeAssign> attributeAssignSet) {
-    int attributeAssignSetLength = GrouperUtil.length(attributeAssignSet);
-    if (attributeAssignSetLength == 0) {
-      return null;
-    }
-  
-    WsAttributeAssign[] wsAttributeAssignResultArray = new WsAttributeAssign[attributeAssignSetLength];
-    int index = 0;
-    for (AttributeAssign attributeAssign : attributeAssignSet) {
-            
-      wsAttributeAssignResultArray[index++] = new WsAttributeAssign(attributeAssign);
-      
-    }
-    return wsAttributeAssignResultArray;
+  public String getDisallowed() {
+    return this.disallowed;
+  }
+
+
+  /**
+   * @param disallowed1 the disallowed to set
+   */
+  public void setDisallowed(String disallowed1) {
+    this.disallowed = disallowed1;
   }
 
 
@@ -734,169 +623,5 @@ public class WsAttributeAssign implements Comparable<WsAttributeAssign> {
   public WsAttributeAssign() {
     //default constructor
   }
-  
-  /**
-   * construct with attribute assign to set internal fields
-   * 
-   * @param attributeAssign
-   */
-  public WsAttributeAssign(AttributeAssign attributeAssign) {
-    
-    this.attributeAssignActionId = attributeAssign.getAttributeAssignActionId();
-    
-    AttributeAssignAction attributeAssignAction = attributeAssign.getAttributeAssignAction();
-    
-    this.attributeAssignActionName =  attributeAssignAction == null ? null : attributeAssignAction.getName();
-    
-    this.attributeAssignDelegatable = attributeAssign.getAttributeAssignDelegatableDb();
-    
-    //right now we only have immediate assignments
-    this.attributeAssignActionType = AttributeAssignActionType.immediate.name();
-    
-    AttributeAssignType theAttributeAssignType = attributeAssign.getAttributeAssignType();
-    this.attributeAssignType = theAttributeAssignType == null ? null : theAttributeAssignType.name();
-    
-    AttributeDefName theAttributeDefName = attributeAssign.getAttributeDefName();
-    AttributeDef theAttributeDef = theAttributeDefName == null ? null : theAttributeDefName.getAttributeDef();
-    
-    this.attributeDefId = theAttributeDefName == null ? null : theAttributeDefName.getAttributeDefId();
-    this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-    this.attributeDefNameId = attributeAssign.getAttributeDefNameId();
-    this.attributeDefNameName = theAttributeDefName == null ? null : theAttributeDefName.getName();
 
-    this.createdOn = GrouperServiceUtils.dateToString(attributeAssign.getCreatedOn());
-    this.disabledTime = GrouperServiceUtils.dateToString(attributeAssign.getDisabledTime());
-
-    this.enabled = attributeAssign.isEnabled() ? "T" : "F";
-    
-    this.enabledTime = GrouperServiceUtils.dateToString(attributeAssign.getEnabledTime());
-
-    this.id = attributeAssign.getId();
-    this.lastUpdated = GrouperServiceUtils.dateToString(attributeAssign.getLastUpdated());
-
-    this.notes = attributeAssign.getNotes();
-    this.ownerAttributeAssignId = attributeAssign.getOwnerAttributeAssignId();
-    this.ownerAttributeDefId = attributeAssign.getOwnerAttributeDefId();
-    
-    AttributeDef ownerAttributeDef = attributeAssign.getOwnerAttributeDef();
-    this.ownerAttributeDefName = ownerAttributeDef == null ? null : ownerAttributeDef.getName();
-    
-    this.ownerGroupId = attributeAssign.getOwnerGroupId();
-    
-    Group ownerGroup = attributeAssign.getOwnerGroup();
-    this.ownerGroupName = ownerGroup == null ? null : ownerGroup.getName();
-    
-    this.ownerMemberId = attributeAssign.getOwnerMemberId();
-    Member ownerMember = attributeAssign.getOwnerMember();
-    this.ownerMemberSourceId = ownerMember == null ? null : ownerMember.getSubjectSourceId();
-    this.ownerMemberSubjectId = ownerMember == null ? null : ownerMember.getSubjectId();
-
-    this.ownerMembershipId = attributeAssign.getOwnerMembershipId();
-    this.ownerStemId = attributeAssign.getOwnerStemId();
-    
-    Stem ownerStem = attributeAssign.getOwnerStem();
-    
-    this.ownerStemName = ownerStem == null ? null : ownerStem.getName();
-    
-    //get the values
-    if (theAttributeDef != null && !StringUtils.isBlank(this.id) && theAttributeDef.getValueType() != null
-        && theAttributeDef.getValueType().hasValue()) {
-      
-      Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory
-        .getFactory().getAttributeAssignValue().findByAttributeAssignId(this.id);
-      
-      if (GrouperUtil.length(attributeAssignValues) > 0) {
-        this.wsAttributeAssignValues = WsAttributeAssignValue.convertAttributeAssigns(attributeAssignValues);
-      }
-      
-    }
-    GrouperVersion grouperVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
-    
-    //disallowed is only appplicable post 2.0...
-    if (grouperVersion.greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("2.0.0"))) {
-      this.setDisallowed(attributeAssign.isDisallowed() ? "T" : "F");
-    }
-    
-  }
-
-  /**
-   * construct with attribute assign to set internal fields
-   * 
-   * @param pitAttributeAssign
-   * @param pointInTimeFrom 
-   * @param pointInTimeTo 
-   */
-  public WsAttributeAssign(PITAttributeAssign pitAttributeAssign, Timestamp pointInTimeFrom, Timestamp pointInTimeTo) {
-    
-    this.attributeAssignActionId = pitAttributeAssign.getPITAttributeAssignAction().getSourceId();
-    
-    PITAttributeAssignAction action = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findById(pitAttributeAssign.getAttributeAssignActionId(), true);
-    
-    this.attributeAssignActionName = action.getName();
-    
-    this.attributeAssignType = pitAttributeAssign.getAttributeAssignTypeDb();
-    
-    PITAttributeDefName theAttributeDefName = PITAttributeDefNameFinder.findById(pitAttributeAssign.getAttributeDefNameId(), false);
-    PITAttributeDef theAttributeDef = PITAttributeDefFinder.findById(theAttributeDefName.getAttributeDefId(), false);
-    
-    this.attributeDefId = theAttributeDef == null ? null : theAttributeDef.getSourceId();
-    this.attributeDefName = theAttributeDef == null ? null : theAttributeDef.getName();
-    this.attributeDefNameId = theAttributeDefName == null ? null : theAttributeDefName.getSourceId();
-    this.attributeDefNameName = theAttributeDefName == null ? null : theAttributeDefName.getName();
-
-    this.enabled = "T";
-    
-    this.id = pitAttributeAssign.getSourceId();
-    this.ownerAttributeAssignId = pitAttributeAssign.getOwnerAttributeAssignId() == null ? null : pitAttributeAssign.getOwnerPITAttributeAssign().getSourceId();
-    this.ownerAttributeDefId = pitAttributeAssign.getOwnerAttributeDefId() == null ? null : pitAttributeAssign.getOwnerPITAttributeDef().getSourceId();
-    this.ownerAttributeDefName = pitAttributeAssign.getOwnerAttributeDefId() == null ? null : pitAttributeAssign.getOwnerPITAttributeDef().getName();
-    
-    if (this.ownerAttributeDefId != null) {
-      PITAttributeDef ownerAttributeDef = PITAttributeDefFinder.findById(pitAttributeAssign.getOwnerAttributeDefId(), false);
-      this.ownerAttributeDefName = ownerAttributeDef == null ? null : ownerAttributeDef.getName();
-    }
-    
-    this.ownerGroupId = pitAttributeAssign.getOwnerGroupId() == null ? null : pitAttributeAssign.getOwnerPITGroup().getSourceId();
-    
-    if (this.ownerGroupId != null) {
-      PITGroup ownerGroup = PITGroupFinder.findById(pitAttributeAssign.getOwnerGroupId(), false);
-      this.ownerGroupName = ownerGroup == null ? null : ownerGroup.getName();
-    }
-    
-    this.ownerMemberId = pitAttributeAssign.getOwnerMemberId() == null ? null : pitAttributeAssign.getOwnerPITMember().getSourceId();
-    
-    if (this.ownerMemberId != null) {
-      PITMember ownerMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitAttributeAssign.getOwnerMemberId(), false);
-      this.ownerMemberSourceId = ownerMember == null ? null : ownerMember.getSubjectSourceId();
-      this.ownerMemberSubjectId = ownerMember == null ? null : ownerMember.getSubjectId();
-    }
-    
-    this.ownerMembershipId = pitAttributeAssign.getOwnerMembershipId() == null ? null : pitAttributeAssign.getOwnerPITMembership().getSourceId();
-    this.ownerStemId = pitAttributeAssign.getOwnerStemId() == null ? null : pitAttributeAssign.getOwnerPITStem().getSourceId();
-    
-    if (this.ownerStemId != null) {
-      PITStem ownerStem = GrouperDAOFactory.getFactory().getPITStem().findById(pitAttributeAssign.getOwnerStemId(), false);
-      this.ownerStemName = ownerStem == null ? null : ownerStem.getName();
-    }
-        
-    //get the values
-    if (theAttributeDef != null && !StringUtils.isBlank(this.id)) {
-      
-      Set<PITAttributeAssignValue> values = PITAttributeAssignValueFinder.findByPITAttributeAssign(
-          pitAttributeAssign, pointInTimeFrom, pointInTimeTo);
-      
-      if (GrouperUtil.length(values) > 0) {
-        this.wsAttributeAssignValues = WsAttributeAssignValue.convertPITAttributeAssignValues(values);
-      }
-      
-    }
-    
-    GrouperVersion grouperVersion = GrouperWsVersionUtils.retrieveCurrentClientVersion();
-    
-    //disallowed is only appplicable post 2.0...
-    if (grouperVersion.greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("2.0.0"))) {
-      this.setDisallowed(pitAttributeAssign.isDisallowed() ? "T" : "F");
-    }
-
-  }
 }

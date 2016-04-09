@@ -1,14 +1,8 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
  * holds an attribute assign actions result.
@@ -16,12 +10,6 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  *
  */
 public class WsAttributeDefAssignActionResults {
-
-  /**
-   * logger 
-  */
-  private static final Log LOG = LogFactory
-      .getLog(WsAttributeDefAssignActionResults.class);
 
   /** attribute def to which action(s) are assigned **/
   private WsAttributeDef wsAttributeDef;
@@ -169,49 +157,6 @@ public class WsAttributeDefAssignActionResults {
     this.responseMetadata = responseMetadata1;
   }
 
-  /**
-  * assign the code from the enum
-  * @param getAttributeAssignmentsResultCode
-   */
-  public void assignResultCode(
-      WsAttributeDefAssignActionsResultsCode getAttributeAssignmentsResultCode) {
-    this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
-  }
-
-  /**
-   * process an exception, log, etc
-   * @param wsAttributeDefAssignActionsResultsCode
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAttributeDefAssignActionsResultsCode wsAttributeDefAssignActionsResultsCode,
-      String theError,
-      Exception e) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsAttributeDefAssignActionsResultsCode = GrouperUtil.defaultIfNull(
-          wsAttributeDefAssignActionsResultsCode,
-          WsAttributeDefAssignActionsResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsAttributeDefAssignActionsResultsCode);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsAttributeDefAssignActionsResultsCode = GrouperUtil.defaultIfNull(
-          wsAttributeDefAssignActionsResultsCode,
-          WsAttributeDefAssignActionsResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsAttributeDefAssignActionsResultsCode);
-
-    }
-  }
 
   /**
    * metadata about the result

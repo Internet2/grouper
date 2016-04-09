@@ -13,16 +13,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * <pre>
@@ -36,9 +28,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * @author vsachdeva
  */
 public class WsAttributeDefDeleteLiteResult {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefDeleteLiteResult.class);
 
   /**
    * result code of a request
@@ -110,46 +99,6 @@ public class WsAttributeDefDeleteLiteResult {
   }
 
   /**
-   * construct from results of other
-   * @param wsAttributeDefDeleteResults
-   */
-  public WsAttributeDefDeleteLiteResult(
-      WsAttributeDefDeleteResults wsAttributeDefDeleteResults) {
-
-    this.getResultMetadata().copyFields(wsAttributeDefDeleteResults.getResultMetadata());
-
-    WsAttributeDefDeleteResult wsAttributeDefDeleteResult = GrouperServiceUtils
-        .firstInArrayOfOne(wsAttributeDefDeleteResults.getResults());
-    if (wsAttributeDefDeleteResult != null) {
-      this.getResultMetadata().copyFields(wsAttributeDefDeleteResult.getResultMetadata());
-      this.getResultMetadata().assignResultCode(
-          wsAttributeDefDeleteResult.resultCode().convertToLiteCode());
-      this.setWsAttributeDef(wsAttributeDefDeleteResult.getWsAttributeDef());
-    }
-  }
-
-  /**
-   * assign the code from the enum
-   * @param attributeDefsDeleteResultsCode should not be null
-   */
-  public void assignResultCode(
-      WsAttributeDefDeleteLiteResultCode attributeDefsDeleteResultsCode) {
-    this.getResultMetadata().assignResultCode(attributeDefsDeleteResultsCode);
-  }
-
-  /**
-   * convert the result code back to enum
-   * @return the enum code
-   */
-  public WsAttributeDefDeleteLiteResultCode retrieveResultCode() {
-    if (StringUtils.isBlank(this.getResultMetadata().getResultCode())) {
-      return null;
-    }
-    return WsAttributeDefDeleteLiteResultCode.valueOf(this.getResultMetadata()
-        .getResultCode());
-  }
-
-  /**
    * metadata about the result
    */
   private WsResultMeta resultMetadata = new WsResultMeta();
@@ -163,41 +112,6 @@ public class WsAttributeDefDeleteLiteResult {
    * attributeDef to be deleted
    */
   private WsAttributeDef wsAttributeDef;
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsAttributeDefDeleteLiteResultCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAttributeDefDeleteLiteResultCode wsAttributeDefDeleteLiteResultCodeOverride,
-      String theError,
-      Exception e) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsAttributeDefDeleteLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefDeleteLiteResultCodeOverride,
-          WsAttributeDefDeleteLiteResultCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsAttributeDefDeleteLiteResultCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsAttributeDefDeleteLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefDeleteLiteResultCodeOverride,
-          WsAttributeDefDeleteLiteResultCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsAttributeDefDeleteLiteResultCodeOverride);
-
-    }
-  }
 
   /**
    * @return the resultMetadata

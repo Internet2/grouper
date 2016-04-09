@@ -18,16 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.pit.PITGroup;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result of one group being retrieved since a user is a member of it.  The number of
@@ -35,18 +26,28 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  * 
  * @author mchyzer
  */
-public class WsGroup implements Comparable<WsGroup> {
+public class WsGroup {
 
   /**
-   * make sure this is an explicit toString
+   * integer ID for object
    */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+  private String idIndex;
+  
+  /**
+   * integer ID for object
+   * @return the id
+   */
+  public String getIdIndex() {
+    return this.idIndex;
   }
 
-  /** extension of group, the part to the right of last colon in name */
-  private String extension;
+  /**
+   * integer ID for object
+   * @param idIndex1
+   */
+  public void setIdIndex(String idIndex1) {
+    this.idIndex = idIndex1;
+  }
 
   /** type of group can be an enum of TypeOfGroup, e.g. group, role, entity */
   private String typeOfGroup;
@@ -67,51 +68,11 @@ public class WsGroup implements Comparable<WsGroup> {
     this.typeOfGroup = typeOfGroup1;
   }
 
+  /** extension of group, the part to the right of last colon in name */
+  private String extension;
+
   /** display extension, the part to the right of the last colon in display name */
   private String displayExtension;
-
-  /**
-   * convert a set of groups to results
-   * @param groupSet
-   * @param includeDetail true if detail of group should be sent
-   * @return the groups (null if none or null)
-   */
-  public static WsGroup[] convertGroups(Set<Group> groupSet, boolean includeDetail) {
-    if (groupSet == null || groupSet.size() == 0) {
-      return null;
-    }
-    int groupSetSize = groupSet.size();
-    WsGroup[] wsGroupResults = new WsGroup[groupSetSize];
-    int index = 0;
-    for (Group group : groupSet) {
-      WsGroup wsGroup = new WsGroup(group, null, includeDetail);
-      wsGroupResults[index] = wsGroup;
-      index++;
-    }
-    return wsGroupResults;
-
-  }
-  
-  /**
-   * convert a set of pit groups to results
-   * @param pitGroupSet
-   * @return the groups (null if none or null)
-   */
-  public static WsGroup[] convertGroups(Set<PITGroup> pitGroupSet) {
-    if (pitGroupSet == null || pitGroupSet.size() == 0) {
-      return null;
-    }
-    int groupSetSize = pitGroupSet.size();
-    WsGroup[] wsGroupResults = new WsGroup[groupSetSize];
-    int index = 0;
-    for (PITGroup pitGroup : pitGroupSet) {
-      WsGroup wsGroup = new WsGroup(pitGroup);
-      wsGroupResults[index] = wsGroup;
-      index++;
-    }
-    return wsGroupResults;
-
-  }
 
   /**
    * friendly description of this group
@@ -139,84 +100,11 @@ public class WsGroup implements Comparable<WsGroup> {
   private WsGroupDetail detail;
 
   /**
-   * integer ID for object
-   */
-  private String idIndex;
-  
-  /**
-   * integer ID for object
-   * @return the id
-   */
-  public String getIdIndex() {
-    return this.idIndex;
-  }
-
-  /**
-   * integer ID for object
-   * @param idIndex1
-   */
-  public void setIdIndex(String idIndex1) {
-    this.idIndex = idIndex1;
-  }
-
-  /**
    * no arg constructor
    */
   public WsGroup() {
     //blank
 
-  }
-
-  /**
-   * construct based on group, assign all fields
-   * @param group 
-   * @param wsGroupLookup is the lookup to set looked up values
-   * @param includeDetail true to include detail about group
-   */
-  public WsGroup(Group group, WsGroupLookup wsGroupLookup, boolean includeDetail) {
-    if (group != null) {
-      this.setDescription(StringUtils.trimToNull(group.getDescription()));
-      this.setDisplayName(group.getDisplayName());
-      this.setName(group.getName());
-      this.setUuid(group.getUuid());
-      this.setExtension(group.getExtension());
-      this.setDisplayExtension(group.getDisplayExtension());
-
-      //if greater then 2.2 then set id index
-      if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
-          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
-        this.setIdIndex(group.getIdIndex() == null ? null : group.getIdIndex().toString());
-      }
-      
-      //if greater then 2.1 then set type of group
-      if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
-          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_1_000"))) {
-        this.setTypeOfGroup(group.getTypeOfGroupDb());
-      }
-      
-      //see if detail info is needed
-      if (includeDetail) {
-        this.setDetail(new WsGroupDetail(group));
-      }
-    } else {
-      if (wsGroupLookup != null) {
-        //no group, set the look values so the caller can keep things in sync
-        this.setName(wsGroupLookup.getGroupName());
-        this.setUuid(wsGroupLookup.getUuid());
-        this.setExtension(GrouperUtil.extensionFromName(wsGroupLookup.getGroupName()));
-
-      }
-    }
-  }
-  
-  /**
-   * construct based on pit group
-   * @param pitGroup
-   */
-  public WsGroup(PITGroup pitGroup) {
-    this.setName(pitGroup.getName());
-    this.setUuid(pitGroup.getSourceId());
-    this.setExtension(GrouperUtil.extensionFromName(pitGroup.getName()));
   }
 
   /**
@@ -331,23 +219,5 @@ public class WsGroup implements Comparable<WsGroup> {
    */
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  @Override
-  public int compareTo(WsGroup o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
-    if (o2 == null) {
-      return 1;
-    }
-    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 }

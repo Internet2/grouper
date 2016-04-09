@@ -15,16 +15,12 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
-
 /**
  * If sending in attribute assignments in batch, this is one of the entries
  * @author mchyzer
  *
  */
 public class WsAssignAttributeBatchEntry {
-
-
   
   /**
    * Type of owner, from enum AttributeAssignType, e.g.
@@ -435,115 +431,6 @@ public class WsAssignAttributeBatchEntry {
    */
   public void setAction(String action1) {
     this.action = action1;
-  }
-  
-  /**
-   * turn an array to a string
-   * @param wsAssignAttributeBatchEntries
-   * @param maxSize is the size where this value get larger than, 
-   * it should just quit and return what it has
-   * @return the string value
-   */
-  public static String toString(WsAssignAttributeBatchEntry[] wsAssignAttributeBatchEntries, int maxSize) {
-    if (GrouperClientCommonUtils.length(wsAssignAttributeBatchEntries) == 0) {
-      return "";
-    }
-    StringBuilder result = new StringBuilder();
-    
-    int index = 0;
-    for (WsAssignAttributeBatchEntry wsAssignAttributeBatchEntry : wsAssignAttributeBatchEntries) {
-      if (maxSize > 0 && result.length() > maxSize) {
-        break;
-      }
-      result.append(index).append(". ");
-      if (wsAssignAttributeBatchEntry != null) {
-        result.append("wsAssignAttributeBatchEntry: ").append(wsAssignAttributeBatchEntry).append("\n");
-      }
-      index++;
-    }
-    return result.toString();
-  }
-
-  
-  /**
-   * @see Object#toString()
-   */
-  @Override
-  public String toString() {
-    StringBuilder result = new StringBuilder();
-    
-    if (!GrouperClientCommonUtils.isBlank(this.action)) {
-      result.append("action: ").append(this.action).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.assignmentDisabledTime)) {
-      result.append("assignmentDisabledTime: ").append(this.assignmentDisabledTime).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.assignmentEnabledTime)) {
-      result.append("assignmentEnabledTime: ").append(this.assignmentEnabledTime).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.assignmentNotes)) {
-      result.append("assignmentNotes: ").append(this.assignmentNotes).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.attributeAssignOperation)) {
-      result.append("attributeAssignOperation: ").append(this.attributeAssignOperation).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.attributeAssignType)) {
-      result.append("attributeAssignType: ").append(this.attributeAssignType).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.attributeAssignValueOperation)) {
-      result.append("attributeAssignValueOperation: ").append(this.attributeAssignValueOperation).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.delegatable)) {
-      result.append("delegatable: ").append(this.delegatable).append(", ");
-    }
-    
-    if (!GrouperClientCommonUtils.isBlank(this.values)) {
-      result.append("values: ").append(WsAttributeAssignValue.toString(this.values, 100)).append(", ");
-    }
-    
-    if (this.wsAttributeAssignLookup != null) {
-      result.append("wsAttributeAssignLookup: ").append(this.wsAttributeAssignLookup).append(", ");
-    }
-    
-    if (this.wsAttributeDefNameLookup != null) {
-      result.append("wsAttributeDefNameLookup: ").append(this.wsAttributeDefNameLookup).append(", ");
-    }
-    
-    if (this.wsOwnerAttributeAssignLookup != null) {
-      result.append("wsOwnerAttributeAssignLookup: ").append(this.wsOwnerAttributeAssignLookup).append(", ");
-    }
-    
-    if (this.wsOwnerAttributeDefLookup != null) {
-      result.append("wsOwnerAttributeDefLookup: ").append(this.wsOwnerAttributeDefLookup).append(", ");
-    }
-    
-    if (this.wsOwnerGroupLookup != null) {
-      result.append("wsOwnerGroupLookup: ").append(this.wsOwnerGroupLookup).append(", ");
-    }
-    
-    if (this.wsOwnerMembershipAnyLookup != null) {
-      result.append("wsOwnerMembershipAnyLookup: ").append(this.wsOwnerMembershipAnyLookup).append(", ");
-    }
-    
-    if (this.wsOwnerMembershipLookup != null) {
-      result.append("wsOwnerMembershipLookup: ").append(this.wsOwnerMembershipLookup).append(", ");
-    }
-    
-    if (this.wsOwnerStemLookup != null) {
-      result.append("wsOwnerStemLookup: ").append(this.wsOwnerStemLookup).append(", ");
-    }
-    
-    if (this.wsOwnerSubjectLookup != null) {
-      result.append("wsOwnerSubjectLookup: ").append(this.wsOwnerSubjectLookup).append(", ");
-    }
-    return result.toString();
   }
   
 }

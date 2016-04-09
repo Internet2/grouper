@@ -15,15 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 
 
@@ -35,9 +28,6 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  */
 public class WsMessageAcknowledgeResults {
   
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsMessageAcknowledgeResults.class);
-
   /**
    * result code of a request
    */
@@ -188,48 +178,5 @@ public class WsMessageAcknowledgeResults {
    */
   public void setResultMetadata(WsResultMeta resultMetadata1) {
     this.resultMetadata = resultMetadata1;
-  }
-
-
-  /**
-   * assign the code from the enum
-   * 
-   * @param wsSendMessageResultsCode
-   */
-  public void assignResultCode(WsMessageAcknowledgeResultsCode wsSendMessageResultsCode) {
-    this.getResultMetadata().assignResultCode(wsSendMessageResultsCode);
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsMessageAcknowledgeResultsCodeOverride 
-   * @param wsAddMemberResultsCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsMessageAcknowledgeResultsCode wsMessageAcknowledgeResultsCodeOverride, String theError,
-      Exception e) {
-  
-    if (e instanceof WsInvalidQueryException) {
-      wsMessageAcknowledgeResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsMessageAcknowledgeResultsCodeOverride, WsMessageAcknowledgeResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsMessageAcknowledgeResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-  
-    } else {
-      wsMessageAcknowledgeResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsMessageAcknowledgeResultsCodeOverride, WsMessageAcknowledgeResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-  
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsMessageAcknowledgeResultsCodeOverride);
-  
-    }
   }
 }

@@ -37,9 +37,6 @@ import edu.internet2.middleware.grouper.ws.soap_v2_3.WsAttributeDefDeleteResult.
  */
 public class WsAttributeDefDeleteResults {
 
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefDeleteResults.class);
-
   /**
    * result code of a request
    */
@@ -97,27 +94,6 @@ public class WsAttributeDefDeleteResults {
   }
 
   /**
-   * assign the code from the enum
-   * @param attributeDefsDeleteResultsCode should not be null
-   */
-  public void assignResultCode(
-      WsAttributeDefDeleteResultsCode attributeDefsDeleteResultsCode) {
-    this.getResultMetadata().assignResultCode(attributeDefsDeleteResultsCode);
-  }
-
-  /**
-   * convert the result code back to enum
-   * @return the enum code
-   */
-  public WsAttributeDefDeleteResultsCode retrieveResultCode() {
-    if (StringUtils.isBlank(this.getResultMetadata().getResultCode())) {
-      return null;
-    }
-    return WsAttributeDefDeleteResultsCode.valueOf(this.getResultMetadata()
-        .getResultCode());
-  }
-
-  /**
    * results for each deletion sent in
    */
   private WsAttributeDefDeleteResult[] results;
@@ -146,109 +122,6 @@ public class WsAttributeDefDeleteResults {
    */
   public void setResults(WsAttributeDefDeleteResult[] results1) {
     this.results = results1;
-  }
-
-  /**
-   * prcess an exception, log, etc
-   * @param wsAttributeDefDeleteResultsCodeOverride
-   * @param theError
-   * @param e
-   */
-  public void assignResultCodeException(
-      WsAttributeDefDeleteResultsCode wsAttributeDefDeleteResultsCodeOverride,
-      String theError,
-      Exception e) {
-
-    if (e instanceof WsInvalidQueryException) {
-      wsAttributeDefDeleteResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefDeleteResultsCodeOverride,
-          WsAttributeDefDeleteResultsCode.INVALID_QUERY);
-      //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsAttributeDefDeleteResultsCodeOverride);
-      this.getResultMetadata().appendResultMessage(e.getMessage());
-      this.getResultMetadata().appendResultMessage(theError);
-      LOG.warn(e);
-
-    } else {
-      wsAttributeDefDeleteResultsCodeOverride = GrouperUtil.defaultIfNull(
-          wsAttributeDefDeleteResultsCodeOverride,
-          WsAttributeDefDeleteResultsCode.EXCEPTION);
-      LOG.error(theError, e);
-
-      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-      this.getResultMetadata().appendResultMessage(
-          theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsAttributeDefDeleteResultsCodeOverride);
-
-    }
-  }
-
-  /**
-   * make sure if there is an error, to record that as an error
-   * @param grouperTransactionType for request
-   * @param theSummary of entire request
-   * @return true if not need to rollback, and false if so
-   */
-  public boolean tallyResults(GrouperTransactionType grouperTransactionType,
-      String theSummary) {
-    //maybe already a failure
-    boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
-        .getSuccess(), true);
-    if (this.getResults() != null) {
-      // check all entries
-      int successes = 0;
-      int failures = 0;
-      for (WsAttributeDefDeleteResult wsAttributeDefDeleteResult : this.getResults()) {
-        boolean theSuccess = "T".equalsIgnoreCase(wsAttributeDefDeleteResult
-            .getResultMetadata()
-            .getSuccess());
-        if (theSuccess) {
-          successes++;
-        } else {
-          failures++;
-        }
-      }
-
-      //if transaction rolled back all line items, 
-      if ((!successOverall || failures > 0) && grouperTransactionType.isTransactional()
-          && !grouperTransactionType.isReadonly()) {
-        successes = 0;
-        for (WsAttributeDefDeleteResult wsAttributeDefDeleteResult : this.getResults()) {
-          if (GrouperUtil.booleanValue(wsAttributeDefDeleteResult.getResultMetadata()
-              .getSuccess(), true)) {
-            wsAttributeDefDeleteResult
-                .assignResultCode(WsAttributeDefDeleteResultCode.TRANSACTION_ROLLED_BACK);
-            failures++;
-          }
-        }
-      }
-
-      if (failures > 0) {
-        this.getResultMetadata().appendResultMessage(
-            "There were " + successes + " successes and " + failures
-                + " failures of deleting attribute defs.   ");
-        this.assignResultCode(
-            WsAttributeDefDeleteResultsCode.PROBLEM_DELETING_ATTRIBUTE_DEFS);
-        //this might not be a problem
-        LOG.warn(this.getResultMetadata().getResultMessage());
-
-      } else {
-        this.assignResultCode(WsAttributeDefDeleteResultsCode.SUCCESS);
-      }
-    } else {
-      //none is not ok
-      this.assignResultCode(WsAttributeDefDeleteResultsCode.INVALID_QUERY);
-      this.getResultMetadata().setResultMessage(
-          "Must pass in at least one attribute def to delete");
-    }
-    //make response descriptive
-    if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
-      this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
-      return true;
-    }
-    //false if need rollback
-    return !grouperTransactionType.isTransactional();
-
   }
 
   /**

@@ -18,12 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result for finding a stem
@@ -31,7 +25,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  * @author mchyzer
  * 
  */
-public class WsStem implements Comparable<WsStem> {
+public class WsStem {
 
   /**
    * integer ID for object
@@ -66,37 +60,6 @@ public class WsStem implements Comparable<WsStem> {
   public WsStem() {
     // blank
 
-  }
-
-  /**
-   * construct based on stem, assign all fields
-   * 
-   * @param stem is what to construct from
-   */
-  public WsStem(Stem stem) {
-    this.setDescription(stem.getDescription());
-    this.setDisplayName(stem.getDisplayName());
-    this.setName(stem.getName());
-    this.setUuid(stem.getUuid());
-    this.setExtension(stem.getExtension());
-    this.setDisplayExtension(stem.getDisplayExtension());
-    //if greater then 2.2 then set id index
-    if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
-        .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
-      this.setIdIndex(stem.getIdIndex() == null ? null : stem.getIdIndex().toString());
-    }
-
-  }
-
-  /**
-   * construct based on stem, assign all fields
-   * 
-   * @param stemLookup is what to construct from
-   */
-  public WsStem(WsStemLookup stemLookup) {
-    this.setName(stemLookup.getStemName());
-    this.setUuid(stemLookup.getUuid());
-    this.setExtension(GrouperUtil.extensionFromName(stemLookup.getStemName()));
   }
 
   /**
@@ -224,31 +187,6 @@ public class WsStem implements Comparable<WsStem> {
    */
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
-  }
-
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsStem o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
-    if (o2 == null) {
-      return 1;
-    }
-    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 
 }

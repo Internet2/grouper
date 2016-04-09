@@ -18,15 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
 
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.query.StemScope;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * this represents a query which can be and'ed or or'ed
@@ -52,117 +44,6 @@ public class WsQueryFilter {
     this.typeOfGroups = typeOfGroups1;
   }
 
-  
-  /** page size if paging */
-  private String pageSize;
-  
-  /** page number 1 indexed if paging */
-  private String pageNumber;
-  
-  /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
-  private String sortString; 
-  
-  /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
-  private String ascending;
-  
-  /**
-   * page size if paging
-   * @return  page size if paging
-   */
-  public Integer retrievePageSize() {
-    return GrouperServiceUtils.integerValue(this.pageSize, "pageSize");
-  }
-  
-  /**
-   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
-   * @return true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
-   */
-  public Boolean retrieveAscending() {
-    return GrouperServiceUtils.booleanObjectValue(this.ascending, "ascending");
-  }
-  
-  /**
-   * page number 1 indexed if paging
-   * @return  page number 1 indexed if paging
-   */
-  public Integer retrievePageNumber() {
-    return GrouperServiceUtils.integerValue(this.pageNumber, "pageNumber");
-  }
-  
-  /**
-   * page size if paging
-   * @return the pageSize
-   */
-  public String getPageSize() {
-    return this.pageSize;
-  }
-
-  
-  /**
-   * page size if paging
-   * @param pageSize1 the pageSize to set
-   */
-  public void setPageSize(String pageSize1) {
-    this.pageSize = pageSize1;
-  }
-
-  
-  /**
-   * page number 1 indexed if paging
-   * @return the pageNumber
-   */
-  public String getPageNumber() {
-    return this.pageNumber;
-  }
-
-  
-  /**
-   * page number 1 indexed if paging
-   * @param pageNumber1 the pageNumber to set
-   */
-  public void setPageNumber(String pageNumber1) {
-    this.pageNumber = pageNumber1;
-  }
-
-  
-  /**
-   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
-   * @return the sortString
-   */
-  public String getSortString() {
-    return this.sortString;
-  }
-
-  
-  /**
-   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
-   * @param sortString1 the sortString to set
-   */
-  public void setSortString(String sortString1) {
-    this.sortString = sortString1;
-  }
-
-  
-  /**
-   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
-   * @return the ascending
-   */
-  public String getAscending() {
-    return this.ascending;
-  }
-
-  
-  /**
-   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
-   * @param ascending1 the ascending to set
-   */
-  public void setAscending(String ascending1) {
-    this.ascending = ascending1;
-  }
-
-  /** grouper session */
-  @XStreamOmitField
-  private GrouperSession grouperSession = null;
 
   /**
    * findGroupType is the WsQueryFilterType enum for which type of find is happening:  e.g.
@@ -179,44 +60,9 @@ public class WsQueryFilter {
   private String groupName;
 
   /**
-   * if there is a group name, there shouldnt be
-   */
-  public void validateNoGroupName() {
-    this.validateBlank("groupName", this.groupName);
-  }
-
-  /**
-   * if there is no group name, there should be
-   */
-  public void validateHasGroupName() {
-    this.validateNotBlank("groupName", this.groupName);
-  }
-
-  /**
-   * if there is a typeOfGroup name, there shouldnt be
-   */
-  public void validateNoTypeOfGroups() {
-    this.validateBlank("typeOfGroups", this.typeOfGroups);
-  }
-
-  /**
    * stemName will return groups only in this stem
    */
   private String stemName;
-
-  /**
-   * if there is a stem name, there shouldnt be
-   */
-  public void validateNoStemName() {
-    this.validateBlank("stemName", this.stemName);
-  }
-
-  /**
-   * if there is no stem name, there should be
-   */
-  public void validateHasStemName() {
-    this.validateNotBlank("stemName", this.stemName);
-  }
 
   /**
    * stemNameScope
@@ -226,38 +72,10 @@ public class WsQueryFilter {
   private String stemNameScope;
 
   /**
-   * if there is a group name, there shouldnt be
-   */
-  public void validateNoStemNameScope() {
-    this.validateBlank("stemNameScope", this.stemNameScope);
-  }
-
-  /**
-   * if there is no group name, there should be
-   */
-  public void validateHasStemNameScope() {
-    this.validateNotBlank("stemNameScope", this.stemNameScope);
-  }
-
-  /**
    * groupUuid search by group uuid (must match exactly), cannot use other
    * params with this
    */
   private String groupUuid;
-
-  /**
-   * if there is a group uuid, there shouldnt be
-   */
-  public void validateNoGroupUuid() {
-    this.validateBlank("groupUuid", this.groupUuid);
-  }
-
-  /**
-   * if there is no group uuid, there should be
-   */
-  public void validateHasGroupUuid() {
-    this.validateNotBlank("groupUuid", this.groupUuid);
-  }
 
   /**
    * groupAttributeValue if searching by query, this is a term that will be matched to
@@ -266,89 +84,15 @@ public class WsQueryFilter {
   private String groupAttributeValue;
 
   /**
-   * if there is a groupAttributeValue, there shouldnt be
-   */
-  public void validateNoGroupAttributeValue() {
-    this.validateBlank("groupAttributeValue", this.groupAttributeValue);
-  }
-
-  /**
-   * if there is no groupAttributeValue, there should be
-   */
-  public void validateHasGroupAttributeValue() {
-    this.validateNotBlank("groupAttributeValue", this.groupAttributeValue);
-  }
-
-  /**
    * if querying, this is the attribute name, or null or search
    * all attributes
    */
   private String groupAttributeName;
 
   /**
-   * if there is a attribute name, there shouldnt be
-   */
-  public void validateNoGroupAttributeName() {
-    this.validateBlank("groupAttributeName", this.groupAttributeName);
-  }
-
-  /**
-   * if there is no attribute name, there should be
-   * @param canHavePagingSorting if can have paging/sorting
-   */
-  public void validateShouldHavePagingSorting(boolean canHavePagingSorting) {
-
-    if (!canHavePagingSorting) {
-      this.validateBlank("ascending", this.ascending);
-      this.validateBlank("sortString", this.sortString);
-      this.validateBlank("pageNumber", this.pageNumber);
-      this.validateBlank("pageSize", this.pageSize);
-      return;
-    }
-    
-    //ok, can have paging/sorting, see if there is any there...
-    boolean hasPaging = !StringUtils.isBlank(this.pageNumber)
-      || !StringUtils.isBlank(this.pageSize);
-
-    if (hasPaging) {
-      this.validateNotBlank("pageNumber", this.pageNumber);
-      this.validateNotBlank("pageSize", this.pageSize);
-    }
-
-    boolean hasSorting = !StringUtils.isBlank(this.sortString)
-      || !StringUtils.isBlank(this.ascending);
-    
-    if (hasSorting) {
-      this.validateNotBlank("sortString", this.sortString);
-      //note: ascending defaults to true
-    }
-  }
-
-  /**
-   * if there is no attribute name, there should be
-   */
-  public void validateHasGroupAttributeName() {
-    this.validateNotBlank("groupAttributeName", this.groupAttributeName);
-  }
-
-  /**
    * if searching by type, this is the type to search for.  not yet implemented
    */
   private String groupTypeName;
-
-  /**
-   * if there is a type, there shouldnt be
-   */
-  public void validateNoGroupTypeName() {
-    this.validateBlank("type", this.groupTypeName);
-  }
-
-  /**
-   * if there is no type, there should be
-   */
-  public void validateHasGroupTypeName() {
-    this.validateNotBlank("type", this.groupTypeName);
-  }
 
   /**
    * if 'and' or 'or' this is the first group, and if complement, 
@@ -357,76 +101,21 @@ public class WsQueryFilter {
   private WsQueryFilter queryFilter0;
 
   /**
-   * if there is a query filter 0, there shouldnt be
-   */
-  public void validateNoQueryFilter0() {
-    if (this.queryFilter0 != null) {
-      throw new WsInvalidQueryException("Query should not contain "
-          + "query filter 0, but does");
-    }
-  }
-
-  /**
-   * if there is no query filter 0, there should be
-   */
-  public void validateHasQueryFilter0() {
-    if (this.queryFilter0 == null) {
-      throw new WsInvalidQueryException("Query should contain "
-          + "query filter 0, but doesnt");
-    }
-  }
-
-  /**
    * if 'and' or 'or', this is the second group
    */
   private WsQueryFilter queryFilter1;
 
-  /**
-   * if there is a query filter 1, there shouldnt be
-   */
-  public void validateNoQueryFilter1() {
-    if (this.queryFilter1 != null) {
-      throw new WsInvalidQueryException("Query should not contain "
-          + "query filter 1, but does");
-    }
-  }
+  /** true or null for ascending, false for descending.  If you pass true or false, must pass a sort string */
+  private String ascending;
 
-  /**
-   * if there is no query filter 1, there should be
-   */
-  public void validateHasQueryFilter1() {
-    if (this.queryFilter1 == null) {
-      throw new WsInvalidQueryException("Query should contain "
-          + "query filter 1, but doesnt");
-    }
-  }
+  /** page number 1 indexed if paging */
+  private String pageNumber;
 
-  /**
-   * make sure a value is blank, or WsInvalidQueryException
-   * @param fieldName for exception
-   * @param fieldValue to check if blank
-   * @throws WsInvalidQueryException
-   */
-  private void validateBlank(String fieldName, String fieldValue)
-      throws WsInvalidQueryException {
-    if (StringUtils.isNotBlank(fieldValue)) {
-      throw new WsInvalidQueryException("Query should not contain " + fieldName
-          + ", but contains: '" + fieldValue + "'");
-    }
-  }
+  /** page size if paging */
+  private String pageSize;
 
-  /**
-   * make sure a value is not blank, or WsInvalidQueryException
-   * @param fieldName for exception
-   * @param fieldValue to check if not blank
-   * @throws WsInvalidQueryException
-   */
-  private void validateNotBlank(String fieldName, String fieldValue)
-      throws WsInvalidQueryException {
-    if (StringUtils.isBlank(fieldValue)) {
-      throw new WsInvalidQueryException("Query should contain " + fieldName);
-    }
-  }
+  /** must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension */
+  private String sortString;
 
   /**
    * findGroupType is the WsQueryFilterType enum for which type of find is happening: e.g. 
@@ -490,16 +179,6 @@ public class WsQueryFilter {
    */
   public String getStemNameScope() {
     return this.stemNameScope;
-  }
-
-  /**
-   * convert the stem scope into a stem scope
-   * @param defaultScope is the default scope
-   * @return the stem scope, or the default
-   */
-  public StemScope retrieveStemScope(StemScope defaultScope) {
-    return GrouperUtil.defaultIfNull(StemScope.valueOfIgnoreCase(this.stemNameScope),
-        defaultScope);
   }
 
   /**
@@ -628,6 +307,70 @@ public class WsQueryFilter {
    */
   public void setGroupAttributeValue(String groupAttributeValue1) {
     this.groupAttributeValue = groupAttributeValue1;
+  }
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @return the ascending
+   */
+  public String getAscending() {
+    return this.ascending;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   * @return the pageNumber
+   */
+  public String getPageNumber() {
+    return this.pageNumber;
+  }
+
+  /**
+   * page size if paging
+   * @return the pageSize
+   */
+  public String getPageSize() {
+    return this.pageSize;
+  }
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @return the sortString
+   */
+  public String getSortString() {
+    return this.sortString;
+  }
+
+  /**
+   * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
+   * @param ascending1 the ascending to set
+   */
+  public void setAscending(String ascending1) {
+    this.ascending = ascending1;
+  }
+
+  /**
+   * page number 1 indexed if paging
+   * @param pageNumber1 the pageNumber to set
+   */
+  public void setPageNumber(String pageNumber1) {
+    this.pageNumber = pageNumber1;
+  }
+
+  /**
+   * page size if paging
+   * @param pageSize1 the pageSize to set
+   */
+  public void setPageSize(String pageSize1) {
+    this.pageSize = pageSize1;
+  }
+
+  /**
+   * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
+   * @param sortString1 the sortString to set
+   */
+  public void setSortString(String sortString1) {
+    this.sortString = sortString1;
   }
 
 }

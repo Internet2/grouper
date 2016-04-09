@@ -1,14 +1,7 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
  * returned from the attribute assign actions query 
@@ -16,11 +9,6 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  */
 public class WsGetAttributeAssignActionsResults {
 
-  /**
-   * logger
-  */
-  private static final Log LOG = LogFactory.getLog(WsGetAttributeAssignActionsResults.class);
-	
   /**
    * has 0 to many tuples that match the query
    */
@@ -129,48 +117,6 @@ public class WsGetAttributeAssignActionsResults {
 	@Override
 	public int getHttpStatusCode() {
 		return this.httpStatusCode;
-	}
-  }
-
-  /**
-   * assign the code from the enum
-   * 
-   * @param getAttributeAssignmentsResultCode
-   */
-  public void assignResultCode(WsGetAttributeAssignActionsResultsCode getAttributeAssignmentsResultCode) {
-	this.getResultMetadata().assignResultCode(getAttributeAssignmentsResultCode);
-  }
-
-  /**
-   * process an exception, log, etc
-   * 
-   * @param wsGetAttributeAssignActionsResultsCodeOverride
-   * @param theError
-   * @param e
-  */
-  public void assignResultCodeException( WsGetAttributeAssignActionsResultsCode wsGetAttributeAssignActionsResultsCodeOverride,
-	String theError, Exception e) {
-
-	if (e instanceof WsInvalidQueryException) {
-		wsGetAttributeAssignActionsResultsCodeOverride = GrouperUtil
-				.defaultIfNull(wsGetAttributeAssignActionsResultsCodeOverride,
-						WsGetAttributeAssignActionsResultsCode.INVALID_QUERY);
-		// a helpful exception will probably be in the getMessage()
-		this.assignResultCode(wsGetAttributeAssignActionsResultsCodeOverride);
-		this.getResultMetadata().appendResultMessage(e.getMessage());
-		this.getResultMetadata().appendResultMessage(theError);
-		LOG.warn(e);
-
-	} else {
-		wsGetAttributeAssignActionsResultsCodeOverride = GrouperUtil
-				.defaultIfNull(wsGetAttributeAssignActionsResultsCodeOverride,
-						WsGetAttributeAssignActionsResultsCode.EXCEPTION);
-		LOG.error(theError, e);
-
-		theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
-		this.getResultMetadata().appendResultMessage(
-				theError + ExceptionUtils.getFullStackTrace(e));
-		this.assignResultCode(wsGetAttributeAssignActionsResultsCodeOverride);
 	}
   }
 

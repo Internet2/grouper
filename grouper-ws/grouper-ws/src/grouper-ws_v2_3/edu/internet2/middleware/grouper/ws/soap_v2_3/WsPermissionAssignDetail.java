@@ -19,40 +19,12 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import edu.internet2.middleware.grouper.permissions.PermissionEntry;
-import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 
 /**
  * result of permission entry query represents an assignment in the DB
  */
 public class WsPermissionAssignDetail {
-
-  /** 
-   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
-   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
-   */
-  private String heuristicFriendlyScore;
-  
-  /**
-   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
-   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
-   * @return score
-   */
-  public String getHeuristicFriendlyScore() {
-    return this.heuristicFriendlyScore;
-  }
-
-  /**
-   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
-   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
-   * @param heuristicFriendlyScore1
-   */
-  public void setHeuristicFriendlyScore(String heuristicFriendlyScore1) {
-    this.heuristicFriendlyScore = heuristicFriendlyScore1;
-  }
-
 
   /** depth of role set hierarchy, 0 means immediate */
   private String roleSetDepth;
@@ -185,6 +157,12 @@ public class WsPermissionAssignDetail {
 
   /** T or F if this permission is immediate to the role or subject */
   private String immediatePermission;
+
+  /** 
+   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
+   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
+   */
+  private String heuristicFriendlyScore;
   
   /**
    * T or F if the membership is immediate to the role
@@ -303,36 +281,28 @@ public class WsPermissionAssignDetail {
   }
 
   /**
+   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
+   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
+   * @return score
+   */
+  public String getHeuristicFriendlyScore() {
+    return this.heuristicFriendlyScore;
+  }
+
+  /**
+   * friendly score which just ranks the list: 1, 2, 3, etc.  ties will get the same score, note, this is applicable
+   * to rank two similar permissions (type, resource, action, role, and if applicable, member)
+   * @param heuristicFriendlyScore1
+   */
+  public void setHeuristicFriendlyScore(String heuristicFriendlyScore1) {
+    this.heuristicFriendlyScore = heuristicFriendlyScore1;
+  }
+
+  /**
    * 
    */
   public WsPermissionAssignDetail() {
     //default constructor
   }
-  
-  /**
-   * construct with permission entry to set internal fields
-   * 
-   * @param permissionEntry
-   */
-  public WsPermissionAssignDetail(PermissionEntry permissionEntry) {
-    
-    this.actionDepth = Integer.toString(permissionEntry.getAttributeAssignActionSetDepth());
-    this.attributeDefNameSetDepth = Integer.toString(permissionEntry.getAttributeDefNameSetDepth());
-    this.membershipDepth = Integer.toString(permissionEntry.getMembershipDepth());
-    this.roleSetDepth = Integer.toString(permissionEntry.getRoleSetDepth());
-    
-    if (!(permissionEntry instanceof PITPermissionAllView)) {
-      this.assignmentNotes = permissionEntry.getAssignmentNotes();
-      this.disabledTime = GrouperServiceUtils.dateToString(permissionEntry.getDisabledTime());
-      this.enabledTime = GrouperServiceUtils.dateToString(permissionEntry.getEnabledTime());
-      this.immediateMembership = permissionEntry.isImmediateMembership() ? "T" : "F";
-      this.immediatePermission = permissionEntry.isImmediatePermission() ? "T" : "F";
-      this.permissionDelegatable = permissionEntry.getAttributeAssignDelegatableDb(); 
-      this.actionId = permissionEntry.getActionId();
-      this.memberId = permissionEntry.getMemberId();
-    } else {
-      this.actionId = ((PITPermissionAllView)permissionEntry).getActionSourceId();
-      this.memberId = ((PITPermissionAllView)permissionEntry).getMemberSourceId();
-    }
-  }
+
 }

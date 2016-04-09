@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
 
+
 /**
  * holds a permission assign result.  
  */
@@ -31,17 +32,7 @@ public class WsAssignPermissionResult  {
   public WsAssignPermissionResult() {
     //empty
   }
-
-  /**
-   * convert
-   * @param wsAssignAttributeResult
-   */
-  public WsAssignPermissionResult(WsAssignAttributeResult wsAssignAttributeResult) {
-    this.changed = wsAssignAttributeResult.getChanged();
-    this.deleted = wsAssignAttributeResult.getDeleted();
-    this.wsAttributeAssigns = wsAssignAttributeResult.getWsAttributeAssigns();
-  }
-
+  
   /** assignment(s) involved */
   private WsAttributeAssign[] wsAttributeAssigns;
 

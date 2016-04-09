@@ -18,20 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
-import edu.internet2.middleware.grouper.pit.PITAttributeDef;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 
 /**
  * Result of one attribute def name being retrieved.  The number of
@@ -39,7 +25,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  * 
  * @author mchyzer
  */
-public class WsAttributeDef implements Comparable<WsAttributeDef> {
+public class WsAttributeDef {
 
   /**
    * integer ID for object
@@ -62,62 +48,8 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
     this.idIndex = idIndex1;
   }
 
-  /**
-   * make sure this is an explicit toString
-   */
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this);
-  }
-
   /** extension of attributeDef, the part to the right of last colon in name */
   private String extension;
-
-  /**
-   * convert a set of attribute def names to results
-   * @param attributeDefNameSet
-   * @return the attributeDefs (null if none or null)
-   */
-  public static WsAttributeDef[] convertAttributeDefNames(Set<AttributeDefName> attributeDefNameSet) {
-    if (attributeDefNameSet == null || attributeDefNameSet.size() == 0) {
-      return null;
-    }
-
-    Set<AttributeDef> attributeDefSet = new TreeSet<AttributeDef>();
-    Set<String> idsOfAttributeDefs = new LinkedHashSet<String>();
-    for (AttributeDefName attributeDefName : attributeDefNameSet) {
-      if (!idsOfAttributeDefs.contains(attributeDefName.getAttributeDefId())) {
-        idsOfAttributeDefs.add(attributeDefName.getAttributeDefId());
-        attributeDefSet.add(attributeDefName.getAttributeDef());
-      }
-    }
-    
-    return convertAttributeDefs(attributeDefSet);
-
-  }
-
-
-  
-  /**
-   * convert a set of attribute def names to results
-   * @param attributeDefSet
-   * @return the attributeDefs (null if none or null)
-   */
-  public static WsAttributeDef[] convertAttributeDefs(Set<AttributeDef> attributeDefSet) {
-    if (attributeDefSet == null || attributeDefSet.size() == 0) {
-      return null;
-    }
-    int attributeDefSetSize = attributeDefSet.size();
-    WsAttributeDef[] wsAttributeDefResults = new WsAttributeDef[attributeDefSetSize];
-    int index = 0;
-    for (AttributeDef attributeDef : attributeDefSet) {
-      WsAttributeDef wsAttributeDef = new WsAttributeDef(attributeDef, null);
-      wsAttributeDefResults[index] = wsAttributeDef;
-      index++;
-    }
-    return wsAttributeDefResults;
-
-  }
 
   /**
    * friendly description of this attributeDef
@@ -250,66 +182,6 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
   }
 
   /**
-   * construct based on attribute def name, assign all fields
-   * @param attributeDef 
-   * @param wsAttributeDefLookup is the lookup to set looked up values
-   */
-  public WsAttributeDef(AttributeDef attributeDef, WsAttributeDefLookup wsAttributeDefLookup) {
-    if (attributeDef != null) {
-      this.setDescription(StringUtils.trimToNull(attributeDef.getDescription()));
-      this.setName(attributeDef.getName());
-      this.setUuid(attributeDef.getId());
-      this.setExtension(attributeDef.getExtension());
-      
-      this.attributeDefType = attributeDef.getAttributeDefTypeDb();
-      this.multiAssignable = GrouperServiceUtils.booleanToStringOneChar(attributeDef.isMultiAssignable());
-      this.multiValued = GrouperServiceUtils.booleanToStringOneChar(attributeDef.isMultiValued());
-      this.valueType = attributeDef.getValueTypeDb();
-
-      //if greater then 2.2 then set id index
-      if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
-          .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
-        this.setIdIndex(attributeDef.getIdIndex() == null ? null : attributeDef.getIdIndex().toString());
-      }
-
-    } else {
-      if (wsAttributeDefLookup != null) {
-        //no attributeDef, set the look values so the caller can keep things in sync
-        this.setName(wsAttributeDefLookup.getName());
-        this.setUuid(wsAttributeDefLookup.getUuid());
-        this.setExtension(GrouperUtil.extensionFromName(wsAttributeDefLookup.getName()));
-        //if greater then 2.2 then set id index
-        if (GrouperWsVersionUtils.retrieveCurrentClientVersion()
-            .greaterOrEqualToArg(GrouperVersion.valueOfIgnoreCase("v2_2_000"))) {
-          this.setIdIndex(wsAttributeDefLookup.getIdIndex() == null ? null : wsAttributeDefLookup.getIdIndex().toString());
-        }
-      }
-    }
-  }
-  
-  /**
-   * construct based on attribute def name, assign all fields
-   * @param attributeDef 
-   * @param wsAttributeDefLookup is the lookup to set looked up values
-   */
-  public WsAttributeDef(PITAttributeDef attributeDef, WsAttributeDefLookup wsAttributeDefLookup) {
-    if (attributeDef != null) {
-      this.setName(attributeDef.getName());
-      this.setUuid(attributeDef.getSourceId());
-      this.setExtension(GrouperUtil.extensionFromName(attributeDef.getName()));
-      
-      this.attributeDefType = attributeDef.getAttributeDefTypeDb();      
-    } else {
-      if (wsAttributeDefLookup != null) {
-        //no attributeDef, set the look values so the caller can keep things in sync
-        this.setName(wsAttributeDefLookup.getName());
-        this.setUuid(wsAttributeDefLookup.getUuid());
-        this.setExtension(GrouperUtil.extensionFromName(wsAttributeDefLookup.getName()));
-      }
-    }
-  }
-
-  /**
    * friendly description of this attributeDef
    * @return the description
    */
@@ -373,22 +245,5 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
    */
   public void setExtension(String extension1) {
     this.extension = extension1;
-  }
-
-  /**
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(WsAttributeDef o2) {
-    if (this == o2) {
-      return 0;
-    }
-    //lets by null safe here
-    if (this == null) {
-      return -1;
-    }
-    if (o2 == null) {
-      return 1;
-    }
-    return GrouperUtil.compare(this.getName(), o2.getName());
   }
 }
