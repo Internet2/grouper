@@ -1,3 +1,3 @@
-Configure the interfaces in authzStandardApi.server.properties:
+Configure the interfaces in tierApiAuthz.server.base.properties:
 
-tierApiAuthzServer.interface.group = edu.internet2.middleware.grouperStandardApi.interfaces.GaasGroupInterfaceImpl
+tierApiAuthzServer.interface.groupsMember = edu.internet2.middleware.grouperTierApiAuth.interfaces.GtaasGroupsMemberInterfaceImpl
