@@ -44,8 +44,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.Job;
 
-import com.mchange.v2.c3p0.ConnectionTester;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -1353,7 +1351,7 @@ public class GrouperCheckConfig {
         
         //default class in c3p0 doesnt work
         if (c3p0Pattern.matcher(file.getName()).matches()) {
-          sampleClass = ConnectionTester.class;
+          sampleClass = GrouperUtil.forName("com.mchange.v2.c3p0.ConnectionTester");
         }
         //requires java8.  after upgrading to java8 you can remove this
         if (sampleClass == null && c3p0ExtrasPattern.matcher(file.getName()).matches()) {
