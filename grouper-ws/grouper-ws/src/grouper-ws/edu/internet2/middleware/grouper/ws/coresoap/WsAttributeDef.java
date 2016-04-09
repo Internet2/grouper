@@ -155,12 +155,273 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
   private String valueType;
 
   /**
-   * can be assigned to these types: ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
-   * EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
-   * IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+   * assign to Attribute Def T|F 
    */
-  private String[] assignableTos;
+  private String assignToAttributeDef = "F";
   
+  /**
+   * assign to Attribute Def assignment T|F
+   */
+  private String assignToAttributeDefAssignment = "F";
+  
+  /**
+   * assign to effective membership T|F
+   */
+  private String assignToEffectiveMembership = "F";
+  
+  /**
+   * assign to effective membership assignment T|F
+   */
+  private String assignToEffectiveMembershipAssignment = "F";
+  
+  /**
+   * assign to group T|F
+   */
+  private String assignToGroup = "F";
+    
+  /**
+   * assign to group assignment T|F
+   */
+  private String assignToGroupAssignment = "F";
+  
+  /**
+   * assign to immediate membership T|F
+   */
+  private String assignToImmediateMembership = "F";
+  
+  /**
+   * assign to immediate membership assignment T|F
+   */
+  private String assignToImmediateMembershipAssignment = "F";
+  
+  /**
+   * assign to member T|F
+   */
+  private String assignToMember = "F";
+  
+  /**
+   * assign to member assignment T|F
+   */
+  private String assignToMemberAssignment = "F";
+  
+  /**
+   * assign to stem T|F
+   */
+  private String assignToStem = "F";
+  
+  /**
+   * assign to stem assignment T|F
+   */
+  private String assignToStemAssignment = "F";
+  
+  
+  /**
+   * @return true if this attribute def is assigned to  anything
+   */
+  public boolean areThereAnyAssignables() {
+    return this.getAssignToAttributeDef().equalsIgnoreCase("T") || this.getAssignToAttributeDefAssignment().equalsIgnoreCase("T")
+        || this.getAssignToEffectiveMembership().equalsIgnoreCase("T") || this.getAssignToEffectiveMembershipAssignment().equalsIgnoreCase("T")
+        || this.getAssignToGroup().equalsIgnoreCase("T") || this.getAssignToGroupAssignment().equalsIgnoreCase("T")
+        || this.getAssignToImmediateMembership().equalsIgnoreCase("T") || this.getAssignToImmediateMembershipAssignment().equalsIgnoreCase("T")
+        || this.getAssignToMember().equalsIgnoreCase("T") || this.getAssignToMemberAssignment().equalsIgnoreCase("T")
+        || this.getAssignToStem().equalsIgnoreCase("T") || this.getAssignToStemAssignment().equalsIgnoreCase("T");
+     
+  }
+  
+  
+  /**
+   * @return the assignToAttributeDef
+   */
+  public String getAssignToAttributeDef() {
+    return this.assignToAttributeDef;
+  }
+
+  
+  /**
+   * @param assignToAttributeDef1 the assignToAttributeDef to set
+   */
+  public void setAssignToAttributeDef(String assignToAttributeDef1) {
+    this.assignToAttributeDef = assignToAttributeDef1;
+  }
+
+  
+  /**
+   * @return the assignToAttributeDefAssignment
+   */
+  public String getAssignToAttributeDefAssignment() {
+    return this.assignToAttributeDefAssignment;
+  }
+
+  
+  /**
+   * @param assignToAttributeDefAssignment1 the assignToAttributeDefAssignment to set
+   */
+  public void setAssignToAttributeDefAssignment(String assignToAttributeDefAssignment1) {
+    this.assignToAttributeDefAssignment = assignToAttributeDefAssignment1;
+  }
+
+  
+  /**
+   * @return the assignToEffectiveMembership
+   */
+  public String getAssignToEffectiveMembership() {
+    return this.assignToEffectiveMembership;
+  }
+
+  
+  /**
+   * @param assignToEffectiveMembership1 the assignToEffectiveMembership to set
+   */
+  public void setAssignToEffectiveMembership(String assignToEffectiveMembership1) {
+    this.assignToEffectiveMembership = assignToEffectiveMembership1;
+  }
+
+  
+  /**
+   * @return the assignToEffectiveMembershipAssignment
+   */
+  public String getAssignToEffectiveMembershipAssignment() {
+    return this.assignToEffectiveMembershipAssignment;
+  }
+
+  
+  /**
+   * @param assignToEffectiveMembershipAssignment1 the assignToEffectiveMembershipAssignment to set
+   */
+  public void setAssignToEffectiveMembershipAssignment(
+      String assignToEffectiveMembershipAssignment1) {
+    this.assignToEffectiveMembershipAssignment = assignToEffectiveMembershipAssignment1;
+  }
+
+  
+  /**
+   * @return the assignToGroup
+   */
+  public String getAssignToGroup() {
+    return this.assignToGroup;
+  }
+
+  
+  /**
+   * @param assignToGroup1 the assignToGroup to set
+   */
+  public void setAssignToGroup(String assignToGroup1) {
+    this.assignToGroup = assignToGroup1;
+  }
+
+  
+  /**
+   * @return the assignToGroupAssignment
+   */
+  public String getAssignToGroupAssignment() {
+    return this.assignToGroupAssignment;
+  }
+
+  
+  /**
+   * @param assignToGroupAssignment1 the assignToGroupAssignment to set
+   */
+  public void setAssignToGroupAssignment(String assignToGroupAssignment1) {
+    this.assignToGroupAssignment = assignToGroupAssignment1;
+  }
+
+  
+  /**
+   * @return the assignToImmediateMembership
+   */
+  public String getAssignToImmediateMembership() {
+    return this.assignToImmediateMembership;
+  }
+
+  
+  /**
+   * @param assignToImmediateMembership1 the assignToImmediateMembership to set
+   */
+  public void setAssignToImmediateMembership(String assignToImmediateMembership1) {
+    this.assignToImmediateMembership = assignToImmediateMembership1;
+  }
+
+  
+  /**
+   * @return the assignToImmediateMembershipAssignment
+   */
+  public String getAssignToImmediateMembershipAssignment() {
+    return this.assignToImmediateMembershipAssignment;
+  }
+
+  
+  /**
+   * @param assignToImmediateMembershipAssignment1 the assignToImmediateMembershipAssignment to set
+   */
+  public void setAssignToImmediateMembershipAssignment(
+      String assignToImmediateMembershipAssignment1) {
+    this.assignToImmediateMembershipAssignment = assignToImmediateMembershipAssignment1;
+  }
+
+  
+  /**
+   * @return the assignToMember
+   */
+  public String getAssignToMember() {
+    return this.assignToMember;
+  }
+
+  
+  /**
+   * @param assignToMember1 the assignToMember to set
+   */
+  public void setAssignToMember(String assignToMember1) {
+    this.assignToMember = assignToMember1;
+  }
+
+  
+  /**
+   * @return the assignToMemberAssignment
+   */
+  public String getAssignToMemberAssignment() {
+    return this.assignToMemberAssignment;
+  }
+
+  
+  /**
+   * @param assignToMemberAssignment1 the assignToMemberAssignment to set
+   */
+  public void setAssignToMemberAssignment(String assignToMemberAssignment1) {
+    this.assignToMemberAssignment = assignToMemberAssignment1;
+  }
+
+  
+  /**
+   * @return the assignToStem
+   */
+  public String getAssignToStem() {
+    return this.assignToStem;
+  }
+
+  
+  /**
+   * @param assignToStem1 the assignToStem to set
+   */
+  public void setAssignToStem(String assignToStem1) {
+    this.assignToStem = assignToStem1;
+  }
+
+  
+  /**
+   * @return the assignToStemAssignment
+   */
+  public String getAssignToStemAssignment() {
+    return this.assignToStemAssignment;
+  }
+
+  
+  /**
+   * @param assignToStemAssignment1 the assignToStemAssignment to set
+   */
+  public void setAssignToStemAssignment(String assignToStemAssignment1) {
+    this.assignToStemAssignment = assignToStemAssignment1;
+  }
+
   /**
    * type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
    * @return the type
@@ -223,22 +484,6 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
    */
   public void setValueType(String valueType1) {
     this.valueType = valueType1;
-  }
-
-  /**
-   * can be assigned to these types
-   * @return assignable tos
-   */
-  public String[] getAssignableTos() {
-    return this.assignableTos;
-  }
-
-  /**
-   * can be assigned to these types
-   * @param assignableTos1
-   */
-  public void setAssignableTos(String[] assignableTos1) {
-    this.assignableTos = assignableTos1;
   }
 
   /**
@@ -309,6 +554,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
     }
   }
 
+  
   /**
    * friendly description of this attributeDef
    * @return the description

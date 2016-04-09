@@ -195,7 +195,8 @@ public class GcAttributeDefSave {
     wsAttributeDef1.setName("test1:attributeDef1");
     wsAttributeDef1.setAttributeDefType("perm");
     wsAttributeDef1.setDescription("Perm Attribute Def");
-    wsAttributeDef1.setAssignableTos(new String[] { "GROUP", "EFFECTIVE_MEMBERSHIP" });
+    wsAttributeDef1.setAssignToGroup("T");
+    wsAttributeDef1.setAssignToEffectiveMembership("T");
     wsAttributeDef1.setValueType("marker");
 
     wsAttributeDefToSave.setWsAttributeDef(wsAttributeDef1);

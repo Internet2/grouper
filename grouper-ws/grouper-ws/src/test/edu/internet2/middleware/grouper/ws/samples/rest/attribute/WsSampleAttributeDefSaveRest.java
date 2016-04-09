@@ -84,7 +84,7 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
       //The attribute def to save
       WsAttributeDef wsAttributeDef1 = new WsAttributeDef();
 
-      wsAttributeDef1.setAssignableTos(new String[] { "ATTRIBUTE_DEF" });
+      wsAttributeDef1.setAssignToAttributeDef("T");
       wsAttributeDef1.setAttributeDefType("attr");
       wsAttributeDef1.setMultiAssignable("F");
       wsAttributeDef1.setMultiValued("F");
@@ -100,7 +100,7 @@ public class WsSampleAttributeDefSaveRest implements WsSampleRest {
 
       WsAttributeDef wsAttributeDef2 = new WsAttributeDef();
 
-      wsAttributeDef2.setAssignableTos(new String[] { "ATTRIBUTE_DEF" });
+      wsAttributeDef2.setAssignToAttributeDef("T");
       wsAttributeDef2.setAttributeDefType("attr");
       wsAttributeDef2.setMultiAssignable("F");
       wsAttributeDef2.setMultiValued("F");

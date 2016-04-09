@@ -120,7 +120,7 @@ public class WsAttributeDefToSave {
         //make sure it exists
         SaveMode.valueOfIgnoreCase(this.saveMode);
       }
-      if (this.getWsAttributeDef().getAssignableTos() == null || this.getWsAttributeDef().getAssignableTos().length == 0) {
+      if (!this.getWsAttributeDef().areThereAnyAssignables()) {
         throw new WsInvalidQueryException("select at least one object type that this attribute type can be assigned to "); 
       }
     } catch (RuntimeException e) {
@@ -148,7 +148,7 @@ public class WsAttributeDefToSave {
       throw new WsInvalidQueryException(
           "getWsAttributeDef is required to save an attributeDef");
     }
-    if (this.getWsAttributeDef().getAssignableTos() == null) {
+    if (!this.getWsAttributeDef().areThereAnyAssignables()) {
       throw new WsInvalidQueryException(
           "atleast one assignable to is required.");
     }
@@ -184,9 +184,6 @@ public class WsAttributeDefToSave {
     String attributeDefLookup = attributeDefLookedup == null ? null
         : attributeDefLookedup.getName();
 
-    List<String> assignableTo = Arrays
-        .asList(this.getWsAttributeDef().getAssignableTos());
-
     AttributeDefType attributeDefType = AttributeDefType.valueOfIgnoreCase(this
         .getWsAttributeDef().getAttributeDefType(), true);
     AttributeDefValueType attributeDefValueType = AttributeDefValueType
@@ -208,21 +205,18 @@ public class WsAttributeDefToSave {
     attributeDefSave.assignValueType(attributeDefValueType);
     attributeDefSave.assignMultiAssignable(multiAssignable);
     attributeDefSave.assignMultiValued(multiValued);
-    attributeDefSave.assignToAttributeDef(assignableTo.contains("ATTRIBUTE_DEF"));
-    attributeDefSave.assignToAttributeDefAssn(assignableTo
-        .contains("ATTRIBUTE_DEF_ASSIGNMENT"));
-    attributeDefSave.assignToStem(assignableTo.contains("STEM"));
-    attributeDefSave.assignToStemAssn(assignableTo.contains("STEM_ASSIGNMENT"));
-    attributeDefSave.assignToGroup(assignableTo.contains("GROUP"));
-    attributeDefSave.assignToGroupAssn(assignableTo.contains("GROUP_ASSIGNMENT"));
-    attributeDefSave.assignToMember(assignableTo.contains("MEMBER"));
-    attributeDefSave.assignToMemberAssn(assignableTo.contains("MEMBER_ASSIGNMENT"));
-    attributeDefSave.assignToEffMembership(assignableTo.contains("EFFECTIVE_MEMBERSHIP"));
-    attributeDefSave.assignToEffMembershipAssn(assignableTo
-        .contains("EFFECTIVE_MEMBERSHIP_ASSIGNMENT"));
-    attributeDefSave.assignToImmMembership(assignableTo.contains("IMMEDIATE_MEMBERSHIP"));
-    attributeDefSave.assignToImmMembershipAssn(assignableTo
-        .contains("IMMEDIATE_MEMBERSHIP_ASSIGNMENT"));
+    attributeDefSave.assignToAttributeDef(this.getWsAttributeDef().getAssignToAttributeDef().equals("T"));
+    attributeDefSave.assignToAttributeDefAssn(this.getWsAttributeDef().getAssignToAttributeDefAssignment().equals("T"));
+    attributeDefSave.assignToStem(this.getWsAttributeDef().getAssignToStem().equals("T"));
+    attributeDefSave.assignToStemAssn(this.getWsAttributeDef().getAssignToStemAssignment().equals("T"));
+    attributeDefSave.assignToGroup(this.getWsAttributeDef().getAssignToGroup().equals("T"));
+    attributeDefSave.assignToGroupAssn(this.getWsAttributeDef().getAssignToGroupAssignment().equals("T"));
+    attributeDefSave.assignToMember(this.getWsAttributeDef().getAssignToMember().equals("T"));
+    attributeDefSave.assignToMemberAssn(this.getWsAttributeDef().getAssignToMemberAssignment().equals("T"));
+    attributeDefSave.assignToEffMembership(this.getWsAttributeDef().getAssignToEffectiveMembership().equals("T"));
+    attributeDefSave.assignToEffMembershipAssn(this.getWsAttributeDef().getAssignToEffectiveMembershipAssignment().equals("T"));
+    attributeDefSave.assignToImmMembership(this.getWsAttributeDef().getAssignToImmediateMembership().equals("T"));
+    attributeDefSave.assignToImmMembershipAssn(this.getWsAttributeDef().getAssignToImmediateMembershipAssignment().equals("T"));
 
     if (!StringUtils.isBlank(this.getWsAttributeDef().getIdIndex())) {
       attributeDefSave.assignIdIndex(GrouperUtil.longValue(this.getWsAttributeDef()
