@@ -6780,45 +6780,19 @@ public class GrouperServiceLogic {
     WsAttributeDef wsAttributeDef = new WsAttributeDef();
     wsAttributeDef.setDescription(description);
 
-    List<String> assignableTos = new ArrayList<String>();
-    if (assignToAttributeDef != null && assignToAttributeDef != false) {
-      assignableTos.add("ATTRIBUTE_DEF");
-    }
-    if (assignToAttributeDefAssignment != null && assignToAttributeDefAssignment != false) {
-      assignableTos.add("ATTRIBUTE_DEF_ASSIGNMENT");
-    }
-    if (assignToEffectiveMembership != null && assignToEffectiveMembership != false) {
-      assignableTos.add("EFFECTIVE_MEMBERSHIP");
-    }
-    if (assignToEffectiveMembershipAssignment != null && assignToEffectiveMembershipAssignment != false) {
-      assignableTos.add("EFFECTIVE_MEMBERSHIP_ASSIGNMENT");
-    }
-    if (assignToGroup != null && assignToGroup != false) {
-      assignableTos.add("GROUP");
-    }
-    if (assignToGroupAssignment != null && assignToGroupAssignment != false) {
-      assignableTos.add("GROUP_ASSIGNMENT");
-    }
-    if (assignToImmediateMembership != null && assignToImmediateMembership != false) {
-      assignableTos.add("IMMEDIATE_MEMBERSHIP");
-    }
-    if (assignToImmediateMembershipAssignment != null && assignToImmediateMembershipAssignment != false) {
-      assignableTos.add("IMMEDIATE_MEMBERSHIP_ASSIGNMENT");
-    }
-    if (assignToMember != null && assignToMember != false) {
-      assignableTos.add("MEMBER");
-    }
-    if (assignToMemberAssignment != null && assignToMemberAssignment != false) {
-      assignableTos.add("MEMBER_ASSIGNMENT");
-    }
-    if (assignToStem != null && assignToStem != false) {
-      assignableTos.add("STEM");
-    }
-    if (assignToStemAssignment != null && assignToStemAssignment != false) {
-      assignableTos.add("STEM_ASSIGNMENT");
-    }
+    wsAttributeDef.setAssignToAttributeDef(assignToAttributeDef ? "T" : "F");
+    wsAttributeDef.setAssignToAttributeDefAssignment(assignToAttributeDefAssignment ? "T" : "F");
+    wsAttributeDef.setAssignToEffectiveMembership(assignToEffectiveMembership ? "T" : "F");
+    wsAttributeDef.setAssignToEffectiveMembershipAssignment(assignToEffectiveMembershipAssignment ? "T" : "F");
+    wsAttributeDef.setAssignToGroup(assignToGroup ? "T" : "F");
+    wsAttributeDef.setAssignToGroupAssignment(assignToGroupAssignment ? "T" : "F");
+    wsAttributeDef.setAssignToImmediateMembership(assignToImmediateMembership ? "T" : "F");
+    wsAttributeDef.setAssignToImmediateMembershipAssignment(assignToImmediateMembershipAssignment ? "T" : "F");
+    wsAttributeDef.setAssignToMember(assignToMember ? "T" : "F");
+    wsAttributeDef.setAssignToMemberAssignment(assignToMemberAssignment ? "T" : "F");
+    wsAttributeDef.setAssignToStem(assignToStem ? "T" : "F");
+    wsAttributeDef.setAssignToStemAssignment(assignToStemAssignment ? "T" : "F");
     
-    wsAttributeDef.setAssignableTos(assignableTos.toArray(new String[assignableTos.size()]));
     wsAttributeDef.setName(nameOfAttributeDef);
     wsAttributeDef.setUuid(uuidOfAttributeDef);
     wsAttributeDef.setAttributeDefType(attributeDefType);

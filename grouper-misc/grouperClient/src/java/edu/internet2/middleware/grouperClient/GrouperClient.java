@@ -6055,10 +6055,10 @@ public class GrouperClient {
         true);
     wsAttributeDef.setValueType(valueType);
 
-    List<String> assignableTos = GrouperClientUtils.argMapList(argMap, argMapNotUsed,
-        "assignableTos", false);
-    String[] assignableTos1 = GrouperClientUtils.toArray(assignableTos, String.class);
-    wsAttributeDef.setAssignableTos(assignableTos1);
+    String assignToAttributeDef = GrouperClientUtils.argMapString(argMap,
+    		         argMapNotUsed, "assignToAttributeDef", false);
+    		     
+    wsAttributeDef.setAssignToAttributeDef(assignToAttributeDef);
 
     //do the lookup if an edit
     if (!GrouperClientUtils.isBlank(attributeDefLookupName)
