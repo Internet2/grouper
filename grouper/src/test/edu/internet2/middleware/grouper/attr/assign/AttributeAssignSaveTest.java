@@ -16,7 +16,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -33,7 +32,7 @@ public class AttributeAssignSaveTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeAssignSaveTest("testGroupWithMultipleAssignValuesOnAssignmentOfAssignment"));
+    TestRunner.run(new AttributeAssignSaveTest("testMarkerGroupWithMarkersOnAssignment"));
     //TestRunner.run(AttributeAssignSaveTest.class);
   }
   
@@ -94,7 +93,7 @@ public class AttributeAssignSaveTest extends GrouperTest {
 
     assertTrue(group0.getAttributeDelegate().hasAttribute(attributeDefName0));
 
-    attributeAssignBase = group0.getAttributeDelegate().retrieveAssignment(null, attributeDefNameMeta0, false, true);
+    attributeAssignBase = group0.getAttributeDelegate().retrieveAssignment(null, attributeDefName0, false, true);
 
     assertTrue(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta0));
     assertTrue(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta1));
@@ -115,7 +114,7 @@ public class AttributeAssignSaveTest extends GrouperTest {
 
     assertTrue(group0.getAttributeDelegate().hasAttribute(attributeDefName0));
 
-    attributeAssignBase = group0.getAttributeDelegate().retrieveAssignment(null, attributeDefNameMeta0, false, true);
+    attributeAssignBase = group0.getAttributeDelegate().retrieveAssignment(null, attributeDefName0, false, true);
 
     assertTrue(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta0));
     assertTrue(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta1));
@@ -137,7 +136,7 @@ public class AttributeAssignSaveTest extends GrouperTest {
 
     assertTrue(group0.getAttributeDelegate().hasAttribute(attributeDefName0));
 
-    attributeAssignBase = group0.getAttributeDelegate().retrieveAssignment(null, attributeDefNameMeta0, false, true);
+    attributeAssignBase = group0.getAttributeDelegate().retrieveAssignment(null, attributeDefName0, false, true);
 
     assertFalse(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta0));
     assertFalse(attributeAssignBase.getAttributeDelegate().hasAttribute(attributeDefNameMeta1));
