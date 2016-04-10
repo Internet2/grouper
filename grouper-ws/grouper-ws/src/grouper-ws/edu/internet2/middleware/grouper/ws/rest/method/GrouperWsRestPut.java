@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteReques
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
-import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestMessageAcknowledgeRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestAcknowledgeMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
@@ -494,10 +494,10 @@ public enum GrouperWsRestPut {
         return GrouperServiceRest.sendMessage(clientVersion,
             (WsRestSendMessageRequest) requestObject);
       }
-      if (requestObject instanceof WsRestMessageAcknowledgeRequest) {
+      if (requestObject instanceof WsRestAcknowledgeMessageRequest) {
         //acknowledge messages
         return GrouperServiceRest.acknowledgeMessages(clientVersion,
-            (WsRestMessageAcknowledgeRequest) requestObject);
+            (WsRestAcknowledgeMessageRequest) requestObject);
 
       }
 

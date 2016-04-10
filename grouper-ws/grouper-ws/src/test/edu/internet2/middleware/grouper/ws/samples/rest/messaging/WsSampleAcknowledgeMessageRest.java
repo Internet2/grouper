@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestMessageAcknowledgeRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestAcknowledgeMessageRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -81,7 +81,7 @@ public class WsSampleAcknowledgeMessageRest implements WsSampleRest {
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
       wsSubjectLookup.setSubjectId(SubjectTestHelper.SUBJ0.getId());
       
-      WsRestMessageAcknowledgeRequest acknowledgeMessageRequest = new WsRestMessageAcknowledgeRequest();
+      WsRestAcknowledgeMessageRequest acknowledgeMessageRequest = new WsRestAcknowledgeMessageRequest();
       
       acknowledgeMessageRequest.setActAsSubjectLookup(wsSubjectLookup);
       acknowledgeMessageRequest.setAcknowledgeType("mark_as_processed");

@@ -254,7 +254,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageDefault;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueParam;
@@ -9318,16 +9317,19 @@ public class GrouperServiceLogic {
       if (StringUtils.isBlank(queueOrTopicName)) {
         throw new WsInvalidQueryException("You need to pass in queueOrTopicName.");
       }
+      
+      if (acknowledgeType == GrouperMessageAcknowledgeType.send_to_another_queue &&
+    		  (StringUtils.isBlank(anotherQueueOrTopicName) || anotherQueueType == null)) { 
+    	  throw new WsInvalidQueryException(
+    	          "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
+      }
+      if (acknowledgeType != GrouperMessageAcknowledgeType.send_to_another_queue && 
+    		  (!StringUtils.isBlank(anotherQueueOrTopicName) || anotherQueueType != null)) { 
+    	  throw new WsInvalidQueryException(
+    	          "You need to pass in acknowledge type as send_to_another_queue if you are passing anotherQueueOrTopicName or anotherQueueType");
+      }
       if (GrouperUtil.length(messageIds) == 0) {
         throw new WsInvalidQueryException("You need to pass in at least one messageId.");
-      }
-      if (StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType != null) {
-        throw new WsInvalidQueryException(
-            "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
-      }
-      if (!StringUtils.isBlank(anotherQueueOrTopicName) && anotherQueueType == null) {
-        throw new WsInvalidQueryException(
-            "You need to pass anotherQueueOrTopicName and anotherQueueType both.");
       }
       //convert the options to a map for easy access, and validate them
       @SuppressWarnings("unused")

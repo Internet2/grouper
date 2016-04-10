@@ -191,8 +191,10 @@ public class WsRestClassLookup {
     
     addAliasClass(WsRestSendMessageRequest.class);
     addAliasClass(WsRestReceiveMessageRequest.class);
+    addAliasClass(WsRestAcknowledgeMessageRequest.class);
     addAliasClass(WsMessage.class);
     addAliasClass(WsMessageResults.class);
+    addAliasClass(WsMessageAcknowledgeResults.class);
   }
   
   /**

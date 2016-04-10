@@ -20,11 +20,9 @@ import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
-import edu.internet2.middleware.grouperClient.ws.beans.WsMessage;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessageResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestReceiveMessageRequest;
-import edu.internet2.middleware.grouperClient.ws.beans.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 /**

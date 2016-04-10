@@ -66,8 +66,8 @@ public class GcMessageSend {
    * @return
    */
   public GcMessageSend assignMessageSystemName(String theMessageSystemName) {
-	this.messageSystemName = theMessageSystemName;
-	return this;
+    this.messageSystemName = theMessageSystemName;
+    return this;
   }
   
   /**

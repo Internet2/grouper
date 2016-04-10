@@ -125,7 +125,7 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubject
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
-import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestMessageAcknowledgeRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestAcknowledgeMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestReceiveMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
@@ -2520,11 +2520,11 @@ public class GrouperServiceRest {
    */
   public static WsMessageAcknowledgeResults acknowledgeMessages(
       GrouperVersion clientVersion,
-      WsRestMessageAcknowledgeRequest wsRestMessageAcknowledgeRequest) {
+      WsRestAcknowledgeMessageRequest wsRestMessageAcknowledgeRequest) {
 
     //cant be null
     wsRestMessageAcknowledgeRequest = wsRestMessageAcknowledgeRequest == null
-        ? new WsRestMessageAcknowledgeRequest() : wsRestMessageAcknowledgeRequest;
+        ? new WsRestAcknowledgeMessageRequest() : wsRestMessageAcknowledgeRequest;
 
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(

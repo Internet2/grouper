@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
 import edu.internet2.middleware.grouperClient.api.GcMemberChangeSubject;
+import edu.internet2.middleware.grouperClient.api.GcMessageAcknowledge;
 import edu.internet2.middleware.grouperClient.api.GcMessageReceive;
 import edu.internet2.middleware.grouperClient.api.GcMessageSend;
 import edu.internet2.middleware.grouperClient.api.GcStemDelete;
@@ -139,6 +140,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsMembership;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipAnyLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMembershipLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessage;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessageResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsPermissionAssign;
@@ -454,6 +456,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "receiveMessageWs")) {
           result = receiveMessage(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "acknowledgeMessageWs")) {
+          result = acknowledgeMessage(argMap, argMapNotUsed);
 
       } else {
         System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
@@ -6539,6 +6544,80 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.receiveMessage.output");
     }
     log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
+      "grouperClientUtils, resultMetadata");
+  
+    String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
+    return result.toString();
+  }
+  
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String acknowledgeMessage(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcMessageAcknowledge messageAcknowledge = new GcMessageAcknowledge();
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    messageAcknowledge.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+    	messageAcknowledge.addParam(param);
+    }
+    
+    String queueOrTopicName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "queueOrTopicName", false);
+    messageAcknowledge.assignQueueOrTopicName(queueOrTopicName);
+    
+    String messageSystemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "messageSystemName", false);
+    messageAcknowledge.assignMessageSystemName(messageSystemName);
+    
+    String acknowledgeType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "acknowledgeType", false);
+    messageAcknowledge.assignAcknowledgeType(acknowledgeType);
+    
+    List<String> messageIds = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "messageIds", false);
+    for (String messageId: messageIds) {
+    	messageAcknowledge.addMessageId(messageId);
+    }
+    
+    String anotherQueueOrTopicName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "anotherQueueOrTopicName", false);
+    messageAcknowledge.assignAnotherQueueOrTopicName(anotherQueueOrTopicName);
+    
+    String anotherQueueOrTopic = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "anotherQueueOrTopic", false);
+    messageAcknowledge.assignAnotherQueueOrTopic(anotherQueueOrTopic);
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    messageAcknowledge.assignActAsSubject(actAsSubject);
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsMessageAcknowledgeResults wsMessageAcknowledgeResults = messageAcknowledge.execute();
+    
+    StringBuilder result = new StringBuilder();
+
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsMessageAcknowledgeResults", wsMessageAcknowledgeResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+    substituteMap.put("resultMetadata", wsMessageAcknowledgeResults.getResultMetadata());
+    substituteMap.put("numberOfMessages", wsMessageAcknowledgeResults.getMessageIds().length);
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.acknowledgeMessage.output");
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageAcknowledgeResults, " +
       "grouperClientUtils, resultMetadata");
   
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);

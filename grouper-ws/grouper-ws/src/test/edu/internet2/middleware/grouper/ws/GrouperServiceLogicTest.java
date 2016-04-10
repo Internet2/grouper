@@ -208,7 +208,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAttributeDefSave"));
+    TestRunner.run(new GrouperServiceLogicTest("testAcknowledgeMessages"));
   }
 
   /**

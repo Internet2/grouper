@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 /**
  * request bean in body of rest request
  */
-public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
+public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
   
   
   /**
@@ -48,7 +48,7 @@ public class WsRestMessageAcknowledgeRequest implements WsRequestBean {
   /** what to do with the message. valid options are: mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue **/
   private String acknowledgeType;
   
-  /** messages to be marked as processed **/
+  /** messages to be acknowledged **/
   private String[] messageIds;
   
   /** destination of the message if acknowledgeType is send_to_another_queue **/
