@@ -188,6 +188,10 @@ public class WsRestClassLookup {
     addAliasClass(WsRestAttributeDefDeleteRequest.class);
     addAliasClass(WsFindAttributeDefsResults.class);
     addAliasClass(WsRestFindAttributeDefsRequest.class);
+    
+    addAliasClass(WsRestSendMessageRequest.class);
+    addAliasClass(WsMessage.class);
+    addAliasClass(WsMessageResults.class);
   }
   
   /**

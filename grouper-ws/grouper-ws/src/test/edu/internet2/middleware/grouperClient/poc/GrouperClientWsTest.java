@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -72,6 +73,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -105,7 +107,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAttributeDefSave"));
+    TestRunner.run(new GrouperClientWsTest("testSendMessage"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -38373,5 +38375,54 @@ public class GrouperClientWsTest extends GrouperTest {
 
   }
 
+  /**
+   * @throws Exception
+   */
+  public void testSendMessage() throws Exception {
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      //String queueName = RandomStringUtils.randomAlphabetic(15);
+      GrouperBuiltinMessagingSystem.createQueue("test_queue");
+      GrouperBuiltinMessagingSystem.allowSendToQueue("test_queue", SubjectTestHelper.SUBJ0);
+      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("test_queue", SubjectTestHelper.SUBJ0);
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=sendMessageWs --queueOrTopic=queue --queueOrTopicName=test_queue --messages=Test_body,Another_test_body --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      pattern = Pattern.compile("^Success: (T|F), queueOrTopicName: (.*), numberOfMessages: (.*)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "test_queue", matcher.group(2));
+      assertEquals(outputLines[0], "2", matcher.group(3));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
   
 }
