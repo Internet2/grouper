@@ -33,6 +33,8 @@
 package edu.internet2.middleware.grouper.helper;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -954,6 +956,25 @@ public class GrouperTest extends TestCase {
    * @param set2 received set
    */
   public void assertGroupSetsAndOrder(Set<Group> set1, Set<Group> set2) {
+
+    if (set1 == set2) {
+      return;
+    }
+
+    if (GrouperUtil.length(set2) > 0) {
+      //dont change calling set
+      set2 = new LinkedHashSet<Group>(set2);
+
+      //remove anything from etc
+      Iterator<Group> iterator = set2.iterator();
+      while (iterator.hasNext()) {
+        Group current = iterator.next();
+        if (current.getName().startsWith("etc")) {
+          iterator.remove();
+        }
+      }
+    }
+    
     int set1length = GrouperUtil.length(set1);
     int set2length = GrouperUtil.length(set2);
     if (set1length != set2length) {
