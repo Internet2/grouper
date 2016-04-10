@@ -190,6 +190,7 @@ public class WsRestClassLookup {
     addAliasClass(WsRestFindAttributeDefsRequest.class);
     
     addAliasClass(WsRestSendMessageRequest.class);
+    addAliasClass(WsRestReceiveMessageRequest.class);
     addAliasClass(WsMessage.class);
     addAliasClass(WsMessageResults.class);
   }

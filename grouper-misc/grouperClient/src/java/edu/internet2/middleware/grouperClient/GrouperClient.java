@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
 import edu.internet2.middleware.grouperClient.api.GcMemberChangeSubject;
+import edu.internet2.middleware.grouperClient.api.GcMessageReceive;
 import edu.internet2.middleware.grouperClient.api.GcMessageSend;
 import edu.internet2.middleware.grouperClient.api.GcStemDelete;
 import edu.internet2.middleware.grouperClient.api.GcStemSave;
@@ -450,6 +451,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "sendMessageWs")) {
           result = sendMessage(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "receiveMessageWs")) {
+          result = receiveMessage(argMap, argMapNotUsed);
 
       } else {
         System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
@@ -6438,6 +6442,9 @@ public class GrouperClient {
     String queueOrTopic = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "queueOrTopic", false);
     messageSend.assignQueueOrTopic(queueOrTopic);
     
+    String messageSystemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "messageSystemName", false);
+    messageSend.assignMessageSystemName(messageSystemName);
+    
     WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
     
     messageSend.assignActAsSubject(actAsSubject);
@@ -6466,7 +6473,73 @@ public class GrouperClient {
       outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.sendMessage.output");
     }
     log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
-      "grouperClientUtils, index, resultMetadata");
+      "grouperClientUtils, resultMetadata");
+  
+    String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+    result.append(output);
+    return result.toString();
+  }
+  
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String receiveMessage(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcMessageReceive messageReceive = new GcMessageReceive();
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    messageReceive.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+    	messageReceive.addParam(param);
+    }
+    
+    String queueOrTopicName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "queueOrTopicName", false);
+    messageReceive.assignQueueOrTopicName(queueOrTopicName);
+    
+    String messageSystemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "messageSystemName", false);
+    messageReceive.assignMessageSystemName(messageSystemName);
+    
+    Integer blockMillis = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, "blockMillis", false, 1);
+    messageReceive.assignBlockMillis(blockMillis);
+    
+    Integer maxMessagesToReceiveAtOnce = GrouperClientUtils.argMapInteger(argMap, argMapNotUsed, "maxMessagesToReceiveAtOnce", false, 1);
+    messageReceive.assignMaxMessagesToReceiveAtOnce(maxMessagesToReceiveAtOnce);
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    messageReceive.assignActAsSubject(actAsSubject);
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsMessageResults wsMessageResults = messageReceive.execute();
+    
+    StringBuilder result = new StringBuilder();
+
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsMessageResults", wsMessageResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+    substituteMap.put("resultMetadata", wsMessageResults.getResultMetadata());
+    substituteMap.put("numberOfMessages", wsMessageResults.getMessages().length);
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.receiveMessage.output");
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsMessageResults, " +
+      "grouperClientUtils, resultMetadata");
   
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
     result.append(output);

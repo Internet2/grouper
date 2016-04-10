@@ -23,40 +23,51 @@ import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessage;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessageResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestReceiveMessageRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestSendMessageRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 /**
  * @author vsachdeva
  */
-public class GcMessageSend {
-	
-  /** queue or topic **/
-  private String queueOrTopic;
-  
+public class GcMessageReceive {
+	  
   /** queue or topic name **/
   private String queueOrTopicName;
   
   /** messaging system name **/
   private String messageSystemName;
   
-  /** messages to be sent */
-  private List<WsMessage> messages = new ArrayList<WsMessage>();
+  /** the millis to block waiting for messages, max of 20000 (optional) **/
+  private Integer blockMillis;
+  
+  /** max number of messages to receive at once, though can't be more than the server maximum (optional) **/
+  private Integer maxMessagesToReceiveAtOnce; 
   
   /**
-   * @param theQueueOrTopic
+   * @param theBlockMillis
    * @return
    */
-  public GcMessageSend assignQueueOrTopic(String theQueueOrTopic) {
-	this.queueOrTopic = theQueueOrTopic;
-	return this;
+  public GcMessageReceive assignBlockMillis(Integer theBlockMillis) {
+    this.blockMillis = theBlockMillis;
+    return this;
   }
+  
+  /**
+   * @param theMaxMessagesToReceiveAtOnce
+   * @return
+   */
+  public GcMessageReceive assignMaxMessagesToReceiveAtOnce(Integer theMaxMessagesToReceiveAtOnce) {
+    this.maxMessagesToReceiveAtOnce = theMaxMessagesToReceiveAtOnce;
+    return this;
+  }
+
   
   /**
    * @param theQueueOrTopicName
    * @return
    */
-  public GcMessageSend assignQueueOrTopicName(String theQueueOrTopicName) {
+  public GcMessageReceive assignQueueOrTopicName(String theQueueOrTopicName) {
 	this.queueOrTopicName = theQueueOrTopicName;
 	return this;
   }
@@ -65,21 +76,11 @@ public class GcMessageSend {
    * @param theMessageSystemName
    * @return
    */
-  public GcMessageSend assignMessageSystemName(String theMessageSystemName) {
+  public GcMessageReceive assignMessageSystemName(String theMessageSystemName) {
 	this.messageSystemName = theMessageSystemName;
 	return this;
   }
   
-  /**
-   * add a message to the list
-   * @param wsMessage
-   * @return
-   */
-  public GcMessageSend addMessage(WsMessage wsMessage) {
-	this.messages.add(wsMessage);
-	return this;
-  }
-	
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
 
@@ -89,7 +90,7 @@ public class GcMessageSend {
    * @param paramValue
    * @return this for chaining
    */
-  public GcMessageSend addParam(String paramName, String paramValue) {
+  public GcMessageReceive addParam(String paramName, String paramValue) {
     this.params.add(new WsParam(paramName, paramValue));
     return this;
   }
@@ -99,7 +100,7 @@ public class GcMessageSend {
    * @param wsParam
    * @return this for chaining
    */
-  public GcMessageSend addParam(WsParam wsParam) {
+  public GcMessageReceive addParam(WsParam wsParam) {
     this.params.add(wsParam);
     return this;
   }
@@ -112,7 +113,7 @@ public class GcMessageSend {
    * @param theActAsSubject
    * @return this for chaining
    */
-  public GcMessageSend assignActAsSubject(WsSubjectLookup theActAsSubject) {
+  public GcMessageReceive assignActAsSubject(WsSubjectLookup theActAsSubject) {
     this.actAsSubject = theActAsSubject;
     return this;
   }
@@ -121,16 +122,9 @@ public class GcMessageSend {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.length(this.messages) == 0) {
-      throw new RuntimeException("Need at least one message to send: " + this);
-    }
     if (GrouperClientUtils.isBlank(queueOrTopicName)) {
-      throw new RuntimeException("Need queue or topic name where the message(s) needs to be sent "+this);
-    }
-    if (GrouperClientUtils.isBlank(queueOrTopic)) {
-      throw new RuntimeException("Need type of destination. Valid values are queue and topic) "+this);
-    }
-    
+      throw new RuntimeException("Need queue or topic name where the message(s) needs to be received from "+this);
+    }    
   }	
   
   /** client version */
@@ -141,7 +135,7 @@ public class GcMessageSend {
    * @param theClientVersion
    * @return this for chaining
    */
-  public GcMessageSend assignClientVersion(String theClientVersion) {
+  public GcMessageReceive assignClientVersion(String theClientVersion) {
     this.clientVersion = theClientVersion;
     return this;
   }
@@ -158,24 +152,24 @@ public class GcMessageSend {
     try {
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestSendMessageRequest messageSendRequest = new WsRestSendMessageRequest();
+      WsRestReceiveMessageRequest messageReceiveRequest = new WsRestReceiveMessageRequest();
 
-      messageSendRequest.setActAsSubjectLookup(this.actAsSubject);
-      messageSendRequest.setQueueOrTopic(this.queueOrTopic);
-      messageSendRequest.setQueueOrTopicName(this.queueOrTopicName);
-      messageSendRequest.setMessageSystemName(this.messageSystemName);
-      messageSendRequest.setMessages(GrouperClientUtils.toArray(this.messages, WsMessage.class));
+      messageReceiveRequest.setActAsSubjectLookup(this.actAsSubject);
+      messageReceiveRequest.setQueueOrTopicName(this.queueOrTopicName);
+      messageReceiveRequest.setMessageSystemName(this.messageSystemName);
+      messageReceiveRequest.setBlockMillis(this.blockMillis);
+      messageReceiveRequest.setMaxMessagesToReceiveAtOnce(this.maxMessagesToReceiveAtOnce);
 
       //add params if there are any
       if (this.params.size() > 0) {
-        messageSendRequest.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
+        messageReceiveRequest.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
       wsMessageResults = (WsMessageResults)
-        grouperClientWs.executeService("messaging", messageSendRequest, "send messages", this.clientVersion, false);
+        grouperClientWs.executeService("messaging", messageReceiveRequest, "receive messages", this.clientVersion, false);
       
       String resultMessage = wsMessageResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsMessageResults, null, resultMessage);

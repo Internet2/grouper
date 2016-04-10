@@ -31,9 +31,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import junit.textui.TestRunner;
-
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -85,6 +82,9 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
+import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
@@ -96,6 +96,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.subject.Subject;
+import junit.textui.TestRunner;
 
 /**
  *
@@ -107,7 +108,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testSendMessage"));
+    TestRunner.run(new GrouperClientWsTest("testReceiveMessage"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -38391,7 +38392,6 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
 
       GrouperSession grouperSession = GrouperSession.startRootSession();
-      //String queueName = RandomStringUtils.randomAlphabetic(15);
       GrouperBuiltinMessagingSystem.createQueue("test_queue");
       GrouperBuiltinMessagingSystem.allowSendToQueue("test_queue", SubjectTestHelper.SUBJ0);
       GrouperBuiltinMessagingSystem.allowReceiveFromQueue("test_queue", SubjectTestHelper.SUBJ0);
@@ -38418,6 +38418,101 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals(outputLines[0], "T", matcher.group(1));
       assertEquals(outputLines[0], "test_queue", matcher.group(2));
       assertEquals(outputLines[0], "2", matcher.group(3));
+      
+      assertTrue(GrouperClientWs.mostRecentRequest,
+              GrouperClientWs.mostRecentRequest.contains("queueOrTopic"));
+     assertFalse(GrouperClientWs.mostRecentRequest,
+              GrouperClientWs.mostRecentRequest.contains("messageSystemName"));
+
+    } finally {
+      System.setOut(systemOut);
+    }
+
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testReceiveMessage() throws Exception {
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
+    try {
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      GrouperBuiltinMessagingSystem.createQueue("test_queue");
+      GrouperBuiltinMessagingSystem.allowSendToQueue("test_queue", SubjectTestHelper.SUBJ0);
+      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("test_queue", SubjectTestHelper.SUBJ0);
+      
+      GrouperSession.start(SubjectTestHelper.SUBJ0);
+      GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
+    	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=receiveMessageWs --queueOrTopicName=test_queue --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      pattern = Pattern.compile("^Success: (T|F), queueOrTopicName: (.*), numberOfMessages: (\\d+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "test_queue", matcher.group(2));
+      assertTrue(outputLines[0], Integer.valueOf(matcher.group(3)) >= 1);
+      assertTrue(GrouperClientWs.mostRecentRequest,
+              GrouperClientWs.mostRecentRequest.contains("maxMessagesToReceiveAtOnce"));
+      
+      // ############################
+      // max messages to receive at once
+      GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
+  	        .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
+      GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("test_queue")
+    	        .addMessageBody("another message body").assignQueueType(GrouperMessageQueueType.queue));
+      baos = new ByteArrayOutputStream();
+
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=receiveMessageWs --queueOrTopicName=test_queue --maxMessagesToReceiveAtOnce=1 --actAsSubjectId="+SubjectTestHelper.SUBJ0.getId(),
+              " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      systemOut.println(output);
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      assertEquals(1, outputLines.length);
+
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "T", matcher.group(1));
+      assertEquals(outputLines[0], "test_queue", matcher.group(2));
+      assertTrue(outputLines[0], Integer.valueOf(matcher.group(3)) == 1); // one message is received only because maxMessagesToReceiveAtOnce is set to 1
+
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("maxMessagesToReceiveAtOnce"));
 
     } finally {
       System.setOut(systemOut);
