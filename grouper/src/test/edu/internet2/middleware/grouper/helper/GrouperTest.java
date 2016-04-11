@@ -961,19 +961,7 @@ public class GrouperTest extends TestCase {
       return;
     }
 
-    if (GrouperUtil.length(set2) > 0) {
-      //dont change calling set
-      set2 = new LinkedHashSet<Group>(set2);
-
-      //remove anything from etc
-      Iterator<Group> iterator = set2.iterator();
-      while (iterator.hasNext()) {
-        Group current = iterator.next();
-        if (current.getName().startsWith("etc")) {
-          iterator.remove();
-        }
-      }
-    }
+    set2 = filterOutBuiltInGroups(set2);
     
     int set1length = GrouperUtil.length(set1);
     int set2length = GrouperUtil.length(set2);
@@ -1234,5 +1222,29 @@ public class GrouperTest extends TestCase {
     }
     
   }
+
+  /**
+   * 
+   * @param groups
+   * @return the filtered groups
+   */
+  public static Set<Group> filterOutBuiltInGroups(Set<Group> groups) {
+    if (GrouperUtil.length(groups) > 0) {
+      //dont change calling set
+      groups = new LinkedHashSet<Group>(groups);
+ 
+      //remove anything from etc
+      Iterator<Group> iterator = groups.iterator();
+      while (iterator.hasNext()) {
+        Group current = iterator.next();
+        if (current.getName().startsWith("etc")) {
+          iterator.remove();
+        }
+      }
+    }  
+    return groups;
+  }
+  
+
 } // public class GrouperTest
 

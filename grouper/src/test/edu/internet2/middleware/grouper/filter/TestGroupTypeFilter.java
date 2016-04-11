@@ -83,7 +83,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       GrouperQuery  gq  = GrouperQuery.createQuery(
         r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
-      T.amount( "groups"      , 0, gq.getGroups().size()      );
+      T.amount( "groups"      , 0, GrouperTest.filterOutBuiltInGroups(gq.getGroups()).size()      );
       T.amount( "members"     , 0, gq.getMembers().size()     );
       T.amount( "memberships" , 0, gq.getMemberships().size() );
       T.amount( "stems"       , 0, gq.getStems().size()       );
@@ -106,7 +106,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       GrouperQuery  gq  = GrouperQuery.createQuery(
         r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
-      T.amount( "groups"      , 4, gq.getGroups().size()      );
+      T.amount( "groups"      , 4, GrouperTest.filterOutBuiltInGroups(gq.getGroups()).size()      );
       T.amount( "members"     , 0, gq.getMembers().size()     );
       T.amount( "memberships" , 0, gq.getMemberships().size() );
       T.amount( "stems"       , 0, gq.getStems().size()       );
@@ -141,7 +141,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       GrouperQuery  gq1   = GrouperQuery.createQuery(
         r.rs, new GroupTypeFilter(type, r.root)
       );
-      T.amount( "groups"      , 4, gq1.getGroups().size()      );
+      T.amount( "groups"      , 4, GrouperTest.filterOutBuiltInGroups(gq1.getGroups()).size()      );
       T.amount( "members"     , 0, gq1.getMembers().size()     );
       T.amount( "memberships" , 0, gq1.getMemberships().size() );
       T.amount( "stems"       , 0, gq1.getStems().size()       );
