@@ -8,7 +8,8 @@ import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.mortbay.log.Log;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
@@ -152,7 +153,7 @@ public class GuiRuleDefinition implements Serializable, Comparable {
         
         return TextContainer.retrieveFromRequest().getText().get("rulesThenTypeAttribute");
        default:
-         Log.debug("Not expecting then enum: " + this.ruleDefinition.getThen().thenEnum());
+         LOG.debug("Not expecting then enum: " + this.ruleDefinition.getThen().thenEnum());
     }
     
     return "";
@@ -190,6 +191,9 @@ public class GuiRuleDefinition implements Serializable, Comparable {
    * if rule is assigned to stem
    */
   private boolean assignedToStem;
+
+  /** logger */
+  protected static final Log LOG = LogFactory.getLog(GuiRuleDefinition.class);
   
   /**
    * @return the ruleDefinition
