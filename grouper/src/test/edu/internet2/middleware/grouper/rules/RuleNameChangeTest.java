@@ -222,8 +222,7 @@ public class RuleNameChangeTest extends GrouperTest {
     Membership membership = MembershipFinder.findImmediateMembership(grouperSession, group, SubjectTestHelper.SUBJ0, true);
     
     Calendar calendarExpected = new GregorianCalendar();
-    calendarExpected.setTimeInMillis(System.currentTimeMillis());
-    calendarExpected.add(Calendar.DAY_OF_YEAR, 320);
+    calendarExpected.setTimeInMillis(System.currentTimeMillis() + 320L * 24 * 60 * 60 * 1000);
     calendarExpected.set(Calendar.HOUR, 0);
     calendarExpected.set(Calendar.MINUTE, 0);
     calendarExpected.set(Calendar.SECOND, 0);
@@ -240,7 +239,8 @@ public class RuleNameChangeTest extends GrouperTest {
     calendarActual.set(Calendar.MILLISECOND, 0);
     
     
-    assertEquals(membership.getDisabledTime().toString(), calendarExpected.getTimeInMillis(), calendarActual.getTimeInMillis());
+    assertEquals(membership.getDisabledTime().toString() + ", expected: " + calendarExpected.getTime() + ", actual: " + calendarActual.getTime(), 
+        calendarExpected.getTimeInMillis(), calendarActual.getTimeInMillis());
   }
   
   /**

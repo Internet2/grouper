@@ -79,6 +79,11 @@ public class HibUtils {
    * @return true if so.
    */
   static boolean handleAsPrimitive(Class clazz) {
+    
+    if (clazz.isArray()) {
+      clazz = clazz.getComponentType();
+    }
+    
     if (clazz.isPrimitive() || clazz == java.lang.String.class
         || clazz == BigDecimal.class || clazz == Integer.class
         || clazz == java.sql.Date.class || clazz == java.util.Date.class
