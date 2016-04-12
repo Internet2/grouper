@@ -26,15 +26,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetPermissionAssignments;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetPermissionAssignmentsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsPermissionAssign;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GetPermissionAssignments;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGetPermissionAssignmentsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsPermissionAssign;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
 
 /**
  *

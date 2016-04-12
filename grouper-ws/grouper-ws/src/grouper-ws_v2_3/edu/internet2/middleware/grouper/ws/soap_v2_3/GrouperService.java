@@ -22,20 +22,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessage;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 

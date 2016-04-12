@@ -27,13 +27,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.StemSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStem;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStemSaveResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsStemToSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.StemSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStem;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStemSaveResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsStemToSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
 
 
 /**

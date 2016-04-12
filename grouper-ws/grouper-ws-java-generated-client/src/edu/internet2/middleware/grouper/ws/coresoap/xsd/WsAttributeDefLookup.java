@@ -1,18 +1,4 @@
-/*******************************************************************************
- * Copyright 2012 Internet2
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+
 /**
  * WsAttributeDefLookup.java
  *
@@ -34,9 +20,51 @@
         /* This type was generated from the piece of schema that had
                 name = WsAttributeDefLookup
                 Namespace URI = http://coresoap.ws.grouper.middleware.internet2.edu/xsd
-                Namespace Prefix = ns1
+                Namespace Prefix = ns2
                 */
             
+
+                        /**
+                        * field for IdIndex
+                        */
+
+                        
+                                    protected java.lang.String localIdIndex ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localIdIndexTracker = false ;
+
+                           public boolean isIdIndexSpecified(){
+                               return localIdIndexTracker;
+                           }
+
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getIdIndex(){
+                               return localIdIndex;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param IdIndex
+                               */
+                               public void setIdIndex(java.lang.String param){
+                            localIdIndexTracker = true;
+                                   
+                                            this.localIdIndex=param;
+                                    
+
+                               }
+                            
 
                         /**
                         * field for Name
@@ -180,7 +208,25 @@
 
                
                    }
-                if (localNameTracker){
+                if (localIdIndexTracker){
+                                    namespace = "http://coresoap.ws.grouper.middleware.internet2.edu/xsd";
+                                    writeStartElement(null, namespace, "idIndex", xmlWriter);
+                             
+
+                                          if (localIdIndex==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localIdIndex);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
+                             } if (localNameTracker){
                                     namespace = "http://coresoap.ws.grouper.middleware.internet2.edu/xsd";
                                     writeStartElement(null, namespace, "name", xmlWriter);
                              
@@ -224,7 +270,7 @@
 
         private static java.lang.String generatePrefix(java.lang.String namespace) {
             if(namespace.equals("http://coresoap.ws.grouper.middleware.internet2.edu/xsd")){
-                return "ns1";
+                return "ns2";
             }
             return org.apache.axis2.databinding.utils.BeanUtil.getUniquePrefix();
         }
@@ -401,7 +447,13 @@
                  java.util.ArrayList elementList = new java.util.ArrayList();
                  java.util.ArrayList attribList = new java.util.ArrayList();
 
-                 if (localNameTracker){
+                 if (localIdIndexTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://coresoap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "idIndex"));
+                                 
+                                         elementList.add(localIdIndex==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localIdIndex));
+                                    } if (localNameTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://coresoap.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "name"));
                                  
@@ -467,7 +519,7 @@
                             if (!"WsAttributeDefLookup".equals(type)){
                                 //find namespace for the prefix
                                 java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (WsAttributeDefLookup)edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.ExtensionMapper.getTypeObject(
+                                return (WsAttributeDefLookup)edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExtensionMapper.getTypeObject(
                                      nsUri,type,reader);
                               }
                         
@@ -489,6 +541,33 @@
                     
                     reader.next();
                 
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://coresoap.ws.grouper.middleware.internet2.edu/xsd","idIndex").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setIdIndex(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 

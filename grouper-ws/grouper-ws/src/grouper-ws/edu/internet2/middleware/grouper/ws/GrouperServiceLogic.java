@@ -6779,18 +6779,18 @@ public class GrouperServiceLogic {
     WsAttributeDef wsAttributeDef = new WsAttributeDef();
     wsAttributeDef.setDescription(description);
 
-    wsAttributeDef.setAssignToAttributeDef(assignToAttributeDef ? "T" : "F");
-    wsAttributeDef.setAssignToAttributeDefAssignment(assignToAttributeDefAssignment ? "T" : "F");
-    wsAttributeDef.setAssignToEffectiveMembership(assignToEffectiveMembership ? "T" : "F");
-    wsAttributeDef.setAssignToEffectiveMembershipAssignment(assignToEffectiveMembershipAssignment ? "T" : "F");
-    wsAttributeDef.setAssignToGroup(assignToGroup ? "T" : "F");
-    wsAttributeDef.setAssignToGroupAssignment(assignToGroupAssignment ? "T" : "F");
-    wsAttributeDef.setAssignToImmediateMembership(assignToImmediateMembership ? "T" : "F");
-    wsAttributeDef.setAssignToImmediateMembershipAssignment(assignToImmediateMembershipAssignment ? "T" : "F");
-    wsAttributeDef.setAssignToMember(assignToMember ? "T" : "F");
-    wsAttributeDef.setAssignToMemberAssignment(assignToMemberAssignment ? "T" : "F");
-    wsAttributeDef.setAssignToStem(assignToStem ? "T" : "F");
-    wsAttributeDef.setAssignToStemAssignment(assignToStemAssignment ? "T" : "F");
+    wsAttributeDef.setAssignToAttributeDef(GrouperUtil.booleanValue(assignToAttributeDef, false) ? "T" : "F");
+    wsAttributeDef.setAssignToAttributeDefAssignment(GrouperUtil.booleanValue(assignToAttributeDefAssignment, false) ? "T" : "F");
+    wsAttributeDef.setAssignToEffectiveMembership(GrouperUtil.booleanValue(assignToEffectiveMembership, false) ? "T" : "F");
+    wsAttributeDef.setAssignToEffectiveMembershipAssignment(GrouperUtil.booleanValue(assignToEffectiveMembershipAssignment, false) ? "T" : "F");
+    wsAttributeDef.setAssignToGroup(GrouperUtil.booleanValue(assignToGroup, false) ? "T" : "F");
+    wsAttributeDef.setAssignToGroupAssignment(GrouperUtil.booleanValue(assignToGroupAssignment, false) ? "T" : "F");
+    wsAttributeDef.setAssignToImmediateMembership(GrouperUtil.booleanValue(assignToImmediateMembership, false) ? "T" : "F");
+    wsAttributeDef.setAssignToImmediateMembershipAssignment(GrouperUtil.booleanValue(assignToImmediateMembershipAssignment, false) ? "T" : "F");
+    wsAttributeDef.setAssignToMember(GrouperUtil.booleanValue(assignToMember, false) ? "T" : "F");
+    wsAttributeDef.setAssignToMemberAssignment(GrouperUtil.booleanValue(assignToMemberAssignment, false) ? "T" : "F");
+    wsAttributeDef.setAssignToStem(GrouperUtil.booleanValue(assignToStem, false) ? "T" : "F");
+    wsAttributeDef.setAssignToStemAssignment(GrouperUtil.booleanValue(assignToStemAssignment, false) ? "T" : "F");
     
     wsAttributeDef.setName(nameOfAttributeDef);
     wsAttributeDef.setUuid(uuidOfAttributeDef);
@@ -7297,10 +7297,10 @@ public class GrouperServiceLogic {
           WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
           actionWithOperation.setAction(action);
           if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) == null) {
-            actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
+            actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.NOT_FOUND);
           } else {
             attributeDef.getAttributeDefActionDelegate().removeAction(action);
-            actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
+            actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.DELETED);
           }
           actionsWithOperations.add(actionWithOperation);
         }
@@ -7310,10 +7310,10 @@ public class GrouperServiceLogic {
           actionWithOperation.setAction(action);
           if (attributeDef.getAttributeDefActionDelegate().findAction(action, false) != null) {
             actionWithOperation
-                .setStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
+                .assignStatus(WsAssignAttributeDefActionsStatus.ASSIGNED_ALREADY);
           } else {
             attributeDef.getAttributeDefActionDelegate().addAction(action);
-            actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
+            actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.ADDED);
           }
           actionsWithOperations.add(actionWithOperation);
         }
@@ -7325,13 +7325,13 @@ public class GrouperServiceLogic {
         for (AttributeAssignAction action : allowedActions) {
           WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
           actionWithOperation.setAction(action.getName());
-          actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.DELETED);
+          actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.DELETED);
           actionsWithOperations.add(actionWithOperation);
         }
         for (String action : actions) {
           WsAttributeDefActionOperationPerformed actionWithOperation = new WsAttributeDefActionOperationPerformed();
           actionWithOperation.setAction(action);
-          actionWithOperation.setStatus(WsAssignAttributeDefActionsStatus.ADDED);
+          actionWithOperation.assignStatus(WsAssignAttributeDefActionsStatus.ADDED);
           actionsWithOperations.add(actionWithOperation);
         }
       }

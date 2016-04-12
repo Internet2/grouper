@@ -278,7 +278,7 @@
 		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
 			<classpath refid="ws.class.path" />
 			<arg value="-uri" />
-			<arg file="${generated.client.project.dir}/GrouperService_v2_2.wsdl" />
+			<arg file="${generated.client.project.dir}/GrouperService_v2_3.wsdl" />
 			<arg value="-t" />
       <arg value="-u" />
 			<arg value="-p" />

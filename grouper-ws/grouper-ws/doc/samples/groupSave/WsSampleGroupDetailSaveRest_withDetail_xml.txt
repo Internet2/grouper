@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: xml, for version: 2.2.0
+Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, manually written lite/rest, type: _withDetail, format: xml, for version: 2.3.0
 
 
 #########################################
@@ -9,11 +9,11 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v2_2_000/groups HTTP/1.1
+POST /grouperWs/servicesRest/v2_3_000/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8092
+Host: localhost:8093
 Content-Length: 1716
 Content-Type: text/xml; charset=UTF-8
 
@@ -94,13 +94,13 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouper-ws
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Wed, 18 Jun 2014 18:35:27 GMT
+Date: Tue, 12 Apr 2016 18:47:04 GMT
 Connection: close
 
 3f0
@@ -114,8 +114,8 @@ Connection: close
         <description>whateverGroupLeftDesc</description>
         <displayName>a stem:whateverGroupLeftDispExt</displayName>
         <name>aStem:whateverGroupLeft</name>
-        <uuid>6eab861cb8f04d1e920db1b0b44e6f8d</uuid>
-        <idIndex>10013</idIndex>
+        <uuid>888abc1fbc6a40dc857709914ea1e28a</uuid>
+        <idIndex>10037</idIndex>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -130,15 +130,15 @@ Connection: close
         <description>whateverGroupRightDesc</description>
         <displayName>a stem:whateverGroupRightDispExt</displayName>
         <name>aStem:whateverGroupRight</name>
-        <uuid>9699abc7fcea4d998f33c3df6860a72f</uuid>
-        <idIndex>10014</idIndex>
+        <uuid>f6aad0475d3d4d709e7fc5bd54c80094</uuid>
+        <idIndex>10038</idIndex>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
         <success>T</success>
       </resultMetadata>
     </
-3fe
+3fd
 WsGroupSaveResult>
     <WsGroupSaveResult>
       <wsGroup>
@@ -148,8 +148,8 @@ WsGroupSaveResult>
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>d33bbfbc6ca341eda842d82e25052620</uuid>
-        <idIndex>10015</idIndex>
+        <uuid>89f293ba91de4a48af46947ee150a55c</uuid>
+        <idIndex>10039</idIndex>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -159,7 +159,7 @@ WsGroupSaveResult>
   </results>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: 2.2.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+    <resultMessage>Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],
 wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...
 , actAsSubject: null, txType: NONE, paramNames:
@@ -168,8 +168,8 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>1015</millis>
-    <serverVersion>2.2.0</serverVersion>
+    <millis>804</millis>
+    <serverVersion>2.3.0</serverVersion>
   </responseMetadata>
 </
 13
@@ -389,7 +389,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.2.0, result code: SUCCESS, result message: Success for: clientVersion: 2.2.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
+Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],
   wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...
 , actAsSubject: null, txType: NONE, paramNames: 
