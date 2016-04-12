@@ -19,15 +19,16 @@
  */
 package edu.internet2.middleware.grouperAtlassianConnector.db;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
+import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -35,6 +36,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.StatefulJob;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAccessProvider;
@@ -329,13 +332,10 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     }
     
     String jobGroup = Scheduler.DEFAULT_GROUP;
-    JobDetail jobDetail = new JobDetail(jobName,
-        jobGroup, jobClass);
-
+    JobDetail jobDetail = JobBuilder.newJob(jobClass)
+        .withIdentity(jobName, jobGroup).storeDurably(true).build();
+        
     Scheduler scheduler = scheduler();
-
-    //atlassian requires durable jobs...
-    jobDetail.setDurability(true);
 
     boolean uniqueTriggerNames = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.atlassian.uniqueQuartzTriggerNames", false);
 
@@ -349,19 +349,17 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     CronTrigger cronTrigger = null;
     if (!uniqueTriggerNames) {
       try {
-        cronTrigger = (CronTrigger) scheduler.getTrigger(triggerName, jobGroup);
+        cronTrigger = (CronTrigger) scheduler.getTrigger(new TriggerKey(triggerName, jobGroup));
       } catch (SchedulerException se) {
         throw new RuntimeException("Problem with trigger: " + jobName, se);
       }
     }
     if (cronTrigger == null) {
-      cronTrigger = new CronTrigger(triggerName, jobGroup);
-    }
-
-    try {
-      cronTrigger.setCronExpression(quartzCronString);
-    } catch (ParseException pe) {
-      throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
+      cronTrigger = TriggerBuilder.newTrigger()
+          .withIdentity(triggerName, jobGroup)
+          .startNow()
+          .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))        
+          .build();
     }
 
     try {

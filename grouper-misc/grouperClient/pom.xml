@@ -71,11 +71,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>opensymphony</groupId>
-          <artifactId>quartz-all</artifactId>
-          <version>1.6.0</version>
+          <groupId>org.quartz-scheduler</groupId>
+          <artifactId>quartz</artifactId>
           <scope>provided</scope>
         </dependency>
+        <dependency>
+          <groupId>org.quartz-scheduler</groupId>
+          <artifactId>quartz-jobs</artifactId>
+          <scope>provided</scope>
+        </dependency>   
         <dependency>
             <groupId>jivesoftware</groupId>
             <artifactId>smack</artifactId>
