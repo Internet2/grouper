@@ -503,10 +503,15 @@
                 <version>${openspml2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.opensymphony.quartz</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${quartz.version}</version>
+              <groupId>org.quartz-scheduler</groupId>
+              <artifactId>quartz</artifactId>
+              <version>${quartz.version}</version>
             </dependency>
+            <dependency>
+              <groupId>org.quartz-scheduler</groupId>
+              <artifactId>quartz-jobs</artifactId>
+              <version>${quartz.version}</version>
+            </dependency>   
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
