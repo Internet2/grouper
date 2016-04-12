@@ -199,9 +199,24 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
+ * <pre>
  * capture a sample and put in text file.  To run this, I have my properties files set correctly,
  * and run a server (or tcp forwarder) on 8091.  make sure 8092 is available for the capture server port.
  * set the web service properties to go to 8092
+ * 
+ * edit grouper-ws-generated.properties, make sure all settings correct and port should be 8092
+ * 
+ * edit grouper-ws.properties
+ * 
+ * # port for hitting tests
+ * ws.testing.port=8092
+ *
+ * # port that the sample capture proxy will forward to
+ * ws.sampleForwardTo.port=8091
+ * 
+ * make sure that nothing is listening on 8092.  Make sure the app server or tcp/ip port forwarder
+ * is listening on 8091
+ * </pre>
  */
 public class SampleCapture {
 
