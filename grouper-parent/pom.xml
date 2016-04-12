@@ -79,7 +79,8 @@
         <asm.version>3.3.1</asm.version>
         <backport.util.version>3.1</backport.util.version>
         <c3p0.version>0.9.5.2</c3p0.version>
-        <c3p0.oracle.thin.extras.version>0.9.5.2</c3p0.oracle.thin.extras.version>
+        <!-- TODO ugh, cant fine 0.9.5.2!!!!!  -->
+        <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <mchange.commons.version>0.2.11</mchange.commons.version>
         <cglib.version>3.1</cglib.version>
         <jamon.version>2.7</jamon.version>
@@ -224,12 +225,12 @@
                 <version>${backport.util.version}</version>
             </dependency>
             <dependency>
-                <groupId>c3p0</groupId>
+                <groupId>com.mchange</groupId>
                 <artifactId>c3p0</artifactId>
                 <version>${c3p0.version}</version>
             </dependency>
             <dependency>
-                <groupId>c3p0</groupId>
+                <groupId>com.google.code.maven-play-plugin.com.mchange</groupId>
                 <artifactId>c3p0-oracle-thin-extras</artifactId>
                 <version>${c3p0.oracle.thin.extras.version}</version>
             </dependency>

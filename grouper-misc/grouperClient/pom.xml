@@ -37,48 +37,59 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>xom</groupId>
             <artifactId>xom</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
             <classifier>jdk15</classifier>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.opensymphony.quartz</groupId>
-            <artifactId>quartz</artifactId>
-            <version>1.6.0</version>
+          <groupId>opensymphony</groupId>
+          <artifactId>quartz-all</artifactId>
+          <version>1.6.0</version>
+          <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jivesoftware</groupId>
             <artifactId>smack</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>
             <artifactId>xpp3_min</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

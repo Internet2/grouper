@@ -69,7 +69,7 @@
             <artifactId>commons-jexl</artifactId>
         </dependency>
         <dependency>
-            <groupId>c3p0</groupId>
+            <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
         <dependency>
