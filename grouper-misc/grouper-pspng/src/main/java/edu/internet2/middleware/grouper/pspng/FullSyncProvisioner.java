@@ -16,6 +16,7 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
@@ -157,15 +159,19 @@ public class FullSyncProvisioner  {
     while (true) {
   	  FullSyncQueueItem queueItem = getNextGroupToFullSync();
       
+      if ( !provisioner.config.isEnabled() ) {
+          LOG.warn("{} is diabled. Full-sync not being done.", provisioner.getName());
+          return;
+      }
+
       // We pulled a work element from a queue. Time to get busy.
       if ( queueItem == null )
     	  throw new IllegalStateException("Should always have pulled a queue item or gone back to top of loop");
       
-      
       try {
         if ( queueItem != GROUP_CLEANUP_MARKER ) {
           GrouperGroupInfo grouperGroupInfo = queueItem.groupToProcess;
-  		  MDC.put("what", grouperGroupInfo+"/");
+          MDC.put("what", grouperGroupInfo+"/");
   		  processGroup(grouperGroupInfo);
    	    }
     	else {
@@ -301,9 +307,18 @@ public class FullSyncProvisioner  {
    * @param asap Used to requeue the group in the case of an error
    */
   protected void processGroup(GrouperGroupInfo grouperGroupInfo) {
+    ProvisioningWorkItem workItem = new ProvisioningWorkItem("FullSync", grouperGroupInfo);
     try {
+      MDC.put("step", "start/");
       LOG.debug("{}: Starting Full-Sync: {}", provisioner.getName(), grouperGroupInfo);
+      provisioner.startProvisioningBatch(Arrays.asList(workItem));
+      
+      MDC.put("step",  "doit/");
+      provisioner.setCurrentWorkItem(workItem);
       provisioner.doFullSync(grouperGroupInfo);
+      
+      MDC.put("step", "fin/");
+      provisioner.finishProvisioningBatch(Arrays.asList(workItem));
     } catch (PspException e) {
       LOG.error("{}: Problem doing full sync. Requeuing {}: {}",
           provisioner.getName(), grouperGroupInfo, e.getMessage() );
@@ -318,12 +333,24 @@ public class FullSyncProvisioner  {
       // Put the group into the error queue
       queueGroupForSync(grouperGroupInfo, groupsToSyncRetry);
     }
+    finally {
+      MDC.remove("step");
+    }
   }
   
   protected void processGroupCleanup() {
     try {
       LOG.debug("{}: Starting Group Cleanup", provisioner.getName());
+      ProvisioningWorkItem workItem = new ProvisioningWorkItem("RemoveExtraGroups", null);
+      MDC.put("step", "start/");
+      provisioner.startProvisioningBatch(Arrays.asList(workItem));
+
+      MDC.put("step", "doit/");
+      provisioner.setCurrentWorkItem(workItem);
       provisioner.doFullSync_cleanupExtraGroups();
+      
+      MDC.put("step",  "fin/");
+      provisioner.finishProvisioningBatch(Arrays.asList(workItem));
     } catch (PspException e) {
       LOG.error("{}: Problem doing group cleanup: {}",
           provisioner.getName(), e.getMessage() );
@@ -331,6 +358,9 @@ public class FullSyncProvisioner  {
     catch (Throwable e) {
       LOG.error("{}: Problem doing group cleanup",
           provisioner.getName(), e );
+    }
+    finally {
+      MDC.remove("step");
     }
   
   }

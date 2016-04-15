@@ -77,7 +77,10 @@ public class ProvisioningWorkItem {
   public ProvisioningWorkItem(String action, GrouperGroupInfo group) {
     this.action = action;
     this.work = null;
-    this.groupName=group.getName();
+    if ( group != null )
+      this.groupName=group.getName();
+    else
+      this.groupName=null;
   }
   
   

@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.MDC;
 import org.ldaptive.AddRequest;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModificationType;
@@ -422,6 +423,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     // TODO: Remove the unnecessary changes (LDAP Differencing)
     
     try {
+      MDC.put("step", "coalesced");
       makeCoalescedLdapChanges(workItems);
 
       // They all worked, so mark them all as successful
@@ -434,6 +436,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       
         for ( ProvisioningWorkItem workItem : workItems ) {
           try {
+            MDC.put("step", "ldap_retry:"+workItem.getMdcLabel());
             makeIndividualLdapChanges(workItem);
             workItem.markAsSuccess("Modification complete");
           } catch (PspException e2) {
@@ -441,6 +444,9 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             workItem.markAsFailure("Modification failed: %s", e2.getMessage());
           }
       }
+    }
+    finally {
+      MDC.remove("step");
     }
     
     super.finishProvisioningBatch(workItems);
@@ -592,8 +598,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             LOG.info("Performing LDAP modification: {}", getLoggingSummary(mod) );
             conn.getProviderConnection().modify(mod);
           } catch (LdapException e) {
-            LOG.error("Problem doing ldap modification: {} / {}", dn, mod, e);
-            throw new PspException("LDAP Modification failed");
+            LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}: {}", dn, mod, e.getMessage());
+            throw new PspException("Coalesced LDAP Modification failed");
           } 
         }
       } finally {
@@ -634,8 +640,9 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         
         if ( mod.getAttributeModifications().length == 1 &&
              mod.getAttributeModifications()[0].getAttributeModificationType() == AttributeModificationType.REMOVE &&
-             e.getResultCode() == ResultCode.NO_SUCH_ATTRIBUTE )
-          LOG.info("Ignoring NO_SUCH_ATTRIBUTE error on an attribute removal operation: {}", mod);
+             (e.getResultCode() == ResultCode.NO_SUCH_ATTRIBUTE || 
+              e.getResultCode() == ResultCode.NO_SUCH_OBJECT) )
+          LOG.info("Ignoring NO_SUCH_ATTRIBUTE/NO_SUCH_OBJECT error on an attribute removal operation: {}", mod);
         
         else if ( mod.getAttributeModifications().length == 1 &&
             mod.getAttributeModifications()[0].getAttributeModificationType() == AttributeModificationType.ADD &&

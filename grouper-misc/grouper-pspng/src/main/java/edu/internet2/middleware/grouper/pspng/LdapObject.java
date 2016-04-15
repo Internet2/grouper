@@ -281,10 +281,10 @@ public class LdapObject {
     ToStringBuilder result = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
     
     if ( attributesRequested.contains("cn") )
-      result.append("cn", getStringValue("cn"));
+      result.append("cn", getStringValues("cn"));
 
     if ( attributesRequested.contains("uid") && StringUtils.isNotEmpty(getStringValue("uid")) )
-      result.append("uid", getStringValue("uid"));
+      result.append("uid", getStringValues("uid"));
     else if ( attributesRequested.contains("samAccountName") && StringUtils.isNotEmpty(getStringValue("samaccountname")) )
       result.append("samAccountName", getStringValue("samAccountName"));
 

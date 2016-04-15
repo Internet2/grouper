@@ -744,8 +744,10 @@ public abstract class Provisioner
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
-        if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) )
+        if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
           workItem.markAsSuccess("Group %s already exists", grouperGroupInfo);
+          return;
+        }
         else
           createGroup(grouperGroupInfo);
       }
@@ -759,6 +761,11 @@ public abstract class Provisioner
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD))
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+        
+        if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+          workItem.markAsSuccess("Ignoring membership-add event for group that was deleted: %s", grouperGroupInfo);
+          return;
+        }
         TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
@@ -768,6 +775,10 @@ public abstract class Provisioner
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE))
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+        if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+          workItem.markAsSuccess("Ignoring membership-delete event for group that was deleted: %s", grouperGroupInfo);
+          return;
+        }
         TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
@@ -839,15 +850,6 @@ public abstract class Provisioner
    * @throws PspException
    */
   final void doFullSync(GrouperGroupInfo grouperGroupInfo) throws PspException {
-	  
-	if ( !config.isEnabled() ) {
-		LOG.warn("{} is diabled. Full-sync not being done.", getName());
-		return;
-	}
-    tsUserCache_shortTerm.clear();
-    tsGroupCache_shortTerm.clear();
-    
-    MDC.put("step", "setup/");
     Set<Member> groupMembers = grouperGroupInfo.getMembers();
     Set<Subject> correctSubjects = new HashSet<Subject>();
     
@@ -857,12 +859,7 @@ public abstract class Provisioner
         correctSubjects.add(subject);
       }
     }
-    ProvisioningWorkItem workItemForWholeFullSync = new ProvisioningWorkItem("FullSync: " + grouperGroupInfo, grouperGroupInfo);
-    currentWorkItem.set(workItemForWholeFullSync);
-    startProvisioningBatch(Arrays.asList(workItemForWholeFullSync));
 
-    prepareGroupCache(Arrays.asList(grouperGroupInfo));
-    
     if ( correctSubjects.size() > 0 )
       prepareUserCache(correctSubjects);
     
@@ -878,13 +875,9 @@ public abstract class Provisioner
     try {
       MDC.put("step", "prov/");
       doFullSync(grouperGroupInfo, tsGroup, correctSubjects, correctTargetSystemUsers);
-      MDC.put("step", "finish/");
-      finishProvisioningBatch(Arrays.asList(workItemForWholeFullSync));
     }
     finally {
       MDC.remove("step");
-      tsUserCache_shortTerm.clear();
-      tsGroupCache_shortTerm.clear();
     }
   }
 
@@ -894,6 +887,10 @@ public abstract class Provisioner
    */
   public ProvisioningWorkItem getCurrentWorkItem() {
     return currentWorkItem.get();
+  }
+  
+  public void setCurrentWorkItem(ProvisioningWorkItem item) {
+    currentWorkItem.set(item);
   }
   
   protected static String getSubjectCacheKey(String subjectId, String sourceId) {

@@ -114,4 +114,12 @@ public class GrouperGroupInfo {
     return result;
   }
 
+  public boolean hasGroupBeenDeleted() {
+    return pitGroup != null;
+  }
+
+  public Group getGrouperGroup() {
+    return group;
+  }
+
 }

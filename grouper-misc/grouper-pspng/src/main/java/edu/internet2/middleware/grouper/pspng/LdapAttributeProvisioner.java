@@ -163,7 +163,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       
       List<LdapObject> usersWithGrouperValues 
         = performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
-            Arrays.asList(attribute), attribute+"={0}", allValuesPrefix+"*");
+            Arrays.asList(attribute), attribute+"="+allValuesPrefix+"*");
       
       // We're going to go through all the values of all the ldap objects. 
       // We're going to save all those values that come from grouper (because they match 'pattern')
@@ -195,7 +195,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       LOG.info("{}: There are {} values that should be purged from the target system", getName(), extraValues.size());
       
       for (String extraValue : extraValues ) {
-        LOG.info("{}: Purging attribute value {}", extraValue);
+        LOG.info("{}: Purging attribute value {}", getName(), extraValue);
         purgeAttributeValue(attribute, extraValue);
       }
 	}
