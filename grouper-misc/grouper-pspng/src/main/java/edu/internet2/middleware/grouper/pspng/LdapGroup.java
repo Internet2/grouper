@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.pspng;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 
 /**
  * This class represents an LdapGroup as a TargetSystemGroup. In other words,
@@ -29,10 +31,13 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class LdapGroup implements TargetSystemGroup {
   final LdapObject ldapObject;
+  final String dn;
   
   
   public LdapGroup(LdapObject ldapObject) {
+    GrouperUtil.assertion(ldapObject != null, "Cannot create LdapUser without an ldap object");
     this.ldapObject = ldapObject;
+    this.dn = ldapObject.getDn().toLowerCase();
   }
   
   public LdapObject getLdapObject() {
@@ -40,7 +45,7 @@ public class LdapGroup implements TargetSystemGroup {
   }
   
   public boolean wasFullMembershipFetched(LdapGroupProvisioner provisioner) {
-    return ldapObject.attributesRequested.contains(provisioner.config.getMemberAttributeName());
+    return ldapObject.attributesRequested.contains(provisioner.getConfig().getMemberAttributeName());
   }
   
   @Override
@@ -54,6 +59,32 @@ public class LdapGroup implements TargetSystemGroup {
     result.append("ldap", ldapObject);
 
     return result.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((dn == null) ? 0 : dn.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    LdapGroup other = (LdapGroup) obj;
+    if (dn == null) {
+      if (other.dn != null)
+        return false;
+    }
+    else if (!dn.equals(other.dn))
+      return false;
+    return true;
   }
 
 }

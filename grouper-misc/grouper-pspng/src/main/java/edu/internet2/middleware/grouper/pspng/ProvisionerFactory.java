@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
  * class keeps a (static) HashMap that allows all the changelog's event batches to
  * be sent to the same Provisioner instance.
  * 
- * 2) There's a bunch of Reflection to get Provisioners and ProvisionerProperties
+ * 2) There's a bunch of Reflection to get Provisioners and ProvisionerConfiguration
  * constructed. This class encapsulates these steps.
  * 
  * @author bert
@@ -75,7 +75,7 @@ public class ProvisionerFactory {
    * @throws PspException
    */
   public static Provisioner createProvisionerWithName(String name) throws PspException {
-    final String qualifiedParameterNamespace = ProvisionerProperties.PARAMETER_NAMESPACE + name + ".";
+    final String qualifiedParameterNamespace = ProvisionerConfiguration.PARAMETER_NAMESPACE + name + ".";
   
     String typeName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + PROVISIONER_TYPE_PROPERTY_NAME);
     
@@ -86,11 +86,11 @@ public class ProvisionerFactory {
       Class<? extends Provisioner> provisionerClass = (Class<? extends Provisioner>) Class.forName(className);
       Method getPropertyClassMethod = provisionerClass.getMethod("getPropertyClass");
       
-      Class<? extends ProvisionerProperties> propertyClass = (Class<? extends ProvisionerProperties>) getPropertyClassMethod.invoke(null);
+      Class<? extends ProvisionerConfiguration> propertyClass = (Class<? extends ProvisionerConfiguration>) getPropertyClassMethod.invoke(null);
       
-      Constructor<? extends ProvisionerProperties> propertyConstructor = propertyClass.getConstructor(String.class);
+      Constructor<? extends ProvisionerConfiguration> propertyConstructor = propertyClass.getConstructor(String.class);
       
-      ProvisionerProperties properties = propertyConstructor.newInstance(name);
+      ProvisionerConfiguration properties = propertyConstructor.newInstance(name);
       
       properties.readConfiguration();
       

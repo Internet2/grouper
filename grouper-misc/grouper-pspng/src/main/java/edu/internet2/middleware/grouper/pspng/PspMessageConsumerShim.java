@@ -48,7 +48,7 @@ public class PspMessageConsumerShim extends ChangeLogConsumerBase {
   public synchronized Provisioner getProvisioner(String consumerName) {
     if ( !provisioners.containsKey(consumerName) )
     {
-      LdapGroupProvisionerProperties provisionerProperties = new LdapGroupProvisionerProperties(consumerName);
+      LdapGroupProvisionerConfiguration provisionerProperties = new LdapGroupProvisionerConfiguration(consumerName);
       provisionerProperties.readConfiguration();
       Provisioner provisioner = new LdapGroupProvisioner(consumerName, provisionerProperties);
       provisioners.put(consumerName, provisioner);

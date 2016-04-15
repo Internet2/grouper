@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper.pspng;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -32,9 +31,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
  *
  * @author Bert Bee-Lindgren
  */
-public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
+public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LdapGroupProvisionerProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapGroupProvisionerConfiguration.class);
     private static final String PARAMETER_NAMESPACE = "changeLog.consumer.";
 
     /** 
@@ -42,6 +41,7 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
      * (This will be 'member' when isActiveDirectory, and is required when !isActiveDirectory)
      */
     private String memberAttributeName;
+    protected String memberAttributeName_defaultValue=null;
     
     /**
      * What value is stored in a group's member attribute?
@@ -83,8 +83,8 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
      */
     private String groupSearchBaseDn;
     
-    private String allGroupSearchFilter;
-    protected String allGroupSearchFilter_defaultValue = null;
+    private String allGroupsSearchFilter;
+    protected String allGroupsSearchFilter_defaultValue = null;
     
     private String singleGroupSearchFilter;
     protected String singleGroupSearchFilter_defaultValue = null;
@@ -107,7 +107,7 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
     private int ldapGroupCacheSize;
     protected int ldapGroupCacheSize_defaultValue = 10000;
     
-    public LdapGroupProvisionerProperties(String provisionerName) {
+    public LdapGroupProvisionerConfiguration(String provisionerName) {
       super(provisionerName);
       
       needsTargetSystemGroups_defaultValue=true;
@@ -121,11 +121,14 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
 
       LOG.debug("Ldap Group Provisioner - Setting properties for {} consumer/provisioner.", provisionerName);
 
-      if ( isActiveDirectory() )
-        memberAttributeName =
-                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "memberAttributeName", "member");
-      else
-        memberAttributeName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + "memberAttributeName");
+      if ( isActiveDirectory() ) {
+        memberAttributeName_defaultValue = "member";
+        groupAttributeName_defaultValue = "memberof";
+        allGroupsSearchFilter_defaultValue = "objectclass=group";
+      }
+      
+      memberAttributeName =
+                GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "memberAttributeName", memberAttributeName_defaultValue);
       LOG.debug("Ldap Group Provisioner {} - Setting memberAttributeName to {}", provisionerName, memberAttributeName);
 
       memberAttributeValueFormat =
@@ -133,8 +136,7 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
       LOG.debug("Ldap Group Provisioner {} - Setting memberAttributeValueFormat to {}", provisionerName, memberAttributeValueFormat);
 
       groupAttributeName =
-          GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "groupAttributeName" , 
-              isActiveDirectory() ? "memberof" : groupAttributeName_defaultValue);
+          GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "groupAttributeName" ,  groupAttributeName_defaultValue);
       LOG.debug("Ldap Group Provisioner {} - Setting groupAttributeName to {}", provisionerName, groupAttributeName);
       
       if ( StringUtils.isNotBlank(groupAttributeName) )
@@ -153,10 +155,9 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
           GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "groupCreationBaseDn" , groupSearchBaseDn);
       LOG.debug("Ldap Group Provisioner {} - Setting groupCreationBaseDn to {}", provisionerName, groupCreationBaseDn);
 
-      allGroupSearchFilter =
-          GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allGroupSearchFilter" , 
-              isActiveDirectory() ? "objectclass=group" : allGroupSearchFilter_defaultValue);
-      LOG.debug("Ldap Group Provisioner {} - Setting allGroupSearchFilter to {}", provisionerName, allGroupSearchFilter);
+      allGroupsSearchFilter =
+          GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allGroupsSearchFilter" , allGroupsSearchFilter_defaultValue);
+      LOG.debug("Ldap Group Provisioner {} - Setting allGroupsSearchFilter to {}", provisionerName, allGroupsSearchFilter);
 
       singleGroupSearchFilter =
           GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "singleGroupSearchFilter" , singleGroupSearchFilter_defaultValue);
@@ -209,7 +210,7 @@ public class LdapGroupProvisionerProperties extends LdapProvisionerProperties {
 
     
     public String getAllGroupSearchFilter() {
-      return allGroupSearchFilter;
+      return allGroupsSearchFilter;
     }
 
     

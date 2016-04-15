@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 
 
 public class PspUtils {
@@ -101,7 +102,11 @@ public class PspUtils {
           String value = attributeAssignValue.getValueFriendly();
           attributeValues.add(value);
         }
-         
+        
+        // Skip the attribute if it doesn't actually have any values
+        if ( attributeValues.size() == 0 )
+          continue;
+        
         if ( !attributeDef.isMultiValued() ) 
           // Single-Valued: Put the first value into map, replacing whatever was there
           stemPathAttributes.put(attributeName, attributeValues.iterator().next());
@@ -121,6 +126,8 @@ public class PspUtils {
   public static Map<String, Object> getGroupAttributes(Group group) {
     Map<String, Object> result = new HashMap<String, Object>();
 
+    // Perhaps this should start with something like
+    // an iteration over group.getAttributeDelegate().getAttributeAssigns()
     Map<String, Attribute> attributeMap = group.getAttributesMap(false);
     
     for ( String attributeName : attributeMap.keySet() ) {
@@ -128,5 +135,10 @@ public class PspUtils {
       result.put(attributeName, attributeValue.getValue());
     }
     return result;
+  }
+
+  public static Map<String, Object> getGroupAttributes(PITGroup pitGroup) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

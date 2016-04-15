@@ -27,9 +27,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
  *
  * @author Bert Bee-Lindgren
  */
-public class LdapAttributeProvisionerProperties extends LdapProvisionerProperties {
+public class LdapAttributeProvisionerConfiguration extends LdapProvisionerConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LdapAttributeProvisionerProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapAttributeProvisionerConfiguration.class);
     private static final String PARAMETER_NAMESPACE = "changeLog.consumer.";
 
     /** 
@@ -45,7 +45,11 @@ public class LdapAttributeProvisionerProperties extends LdapProvisionerPropertie
      *   TODO
      */
     private String provisionedAttributeValueFormat;
-    protected static final String provisionedAttributeValueFormat_defaultValue = "${group.name}";
+    protected String provisionedAttributeValueFormat_defaultValue = "${group.name}";
+    
+    
+    private String allProvisionedValuesPrefix;
+    protected String allProvisionedValuesPrefix_defaultValue = null;
     
     /**
      * Wildcard attribute value can identify all users that attribute values
@@ -57,7 +61,7 @@ public class LdapAttributeProvisionerProperties extends LdapProvisionerPropertie
      */
     private String wildcardValueForFindingAllProvisionedValues;
     
-    public LdapAttributeProvisionerProperties(String provisionerName) {
+    public LdapAttributeProvisionerConfiguration(String provisionerName) {
       super(provisionerName);
       
       needsTargetSystemGroups_defaultValue = false;
@@ -78,6 +82,10 @@ public class LdapAttributeProvisionerProperties extends LdapProvisionerPropertie
       provisionedAttributeValueFormat =
               GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "provisionedAttributeValueFormat" , provisionedAttributeValueFormat_defaultValue);
       LOG.debug("Ldap Attribute Provisioner {} - Setting provisionedAttributeValueFormat to {}", provisionerName, provisionedAttributeValueFormat);
+
+      allProvisionedValuesPrefix =
+          GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "allProvisionedValuesPrefix" , allProvisionedValuesPrefix_defaultValue);
+      LOG.debug("Ldap Attribute Provisioner {} - Setting allProvisionedValuesPrefix to {}", provisionerName, allProvisionedValuesPrefix);
     }
 
     
@@ -88,5 +96,9 @@ public class LdapAttributeProvisionerProperties extends LdapProvisionerPropertie
     
     public String getProvisionedAttributeValueFormat() {
       return provisionedAttributeValueFormat;
+    }
+    
+    public String getAllProvisionedValuesPrefix() {
+      return allProvisionedValuesPrefix;
     }
 }

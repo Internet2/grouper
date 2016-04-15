@@ -47,13 +47,6 @@
         <groupId>${project.groupId}</groupId>
         <version>${project.version}</version>
         <artifactId>grouper</artifactId>
-         <type>test-jar</type>
-	  	<scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>${project.groupId}</groupId>
-        <version>${project.version}</version>
-        <artifactId>grouper</artifactId>
     </dependency>
     <dependency>
         <groupId>${project.groupId}</groupId>
@@ -63,17 +56,27 @@
     <dependency>
     	<groupId>org.ldaptive</groupId>
     	<artifactId>ldaptive</artifactId>
+    	<version>1.1.0</version>
     </dependency>
     <dependency>
     	<groupId>org.ldaptive</groupId>
     	<artifactId>ldaptive-unboundid</artifactId>
+    	<version>1.1.0</version>
     </dependency>
     <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.core.version}</version>
-        <scope>provided</scope>
-   	</dependency>
+    	<groupId>commons-collections</groupId>
+    	<artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.slf4j</groupId>
+    	<artifactId>slf4j-api</artifactId>
+    	<version>1.7.21</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.slf4j</groupId>
+    	<artifactId>slf4j-log4j12</artifactId>
+    	<version>1.7.21</version>
+    </dependency>
   </dependencies>
     
   <build>
@@ -84,4 +87,18 @@
 	    </plugin>
 	</plugins>
   </build>
+  <dependencyManagement>
+  	<dependencies>
+  		<dependency>
+  			<groupId>org.slf4j</groupId>
+  			<artifactId>slf4j-api</artifactId>
+  			<version>1.7.21</version>
+  		</dependency>
+  		<dependency>
+  			<groupId>org.slf4j</groupId>
+  			<artifactId>slf4j-log4j12</artifactId>
+  			<version>1.7.21</version>
+  		</dependency>
+  	</dependencies>
+  </dependencyManagement>
 </project>

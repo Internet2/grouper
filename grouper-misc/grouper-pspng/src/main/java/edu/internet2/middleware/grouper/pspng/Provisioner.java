@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.pspng;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,23 +41,37 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
 /**
- * Top-Level provisioner class of PSP. 
+ * Top-Level provisioner class of PSPNG and is the superclass of Target-System-Specific 
+ * subclasses. This class is generic so that User & Group objects that the subclasses
+ * need are cached and referenced directly in overridden methods. For example, an
+ * LDAP-provisioning subclass will receive both Subject and LdapUser information.
  * 
- * We expect that all subclasses would override the following two methods:
+ * This class is responsible for the following functionalities:
+ *   -Mapping the grouper world of Subjects & Groups into User and Group objects specific to the target system
+ *   -Caching both Grouper & Target-System information
+ *   -Driving Incremental and FullSync operations
+ *   -Keep track of what groups need to be full-synced (ie, there is a full-sync queue)
+ * 
+ * While there are several abstract methods:
+ *     fetchTargetSystemUsers & fetchTargetSystemGroups
  *     addMembership & deleteMembership
- *   
- * And that some subclasses would override these two methods:
  *     createGroup & deleteGroup
+ *     doFullSync & doFullSync_cleanupExtraGroups
+ *   
+ * And that some subclasses can override the following method(s):
+ *     createUser
  *   
  *   
  * The Provisioner lifecycle is as follows:
- * -Constructed(Name and ProvisionerProperties subclass)
+ * -Constructed(Name and ProvisionerConfiguration subclass)
  *   (setup empty caches)
  * 
  * Invoked with a batch of changes
@@ -69,18 +84,25 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  *      (Perform any batch updates that were determined, but not performed, by provisionItem step)
  *      (Clear any caches specific to batch)
  *      
+ *  FullSync
+ *    -Go through all Grouper groups and see which match the provisioner's selection filter
+ *    -Run the subclass's doFullSync method for each group that matches
+ *    -Run doFullSync_cleanupExtraGruops with the list of correct groups
+ *      
  * @author Bert Bee-Lindgren
  *
  */
-public abstract class Provisioner {
+public abstract class Provisioner
+  <ConfigurationClass extends ProvisionerConfiguration, 
+   TSUserClass extends TargetSystemUser, 
+   TSGroupClass extends TargetSystemGroup> {
   static final Logger STATIC_LOG = LoggerFactory.getLogger(Provisioner.class);
   
   protected final Logger LOG;
   final public String provisionerName;
   
-  // Cache groups by groupName key
-  final GrouperCache<String, Group> grouperGroupCache;
-  final GrouperCache<String, Map<String, Object>> grouperGroupJexlMapCache;
+  // Cache groups by groupInfo key
+  final GrouperCache<String, GrouperGroupInfo> grouperGroupInfoCache;
   
   // Cache subjects by sourceId__subjectId key
   final GrouperCache<String, Subject> grouperSubjectCache;
@@ -88,36 +110,36 @@ public abstract class Provisioner {
   // Cache TargetSystemUsers by Subject. This is typically a long-lived cache
   // used across provisioning batches. These are only fetched and cached
   // if our config has needsTargetSystemUsers=true.
-  final GrouperCache<Subject, TargetSystemUser> targetSystemUserCache;
+  final GrouperCache<Subject, TSUserClass> targetSystemUserCache;
   
   // This stores TargetSystemUserss during the provisioning batch. This Map might seem
   // redundant to the targetSystemUserCache, but it is needed for
   // two reasons: 1) To make sure items are not flushed during the provisioning batch
-  // like they could be within a GrouperCache; 2) To know if a TargetSystemUser really
+  // like they could be within a GrouperCache; 2) To know if a TSUserClass really
   // doesn't exist (getTargetSystemUser might do a lookup every time a nonexistent
   // user is requested. By using a map populated once per provisioning batch, we don't
   // have to do extra lookups during the batch).
   // This map is populated by startProvisioningBatch and emptied by finishProvisioningBatch
   // if our config has needsTargetSystemUsers=true.
-  private Map<Subject, TargetSystemUser> tsUserCache_shortTerm = new HashMap<Subject, TargetSystemUser>();
+  private Map<Subject, TSUserClass> tsUserCache_shortTerm = new HashMap<Subject, TSUserClass>();
   
   
   // Cache TargetSystemGroups by Group. This is a long-lived cache, typically used across
   // several provisioning batches. These are only fetched and cached if our config
   // has needsTargetSystemGroups=true.
-  final GrouperCache<Group, TargetSystemGroup> targetSystemGroupCache;
+  final GrouperCache<GrouperGroupInfo, TSGroupClass> targetSystemGroupCache;
   
   // This stores TargetSystemGroups during the provisioning batch. This Map might seem
   // redundant to the targetSystemGroupCache, but it is needed for
   // two reasons: 1) To make sure items are not flushed during the provisioning batch
-  // like they could be within a GrouperCache; 2) To know if a TargetSystemGroup really
+  // like they could be within a GrouperCache; 2) To know if a TSGroupClass really
   // doesn't exist (a GrouperCache doesn't differentiate between an uncached value and
   // a nonexistent group. By using a map populated once per provisioning batch, we don't
   // do futile lookups during the batch).
   //
   // This map is populated by startProvisioningBatch and emptied by finishProvisioningBatch
   // if our config has needsTargetSystemGroups=true.
-  private Map<Group, TargetSystemGroup> tsGroupCache_shortTerm = new HashMap<Group, TargetSystemGroup>();
+  private Map<GrouperGroupInfo, TSGroupClass> tsGroupCache_shortTerm = new HashMap<GrouperGroupInfo, TSGroupClass>();
 
   // This is used during provisioning so everyone can get access to the current
   // work item while we're looping through the work items of a batch
@@ -129,40 +151,22 @@ public abstract class Provisioner {
    */
   protected boolean fullSyncMode = false;
   
-  final ProvisionerProperties config;
+  final protected ConfigurationClass config;
   
   
-  /**
-   * What class holds what is necessary for our configuration
-   * @return
-   */
-  public static Class<? extends ProvisionerProperties> getPropertyClass() {
-    return ProvisionerProperties.class;
-  }
-  
-  
-  public Provisioner(String provisionerName, ProvisionerProperties config) {
+  public Provisioner(String provisionerName, ConfigurationClass config) {
     LOG = LoggerFactory.getLogger(String.format("%s.%s", getClass().getName(), provisionerName ));
     
     this.config = config;
     this.provisionerName = provisionerName;
     
-    grouperGroupCache 
-      = new GrouperCache<String, Group>(String.format("PSP-%s-GrouperGroupCache", getName()),
+    grouperGroupInfoCache 
+      = new GrouperCache<String, GrouperGroupInfo>(String.format("PSP-%s-GrouperGroupInfoCache", getName()),
           config.getGrouperGroupCacheSize(),
           false,
           config.getGrouperDataCacheTime_secs(),
           config.getGrouperDataCacheTime_secs(),
           false);
-    
-    grouperGroupJexlMapCache
-      = new GrouperCache<String, Map<String, Object>>(String.format("PSP-%s-GrouperGroupJexlCache", getName()),
-          config.getGrouperGroupCacheSize(),
-          false,
-          config.getGrouperDataCacheTime_secs(),
-          config.getGrouperDataCacheTime_secs(),
-          false);
-    
     
     grouperSubjectCache 
       = new GrouperCache<String, Subject>(String.format("PSP-%s-GrouperSubjectCache", getName()),
@@ -173,7 +177,7 @@ public abstract class Provisioner {
           false);
 
     targetSystemUserCache 
-      = new GrouperCache<Subject, TargetSystemUser>(String.format("PSP-%s-TargetSystemUserCache", getName()),
+      = new GrouperCache<Subject, TSUserClass>(String.format("PSP-%s-TargetSystemUserCache", getName()),
           config.getGrouperSubjectCacheSize(),
           false,
           config.getGrouperDataCacheTime_secs(),
@@ -181,7 +185,7 @@ public abstract class Provisioner {
           false);
     
     targetSystemGroupCache 
-      = new GrouperCache<Group, TargetSystemGroup>(String.format("PSP-%s-TargetSystemGroupCache", getName()),
+      = new GrouperCache<GrouperGroupInfo, TSGroupClass>(String.format("PSP-%s-TargetSystemGroupCache", getName()),
           config.getGrouperGroupCacheSize(),
           false,
           config.getGrouperDataCacheTime_secs(),
@@ -189,30 +193,167 @@ public abstract class Provisioner {
           false);
   }
   
-  // Get ready for a provisioning batch. If this is overridden, make sure you call super()
-  // at the beginning of your overridden version.
+
+  /**
+   * Action method that handles membership additions where a person-subject is added to a 
+   * group. The top-level Provisioner class implementation is abstract, and, of course, 
+   * this method is expected to be overridden by every provisioner subclass to accomplish 
+   * something useful. 
+   * 
+   * @param grouperGroupInfo The group to which the subject needs to be added as a member
+   * @param tsGroup A TSGroupClass created for group by fetchTargetSystemGroup. This will
+   * be null for systems that do not need target system groups.
+   * @param subject The (person) subject that needs to be provisioned as a member of 'group'
+   * @param tsUser A TSUserClass created for the subject by fetchTargetSystemUser. This will
+   * be null for systems that do not need target system users.
+   */
+
+  protected abstract void addMembership(GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup,
+      Subject subject, TSUserClass tsUser) throws PspException;
+  
+  
+  /**
+   * Abstract action method that handles membership removals. 
+   * 
+   * Note: This method is called for MembershipDelete events for a non-group member.
+   * 
+   * @param grouperGroupInfo The group to which the subject needs to be removed as a member
+   * @param tsGroup TSGroupClass for the 'group.' This is null for systems that do not need
+   * target-system group info
+   * @param subject The subject that needs to be deprovisioned as a member of 'group'
+   * @param tsUser TSUserClass for the 'subject.' This is null for systems that do not need
+   * target-system user info
+   */
+
+  protected abstract void deleteMembership(GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup,
+      Subject subject, TSUserClass tsUser) throws PspException;
+
+  
+  /**
+   * Provisioning a new Group in the target system. This must be overridden in provisioner
+   * subclasses that support creating groups. 
+   * 
+   * @param grouperGroup
+   * @return
+   * @throws PspException
+   */
+  protected abstract TSGroupClass createGroup(GrouperGroupInfo grouperGroup) throws PspException;
+
+  /**
+   * Action method that handles group removal. The top-level Provisioner class implementation
+   * does nothing except log an error if the target system needs groups.
+   * 
+   * This is expected to be overridden by subclasses if the target system needs groups, and
+   * do not call the super.deleteGroup version of this when you override it this
+   * @param group
+   * @param tsGroup 
+   * @param subject
+   */
+  protected abstract void 
+  deleteGroup(GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup) throws PspException;
+  
+  /**
+   * This method's responsibility is to make sure that group's only provisioned memberships are those
+   * of correctSubjects. Extra subjects should be removed. 
+   * 
+   * Before this is called, the following have occurred:
+   *   -a ProvisioningWorkItem was created representing the whole Full Sync, and it was marked
+   *    as the current provisioning item
+   *   -StartProvisioningBatch was called
+   *   -TSGroupClass- and TSUserClass-caches are populated with the group and CORRECT Subjects
+   *   
+   * Also, remember that fullSyncMode=true for provisioners doing full-sync, so TargetSystemUsers and
+   * TargetSystemGroups should have the extra information needed to facilitate full syncs.
+   * 
+   * @param grouperGroupInfo Grouper group to fully synchronize with target system
+   * @param tsGroup TSGroupClass that maps to group.
+   * @param correctSubjects What subjects are members in the Grouper Registry
+   * @param correctTSUsers Collection of TargetSystemUsers which map to the correctSubjects. This will be empty
+   * for provisioners that do not use TargetSystemUsers.
+   */
+  protected abstract void doFullSync(
+      GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup, 
+      Set<Subject> correctSubjects, Set<TSUserClass> correctTSUsers) throws PspException;
+
+  /**
+   * This method's responsibility is find extra groups within Grouper's responsibility that
+   * exist in the target system. These extra groups should be removed.
+   * 
+   * Note: This is only called when grouperIsAuthoritative=true in the provisioner's properties.
+   * 
+   * The groups that should exist are passed in as a parameter.
+   * 
+   * @param groupsForThisProvisioner The correct list of groups for this provisioner
+   * @param tsGroups The correct list of Target System groups for this provisioner.
+   * for provisioners that do not use TargetSystemUsers.
+   */
+  protected abstract void doFullSync_cleanupExtraGroups(
+          Set<GrouperGroupInfo> groupsForThisProvisioner, 
+          Map<GrouperGroupInfo, TSGroupClass> tsGroups) throws PspException;
+  
+
+  /**
+   * This fetches group information from the target system. Subclasses that have TSGroupClass 
+   * information need to override this. Subclasses that do not need TSGroupClass information
+   * should just return either an empty map (Collections.EMPTY_MAP) or null;. 
+   * 
+   * Note:
+   * The signature of this method is designed for batch fetching. If you cannot fetch batches of
+   * information, then loop through the provided groups and build a resulting map.
+   * @param grouperGroups
+   * @return
+   * @throws PspException
+   */
+  protected abstract Map<GrouperGroupInfo, TSGroupClass> 
+  fetchTargetSystemGroups(Collection<GrouperGroupInfo> grouperGroups) throws PspException;
+
+
+  /**
+   * This fetches user information from the target system. Subclasses that have TSUserClass 
+   * information need to override this. Subclasses that do not have TSUserClass should implement
+   * this so it returns either an empty map (Collections.EMPTY_MAP) or null.
+   * 
+   * Note:
+   * The signature of this method is designed for batch fetching. If you cannot fetch batches of
+   * information, then loop through the provided users and build a resulting map.
+   * 
+   * @param personSubjects 
+   * @param grouperGroups
+   * @return
+   * @throws PspException
+   */
+  protected abstract Map<Subject, TSUserClass> 
+  fetchTargetSystemUsers(Collection<Subject> personSubjects) throws PspException;
+
+
+  /**
+   * Get ready for a provisioning batch. If this is overridden, make sure you call super()
+   * at the beginning of your overridden version.
+   * 
+   * @param workItems
+   * @throws PspException
+   */
   public void startProvisioningBatch(List<ProvisioningWorkItem> workItems) throws PspException {
-    LOG.info("Starting provisioning batch of {} items", workItems);
-    Set<Group> groups = new HashSet<Group>();
+    LOG.debug("Starting provisioning batch of {} items", workItems.size());
     Set<Subject> subjects = new HashSet<Subject>();
     
+    // Use this Set to remove duplicate group names that are referenced in multiple workItems
+    Set<GrouperGroupInfo> grouperGroupInfos = new HashSet<GrouperGroupInfo>();
+    
     for ( ProvisioningWorkItem workItem : workItems) {
-      Group group = workItem.getGroup(this);
-      if ( group == null )
-        continue;
-      
-      if ( !shouldGroupBeProvisioned(group) )
-        workItem.markAsSuccess("Group is not selected for provisioning by groupSelectionExpression");
-      
-      groups.add(group);
-      
+      String groupName = workItem.getGroupName();
+      if ( groupName == null )
+    	  // Nothing to do before batch is processed
+    	  continue;
+      GrouperGroupInfo grouperGroupInfo = getGroupInfo(groupName);
+      grouperGroupInfos.add(grouperGroupInfo);
+    
       Subject s = workItem.getSubject(this);
-      
       if ( s != null )
         subjects.add(s);
     }
     
-    prepareGroupCache(groups);
+    prepareGroupCache(grouperGroupInfos);
     prepareUserCache(subjects);
   }
   
@@ -222,7 +363,7 @@ public abstract class Provisioner {
     tsUserCache_shortTerm.clear();
     tsGroupCache_shortTerm.clear();
     
-    LOG.info("Done with provisining batch");
+    LOG.debug("Done with provisining batch");
   }
   
   /**
@@ -235,7 +376,7 @@ public abstract class Provisioner {
    * @param keysAndValues Key/Value pairs that will also be available within the Jexl's variable map
    * @return
    */
-  protected final String evaluateJexlExpression(String expression, Subject subject, Group group,
+  protected final String evaluateJexlExpression(String expression, Subject subject, GrouperGroupInfo grouperGroupInfo,
       Object... keysAndValues) {
     
     LOG.debug("Evaluating Jexl expression: {}", expression);
@@ -253,8 +394,8 @@ public abstract class Provisioner {
     populateJexlMap(variableMap, 
         subject, 
         subject==null ? null : tsUserCache_shortTerm.get(subject), 
-        group, 
-        group==null ? null : tsGroupCache_shortTerm.get(group));
+        grouperGroupInfo, 
+        grouperGroupInfo==null ? null : tsGroupCache_shortTerm.get(grouperGroupInfo));
     
     // Give our config a chance to add information
     config.populateElMap(variableMap);
@@ -278,7 +419,7 @@ public abstract class Provisioner {
    * @param tsGroup
    */
   protected void populateJexlMap(Map<String, Object> variableMap, Subject subject, 
-      TargetSystemUser tsUser, Group group, TargetSystemGroup tsGroup) {
+      TSUserClass tsUser, GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup) {
     variableMap.put("provisionerType", getClass().getSimpleName());
     variableMap.put("provisionerName", getName());
 
@@ -288,8 +429,8 @@ public abstract class Provisioner {
     if ( tsUser != null )
         variableMap.put("tsUser",  tsUser.getJexlMap());
     
-    if ( group != null ) {
-      Map<String, Object> groupMap = getGroupJexlMap(group);
+    if ( grouperGroupInfo != null ) {
+      Map<String, Object> groupMap = getGroupJexlMap(grouperGroupInfo);
       variableMap.putAll(groupMap);
     }
       
@@ -308,7 +449,7 @@ public abstract class Provisioner {
    * @throws PspException
    */
   private void prepareUserCache(Set<Subject> subjects) throws PspException {
-    LOG.info("Starting to cache user information for {} items", subjects.size());
+    LOG.debug("Starting to cache user information for {} items", subjects.size());
     tsUserCache_shortTerm.clear();
     
     // Nothing to do if TargetSystemUsers are not used by this provisioner
@@ -318,7 +459,7 @@ public abstract class Provisioner {
     
     for (Subject s : subjects) {
       // See if the subject is already cached.
-      TargetSystemUser cachedTSU = targetSystemUserCache.get(s);
+      TSUserClass cachedTSU = targetSystemUserCache.get(s);
       if ( cachedTSU != null )
         // Cache user in shortTerm cache as well as refresh it in longterm cache
         cacheUser(s, cachedTSU);
@@ -326,15 +467,18 @@ public abstract class Provisioner {
         subjectsToFetch.add(s);
     }
     
+    if ( subjectsToFetch.size() == 0 )
+      return;
+    
     List<List<Subject>> batchesOfSubjectsToFetch = PspUtils.chopped(subjectsToFetch, config.getUserSearch_batchSize());
     
     for (List<Subject> batchOfSubjectsToFetch : batchesOfSubjectsToFetch ) {
-      Map<Subject, TargetSystemUser> fetchedData;
+      Map<Subject, TSUserClass> fetchedData;
       
       try {
         fetchedData = fetchTargetSystemUsers(batchOfSubjectsToFetch);
         // Save the fetched data in our cache
-        for ( Entry<Subject, TargetSystemUser> subjectInfo : fetchedData.entrySet() )
+        for ( Entry<Subject, TSUserClass> subjectInfo : fetchedData.entrySet() )
           cacheUser(subjectInfo.getKey(), subjectInfo.getValue());
       }
       catch (PspException e1) {
@@ -342,7 +486,7 @@ public abstract class Provisioner {
         // Subject
           for ( Subject subject : batchOfSubjectsToFetch ) {
             try {
-              TargetSystemUser tsUser = fetchTargetSystemUser(subject);
+              TSUserClass tsUser = fetchTargetSystemUser(subject);
               cacheUser(subject, tsUser);
             }
             catch (PspException e2) {
@@ -359,7 +503,7 @@ public abstract class Provisioner {
     for ( Subject subj : subjects ) {
       if ( !tsUserCache_shortTerm.containsKey(subj) ) {
         if ( config.isCreatingMissingUsersEnabled() ) {
-          TargetSystemUser newTSUser = createUser(subj);
+          TSUserClass newTSUser = createUser(subj);
           if ( newTSUser != null )
             cacheUser(subj, newTSUser);
         }
@@ -371,15 +515,18 @@ public abstract class Provisioner {
 
  
   /**
-   * This makes sure all the Groups referenced by workItems are in groupMap_shortTerm. Of
-   * course if our config says needsTargetSystemGroups is False, then the groupMap will
+   * This makes sure all the Groups referenced by groupInfoSet are in groupMap_shortTerm. 
+   * If our config says needsTargetSystemGroups is False, then the groupMap will
    * be empty.
    * 
-   * @param workItems
+   * @param groupInfoSet
    * @throws PspException
    */
-  private void prepareGroupCache(Collection<Group> groups) throws PspException {
-    LOG.info("Starting to cache group information for {} items", groups.size());
+  private void prepareGroupCache(Collection<GrouperGroupInfo> grouperGroupInfos) throws PspException {
+	// Remove any duplicate group info objects
+	Set<GrouperGroupInfo> groupInfoSet = new HashSet<GrouperGroupInfo>(grouperGroupInfos);
+	
+    LOG.debug("Starting to cache group information for {} items", groupInfoSet.size());
     tsGroupCache_shortTerm.clear();
     
     // If the target system doesn't need groups, then we obviously don't need to 
@@ -387,61 +534,63 @@ public abstract class Provisioner {
     if ( ! config.needsTargetSystemGroups() )
       return;
     
-    // Use a set to deduplicate subjects (that might be mentioned in multiple workItems)
-    Collection<Group> groupsToFetch = new ArrayList<Group>();
+    Collection<GrouperGroupInfo> groupsToFetch = new ArrayList<GrouperGroupInfo>();
     
-    for (Group g : groups) {
+    for (GrouperGroupInfo grouperGroupInfo : groupInfoSet) {
       // See if the group is already cached.
-      TargetSystemGroup cachedTSG = targetSystemGroupCache.get(g);
+      TSGroupClass cachedTSG = targetSystemGroupCache.get(grouperGroupInfo);
       if ( cachedTSG != null )
         // Cache group in shortTerm cache as well as refresh it in longterm cache
-        cacheGroup(g, cachedTSG);
+        cacheGroup(grouperGroupInfo, cachedTSG);
       else
-        groupsToFetch.add(g);
+        groupsToFetch.add(grouperGroupInfo);
     }
     
-    List<List<Group>> batchesOfGroupsToFetch = PspUtils.chopped(groupsToFetch, config.getGroupSearch_batchSize());
+    if ( groupsToFetch.size() == 0 )
+      return;
     
-    for ( List<Group> batchOfGroupsToFetch : batchesOfGroupsToFetch ) {
-      Map<Group, TargetSystemGroup> fetchedData;
+    List<List<GrouperGroupInfo>> batchesOfGroupsToFetch = PspUtils.chopped(groupsToFetch, config.getGroupSearch_batchSize());
+    
+    for ( List<GrouperGroupInfo> batchOfGroupsToFetch : batchesOfGroupsToFetch ) {
+      Map<GrouperGroupInfo, TSGroupClass> fetchedData;
       
       try {
         fetchedData = fetchTargetSystemGroups(batchOfGroupsToFetch);
         // Save the data that was fetched in our cache
-        for ( Entry<Group, TargetSystemGroup> groupInfo : fetchedData.entrySet() )
-          cacheGroup(groupInfo.getKey(), groupInfo.getValue());
+        for ( Entry<GrouperGroupInfo, TSGroupClass> grouperGroupInfo : fetchedData.entrySet() )
+          cacheGroup(grouperGroupInfo.getKey(), grouperGroupInfo.getValue());
       }
       catch (PspException e1) {
         // Batch-fetching failed. Let's see if we can narrow it down to a single
-        // Subject
-          for ( Group group : batchOfGroupsToFetch ) {
+        // Group
+          for ( GrouperGroupInfo grouperGroupInfo : batchOfGroupsToFetch ) {
             try {
-              TargetSystemGroup tsGroup = fetchTargetSystemGroup(group);
-              cacheGroup(group, tsGroup);
+              TSGroupClass tsGroup = fetchTargetSystemGroup(grouperGroupInfo);
+              cacheGroup(grouperGroupInfo, tsGroup);
             }
             catch (PspException e2) {
-              throw new RuntimeException("Problem fetching information on subject " + group);
+              throw new RuntimeException("Problem fetching information on group " + grouperGroupInfo);
             }
           }
       }
     }
     
-    for ( Group group : groupsToFetch )
-      if ( ! tsGroupCache_shortTerm.containsKey(group) )
+    for ( GrouperGroupInfo grouperGroupInfo : groupsToFetch )
+      if ( ! tsGroupCache_shortTerm.containsKey(grouperGroupInfo) )
         if ( config.areEmptyGroupsSupported() ) {
-          TargetSystemGroup tsGroup = createGroup(group);
-          cacheGroup(group, tsGroup);
+          TSGroupClass tsGroup = createGroup(grouperGroupInfo);
+          cacheGroup(grouperGroupInfo, tsGroup);
         }
         else
-          LOG.warn("{}: Group was not found in target system: {}", getName(), group.getName());
+          LOG.warn("{}: Group was not found in target system: {}", getName(), grouperGroupInfo);
   }
 
   
-  public TargetSystemUser getTargetSystemUser(Subject subject) throws PspException {
+  public TSUserClass getTargetSystemUser(Subject subject) throws PspException {
     if ( !config.needsTargetSystemUsers() ) 
       throw new IllegalStateException(String.format("%s: system that doesn't need target-system users, but one was requested", getName()));
     
-    TargetSystemUser result = tsUserCache_shortTerm.get(subject);
+    TSUserClass result = tsUserCache_shortTerm.get(subject);
     
     if ( result == null ) {
       if ( config.isCreatingMissingUsersEnabled() ) {
@@ -457,17 +606,17 @@ public abstract class Provisioner {
   
   
   /**
-   * Store Subject-->TargetSystemUser mapping in long-term and short-term caches
+   * Store Subject-->TSUserClass mapping in long-term and short-term caches
    * @param subject
    * @param newTSUser
    */
-  private void cacheUser(Subject subject, TargetSystemUser newTSUser) {
+  private void cacheUser(Subject subject, TSUserClass newTSUser) {
     LOG.debug("Adding user to cache: {}", subject);
     targetSystemUserCache.put(subject, newTSUser);
     tsUserCache_shortTerm.put(subject, newTSUser);
   }
 
-  protected void uncacheUser(Subject subject, TargetSystemUser oldTSUser) {
+  protected void uncacheUser(Subject subject, TSUserClass oldTSUser) {
     // If the caller didn't know what Subject to flush, let's see if we can find it
     if ( subject == null )
       for ( Subject s : targetSystemUserCache.keySet() )
@@ -488,14 +637,14 @@ public abstract class Provisioner {
   }
 
   /**
-   * Store Group-->TargetSystemGroup mapping in long-term and short-term caches
+   * Store Group-->TSGroupClass mapping in long-term and short-term caches
    * @param group
    * @param newTSGroup
    */
-  private void cacheGroup(Group group, TargetSystemGroup newTSGroup) {
-    LOG.debug("Adding group to cache: {}", group.getName());
-    targetSystemGroupCache.put(group, newTSGroup);
-    tsGroupCache_shortTerm.put(group, newTSGroup);
+  private void cacheGroup(GrouperGroupInfo grouperGroupInfo, TSGroupClass newTSGroup) {
+    LOG.debug("Adding group to cache: {}", grouperGroupInfo);
+    targetSystemGroupCache.put(grouperGroupInfo, newTSGroup);
+    tsGroupCache_shortTerm.put(grouperGroupInfo, newTSGroup);
   }
   
   
@@ -505,70 +654,29 @@ public abstract class Provisioner {
    * @param group
    * @param oldTSGroup
    */
-  protected void uncacheGroup(Group group, TargetSystemGroup oldTSGroup) {
+  protected void uncacheGroup(GrouperGroupInfo grouperGroupInfo, TSGroupClass oldTSGroup) {
     // If the caller didn't know what Group to flush, let's see if we can find it
-    if ( group == null )
-      for ( Group g : targetSystemGroupCache.keySet() )
-        if ( targetSystemGroupCache.get(g) == oldTSGroup ) {
-          group = g;
+    if ( grouperGroupInfo == null )
+      for ( GrouperGroupInfo gi : targetSystemGroupCache.keySet() )
+        if ( targetSystemGroupCache.get(gi) == oldTSGroup ) {
+          grouperGroupInfo = gi;
           break;
         }
     
-    if ( group == null ) {
+    if ( grouperGroupInfo == null ) {
     	LOG.warn("Can't find Grouper Group to uncache from tsGroup {}", oldTSGroup);
     	return;
     }
     
-    LOG.debug("Flushing group from cache: {}", group.getName());
-    targetSystemGroupCache.remove(group);
+    LOG.debug("Flushing group from cache: {}", grouperGroupInfo);
+    targetSystemGroupCache.remove(grouperGroupInfo);
     
-    grouperGroupCache.remove(group.getName());
-    grouperGroupJexlMapCache.remove(group.getName());
-  }
-  
-  /**
-   * This fetches user information from the target system. Subclasses that have such TargetSystemUser 
-   * information need to override this. 
-   * 
-   * Notes:
-   * 1) The signature of this method is designed for batch fetching. If you cannot fetch batches of
-   * information, then loop through the provided users and build a resulting map.
-   * 
-  * 2) Subclasses SHOULD NOT call the super.fetchTargetSystemUsers version of this
-   * @param personSubjects 
-   * @param grouperGroups
-   * @return
-   * @throws PspException
-   */
-  protected Map<Subject, TargetSystemUser> 
-  fetchTargetSystemUsers(Collection<Subject> personSubjects) throws PspException {
-    throw new RuntimeException(String.format("fetchTargetSystemUsers( ) is not implemented by %s or the implementation is incorrectly calling the superclass version.",
-        getClass().getName()));
+    grouperGroupInfoCache.remove(grouperGroupInfo.getName());
   }
   
 
   /**
-   * This fetches group information from the target system. Subclasses that have such TargetSystemGroup 
-   * information need to override this. 
-   * 
-   * Notes:
-   * 1) The signature of this method is designed for batch fetching. If you cannot fetch batches of
-   * information, then loop through the provided groups and build a resulting map.
-   * 
-   * 2) Subclasses SHOULD NOT call the super.fetchTargetSystemGroups version of this
-   * @param grouperGroups
-   * @return
-   * @throws PspException
-   */
-  protected Map<Group, TargetSystemGroup> 
-  fetchTargetSystemGroups(Collection<Group> grouperGroups) throws PspException  {
-    throw new RuntimeException(String.format("fetchTargetSystemGroups( ) is not implemented by %s or the implementation is incorrectly calling the superclass version.",
-        getClass().getName()));
-  }
-
-
-  /**
-   * Lookup a single TargetSystemUser for a single Subject. If you have several such mappings to look up,
+   * Lookup a single TSUserClass for a single Subject. If you have several such mappings to look up,
    * you should use the (plural version) fetchTargetSystemUsers( ) instead, as that will have an opportunity 
    * to do faster batch fetching.
    * 
@@ -578,14 +686,14 @@ public abstract class Provisioner {
    * @return
    * @throws PspException
    */
-  protected final TargetSystemUser fetchTargetSystemUser(Subject personSubject) throws PspException {
+  protected final TSUserClass fetchTargetSystemUser(Subject personSubject) throws PspException {
     // Forward this singluar subject to the multi-subject version.
-    Map<Subject, TargetSystemUser> result = fetchTargetSystemUsers(Arrays.asList(personSubject));
+    Map<Subject, TSUserClass> result = fetchTargetSystemUsers(Arrays.asList(personSubject));
     return result.get(personSubject);
   }
   
   /**
-   * Lookup a single TargetSystemGroup for a single (grouper) Group. If you have several such mappings to look up,
+   * Lookup a single TSGroupClass for a single (grouper) Group. If you have several such mappings to look up,
    * you should use the (plural version) fetchTargetSystemGroups( ) instead, as that will have an opportunity to do 
    * faster batch fetching.
    * 
@@ -595,9 +703,9 @@ public abstract class Provisioner {
    * @return
    * @throws PspException
    */
-  protected final TargetSystemGroup fetchTargetSystemGroup(Group grouperGroup) throws PspException {
+  protected final TSGroupClass fetchTargetSystemGroup(GrouperGroupInfo grouperGroup) throws PspException {
     // Forward this singluar Group to the multi-subject version.
-    Map<Group, TargetSystemGroup> result = fetchTargetSystemGroups(Arrays.asList(grouperGroup));
+    Map<GrouperGroupInfo, TSGroupClass> result = fetchTargetSystemGroups(Arrays.asList(grouperGroup));
     return result.get(grouperGroup);
   }
   
@@ -611,19 +719,7 @@ public abstract class Provisioner {
    * @return
    * @throws PspException
    */
-  protected TargetSystemUser createUser(Subject personSubject) throws PspException {
-    return null;
-  }
-  
-  /**
-   * Provisioning a new Group in the target system. This must be overridden in provisioner
-   * subclasses that support creating groups. 
-   * 
-   * @param grouperGroup
-   * @return
-   * @throws PspException
-   */
-  protected TargetSystemGroup createGroup(Group grouperGroup) throws PspException {
+  protected TSUserClass createUser(Subject personSubject) throws PspException {
     return null;
   }
   
@@ -638,7 +734,7 @@ public abstract class Provisioner {
    * @param workItem
    */
   protected void provisionItem(ProvisioningWorkItem workItem) throws PspException {
-    LOG.info("Starting provisioning of item: {}", workItem);
+    LOG.debug("Starting provisioning of item: {}", workItem);
     
     currentWorkItem.set(workItem);
     ChangeLogEntry entry = workItem.getChangelogEntry();
@@ -646,44 +742,41 @@ public abstract class Provisioner {
     try {
       if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD ))
       {
-        Group group = workItem.getGroup(this);
+        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
-        if ( tsGroupCache_shortTerm.containsKey(group) )
-          workItem.markAsSuccess("Group %s already exists", group.getName());
+        if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) )
+          workItem.markAsSuccess("Group %s already exists", grouperGroupInfo);
         else
-          createGroup(group);
+          createGroup(grouperGroupInfo);
       }
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE ))
       {
-        Group group = workItem.getGroup(this);
-        TargetSystemGroup tsGroup = tsGroupCache_shortTerm.get(group);
+        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+        TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         
-        if ( tsGroupCache_shortTerm.containsKey(group) )
-          deleteGroup(group, tsGroup);
-        else
-          workItem.markAsSuccess("Group %s had already been deleted", group.getName());
+        deleteGroup(grouperGroupInfo, tsGroup);
       }
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD))
       {
-        Group group = workItem.getGroup(this);
-        TargetSystemGroup tsGroup = tsGroupCache_shortTerm.get(group);
+        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+        TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
-        TargetSystemUser tsUser = tsUserCache_shortTerm.get(subject);
+        TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
         
-        addMembership(group, tsGroup, subject, tsUser);
+        addMembership(grouperGroupInfo, tsGroup, subject, tsUser);
       }
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE))
       {
-        Group group = workItem.getGroup(this);
-        TargetSystemGroup tsGroup = tsGroupCache_shortTerm.get(group);
+        GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+        TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
-        TargetSystemUser tsUser = tsUserCache_shortTerm.get(subject);
+        TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
   
-        deleteMembership(group, tsGroup, subject, tsUser);
+        deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
       }
       else
       {
-        LOG.info("Not a supported change: {}", entry.toString());
+        LOG.info("Not a supported change: {}", workItem);
         workItem.markAsSuccess("Nothing to do (not a supported change)");
       }
     } catch (PspException e) {
@@ -703,19 +796,25 @@ public abstract class Provisioner {
 	  tsUserCache_shortTerm.clear();
 	  tsGroupCache_shortTerm.clear();
 	  try {
-		MDC.put("step", "setup");
-		Set<Group> groupsForThisProvisioner = new HashSet<Group>();
+		MDC.put("step", "setup/");
+		Set<GrouperGroupInfo> groupsForThisProvisioner = new HashSet<GrouperGroupInfo>();
 		
 	    Collection<Group> allGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
 	    
-	    for ( Group group : allGroups ) 
-	      if ( shouldGroupBeProvisioned(group) )
-	        groupsForThisProvisioner.add(group);
+	    for ( Group group : allGroups ) {
+	      GrouperGroupInfo grouperGroupInfo = getGroupInfo(group.getName());
+	      if ( shouldGroupBeProvisioned(grouperGroupInfo) )
+	    	  groupsForThisProvisioner.add(grouperGroupInfo);
+	    }
 	    
-	    Map<Group, TargetSystemGroup> tsGroups = fetchTargetSystemGroups(groupsForThisProvisioner);
+        Map<GrouperGroupInfo, TSGroupClass> tsGroups;
+	    if ( groupsForThisProvisioner.size() == 0 ) 
+	      tsGroups = Collections.EMPTY_MAP;
+	    else
+	      tsGroups = fetchTargetSystemGroups(groupsForThisProvisioner);
 	    
-	    MDC.put("step", "clean");
-	    duFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups);
+	    MDC.put("step", "clean/");
+	    doFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups);
 	  }
 	  catch (PspException e) {
 		  LOG.error("Problem while looking for and removing extra groups: {}", e.getMessage());
@@ -736,10 +835,10 @@ public abstract class Provisioner {
    * This method is final to make it clear that the abstract signature should be
    * overridden and to prevent subclasses from overriding this one by mistake.
    * 
-   * @param group
+   * @param grouperGroupInfo
    * @throws PspException
    */
-  final void doFullSync(Group group) throws PspException {
+  final void doFullSync(GrouperGroupInfo grouperGroupInfo) throws PspException {
 	  
 	if ( !config.isEnabled() ) {
 		LOG.warn("{} is diabled. Full-sync not being done.", getName());
@@ -749,7 +848,7 @@ public abstract class Provisioner {
     tsGroupCache_shortTerm.clear();
     
     MDC.put("step", "setup/");
-    Set<Member> groupMembers = group.getMembers();
+    Set<Member> groupMembers = grouperGroupInfo.getMembers();
     Set<Subject> correctSubjects = new HashSet<Subject>();
     
     for (Member member : groupMembers) {
@@ -758,25 +857,27 @@ public abstract class Provisioner {
         correctSubjects.add(subject);
       }
     }
-    ProvisioningWorkItem workItemForWholeFullSync = new ProvisioningWorkItem("FullSync: " + group.getName(), group, null);
+    ProvisioningWorkItem workItemForWholeFullSync = new ProvisioningWorkItem("FullSync: " + grouperGroupInfo, grouperGroupInfo);
     currentWorkItem.set(workItemForWholeFullSync);
     startProvisioningBatch(Arrays.asList(workItemForWholeFullSync));
 
-    prepareGroupCache(Arrays.asList(group));
-    prepareUserCache(correctSubjects);
+    prepareGroupCache(Arrays.asList(grouperGroupInfo));
     
-    TargetSystemGroup tsGroup = tsGroupCache_shortTerm.get(group);
-    Set<TargetSystemUser> correctTargetSystemUsers = new HashSet<TargetSystemUser>();
+    if ( correctSubjects.size() > 0 )
+      prepareUserCache(correctSubjects);
+    
+    TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
+    Set<TSUserClass> correctTargetSystemUsers = new HashSet<TSUserClass>();
     
     for ( Subject correctSubject: correctSubjects ) {
-      TargetSystemUser tsUser = tsUserCache_shortTerm.get(correctSubject);
+      TSUserClass tsUser = tsUserCache_shortTerm.get(correctSubject);
       if ( tsUser != null )
         correctTargetSystemUsers.add(tsUser);
     }
 
     try {
       MDC.put("step", "prov/");
-      doFullSync(group, tsGroup, correctSubjects, correctTargetSystemUsers);
+      doFullSync(grouperGroupInfo, tsGroup, correctSubjects, correctTargetSystemUsers);
       MDC.put("step", "finish/");
       finishProvisioningBatch(Arrays.asList(workItemForWholeFullSync));
     }
@@ -788,97 +889,11 @@ public abstract class Provisioner {
   }
 
   /**
-   * This method's responsibility is to make sure that group's only provisioned memberships are those
-   * of correctSubjects. Extra subjects should be removed. 
-   * 
-   * Before this is called, the following have occurred:
-   *   -a ProvisioningWorkItem was created representing the whole Full Sync, and it was marked
-   *    as the current provisioning item
-   *   -StartProvisioningBatch was called
-   *   -TargetSystemGroup- and TargetSystemUser-caches are populated with the group and CORRECT Subjects
-   *   
-   * Also, remember that fullSyncMode=true for provisioners doing full-sync, so TargetSystemUsers and
-   * TargetSystemGroups should have the extra information needed to facilitate full syncs.
-   * 
-   * @param group Grouper group to fully synchronize with target system
-   * @param tsGroup TargetSystemGroup that maps to group.
-   * @param correctSubjects What subjects are members in the Grouper Registry
-   * @param correctTSUsers Collection of TargetSystemUsers which map to the correctSubjects. This will be empty
-   * for provisioners that do not use TargetSystemUsers.
-   */
-  protected abstract void doFullSync(
-      Group group, TargetSystemGroup tsGroup, 
-      Set<Subject> correctSubjects, Set<? extends TargetSystemUser> correctTSUsers) throws PspException;
-
-  /**
-   * This method's responsibility is find extra groups within Grouper's responsibility that
-   * exist in the target system. These extra groups should be removed.
-   * 
-   * Note: This is only called when grouperIsAuthoritative=true in the provisioner's properties.
-   * 
-   * The groups that should exist are passed in as a parameter.
-   * 
-   * @param groupsForThisProvisioner The correct list of groups for this provisioner
-   * @param tsGroups The correct list of Target System groups for this provisioner.
-   * for provisioners that do not use TargetSystemUsers.
-   */
-  protected abstract void duFullSync_cleanupExtraGroups(
-		  Set<Group> groupsForThisProvisioner, 
-		  Map<Group, TargetSystemGroup> tsGroups) throws PspException;
-  
-
-  /**
-   * Action method that handles membership additions where a person-subject is added to a 
-   * group. The top-level Provisioner class implementation is abstract, and, of course, 
-   * this method is expected to be overridden by every provisioner subclass to accomplish 
-   * something useful. 
-   * 
-   * @param group The group to which the subject needs to be added as a member
-   * @param tsGroup A TargetSystemGroup created for group by fetchTargetSystemGroup. This will
-   * be null for systems that do not need target system groups.
-   * @param subject The (person) subject that needs to be provisioned as a member of 'group'
-   * @param tsUser A TargetSystemUser created for the subject by fetchTargetSystemUser. This will
-   * be null for systems that do not need target system users.
-   */
-
-  protected abstract void addMembership(Group group, TargetSystemGroup tsGroup,
-      Subject subject, TargetSystemUser tsUser) throws PspException;
-  
-  
-  /**
-   * Abstract action method that handles membership removals. 
-   * 
-   * Note: This method is called for MembershipDelete events for a non-group member.
-   * 
-   * @param group The group to which the subject needs to be removed as a member
-   * @param tsGroup TargetSystemGroup for the 'group.' This is null for systems that do not need
-   * target-system group info
-   * @param subject The subject that needs to be deprovisioned as a member of 'group'
-   * @param tsUser TargetSystemUser for the 'subject.' This is null for systems that do not need
-   * target-system user info
-   */
-
-  protected abstract void deleteMembership(Group group, TargetSystemGroup tsGroup,
-      Subject subject, TargetSystemUser tsUser) throws PspException;
-
-  
-  /**
    * Get the ProvisioningWorkItem that this provisioner is currently processing
    * @return
    */
   public ProvisioningWorkItem getCurrentWorkItem() {
     return currentWorkItem.get();
-  }
-  
-  /**
-   * Action method that handles group removal. The top-level Provisioner class implementation
-   * does nothing. This is expected to be overridden by subclasses to accomplish something useful.
-   * @param group
-   * @param tsGroup 
-   * @param subject
-   */
-  protected void 
-  deleteGroup(Group group, TargetSystemGroup tsGroup) throws PspException {
   }
   
   protected static String getSubjectCacheKey(String subjectId, String sourceId) {
@@ -907,38 +922,56 @@ public abstract class Provisioner {
       return subject;
   }
 
-  protected Group getGroup(String groupName) {
-    Group group = grouperGroupCache.get(groupName);
-    if (group != null) 
-      return group;
+  protected GrouperGroupInfo getGroupInfo(String groupName) {
+    GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
     
-    group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
+    // Look for a group
+    if ( grouperGroupInfo == null ) {
+	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
+	    
+	    if ( group != null ) {
+	    	grouperGroupInfo = new GrouperGroupInfo(group);
+	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
+	    }
+    }
     
-    if ( group != null )
-      grouperGroupCache.put(groupName, group);
-    
-    return group;
+    // If it is still null, look for a PITGroup
+    if ( grouperGroupInfo == null ) {
+        PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
+	    
+	    if ( pitGroup != null ) {
+	    	grouperGroupInfo = new GrouperGroupInfo(pitGroup);
+	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
+	    }
+    }
+
+    return grouperGroupInfo;
+  }
+  
+  public ConfigurationClass getConfig() {
+    return config;
+  }
+  
+  /**
+   * This returns the configuration class needed by provisioners of this class.
+   * Unfortunately, java generics do not allow the generics to be used in static
+   * methods.
+   * 
+   * Therefore, every (concrete (non-abstract)) subclass of Provisioner needs
+   * to implement this so the ProvisionerConfiguration subclass it needs can be 
+   * returned.
+   * 
+   * TODO: Maybe this could be done with an annotation?
+   * 
+   * @return
+   */
+  public static Class<? extends ProvisionerConfiguration> getPropertyClass() {
+    return ProvisionerConfiguration.class;
   }
 
   
-  protected Map<String, Object> getGroupJexlMap(Group group) {
-    final String groupName = group.getName();
-    Map<String, Object> result = grouperGroupJexlMapCache.get(groupName);
-    //if ( result != null )
-    //  return result;
-    
-    result = new HashMap<String, Object>();
-    
-    result.put("group", group);
-    
-    Map<String, Object> stemAttributes = PspUtils.getStemAttributes(group);
-    result.put("stemAttributes", stemAttributes);
-
-    Map<String, Object> groupAttributes = PspUtils.getGroupAttributes(group);
-    result.put("groupAttributes", groupAttributes);
-
-    grouperGroupJexlMapCache.put(groupName, result);
-    return result;
+  protected Map<String, Object> getGroupJexlMap(GrouperGroupInfo grouperGroupInfo) {
+	return grouperGroupInfo.getJexlMap();
   }
   
   /**
@@ -948,13 +981,15 @@ public abstract class Provisioner {
    * @param group
    * @return
    */
-  protected boolean shouldGroupBeProvisioned(Group group) {
-    String resultString = evaluateJexlExpression(config.getGroupSelectionExpression(), null, group);
+  protected boolean shouldGroupBeProvisioned(GrouperGroupInfo grouperGroupInfo) {
+    String resultString = evaluateJexlExpression(config.getGroupSelectionExpression(), null, grouperGroupInfo);
     
     boolean result = BooleanUtils.toBoolean(resultString);
     
-    LOG.info("{}: Group {} {} group-selection filter.", 
-        getName(), group.getName(), result ? "matches" : "does not match");
+    if ( result )
+      LOG.debug("{}: Group {} matches group-selection filter.", getName(), grouperGroupInfo);
+    else
+      LOG.trace("{}: Group {} does not match group-selection filter.", getName(), grouperGroupInfo);
     
     return result;
   }
@@ -990,8 +1025,8 @@ public abstract class Provisioner {
     
     // Go through the workItems that were not marked as processed by the startProvisioningBatch
     // and provision them
-    MDC.put("step", "prov/");
     for ( ProvisioningWorkItem workItem : workItems ) {
+      MDC.put("step", String.format("prov/%s/", workItem.getMdcLabel()));
       if ( !workItem.hasBeenProcessed() ) {
         try {
           provisionItem(workItem);
@@ -1034,6 +1069,12 @@ public abstract class Provisioner {
   
   public void setFullSyncMode(boolean fullSyncMode) {
     this.fullSyncMode = fullSyncMode;
+  }
+
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() +"[" + provisionerName + "]";
   }
 
 }

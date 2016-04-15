@@ -29,9 +29,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
  *
  * @author Bert Bee-Lindgren
  */
-public class ProvisionerProperties {
+public class ProvisionerConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProvisionerProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProvisionerConfiguration.class);
     public static final String PARAMETER_NAMESPACE = "changeLog.consumer.";
     protected final String provisionerName;
 
@@ -94,7 +94,7 @@ public class ProvisionerProperties {
     protected int groupSearch_batchSize_defaultValue = 50;
 
 
-    public ProvisionerProperties(String provisionerName) {
+    public ProvisionerConfiguration(String provisionerName) {
       this.provisionerName = provisionerName;
     }
     

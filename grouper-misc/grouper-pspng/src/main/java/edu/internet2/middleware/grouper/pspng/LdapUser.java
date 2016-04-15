@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.pspng;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 
 /**
  * This class represents an LdapUser as a TargetSystemUser. In other words,
@@ -29,10 +31,13 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public class LdapUser implements TargetSystemUser {
   final LdapObject ldapObject;
+  final String dn;
   
   
   public LdapUser(LdapObject ldapObject) {
+    GrouperUtil.assertion(ldapObject != null, "Cannot create LdapUser without an ldap object");
     this.ldapObject = ldapObject;
+    this.dn = ldapObject.getDn().toLowerCase();
   }
   
   public LdapObject getLdapObject() {
@@ -50,5 +55,31 @@ public class LdapUser implements TargetSystemUser {
     result.append("ldap", ldapObject);
 
     return result.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((dn == null) ? 0 : dn.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    LdapUser other = (LdapUser) obj;
+    if (dn == null) {
+      if (other.dn != null)
+        return false;
+    }
+    else if (!dn.equals(other.dn))
+      return false;
+    return true;
   }
 }

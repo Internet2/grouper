@@ -79,6 +79,7 @@ changeLog.consumer.pspng_attributes.provisionedAttributeName = eduPersonEntitlem
 changeLog.consumer.pspng_attributes.provisionedAttributeValueFormat = g:${group.name}
 changeLog.consumer.pspng_attributes.userSearchBaseDn = cn=users,dc=example,dc=edu
 changeLog.consumer.pspng_attributes.userSearchFilter = uid=${subject.id}
+changeLog.consumer.pspng_attributes.allProvisionedAttributePrefix=g:
 
 
 FULL SYNC

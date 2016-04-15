@@ -35,6 +35,7 @@ import org.ldaptive.AddRequest;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModificationType;
 import org.ldaptive.Connection;
+import org.ldaptive.DeleteRequest;
 import org.ldaptive.DnParser;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
@@ -53,7 +54,6 @@ import org.ldaptive.pool.BlockingConnectionPool;
 import org.ldaptive.pool.PoolException;
 import org.ldaptive.props.SearchRequestPropertySource;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -70,7 +70,8 @@ import edu.internet2.middleware.subject.Subject;
  * @author Bert Bee-Lindgren
  *
  */
-public abstract class LdapProvisioner extends Provisioner
+public abstract class LdapProvisioner <ConfigurationClass extends LdapProvisionerConfiguration> 
+extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 {
   // Used to save a list of LDAP MODIFICATIONS in a ProvisioningWorkItem
   private static final String LDAP_MOD_LIST = "LDAP_MODS";
@@ -78,16 +79,13 @@ public abstract class LdapProvisioner extends Provisioner
   final GrouperCache<Subject, LdapObject> userCache_subject2User;
 
   private Set<String> existingOUs = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-  protected LdapProvisionerProperties config;
   
-  public LdapProvisioner(String provisionerName, LdapProvisionerProperties config) 
+  public LdapProvisioner(String provisionerName, ConfigurationClass config) 
   {
     super(provisionerName, config);
     
-    LOG.info("Constructing LdapProvisioner: {}", provisionerName);
+    LOG.debug("Constructing LdapProvisioner: {}", provisionerName);
 
-    this.config = config;
-    
     userCache_subject2User 
       = new GrouperCache<Subject, LdapObject>(String.format("PSP-%s-LdapUserCache", getName()),
           config.getLdapUserCacheSize(),
@@ -105,7 +103,7 @@ public abstract class LdapProvisioner extends Provisioner
    * @param subjectsToFetch
    * @return
    */
-  protected Map<Subject, TargetSystemUser> fetchTargetSystemUsers( Collection<Subject> subjectsToFetch) 
+  protected Map<Subject, LdapUser> fetchTargetSystemUsers( Collection<Subject> subjectsToFetch) 
       throws PspException {
     LOG.info("Fetching {} users from target system", subjectsToFetch.size());
     
@@ -140,7 +138,7 @@ public abstract class LdapProvisioner extends Provisioner
               combinedLdapFilter.toString(), 
               config.getUserSearchAttributes()));
       
-      LOG.info("Read {} ldap objects from directory", searchResult.size());
+      LOG.info("Read {} user objects from directory", searchResult.size());
     }
     catch (PspException e) {
       LOG.error("Problem searching for subjects with filter {}", combinedLdapFilter);
@@ -154,7 +152,7 @@ public abstract class LdapProvisioner extends Provisioner
     // This is complicated a bit because Ldaptive doesn't have a way to run a filter in memory
     // against an LdapObject. Therefore, we're going to use unboundid classes to do
     // some of this work.
-    Map<Subject, TargetSystemUser> result = new HashMap<Subject, TargetSystemUser>();
+    Map<Subject, LdapUser> result = new HashMap<Subject, LdapUser>();
 
     Set<LdapObject> matchedFetchResults = new HashSet<LdapObject>();
     
@@ -195,7 +193,7 @@ public abstract class LdapProvisioner extends Provisioner
   }
   
   @Override
-  protected TargetSystemUser createUser(Subject personSubject) throws PspException {
+  protected LdapUser createUser(Subject personSubject) throws PspException {
     GrouperUtil.assertion(config.isCreatingMissingUsersEnabled(), "Can't create users unless createMissingUsers is enabled");
     GrouperUtil.assertion(StringUtils.isNotEmpty(config.getUserCreationLdifTemplate()), "Can't create users unless userCreationLdifTemplate is defined");
     GrouperUtil.assertion(StringUtils.isNotEmpty(config.getUserCreationBaseDn()), "Can't create users unless userCreationBaseDn is defined");
@@ -216,7 +214,6 @@ public abstract class LdapProvisioner extends Provisioner
       String actualDn = String.format("%s,%s", ldifEntry.getDn(),config.getUserCreationBaseDn());
       ldifEntry.setDn(actualDn);
 
-      LOG.info("Adding account: {}", ldifEntry);
       performLdapAdd(ldifEntry);
       
       // Read the acount that was just created
@@ -253,6 +250,25 @@ public abstract class LdapProvisioner extends Provisioner
     }
   
   }
+
+  protected void performLdapDelete(String dnToDelete) throws PspException {
+    LOG.info("{}: Deleting LDAP object: {}", getName(), dnToDelete);
+    
+    Connection conn = getLdapConnection();
+    try {
+      // Actually ADD the account
+      conn.open();
+      conn.getProviderConnection().delete(new DeleteRequest(dnToDelete));
+    } catch (LdapException e) {
+      LOG.error("Problem while deleting object: {}", dnToDelete, e);
+      throw new PspException("LDAP problem deleting object: %s", e.getMessage());
+    }
+    finally {
+      conn.close();
+    }
+  
+  }
+
   /**
    * 
    * @param request
@@ -349,14 +365,14 @@ public abstract class LdapProvisioner extends Provisioner
   
   @Override
   protected void populateJexlMap(Map<String, Object> variableMap, Subject subject,
-      TargetSystemUser tsUser, Group group, TargetSystemGroup tsGroup) {
+      LdapUser ldapUser, GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup) {
     
-    super.populateJexlMap(variableMap, subject, tsUser, group, tsGroup);
+    super.populateJexlMap(variableMap, subject, ldapUser, grouperGroupInfo, ldapGroup);
     
-    if ( tsGroup != null )
-      variableMap.put("ldapGroup", ((LdapGroup) tsGroup).getLdapObject());
-    if ( tsUser != null )
-      variableMap.put("ldapUser", ((LdapUser) tsUser).getLdapObject());
+    if ( ldapGroup != null )
+      variableMap.put("ldapGroup", ldapGroup.getLdapObject());
+    if ( ldapUser != null )
+      variableMap.put("ldapUser", ldapUser.getLdapObject());
   }
   /**
    * Note that the given {@link ProvisioningWorkItem} needs the given {@link ModifyRequest} done.
@@ -369,7 +385,7 @@ public abstract class LdapProvisioner extends Provisioner
    */
   protected void scheduleLdapModification(ModifyRequest operation) {
     ProvisioningWorkItem workItem = getCurrentWorkItem();
-    LOG.debug("Work item {}: Scheduling ldap modification: {}", workItem, operation);
+    LOG.info("{}: Scheduling ldap modification: {}", getName(), operation);
     
     workItem.addValueToProvisioningData(LDAP_MOD_LIST, operation);
   }
@@ -434,7 +450,7 @@ public abstract class LdapProvisioner extends Provisioner
  * @throws PspException
  */
   private void makeCoalescedLdapChanges(List<ProvisioningWorkItem> workItems) throws PspException {
-    LOG.info("{}: Making coalescedLdapChanges", getName());
+    LOG.debug("{}: Making coalescedLdapChanges", getName());
 
     // Assemble and execute all the LDAP_MOD_LIST values saved up in workItems
     MultiMap dn2Mods = new MultiValueMap();
@@ -579,8 +595,13 @@ public abstract class LdapProvisioner extends Provisioner
    */
   private void makeIndividualLdapChanges(ProvisioningWorkItem workItem) throws PspException {
     List<ModifyRequest> mods = (List) workItem.getProvisioningDataValues(LDAP_MOD_LIST);
-    LOG.debug("Implementing changes for work item {}", workItem);
     
+    if ( mods == null ) {
+      LOG.debug("No ldap changes are necessary for work item {}", workItem);
+      return;
+    }
+    
+    LOG.debug("Implementing changes for work item {}", workItem);
     for ( ModifyRequest mod : mods ) {
       Connection conn = getLdapConnection();
       try {
@@ -680,7 +701,7 @@ public abstract class LdapProvisioner extends Provisioner
       if ( existingOUs.contains(ou) )
         break;
       
-      LOG.info("{}: Checking to see if ou exists: {}", getName(), ou);
+      LOG.debug("{}: Checking to see if ou exists: {}", getName(), ou);
       try {
         if ( performLdapRead(ou) == null ) 
           partThatExists++;
@@ -705,7 +726,6 @@ public abstract class LdapProvisioner extends Provisioner
       String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(), null, null, "dn", ouDn, "ou", attribute.getStringValue());
       ldif = ldif.replaceAll("\\|\\|", "\n");
 
-      Connection conn = getLdapConnection();
       try {
         Reader reader = new StringReader(ldif);
         LdifReader ldifReader = new LdifReader(reader);
@@ -716,21 +736,11 @@ public abstract class LdapProvisioner extends Provisioner
         if ( ! attribute.getName().equalsIgnoreCase("ou") )
           ldifEntry.addAttribute(attribute);
         
-        LOG.info("Adding OU: {}", ldifEntry);
-        
-        // Actually ADD the OU
-        conn.open();
-        conn.getProviderConnection().add(new AddRequest(ldifEntry.getDn(), ldifEntry.getAttributes()));
+        performLdapAdd(ldifEntry);
         existingOUs.add(ldifEntry.getDn());
-      } catch (LdapException e) {
-        LOG.error("Problem while creating new OU: {}", ldif, e);
-        throw new PspException("LDAP problem creating OU: %s", e.getMessage());
       } catch ( IOException e ) {
         LOG.error("Problem while processing ldif to create new OU: {}", ldif, e);
         throw new PspException("LDIF problem creating OU: %s", e.getMessage());
-      }
-      finally {
-        conn.close();
       }
     }
   }

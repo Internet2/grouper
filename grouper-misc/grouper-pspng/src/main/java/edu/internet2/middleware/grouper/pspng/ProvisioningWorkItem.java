@@ -17,30 +17,18 @@ package edu.internet2.middleware.grouper.pspng;
  ******************************************************************************/
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -69,8 +57,7 @@ public class ProvisioningWorkItem {
   protected String statusMessage=null;
   
   protected String action;
-  protected Subject subject;
-  protected Group group;
+  protected String groupName;
 
   /**
    * A place where information can be cached between the start/provision/finish 
@@ -80,16 +67,17 @@ public class ProvisioningWorkItem {
   
   
   /**
-   * Create a work item that just holds the group and subject, 
-   * not a changelog item.
+   * Create a work item that just holds the groupName without the overhead of  
+   * a changelog item.
+   * 
+   * This is used when Provisioner code is used in FullSync processes.
    * @param group
    * @param subject
    */
-  public ProvisioningWorkItem(String action, Group group, Subject subject) {
+  public ProvisioningWorkItem(String action, GrouperGroupInfo group) {
     this.action = action;
     this.work = null;
-    this.group=group;
-    this.subject=subject;
+    this.groupName=group.getName();
   }
   
   
@@ -135,65 +123,101 @@ public class ProvisioningWorkItem {
   }
   
   
-  public Group getGroup(Provisioner provisioner) {
-    if ( group != null )
-      return group;
+  public String getGroupName() {
+    if ( groupName != null )
+      return groupName;
     else if ( getChangelogEntry() == null )
       return null;
     
-    ChangeLogLabel groupKey;
+    ChangeLogLabel groupNameKey;
     if ( getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD ))
-      groupKey = ChangeLogLabels.GROUP_ADD.name;
+      groupNameKey = ChangeLogLabels.GROUP_ADD.name;
     else if  ( getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE) )
-      groupKey = ChangeLogLabels.GROUP_DELETE.name;
+      groupNameKey = ChangeLogLabels.GROUP_DELETE.name;
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
-      groupKey = ChangeLogLabels.MEMBERSHIP_ADD.groupName;
+      groupNameKey = ChangeLogLabels.MEMBERSHIP_ADD.groupName;
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
-      groupKey = ChangeLogLabels.MEMBERSHIP_DELETE.groupName;
+      groupNameKey = ChangeLogLabels.MEMBERSHIP_DELETE.groupName;
     else {
       LOG.debug("Not a supported change for finding group (not GROUP_ADD, GROUP_DELETE, MEMBERSHIP_ADD, nor MEMBERSHIP_DELETE): {}",  this);
       return null;
     }
 
-    group = provisioner.getGroup(getChangelogEntry().retrieveValueForLabel(groupKey));
-    return group;
+    groupName = getChangelogEntry().retrieveValueForLabel(groupNameKey);
+    return groupName;
+  }
+  
+  public GrouperGroupInfo getGroupInfo(Provisioner provisioner) {
+	  String groupName = getGroupName();
+	  if ( groupName == null )
+		  return null;
+	  
+	  return provisioner.getGroupInfo(groupName);
   }
   
   
   
-  public Subject getSubject(Provisioner provisioner) {
-    if ( subject != null )
-      return subject;
-    else if ( getChangelogEntry() == null )
+  public String getSubjectId() {
+    if ( getChangelogEntry() == null )
       return null;
     
-    final ChangeLogLabel subjectSourceIdKey, subjectIdKey;
+    final ChangeLogLabel subjectIdKey;
     
-    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) ) {
-      subjectSourceIdKey = ChangeLogLabels.MEMBERSHIP_ADD.sourceId;
+    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
       subjectIdKey = ChangeLogLabels.MEMBERSHIP_ADD.subjectId;
-    } else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) ) {
-      subjectSourceIdKey = ChangeLogLabels.MEMBERSHIP_DELETE.sourceId;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
       subjectIdKey = ChangeLogLabels.MEMBERSHIP_DELETE.subjectId;
-    } else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD) ) {
-      subjectSourceIdKey = ChangeLogLabels.MEMBER_ADD.subjectSourceId;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD) )
       subjectIdKey = ChangeLogLabels.MEMBER_ADD.subjectId;
-    } else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) ) {
-      subjectSourceIdKey = ChangeLogLabels.MEMBER_DELETE.subjectSourceId;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
       subjectIdKey = ChangeLogLabels.MEMBER_DELETE.subjectId;
-    } else 
-    {
-      LOG.debug("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this);
+    else {
+      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this);
       return null;
     }
     
     final String subjectId = getChangelogEntry().retrieveValueForLabel(subjectIdKey);
-    final String sourceId = getChangelogEntry().retrieveValueForLabel(subjectSourceIdKey);
 
-    subject = provisioner.getSubject(subjectId, sourceId);
-    return subject;
+    return subjectId;
   }
   
+  public String getSubjectSourceId() {
+    if ( getChangelogEntry() == null )
+      return null;
+    
+    final ChangeLogLabel subjectSourceIdKey;
+    
+    if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD) )
+      subjectSourceIdKey = ChangeLogLabels.MEMBERSHIP_ADD.sourceId;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
+      subjectSourceIdKey = ChangeLogLabels.MEMBERSHIP_DELETE.sourceId;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_ADD) )
+      subjectSourceIdKey = ChangeLogLabels.MEMBER_ADD.subjectSourceId;
+    else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
+      subjectSourceIdKey = ChangeLogLabels.MEMBER_DELETE.subjectSourceId;
+    else {
+      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this);
+      return null;
+    }
+    
+    final String sourceId = getChangelogEntry().retrieveValueForLabel(subjectSourceIdKey);
+
+    return sourceId;
+  }
+  
+  public Subject getSubject(Provisioner provisioner) {
+    if ( getChangelogEntry() == null )
+      return null;
+    
+    final String subjectId = getSubjectId();
+    final String sourceId = getSubjectSourceId();
+
+    if ( subjectId == null || sourceId == null )
+      return null;
+    
+    Subject subject = provisioner.getSubject(subjectId, sourceId);
+    return subject;
+  }
   
   public void putProvisioningData(String key, Object value)
   {
@@ -250,12 +274,16 @@ public class ProvisioningWorkItem {
     if ( work == null )
       tsb.append("action", action);
     else
-      tsb.append("clog", new ToStringBuilder(work)
-                    .append("type", work.getChangeLogType())
-                    .append("seq", work.getSequenceNumber())
-                    .append("s02", work.getString02())
-                    .toString());
+      tsb.append("clog", String.format("clog #%d / %s", work.getSequenceNumber(), work.getChangeLogType()));
     
     return tsb.toString();
+  }
+
+
+  public String getMdcLabel() {
+    if ( work != null )
+      return String.format("%d/", work.getSequenceNumber());
+    else
+      return String.format("%s/", action);
   }
 }

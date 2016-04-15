@@ -20,12 +20,10 @@ package edu.internet2.middleware.grouper.pspng;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.BindConnectionInitializer;
 import org.ldaptive.ConnectionConfig;
-import org.ldaptive.Credential;
 import org.ldaptive.DefaultConnectionFactory;
 import org.ldaptive.pool.BlockingConnectionPool;
 import org.ldaptive.pool.PoolConfig;
@@ -38,16 +36,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.ldap.GrouperLoaderLdapServer;
 
 /**
  * Collects all the various properties and makes them available to the provisioner.
  *
  * @author Bert Bee-Lindgren
  */
-public class LdapProvisionerProperties extends ProvisionerProperties {
+public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LdapProvisionerProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapProvisionerConfiguration.class);
     private static final String PARAMETER_NAMESPACE = "changeLog.consumer.";
 
     /**
@@ -114,7 +111,7 @@ public class LdapProvisionerProperties extends ProvisionerProperties {
     private Properties ldaptiveProperties = new Properties();
     private BlockingConnectionPool ldapPool;
     
-    public LdapProvisionerProperties(String provisionerName) {
+    public LdapProvisionerConfiguration(String provisionerName) {
       super(provisionerName);
     }
     
