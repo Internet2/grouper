@@ -34,6 +34,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
+import org.ldaptive.SearchFilter;
 import org.ldaptive.provider.unboundid.UnboundIDUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,9 +251,9 @@ public class LdapObject {
     index.put(attributeValue, this);
   }
   
-  public boolean matchesLdapFilter(String filter) throws PspException {
+  public boolean matchesLdapFilter(SearchFilter filter) throws PspException {
     try {
-      Filter unboundidFilter = Filter.create(filter);
+      Filter unboundidFilter = Filter.create(filter.format());
       boolean result = unboundidFilter.matchesEntry(getUnboundIdEntry());
       
       return result;

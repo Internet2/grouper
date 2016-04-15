@@ -18,6 +18,7 @@ import org.ldaptive.LdapAttribute;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchRequest;
+import org.ldaptive.SearchScope;
 
 import edu.internet2.middleware.subject.Subject;
 
@@ -113,9 +114,9 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
     List<LdapObject> currentMatches_ldapObjects = performLdapSearchRequest(
-        new SearchRequest(config.getUserSearchBaseDn(),
-            String.format("%s=%s", attributeName, attributeValue),
-            config.getUserSearchAttributes()));
+        config.getUserCreationBaseDn(), SearchScope.SUBTREE, 
+        Arrays.asList(config.getUserSearchAttributes()), attributeName + "={0}",
+        attributeValue);
     
     List<LdapUser> currentMatches = new ArrayList<LdapUser>(currentMatches_ldapObjects.size());
     for ( LdapObject ldapObject : currentMatches_ldapObjects )
@@ -157,13 +158,12 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       }
       
       String attribute = config.getProvisionedAttributeName();
-      SearchFilter wildcardFilter = new SearchFilter(String.format("%s={0}", attribute));
-      wildcardFilter.setParameter(0, attribute+"*");
 
       LOG.debug("{}: Looking for all grouper-sourced values of {}.", getName(), attribute);
       
       List<LdapObject> usersWithGrouperValues 
-        = performLdapSearchRequest(new SearchRequest(config.getUserSearchBaseDn(), wildcardFilter, attribute));
+        = performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
+            Arrays.asList(attribute), attribute+"={0}", allValuesPrefix+"*");
       
       // We're going to go through all the values of all the ldap objects. 
       // We're going to save all those values that come from grouper (because they match 'pattern')

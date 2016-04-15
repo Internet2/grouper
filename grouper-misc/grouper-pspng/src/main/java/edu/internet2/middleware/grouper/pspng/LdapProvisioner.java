@@ -44,6 +44,7 @@ import org.ldaptive.ModifyRequest;
 import org.ldaptive.Response;
 import org.ldaptive.ResultCode;
 import org.ldaptive.SearchExecutor;
+import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
 import org.ldaptive.SearchScope;
@@ -116,16 +117,15 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     combinedLdapFilter.append("(|");
     
     for ( Subject subject : subjectsToFetch ) {
-      String f = getUserLdapFilter(subject);
+      SearchFilter f = getUserLdapFilter(subject);
       
-      if ( f == null || f.length() == 0 )
-        continue;
+      String filterString = f.format();
       
       // Wrap the subject's filter in (...) if it doesn't start with (
-      if ( f.startsWith("(") )
-        combinedLdapFilter.append(f);
+      if ( filterString.startsWith("(") )
+        combinedLdapFilter.append(filterString);
       else
-        combinedLdapFilter.append('(').append(f).append(')');
+        combinedLdapFilter.append('(').append(filterString).append(')');
     }
     combinedLdapFilter.append(')');
 
@@ -158,8 +158,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     // For every subject we tried to bulk fetch, find the matching LdapObject that came back
     for ( Subject subjectToFetch : subjectsToFetch ) {
-      String f = getUserLdapFilter(subjectToFetch);
-      
+      SearchFilter f = getUserLdapFilter(subjectToFetch);
+          
       for ( LdapObject aFetchedLdapObject : searchResult ) {
         if ( aFetchedLdapObject.matchesLdapFilter(f)) {
           result.put(subjectToFetch, new LdapUser(aFetchedLdapObject));
@@ -183,13 +183,19 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   }
 
 
-  protected String getUserLdapFilter(Subject subject) {
+  protected SearchFilter getUserLdapFilter(Subject subject) {
     String result = evaluateJexlExpression(config.getUserSearchFilter(), subject, null);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("User searching requires userSearchFilter to be configured correctly");
     
-    LOG.debug("{}: User LDAP filter for subject {}: {}", getName(), subject.getId(), result);
-    return result;
+    // If the filter contains '||', then this filter is requesting parameter substitution
+    String filterPieces[] = result.split("\\|\\|");
+    SearchFilter filter = new SearchFilter(filterPieces[0]);
+    for (int i=1; i<filterPieces.length; i++)
+      filter.setParameter(i-1, filterPieces[i].trim());
+    
+    LOG.debug("{}: User LDAP filter for subject {}: {}", getName(), subject.getId(), filter);
+    return filter;
   }
   
   @Override
@@ -267,6 +273,17 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       conn.close();
     }
   
+  }
+  
+  protected List<LdapObject> performLdapSearchRequest(String searchBaseDn, SearchScope scope, Collection<String> attributesToReturn, String filterTemplate, Object... filterParams) 
+  throws PspException {
+    SearchFilter filter = new SearchFilter(filterTemplate);
+    for (int i=0; i<filterParams.length; i++)
+      filter.setParameter(i, filterParams[i]);
+    
+    SearchRequest request = new SearchRequest(searchBaseDn, filter, attributesToReturn.toArray(new String[0]));
+    request.setSearchScope(scope);
+    return performLdapSearchRequest(request);
   }
 
   /**

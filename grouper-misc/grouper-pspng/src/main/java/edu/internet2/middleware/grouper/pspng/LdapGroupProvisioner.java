@@ -35,6 +35,7 @@ import org.ldaptive.Connection;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.ModifyRequest;
+import org.ldaptive.SearchFilter;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
 import org.ldaptive.io.LdifReader;
@@ -166,8 +167,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       desiredGroupDns.add( ldapGroup.getLdapObject().getDn());
     
     
-    String filter = config.getAllGroupSearchFilter();
-    if ( StringUtils.isEmpty(filter) ) {
+    String filterString = config.getAllGroupSearchFilter();
+    if ( StringUtils.isEmpty(filterString) ) {
       LOG.error("{}: Cannot cleanup extra groups without a configured all-group search filter", getName());
       return;
     }
@@ -179,9 +180,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       return;
     }
       
-    
     // Get all the LDAP Groups that match the filter
-    List<LdapObject> searchResult = performLdapSearchRequest(new SearchRequest(baseDn, filter, config.getGroupSearchAttributes()));
+    List<LdapObject> searchResult = performLdapSearchRequest(new SearchRequest(baseDn, filterString, config.getGroupSearchAttributes()));
     
     Set<String> existingGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
     for ( LdapObject existingGroup : searchResult )
@@ -257,16 +257,14 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     combinedLdapFilter.append("(|");
     
     for ( GrouperGroupInfo grouperGroup : grouperGroupsToFetch ) {
-      String f = getGroupLdapFilter(grouperGroup);
-      
-      if ( f == null || f.length() == 0 )
-        continue;
+      SearchFilter f = getGroupLdapFilter(grouperGroup);
+      String groupFilterString = f.format();
       
       // Wrap the subject's filter in (...) if it doesn't start with (
-      if ( f.startsWith("(") )
-        combinedLdapFilter.append(f);
+      if ( groupFilterString.startsWith("(") )
+        combinedLdapFilter.append(groupFilterString);
       else
-        combinedLdapFilter.append('(').append(f).append(')');
+        combinedLdapFilter.append('(').append(groupFilterString).append(')');
     }
     combinedLdapFilter.append(')');
 
@@ -297,7 +295,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     
     // For every group we tried to bulk fetch, find the matching LdapObject that came back
     for ( GrouperGroupInfo groupToFetch : grouperGroupsToFetch ) {
-      String f = getGroupLdapFilter(groupToFetch);
+      SearchFilter f = getGroupLdapFilter(groupToFetch);
       
       for ( LdapObject aFetchedLdapObject : searchResult ) {
         if ( aFetchedLdapObject.matchesLdapFilter(f) ) {
@@ -321,13 +319,20 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 }
 
 
-  private String getGroupLdapFilter(GrouperGroupInfo grouperGroup) {
+  private SearchFilter getGroupLdapFilter(GrouperGroupInfo grouperGroup) {
     String result = evaluateJexlExpression(config.getSingleGroupSearchFilter(), null, grouperGroup);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("Group searching requires singleGroupSearchFilter to be configured correctly");
-    LOG.trace("{}: Filter for group {}: {}", getName(), grouperGroup, result);
 
-    return result;
+    // If the filter contains '||', then this filter is requesting parameter substitution
+    String filterPieces[] = result.split("\\|\\|");
+    SearchFilter filter = new SearchFilter(filterPieces[0]);
+    for (int i=1; i<filterPieces.length; i++)
+      filter.setParameter(i-1, filterPieces[i].trim());
+ 
+    LOG.trace("{}: Filter for group {}: {}", getName(), grouperGroup, filter);
+
+    return filter;
   }
 
 
