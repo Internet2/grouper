@@ -73,11 +73,6 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
           new Integer(3600000));
 
-      GrouperSession.startRootSession();
-      GrouperBuiltinMessagingSystem.createQueue("def");
-      GrouperBuiltinMessagingSystem.allowSendToQueue("def", SubjectTestHelper.SUBJ0);
-      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("def", SubjectTestHelper.SUBJ0);
-      
       GrouperSession.start(SubjectTestHelper.SUBJ0);
       
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")

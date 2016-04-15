@@ -70,11 +70,6 @@ public class WsSampleSendMessage implements WsSampleGenerated {
       options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
           new Integer(3600000));
 
-      GrouperSession.startRootSession();
-      GrouperBuiltinMessagingSystem.createQueue("def");
-      GrouperBuiltinMessagingSystem.allowSendToQueue("def", SubjectTestHelper.SUBJ0);
-      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("def", SubjectTestHelper.SUBJ0);
-
       SendMessage sendMessage = SendMessage.class.newInstance();
 
       //version, e.g. v1_3_000

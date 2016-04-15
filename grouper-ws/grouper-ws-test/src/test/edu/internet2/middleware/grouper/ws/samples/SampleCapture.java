@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -243,7 +244,7 @@ public class SampleCapture {
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
-//    captureAcknowledgeMessage();  
+    captureAcknowledgeMessage();  
 //    captureAddMember();
 //    captureAssignAttributeDefActions();
 //    captureAssignAttributeDefNameInheritance();
@@ -625,7 +626,11 @@ public class SampleCapture {
       role2.getPermissionRoleDelegate()
         .assignSubjectRolePermission("write", permissionDefName2, SubjectTestHelper.SUBJ1);
 
-      
+      GrouperBuiltinMessagingSystem.createQueue("def");
+      GrouperBuiltinMessagingSystem.allowSendToQueue("def", SubjectTestHelper.SUBJ0);
+      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("def", SubjectTestHelper.SUBJ0);
+
+
       //anything else?
 
     } catch (Exception e) {
