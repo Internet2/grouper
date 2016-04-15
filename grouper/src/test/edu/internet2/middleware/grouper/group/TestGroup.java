@@ -72,6 +72,7 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -790,6 +791,8 @@ public class TestGroup extends GrouperTest {
         group2.store();
         fail("Should throw this exception");
       } catch (GrouperStaleStateException sose) {
+        //good
+      } catch (GrouperStaleObjectStateException sose) {
         //good
       }
       
