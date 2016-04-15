@@ -16,9 +16,12 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 
 
@@ -63,6 +66,29 @@ public class PspJexlUtils extends GrouperUtilElSafe {
     }
     
     return false;
+  }
+  
+  public static String bushyDn(String groupName, String rdnAttributeName, String ouAttributeName) {
+    StringBuilder result = new StringBuilder();
+    
+    List<String> namePieces=Arrays.asList(groupName.split(":"));
+    Collections.reverse(namePieces);
+    
+    /// Work through the pieces backwards. The first is rdn=X and the others are ou=X
+    for (int i=0; i<namePieces.size(); i++) {
+      if ( result.length() != 0 )
+        result.append(',');
+      
+      String piece = namePieces.get(i);
+      if (i==0)
+        result.append(rdnAttributeName);
+      else
+        result.append(ouAttributeName);
+      
+      result.append('=');
+      result.append(piece);
+    }
+    return result.toString();
   }
 
 }

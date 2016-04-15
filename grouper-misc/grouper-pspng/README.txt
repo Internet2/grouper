@@ -69,6 +69,10 @@ changeLog.consumer.pspng_activedirectory.userSearchBaseDn = cn=users,dc=example,
 changeLog.consumer.pspng_activedirectory.userSearchFilter = samAccountName=${subject.id}
 
 
+NOTE: The DN of the group can be Bushy (one LDAP OU for each Folder/Stem of the group) by doing the following:
+dn: utils.bushyDn(group.name, "cn", "ou")
+
+
 USER ATTRIBUTES
 changeLog.consumer.pspng_attributes.class = edu.internet2.middleware.grouper.pspng.PspChangelogConsumerShim
 changeLog.consumer.pspng_attributes.type = edu.internet2.middleware.grouper.pspng.LdapAttributeProvisioner
