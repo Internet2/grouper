@@ -8307,6 +8307,10 @@ public class GrouperInstallerUtils  {
       thread.join();
       
       if (theException[0] != null) {
+        
+        //append this stack
+        injectInException(theException[0], getFullStackTrace(new RuntimeException("caller stack")));
+        
         throw theException[0];
       }
   
