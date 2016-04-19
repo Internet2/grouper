@@ -3128,6 +3128,9 @@ public class GrouperInstaller {
     //patch it
     this.patchApi();
 
+    //make sure log4j is debugging sql statements
+    log4jDebugSql(this.upgradeExistingClassesDirectoryString + "log4j.properties");
+    
     System.out.println("\n##################################");
     System.out.println("Upgrading DB (registry)\n");
 
@@ -6205,6 +6208,9 @@ public class GrouperInstaller {
     this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
         + "lib" + File.separator + "grouper" + File.separator;
     patchApi();
+
+    //make sure log4j is debugging sql statements
+    log4jDebugSql(this.upgradeExistingClassesDirectoryString + "log4j.properties");
     
     //####################################
     //ask then init the DB
@@ -6460,6 +6466,7 @@ public class GrouperInstaller {
   public void gshExcutableAndDos2Unix(String binDirLocation) {
     gshExcutableAndDos2Unix(binDirLocation, null);
   }
+  
   /**
    * @param binDirLocation which includes trailing slash
    * @param specify if specifying location
@@ -6570,6 +6577,58 @@ public class GrouperInstaller {
     }
   }
   
+  /**
+   * if we are debugging sql in log4j
+   */
+  private Boolean log4jDebugSql = null;
+  
+  /**
+   * if this file has been taken care of for a while
+   */
+  private Set<File> log4jDebugDone = new HashSet<File>();
+  
+  /**
+   * @param log4jLocation
+   */
+  public void log4jDebugSql(String log4jLocation) {
+
+    //if not a file dont worry about it
+    File log4jFile = new File(log4jLocation);
+
+    if (this.log4jDebugDone.contains(log4jFile)) {
+      return;
+    }
+
+    this.log4jDebugDone.add(log4jFile);
+
+    if (!log4jFile.exists()) {
+      System.out.println("Cant find log4j.properties: " + log4jLocation);
+      return;
+    }
+    
+    //see if its already there
+    Properties log4jProperties = GrouperInstallerUtils.propertiesFromFile(log4jFile);
+    String currentAntEntry = GrouperInstallerUtils.propertiesValue(log4jProperties, "log4j.logger.org.apache.tools.ant");
+    
+    if (GrouperInstallerUtils.equalsIgnoreCase(GrouperInstallerUtils.trimToEmpty(currentAntEntry), "DEBUG")
+        || GrouperInstallerUtils.equalsIgnoreCase(GrouperInstallerUtils.trimToEmpty(currentAntEntry), "INFO")
+        || GrouperInstallerUtils.equalsIgnoreCase(GrouperInstallerUtils.trimToEmpty(currentAntEntry), "WARN")) {
+      //we are already there
+      return;
+    }
+
+    if (this.log4jDebugSql == null) {
+      System.out.print("Do you want add log4j.logger.org.apache.tools.ant = WARN to " + log4jFile.getAbsolutePath() + " (recommended so you can see progress of SQL scripts) (t|f)? [t]: ");
+      this.log4jDebugSql = readFromStdInBoolean(true, "grouperInstaller.autorun.log4jDebugSql");
+    }
+
+    if (this.log4jDebugSql) {
+
+      editPropertiesFile(log4jFile, "log4j.logger.org.apache.tools.ant", "WARN", false);
+
+    }
+  }
+
   /**
    * 
    */
