@@ -1274,7 +1274,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j-1.6.1.jar", 313898, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache-core-2.4.3.jar", 1006424, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 4303715, "edu.internet2.middleware.grouperClient.ClientOperation", "2.3.0");
+    checkJar("grouperClient.jar", 4332468, "edu.internet2.middleware.grouperClient.ClientOperation", "2.3.0");
     checkJar("hibernate-c3p0-5.0.4.Final.jar", 11578, "org.hibernate.c3p0.internal.StrategyRegistrationProviderImpl", "5.0.4.Final");
     checkJar("hibernate-commons-annotations-5.0.0.Final.jar", 75113, "org.hibernate.annotations.common.AssertionFailure", "5.0.0.Final");
     checkJar("hibernate-core-5.0.4.Final.jar", 5567398, "org.hibernate.NullPrecedence", "5.0.4.Final");
