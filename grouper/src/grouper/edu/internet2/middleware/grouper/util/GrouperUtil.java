@@ -2543,16 +2543,21 @@ public class GrouperUtil {
   private static GrouperCache<String, Set<Field>> fieldSetCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object fieldSetCacheSemaphore = new Object();
+
+  /**
    * lazy load
    * @return field set cache
    */
   private static GrouperCache<String, Set<Field>> fieldSetCache() {
     if (fieldSetCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(fieldSetCacheSemaphore) {
         if (fieldSetCache == null) {
-      fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return fieldSetCache;
@@ -2565,16 +2570,21 @@ public class GrouperUtil {
   private static GrouperCache<Class, Method[]> declaredMethodsCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object declaredMethodsCacheSemaphore = new Object();
+
+  /**
    * lazy load
    * @return declared method cache
    */
   private static GrouperCache<Class, Method[]> declaredMethodsCache() {
     if (declaredMethodsCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(declaredMethodsCacheSemaphore) {
         if (declaredMethodsCache == null) {
-      declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return declaredMethodsCache;
@@ -2587,6 +2597,10 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> getterSetCache = null;
 
+  /**
+   * synchronize on this object
+   */
+  private static Object getterSetCacheSemaphore = new Object();
 
   /**
    * lazy load
@@ -2594,11 +2608,11 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> getterSetCache() {
     if (getterSetCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(getterSetCacheSemaphore) {
         if (getterSetCache == null) {
-      getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return getterSetCache;
@@ -2611,6 +2625,10 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> setterSetCache = null;
 
+  /**
+   * synchronize on this object
+   */
+  private static Object setterSetCacheSemaphore = new Object();
 
   /**
    * lazy load
@@ -2618,11 +2636,11 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> setterSetCache() {
     if (setterSetCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(setterSetCacheSemaphore) {
         if (setterSetCache == null) {
-      setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return setterSetCache;
@@ -2646,7 +2664,7 @@ public class GrouperUtil {
    */
   private static ExpirableCache<String, Properties> resourcePropertiesCache() {
     if (resourcePropertiesCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(resourcePropertiesCache) {
         if (resourcePropertiesCache == null) {
           //note, if this relies on the config file to configure, and the config file uses this, then we need a simpler cache here than an ehcache...
           //resourcePropertiesCache = new GrouperCache<String, Properties>(
@@ -7190,12 +7208,17 @@ public class GrouperUtil {
   private static GrouperCache<File, Properties> propertiesFromFileCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object propertiesFromFileCacheSemaphore = new Object();
+
+  /**
    * properties from File cache
    * @return cache
    */
   private static GrouperCache<File, Properties> propertiesFromFileCache() {
     if (propertiesFromFileCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(propertiesFromFileCacheSemaphore) {
         if (propertiesFromFileCache == null) {
       propertiesFromFileCache = new GrouperCache<File,Properties>(
           GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
@@ -7211,16 +7234,21 @@ public class GrouperUtil {
   static GrouperCache<String, Properties> propertiesFromUrlCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object propertiesFromUrlCacheSemaphore = new Object();
+
+  /**
    * properties from url cache
    * @return cache
    */
   private static GrouperCache<String, Properties> propertiesFromUrlCache() {
     if (propertiesFromUrlCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(propertiesFromUrlCacheSemaphore) {
         if (propertiesFromUrlCache == null) {
-      propertiesFromUrlCache = new GrouperCache<String,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
-    }
+          propertiesFromUrlCache = new GrouperCache<String,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
+        }
       }
     }
     return propertiesFromUrlCache;
@@ -7232,16 +7260,21 @@ public class GrouperUtil {
   private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object propertiesFromUrlFailsafeCacheSemaphore = new Object();
+
+  /**
    * properties from url failsafe cache
    * @return cache
    */
   private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache() {
     if (propertiesFromUrlFailsafeCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(propertiesFromUrlFailsafeCacheSemaphore) {
         if (propertiesFromUrlFailsafeCache == null) {
-      propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
-    }
+          propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
+        }
       }
     }
     return propertiesFromUrlFailsafeCache;
