@@ -2659,12 +2659,17 @@ public class GrouperUtil {
   private static ExpirableCache<String, Properties> resourcePropertiesCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object resourcePropertiesCacheSemaphore = new Object();
+
+  /**
    * lazy load this since it prevents the class from loading
    * @return the cache
    */
   private static ExpirableCache<String, Properties> resourcePropertiesCache() {
     if (resourcePropertiesCache == null) {
-      synchronized(resourcePropertiesCache) {
+      synchronized(resourcePropertiesCacheSemaphore) {
         if (resourcePropertiesCache == null) {
           //note, if this relies on the config file to configure, and the config file uses this, then we need a simpler cache here than an ehcache...
           //resourcePropertiesCache = new GrouperCache<String, Properties>(
