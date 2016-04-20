@@ -56,10 +56,9 @@ ant clean
 ant
 cd /home/mchyzer/tmp/mchyzer_build/grouper-psp-"$pspTag"/grouper-parent
 if [ "$release" = true ]; then
-  echo "release!"
-  #/home/mchyzer/software/apache-maven-3.3.3/bin/mvn -Dmaven.wagon.provider.http=httpclient clean deploy -DskipTests -Prelease -Dlicense.skip=true
+  /home/mchyzer/software/apache-maven-3.3.3/bin/mvn -Dmaven.wagon.provider.http=httpclient clean deploy -DskipTests -Prelease -Dlicense.skip=true
   cd ../psp-parent/
-  #/home/mchyzer/software/apache-maven-3.3.3/bin/mvn -Dmaven.wagon.provider.http=httpclient clean deploy -DskipTests -Prelease -Dlicense.skip=true
+  /home/mchyzer/software/apache-maven-3.3.3/bin/mvn -Dmaven.wagon.provider.http=httpclient clean deploy -DskipTests -Prelease -Dlicense.skip=true
 else
   /home/mchyzer/software/apache-maven-3.3.3/bin/mvn clean deploy -DskipTests -Dlicense.skip=true
   cd ../psp-parent/
