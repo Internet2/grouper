@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -6466,6 +6467,99 @@ public class GrouperInstaller {
   public void gshExcutableAndDos2Unix(String binDirLocation) {
     gshExcutableAndDos2Unix(binDirLocation, null);
   }
+
+  /**
+   * run dos2unix on a file
+   * @param file
+   * @param fileNameInPrompt 
+   * @param configSuffixAutorun 
+   */
+  public static void dos2unix(File file, String fileNameInPrompt, String configSuffixAutorun) {
+    dos2unix(GrouperInstallerUtils.toSet(file), fileNameInPrompt, configSuffixAutorun);
+  }
+
+  /**
+   * run dos2unix on a file
+   * @param files
+   * @param fileNameInPrompt e.g. gsh.sh
+   * @param configSuffixAutorun suffix after grouperInstaller.autorun.dos2unix in properties file
+   */
+  public static void dos2unix(Collection<File> files, String fileNameInPrompt, String configSuffixAutorun) {
+
+    if (!GrouperInstallerUtils.isWindows()) {
+
+      System.out.print("Do you want to run dos2unix on " + fileNameInPrompt + " (t|f)? [t]: ");
+      boolean dos2unixRunOnFile = readFromStdInBoolean(true, "grouperInstaller.autorun.dos2unix" + configSuffixAutorun);
+      
+      if (dos2unixRunOnFile) {
+
+        for (File file : files) {
+          
+          if (!file.exists()) {
+            continue;
+          }
+          
+          List<String> commands = GrouperInstallerUtils.toList("dos2unix", 
+              file.getAbsolutePath());
+    
+          System.out.println("Making sure " + file.getName() + " is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
+          String error = null;
+          CommandResult commandResult = null;
+          boolean didntWork = false;
+          Throwable throwable = null;
+          try {
+            commandResult = GrouperInstallerUtils.execCommand(
+                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+                file.getParentFile(), null, false, true, false);
+
+            if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+              System.out.println("stderr: " + commandResult.getErrorText());
+            }
+            if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+              System.out.println("stdout: " + commandResult.getOutputText());
+            }
+            continue;
+          } catch (Throwable t) {
+            didntWork = true;
+            error = t.getMessage();
+            throwable = t;
+          }
+          
+          if (didntWork) {
+            try {
+              //lets try the java way?
+              String fileContents = GrouperInstallerUtils.readFileIntoString(file);
+              if (fileContents.contains("\r\n")) {
+                System.out.println("Problem with command 'dos2unix'.   Is it installed?  Converting to unix via java replacing \\r\\n with \\n: " + file.getAbsolutePath());
+                fileContents = fileContents.replaceAll("\r\n", "\n");
+                GrouperInstallerUtils.saveStringIntoFile(file, fileContents);
+              }
+              continue;
+            } catch (Throwable t) {
+              t.printStackTrace();
+            }
+          }
+          
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
+          if (!GrouperInstallerUtils.isBlank(error)) {
+            if (throwable != null) {
+              throwable.printStackTrace();
+            }
+            System.out.println("Error: " + error);
+            System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
+                "cat " + file.getAbsolutePath()
+                + " | col -b > " + file.getAbsolutePath() + "\n");
+          }
+        }
+      }
+
+    }
+  }
   
   /**
    * @param binDirLocation which includes trailing slash
@@ -6522,56 +6616,9 @@ public class GrouperInstaller {
             System.out.println("stdout: " + commandResult.getOutputText());
           }
         }
-        System.out.print("Do you want to run dos2unix on gsh.sh (t|f)? [t]: ");
-        setGshFile = readFromStdInBoolean(true, "grouperInstaller.autorun.dos2unixOnGsh");
         
-        if (setGshFile) {
-          
-          commands = GrouperInstallerUtils.toList("dos2unix", 
-              binDirLocation + "gsh.sh");
-    
-          System.out.println("Making sure gsh.sh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-          String error = null;
-          try {
-            commandResult = GrouperInstallerUtils.execCommand(
-                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(binDirLocation), null, true);
+        dos2unix(GrouperInstallerUtils.toSet(new File(binDirLocation + "gsh.sh"), new File(binDirLocation + "gsh")), "gsh.sh", "OnGsh");
 
-            if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-              System.out.println("stderr: " + commandResult.getErrorText());
-            }
-            if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-              System.out.println("stdout: " + commandResult.getOutputText());
-            }
-
-            if (new File(binDirLocation + "gsh").exists()) {
-              commands = GrouperInstallerUtils.toList("dos2unix", 
-                  binDirLocation + "gsh");
-        
-              System.out.println("Making sure gsh is in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-              commandResult = GrouperInstallerUtils.execCommand(
-                  GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                  new File(binDirLocation), null, true);
-            }
-          } catch (Throwable t) {
-            error = t.getMessage();
-          }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-            System.out.println("stderr: " + commandResult.getErrorText());
-          }
-          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-            System.out.println("stdout: " + commandResult.getOutputText());
-          }
-          if (!GrouperInstallerUtils.isBlank(error)) {
-            System.out.println("Error: " + error);
-            System.out.println("NOTE: you might need to run this to convert newline characters to mac/unix:\n\n" +
-                "cat " + binDirLocation + "gsh.sh" 
-                + " | col -b > " + binDirLocation + "gsh.sh\n");
-            System.out.println("\n" +
-                "cat " + binDirLocation + "gsh" 
-                + " | col -b > " + binDirLocation + "gsh\n");
-          }
-        }
       }
       
     }
@@ -6732,45 +6779,13 @@ public class GrouperInstaller {
         }
       }
       
-      System.out.print("Do you want to run dos2unix on tomcat sh files (t|f)? [t]: ");
-      boolean dos2unix = readFromStdInBoolean(true, "grouperInstaller.autorun.runDos2unixOnTomcatFiles");
-      
-      if (dos2unix) {
-        
-        try {
-          
-          for (String command : shFileNames) {
-            
-            List<String> commands = new ArrayList<String>();
-            
-            commands.add("dos2unix");
-            commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
-      
-            System.out.println("Making tomcat file in unix format: " + convertCommandsIntoCommand(commands) + "\n");
-      
-            CommandResult commandResult = GrouperInstallerUtils.execCommand(
-                GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-                new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"), null, true);
-            
-            if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-              System.out.println("stderr: " + commandResult.getErrorText());
-            }
-            if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-              System.out.println("stdout: " + commandResult.getOutputText());
-            }
-          }
-
-        } catch (Throwable t) {
-          String error = t.getMessage();
-          System.out.println("Error: " + error);
-          System.out.println("NOTE: you might need to run these to convert newline characters to mac/unix:\n");
-          for (String command : shFileNames) {
-            String fullPath = this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command;
-            System.out.println("cat " + fullPath 
-            + " | col -b > " + fullPath + "\n");
-          }
-        }
+      Set<File> shFiles = new LinkedHashSet<File>();
+      for (String shFileName : shFileNames) {
+        shFiles.add(new File(shFileName));
       }
+      
+      dos2unix(shFiles, "tomcat sh files", "OnTomcatFiles");
+
     }
       
     //see what the current ports are
