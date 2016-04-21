@@ -50,7 +50,7 @@
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.conf.dir" unless="grouper.conf.dir" />
   
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
-
+  
 	<property name="build.dir" value="${basedir}/build" />
 	<property name="build.dir.grouper-ws" value="${build.dir}/grouper-ws" />
   <property name="build.dir.grouper-ws-soap-client" value="${build.dir}/grouper-ws-soap-client" />
@@ -746,7 +746,8 @@
 	          <include name="**/*.jar" />
 	        </fileset>
 	        <fileset file="${grouper.jar.name}" />
-
+	        <fileset file="${grouper.jar.name}/../test/grouper-test.jar" />
+	        
 	       </path>
 
 	      <javac srcdir="${generated.client.project.dir}/src" 
