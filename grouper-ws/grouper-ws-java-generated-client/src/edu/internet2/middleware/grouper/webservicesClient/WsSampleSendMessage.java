@@ -21,9 +21,6 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
@@ -75,7 +72,7 @@ public class WsSampleSendMessage implements WsSampleGenerated {
       //version, e.g. v1_3_000
       sendMessage.setClientVersion(GeneratedClientSettings.VERSION);
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-      wsSubjectLookup.setSubjectId(SubjectTestHelper.SUBJ0.getId());
+      wsSubjectLookup.setSubjectId("test.subject.0");
       sendMessage.setActAsSubjectLookup(wsSubjectLookup);
 
       WsMessage wsMessage1 = new WsMessage();

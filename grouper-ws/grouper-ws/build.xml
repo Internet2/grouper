@@ -742,6 +742,10 @@
 	           <!-- matches lib and libRampart -->
 	           <include name="lib**/*.jar" />
 	         </fileset>
+	        <fileset dir="${grouper.lib.dir}">
+	          <include name="**/*.jar" />
+	        </fileset>
+	        <fileset file="${grouper.jar.name}" />
 
 	       </path>
 

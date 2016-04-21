@@ -22,8 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
@@ -73,7 +72,9 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
           new Integer(3600000));
 
-      GrouperSession.start(SubjectTestHelper.SUBJ0);
+      GrouperSession.startRootSession();
+      
+      GrouperSession.start(SubjectFinder.findById("test.subject.0", true));
       
       GrouperMessagingEngine.send(new GrouperMessageSendParam().assignQueueOrTopicName("def")
           .addMessageBody("message body").assignQueueType(GrouperMessageQueueType.queue));
@@ -83,7 +84,7 @@ public class WsSampleReceiveMessage implements WsSampleGenerated {
       //version, e.g. v1_3_000
       receiveMessage.setClientVersion(GeneratedClientSettings.VERSION);
       WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
-      wsSubjectLookup.setSubjectId(SubjectTestHelper.SUBJ0.getId());
+      wsSubjectLookup.setSubjectId("test.subject.0");
       receiveMessage.setActAsSubjectLookup(wsSubjectLookup);
 
       receiveMessage.setQueueOrTopicName("def");
