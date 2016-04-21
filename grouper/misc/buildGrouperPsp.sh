@@ -69,7 +69,8 @@ cd ../psp-distribution-for-grouper/target
 gzip -d grouper.psp-"$pspTag".tar.gz
 tar xf grouper.psp-"$pspTag".tar
 cd grouper.psp-"$pspTag"/lib/custom/
-wget https://github.com/Internet2/grouper-psp/tree/master/psp-parent/lib/openspml2-1.0.jar?raw=true --no-check-certificate
+wget https://github.com/Internet2/grouper-psp/blob/master/psp-parent/lib/openspml2-1.0.jar?raw=true --no-check-certificate
+mv openspml2-1.0.jar\?raw\=true openspml2-1.0.jar
 cd ../../..
 rm grouper.psp-"$pspTag".tar
 tar cf grouper.psp-"$pspTag".tar grouper.psp-"$pspTag"
