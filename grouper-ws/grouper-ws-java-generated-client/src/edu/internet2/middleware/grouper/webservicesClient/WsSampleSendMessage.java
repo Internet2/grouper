@@ -44,7 +44,6 @@ public class WsSampleSendMessage implements WsSampleGenerated {
   /**
      * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
      */
-  @Override
   public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
     sendMessage(wsSampleGeneratedType);
   }
