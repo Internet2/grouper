@@ -158,7 +158,7 @@ public class GrouperInstaller {
   private static String readFromStdIn(String autorunPropertiesKey) {
     
     String str = null;
-
+    
     if (GrouperInstallerUtils.propertiesContainsKey(autorunPropertiesKey)) {
 
       str = GrouperInstallerUtils.propertiesValue(autorunPropertiesKey, false);
@@ -171,6 +171,10 @@ public class GrouperInstaller {
       
     } else {
 
+      if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.print.autorunKeys", false, false)) {
+        System.out.print("<" + autorunPropertiesKey + ">: ");
+      }
+      
       try {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         str = in.readLine();
