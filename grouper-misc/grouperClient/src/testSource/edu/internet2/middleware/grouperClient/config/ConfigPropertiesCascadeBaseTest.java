@@ -37,7 +37,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testEnvironmentVariables"));
+    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testEnvironmentVariables2"));
   }
   
   /**
@@ -51,6 +51,36 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
   /**
    * testCascadeConfig.properties
    */
+  public void testReferToOtherProperties() {
+
+    //try it with EL
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever", "someproperty");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever1.elConfig", 
+        "${edu.internet2.middleware.grouperClient.util.GrouperClientConfig.retrieveConfig().propertyValueString(\"somethingWhatever\")}_lastPart");
+    
+    assertEquals("someproperty_lastPart", GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever1"));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testReferToOtherProperties2() {
+    //try it with local reference
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever", "someproperty");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().remove("somethingWhatever1.elConfig");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever1", 
+        "$$somethingWhatever$$_lastPart2");
+    
+    assertEquals("someproperty_lastPart2", GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever1"));
+
+  }  
+
+  
+
+  /**
+   * testCascadeConfig.properties
+   */
   public void testEnvironmentVariables() {
     Map<String, String> env = System.getenv();
     String javaHome = env.get("JAVA_HOME");
@@ -60,9 +90,26 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
     }
 
     //some.config.1.elConfig = ${elUtils.append('a', 'b')}
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever.elConfig", "${java.lang.System.getenv().get('JAVA_HOME')}");
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever3.elConfig", "${java.lang.System.getenv().get('JAVA_HOME')}");
     
-    assertEquals(javaHome, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever"));
+    assertEquals(javaHome, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever3"));
+  }
+  
+  /**
+   * testCascadeConfig.properties
+   */
+  public void testEnvironmentVariables2() {
+    Map<String, String> env = System.getenv();
+    String javaHome = env.get("JAVA_HOME");
+    
+    if (StringUtils.isBlank(javaHome)) {
+      fail("Sorry, but you need JAVA_HOME set for this test to work!");
+    }
+
+    //some.config.1.elConfig = ${elUtils.append('a', 'b')}
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever5.elConfig", "${elUtils.environmentVariable('JAVA_HOME')}");
+    
+    assertEquals(javaHome, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever5"));
   }
   
   /**
