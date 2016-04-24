@@ -167,7 +167,7 @@ public class GrouperInstaller {
       
     } else if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.autorun.useDefaultsAsMuchAsAvailable", false, false)) {
       
-      System.out.println("<using default which is blank due to grouperInstaller.autorun.useDefaultsAsMuchAsAvailable>: ");
+      System.out.println("<using default which is blank due to grouperInstaller.autorun.useDefaultsAsMuchAsAvailable and " + autorunPropertiesKey + ">: ");
       
     } else {
 
