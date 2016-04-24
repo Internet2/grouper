@@ -37,7 +37,7 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testEnvironmentVariables2"));
+    TestRunner.run(new ConfigPropertiesCascadeBaseTest("testReferToOtherProperties2"));
   }
   
   /**
@@ -68,12 +68,18 @@ public class ConfigPropertiesCascadeBaseTest extends TestCase {
   public void testReferToOtherProperties2() {
     //try it with local reference
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever", "someproperty");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().remove("somethingWhatever1.elConfig");
-    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever1", 
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever8", 
         "$$somethingWhatever$$_lastPart2");
     
-    assertEquals("someproperty_lastPart2", GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever1"));
+    assertEquals("someproperty_lastPart2", GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever8"));
 
+    //mix and match
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().put("somethingWhatever9.elConfig", 
+        "${edu.internet2.middleware.grouperClient.util.GrouperClientConfig.retrieveConfig().propertyValueString(\"somethingWhatever\")}_$$somethingWhatever$$_lastPart");
+    
+    assertEquals("someproperty_someproperty_lastPart", GrouperClientConfig.retrieveConfig().propertyValueStringRequired("somethingWhatever9"));
+
+    
   }  
 
   
