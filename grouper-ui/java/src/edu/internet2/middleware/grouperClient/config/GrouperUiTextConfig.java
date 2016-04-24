@@ -13,15 +13,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -303,100 +300,6 @@ public class GrouperUiTextConfig extends ConfigPropertiesCascadeBase {
    * config file cache
    */
   private static Map<String, ConfigPropertiesCascadeBase> configFileCache = null;
-
-  /**
-   * pattern to find where the variables are in the textm, e.g. $$something$$
-   */
-  private static Pattern substitutePattern = Pattern.compile("\\$\\$([^\\s\\$]+?)\\$\\$");
-  
-  
-  /**
-   * @see edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase#retrieveFromConfigFiles()
-   */
-  @Override
-  protected ConfigPropertiesCascadeBase retrieveFromConfigFiles() {
-    
-    ConfigPropertiesCascadeBase configPropertiesCascadeBase = super.retrieveFromConfigFiles();
-
-    Properties properties = configPropertiesCascadeBase.internalProperties();
-    
-    Set<String> propertyNamesToCheck = new LinkedHashSet<String>();
-    
-    for (Object propertyName : properties.keySet()) {
-      propertyNamesToCheck.add((String)propertyName);
-    }
-
-    Set<String> nextPropertyNamesToCheck = new LinkedHashSet<String>();
-    
-    //lets resolve variables
-    for (int i=0;i<20;i++) {
-      
-      boolean foundVariable = false;
-      
-      for (Object propertyNameObject : properties.keySet()) {
-        
-        String propertyName = (String)propertyNameObject;
-        
-        String value = properties.getProperty(propertyName);
-        String newValue = substituteVariables(properties, value);
-        
-        //next run, dont do the ones that dont change...
-        if (!StringUtils.equals(value, newValue)) {
-          nextPropertyNamesToCheck.add(value);
-          foundVariable = true;
-          properties.put(propertyName, newValue);
-        }
-      }
-      
-      if (!foundVariable) {
-        break;
-      }
-
-      //keep track of ones to check
-      propertyNamesToCheck = nextPropertyNamesToCheck;
-      nextPropertyNamesToCheck = new LinkedHashSet<String>();
-      
-    }
-    return configPropertiesCascadeBase;
-  }
-
-  /**
-   * 
-   * @param properties to get data from
-   * @param value 
-   * @return the subsituted string
-   */
-  protected String substituteVariables(Properties properties, String value) {
-
-    Matcher matcher = substitutePattern.matcher(value);
-    
-    StringBuilder result = new StringBuilder();
-    
-    int index = 0;
-    
-    //loop through and find each script
-    while(matcher.find()) {
-      result.append(value.substring(index, matcher.start()));
-      
-      //here is the script inside the dollars
-      String variable = matcher.group(1);
-      
-      index = matcher.end();
-
-      String variableText = properties.getProperty(variable);
-      
-      if (StringUtils.isBlank(variableText)) {
-        LOG.error("Cant find text for variable: '" + variable + "'");
-        variableText = "$$not found: " + variable + "$$";
-      }
-      
-      result.append(variableText);
-    }
-    
-    result.append(value.substring(index, value.length()));
-    return result.toString();
-    
-  }
 
   /**
    * see if there is one in cache, if so, use it, if not, get from config files
