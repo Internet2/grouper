@@ -222,6 +222,8 @@ public class GrouperClient {
         
         //ldapSearchAttribute.ldapName.2 = ou=groups
         gcLdapSearchAttributeConfig.setLdapName(GrouperClientConfig.retrieveConfig().propertyValueStringRequired("ldapSearchAttribute.ldapName." + i));
+	//ldapSearchAttribute.searchScope.2 = one
+	gcLdapSearchAttributeConfig.setSearchScope(GrouperClientConfig.retrieveConfig().propertyValueString("ldapSearchAttribute.searchScope." + i));
 
         {
           //ldapSearchAttribute.matchingAttributes.2 = pennid
@@ -504,6 +506,7 @@ public class GrouperClient {
     
     GcLdapSearchAttribute gcLdapSearchAttribute = new GcLdapSearchAttribute();
     gcLdapSearchAttribute.assignLdapName(gcLdapSearchAttributeConfig.getLdapName());
+    gcLdapSearchAttribute.assignSearchScope(gcLdapSearchAttributeConfig.getSearchScope());
     
     //go through the matching attributes and get from command line
     for (String matchingAttributeLabel : gcLdapSearchAttributeConfig.getMatchingAttributes().keySet()) {
