@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Rand xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../../../apidocs/edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/bzip2/Rand.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * or more contributor license agreements.  See the NOTICE file</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * distributed with this work for additional information</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * regarding copyright ownership.  The ASF licenses this file</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * to you under the Apache License, Version 2.0 (the</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * KIND, either express or implied.  See the License for the</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * specific language governing permissions and limitations</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * under the License.</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.bzip2;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * Random numbers for both the compress and decompress BZip2 classes.</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/bzip2/Rand.html">Rand</a> {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong>[] RNUMS = {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          619, 720, 127, 481, 931, 816, 813, 233, 566, 247,
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          985, 724, 205, 454, 863, 491, 741, 242, 949, 214,
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          733, 859, 335, 708, 621, 574,  73, 654, 730, 472,
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          419, 436, 278, 496, 867, 210, 399, 680, 480,  51,
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          878, 465, 811, 169, 869, 675, 611, 697, 867, 561,
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          862, 687, 507, 283, 482, 129, 807, 591, 733, 623,
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          150, 238,  59, 379, 684, 877, 625, 169, 643, 105,
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          170, 607, 520, 932, 727, 476, 693, 425, 174, 647,
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>           73, 122, 335, 530, 442, 853, 695, 249, 445, 515,
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          909, 545, 703, 919, 874, 474, 882, 500, 594, 612,
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          641, 801, 220, 162, 819, 984, 589, 513, 495, 799,
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          161, 604, 958, 533, 221, 400, 386, 867, 600, 782,
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          382, 596, 414, 171, 516, 375, 682, 485, 911, 276,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>           98, 553, 163, 354, 666, 933, 424, 341, 533, 870,
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          227, 730, 475, 186, 263, 647, 537, 686, 600, 224,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          469,  68, 770, 919, 190, 373, 294, 822, 808, 206,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          184, 943, 795, 384, 383, 461, 404, 758, 839, 887,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          715,  67, 618, 276, 204, 918, 873, 777, 604, 560,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          951, 160, 578, 722,  79, 804,  96, 409, 713, 940,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          652, 934, 970, 447, 318, 353, 859, 672, 112, 785,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          645, 863, 803, 350, 139,  93, 354,  99, 820, 908,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          609, 772, 154, 274, 580, 184,  79, 626, 630, 742,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          653, 282, 762, 623, 680,  81, 927, 626, 789, 125,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          411, 521, 938, 300, 821,  78, 343, 175, 128, 250,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          170, 774, 972, 275, 999, 639, 495,  78, 352, 126,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          857, 956, 358, 619, 580, 124, 737, 594, 701, 612,
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          669, 112, 134, 694, 363, 992, 809, 743, 168, 974,
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          944, 375, 748,  52, 600, 747, 642, 182, 862,  81,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          344, 805, 988, 739, 511, 655, 814, 334, 249, 515,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          897, 955, 664, 981, 649, 113, 974, 459, 893, 228,
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          433, 837, 553, 268, 926, 240, 102, 654, 459, 51,
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          686, 754, 806, 760, 493, 403, 415, 394, 687, 700,
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          946, 670, 656, 610, 738, 392, 760, 799, 887, 653,
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          978, 321, 576, 617, 626, 502, 894, 679, 243, 440,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          680, 879, 194, 572, 640, 724, 926,  56, 204, 700,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          707, 151, 457, 449, 797, 195, 791, 558, 945, 679,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          297,  59,  87, 824, 713, 663, 412, 693, 342, 606,
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          134, 108, 571, 364, 631, 212, 174, 643, 304, 329,
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          343,  97, 430, 751, 497, 314, 983, 374, 822, 928,
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          140, 206,  73, 263, 980, 736, 876, 478, 430, 305,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          170, 514, 364, 692, 829,  82, 855, 953, 676, 246,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          369, 970, 294, 750, 807, 827, 150, 790, 288, 923,
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          804, 378, 215, 828, 592, 281, 565, 555, 710,  82,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          896, 831, 547, 261, 524, 462, 293, 465, 502,  56,
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          661, 821, 976, 991, 658, 869, 905, 758, 745, 193,
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          768, 550, 608, 933, 378, 286, 215, 979, 792, 961,
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>           61, 688, 793, 644, 986, 403, 106, 366, 905, 644,
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          372, 567, 466, 434, 645, 210, 389, 550, 919, 135,
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          780, 773, 635, 389, 707, 100, 626, 958, 165, 504,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          920, 176, 193, 713, 857, 265, 203,  50, 668, 108,
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          645, 990, 626, 197, 510, 357, 358, 850, 858, 364,
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          936, 638
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      };
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * Return the random number at a specific index.</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * @param i the index</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * @return the random number</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> rNums(<strong class="jxr_keyword">int</strong> i){
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">return</strong> RNUMS[i];
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+</body>
+</html>
