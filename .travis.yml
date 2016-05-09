@@ -17,6 +17,8 @@ jdk:
 - oraclejdk7
 - openjdk6
 - openjdk7
+before_script:
+ - export JAVA_OPTS="-Xmx2048m"
 install:
 - mvn -f ./grouper-parent install -Dmaven.javadoc.skip=true -DskipTests=true -Dlicense.skip=true -B -V -q 
 script:
