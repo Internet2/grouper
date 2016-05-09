@@ -20,7 +20,7 @@ import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.httpcli
 /**
  * Signals that the response content was larger than anticipated. 
  * 
- * @author Ortwin Glück
+ * @author Ortwin Gluck
  */
 public class HttpContentTooLargeException extends HttpException {
     private int maxlen;
