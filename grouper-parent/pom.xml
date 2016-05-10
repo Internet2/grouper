@@ -882,7 +882,8 @@
                     <doctitle>${project.name} ${project.version} Java API.</doctitle>
                     <windowtitle>${project.name} ${project.version} Java API.</windowtitle>
                     <overview>src/main/java/overview.html</overview>
-                    <additionalJOption>-J-Xmx512m</additionalJOption>
+                    <minmemory>128m</minmemory>
+                    <maxmemory>1g</maxmemory>
                 </configuration>
             </plugin>
             <plugin>
@@ -982,39 +983,6 @@
 
     <developers>
         <developer>
-            <id>tbarton</id>
-            <name>Tom Barton</name>
-            <organization>The University of Chicago</organization>
-            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
-            <email>tbarton@uchicago.edu</email>
-            <roles>
-                <role>manager</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-        <developer>
-            <id>gbrown</id>
-            <name>Gary Brown</name>
-            <organization>University of Bristol</organization>
-            <organizationUrl>http://www.bristol.ac.uk</organizationUrl>
-            <email>Gary.Brown@bristol.ac.uk</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
-            <id>rhebron</id>
-            <name>Rob Hebron</name>
-            <organization>Cardiff University</organization>
-            <organizationUrl>http://www.cardiff.ac.uk</organizationUrl>
-            <email>HebronR@cardiff.ac.uk</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
             <id>mchyzer</id>
             <name>Chris Hyzer</name>
             <organization>University of Pennsylvania</organization>
@@ -1035,28 +1003,6 @@
                 <role>developer</role>
             </roles>
             <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>tzeller</id>
-            <name>Tom Zeller</name>
-            <organization>University of Memphis</organization>
-            <organizationUrl>http://www.memphis.edu</organizationUrl>
-            <email>tzeller@memphis.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-6</timezone>
-        </developer>
-        <developer>
-            <id>langedb</id>
-            <name>David Langenberg</name>
-            <organization>The University of Chicago</organization>
-            <organizationUrl>http://www.uchicago.edu/</organizationUrl>
-            <email>davel@uchicago.edu</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>-6</timezone>
         </developer>
         <developer>
             <id>mmoayyed</id>
