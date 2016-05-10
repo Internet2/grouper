@@ -96,6 +96,9 @@ public class GrouperGroupInfo {
       result.put("group", group);
       result.put("name", group.getName());
       
+      if ( group.getIdIndex() != null )
+        result.put("idIndex", group.getIdIndex());
+      
       Map<String, Object> stemAttributes = PspUtils.getStemAttributes(group);
       result.put("stemAttributes", stemAttributes);
 
