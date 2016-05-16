@@ -77,6 +77,7 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclien
  */
 public class GrouperInstaller {
 
+  
   /**
    * default ip address to listen for stuff
    */
@@ -251,8 +252,59 @@ public class GrouperInstaller {
     final File localFile = new File(localFileName);
 
     HttpClient httpClient = new HttpClient();
-    GetMethod getMethod = new GetMethod(url);
+
+    //see if we are working with local files:
+    {
+      File localFileFromUrl = new File(url);
+      if (localFileFromUrl.exists()) {
+        System.out.println("Copying local file: " + url + " to file: " + localFileName);
+        
+        if (localFile.exists()) {
+          
+          System.out.println("File exists: " + localFile.getAbsolutePath() + ", deleting");
+          
+          if (!localFile.delete()) {
+            throw new RuntimeException("Cant delete file: " + localFile.getAbsolutePath() + "!!!!!");
+          }
+        }
+        
+        try {
+          FileOutputStream fileOutputStream = new FileOutputStream(localFile);
+          FileInputStream fileInputStream = new FileInputStream(localFileFromUrl);
+  
+          GrouperInstallerUtils.copy(fileInputStream, fileOutputStream);
+  
+          return true;
+        } catch (Exception exception) {
+          String errorMessage = "Error copying file: " + url;
+          System.out.println(errorMessage);
+          throw new RuntimeException(errorMessage, exception);
+        }
+
+      }
+      
+      //if it doesnt exist, see if the parent dir exists
+      if (localFileFromUrl.getParentFile().exists()) {
+
+        //the dir is there but no file...   hmmmm
+        if (allow404) {
+          if (GrouperInstallerUtils.isBlank(prefixFor404)) {
+            prefixFor404 = "File not found: ";
+          }
+          System.out.println(prefixFor404 + url);
+          return false;
+        }
+
+        //weve got a problem
+        
+      }
+    }
+    
+    GetMethod getMethod = null;
     try {
+      
+      getMethod = new GetMethod(url);
+      
       int result = httpClient.executeMethod(getMethod);
       
       if (allow404 && result == 404) {
