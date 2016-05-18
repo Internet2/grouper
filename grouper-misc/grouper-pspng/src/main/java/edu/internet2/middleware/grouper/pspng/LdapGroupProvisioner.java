@@ -87,9 +87,9 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     for ( String value : membershipValuesToChange )
       // ADD/REMOVE <value> to/from <attribute> of <group>
       LOG.info("Will change LDAP: {} {} {} {} of {}", 
-          modType, value,
+          new Object[] {modType, value,
           modType == AttributeModificationType.ADD ? "to" : "from",
-          attributeName, ldapGroup);
+          attributeName, ldapGroup});
     
     scheduleLdapModification(
         new ModifyRequest(
@@ -103,7 +103,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   protected void deleteMembership(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup ,
       Subject subject, LdapUser ldapUser) throws PspException {
     if ( ldapGroup  == null ) {
-      LOG.warn("{}: Ignoring request to remove {} from a group that doesn't exist: {}", getName(), subject.getId(), grouperGroupInfo);
+      LOG.warn("{}: Ignoring request to remove {} from a group that doesn't exist: {}", 
+          new Object[]{getName(), subject.getId(), grouperGroupInfo});
       return;
     }
     
@@ -140,7 +141,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> extraValues = new HashSet<String>(currentMembershipValues);
       extraValues.removeAll(correctMembershipValues);
       
-      LOG.info("{}: Group {} has {} extra values", getName(), grouperGroupInfo, extraValues.size());
+      LOG.info("{}: Group {} has {} extra values", 
+          new Object[] {getName(), grouperGroupInfo, extraValues.size()});
       if ( extraValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, extraValues);
     }
@@ -150,7 +152,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       Collection<String> missingValues = new HashSet<String>(correctMembershipValues);
       missingValues.removeAll(currentMembershipValues);
       
-      LOG.info("{}: Group {} has {} missing values", getName(), grouperGroupInfo, missingValues.size());
+      LOG.info("{}: Group {} has {} missing values", 
+          new Object[]{getName(), grouperGroupInfo, missingValues.size()});
       if ( missingValues.size() > 0 )
         scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, missingValues);
     }
@@ -271,7 +274,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // Actually do the search
     List<LdapObject> searchResult;
     
-    LOG.debug("{}: Searching for {} groups with:: {}", getName(), grouperGroupsToFetch.size(), combinedLdapFilter);
+    LOG.debug("{}: Searching for {} groups with:: {}", 
+        new Object[]{getName(), grouperGroupsToFetch.size(), combinedLdapFilter});
     
     try {
       searchResult = performLdapSearchRequest(
@@ -313,7 +317,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       LOG.error("{}: Group data from ldap server was not matched with a grouper group "
           + "(perhaps attributes are used in singleGroupSearchFilter ({}) that are not included "
           + "in groupSearchAttributes ({})?): {}",
-          getName(), config.getSingleGroupSearchFilter(), config.getGroupSearchAttributes(), unmatchedFetchResult.getDn());
+          new Object[] {getName(), config.getSingleGroupSearchFilter(), config.getGroupSearchAttributes(), unmatchedFetchResult.getDn()});
     
     return result;
 }
@@ -330,7 +334,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     for (int i=1; i<filterPieces.length; i++)
       filter.setParameter(i-1, filterPieces[i].trim());
  
-    LOG.trace("{}: Filter for group {}: {}", getName(), grouperGroup, filter);
+    LOG.trace("{}: Filter for group {}: {}", 
+        new Object[] {getName(), grouperGroup, filter});
 
     return filter;
   }

@@ -70,9 +70,9 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     for ( String value : valuesToChange )
       // ADD/REMOVE <value> to/from <attribute> of <user>
       LOG.info("Will change LDAP: {} {} {} {} of {}", 
-          modType, value,
+          new Object[] {modType, value,
           modType == AttributeModificationType.ADD ? "to" : "from",
-          attributeName, ldapUser);
+          attributeName, ldapUser});
       
     scheduleLdapModification(
         new ModifyRequest(
@@ -137,8 +137,8 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       scheduleUserModification(missingMatch, AttributeModificationType.ADD, Arrays.asList(attributeValue));
 
     LOG.info("{}: Brief full-sync summary: Correct={}, Current={}, Extra={}, Missing={}", 
-        getName(), correctSubjects.size(), currentMatches_ldapObjects.size(),
-        extraMatches.size(), missingMatches.size());
+        new Object[] {getName(), correctSubjects.size(), currentMatches_ldapObjects.size(),
+        extraMatches.size(), missingMatches.size()});
     
   }
 
@@ -229,7 +229,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
         new SearchRequest(config.getUserSearchBaseDn(), filter));
     
     LOG.info("{}: There are {} ldap objects with attribute value={}", 
-        getName(), objectsWithAttribute.size(), valueToPurge);
+        new Object[] {getName(), objectsWithAttribute.size(), valueToPurge});
     
     for ( LdapObject objectWithAttribute : objectsWithAttribute )
       scheduleUserModification(new LdapUser(objectWithAttribute), AttributeModificationType.REMOVE, Arrays.asList(valueToPurge));

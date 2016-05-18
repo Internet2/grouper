@@ -177,8 +177,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       LOG.error("{}: User data from ldap server was not matched with a grouper subject "
           + "(perhaps attributes are used in userSearchFilter ({}) that are not included "
           + "in userSearchAttributes ({})?): {}",
-          getName(), config.getUserSearchFilter(), config.getUserSearchAttributes(), 
-          unmatchedFetchResult.getDn());
+          new Object[] {getName(), config.getUserSearchFilter(), config.getUserSearchAttributes(), 
+          unmatchedFetchResult.getDn()});
     
     return result;
   }
@@ -195,7 +195,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     for (int i=1; i<filterPieces.length; i++)
       filter.setParameter(i-1, filterPieces[i].trim());
     
-    LOG.debug("{}: User LDAP filter for subject {}: {}", getName(), subject.getId(), filter);
+    LOG.debug("{}: User LDAP filter for subject {}: {}",
+        new Object[]{getName(), subject.getId(), filter});
     return filter;
   }
   
@@ -486,7 +487,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       if ( mods == null ) 
         continue;
       
-      LOG.info("{}: WorkItem {} needs {} ldap modifications", getName(), workItem, mods.size() );
+      LOG.info("{}: WorkItem {} needs {} ldap modifications", 
+          new Object[]{getName(), workItem, mods.size()} );
       for ( ModifyRequest mod : mods ) {
         LOG.debug("{}: Mod for WorkItem: {}", getName(), getLoggingSummary(mod));
         dn2Mods.put(mod.getDn(), mod);
@@ -598,7 +600,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             LOG.info("Performing LDAP modification: {}", getLoggingSummary(mod) );
             conn.getProviderConnection().modify(mod);
           } catch (LdapException e) {
-            LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}: {}", dn, mod, e.getMessage());
+            LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}: {}",
+                new Object[]{dn, mod, e.getMessage()});
             throw new PspException("Coalesced LDAP Modification failed");
           } 
         }
@@ -650,7 +653,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
          LOG.info("Ignoring ATTRIBUTE_OR_VALUE_EXISTS error on an attribute add operation: {}", mod);
         
         else {
-          LOG.error("Ldap provisioning failed for {} / {}", workItem, mod, e);
+          LOG.error("Ldap provisioning failed for {} / {}", new Object[]{workItem, mod, e});
           throw new PspException("LDAP Provisioning failed");
         }
       } finally {

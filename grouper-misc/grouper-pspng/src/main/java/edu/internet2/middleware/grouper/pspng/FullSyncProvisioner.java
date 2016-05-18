@@ -321,14 +321,14 @@ public class FullSyncProvisioner  {
       provisioner.finishProvisioningBatch(Arrays.asList(workItem));
     } catch (PspException e) {
       LOG.error("{}: Problem doing full sync. Requeuing {}: {}",
-          provisioner.getName(), grouperGroupInfo, e.getMessage() );
+          new Object[]{ provisioner.getName(), grouperGroupInfo, e.getMessage()} );
       
       // Put the group into the error queue
       queueGroupForSync(grouperGroupInfo, groupsToSyncRetry);
     }
     catch (Throwable e) {
       LOG.error("{}: Problem doing full sync. Requeuing {}",
-          provisioner.getName(), grouperGroupInfo, e );
+          new Object[] {provisioner.getName(), grouperGroupInfo, e });
       
       // Put the group into the error queue
       queueGroupForSync(grouperGroupInfo, groupsToSyncRetry);
