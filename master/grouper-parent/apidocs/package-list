@@ -70,6 +70,7 @@ edu.internet2.middleware.grouper.permissions.role
 edu.internet2.middleware.grouper.pit
 edu.internet2.middleware.grouper.pit.finder
 edu.internet2.middleware.grouper.privs
+edu.internet2.middleware.grouper.pspng
 edu.internet2.middleware.grouper.registry
 edu.internet2.middleware.grouper.rules
 edu.internet2.middleware.grouper.rules.beans
