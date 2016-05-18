@@ -56,12 +56,10 @@
     <dependency>
     	<groupId>org.ldaptive</groupId>
     	<artifactId>ldaptive</artifactId>
-    	<version>1.1.0</version>
     </dependency>
     <dependency>
     	<groupId>org.ldaptive</groupId>
     	<artifactId>ldaptive-unboundid</artifactId>
-    	<version>1.1.0</version>
     </dependency>
     <dependency>
     	<groupId>commons-collections</groupId>
