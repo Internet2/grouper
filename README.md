@@ -1,6 +1,8 @@
 Internet2 Grouper Project
 =========================
 
+[![Join the chat at https://gitter.im/Internet2/grouper](https://badges.gitter.im/Internet2/grouper.svg)](https://gitter.im/Internet2/grouper?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 http://www.internet2.edu/products-services/trust-identity-middleware/grouper/
 
 ## Introduction
