@@ -212,15 +212,16 @@ public class GrouperLoaderResultset {
       Subject subject = null;
       
       //get the subject from the source id map
-      if (!StringUtils.isBlank(sourceIdCol)) {
-        String sourceId = (String)row.getCell(sourceIdCol, false);
+      if (!StringUtils.isBlank(sourceIdCol) || !StringUtils.isBlank(defaultSubjectSourceId)) {
+        String sourceId = StringUtils.defaultString((String)row.getCell(sourceIdCol, false), defaultSubjectSourceId);
         if (!StringUtils.isBlank(sourceId)) {
           Map<String, Subject> localSubjectIdOrIdentifierToSubject = sourceToSubjectIdOrIdentifierToSubject.get(sourceId);
           if (localSubjectIdOrIdentifierToSubject != null) {
             subject = localSubjectIdOrIdentifierToSubject.get(subjectIdOrIdentifier);
           }
         }
-      } else {
+      }
+      if (subject == null && subjectIdOrIdentifierToSubject != null) {
         //get the subject from the subjectId map
         subject = subjectIdOrIdentifierToSubject.get(subjectIdOrIdentifier);
       }
