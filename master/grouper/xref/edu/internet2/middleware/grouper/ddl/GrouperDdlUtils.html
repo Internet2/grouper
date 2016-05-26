@@ -2596,259 +2596,270 @@
 <a class="jxr_linenumber" name="L2588" href="#L2588">2588</a>     
 <a class="jxr_linenumber" name="L2589" href="#L2589">2589</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L2590" href="#L2590">2590</a>       <em class="jxr_comment">//first, see if tables are there</em>
-<a class="jxr_linenumber" name="L2591" href="#L2591">2591</a>       <strong class="jxr_keyword">int</strong> count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
-<a class="jxr_linenumber" name="L2592" href="#L2592">2592</a>           <span class="jxr_string">"select count(*) from "</span> + tableName);
-<a class="jxr_linenumber" name="L2593" href="#L2593">2593</a>       <strong class="jxr_keyword">if</strong> (!expectRecords) {
-<a class="jxr_linenumber" name="L2594" href="#L2594">2594</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2595" href="#L2595">2595</a>       }
-<a class="jxr_linenumber" name="L2596" href="#L2596">2596</a>       <strong class="jxr_keyword">return</strong> count &gt; 0;
-<a class="jxr_linenumber" name="L2597" href="#L2597">2597</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L2598" href="#L2598">2598</a>       <strong class="jxr_keyword">if</strong> (expectTrue) {
-<a class="jxr_linenumber" name="L2599" href="#L2599">2599</a>         <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L2600" href="#L2600">2600</a>       }
-<a class="jxr_linenumber" name="L2601" href="#L2601">2601</a>       <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L2602" href="#L2602">2602</a>     }
-<a class="jxr_linenumber" name="L2603" href="#L2603">2603</a>   
-<a class="jxr_linenumber" name="L2604" href="#L2604">2604</a>   }
-<a class="jxr_linenumber" name="L2605" href="#L2605">2605</a> 
-<a class="jxr_linenumber" name="L2606" href="#L2606">2606</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2607" href="#L2607">2607</a> <em class="jxr_javadoccomment">   * see if tables are there (at least the grouper groups one)</em>
-<a class="jxr_linenumber" name="L2608" href="#L2608">2608</a> <em class="jxr_javadoccomment">   * @param expectTrue throw exception if expecting true and not there or vice versa</em>
-<a class="jxr_linenumber" name="L2609" href="#L2609">2609</a> <em class="jxr_javadoccomment">   * @param tableName </em>
-<a class="jxr_linenumber" name="L2610" href="#L2610">2610</a> <em class="jxr_javadoccomment">   * @param columnName </em>
-<a class="jxr_linenumber" name="L2611" href="#L2611">2611</a> <em class="jxr_javadoccomment">   * @return true if everything ok, false if not</em>
-<a class="jxr_linenumber" name="L2612" href="#L2612">2612</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2613" href="#L2613">2613</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> assertColumnThere(<strong class="jxr_keyword">boolean</strong> expectTrue, String tableName, String columnName) {
-<a class="jxr_linenumber" name="L2614" href="#L2614">2614</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L2615" href="#L2615">2615</a>       <em class="jxr_comment">//first, see if column are there</em>
-<a class="jxr_linenumber" name="L2616" href="#L2616">2616</a>       HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
-<a class="jxr_linenumber" name="L2617" href="#L2617">2617</a>           <span class="jxr_string">"select count(*) from "</span> + tableName + <span class="jxr_string">" where "</span> + columnName + <span class="jxr_string">" is null"</span>);
-<a class="jxr_linenumber" name="L2618" href="#L2618">2618</a>       <strong class="jxr_keyword">if</strong> (expectTrue) {
-<a class="jxr_linenumber" name="L2619" href="#L2619">2619</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2620" href="#L2620">2620</a>       }
-<a class="jxr_linenumber" name="L2621" href="#L2621">2621</a>       <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L2622" href="#L2622">2622</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L2623" href="#L2623">2623</a>       <strong class="jxr_keyword">if</strong> (expectTrue) {
-<a class="jxr_linenumber" name="L2624" href="#L2624">2624</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L2625" href="#L2625">2625</a>       }
-<a class="jxr_linenumber" name="L2626" href="#L2626">2626</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2627" href="#L2627">2627</a>     }
-<a class="jxr_linenumber" name="L2628" href="#L2628">2628</a>   
-<a class="jxr_linenumber" name="L2629" href="#L2629">2629</a>   }
-<a class="jxr_linenumber" name="L2630" href="#L2630">2630</a> 
-<a class="jxr_linenumber" name="L2631" href="#L2631">2631</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2632" href="#L2632">2632</a> <em class="jxr_javadoccomment">   * see if tables are there (at least the grouper groups one)</em>
-<a class="jxr_linenumber" name="L2633" href="#L2633">2633</a> <em class="jxr_javadoccomment">   * @param tableName </em>
-<a class="jxr_linenumber" name="L2634" href="#L2634">2634</a> <em class="jxr_javadoccomment">   * @return true if everything ok, false if not</em>
-<a class="jxr_linenumber" name="L2635" href="#L2635">2635</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2636" href="#L2636">2636</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> tableExists(String tableName) {
-<a class="jxr_linenumber" name="L2637" href="#L2637">2637</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L2638" href="#L2638">2638</a>       <em class="jxr_comment">//first, see if tables are there</em>
-<a class="jxr_linenumber" name="L2639" href="#L2639">2639</a>       HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
-<a class="jxr_linenumber" name="L2640" href="#L2640">2640</a>           <span class="jxr_string">"select count(*) from "</span> + tableName);
-<a class="jxr_linenumber" name="L2641" href="#L2641">2641</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2642" href="#L2642">2642</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L2643" href="#L2643">2643</a>       <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L2644" href="#L2644">2644</a>     }
-<a class="jxr_linenumber" name="L2645" href="#L2645">2645</a>   
-<a class="jxr_linenumber" name="L2646" href="#L2646">2646</a>   }
-<a class="jxr_linenumber" name="L2647" href="#L2647">2647</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2648" href="#L2648">2648</a> <em class="jxr_javadoccomment">   * find the correct metadata for the DB</em>
-<a class="jxr_linenumber" name="L2649" href="#L2649">2649</a> <em class="jxr_javadoccomment">   * @param ddlVersionable</em>
-<a class="jxr_linenumber" name="L2650" href="#L2650">2650</a> <em class="jxr_javadoccomment">   * @return the metadatabean</em>
-<a class="jxr_linenumber" name="L2651" href="#L2651">2651</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2652" href="#L2652">2652</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> GrouperDdlUtils.DbMetadataBean findDbMetadataBean(<a href="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html">DdlVersionable</a> ddlVersionable) {
-<a class="jxr_linenumber" name="L2653" href="#L2653">2653</a>     <strong class="jxr_keyword">final</strong> GrouperDdlUtils.DbMetadataBean dbMetadataBean = <strong class="jxr_keyword">new</strong> GrouperDdlUtils.DbMetadataBean();
-<a class="jxr_linenumber" name="L2654" href="#L2654">2654</a> 
-<a class="jxr_linenumber" name="L2655" href="#L2655">2655</a>     <em class="jxr_comment">//convenience to get the url, user, etc of the grouper db, helps get db connection</em>
-<a class="jxr_linenumber" name="L2656" href="#L2656">2656</a>     <a href="../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html">GrouperLoaderDb</a> grouperDb = GrouperLoaderConfig.retrieveDbProfile(<span class="jxr_string">"grouper"</span>);
-<a class="jxr_linenumber" name="L2657" href="#L2657">2657</a>     
-<a class="jxr_linenumber" name="L2658" href="#L2658">2658</a>     String schema = grouperDb.getUser().toUpperCase();
-<a class="jxr_linenumber" name="L2659" href="#L2659">2659</a>   
-<a class="jxr_linenumber" name="L2660" href="#L2660">2660</a>   <em class="jxr_comment">//    if (true) {</em>
-<a class="jxr_linenumber" name="L2661" href="#L2661">2661</a>   <em class="jxr_comment">//      dbMetadataBean.setDefaultTablePattern(ddlVersionable.getDefaultTablePattern());</em>
-<a class="jxr_linenumber" name="L2662" href="#L2662">2662</a>   <em class="jxr_comment">//      dbMetadataBean.setSchema(schema);</em>
-<a class="jxr_linenumber" name="L2663" href="#L2663">2663</a>   <em class="jxr_comment">//      return dbMetadataBean;</em>
-<a class="jxr_linenumber" name="L2664" href="#L2664">2664</a>   <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L2591" href="#L2591">2591</a>       <strong class="jxr_keyword">int</strong> count = -1;
+<a class="jxr_linenumber" name="L2592" href="#L2592">2592</a>       
+<a class="jxr_linenumber" name="L2593" href="#L2593">2593</a>       <strong class="jxr_keyword">if</strong> (expectRecords || GrouperConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"grouperDdl.legacySeeIfTableExists"</span>, false)) {
+<a class="jxr_linenumber" name="L2594" href="#L2594">2594</a>         
+<a class="jxr_linenumber" name="L2595" href="#L2595">2595</a>         count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
+<a class="jxr_linenumber" name="L2596" href="#L2596">2596</a>             <span class="jxr_string">"select count(*) from "</span> + tableName);
+<a class="jxr_linenumber" name="L2597" href="#L2597">2597</a>         
+<a class="jxr_linenumber" name="L2598" href="#L2598">2598</a>       } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L2599" href="#L2599">2599</a>         
+<a class="jxr_linenumber" name="L2600" href="#L2600">2600</a>         count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
+<a class="jxr_linenumber" name="L2601" href="#L2601">2601</a>             <span class="jxr_string">"select count(*) from "</span> + tableName + <span class="jxr_string">" where 1=0"</span>);
+<a class="jxr_linenumber" name="L2602" href="#L2602">2602</a>         
+<a class="jxr_linenumber" name="L2603" href="#L2603">2603</a>       }
+<a class="jxr_linenumber" name="L2604" href="#L2604">2604</a>       <strong class="jxr_keyword">if</strong> (!expectRecords) {
+<a class="jxr_linenumber" name="L2605" href="#L2605">2605</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2606" href="#L2606">2606</a>       }
+<a class="jxr_linenumber" name="L2607" href="#L2607">2607</a>       <strong class="jxr_keyword">return</strong> count &gt; 0;
+<a class="jxr_linenumber" name="L2608" href="#L2608">2608</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L2609" href="#L2609">2609</a>       <strong class="jxr_keyword">if</strong> (expectTrue) {
+<a class="jxr_linenumber" name="L2610" href="#L2610">2610</a>         <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L2611" href="#L2611">2611</a>       }
+<a class="jxr_linenumber" name="L2612" href="#L2612">2612</a>       <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L2613" href="#L2613">2613</a>     }
+<a class="jxr_linenumber" name="L2614" href="#L2614">2614</a>   
+<a class="jxr_linenumber" name="L2615" href="#L2615">2615</a>   }
+<a class="jxr_linenumber" name="L2616" href="#L2616">2616</a> 
+<a class="jxr_linenumber" name="L2617" href="#L2617">2617</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2618" href="#L2618">2618</a> <em class="jxr_javadoccomment">   * see if tables are there (at least the grouper groups one)</em>
+<a class="jxr_linenumber" name="L2619" href="#L2619">2619</a> <em class="jxr_javadoccomment">   * @param expectTrue throw exception if expecting true and not there or vice versa</em>
+<a class="jxr_linenumber" name="L2620" href="#L2620">2620</a> <em class="jxr_javadoccomment">   * @param tableName </em>
+<a class="jxr_linenumber" name="L2621" href="#L2621">2621</a> <em class="jxr_javadoccomment">   * @param columnName </em>
+<a class="jxr_linenumber" name="L2622" href="#L2622">2622</a> <em class="jxr_javadoccomment">   * @return true if everything ok, false if not</em>
+<a class="jxr_linenumber" name="L2623" href="#L2623">2623</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2624" href="#L2624">2624</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> assertColumnThere(<strong class="jxr_keyword">boolean</strong> expectTrue, String tableName, String columnName) {
+<a class="jxr_linenumber" name="L2625" href="#L2625">2625</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L2626" href="#L2626">2626</a>       <em class="jxr_comment">//first, see if column are there</em>
+<a class="jxr_linenumber" name="L2627" href="#L2627">2627</a>       HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
+<a class="jxr_linenumber" name="L2628" href="#L2628">2628</a>           <span class="jxr_string">"select count(*) from "</span> + tableName + <span class="jxr_string">" where "</span> + columnName + <span class="jxr_string">" is null"</span>);
+<a class="jxr_linenumber" name="L2629" href="#L2629">2629</a>       <strong class="jxr_keyword">if</strong> (expectTrue) {
+<a class="jxr_linenumber" name="L2630" href="#L2630">2630</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2631" href="#L2631">2631</a>       }
+<a class="jxr_linenumber" name="L2632" href="#L2632">2632</a>       <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L2633" href="#L2633">2633</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L2634" href="#L2634">2634</a>       <strong class="jxr_keyword">if</strong> (expectTrue) {
+<a class="jxr_linenumber" name="L2635" href="#L2635">2635</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L2636" href="#L2636">2636</a>       }
+<a class="jxr_linenumber" name="L2637" href="#L2637">2637</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2638" href="#L2638">2638</a>     }
+<a class="jxr_linenumber" name="L2639" href="#L2639">2639</a>   
+<a class="jxr_linenumber" name="L2640" href="#L2640">2640</a>   }
+<a class="jxr_linenumber" name="L2641" href="#L2641">2641</a> 
+<a class="jxr_linenumber" name="L2642" href="#L2642">2642</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2643" href="#L2643">2643</a> <em class="jxr_javadoccomment">   * see if tables are there (at least the grouper groups one)</em>
+<a class="jxr_linenumber" name="L2644" href="#L2644">2644</a> <em class="jxr_javadoccomment">   * @param tableName </em>
+<a class="jxr_linenumber" name="L2645" href="#L2645">2645</a> <em class="jxr_javadoccomment">   * @return true if everything ok, false if not</em>
+<a class="jxr_linenumber" name="L2646" href="#L2646">2646</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2647" href="#L2647">2647</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> tableExists(String tableName) {
+<a class="jxr_linenumber" name="L2648" href="#L2648">2648</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L2649" href="#L2649">2649</a>       <em class="jxr_comment">//first, see if tables are there</em>
+<a class="jxr_linenumber" name="L2650" href="#L2650">2650</a>       HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
+<a class="jxr_linenumber" name="L2651" href="#L2651">2651</a>           <span class="jxr_string">"select count(*) from "</span> + tableName);
+<a class="jxr_linenumber" name="L2652" href="#L2652">2652</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2653" href="#L2653">2653</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L2654" href="#L2654">2654</a>       <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L2655" href="#L2655">2655</a>     }
+<a class="jxr_linenumber" name="L2656" href="#L2656">2656</a>   
+<a class="jxr_linenumber" name="L2657" href="#L2657">2657</a>   }
+<a class="jxr_linenumber" name="L2658" href="#L2658">2658</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2659" href="#L2659">2659</a> <em class="jxr_javadoccomment">   * find the correct metadata for the DB</em>
+<a class="jxr_linenumber" name="L2660" href="#L2660">2660</a> <em class="jxr_javadoccomment">   * @param ddlVersionable</em>
+<a class="jxr_linenumber" name="L2661" href="#L2661">2661</a> <em class="jxr_javadoccomment">   * @return the metadatabean</em>
+<a class="jxr_linenumber" name="L2662" href="#L2662">2662</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2663" href="#L2663">2663</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> GrouperDdlUtils.DbMetadataBean findDbMetadataBean(<a href="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionable.html">DdlVersionable</a> ddlVersionable) {
+<a class="jxr_linenumber" name="L2664" href="#L2664">2664</a>     <strong class="jxr_keyword">final</strong> GrouperDdlUtils.DbMetadataBean dbMetadataBean = <strong class="jxr_keyword">new</strong> GrouperDdlUtils.DbMetadataBean();
 <a class="jxr_linenumber" name="L2665" href="#L2665">2665</a> 
-<a class="jxr_linenumber" name="L2666" href="#L2666">2666</a>     <em class="jxr_comment">//see if the table is there</em>
-<a class="jxr_linenumber" name="L2667" href="#L2667">2667</a>     <strong class="jxr_keyword">final</strong> String[] sampleTablenames = ddlVersionable.getSampleTablenames();
-<a class="jxr_linenumber" name="L2668" href="#L2668">2668</a>     <strong class="jxr_keyword">boolean</strong> tableThere = false;
-<a class="jxr_linenumber" name="L2669" href="#L2669">2669</a>     String sampleTableNameExists = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2670" href="#L2670">2670</a>     <strong class="jxr_keyword">for</strong> (String sampleTableName : sampleTablenames) {
-<a class="jxr_linenumber" name="L2671" href="#L2671">2671</a>       tableThere = assertTablesThere(false, false, sampleTableName, false);
-<a class="jxr_linenumber" name="L2672" href="#L2672">2672</a>       <strong class="jxr_keyword">if</strong> (tableThere) {
-<a class="jxr_linenumber" name="L2673" href="#L2673">2673</a>         sampleTableNameExists = sampleTableName;
-<a class="jxr_linenumber" name="L2674" href="#L2674">2674</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L2675" href="#L2675">2675</a>       }
-<a class="jxr_linenumber" name="L2676" href="#L2676">2676</a>     }
-<a class="jxr_linenumber" name="L2677" href="#L2677">2677</a>     
-<a class="jxr_linenumber" name="L2678" href="#L2678">2678</a>     <em class="jxr_comment">//pattern to get only certain objects (e.g. GROUPERLOADER% )</em>
-<a class="jxr_linenumber" name="L2679" href="#L2679">2679</a>     String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
-<a class="jxr_linenumber" name="L2680" href="#L2680">2680</a>     
-<a class="jxr_linenumber" name="L2681" href="#L2681">2681</a>     Platform platform = retrievePlatform(false);
-<a class="jxr_linenumber" name="L2682" href="#L2682">2682</a>   
-<a class="jxr_linenumber" name="L2683" href="#L2683">2683</a>     String ddlUtilsSchemaOverride = StringUtils.trimToEmpty(GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"ddlutils.schema"</span>));
-<a class="jxr_linenumber" name="L2684" href="#L2684">2684</a>   
-<a class="jxr_linenumber" name="L2685" href="#L2685">2685</a>     <em class="jxr_comment">//in postgres, try public</em>
-<a class="jxr_linenumber" name="L2686" href="#L2686">2686</a>     String extraSchema = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L2687" href="#L2687">2687</a>     
-<a class="jxr_linenumber" name="L2688" href="#L2688">2688</a>     <em class="jxr_comment">//postgres needs lower I think</em>
-<a class="jxr_linenumber" name="L2689" href="#L2689">2689</a>     <strong class="jxr_keyword">if</strong> (platform.getName().toLowerCase().contains(<span class="jxr_string">"postgre"</span>)) {
-<a class="jxr_linenumber" name="L2690" href="#L2690">2690</a>       schema = schema.toLowerCase();
-<a class="jxr_linenumber" name="L2691" href="#L2691">2691</a>       defaultTablePattern = defaultTablePattern.toLowerCase();
-<a class="jxr_linenumber" name="L2692" href="#L2692">2692</a>       extraSchema = <span class="jxr_string">"public"</span>;
-<a class="jxr_linenumber" name="L2693" href="#L2693">2693</a>     }
-<a class="jxr_linenumber" name="L2694" href="#L2694">2694</a>   
-<a class="jxr_linenumber" name="L2695" href="#L2695">2695</a>     <strong class="jxr_keyword">if</strong> (platform.getName().toLowerCase().contains(<span class="jxr_string">"mssql"</span>)) {
-<a class="jxr_linenumber" name="L2696" href="#L2696">2696</a>       extraSchema = <span class="jxr_string">"dbo"</span>;
-<a class="jxr_linenumber" name="L2697" href="#L2697">2697</a>     }
-<a class="jxr_linenumber" name="L2698" href="#L2698">2698</a>   
-<a class="jxr_linenumber" name="L2699" href="#L2699">2699</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isHsqldb = platform.getName().toLowerCase().contains(<span class="jxr_string">"hsql"</span>);
-<a class="jxr_linenumber" name="L2700" href="#L2700">2700</a>     <em class="jxr_comment">//seems like this is best...</em>
-<a class="jxr_linenumber" name="L2701" href="#L2701">2701</a>     <strong class="jxr_keyword">if</strong> (isHsqldb) {
-<a class="jxr_linenumber" name="L2702" href="#L2702">2702</a>       extraSchema = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2703" href="#L2703">2703</a>     }
-<a class="jxr_linenumber" name="L2704" href="#L2704">2704</a>     
-<a class="jxr_linenumber" name="L2705" href="#L2705">2705</a>     <strong class="jxr_keyword">if</strong> (!tableThere) {
-<a class="jxr_linenumber" name="L2706" href="#L2706">2706</a>       
-<a class="jxr_linenumber" name="L2707" href="#L2707">2707</a>       <strong class="jxr_keyword">if</strong> (isHsqldb) {
-<a class="jxr_linenumber" name="L2708" href="#L2708">2708</a>         schema = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2709" href="#L2709">2709</a>       }
-<a class="jxr_linenumber" name="L2710" href="#L2710">2710</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
-<a class="jxr_linenumber" name="L2711" href="#L2711">2711</a>         schema = ddlUtilsSchemaOverride;
-<a class="jxr_linenumber" name="L2712" href="#L2712">2712</a>       } 
-<a class="jxr_linenumber" name="L2713" href="#L2713">2713</a>       dbMetadataBean.setSchema(schema);
-<a class="jxr_linenumber" name="L2714" href="#L2714">2714</a>       dbMetadataBean.setDefaultTablePattern(defaultTablePattern);
-<a class="jxr_linenumber" name="L2715" href="#L2715">2715</a>       
-<a class="jxr_linenumber" name="L2716" href="#L2716">2716</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L2666" href="#L2666">2666</a>     <em class="jxr_comment">//convenience to get the url, user, etc of the grouper db, helps get db connection</em>
+<a class="jxr_linenumber" name="L2667" href="#L2667">2667</a>     <a href="../../../../../edu/internet2/middleware/grouper/app/loader/db/GrouperLoaderDb.html">GrouperLoaderDb</a> grouperDb = GrouperLoaderConfig.retrieveDbProfile(<span class="jxr_string">"grouper"</span>);
+<a class="jxr_linenumber" name="L2668" href="#L2668">2668</a>     
+<a class="jxr_linenumber" name="L2669" href="#L2669">2669</a>     String schema = grouperDb.getUser().toUpperCase();
+<a class="jxr_linenumber" name="L2670" href="#L2670">2670</a>   
+<a class="jxr_linenumber" name="L2671" href="#L2671">2671</a>   <em class="jxr_comment">//    if (true) {</em>
+<a class="jxr_linenumber" name="L2672" href="#L2672">2672</a>   <em class="jxr_comment">//      dbMetadataBean.setDefaultTablePattern(ddlVersionable.getDefaultTablePattern());</em>
+<a class="jxr_linenumber" name="L2673" href="#L2673">2673</a>   <em class="jxr_comment">//      dbMetadataBean.setSchema(schema);</em>
+<a class="jxr_linenumber" name="L2674" href="#L2674">2674</a>   <em class="jxr_comment">//      return dbMetadataBean;</em>
+<a class="jxr_linenumber" name="L2675" href="#L2675">2675</a>   <em class="jxr_comment">//    }</em>
+<a class="jxr_linenumber" name="L2676" href="#L2676">2676</a> 
+<a class="jxr_linenumber" name="L2677" href="#L2677">2677</a>     <em class="jxr_comment">//see if the table is there</em>
+<a class="jxr_linenumber" name="L2678" href="#L2678">2678</a>     <strong class="jxr_keyword">final</strong> String[] sampleTablenames = ddlVersionable.getSampleTablenames();
+<a class="jxr_linenumber" name="L2679" href="#L2679">2679</a>     <strong class="jxr_keyword">boolean</strong> tableThere = false;
+<a class="jxr_linenumber" name="L2680" href="#L2680">2680</a>     String sampleTableNameExists = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2681" href="#L2681">2681</a>     <strong class="jxr_keyword">for</strong> (String sampleTableName : sampleTablenames) {
+<a class="jxr_linenumber" name="L2682" href="#L2682">2682</a>       tableThere = assertTablesThere(false, false, sampleTableName, false);
+<a class="jxr_linenumber" name="L2683" href="#L2683">2683</a>       <strong class="jxr_keyword">if</strong> (tableThere) {
+<a class="jxr_linenumber" name="L2684" href="#L2684">2684</a>         sampleTableNameExists = sampleTableName;
+<a class="jxr_linenumber" name="L2685" href="#L2685">2685</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L2686" href="#L2686">2686</a>       }
+<a class="jxr_linenumber" name="L2687" href="#L2687">2687</a>     }
+<a class="jxr_linenumber" name="L2688" href="#L2688">2688</a>     
+<a class="jxr_linenumber" name="L2689" href="#L2689">2689</a>     <em class="jxr_comment">//pattern to get only certain objects (e.g. GROUPERLOADER% )</em>
+<a class="jxr_linenumber" name="L2690" href="#L2690">2690</a>     String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
+<a class="jxr_linenumber" name="L2691" href="#L2691">2691</a>     
+<a class="jxr_linenumber" name="L2692" href="#L2692">2692</a>     Platform platform = retrievePlatform(false);
+<a class="jxr_linenumber" name="L2693" href="#L2693">2693</a>   
+<a class="jxr_linenumber" name="L2694" href="#L2694">2694</a>     String ddlUtilsSchemaOverride = StringUtils.trimToEmpty(GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"ddlutils.schema"</span>));
+<a class="jxr_linenumber" name="L2695" href="#L2695">2695</a>   
+<a class="jxr_linenumber" name="L2696" href="#L2696">2696</a>     <em class="jxr_comment">//in postgres, try public</em>
+<a class="jxr_linenumber" name="L2697" href="#L2697">2697</a>     String extraSchema = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L2698" href="#L2698">2698</a>     
+<a class="jxr_linenumber" name="L2699" href="#L2699">2699</a>     <em class="jxr_comment">//postgres needs lower I think</em>
+<a class="jxr_linenumber" name="L2700" href="#L2700">2700</a>     <strong class="jxr_keyword">if</strong> (platform.getName().toLowerCase().contains(<span class="jxr_string">"postgre"</span>)) {
+<a class="jxr_linenumber" name="L2701" href="#L2701">2701</a>       schema = schema.toLowerCase();
+<a class="jxr_linenumber" name="L2702" href="#L2702">2702</a>       defaultTablePattern = defaultTablePattern.toLowerCase();
+<a class="jxr_linenumber" name="L2703" href="#L2703">2703</a>       extraSchema = <span class="jxr_string">"public"</span>;
+<a class="jxr_linenumber" name="L2704" href="#L2704">2704</a>     }
+<a class="jxr_linenumber" name="L2705" href="#L2705">2705</a>   
+<a class="jxr_linenumber" name="L2706" href="#L2706">2706</a>     <strong class="jxr_keyword">if</strong> (platform.getName().toLowerCase().contains(<span class="jxr_string">"mssql"</span>)) {
+<a class="jxr_linenumber" name="L2707" href="#L2707">2707</a>       extraSchema = <span class="jxr_string">"dbo"</span>;
+<a class="jxr_linenumber" name="L2708" href="#L2708">2708</a>     }
+<a class="jxr_linenumber" name="L2709" href="#L2709">2709</a>   
+<a class="jxr_linenumber" name="L2710" href="#L2710">2710</a>     <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> isHsqldb = platform.getName().toLowerCase().contains(<span class="jxr_string">"hsql"</span>);
+<a class="jxr_linenumber" name="L2711" href="#L2711">2711</a>     <em class="jxr_comment">//seems like this is best...</em>
+<a class="jxr_linenumber" name="L2712" href="#L2712">2712</a>     <strong class="jxr_keyword">if</strong> (isHsqldb) {
+<a class="jxr_linenumber" name="L2713" href="#L2713">2713</a>       extraSchema = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2714" href="#L2714">2714</a>     }
+<a class="jxr_linenumber" name="L2715" href="#L2715">2715</a>     
+<a class="jxr_linenumber" name="L2716" href="#L2716">2716</a>     <strong class="jxr_keyword">if</strong> (!tableThere) {
 <a class="jxr_linenumber" name="L2717" href="#L2717">2717</a>       
-<a class="jxr_linenumber" name="L2718" href="#L2718">2718</a>       <em class="jxr_comment">//lets do some trial and error to see what the values should be (since case sensitive)</em>
-<a class="jxr_linenumber" name="L2719" href="#L2719">2719</a>       <strong class="jxr_keyword">final</strong> Set&lt;String&gt; defaultTablePatterns = GrouperUtil.toSet(defaultTablePattern, defaultTablePattern.toLowerCase(), 
-<a class="jxr_linenumber" name="L2720" href="#L2720">2720</a>           defaultTablePattern.toUpperCase());
-<a class="jxr_linenumber" name="L2721" href="#L2721">2721</a>   
-<a class="jxr_linenumber" name="L2722" href="#L2722">2722</a>       <strong class="jxr_keyword">final</strong> Set&lt;String&gt; schemas = GrouperUtil.toSet(
-<a class="jxr_linenumber" name="L2723" href="#L2723">2723</a>           ddlUtilsSchemaOverride, ddlUtilsSchemaOverride.toLowerCase(), ddlUtilsSchemaOverride.toUpperCase(),
-<a class="jxr_linenumber" name="L2724" href="#L2724">2724</a>           schema, StringUtils.lowerCase(schema), StringUtils.upperCase(schema), 
-<a class="jxr_linenumber" name="L2725" href="#L2725">2725</a>           extraSchema, StringUtils.lowerCase(extraSchema), StringUtils.lowerCase(extraSchema));
+<a class="jxr_linenumber" name="L2718" href="#L2718">2718</a>       <strong class="jxr_keyword">if</strong> (isHsqldb) {
+<a class="jxr_linenumber" name="L2719" href="#L2719">2719</a>         schema = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2720" href="#L2720">2720</a>       }
+<a class="jxr_linenumber" name="L2721" href="#L2721">2721</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
+<a class="jxr_linenumber" name="L2722" href="#L2722">2722</a>         schema = ddlUtilsSchemaOverride;
+<a class="jxr_linenumber" name="L2723" href="#L2723">2723</a>       } 
+<a class="jxr_linenumber" name="L2724" href="#L2724">2724</a>       dbMetadataBean.setSchema(schema);
+<a class="jxr_linenumber" name="L2725" href="#L2725">2725</a>       dbMetadataBean.setDefaultTablePattern(defaultTablePattern);
 <a class="jxr_linenumber" name="L2726" href="#L2726">2726</a>       
-<a class="jxr_linenumber" name="L2727" href="#L2727">2727</a>       <strong class="jxr_keyword">final</strong> String sampleTableNameExistsFinal = sampleTableNameExists;
+<a class="jxr_linenumber" name="L2727" href="#L2727">2727</a>     } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L2728" href="#L2728">2728</a>       
-<a class="jxr_linenumber" name="L2729" href="#L2729">2729</a>       HibernateSession.callbackHibernateSession(
-<a class="jxr_linenumber" name="L2730" href="#L2730">2730</a>           GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
-<a class="jxr_linenumber" name="L2731" href="#L2731">2731</a>   
-<a class="jxr_linenumber" name="L2732" href="#L2732">2732</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
-<a class="jxr_linenumber" name="L2733" href="#L2733">2733</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
-<a class="jxr_linenumber" name="L2734" href="#L2734">2734</a>           <a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession = hibernateHandlerBean.getHibernateSession();
-<a class="jxr_linenumber" name="L2735" href="#L2735">2735</a>           <em class="jxr_comment">//try all combinations</em>
-<a class="jxr_linenumber" name="L2736" href="#L2736">2736</a>           <strong class="jxr_keyword">for</strong> (String theDefaultTablePattern : defaultTablePatterns) {
-<a class="jxr_linenumber" name="L2737" href="#L2737">2737</a>             <strong class="jxr_keyword">for</strong> (String theSchema : schemas) {
-<a class="jxr_linenumber" name="L2738" href="#L2738">2738</a>               <strong class="jxr_keyword">boolean</strong> hsqlSchemaOk = theSchema == <strong class="jxr_keyword">null</strong> &amp;&amp; isHsqldb;
-<a class="jxr_linenumber" name="L2739" href="#L2739">2739</a>               <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb &amp;&amp; !hsqlSchemaOk)) {
-<a class="jxr_linenumber" name="L2740" href="#L2740">2740</a>                 <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L2741" href="#L2741">2741</a>               }
-<a class="jxr_linenumber" name="L2742" href="#L2742">2742</a>               Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
-<a class="jxr_linenumber" name="L2743" href="#L2743">2743</a>               
-<a class="jxr_linenumber" name="L2744" href="#L2744">2744</a>               DatabaseMetaData databaseMetaData = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2745" href="#L2745">2745</a>               ResultSet fkData = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2746" href="#L2746">2746</a>   
-<a class="jxr_linenumber" name="L2747" href="#L2747">2747</a>               <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L2748" href="#L2748">2748</a>                 databaseMetaData = connection.getMetaData();
-<a class="jxr_linenumber" name="L2749" href="#L2749">2749</a>                 fkData = databaseMetaData.getTables(<strong class="jxr_keyword">null</strong>, theSchema, theDefaultTablePattern, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L2750" href="#L2750">2750</a>                 ResultSetMetaData resultSetMetaData = fkData.getMetaData();
-<a class="jxr_linenumber" name="L2751" href="#L2751">2751</a>                 <strong class="jxr_keyword">int</strong> columnCount = resultSetMetaData.getColumnCount();
-<a class="jxr_linenumber" name="L2752" href="#L2752">2752</a>                 @SuppressWarnings(<span class="jxr_string">"unused"</span>)
-<a class="jxr_linenumber" name="L2753" href="#L2753">2753</a>                 <strong class="jxr_keyword">int</strong> fk = 0;
-<a class="jxr_linenumber" name="L2754" href="#L2754">2754</a>                 <strong class="jxr_keyword">while</strong> (fkData.next()) {
-<a class="jxr_linenumber" name="L2755" href="#L2755">2755</a>                   <em class="jxr_comment">//System.out.println(fk++ + ": ");</em>
-<a class="jxr_linenumber" name="L2756" href="#L2756">2756</a>   
-<a class="jxr_linenumber" name="L2757" href="#L2757">2757</a>                   <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt;= columnCount; i++) {
-<a class="jxr_linenumber" name="L2758" href="#L2758">2758</a>                     <em class="jxr_comment">//System.out.println("  " + resultSetMetaData.getColumnName(i) + ": "</em>
-<a class="jxr_linenumber" name="L2759" href="#L2759">2759</a>                       <em class="jxr_comment">//  + fkData.getString(i));</em>
-<a class="jxr_linenumber" name="L2760" href="#L2760">2760</a>                     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"TABLE_NAME"</span>, resultSetMetaData.getColumnName(i))) {
-<a class="jxr_linenumber" name="L2761" href="#L2761">2761</a>                       <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(sampleTableNameExistsFinal, fkData.getString(i))) {
-<a class="jxr_linenumber" name="L2762" href="#L2762">2762</a>                         <em class="jxr_comment">//we found it!</em>
-<a class="jxr_linenumber" name="L2763" href="#L2763">2763</a>                         dbMetadataBean.setSchema(theSchema);
-<a class="jxr_linenumber" name="L2764" href="#L2764">2764</a>                         dbMetadataBean.setDefaultTablePattern(theDefaultTablePattern);
-<a class="jxr_linenumber" name="L2765" href="#L2765">2765</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2766" href="#L2766">2766</a>                       }
-<a class="jxr_linenumber" name="L2767" href="#L2767">2767</a>                     }
-<a class="jxr_linenumber" name="L2768" href="#L2768">2768</a>                   }
-<a class="jxr_linenumber" name="L2769" href="#L2769">2769</a>                 }
-<a class="jxr_linenumber" name="L2770" href="#L2770">2770</a>               } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L2771" href="#L2771">2771</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem with db connection"</span>, e);
-<a class="jxr_linenumber" name="L2772" href="#L2772">2772</a>               } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L2773" href="#L2773">2773</a>                 GrouperUtil.closeQuietly(fkData);
-<a class="jxr_linenumber" name="L2774" href="#L2774">2774</a>                 <strong class="jxr_keyword">if</strong> (hibernateSession.isTransactionActive()) {
-<a class="jxr_linenumber" name="L2775" href="#L2775">2775</a>                   hibernateSession.rollback(GrouperRollbackType.ROLLBACK_NOW);
-<a class="jxr_linenumber" name="L2776" href="#L2776">2776</a>                 }
-<a class="jxr_linenumber" name="L2777" href="#L2777">2777</a>               }
-<a class="jxr_linenumber" name="L2778" href="#L2778">2778</a>             }
-<a class="jxr_linenumber" name="L2779" href="#L2779">2779</a>           }
-<a class="jxr_linenumber" name="L2780" href="#L2780">2780</a>           <em class="jxr_comment">//it never found the connection criteria!</em>
-<a class="jxr_linenumber" name="L2781" href="#L2781">2781</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"The table: '"</span> + sampleTableNameExistsFinal + <span class="jxr_string">"' exists, but "</span> +
-<a class="jxr_linenumber" name="L2782" href="#L2782">2782</a>               <span class="jxr_string">"cant find it with DB metadata... is the ddlutils.schema set correctly"</span>);
-<a class="jxr_linenumber" name="L2783" href="#L2783">2783</a>         }
-<a class="jxr_linenumber" name="L2784" href="#L2784">2784</a>         
-<a class="jxr_linenumber" name="L2785" href="#L2785">2785</a>       });
-<a class="jxr_linenumber" name="L2786" href="#L2786">2786</a>     }
-<a class="jxr_linenumber" name="L2787" href="#L2787">2787</a>     <strong class="jxr_keyword">return</strong> dbMetadataBean;
-<a class="jxr_linenumber" name="L2788" href="#L2788">2788</a>     
-<a class="jxr_linenumber" name="L2789" href="#L2789">2789</a>   }
-<a class="jxr_linenumber" name="L2790" href="#L2790">2790</a>   
-<a class="jxr_linenumber" name="L2791" href="#L2791">2791</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2792" href="#L2792">2792</a> <em class="jxr_javadoccomment">   * Returns the sql to concatenate these two fields separated by the separator</em>
-<a class="jxr_linenumber" name="L2793" href="#L2793">2793</a> <em class="jxr_javadoccomment">   * @param field1</em>
-<a class="jxr_linenumber" name="L2794" href="#L2794">2794</a> <em class="jxr_javadoccomment">   * @param field2</em>
-<a class="jxr_linenumber" name="L2795" href="#L2795">2795</a> <em class="jxr_javadoccomment">   * @param separator</em>
-<a class="jxr_linenumber" name="L2796" href="#L2796">2796</a> <em class="jxr_javadoccomment">   * @return sql for concatenation</em>
-<a class="jxr_linenumber" name="L2797" href="#L2797">2797</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2798" href="#L2798">2798</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String sqlConcatenation(String field1, String field2, String separator) {
-<a class="jxr_linenumber" name="L2799" href="#L2799">2799</a>     <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isSQLServer()) {
-<a class="jxr_linenumber" name="L2800" href="#L2800">2800</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" + '"</span> + separator + <span class="jxr_string">"' + "</span> + field2;
-<a class="jxr_linenumber" name="L2801" href="#L2801">2801</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql()) {
-<a class="jxr_linenumber" name="L2802" href="#L2802">2802</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"concat("</span> + field1 + <span class="jxr_string">", '"</span> + separator + <span class="jxr_string">"', "</span> + field2 + <span class="jxr_string">")"</span>;
-<a class="jxr_linenumber" name="L2803" href="#L2803">2803</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L2804" href="#L2804">2804</a>       <em class="jxr_comment">// this should work for Oracle, Hsql, and Postgres</em>
-<a class="jxr_linenumber" name="L2805" href="#L2805">2805</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" || '"</span> + separator + <span class="jxr_string">"' || "</span> + field2;
-<a class="jxr_linenumber" name="L2806" href="#L2806">2806</a>     }
-<a class="jxr_linenumber" name="L2807" href="#L2807">2807</a>   }
-<a class="jxr_linenumber" name="L2808" href="#L2808">2808</a>   
-<a class="jxr_linenumber" name="L2809" href="#L2809">2809</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2810" href="#L2810">2810</a> <em class="jxr_javadoccomment">   * Returns the sql to concatenate these two fields separated by the separator</em>
-<a class="jxr_linenumber" name="L2811" href="#L2811">2811</a> <em class="jxr_javadoccomment">   * @param field1</em>
-<a class="jxr_linenumber" name="L2812" href="#L2812">2812</a> <em class="jxr_javadoccomment">   * @param field2</em>
-<a class="jxr_linenumber" name="L2813" href="#L2813">2813</a> <em class="jxr_javadoccomment">   * @return sql for concatenation</em>
-<a class="jxr_linenumber" name="L2814" href="#L2814">2814</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2815" href="#L2815">2815</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String sqlConcatenation(String field1, String field2) {
-<a class="jxr_linenumber" name="L2816" href="#L2816">2816</a>     <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isSQLServer()) {
-<a class="jxr_linenumber" name="L2817" href="#L2817">2817</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" + "</span> + field2;
-<a class="jxr_linenumber" name="L2818" href="#L2818">2818</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql()) {
-<a class="jxr_linenumber" name="L2819" href="#L2819">2819</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"concat("</span> + field1 + <span class="jxr_string">","</span> + field2 + <span class="jxr_string">")"</span>;
-<a class="jxr_linenumber" name="L2820" href="#L2820">2820</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L2821" href="#L2821">2821</a>       <em class="jxr_comment">// this should work for Oracle, Hsql, and Postgres</em>
-<a class="jxr_linenumber" name="L2822" href="#L2822">2822</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" || "</span> + field2;
-<a class="jxr_linenumber" name="L2823" href="#L2823">2823</a>     }
-<a class="jxr_linenumber" name="L2824" href="#L2824">2824</a>   }
-<a class="jxr_linenumber" name="L2825" href="#L2825">2825</a> 
-<a class="jxr_linenumber" name="L2826" href="#L2826">2826</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2827" href="#L2827">2827</a> <em class="jxr_javadoccomment">   * Get the number of records in a table</em>
-<a class="jxr_linenumber" name="L2828" href="#L2828">2828</a> <em class="jxr_javadoccomment">   * @param tableName</em>
-<a class="jxr_linenumber" name="L2829" href="#L2829">2829</a> <em class="jxr_javadoccomment">   * @param exceptionIfTableDoesNotExist</em>
-<a class="jxr_linenumber" name="L2830" href="#L2830">2830</a> <em class="jxr_javadoccomment">   * @return count</em>
-<a class="jxr_linenumber" name="L2831" href="#L2831">2831</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2832" href="#L2832">2832</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getTableCount(String tableName, <strong class="jxr_keyword">boolean</strong> exceptionIfTableDoesNotExist) {
-<a class="jxr_linenumber" name="L2833" href="#L2833">2833</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L2834" href="#L2834">2834</a>       <strong class="jxr_keyword">return</strong> HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from "</span> + tableName);
-<a class="jxr_linenumber" name="L2835" href="#L2835">2835</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L2836" href="#L2836">2836</a>       <strong class="jxr_keyword">if</strong> (exceptionIfTableDoesNotExist) {
-<a class="jxr_linenumber" name="L2837" href="#L2837">2837</a>         <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L2838" href="#L2838">2838</a>       }
-<a class="jxr_linenumber" name="L2839" href="#L2839">2839</a>       
-<a class="jxr_linenumber" name="L2840" href="#L2840">2840</a>       <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L2841" href="#L2841">2841</a>     }
-<a class="jxr_linenumber" name="L2842" href="#L2842">2842</a>   }
-<a class="jxr_linenumber" name="L2843" href="#L2843">2843</a> }
+<a class="jxr_linenumber" name="L2729" href="#L2729">2729</a>       <em class="jxr_comment">//lets do some trial and error to see what the values should be (since case sensitive)</em>
+<a class="jxr_linenumber" name="L2730" href="#L2730">2730</a>       <strong class="jxr_keyword">final</strong> Set&lt;String&gt; defaultTablePatterns = GrouperUtil.toSet(defaultTablePattern, defaultTablePattern.toLowerCase(), 
+<a class="jxr_linenumber" name="L2731" href="#L2731">2731</a>           defaultTablePattern.toUpperCase());
+<a class="jxr_linenumber" name="L2732" href="#L2732">2732</a>   
+<a class="jxr_linenumber" name="L2733" href="#L2733">2733</a>       <strong class="jxr_keyword">final</strong> Set&lt;String&gt; schemas = GrouperUtil.toSet(
+<a class="jxr_linenumber" name="L2734" href="#L2734">2734</a>           ddlUtilsSchemaOverride, ddlUtilsSchemaOverride.toLowerCase(), ddlUtilsSchemaOverride.toUpperCase(),
+<a class="jxr_linenumber" name="L2735" href="#L2735">2735</a>           schema, StringUtils.lowerCase(schema), StringUtils.upperCase(schema), 
+<a class="jxr_linenumber" name="L2736" href="#L2736">2736</a>           extraSchema, StringUtils.lowerCase(extraSchema), StringUtils.lowerCase(extraSchema));
+<a class="jxr_linenumber" name="L2737" href="#L2737">2737</a>       
+<a class="jxr_linenumber" name="L2738" href="#L2738">2738</a>       <strong class="jxr_keyword">final</strong> String sampleTableNameExistsFinal = sampleTableNameExists;
+<a class="jxr_linenumber" name="L2739" href="#L2739">2739</a>       
+<a class="jxr_linenumber" name="L2740" href="#L2740">2740</a>       HibernateSession.callbackHibernateSession(
+<a class="jxr_linenumber" name="L2741" href="#L2741">2741</a>           GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandler.html">HibernateHandler</a>() {
+<a class="jxr_linenumber" name="L2742" href="#L2742">2742</a>   
+<a class="jxr_linenumber" name="L2743" href="#L2743">2743</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateHandlerBean.html">HibernateHandlerBean</a> hibernateHandlerBean)
+<a class="jxr_linenumber" name="L2744" href="#L2744">2744</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
+<a class="jxr_linenumber" name="L2745" href="#L2745">2745</a>           <a href="../../../../../edu/internet2/middleware/grouper/hibernate/HibernateSession.html">HibernateSession</a> hibernateSession = hibernateHandlerBean.getHibernateSession();
+<a class="jxr_linenumber" name="L2746" href="#L2746">2746</a>           <em class="jxr_comment">//try all combinations</em>
+<a class="jxr_linenumber" name="L2747" href="#L2747">2747</a>           <strong class="jxr_keyword">for</strong> (String theDefaultTablePattern : defaultTablePatterns) {
+<a class="jxr_linenumber" name="L2748" href="#L2748">2748</a>             <strong class="jxr_keyword">for</strong> (String theSchema : schemas) {
+<a class="jxr_linenumber" name="L2749" href="#L2749">2749</a>               <strong class="jxr_keyword">boolean</strong> hsqlSchemaOk = theSchema == <strong class="jxr_keyword">null</strong> &amp;&amp; isHsqldb;
+<a class="jxr_linenumber" name="L2750" href="#L2750">2750</a>               <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb &amp;&amp; !hsqlSchemaOk)) {
+<a class="jxr_linenumber" name="L2751" href="#L2751">2751</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L2752" href="#L2752">2752</a>               }
+<a class="jxr_linenumber" name="L2753" href="#L2753">2753</a>               Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
+<a class="jxr_linenumber" name="L2754" href="#L2754">2754</a>               
+<a class="jxr_linenumber" name="L2755" href="#L2755">2755</a>               DatabaseMetaData databaseMetaData = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2756" href="#L2756">2756</a>               ResultSet fkData = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2757" href="#L2757">2757</a>   
+<a class="jxr_linenumber" name="L2758" href="#L2758">2758</a>               <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L2759" href="#L2759">2759</a>                 databaseMetaData = connection.getMetaData();
+<a class="jxr_linenumber" name="L2760" href="#L2760">2760</a>                 fkData = databaseMetaData.getTables(<strong class="jxr_keyword">null</strong>, theSchema, theDefaultTablePattern, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L2761" href="#L2761">2761</a>                 ResultSetMetaData resultSetMetaData = fkData.getMetaData();
+<a class="jxr_linenumber" name="L2762" href="#L2762">2762</a>                 <strong class="jxr_keyword">int</strong> columnCount = resultSetMetaData.getColumnCount();
+<a class="jxr_linenumber" name="L2763" href="#L2763">2763</a>                 @SuppressWarnings(<span class="jxr_string">"unused"</span>)
+<a class="jxr_linenumber" name="L2764" href="#L2764">2764</a>                 <strong class="jxr_keyword">int</strong> fk = 0;
+<a class="jxr_linenumber" name="L2765" href="#L2765">2765</a>                 <strong class="jxr_keyword">while</strong> (fkData.next()) {
+<a class="jxr_linenumber" name="L2766" href="#L2766">2766</a>                   <em class="jxr_comment">//System.out.println(fk++ + ": ");</em>
+<a class="jxr_linenumber" name="L2767" href="#L2767">2767</a>   
+<a class="jxr_linenumber" name="L2768" href="#L2768">2768</a>                   <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 1; i &lt;= columnCount; i++) {
+<a class="jxr_linenumber" name="L2769" href="#L2769">2769</a>                     <em class="jxr_comment">//System.out.println("  " + resultSetMetaData.getColumnName(i) + ": "</em>
+<a class="jxr_linenumber" name="L2770" href="#L2770">2770</a>                       <em class="jxr_comment">//  + fkData.getString(i));</em>
+<a class="jxr_linenumber" name="L2771" href="#L2771">2771</a>                     <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(<span class="jxr_string">"TABLE_NAME"</span>, resultSetMetaData.getColumnName(i))) {
+<a class="jxr_linenumber" name="L2772" href="#L2772">2772</a>                       <strong class="jxr_keyword">if</strong> (StringUtils.equalsIgnoreCase(sampleTableNameExistsFinal, fkData.getString(i))) {
+<a class="jxr_linenumber" name="L2773" href="#L2773">2773</a>                         <em class="jxr_comment">//we found it!</em>
+<a class="jxr_linenumber" name="L2774" href="#L2774">2774</a>                         dbMetadataBean.setSchema(theSchema);
+<a class="jxr_linenumber" name="L2775" href="#L2775">2775</a>                         dbMetadataBean.setDefaultTablePattern(theDefaultTablePattern);
+<a class="jxr_linenumber" name="L2776" href="#L2776">2776</a>                         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2777" href="#L2777">2777</a>                       }
+<a class="jxr_linenumber" name="L2778" href="#L2778">2778</a>                     }
+<a class="jxr_linenumber" name="L2779" href="#L2779">2779</a>                   }
+<a class="jxr_linenumber" name="L2780" href="#L2780">2780</a>                 }
+<a class="jxr_linenumber" name="L2781" href="#L2781">2781</a>               } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L2782" href="#L2782">2782</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem with db connection"</span>, e);
+<a class="jxr_linenumber" name="L2783" href="#L2783">2783</a>               } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L2784" href="#L2784">2784</a>                 GrouperUtil.closeQuietly(fkData);
+<a class="jxr_linenumber" name="L2785" href="#L2785">2785</a>                 <strong class="jxr_keyword">if</strong> (hibernateSession.isTransactionActive()) {
+<a class="jxr_linenumber" name="L2786" href="#L2786">2786</a>                   hibernateSession.rollback(GrouperRollbackType.ROLLBACK_NOW);
+<a class="jxr_linenumber" name="L2787" href="#L2787">2787</a>                 }
+<a class="jxr_linenumber" name="L2788" href="#L2788">2788</a>               }
+<a class="jxr_linenumber" name="L2789" href="#L2789">2789</a>             }
+<a class="jxr_linenumber" name="L2790" href="#L2790">2790</a>           }
+<a class="jxr_linenumber" name="L2791" href="#L2791">2791</a>           <em class="jxr_comment">//it never found the connection criteria!</em>
+<a class="jxr_linenumber" name="L2792" href="#L2792">2792</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"The table: '"</span> + sampleTableNameExistsFinal + <span class="jxr_string">"' exists, but "</span> +
+<a class="jxr_linenumber" name="L2793" href="#L2793">2793</a>               <span class="jxr_string">"cant find it with DB metadata... is the ddlutils.schema set correctly"</span>);
+<a class="jxr_linenumber" name="L2794" href="#L2794">2794</a>         }
+<a class="jxr_linenumber" name="L2795" href="#L2795">2795</a>         
+<a class="jxr_linenumber" name="L2796" href="#L2796">2796</a>       });
+<a class="jxr_linenumber" name="L2797" href="#L2797">2797</a>     }
+<a class="jxr_linenumber" name="L2798" href="#L2798">2798</a>     <strong class="jxr_keyword">return</strong> dbMetadataBean;
+<a class="jxr_linenumber" name="L2799" href="#L2799">2799</a>     
+<a class="jxr_linenumber" name="L2800" href="#L2800">2800</a>   }
+<a class="jxr_linenumber" name="L2801" href="#L2801">2801</a>   
+<a class="jxr_linenumber" name="L2802" href="#L2802">2802</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2803" href="#L2803">2803</a> <em class="jxr_javadoccomment">   * Returns the sql to concatenate these two fields separated by the separator</em>
+<a class="jxr_linenumber" name="L2804" href="#L2804">2804</a> <em class="jxr_javadoccomment">   * @param field1</em>
+<a class="jxr_linenumber" name="L2805" href="#L2805">2805</a> <em class="jxr_javadoccomment">   * @param field2</em>
+<a class="jxr_linenumber" name="L2806" href="#L2806">2806</a> <em class="jxr_javadoccomment">   * @param separator</em>
+<a class="jxr_linenumber" name="L2807" href="#L2807">2807</a> <em class="jxr_javadoccomment">   * @return sql for concatenation</em>
+<a class="jxr_linenumber" name="L2808" href="#L2808">2808</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2809" href="#L2809">2809</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String sqlConcatenation(String field1, String field2, String separator) {
+<a class="jxr_linenumber" name="L2810" href="#L2810">2810</a>     <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isSQLServer()) {
+<a class="jxr_linenumber" name="L2811" href="#L2811">2811</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" + '"</span> + separator + <span class="jxr_string">"' + "</span> + field2;
+<a class="jxr_linenumber" name="L2812" href="#L2812">2812</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql()) {
+<a class="jxr_linenumber" name="L2813" href="#L2813">2813</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"concat("</span> + field1 + <span class="jxr_string">", '"</span> + separator + <span class="jxr_string">"', "</span> + field2 + <span class="jxr_string">")"</span>;
+<a class="jxr_linenumber" name="L2814" href="#L2814">2814</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L2815" href="#L2815">2815</a>       <em class="jxr_comment">// this should work for Oracle, Hsql, and Postgres</em>
+<a class="jxr_linenumber" name="L2816" href="#L2816">2816</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" || '"</span> + separator + <span class="jxr_string">"' || "</span> + field2;
+<a class="jxr_linenumber" name="L2817" href="#L2817">2817</a>     }
+<a class="jxr_linenumber" name="L2818" href="#L2818">2818</a>   }
+<a class="jxr_linenumber" name="L2819" href="#L2819">2819</a>   
+<a class="jxr_linenumber" name="L2820" href="#L2820">2820</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2821" href="#L2821">2821</a> <em class="jxr_javadoccomment">   * Returns the sql to concatenate these two fields separated by the separator</em>
+<a class="jxr_linenumber" name="L2822" href="#L2822">2822</a> <em class="jxr_javadoccomment">   * @param field1</em>
+<a class="jxr_linenumber" name="L2823" href="#L2823">2823</a> <em class="jxr_javadoccomment">   * @param field2</em>
+<a class="jxr_linenumber" name="L2824" href="#L2824">2824</a> <em class="jxr_javadoccomment">   * @return sql for concatenation</em>
+<a class="jxr_linenumber" name="L2825" href="#L2825">2825</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2826" href="#L2826">2826</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String sqlConcatenation(String field1, String field2) {
+<a class="jxr_linenumber" name="L2827" href="#L2827">2827</a>     <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isSQLServer()) {
+<a class="jxr_linenumber" name="L2828" href="#L2828">2828</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" + "</span> + field2;
+<a class="jxr_linenumber" name="L2829" href="#L2829">2829</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.isMysql()) {
+<a class="jxr_linenumber" name="L2830" href="#L2830">2830</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"concat("</span> + field1 + <span class="jxr_string">","</span> + field2 + <span class="jxr_string">")"</span>;
+<a class="jxr_linenumber" name="L2831" href="#L2831">2831</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L2832" href="#L2832">2832</a>       <em class="jxr_comment">// this should work for Oracle, Hsql, and Postgres</em>
+<a class="jxr_linenumber" name="L2833" href="#L2833">2833</a>       <strong class="jxr_keyword">return</strong> field1 + <span class="jxr_string">" || "</span> + field2;
+<a class="jxr_linenumber" name="L2834" href="#L2834">2834</a>     }
+<a class="jxr_linenumber" name="L2835" href="#L2835">2835</a>   }
+<a class="jxr_linenumber" name="L2836" href="#L2836">2836</a> 
+<a class="jxr_linenumber" name="L2837" href="#L2837">2837</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2838" href="#L2838">2838</a> <em class="jxr_javadoccomment">   * Get the number of records in a table</em>
+<a class="jxr_linenumber" name="L2839" href="#L2839">2839</a> <em class="jxr_javadoccomment">   * @param tableName</em>
+<a class="jxr_linenumber" name="L2840" href="#L2840">2840</a> <em class="jxr_javadoccomment">   * @param exceptionIfTableDoesNotExist</em>
+<a class="jxr_linenumber" name="L2841" href="#L2841">2841</a> <em class="jxr_javadoccomment">   * @return count</em>
+<a class="jxr_linenumber" name="L2842" href="#L2842">2842</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2843" href="#L2843">2843</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> getTableCount(String tableName, <strong class="jxr_keyword">boolean</strong> exceptionIfTableDoesNotExist) {
+<a class="jxr_linenumber" name="L2844" href="#L2844">2844</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L2845" href="#L2845">2845</a>       <strong class="jxr_keyword">return</strong> HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from "</span> + tableName);
+<a class="jxr_linenumber" name="L2846" href="#L2846">2846</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L2847" href="#L2847">2847</a>       <strong class="jxr_keyword">if</strong> (exceptionIfTableDoesNotExist) {
+<a class="jxr_linenumber" name="L2848" href="#L2848">2848</a>         <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L2849" href="#L2849">2849</a>       }
+<a class="jxr_linenumber" name="L2850" href="#L2850">2850</a>       
+<a class="jxr_linenumber" name="L2851" href="#L2851">2851</a>       <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L2852" href="#L2852">2852</a>     }
+<a class="jxr_linenumber" name="L2853" href="#L2853">2853</a>   }
+<a class="jxr_linenumber" name="L2854" href="#L2854">2854</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
