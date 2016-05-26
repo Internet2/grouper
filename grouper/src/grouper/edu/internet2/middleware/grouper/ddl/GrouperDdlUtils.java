@@ -2540,8 +2540,19 @@ public class GrouperDdlUtils {
     
     try {
       //first, see if tables are there
-      int count = HibernateSession.bySqlStatic().select(int.class, 
-          "select count(*) from " + tableName);
+      int count = -1;
+      
+      if (expectRecords || GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDdl.legacySeeIfTableExists", false)) {
+        
+        count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from " + tableName);
+        
+      } else {
+        
+        count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from " + tableName + " where 1=0");
+        
+      }
       if (!expectRecords) {
         return true;
       }
