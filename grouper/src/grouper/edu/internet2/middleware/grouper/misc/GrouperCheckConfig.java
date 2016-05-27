@@ -195,7 +195,7 @@ public class GrouperCheckConfig {
     
     return CheckGroupResult.DOESNT_EXIST;
   }
-  
+
   /**
    * check a jar
    * @param name name of the jar from grouper
@@ -204,6 +204,17 @@ public class GrouperCheckConfig {
    * @param manifestVersion in the manifest file, which version we are expecting
    */
   public static void checkJar(String name, long size, String sampleClassName, String manifestVersion) {
+    checkJar(name, GrouperUtil.toSet(size), sampleClassName, manifestVersion);
+  }
+
+  /**
+   * check a jar
+   * @param name name of the jar from grouper
+   * @param sizes that the jar should be
+   * @param sampleClassName inside the jar
+   * @param manifestVersion in the manifest file, which version we are expecting
+   */
+  public static void checkJar(String name, Set<Long> sizes, String sampleClassName, String manifestVersion) {
     
     if (configCheckDisabled()) {
       return;
@@ -231,9 +242,10 @@ public class GrouperCheckConfig {
       //in case null
       jarVersion = jarVersion(sampleClass) + "";
       
-      if (size == jarFileSize && StringUtils.equals(manifestVersion, jarVersion)
+      if (sizes.contains(jarFileSize) && StringUtils.equals(manifestVersion, jarVersion)
           && StringUtils.equals(name, jarFile.getName())) {
-        LOG.debug("Found jarfile: " + jarFileFullName + " with correct size " + size + " and version: " + manifestVersion);
+        LOG.debug("Found jarfile: " + jarFileFullName + " with correct size " 
+          + GrouperUtil.toStringForLog(sizes) + " and version: " + manifestVersion);
         return;
       }
       
@@ -246,7 +258,7 @@ public class GrouperCheckConfig {
     //dont penalize activation.jar if the class is found...  sometimes its in java
     //xpp3 just doesnt work
     if (!StringUtils.equals("activation.jar", name) && !StringUtils.equals("xpp3_min.jar", name)) {
-      String error = "jarfile mismatch, expecting name: '" + name + "' size: " + size 
+      String error = "jarfile mismatch, expecting name: '" + name + "' size: " + GrouperUtil.toStringForLog(sizes) 
         + " manifest version: " + manifestVersion + ".  However the jar detected is: " 
         + jarFileFullName + ", name: " + jarFileName + " size: " + jarFileSize
         + " manifest version: " + jarVersion;
@@ -1267,14 +1279,14 @@ public class GrouperCheckConfig {
     checkJar("commons-httpclient.jar", 279383, "org.apache.commons.httpclient.auth.AuthChallengeException", "3.0");
     checkJar("commons-io.jar", 263589, "org.apache.commons.io.comparator.DefaultFileComparator", "1.4");
     checkJar("commons-jexl.jar", 388170, "org.apache.commons.jexl2.DebugInfo", "2.0.1");
-    checkJar("commons-lang.jar", 468109, "org.apache.commons.lang.ArrayUtils", "2.1");
+    checkJar("commons-lang.jar", 651510, "org.apache.commons.lang.ArrayUtils", "2.6");
     checkJar("commons-logging.jar", 131078, "org.apache.commons.logging.impl.AvalonLogger", "1.1.1");
     checkJar("commons-math.jar", 174535, "org.apache.commons.math.distribution.ExponentialDistributionImpl", "1.1");
     checkJar("ddlUtils.jar", 713153, "org.apache.ddlutils.alteration.AddColumnChange", "1.0");
     checkJar("dom4j-1.6.1.jar", 313898, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache-core-2.4.3.jar", 1006424, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 4341330, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.3.0");
+    checkJar("grouperClient.jar", GrouperUtil.toSet(4341330L, 4332468L), "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.3.0");
     checkJar("hibernate-c3p0-5.0.4.Final.jar", 11578, "org.hibernate.c3p0.internal.StrategyRegistrationProviderImpl", "5.0.4.Final");
     checkJar("hibernate-commons-annotations-5.0.0.Final.jar", 75113, "org.hibernate.annotations.common.AssertionFailure", "5.0.0.Final");
     checkJar("hibernate-core-5.0.4.Final.jar", 5567398, "org.hibernate.NullPrecedence", "5.0.4.Final");
