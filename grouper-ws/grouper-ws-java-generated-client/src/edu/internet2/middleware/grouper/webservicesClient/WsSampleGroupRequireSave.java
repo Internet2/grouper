@@ -29,14 +29,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GroupSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupDetail;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupSaveResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupToSave;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GroupSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupDetail;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupSaveResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
 
 /**
  *

@@ -65,13 +65,17 @@
     privileges limited to those assigned to them. This UI allows SysAdmin group members 
     to opt to <em>Act as admin</em>.<br/>
     <br/>
-    <strong>Creation privileges</strong> </dd>
+    <strong>Folder privileges</strong> </dd>
   <dd> 
     <dl>
-      <dt>Create Group</dt>
-      <dd>Entity may create groups in this folder</dd>
-      <dt>Create Folder</dt>
-      <dd>Entity may create subfolders in this folder</dd>
+      <dt>Create</dt>
+      <dd>Entity may create groups, attributes, and subfolders in this folder</dd>
+      <dt>Admin</dt>
+      <dd>Entity may create groups, attributes, and subfolders in this folder, delete this folder, or assign any privilege to any entity</dd>
+      <dt>Attribute read</dt>
+      <dd>Entity may see the attributes for this folder</dd>
+      <dt>Attribute update</dt>
+      <dd>Entity may modify the attributes of this folder</dd>
     </dl>
     <br/>
     <strong>Group privileges</strong> 
@@ -91,6 +95,10 @@
       <dt>Admin</dt>
       <dd>Entity may modify the membership of this group, delete the group or 
         assign privileges for the group</dd>
+      <dt>Attribute read</dt>
+      <dd>Entity may see the attributes for this group</dd>
+      <dt>Attribute update</dt>
+      <dd>Entity may modify the attributes of this group</dd>
     </dl>
   </dd>
 </dl>
@@ -198,7 +206,7 @@ clicking the checkbox next to the entity listing, then click the "Assign privile
 
 <dt><li>        <a href="#" 
   onclick="return grouperHideShow(event, 'createNewGroup');">Create a new group</a></dt>
-<dd id="createNewGroup0" style="display:none;visibility:hidden;">(requires CREATE GROUP privilege or greater)
+<dd id="createNewGroup0" style="display:none;visibility:hidden;">(requires CREATE privilege or greater)
 <ol><li>      <a href="" 
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor');">Find a parent folder</a>
    for the group.  This
@@ -217,7 +225,7 @@ saved and you can add members to the group.</li></ul></li>
 </dd>
 <dt><li> <a href="#" 
   onclick="return grouperHideShow(event, 'createCompositeGroup');">Create a composite group</a></dt>
-<dd id="createCompositeGroup0" style="display:none;visibility:hidden;">(requires CREATE GROUP privilege or greater) 
+<dd id="createCompositeGroup0" style="display:none;visibility:hidden;">(requires CREATE privilege or greater) 
 Grouper allows you to use two existing groups (called "factors") to define a third (composite) group.  
 You may combine two groups in the following ways:
 <ul><li> UNION includes all members of the two original (factor) groups -- "adding"</li>
@@ -263,7 +271,7 @@ panel to create the new composite group.</li></ol></li></ol>
 </dd>
 <dt><li>      <a href="#" 
   onclick="return grouperHideShow(event, 'createNewFolder');">Create a new folder</a></dt>
-<dd id="createNewFolder0" style="display:none;visibility:hidden;">(requires CREATE FOLDER privilege or greater)
+<dd id="createNewFolder0" style="display:none;visibility:hidden;">(requires CREATE privilege or greater)
 <ol><li>      <a href="#" 
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor');">Find a parent folder</a>
    for the folder you will be creating.  This should place you on the Browse Groups Hierarchy screen
@@ -281,7 +289,7 @@ saved and can add search for and members to the group</li></ul></li></ol>
   onclick="return grouperHideShow(event, 'assignFolderManager');">Assign someone to be 
   able to create new folders or groups within a
 parent folder</a></dt>
-<dd id="assignFolderManager0" style="display:none;visibility:hidden;">(requires CREATE FOLDER privilege or greater)
+<dd id="assignFolderManager0" style="display:none;visibility:hidden;">(requires ADMIN privilege)
 <ol><li>      <a href="#" 
   onclick="grouperHideShow(event, 'findFolderNavigation', true);return goToAnchor('findFolderNavigationAnchor');">Find a parent folder</a> 
   for the folder you will be creating.  
@@ -290,7 +298,7 @@ This should place you on the Browse Groups Hierarchy screen
 will see the "Manage folders" panel at the bottom of the page.  If you do not see this panel, contact your administrator.
 </li></ul></li>
 <li>      Click the "Show Entities with" at the bottom of the "Manage
-folders" panel.  The "Current entities with [Create Group] privilege"
+folders" panel.  The "Current entities with [Create] privilege"
 screen will appear.</li>
 <li>      Click "Assign this privilege" at the bottom of the "Entity list
 filtered by privilege" panel.  The "Assign creation privileges for [group name]" screen will appear.</li>
@@ -298,9 +306,9 @@ filtered by privilege" panel.  The "Assign creation privileges for [group name]"
 search criteria for the member you want to add, then click the
 "Search" button.   Your search results will appear.
         <ul><li>       Note that in the privileges portions of the results panel, the
-CREATE GROUP privilege is selected by default.  You may also use the CREATE FOLDER checkbox to assign privileges to the entities you select.</li>
-        <li>       The creation privileges you grant apply to the parent folder only,
-and not to any subfolders contained within it (i.e. there is no hierarchical inheritance of creation privileges)</li>
+CREATE privilege is selected by default.  You may also use the ADMIN, ATTRIBUTE READ, or ATTRIBUTE UPDATE checkboxes to assign privileges to the entities you select.</li>
+        <li>       The folder privileges you grant apply to the parent folder only,
+and not to any subfolders contained within it (i.e. there is no hierarchical inheritance of folder privileges by default)</li>
 </ul></li></ol>
   </dd>
 </dl>

@@ -265,9 +265,13 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    */
   private static GrouperCache<String, AttributeDefName> attributeDefNameFromTypeIdCache() {
     if (attributeDefNameFromTypeIdCache == null) {
-      attributeDefNameFromTypeIdCache = new GrouperCache<String, AttributeDefName>(
-          GroupType.class.getName() + ".attributeDefNameFromTypeIdCache", 200, false, 
-          30, 30, false);
+      synchronized(GroupType.class) {
+        if (attributeDefNameFromTypeIdCache == null) {
+          attributeDefNameFromTypeIdCache = new GrouperCache<String, AttributeDefName>(
+              GroupType.class.getName() + ".attributeDefNameFromTypeIdCache", 200, false, 
+              30, 30, false);
+        }
+      }
     }
     return attributeDefNameFromTypeIdCache;
   }  
@@ -283,9 +287,13 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
    */
   private static GrouperCache<String, Set<AttributeDefName>> legacyAttributesFromTypeIdCache() {
     if (legacyAttributesFromTypeIdCache == null) {
-      legacyAttributesFromTypeIdCache = new GrouperCache<String, Set<AttributeDefName>>(
-          GroupType.class.getName() + ".legacyAttributesFromTypeIdCache", 200, false, 
-          30, 30, false);
+      synchronized(GroupType.class) {
+        if (legacyAttributesFromTypeIdCache == null) {
+          legacyAttributesFromTypeIdCache = new GrouperCache<String, Set<AttributeDefName>>(
+              GroupType.class.getName() + ".legacyAttributesFromTypeIdCache", 200, false, 
+              30, 30, false);
+        }
+      }
     }
     return legacyAttributesFromTypeIdCache;
   }  

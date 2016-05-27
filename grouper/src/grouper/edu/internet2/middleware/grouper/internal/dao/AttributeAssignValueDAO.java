@@ -23,7 +23,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.AttributeAssignValueNotFoundException;
 
@@ -106,13 +108,23 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
    * @return the values
    */
   public Set<AttributeAssignValue> findByValueString(String value);
+
+  /**
+   * find values on this assignment and values on assignments on this assignment
+   * @param attributeAssignIds 
+   * @param attributeAssignType 
+   * @param attributeDefType 
+   * @param enabled 
+   * @return the set of values
+   */
+  public Set<AttributeAssignValue> findValuesOnAssignments(Collection<String> attributeAssignIds, 
+      AttributeAssignType attributeAssignType, AttributeDefType attributeDefType, Boolean enabled);
   
   /**
    * securely search for assignments.  need to pass in member ids
    * cannot have more than 100 bind variables
    * @param memberIds optional
    * @param enabled (null means all, true means enabled, false means disabled)
-   * @param includeAssignmentsOnAssignments if assignments on assignments should also be included
    * @return the assignments
    */
   public Map<AttributeAssign, Set<AttributeAssignValue>> findMemberAttributeAssignmentValues(
@@ -130,7 +142,7 @@ public interface AttributeAssignValueDAO extends GrouperDAO {
   /**
    * Returns legacy attributes (assigned to a given group) either migrated or created in the new attribute framework.
    * The keys of the map are the legacy attribute field names.
-   * @param groupIds
+   * @param groupId
    * @return the map of maps of values by group id
    */
   public Map<String, Map<String, AttributeAssignValue>> findLegacyAttributesByGroupIds(Collection<String> groupId);

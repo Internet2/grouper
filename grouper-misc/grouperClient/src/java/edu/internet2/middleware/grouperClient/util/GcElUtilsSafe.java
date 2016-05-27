@@ -65,6 +65,15 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 public class GcElUtilsSafe {
 
   /**
+   * get env var for a key
+   * @param key
+   * @return env var
+   */
+  public static String environmentVariable(String key) {
+    return System.getenv().get(key);
+  }
+  
+  /**
    * append objects since there is no way to do this in EL
    * @param objects inputs to append to each other
    * @return the string appended

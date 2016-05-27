@@ -471,13 +471,6 @@ public abstract class PermissionEntryBase extends GrouperAPI implements Permissi
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.permissions.PermissionEntry#setRoleSetDepth(int)
-   */
-  public void setRoleSetDepth(int roleSetDepth1) {
-    this.roleSetDepth = roleSetDepth1;
-  }
-
-  /**
    * @see edu.internet2.middleware.grouper.permissions.PermissionEntry#getAttributeDefNameSetDepth()
    */
   public int getAttributeDefNameSetDepth() {
@@ -692,5 +685,47 @@ public abstract class PermissionEntryBase extends GrouperAPI implements Permissi
    */
   public PermissionType getPermissionType() {
     return this.permissionType;
+  }
+  
+  /**
+   * @param theAttributeAssignTypeDb
+   */
+  public void setAttributeAssignTypeDb(String theAttributeAssignTypeDb) {
+    if ("group".equals(theAttributeAssignTypeDb)) {
+      setPermissionTypeDb("role");
+    } else if ("any_mem".equals(theAttributeAssignTypeDb)) {
+      setPermissionTypeDb("role_subject");
+      this.roleSetDepth = -1;
+    } else {
+      throw new RuntimeException("Unexpected attribute assign type: " + theAttributeAssignTypeDb);
+    }
+  }
+  
+  /**
+   * @return attribute assign type
+   */
+  public String getAttributeAssignTypeDb() {
+    if (getPermissionType() == null) {
+      return null;
+    }
+    
+    if (getPermissionType().equals(PermissionType.role)) {
+      return "group";
+    } else if (getPermissionType().equals(PermissionType.role_subject)) {
+      return "any_mem";
+    } else {
+      throw new RuntimeException("Unexpected permission type: " + getPermissionType().getName());
+    }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.permissions.PermissionEntry#setRoleSetDepth(int)
+   */
+  public void setRoleSetDepth(int roleSetDepth1) {
+    if ("any_mem".equals(getAttributeAssignTypeDb())) {
+      this.roleSetDepth = -1;
+    } else {
+      this.roleSetDepth = roleSetDepth1;
+    }
   }
 }

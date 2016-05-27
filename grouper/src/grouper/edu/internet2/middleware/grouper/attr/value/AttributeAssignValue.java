@@ -208,16 +208,27 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
    * assign a value to any type
    * @param value
    */
-  public void assignValue(String value) {
-    
+  public void assignValue(Object value) {
     AttributeAssign attributeAssign = this.getAttributeAssign();
+    if (attributeAssign == null) {
+      throw new RuntimeException("You need to set the attributeAssignId or the attributeDef to set the value");
+    }
     AttributeDef attributeDef = attributeAssign.getAttributeDef();
+    this.assignValue(value, attributeDef);
+  }
+  
+  /**
+   * assign a value to any type
+   * @param value
+   * @param attributeDef
+   */
+  public void assignValue(Object value, AttributeDef attributeDef) {
     
     AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
     
     this.clearValue();
     
-    if (StringUtils.isBlank(value)) {
+    if (GrouperUtil.isBlank(value)) {
       return;
     }
     
@@ -236,10 +247,10 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
         throw new RuntimeException("Cant assign a value to a marker attribute: " 
             + value + ", " + this.attributeAssignId); 
       case memberId:
-        this.valueMemberId = value;
+        this.valueMemberId = GrouperUtil.stringValue(value);
         break;
       case string:
-        this.valueString = value;
+        this.valueString = GrouperUtil.stringValue(value);
         break;
       default:
         throw new RuntimeException("Not expecting type: " + attributeDefValueType);
@@ -393,6 +404,53 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   private Long createdOnDb;
 
   /**
+   * validate the value
+   */
+  private void validateValue() {
+    AttributeAssign attributeAssign = this.getAttributeAssign();
+    if (attributeAssign == null) {
+      throw new RuntimeException("You need to set the attributeAssignId or the attributeDef to set the value");
+    }
+    AttributeDef attributeDef = attributeAssign.getAttributeDef();
+    AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+    
+    switch(attributeDefValueType) {
+      case timestamp:
+        if (this.valueFloating != null || this.valueMemberId != null || this.valueString != null) {
+          throw new RuntimeException(attributeDefValueType + " value has wrong value type");
+        }
+        break;
+      case floating:
+        if (this.valueInteger != null || this.valueMemberId != null || this.valueString != null) {
+          throw new RuntimeException(attributeDefValueType + " value has wrong value type");
+        }
+        break;
+      case integer:
+        if (this.valueFloating != null || this.valueMemberId != null || this.valueString != null) {
+          throw new RuntimeException(attributeDefValueType + " value has wrong value type");
+        }
+        break;
+      case marker:
+        if (this.valueInteger != null || this.valueFloating != null || this.valueMemberId != null || this.valueString != null) {
+          throw new RuntimeException(attributeDefValueType + " value has wrong value type");
+        }
+        break;
+      case memberId:
+        if (this.valueInteger != null || this.valueFloating != null || this.valueString != null) {
+          throw new RuntimeException(attributeDefValueType + " value has wrong value type");
+        }
+        break;
+      case string:
+        if (this.valueInteger != null || this.valueFloating != null || this.valueMemberId != null) {
+          throw new RuntimeException(attributeDefValueType + " value has wrong value type");
+        }
+        break;
+      default:
+        throw new RuntimeException("Not expecting type: " + attributeDefValueType);
+    }
+  }
+  
+  /**
    * save or update this object
    */
   public void saveOrUpdate() {
@@ -400,6 +458,8 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     if (StringUtils.isBlank(this.id)) {
       this.id = GrouperUuid.getUuid();
     }
+    
+    this.validateValue();
     
     final boolean isInsert = ObjectUtils.equals(this.getHibernateVersionNumber(), GrouperAPI.INITIAL_VERSION_NUMBER);
 
@@ -989,6 +1049,27 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   }
 
   /**
+   * get the value whatever it is or null if none
+   * @return the value
+   */
+  public Object getValue() {
+    if (!StringUtils.isEmpty(this.valueString)) {
+      return this.valueString;
+    }
+    if (this.valueInteger != null) {
+      return this.valueInteger;
+    }
+    if (this.valueFloating != null) {
+      return this.valueFloating;
+    }
+    if (this.valueMemberId != null) {
+      return this.valueMemberId;
+    }
+    //probably null :)
+    return null;
+  }
+  
+  /**
    * get the type of this value
    * @return the type of this value
    */
@@ -1004,17 +1085,17 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
     if (valueCount == 0) {
       return AttributeAssignValueType.nullValue;
     }
-    if (this.valueFloating != null) {
-      return AttributeAssignValueType.floating;
+    if (!StringUtils.isEmpty(this.valueString)) {
+      return AttributeAssignValueType.string;
     }
     if (this.valueInteger != null) {
       return AttributeAssignValueType.integerValue;
     }
+    if (this.valueFloating != null) {
+      return AttributeAssignValueType.floating;
+    }
     if (this.valueMemberId != null) {
       return AttributeAssignValueType.memberId;
-    }
-    if (!StringUtils.isEmpty(this.valueString)) {
-      return AttributeAssignValueType.string;
     }
     throw new RuntimeException("Why are we here? " + this);
   }

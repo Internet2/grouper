@@ -17,9 +17,13 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MembershipFinder;
@@ -51,6 +56,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogic;
@@ -62,6 +68,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -69,12 +76,19 @@ import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperObjectFinder.ObjectPrivilege;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.rules.RuleApi;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleFinder;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -1106,6 +1120,220 @@ public class UiV2Stem {
     }
   }
 
+  /**
+   * remove line items from inherited privileges
+   * @param request
+   * @param response
+   */
+  public void removeInheritedPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanUpdatePrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to update privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      final Set<String> ruleAttributeAssignIds = new HashSet<String>();
+      
+      for (int i=0;i<1000;i++) {
+        String privilegeRuleRowId = request.getParameter("privilegeRuleRow_" + i + "[]");
+        if (!StringUtils.isBlank(privilegeRuleRowId)) {
+          ruleAttributeAssignIds.add(privilegeRuleRowId);
+        }
+      }
+  
+      if (ruleAttributeAssignIds.size() == 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveNoRuleSelects")));
+        return;
+      }
+      final int[] successes = new int[]{0};
+      final int[] failures = new int[]{0};
+
+      final Map<String, GuiRuleDefinition> assignIdToGuiRuleDefinition = new HashMap<String, GuiRuleDefinition>();
+      {
+        Set<GuiRuleDefinition> guiRuleDefinitions = existingPrivilegeInheritedGuiRuleDefinitions(stem);
+        for (GuiRuleDefinition guiRuleDefinition : GrouperUtil.nonNull(guiRuleDefinitions)) {
+          assignIdToGuiRuleDefinition.put(guiRuleDefinition.getRuleDefinition().getAttributeAssignType().getId(), guiRuleDefinition);
+        }
+      }
+      
+      //subject has update, so this operation as root in case removing affects the membership
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
+          for (String ruleAttributeAssignId : ruleAttributeAssignIds) {
+            try {
+              
+              GuiRuleDefinition guiRuleDefinition = assignIdToGuiRuleDefinition.get(ruleAttributeAssignId);
+              
+              if (guiRuleDefinition == null) {
+                LOG.warn("Error with rule definition, not found: " + ruleAttributeAssignId + ", user: " + GrouperUtil.subjectToString(loggedInSubject));
+                failures[0]++;
+                continue;
+              }
+
+              guiRuleDefinition.getRuleDefinition().getAttributeAssignType().delete();
+
+              successes[0]++;
+            } catch (Exception e) {
+              LOG.warn("Error with remove inherited privilege: " + ruleAttributeAssignId + ", user: " + GrouperUtil.subjectToString(loggedInSubject), e);
+              failures[0]++;
+            }
+          }
+          
+          return null;
+        }
+      });
+      
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setSuccessCount(successes[0]);
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setFailureCount(failures[0]);
+
+      RuleEngine.clearRuleEngineCache();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/privilegesInheritedToObjects.jsp"));
+      privilegesInheritedToObjectsHelper(request, response, stem);
+      
+      //put this after redirect
+      if (failures[0] > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveErrors")));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedRemoveSuccesses")));
+      }
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+      
+  }
+  
+  /**
+   * view stem privileges
+   * @param request
+   * @param response
+   */
+  public void privilegesInheritedToObjectsInFolder(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+
+    Stem stem = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      stem = retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanReadPrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to read privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/privilegesInheritedToObjects.jsp"));
+      privilegesInheritedToObjectsHelper(request, response, stem);
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
+   * privileges Inherited To Objects in folder
+   * @param request
+   * @param response
+   * @param stem
+   */
+  private void privilegesInheritedToObjectsHelper(HttpServletRequest request, HttpServletResponse response, Stem stem) {
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+    
+    Set<GuiRuleDefinition> guiRuleDefinitions = existingPrivilegeInheritedGuiRuleDefinitions(stem);
+    
+    rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
+
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#privilegesInheritedResultsId", 
+        "/WEB-INF/grouperUi2/stem/privilegesInheritedContents.jsp"));
+  
+  }
+
+  /**
+   * @param stem
+   * @return definitions
+   */
+  public Set<GuiRuleDefinition> existingPrivilegeInheritedGuiRuleDefinitions(Stem stem) {
+    
+    Set<GuiRuleDefinition> guiRuleDefinitions = new TreeSet<GuiRuleDefinition>();
+    {
+      Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findGroupPrivilegeInheritRules(stem);
+      for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        if (guiRuleDefinition.getOwnerGuiStem() != null) {
+          guiRuleDefinitions.add(guiRuleDefinition);
+        }
+      }
+    }
+    
+    {
+      Set<RuleDefinition> stemRuleDefinitions  = RuleFinder.findFolderPrivilegeInheritRules(stem);
+      for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(stemRuleDefinitions)) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        if (guiRuleDefinition.getOwnerGuiStem() != null) {
+          guiRuleDefinitions.add(guiRuleDefinition);
+        }
+      }
+    }
+    
+    {
+      Set<RuleDefinition> attributeDefRuleDefinitions  = RuleFinder.findAttributeDefPrivilegeInheritRules(stem);
+      for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(attributeDefRuleDefinitions)) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        if (guiRuleDefinition.getOwnerGuiStem() != null) {
+          guiRuleDefinitions.add(guiRuleDefinition);
+        }
+      }
+    }
+    for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitions) {
+      if (StringUtils.equals(stem.getUuid(), guiRuleDefinition.getOwnerGuiStem().getStem().getUuid())) {
+        guiRuleDefinition.setDirect(true);
+      }
+    }
+    return guiRuleDefinitions;
+  }
 
   /**
    * the filter button was pressed for privileges, or paging or sorting, or view Stem privileges or something
@@ -2086,7 +2314,358 @@ public class UiV2Stem {
         "/WEB-INF/grouperUi2/stem/stemViewAuditsContents.jsp"));
   
   }
+  
+  /**
+   * view this stem privileges inherited from folders
+   * @param request
+   * @param response
+   */
+  public void thisStemsPrivilegesInheritedFromFolders(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, true, false, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+  
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanReadPrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to read privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
 
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      RulesContainer rulesContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer();
+      
+      Set<GuiRuleDefinition> guiRuleDefinitions = new TreeSet<GuiRuleDefinition>();
+      
+      //cant be root stem :)
+      if (!stem.isRootStem()) {
+      
+        Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findFolderPrivilegeInheritRules(stem.getParentStem());
+        for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
+        }
+      }
+      
+      for (GuiRuleDefinition guiRuleDefinition : guiRuleDefinitions) {
+        if (StringUtils.equals(stem.getParentStem().getUuid(), guiRuleDefinition.getOwnerGuiStem().getStem().getUuid())) {
+          guiRuleDefinition.setDirect(true);
+        }
+      }
+      rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/thisFoldersPrivilegesInheritedFromFolders.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+
+  /**
+   * submit button on privilege inheritance add member form pressed
+   * @param request
+   * @param response
+   */
+  public void privilegeInheritanceAddMemberSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      final Stem stem = retrieveStemHelper(request, true, false, true).getStem();
+  
+      if (stem == null) {
+        return;
+      }
+
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanUpdatePrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to update privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+
+      String subjectString = request.getParameter("groupAddMemberComboName");
+  
+      Subject subject = null;
+      
+      if (subjectString != null && subjectString.contains("||")) {
+        String sourceId = GrouperUtil.prefixOrSuffix(subjectString, "||", true);
+        String subjectId = GrouperUtil.prefixOrSuffix(subjectString, "||", false);
+        subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
+  
+      } else {
+        subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+      }
+  
+      if (subject == null) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("stemAddMemberCantFindSubject")));
+        return;
+      }      
+
+      if (StringUtils.equals(subject.getSourceId(), GrouperSourceAdapter.groupSourceId())) {
+        GrouperSubject grouperSubject = (GrouperSubject)subject;
+        Group group = grouperSubject.internal_getGroup();
+        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+          throw new RuntimeException("Cant assign group that you cannot read! " 
+              + GrouperUtil.subjectToString(loggedInSubject) + ", " + group);
+        }
+      }
+      
+      final Subject SUBJECT = subject;
+      
+      boolean inheritedPrivilegeStemChecked = GrouperUtil.booleanValue(request.getParameter("inherited_privilege_stem"), false);
+      boolean inheritedPrivilegeGroupChecked = GrouperUtil.booleanValue(request.getParameter("inherited_privilege_group"), false);
+      boolean inheritedPrivilegeAttributeDefChecked = GrouperUtil.booleanValue(request.getParameter("inherited_privilege_attributeDef"), false);
+      
+      if (!inheritedPrivilegeStemChecked && !inheritedPrivilegeGroupChecked && !inheritedPrivilegeAttributeDefChecked) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#inheritedPrivilegeTypeErrorId",
+            TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedAssignedToRequired")));
+        return;
+        
+      }
+
+      String levelsNameSubmitted = request.getParameter("levelsName");
+      if (StringUtils.isBlank(levelsNameSubmitted)) {
+        throw new RuntimeException("Why is levelsName blank????");
+      }
+      final Scope stemScope = Scope.valueOfIgnoreCase(levelsNameSubmitted, true);
+      
+      if (inheritedPrivilegeStemChecked) {
+        
+        final Set<Privilege> privileges = new HashSet<Privilege>();
+        
+        boolean stemAdminsChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAdmins[]"), false);
+        
+        if (stemAdminsChecked) {
+          privileges.add(NamingPrivilege.STEM_ADMIN);
+        }
+        
+        boolean creatorsChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
+
+        if (creatorsChecked) {
+          privileges.add(NamingPrivilege.CREATE);
+        }
+
+        boolean stemAttrReadersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
+
+        if (stemAttrReadersChecked) {
+          privileges.add(NamingPrivilege.STEM_ATTR_READ);
+        }
+
+        boolean stemAttrUpdatersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
+
+        if (stemAttrUpdatersChecked) {
+          privileges.add(NamingPrivilege.STEM_ATTR_UPDATE);
+        }
+
+        if (!stemAdminsChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#stemPrivsErrorId",
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritAddMemberStemPrivRequired")));
+          return;
+          
+        }
+        
+        GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
+              RuleApi.inheritFolderPrivileges(grouperSession1.getSubject(), stem, stemScope, SUBJECT, privileges);
+              return null;
+            }
+          }
+        );
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer()
+          .setSuccessCount(GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getSuccessCount() + 1);
+      }
+
+      // groups
+      if (inheritedPrivilegeGroupChecked) {
+        
+        final Set<Privilege> privileges = new HashSet<Privilege>();
+        
+        final boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_admins[]"), false);
+        
+        if (adminChecked) {
+          privileges.add(AccessPrivilege.ADMIN);
+        }
+        
+        final boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_updaters[]"), false);
+        
+        if (updateChecked) {
+          privileges.add(AccessPrivilege.UPDATE);
+        }
+        
+        final boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_readers[]"), false);
+        
+        if (readChecked) {
+          privileges.add(AccessPrivilege.READ);
+        }
+        
+        final boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_viewers[]"), false);
+        
+        if (viewChecked) {
+          privileges.add(AccessPrivilege.VIEW);
+        }
+        
+        final boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optins[]"), false);
+        
+        if (optinChecked) {
+          privileges.add(AccessPrivilege.OPTIN);
+        }
+        
+        final boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_optouts[]"), false);
+        
+        if (optoutChecked) {
+          privileges.add(AccessPrivilege.OPTOUT);
+        }
+        
+        final boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrReaders[]"), false);
+        
+        if (attrReadChecked) {
+          privileges.add(AccessPrivilege.GROUP_ATTR_READ);
+        }
+        
+        final boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_groupAttrUpdaters[]"), false);
+        
+        if (attrUpdateChecked) {
+          privileges.add(AccessPrivilege.GROUP_ATTR_UPDATE);
+        }
+        
+        if (!adminChecked && !updateChecked && !readChecked && !viewChecked && !optinChecked && !optoutChecked
+            && !attrReadChecked && !attrUpdateChecked) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#groupPrivsErrorId",
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritAddMemberGroupPrivRequired")));
+          return;
+          
+        }
+        
+        GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
+              RuleApi.inheritGroupPrivileges(grouperSession1.getSubject(), stem, stemScope, SUBJECT, privileges);
+              return null;
+            }
+          }
+        );
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer()
+          .setSuccessCount(GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getSuccessCount() + 1);
+      }
+
+      
+      // attributes
+      if (inheritedPrivilegeAttributeDefChecked) {
+        
+        final Set<Privilege> privileges = new HashSet<Privilege>();
+
+        boolean adminChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrAdmins[]"), false);
+        if (adminChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_ADMIN);
+        }
+
+        boolean updateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrUpdaters[]"), false);
+        if (updateChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_UPDATE);
+        }
+
+        boolean readChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrReaders[]"), false);
+        if (readChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_READ);
+        }
+        
+        boolean viewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrViewers[]"), false);
+        if (viewChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_VIEW);
+        }
+
+        boolean optinChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrOptins[]"), false);
+        if (optinChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_OPTIN);
+        }
+
+        boolean optoutChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attrOptouts[]"), false);
+        if (optoutChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_OPTOUT);
+        }
+
+        boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attributeDefAttrReaders[]"), false);
+        if (attrReadChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_DEF_ATTR_READ);
+        }
+        
+        boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_attributeDefAttrUpdaters[]"), false);
+        if (attrUpdateChecked) {
+          privileges.add(AttributeDefPrivilege.ATTR_DEF_ATTR_UPDATE);
+        }
+        
+        if (!adminChecked && !updateChecked && !readChecked && !viewChecked && !optinChecked && !optoutChecked
+            && !attrReadChecked && !attrUpdateChecked) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#attributeDefPrivsErrorId",
+              TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritAddMemberAttributeDefPrivRequired")));
+          return;
+          
+        }
+        
+        GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession1) throws GrouperSessionException {
+              RuleApi.inheritAttributeDefPrivileges(grouperSession1.getSubject(), stem, stemScope, SUBJECT, privileges);
+              return null;
+            }
+          }
+        );
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer()
+          .setSuccessCount(GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getSuccessCount() + 1);
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritedAddSuccesses")));
+
+      privilegesInheritedToObjectsHelper(request, response, stem);
+
+      //clear out the combo
+      guiResponseJs.addAction(GuiScreenAction.newScript(
+          "dijit.byId('groupAddMemberComboId').set('displayedValue', ''); " +
+          "dijit.byId('groupAddMemberComboId').set('value', '');"));
+
+      GrouperUserDataApi.recentlyUsedStemAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
+          loggedInSubject, stem);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  
+  }
+
+
+  
   /**
    * submit button on add member form pressed
    * @param request

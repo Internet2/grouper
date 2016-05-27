@@ -146,7 +146,7 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
    */
   @Override
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    //allow all
-    return true;
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
   }
 }

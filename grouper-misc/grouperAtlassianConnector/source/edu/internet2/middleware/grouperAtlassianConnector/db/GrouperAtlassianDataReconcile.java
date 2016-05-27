@@ -19,6 +19,10 @@
  */
 package edu.internet2.middleware.grouperAtlassianConnector.db;
 
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAccessProvider;
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianUtils;
 import edu.internet2.middleware.grouperAtlassianConnector.GrouperProfileProvider;
@@ -334,7 +338,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     JobDetail jobDetail = JobBuilder.newJob(jobClass)
             .withIdentity(jobName, jobGroup)
             .storeDurably(true).build();
-
+        
     Scheduler scheduler = scheduler();
 
     boolean uniqueTriggerNames = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.atlassian.uniqueQuartzTriggerNames", false);
@@ -355,15 +359,12 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       }
     }
     if (cronTrigger == null) {
-      cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerName, jobGroup)
-              .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString)).build();
-    }
-
-    try {
-      CronScheduleBuilder builder = (CronScheduleBuilder) cronTrigger.getScheduleBuilder();
-      builder.cronSchedule(quartzCronString);
+      cronTrigger = TriggerBuilder.newTrigger()
+          .withIdentity(triggerName, jobGroup)
+          .startNow()
+          .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))        
+          .build();
     } catch (Exception pe) {
-      throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
     }
 
     try {

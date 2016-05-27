@@ -342,49 +342,53 @@ public class LoaderLdapElUtils {
     return groupName.toString();
   }
 
-
   /**
-   * convert a user dn to a user RDN value, and a group dn to a group ID or Uuid
-   * @param dn of group member
-   * @param baseDn This should match the LDAP suffix in the grouper-loader.properties file e.g. DC=test,DC=school,DC=edu 
-   * @param grouperBaseStem is the base stem where the groups go.  e.g. my:groups:
+   * convert a subject dn to a user RDN value, and a group dn to a group ID or Uuid
+   * @param dn of group member . Normally this will be as subjectId
+   * @param baseOu This is the full DN of the OU to load from LDAP e.g. OU=Some Example,DC=test,DC=school,DC=edu 
+   * @param grouperBaseStem is the base stem where the groups are loaded into.  e.g. my:groups:Loaded_from_LDAP
+   * @param serverId is the connection or server ID specified in grouper-loader.properties file. e.g: personLdap
    * @param uniqueAttribute attribute value to return from LDAP query, preferably the one storing the subjectId
    * @param idOrIdentifier true for id (group id), false for identifier (group name)
-   * @return RDN value for person, Uuid or Group name for a group
+   * @return RDN value for subject (user object), Uuid or Group name for a group
    */
-  public static String convertLDAPMemberDnToSubjectIdOrGroup(String dn, String baseDn, String grouperBaseStem, String serverId, String uniqueAttribute, boolean idOrIdentifier) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Start conversion of DN '" + dn + "'");
-    }
-
+  public static String convertLDAPMemberDnToSubjectIdOrGroup(String dn, String baseOu, String grouperBaseStem, String serverId, String uniqueAttribute, boolean idOrIdentifier) {
+    
+    // Not really needed as dn shouldn't be blank, but it is here
+    // to avoid having to go through the rest of the code in case blank
+    // is ever provided as an argument
     if (StringUtils.isBlank(dn)) {
       return dn;
     }
-    
-    // see if the dn is in the space that is managed by grouper
-    if (dn.toLowerCase().indexOf(baseDn.toLowerCase()) < 0 ) {
-      LOG.error("Group member isn't managed in Grouper : " + dn);
-      return dn;  // this will cause an error since the subject cant be found...
+	
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Start conversion of DN '" + dn + "'");
     }
-      
-    // Get the RDN attribute and value from the DN
+	
+    // get the domain suffix, RDN attribute and RDN value from the DN
+    String domainSuffix = dn.substring(dn.toLowerCase().indexOf("dc="));
     String rdnAttribute = StringUtils.substringBefore(dn,"=");
     String rdnValue = LoaderLdapElUtils.convertDnToSpecificValue(dn);
-
-    // searchBase is member DN minus baseDn minus trailing comma
+    
+    // searchBase is member DN minus suffix (domainSuffix) minus trailing comma
     // This has to be done since LdapSession.list appends LDAP suffix to search base values
-    String searchBase = StringUtils.chop(StringUtils.removeEnd(dn.toLowerCase(),baseDn.toLowerCase()));
+    String searchBase = StringUtils.chop(StringUtils.removeEnd(dn.toLowerCase(),domainSuffix.toLowerCase()));
+    
+    // Forward slash is a special character in JNDI. In case the dn contains one, this addresses it.
+    // This may no longer be needed with patched versions of grouper. 
+    if (dn.indexOf('/') > 0 ) {
+      searchBase = "" ;
+    }
 
-    // see if it is a person or group
+    // check if it is a person
     Boolean isPerson = cacheIsPerson.get(rdnValue);
 
     // ID is not cached, get the value from LDAP
     if (isPerson == null) {
 
       // Send a request to LDAP.  Note, in the future we can make this part of the original filter maybe
-      List<String> results = LdapSession.list(String.class,serverId,searchBase, null,"(objectClass=person)",uniqueAttribute);
+      List<String> results = LdapSession.list(String.class,serverId,searchBase, null,"(&(objectClass=person)(" + uniqueAttribute + "=*)(" + rdnAttribute + "=" + rdnValue + "))",uniqueAttribute);
 
-      
       // Put it in cache if there is a result
       isPerson = new Boolean(results.size() > 0);
       cacheIsPerson.put(rdnValue, isPerson);
@@ -406,43 +410,51 @@ public class LoaderLdapElUtils {
       }      
       return rdnValue;
     }
-    // dn is not a person or is a person object that does not have a uniqueId value (e.g: group, computer, etc..)
+    // dn is not a person or is a person object that does not have a uniqueAttribute value (e.g: computer, etc..)
     else {
       // perform another LDAP query to make sure it is actually a group. Return the RDN in query
       // "(|(objectClass=group)(objectclass=*group*))" filter should match grouperOfNames, grouperOfUniqueNames objectclasses
       // (objectclass=*group*) alone did not work with AD, thus the redundancy of the filter
-      List<String> groupresults = LdapSession.list(String.class,serverId,searchBase, null,"(|(objectClass=group)(objectclass=*group*))",rdnAttribute);
+      List<String> groupresults = LdapSession.list(String.class,serverId,searchBase, null,"(&(|(objectClass=group)(objectclass=*group*))(" + rdnAttribute + "=" + rdnValue + "))",rdnAttribute);
       Boolean isGroup = new Boolean(groupresults.size() > 0);
     
       if (isGroup) {
-         // convert the DN to a grouper group
-         String groupName = convertDnToGroupName(dn, baseDn, grouperBaseStem); 
-    
-         // see if the group exists
-         Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName, false, null) ;
-         if (group == null) {
-           if (LOG.isDebugEnabled()) {
-             LOG.debug("Group doesnt exist, creating: '" + groupName +"'");
-           }
-
-         // If the group which is a member doesnt exist, create it
-         group = new GroupSave(GrouperSession.staticGrouperSession())
-                 .assignName(groupName)
-                 .assignCreateParentStemsIfNotExist(true)
-                 .save();
-         }
-
-  
-         // return the ID of the group
-         if (LOG.isDebugEnabled()) {
-            LOG.debug("DN: '" + dn + "' converted to group: '" + group.getName() + "' and id: '" + group.getId() + "'");
-         }
-    
-         return idOrIdentifier ? group.getId() : group.getName();
+    	// Check that the member object is within the baseOu space
+    	if ( dn.toLowerCase().indexOf(baseOu.toLowerCase()) > 0 ) {
+	      // convert the DN to a grouper group
+	      String groupName = convertDnToGroupName(dn, domainSuffix, grouperBaseStem); 
+	    
+	      // see if the group exists
+	      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName, false, null) ;
+	      if (group == null) {
+	        if (LOG.isDebugEnabled()) {
+	          LOG.debug("Group doesnt exist, creating: '" + groupName +"'");
+	        }
+	
+	      // If the group which is a member doesnt exist, create it
+	      group = new GroupSave(GrouperSession.staticGrouperSession())
+	              .assignName(groupName)
+	              .assignCreateParentStemsIfNotExist(true)
+	              .save();
+	      }
+	
+	      // return the ID of the group
+	      if (LOG.isDebugEnabled()) {
+	        LOG.debug("DN: '" + dn + "' converted to group: '" + group.getName() + "' and id: '" + group.getId() + "'");
+	      }
+	    
+	      return idOrIdentifier ? group.getId() : group.getName();
+	      
+    	} 
+    	else {
+    		// member object is not within the baseOu space.
+    		// Future code should perhaps address this but for now, return dn.
+    		return dn;
+    	}
       }
       // object is NOT a group OR is person object that does not have a uniqueAttribute value (e.g: computer). Return dn
       else {
-	return dn;
+    	  return dn;
       }
     }
   }

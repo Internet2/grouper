@@ -40,6 +40,23 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class AttributeDefContainer {
 
+ /**
+  * if can view privilege inheritance
+  * @return true if can
+  */
+ public boolean isCanReadPrivilegeInheritance() {
+
+   //at least you have to be able to admin privileges on this folder
+   if (!this.isCanAdmin()) {
+     return false;
+   }
+   
+   return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance();
+ }
+ 
+
+ /**
+
   /**
    * gui attribute def names e.g. results for attribute def name list on attribute def tab
    */

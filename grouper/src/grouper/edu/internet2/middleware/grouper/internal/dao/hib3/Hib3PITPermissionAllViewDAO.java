@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITPermissionAllViewDAO;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
+import edu.internet2.middleware.grouper.pit.PITPermissionAllView;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -36,6 +38,12 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissionAllViewDAO {
 
+  private static final String PERMISSION_ENTRY_COLUMNS = "gr.nameDb as roleName, gm.subjectSourceId as subjectSourceId, gm.subjectId as subjectId, gaaa.nameDb as action, gadn.nameDb as attributeDefNameName, gr.id as roleId, gadn.attributeDefId as attributeDefId, gm.id as memberId, gadn.id as attributeDefNameId, gaaa.id as actionId, gmav.depth as membershipDepth, grs.depth as roleSetDepth, gadns.depth as attributeDefNameSetDepth, gaaas.depth as attributeAssignActionSetDepth, gmav.membershipId as membershipId, gmav.groupSetId as groupSetId, grs.id as roleSetId, gadns.id as attributeDefNameSetId, gaaas.id as actionSetId, gaa.id as attributeAssignId, gaa.attributeAssignTypeDb as attributeAssignTypeDb, gmav.groupSetActiveDb as groupSetActiveDb, gmav.groupSetStartTimeDb as groupSetStartTimeDb, gmav.groupSetEndTimeDb as groupSetEndTimeDb, gmav.membershipActiveDb as membershipActiveDb, gmav.membershipStartTimeDb as membershipStartTimeDb, gmav.membershipEndTimeDb as membershipEndTimeDb, grs.activeDb as roleSetActiveDb, grs.startTimeDb as roleSetStartTimeDb, grs.endTimeDb as roleSetEndTimeDb, gaaas.activeDb as actionSetActiveDb, gaaas.startTimeDb as actionSetStartTimeDb, gaaas.endTimeDb as actionSetEndTimeDb, gadns.activeDb as attributeDefNameSetActiveDb, gadns.startTimeDb as attributeDefNameSetStartTimeDb, gadns.endTimeDb as attributeDefNameSetEndTimeDb, gaa.activeDb as attributeAssignActiveDb, gaa.startTimeDb as attributeAssignStartTimeDb, gaa.endTimeDb as attributeAssignEndTimeDb, gaa.disallowedDb as disallowedDb, gaaa.sourceId as actionSourceId, gr.sourceId as roleSourceId, gadn.sourceId as attributeDefNameSourceId, gad.sourceId as attributeDefSourceId, gm.sourceId as memberSourceId, gmav.membershipSourceId as membershipSourceId, gaa.sourceId as attributeAssignSourceId";
+
+  private static final String PERMISSION_ENTRY_TABLES = "PITGroup gr, PITMembershipView gmav, PITMember gm, PITField gf, PITRoleSet grs, PITAttributeDef gad, PITAttributeAssign gaa, PITAttributeDefName gadn, PITAttributeDefNameSet gadns, PITAttributeAssignAction gaaa, PITAttributeAssignActionSet gaaas";
+  
+  private static final String PERMISSION_ENTRY_WHERE_CLAUSE = "gmav.ownerGroupId = gr.id and gmav.fieldId = gf.id and gf.typeDb = 'list' and gf.nameDb = 'members' and gmav.memberId = gm.id and gadn.attributeDefId = gad.id and gad.attributeDefTypeDb = 'perm' and gaa.attributeDefNameId = gadns.ifHasAttributeDefNameId and gadn.id = gadns.thenHasAttributeDefNameId and gaa.attributeAssignActionId = gaaas.ifHasAttrAssignActionId and gaaa.id = gaaas.thenHasAttrAssignActionId and ((grs.ifHasRoleId = gr.id and gaa.ownerGroupId = grs.thenHasRoleId and gaa.attributeAssignTypeDb = 'group') or (gmav.ownerGroupId = gaa.ownerGroupId  and gmav.memberId = gaa.ownerMemberId and gaa.attributeAssignTypeDb = 'any_mem' and grs.ifHasRoleId = gr.id and grs.depth='0'))";
+  
   /**
    *
    */
@@ -67,11 +75,11 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
-    String selectPrefix = "select distinct pea ";
+    String selectPrefix = "select distinct " + PERMISSION_ENTRY_COLUMNS + " ";
     
-    StringBuilder sqlTables = new StringBuilder(" from PITPermissionAllView pea ");
+    StringBuilder sqlTables = new StringBuilder(" from " + PERMISSION_ENTRY_TABLES + " ");
     
-    StringBuilder sqlWhereClause = new StringBuilder("");
+    StringBuilder sqlWhereClause = new StringBuilder(" " + PERMISSION_ENTRY_WHERE_CLAUSE + " ");
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
@@ -79,70 +87,67 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     
     grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(
       grouperSessionSubject, byHqlStatic, 
-      sqlTables, sqlWhereClause, "pea.attributeDefSourceId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
+      sqlTables, sqlWhereClause, "gad.sourceId", AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
     
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
         grouperSessionSubject, byHqlStatic, 
-        sqlTables, "pea.roleSourceId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
-
+        sqlTables, "gr.sourceId", AccessPrivilege.ATTRIBUTE_READ_PRIVILEGES);
+    
     StringBuilder sql;
-    if (sqlWhereClause.length() > 0) {
-      if (changedQuery) {
+    if (changedQuery) {
+      if (sqlWhereClause.length() > 0) {
         sql = sqlTables.append(" and ").append(sqlWhereClause);
-        
       } else {
-        sql = sqlTables.append(" where ").append(sqlWhereClause);
-        
+        throw new RuntimeException("Unexpected.");
       }
     } else {
-      //where and will be removed later on
-      sql = sqlTables.append(" where ");
+      sql = sqlTables.append(" where ").append(sqlWhereClause);
     }
     
     if (actionsSize > 0) {
-      sql.append(" and pea.action in (");
+      sql.append(" and gaaa.nameDb in (");
       sql.append(HibUtils.convertToInClause(actions, byHqlStatic));
       sql.append(") ");
     }
     if (roleIdsSize > 0) {
-      sql.append(" and pea.roleSourceId in (");
+      sql.append(" and gr.sourceId in (");
       sql.append(HibUtils.convertToInClause(roleSourceIds, byHqlStatic));
       sql.append(") ");
     }
     if (attributeDefIdsSize > 0) {
-      sql.append(" and pea.attributeDefSourceId in (");
+      sql.append(" and gad.sourceId in (");
       sql.append(HibUtils.convertToInClause(attributeDefSourceIds, byHqlStatic));
       sql.append(") ");
     }
     if (attributeDefNameIdsSize > 0) {
-      sql.append(" and pea.attributeDefNameSourceId in (");
+      sql.append(" and gadn.sourceId in (");
       sql.append(HibUtils.convertToInClause(attributeDefNameSourceIds, byHqlStatic));
       sql.append(") ");
     }
     if (memberIdsSize > 0) {
-      sql.append(" and pea.memberSourceId in (");
+      sql.append(" and gm.sourceId in (");
       sql.append(HibUtils.convertToInClause(memberSourceIds, byHqlStatic));
       sql.append(") ");
     }
     
     if (pointInTimeFrom != null) {
       Long endDateAfter = pointInTimeFrom.getTime() * 1000;
-      sql.append(" and (pea.membershipEndTimeDb is null or pea.membershipEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (pea.groupSetEndTimeDb is null or pea.groupSetEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (pea.actionSetEndTimeDb is null or pea.actionSetEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (pea.attributeDefNameSetEndTimeDb is null or pea.attributeDefNameSetEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (pea.roleSetEndTimeDb is null or pea.roleSetEndTimeDb > '" + endDateAfter + "')");
-      sql.append(" and (pea.attributeAssignEndTimeDb is null or pea.attributeAssignEndTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (gmav.membershipEndTimeDb is null or gmav.membershipEndTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (gmav.groupSetEndTimeDb is null or gmav.groupSetEndTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (gaaas.endTimeDb is null or gaaas.endTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (gadns.endTimeDb is null or gadns.endTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (grs.endTimeDb is null or grs.endTimeDb > '" + endDateAfter + "')");
+      sql.append(" and (gaa.endTimeDb is null or gaa.endTimeDb > '" + endDateAfter + "')");
     }
     
     if (pointInTimeTo != null) {
       Long startDateBefore = pointInTimeTo.getTime() * 1000;
-      sql.append(" and pea.membershipStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and pea.groupSetStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and pea.actionSetStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and pea.attributeDefNameSetStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and pea.roleSetStartTimeDb < '" + startDateBefore + "'");
-      sql.append(" and pea.attributeAssignStartTimeDb < '" + startDateBefore + "'");
+      sql.append(" and gmav.membershipStartTimeDb < '" + startDateBefore + "'");
+      sql.append(" and gmav.groupSetStartTimeDb < '" + startDateBefore + "'");
+      sql.append(" and gaaas.startTimeDb < '" + startDateBefore + "'");
+      sql.append(" and gadns.startTimeDb < '" + startDateBefore + "'");
+      sql.append(" and grs.startTimeDb < '" + startDateBefore + "'");
+      sql.append(" and gaa.startTimeDb < '" + startDateBefore + "'");
     }
     
     byHqlStatic
@@ -156,9 +161,11 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
     //if we did where and, then switch to where
     sqlString = sqlString.replaceAll("where\\s+and", "where");
     
-    Set<PermissionEntry> results = byHqlStatic.createQuery(selectPrefix + sqlString).listSet(PermissionEntry.class);
+    Set<PITPermissionAllView> resultsTemp = byHqlStatic.createQuery(selectPrefix + sqlString)
+      .assignConvertHqlColumnsToObject(true)
+      .listSet(PITPermissionAllView.class);
 
-    int size = GrouperUtil.length(results);
+    int size = GrouperUtil.length(resultsTemp);
     if (maxAssignments >= 0) {
       
       //see if too many
@@ -166,6 +173,8 @@ public class Hib3PITPermissionAllViewDAO extends Hib3DAO implements PITPermissio
         throw new RuntimeException("Too many results: " + size);
       }
     }
+    
+    Set<PermissionEntry> results = new LinkedHashSet<PermissionEntry>(resultsTemp);
 
     //nothing to filter
     if (size == 0) {

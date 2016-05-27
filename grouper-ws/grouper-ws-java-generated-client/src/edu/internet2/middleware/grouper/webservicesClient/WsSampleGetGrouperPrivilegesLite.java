@@ -29,8 +29,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetGrouperPrivilegesLiteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GetGrouperPrivilegesLite;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGetGrouperPrivilegesLiteResult;
 
 
 /**

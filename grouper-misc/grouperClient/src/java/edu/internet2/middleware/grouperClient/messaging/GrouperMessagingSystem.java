@@ -30,11 +30,12 @@ public interface GrouperMessagingSystem {
    * sent to this method must be the same that were received in the
    * receiveMessages method.  If there is a problem
    * delivering the messages, the implementation should wait (back off)
-   * and retry until it is successful.
-   * @param grouperMessageProcessedParam
+   * and retry until it is successful.  Alternatively the message should be 
+   * returned to queue, returned to end of queue, or sent to another queue
+   * @param grouperMessageAcknowledgeParam
    * @return result
    */
-  public GrouperMessageProcessedResult markAsProcessed(GrouperMessageProcessedParam grouperMessageProcessedParam);
+  public GrouperMessageAcknowledgeResult acknowledge(GrouperMessageAcknowledgeParam grouperMessageAcknowledgeParam);
 
   /**
    * this will generally block until there are messages to process.  These messages

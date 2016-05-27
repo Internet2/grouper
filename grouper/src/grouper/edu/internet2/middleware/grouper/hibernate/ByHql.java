@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.transform.Transformers;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -53,6 +54,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class ByHql extends HibernateDelegate implements HqlQuery {
+  
+  /**
+   * if use resulttransformer to change columns to object
+   */
+  private boolean convertHqlColumnsToObject = false;
+
+  /**
+   * if use resulttransformer to change columns to object
+   * @param theConvertHqlColumnsToObject
+   */
+  public void setConvertHqlColumnsToObject(boolean theConvertHqlColumnsToObject) {
+    this.convertHqlColumnsToObject = theConvertHqlColumnsToObject;
+  }
   
   /**
    * assign data to the bind var
@@ -345,6 +359,9 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       //see if we are even retrieving the results
       if (this.queryOptions == null || this.queryOptions.isRetrieveResults()) {
         Query query = ByHql.this.attachQueryInfo(session);
+        if (this.convertHqlColumnsToObject) {
+          query.setResultTransformer(Transformers.aliasToBean(returnType));
+        }
         //not sure this can ever be null, but make sure not to make iterating results easier
         list = query.list();
         HibUtils.evict(hibernateSession,  list, true);

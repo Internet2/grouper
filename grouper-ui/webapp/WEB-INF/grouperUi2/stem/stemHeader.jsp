@@ -56,8 +56,38 @@
                               </div>
                             </div>
                           </div>
-                          <div id="add-members-privileges-select" class="control-group">
-                            <label class="control-label">${textContainer.text['stemViewAssignThesePrivileges']}</label>
+                          <c:if test="${grouperRequestContainer.stemContainer.showAddInheritedPrivileges}">
+                            <div id="choose-inherited-type" class="control-group">
+                              <label class="control-label">${textContainer.text['stemPrivilegesInheritedAssignTo']}</label>
+                              <div class="controls">
+                                <label class="checkbox inline" for="inherited_privilege_stem_id">
+                                  <input type="checkbox" name="inherited_privilege_stem" value="true" id="inherited_privilege_stem_id"
+                                    onchange="if ($('#inherited_privilege_stem_id').prop('checked')) {$('#add-members-privileges-select').show('slow');} else {$('#add-members-privileges-select').hide('slow');}"
+                                   />${textContainer.text['rulesThenTypeFolder']}
+                                </label>
+                                <label class="checkbox inline" for="inherited_privilege_group_id">
+                                  <input type="checkbox" name="inherited_privilege_group" value="true" id="inherited_privilege_group_id" 
+                                    onchange="if ($('#inherited_privilege_group_id').prop('checked')) {$('#add-members-privileges').show('slow');} else {$('#add-members-privileges').hide('slow');}"
+                                  />${textContainer.text['rulesThenTypeGroup']}
+                                </label>
+                                <label class="checkbox inline" for="inherited_privilege_attributeDef_id" id="inheritedPrivilegeTypeErrorId">
+                                  <input type="checkbox" name="inherited_privilege_attributeDef" value="true" id="inherited_privilege_attributeDef_id" 
+                                    onchange="if ($('#inherited_privilege_attributeDef_id').prop('checked')) {$('#add-members-privileges-attrDef').show('slow');} else {$('#add-members-privileges-attrDef').hide('slow');}"
+                                  />${textContainer.text['rulesThenTypeAttribute']}
+                                </label>
+                              </div>
+
+                            </div>
+                          </c:if>
+                          <div id="add-members-privileges-select" class="control-group ${grouperRequestContainer.stemContainer.showAddInheritedPrivileges ? 'hide' : ''}">
+                            <c:choose>
+                              <c:when test="${grouperRequestContainer.stemContainer.showAddInheritedPrivileges}">
+                                <label class="control-label">${textContainer.text['stemPrivilegesInheritedAddStemPrivileges']}</label>
+                              </c:when>
+                              <c:otherwise>
+                                <label class="control-label">${textContainer.text['stemViewAssignThesePrivileges']}</label>
+                              </c:otherwise>
+                            </c:choose>
                             <div class="controls">
                               <label class="checkbox inline">
                                 <input type="checkbox" name="privileges_stemAdmins" value="true" />${textContainer.text['priv.stemAdminsUpper']}
@@ -73,10 +103,95 @@
                               </label>
                             </div>
                           </div>
+                          <c:if test="${grouperRequestContainer.stemContainer.showAddInheritedPrivileges}">
+                            <div id="add-members-privileges" class="control-group hide">
+                              <label class="control-label" >${textContainer.text['stemPrivilegesInheritedAddGroupPrivileges']}</label>
+                              <div class="controls">
+
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_admins" value="true" />${textContainer.text['priv.adminUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_updaters" value="true" />${textContainer.text['priv.updateUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_readers" value="true" />${textContainer.text['priv.readUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_viewers" value="true" />${textContainer.text['priv.viewUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_optins" value="true" />${textContainer.text['priv.optinUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_optouts" value="true" />${textContainer.text['priv.optoutUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_groupAttrReaders" value="true" />${textContainer.text['priv.groupAttrReadUpper'] }
+                                </label>
+                                <label class="checkbox inline"  id="groupPrivsErrorId">
+                                  <input type="checkbox" name="privileges_groupAttrUpdaters" value="true" />${textContainer.text['priv.groupAttrUpdateUpper'] }
+                                </label>
+                              </div>
+                            </div>
+                          
+                            <div id="add-members-privileges-attrDef" class="control-group hide">
+                              <label class="control-label">${textContainer.text['stemPrivilegesInheritedAddAttributeDefPrivileges']}</label>
+                              <div class="controls">
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attrAdmins" value="true" />${textContainer.text['priv.attrAdminUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attrUpdaters" value="true" />${textContainer.text['priv.attrUpdateUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attrReaders" value="true" />${textContainer.text['priv.attrReadUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attrViewers" value="true" />${textContainer.text['priv.attrViewUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attrOptins" value="true" />${textContainer.text['priv.attrOptinUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attrOptouts" value="true" />${textContainer.text['priv.attrOptoutUpper'] }
+                                </label>
+                                <label class="checkbox inline">
+                                  <input type="checkbox" name="privileges_attributeDefAttrReaders" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
+                                </label>
+                                <label class="checkbox inline" id="attributeDefPrivsErrorId">
+                                  <input type="checkbox" name="privileges_attributeDefAttrUpdaters" value="true" />${textContainer.text['priv.attrDefAttrReadUpper'] }
+                                </label>
+                              </div>
+                            </div>
+                            <div class="control-group">
+                              <label for="levels" class="control-label">${textContainer.text['stemPrivilegesInheritedLevels'] }</label>
+                              <div class="controls">
+                                <label class="radio" for="level-all">
+                                  <input type="radio" name="levelsName" id="level-all" value="sub" checked="checked"  
+                                  >${textContainer.text['stemPrivilegesInheritAllLabel'] }
+                                </label>
+                                <label class="radio" for="level-one")>
+                                  <input type="radio" name="levelsName" id="level-one" value="one"  
+                                  >${textContainer.text['stemPrivilegesInheritOneLabel'] }
+                                </label><%--span class="help-block">${textContainer.text['stemPrivilegesInheritedLevelsDecription'] }</span --%>
+                              </div>
+                            </div>
+
+                          </c:if>                          
+                          
                           <div class="control-group">
                             <div class="controls">
-                              <button onclick="ajax('../app/UiV2Stem.addMemberSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'add-members-form', formIdsOptional: 'stemPagingPrivilegesFormId,stemFilterPrivilegesFormId'}); return false;" 
-                                id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button>
+                              <c:choose>
+                                <c:when test="${grouperRequestContainer.stemContainer.showAddInheritedPrivileges}">
+                                  <button onclick="ajax('../app/UiV2Stem.privilegeInheritanceAddMemberSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'add-members-form'}); return false;" 
+                                    id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['stemPrivilegesInheritedAddMemberLink']}</button>
+                                </c:when>
+                                <c:otherwise>
+                                  <button onclick="ajax('../app/UiV2Stem.addMemberSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'add-members-form', formIdsOptional: 'stemPagingPrivilegesFormId,stemFilterPrivilegesFormId'}); return false;" 
+                                    id="add-members-submit" type="submit" class="btn btn-primary">${textContainer.text['groupViewAddMemberLink']}</button>
+                                </c:otherwise>
+                              </c:choose>
                             </div>
                           </div>
                         </form>

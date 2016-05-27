@@ -14,4 +14,26 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>GROUPER_TRUNK_CLIENT_CONF</name>
+			<type>2</type>
+			<locationURI>GROUPER_TRUNK_CLIENT_CONF</locationURI>
+		</link>
+		<link>
+			<name>GROUPER_TRUNK_CLIENT_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_TRUNK_CLIENT_SOURCE</locationURI>
+		</link>
+	</linkedResources>
+	<variableList>
+		<variable>
+			<name>GROUPER_TRUNK_CLIENT_CONF</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_TRUNK_CLIENT_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/src/java</value>
+		</variable>
+	</variableList>
 </projectDescription>

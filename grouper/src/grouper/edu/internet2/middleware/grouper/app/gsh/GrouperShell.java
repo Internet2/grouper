@@ -407,9 +407,11 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.hibernate.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.permissions.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.util.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.export.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.subject.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.subject.provider.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.userData.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.messaging.*;");
       
     }
     catch (bsh.EvalError eBBB) {

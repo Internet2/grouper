@@ -204,8 +204,20 @@ public class BySqlStatic {
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
    */
-  public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params) {
-  
+  @SuppressWarnings("deprecation")
+  public <T> List<T> listSelectHiberateMapped(final Class<T> returnClassType, final String query, final List<Object> params) {
+    //Get the alias and the types.  First see if already there
+    final String alias = HibUtils.parseAlias(query, false);
+    
+    //if (StringUtils.isEmpty(alias)) {
+      //if not there, massage the query
+    //  query = HibUtils.massageQuery(query);
+      //might be standard alias, might be a custom one
+    //  alias = HibUtils.parseAlias(query);
+    //}
+    
+    final List<Type> types = HibUtils.hibernateTypes(params);
+    
     List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
@@ -215,6 +227,43 @@ public class BySqlStatic {
        */
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        
+        return hibernateHandlerBean.getHibernateSession()
+            .retrieveListBySql(query, alias, returnClassType, params, types);
+        
+      }
+    });
+    return theResult;
+
+  }
+
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params) {
+
+    boolean isPrimitiveClass = HibUtils.handleAsPrimitive(returnClassType);
+
+    if (!isPrimitiveClass) {
+      return listSelectHiberateMapped(returnClassType, sql, params);
+    }
+
+    List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.hibernate.HibernateHandler#callback(edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean)
+       */
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
         
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         PreparedStatement preparedStatement = null;

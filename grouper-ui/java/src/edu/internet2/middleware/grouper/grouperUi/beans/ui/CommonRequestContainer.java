@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
@@ -27,6 +29,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -372,6 +375,9 @@ public class CommonRequestContainer {
    * gui subject
    */
   private GuiSubject guiSubject;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(CommonRequestContainer.class);
 
   /**
    * gui subject

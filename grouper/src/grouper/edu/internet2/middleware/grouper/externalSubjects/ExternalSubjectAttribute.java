@@ -214,6 +214,10 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
     this.uuid = uuid1;
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
+   */
   @Override
   public ExternalSubjectAttribute clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
@@ -385,6 +389,16 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
    * @param attributeName
    */
   public static void assertValidAttribute(String attributeName) {
+    validAttribute(attributeName, true);
+  }
+
+  /**
+   * assert that the attribute name is valid
+   * @param attributeName
+   * @param errorOnNotfound
+   * @return if found
+   */
+  public static boolean validAttribute(String attributeName, boolean errorOnNotfound) {
     //make sure attribute name is ok
     boolean foundAttribute = false;
     for (ExternalSubjectAttributeConfigBean externalSubjectAttributeConfigBean : 
@@ -395,10 +409,13 @@ public class ExternalSubjectAttribute extends GrouperAPI implements GrouperHasCo
       }
     }
     if (!foundAttribute) {
-      throw new RuntimeException("Invalid attribute name: " + attributeName 
-          + ", not found in grouper.properties");
+      if (errorOnNotfound) {
+        throw new RuntimeException("Invalid attribute name: " + attributeName 
+            + ", not found in grouper.properties");
+      }
+      return false;
     }
-
+    return true;
   }
   
   /**

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper-ws"/>
-  <classpathentry kind="src" path="GROUPER_MASTER_CLIENT_SOURCE"/>
-  <classpathentry kind="src" path="GROUPER_MASTER_SOURCE"/>
-  <classpathentry kind="src" path="GROUPER_MASTER_CONF"/>
+	<classpathentry kind="src" path="GROUPER_MASTER_CLIENT_SOURCE"/>
+	<classpathentry kind="src" path="GROUPER_MASTER_SOURCE"/>
+	<classpathentry kind="src" path="GROUPER_MASTER_CONF"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/grouper-ws_v2_0"/>
 	<classpathentry kind="src" path="src/grouper-ws_v2_1"/>
 	<classpathentry kind="src" path="src/grouper-ws_v2_2"/>
+	<classpathentry kind="src" path="src/grouper-ws_v1_6"/>
+	<classpathentry kind="src" path="src/grouper-ws_v2_3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-api-1.2.12.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/axiom-dom-1.2.12.jar"/>

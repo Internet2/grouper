@@ -27,11 +27,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AttributeDefNameDelete;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AttributeDefNameDeleteResponse;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameDeleteResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameDeleteResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefNameDelete;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AttributeDefNameDeleteResponse;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefNameDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefNameDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefNameLookup;
 
 
 /**

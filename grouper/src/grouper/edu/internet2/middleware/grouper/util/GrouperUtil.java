@@ -401,7 +401,73 @@ public class GrouperUtil {
     return string.replace("\"", "&quot;");
   }
   
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeDoubleQuotesForString(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\"", "\\\"");
+  }
 
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeDoubleQuotesSlashesAndNewlinesForString(String string) {
+    //do slashes first... so they dont get done twice
+    string = escapeSlashesForString(string);
+    string = escapeNewlinesForString(string);
+    string = escapeDoubleQuotesForString(string);
+    return string;
+    
+//    if (string == null) {
+//      return string;
+//    }
+//    StringBuilder result = new StringBuilder();
+//    char[] stringCharArray = string.toCharArray();
+//    for (int i=0; i<string.length(); i++) {
+//      char curChar = stringCharArray[i];
+//      if (curChar == '\\') {
+//        result.append("\\\\");
+//      } else if (curChar == '"') {
+//        result.append("\\\"");
+//      } else if (curChar == '\n') {
+//        result.append("\\n");
+//      }
+//    }
+//    return string.replace("\n", "\\n");
+//    return string;
+  }
+
+  /**
+   * escape double quotes in javascript
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeNewlinesForString(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\n", "\\n");
+  }
+  
+  /**
+   * escape slashes
+   * @param string
+   * @return the escaped string
+   */
+  public static String escapeSlashesForString(String string) {
+    if (string == null) {
+      return string;
+    }
+    return string.replace("\\", "\\\\");
+  }
+  
   /**
    * e.g. ('g:gsa', 'jdbc')
    * @param sources
@@ -1009,6 +1075,9 @@ public class GrouperUtil {
    * @param millis
    */
   public static void sleep(long millis) {
+    if (millis == 0) {
+      return;
+    }
     try {
       Thread.sleep(millis);
     } catch (InterruptedException ie) {
@@ -2473,16 +2542,21 @@ public class GrouperUtil {
   private static GrouperCache<String, Set<Field>> fieldSetCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object fieldSetCacheSemaphore = new Object();
+
+  /**
    * lazy load
    * @return field set cache
    */
   private static GrouperCache<String, Set<Field>> fieldSetCache() {
     if (fieldSetCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(fieldSetCacheSemaphore) {
         if (fieldSetCache == null) {
-      fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return fieldSetCache;
@@ -2495,16 +2569,21 @@ public class GrouperUtil {
   private static GrouperCache<Class, Method[]> declaredMethodsCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object declaredMethodsCacheSemaphore = new Object();
+
+  /**
    * lazy load
    * @return declared method cache
    */
   private static GrouperCache<Class, Method[]> declaredMethodsCache() {
     if (declaredMethodsCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(declaredMethodsCacheSemaphore) {
         if (declaredMethodsCache == null) {
-      declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return declaredMethodsCache;
@@ -2517,6 +2596,10 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> getterSetCache = null;
 
+  /**
+   * synchronize on this object
+   */
+  private static Object getterSetCacheSemaphore = new Object();
 
   /**
    * lazy load
@@ -2524,11 +2607,11 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> getterSetCache() {
     if (getterSetCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(getterSetCacheSemaphore) {
         if (getterSetCache == null) {
-      getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return getterSetCache;
@@ -2541,6 +2624,10 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> setterSetCache = null;
 
+  /**
+   * synchronize on this object
+   */
+  private static Object setterSetCacheSemaphore = new Object();
 
   /**
    * lazy load
@@ -2548,11 +2635,11 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> setterSetCache() {
     if (setterSetCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(setterSetCacheSemaphore) {
         if (setterSetCache == null) {
-      setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
-          2000, false, 0, 60*60*24, false);
-    }
+          setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
+              2000, false, 0, 60*60*24, false);
+        }
       }
     }
     return setterSetCache;
@@ -2571,12 +2658,17 @@ public class GrouperUtil {
   private static ExpirableCache<String, Properties> resourcePropertiesCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object resourcePropertiesCacheSemaphore = new Object();
+
+  /**
    * lazy load this since it prevents the class from loading
    * @return the cache
    */
   private static ExpirableCache<String, Properties> resourcePropertiesCache() {
     if (resourcePropertiesCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(resourcePropertiesCacheSemaphore) {
         if (resourcePropertiesCache == null) {
           //note, if this relies on the config file to configure, and the config file uses this, then we need a simpler cache here than an ehcache...
           //resourcePropertiesCache = new GrouperCache<String, Properties>(
@@ -6953,6 +7045,18 @@ public class GrouperUtil {
   }
 
   /**
+   * join a thread
+   * @param thread
+   */
+  public static void threadJoin(Thread thread) {
+    try {
+      thread.join();
+    } catch (InterruptedException ie) {
+      throw new RuntimeException("Thread interrupted: " + thread.getName(), ie);
+    }
+  }
+  
+  /**
    * this method takes a long (less than 62) and converts it to a 1 character
    * string (a-z, A-Z, 0-9)
    *
@@ -7108,12 +7212,17 @@ public class GrouperUtil {
   private static GrouperCache<File, Properties> propertiesFromFileCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object propertiesFromFileCacheSemaphore = new Object();
+
+  /**
    * properties from File cache
    * @return cache
    */
   private static GrouperCache<File, Properties> propertiesFromFileCache() {
     if (propertiesFromFileCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(propertiesFromFileCacheSemaphore) {
         if (propertiesFromFileCache == null) {
       propertiesFromFileCache = new GrouperCache<File,Properties>(
           GrouperUtil.class.getName() + ".propertiesFromFileCache", 200, false, 300, 300, false);
@@ -7129,16 +7238,21 @@ public class GrouperUtil {
   static GrouperCache<String, Properties> propertiesFromUrlCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object propertiesFromUrlCacheSemaphore = new Object();
+
+  /**
    * properties from url cache
    * @return cache
    */
   private static GrouperCache<String, Properties> propertiesFromUrlCache() {
     if (propertiesFromUrlCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(propertiesFromUrlCacheSemaphore) {
         if (propertiesFromUrlCache == null) {
-      propertiesFromUrlCache = new GrouperCache<String,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
-    }
+          propertiesFromUrlCache = new GrouperCache<String,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromUrlCache", 200, false, 300, 300, false);
+        }
       }
     }
     return propertiesFromUrlCache;
@@ -7150,16 +7264,21 @@ public class GrouperUtil {
   private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object propertiesFromUrlFailsafeCacheSemaphore = new Object();
+
+  /**
    * properties from url failsafe cache
    * @return cache
    */
   private static GrouperCache<String, Properties> propertiesFromUrlFailsafeCache() {
     if (propertiesFromUrlFailsafeCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(propertiesFromUrlFailsafeCacheSemaphore) {
         if (propertiesFromUrlFailsafeCache == null) {
-      propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
-          GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
-    }
+          propertiesFromUrlFailsafeCache = new GrouperCache<String,Properties>(
+              GrouperUtil.class.getName() + ".propertiesFromUrlFailsafeCache", 200, false, 60*60*24, 60*60*24, false);
+        }
       }
     }
     return propertiesFromUrlFailsafeCache;

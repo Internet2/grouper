@@ -42,6 +42,55 @@ import edu.internet2.middleware.subject.Subject;
 public class StemContainer {
 
   /**
+   * if can view privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanReadPrivilegeInheritance() {
+
+    //at least you have to be able to admin privileges on this folder
+    if (!this.isCanAdminPrivileges()) {
+      return false;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance();
+  }
+  
+  /**
+   * if can update privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanUpdatePrivilegeInheritance() {
+
+    //at least you have to be able to read attributes on this folder
+    if (!this.isCanAdminPrivileges()) {
+      return false;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanUpdatePrivilegeInheritance();
+  }
+  
+  /**
+   * if show add inherited privileges
+   */
+  private boolean showAddInheritedPrivileges = false;
+  
+  /**
+   * if show add inherited privileges
+   * @return the showAddInheritedPrivileges
+   */
+  public boolean isShowAddInheritedPrivileges() {
+    return this.showAddInheritedPrivileges;
+  }
+  
+  /**
+   * if show add inherited privileges
+   * @param showAddInheritedPrivileges1 the showAddInheritedPrivileges to set
+   */
+  public void setShowAddInheritedPrivileges(boolean showAddInheritedPrivileges1) {
+    this.showAddInheritedPrivileges = showAddInheritedPrivileges1;
+  }
+
+  /**
    * if show add member on the folder privileges screen
    */
   private boolean showAddMember = false;
@@ -160,6 +209,16 @@ public class StemContainer {
   private Boolean canCreateGroups;
   
   /**
+   * if the logged in user can read attributes, lazy loaded
+   */
+  private Boolean canReadAttributes;
+  
+  /**
+   * if the logged in user can update attributes, lazy loaded
+   */
+  private Boolean canUpdateAttributes;
+  
+  /**
    * if the logged in user can create stems, lazy loaded
    */
   private Boolean canCreateStems;
@@ -218,6 +277,56 @@ public class StemContainer {
    * if the logged in user can admin privileges, lazy loaded
    */
   private Boolean canAdminPrivileges;
+
+  /**
+   * if the logged in user can read attributes, lazy loaded
+   * @return if can read attributes
+   */
+  public boolean isCanReadAttributes() {
+    if (this.canReadAttributes == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canReadAttributes = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ATTR_READ.getName(), false);
+            }
+          });
+      
+    }
+    
+    return this.canReadAttributes;
+
+  }
+  
+  
+  /**
+   * if the logged in user can update attributes, lazy loaded
+   * @return if can update attributes
+   */
+  public boolean isCanUpdateAttributes() {
+    if (this.canUpdateAttributes == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canUpdateAttributes = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ATTR_UPDATE.getName(), false);
+            }
+          });
+      
+    }
+    
+    return this.canUpdateAttributes;
+
+  }
+  
   
   /**
    * if the logged in user can admin privileges, lazy loaded
@@ -325,6 +434,16 @@ public class StemContainer {
    * sorting, e.g. for the audit screen
    */
   private GuiSorting guiSorting;
+
+  /**
+   * how many failures
+   */
+  private int failureCount;
+
+  /**
+   * how many successes
+   */
+  private int successCount;
 
   /**
    * when searching for parent stems, these are the results
@@ -466,6 +585,38 @@ public class StemContainer {
    */
   public void setGuiSorting(GuiSorting guiSorting1) {
     this.guiSorting = guiSorting1;
+  }
+
+  /**
+   * how many failures
+   * @return failures
+   */
+  public int getFailureCount() {
+    return this.failureCount;
+  }
+
+  /**
+   * how many successes
+   * @return successes
+   */
+  public int getSuccessCount() {
+    return this.successCount;
+  }
+
+  /**
+   * how many failures
+   * @param failuresCount1
+   */
+  public void setFailureCount(int failuresCount1) {
+    this.failureCount = failuresCount1;
+  }
+
+  /**
+   * how many successes
+   * @param successCount1
+   */
+  public void setSuccessCount(int successCount1) {
+    this.successCount = successCount1;
   }
 
   

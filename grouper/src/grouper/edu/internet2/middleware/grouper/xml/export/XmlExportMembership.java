@@ -22,7 +22,11 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -36,6 +40,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -411,6 +418,208 @@ public class XmlExportMembership {
   
   }
 
+  /** dont error twice */
+  public static Set<String> membershipFieldsAlreadyErrored = new HashSet<String>();
+
+  
+  /**
+   * convert this to GSH that is failsafe
+   * @param grouperVersion
+   * @param writer
+   * @param subjectId
+   * @param sourceId
+   * @param fieldName
+   * @param groupName
+   * @param stemName
+   * @param nameOfAttributeDef
+   * @param enabledTimestamp
+   * @param disabledTimestamp
+   * @param xmlExportMain 
+   * @throws IOException 
+   */
+  public static void toGsh(GrouperVersion grouperVersion, Writer writer, String subjectId, String sourceId, 
+      String fieldName, String groupName, 
+      String stemName, String nameOfAttributeDef, Timestamp enabledTimestamp, Timestamp disabledTimestamp, XmlExportMain xmlExportMain) throws IOException {
+
+    //SubjectFinder.findByIdAndSource("12345", "jdbc", true);
+//    writer.write("Subject subject = SubjectFinder.findByIdAndSource(\""
+//        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(subjectId) + "\", \""
+//        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(sourceId) + "\", false);\n");
+    xmlExportMain.writeGshScriptForSubject(subjectId, sourceId, "subject", writer, null);
+    
+    Field field = FieldFinder.find(fieldName, true);
+
+    if (field.isStemListField() || field.isGroupAccessField() || field.isAttributeDefListField()) {
+
+      //privilege = Privilege.listToPriv("attrAdmins", false);
+      writer.write("Privilege privilege = Privilege.listToPriv(\""
+          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(fieldName) + "\", false);\n");
+      
+    } else {
+      
+      writer.write("Privilege privilege = null;\n");
+      if (!StringUtils.equals(Group.getDefaultList().getName(), fieldName)) {
+        if (!membershipFieldsAlreadyErrored.contains(fieldName)) {
+          System.out.println("Error: Not expecting field: '" + fieldName + "', only 'members' is supported");
+          membershipFieldsAlreadyErrored.add(fieldName);
+        }
+        return;
+      }
+    }
+
+    if (field.isGroupListField() || field.isGroupAccessField()) {
+      
+      writer.write("Group group = GroupFinder.findByName(grouperSession, \""
+          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(groupName) + "\", false);\n");
+      
+    } else if (field.isStemListField()) {
+      writer.write("Stem stem = StemFinder.findByName(grouperSession, \""
+          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stemName) + "\", false);\n");
+
+    } else if (field.isAttributeDefListField()) {
+
+      writer.write("AttributeDef attributeDef = AttributeDefFinder.findByName(\""
+          + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\", false);\n");
+
+    }
+
+    boolean hasPrivilege = !field.isGroupListField() || field.isGroupAccessField();
+    if (hasPrivilege) {
+      writer.write("if (privilege != null) { ");
+    }
+    
+    writer.write("if (subject != null) { ");
+
+    if (field.isGroupListField() || field.isGroupAccessField()) {
+      
+      writer.write("if (group != null) { ");
+      
+      if (field.isGroupAccessField()) {
+        // grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
+        writer.write("boolean changed = group.grantPriv(subject, privilege, false);    gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for group privilege: \" + group.getName() + \", privilege: \" + privilege + \", subject: \" + GrouperUtil.subjectToString(subject)); } ");
+        
+      } else {
+        
+        if (GrouperUtil.equals(field, Group.getDefaultList())) {
+          //addOrEditMember(final Subject subject, final boolean defaultPrivs,
+          //final boolean memberChecked, final Date startDate, final Date endDate, final boolean revokeIfUnchecked)
+          writer.write("boolean changed = group.addOrEditMember(subject, false, true, " 
+              + (enabledTimestamp == null ? "null" : "new java.util.Date(" + enabledTimestamp.getTime() + "L)") + ", " 
+              + (disabledTimestamp == null ? "null" : "new java.util.Date(" + disabledTimestamp.getTime() + "L)") + ", false);  "
+                  + "    gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for group membership: \" + group.getName() + \", field: members, subject: \" + GrouperUtil.subjectToString(subject)); }");
+        } else {
+          //TODO we should probably handle this at some point
+          System.out.println("Error: This export only works with 'members' group membership lists! " + field);
+          writer.write("gshTotalErrorCount++;\nSystem.out.println(\"Error: This export only works with 'members' group membership lists! " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(field.getName()) + "\");\n");
+        }
+        
+      }
+      
+      writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find group: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(groupName) + "'\"); } ");
+      
+    } else if (field.isStemListField()) {
+
+      writer.write("if (stem != null) { ");
+      
+      // grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
+      writer.write("boolean changed = stem.grantPriv(subject, privilege, false);   gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for stem privilege: \" + stem.getName() + \", privilege: \" + privilege + \", subject: \" + GrouperUtil.subjectToString(subject)); }");
+        
+      writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find stem: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(stemName) + "'\"); } ");
+
+    } else if (field.isAttributeDefListField()) {
+
+      writer.write("if (attributeDef != null) { ");
+      
+      // grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
+      writer.write("boolean changed = attributeDef.getPrivilegeDelegate().grantPriv(subject, privilege, false);  gshTotalObjectCount++;  if (changed) { gshTotalChangeCount++;  System.out.println(\"Made change for attributeDef privilege: \" + attributeDef.getName() + \", privilege: \" + privilege + \", subject: \" + GrouperUtil.subjectToString(subject));  }");
+
+      writer.write(" } else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find attribute definition: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); } ");
+
+    }
+    
+    //subject error handling is already handled
+    writer.write("} ");
+
+    if (hasPrivilege) {
+      writer.write(" } " /* else { gshTotalErrorCount++; System.out.println(\"ERROR: cant find privilege: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(fieldName) + "'\"); } "*/);
+    }
+    
+    writer.write("\n");
+  }
+  
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportMemberships(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct theMembership " + exportFromOnQuery(xmlExportMain, true));
+  
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+        try {
+          writer.write("  <memberships>\n");
+  
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            while(results.next()) {
+              Object object = results.get(0);
+              final Membership membership = (Membership)object;
+              
+              //comments to dereference the foreign keys
+              if (xmlExportMain.isIncludeComments()) {
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                  
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    try {
+                      writer.write("\n    <!-- ");
+                      XmlExportUtils.toStringMembership(null, writer, membership, false);
+                      writer.write(" -->\n");
+                      return null;
+                    } catch (IOException ioe) {
+                      throw new RuntimeException(ioe);
+                    }
+                  }
+                });
+              }
+              
+              XmlExportMembership xmlExportMembership = membership.xmlToExportMembership(grouperVersion);
+              writer.write("    ");
+              xmlExportMembership.toXml(grouperVersion, writer);
+              writer.write("\n");
+              xmlExportMain.incrementRecordCount();
+            }
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+          
+          if (xmlExportMain.isIncludeComments()) {
+            writer.write("\n");
+          }
+          
+          //end the members element 
+          writer.write("  </memberships>\n");
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
   /**
    * parse the xml file for groups
    * @param xmlImportMain
@@ -488,10 +697,13 @@ public class XmlExportMembership {
     } else {
       queryBuilder.append(
           " from ImmediateMembershipEntry as theMembership " +
-          " where theMembership.type = 'immediate' and exists ( select theGroup from Group as theGroup " +
+          " where theMembership.type = 'immediate' and ( ( exists ( select theGroup from Group as theGroup " +
           " where theMembership.ownerGroupId = theGroup.uuid and ( ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theGroup", "nameDb", false);
-      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" ) ) ) or ( exists ( select theStem from Stem as theStem " +
+          " where theMembership.ownerStemId = theStem.uuid and ( ");
+      xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
+      queryBuilder.append(" ) ) ) ) ");
     }
     if (includeOrderBy) {
       queryBuilder.append(" order by theMembership.memberUuid, theMembership.ownerId, " +
@@ -506,7 +718,7 @@ public class XmlExportMembership {
    * @param writer
    * @param xmlExportMain
    */
-  public static void exportMemberships(final Writer writer, final XmlExportMain xmlExportMain) {
+  public static void exportMembershipsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
     //get the members
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
       
@@ -515,60 +727,60 @@ public class XmlExportMembership {
   
         Session session = hibernateHandlerBean.getHibernateSession().getSession();
   
+        
         //select all members in order
         Query query = session.createQuery(
-            "select distinct theMembership " + exportFromOnQuery(xmlExportMain, true));
-  
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+            "select distinct "
+            + " ( select theMember.subjectIdDb from Member theMember where theMember.uuid = theMembership.memberUuid ), "
+            + " ( select theMember.subjectSourceIdDb from Member theMember where theMember.uuid = theMembership.memberUuid ), "
+            + " ( select theField.name from Field theField where theField.uuid = theMembership.fieldId ), "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theMembership.ownerGroupId ), "
+            + " ( select theStem.nameDb from Stem theStem where theStem.uuid = theMembership.ownerStemId ), "
+            + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theMembership.ownerAttrDefId ), "
+            + " theMembership.enabledTimeDb, theMembership.disabledTimeDb " + exportFromOnQuery(xmlExportMain, true));
+
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
         try {
-          writer.write("  <memberships>\n");
-  
-          //this is an efficient low-memory way to iterate through a resultset
-          ScrollableResults results = null;
-          try {
-            results = query.scroll();
-            while(results.next()) {
-              Object object = results.get(0);
-              final Membership membership = (Membership)object;
+          results = query.scroll();
+          while(results.next()) {
+            final String subjectId = (String)results.get(0);
+            final String sourceId = (String)results.get(1);
+            final String listName = (String)results.get(2);
+            final String groupName = (String)results.get(3);
+            final String stemName = (String)results.get(4);
+            final String nameOfAttributeDef = (String)results.get(5);
+            final Long enabledTime = (Long)results.get(6);
+            final Timestamp enabledTimestamp = enabledTime == null ? null : new Timestamp(enabledTime);
+            final Long disabledTime = (Long)results.get(7);
+            final Timestamp disabledTimestamp = disabledTime == null ? null : new Timestamp(disabledTime);
+
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
               
-              //comments to dereference the foreign keys
-              if (xmlExportMain.isIncludeComments()) {
-                HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                  
-                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                      throws GrouperDAOException {
-                    try {
-                      writer.write("\n    <!-- ");
-                      XmlExportUtils.toStringMembership(null, writer, membership, false);
-                      writer.write(" -->\n");
-                      return null;
-                    } catch (IOException ioe) {
-                      throw new RuntimeException(ioe);
-                    }
-                  }
-                });
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  XmlExportMembership.toGsh(grouperVersion, writer, subjectId, sourceId, listName, groupName, 
+                      stemName, nameOfAttributeDef, enabledTimestamp, disabledTimestamp, xmlExportMain);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem with membership: " + sourceId + ", " + subjectId + ", " + listName + "," + groupName
+                      + ", " + stemName + ", " + nameOfAttributeDef, ioe);
+                }
+                return null;
               }
-              
-              XmlExportMembership xmlExportMembership = membership.xmlToExportMembership(grouperVersion);
-              writer.write("    ");
-              xmlExportMembership.toXml(grouperVersion, writer);
-              writer.write("\n");
-              xmlExportMain.incrementRecordCount();
-            }
-          } finally {
-            HibUtils.closeQuietly(results);
+            });
+            //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+            //    + ", " + stemName + ", " + nameOfAttributeDef 
+            //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+            
+            xmlExportMain.incrementRecordCount();
           }
-          
-          
-          if (xmlExportMain.isIncludeComments()) {
-            writer.write("\n");
-          }
-          
-          //end the members element 
-          writer.write("  </memberships>\n");
-        } catch (IOException ioe) {
-          throw new RuntimeException("Problem with streaming memberships", ioe);
+        } finally {
+          HibUtils.closeQuietly(results);
         }
+        
         return null;
       }
     });

@@ -502,39 +502,6 @@ public class LoaderLdapUtils {
     return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapExtraAttributesName(), true);
   }
   
-
-  
-  
-  /** Attribute name of true/false for error unresolvable  */
-  public static final String ATTR_DEF_EXTENSION_LDAP_ERROR_UNRESOLVABLE = "grouperLoaderLdapErrorUnresolvable";
-
-  /** attribute def name of error unresolvable */
-  private static String grouperLoaderLdapErrorUnresolvableName;
-
-  /**
-   * attribute def name of error unresolvable
-   * @return name
-   */
-  public static String grouperLoaderLdapErrorUnresolvableName() {
-    if (grouperLoaderLdapErrorUnresolvableName == null) {
-      grouperLoaderLdapErrorUnresolvableName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_LDAP_ERROR_UNRESOLVABLE;
-    }
-    return grouperLoaderLdapErrorUnresolvableName;
-  }
-  
-  /**
-   * return attribute def name for attribute error unresolvable
-   * @return attribute def name
-   */
-  public static AttributeDefName grouperLoaderLdapErrorUnresolvableAttributeDefName() {
-    return GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(grouperLoaderLdapErrorUnresolvableName(), true);
-  }
-
-
-  
-
-  
-  
   /** Attribute name of name expression  */
   public static final String ATTR_DEF_EXTENSION_LDAP_GROUP_NAME_EXPRESSION = "grouperLoaderLdapGroupNameExpression";
 

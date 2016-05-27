@@ -12,7 +12,7 @@ public class WsAttributeDefActionOperationPerformed {
   private String action;
 
   /** status of the action eg: Added, Deleted, Not Found, Already assigned  **/
-  private WsAssignAttributeDefActionsStatus status;
+  private String status;
 
   /**
    * @return action name
@@ -30,17 +30,26 @@ public class WsAttributeDefActionOperationPerformed {
 
   /**
    * @return status of the action eg: Added, Deleted, Not Found, Already assigned
+   * WsAssignAttributeDefActionsStatus
    */
-  public WsAssignAttributeDefActionsStatus getStatus() {
+  public String getStatus() {
     return this.status;
   }
 
   /**
    * status of the action eg: Added, Deleted, Not Found, Already assigned
+   * WsAssignAttributeDefActionsStatus
    * @param status1
    */
-  public void setStatus(WsAssignAttributeDefActionsStatus status1) {
+  public void setStatus(String status1) {
     this.status = status1;
   }
-
+  
+  /**
+   * 
+   * @param wsAssignAttributeDefActionsStatus
+   */
+  public void assignStatus(WsAssignAttributeDefActionsStatus wsAssignAttributeDefActionsStatus) {
+    this.status = wsAssignAttributeDefActionsStatus == null ? null : wsAssignAttributeDefActionsStatus.name();
+  }
 }

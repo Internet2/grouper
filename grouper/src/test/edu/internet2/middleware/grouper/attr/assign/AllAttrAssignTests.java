@@ -34,8 +34,9 @@ public class AllAttrAssignTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.attr.assign");
     //$JUnit-BEGIN$
-    suite.addTestSuite(AttributeAssignActionTest.class);
     suite.addTestSuite(AttributeAssignActionSetTest.class);
+    suite.addTestSuite(AttributeAssignActionTest.class);
+    suite.addTestSuite(AttributeAssignSaveTest.class);
     //$JUnit-END$
     return suite;
   }

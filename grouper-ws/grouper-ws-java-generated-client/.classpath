@@ -39,5 +39,6 @@
 	<classpathentry kind="lib" path="libRampart/rampart-trust-1.6.1.jar"/>
 	<classpathentry kind="lib" path="libRampart/wss4j-1.5.12.jar"/>
 	<classpathentry kind="lib" path="libRampart/xmlsec-1.4.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

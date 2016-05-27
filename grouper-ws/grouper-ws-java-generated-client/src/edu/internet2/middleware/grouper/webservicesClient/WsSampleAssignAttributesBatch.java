@@ -26,15 +26,15 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.AssignAttributesBatch;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignAttributeBatchEntry;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignAttributeBatchResult;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAssignAttributesBatchResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsAttributeDefNameLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AssignAttributesBatch;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAssignAttributeBatchEntry;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAssignAttributeBatchResult;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAssignAttributesBatchResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeAssignLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefNameLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
 
 /**
  *

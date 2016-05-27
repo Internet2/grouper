@@ -38,9 +38,23 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * group container in new ui
  * @author mchyzer
- *
  */
 public class GroupContainer {
+
+  /**
+   * if can view privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanReadPrivilegeInheritance() {
+
+    //at least you have to be able to admin privileges on this folder
+    if (!this.isCanAdmin()) {
+      return false;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance();
+  }
+  
 
   /**
    * if should show link to admin ui in group menu
@@ -428,6 +442,28 @@ public class GroupContainer {
    */
   private Boolean showJoinGroup;
   
+  /**
+   * if should show add member button
+   */
+  private boolean showAddMember = true;
+  
+  /**
+   * if should show add member button
+   * @return the showAddMember
+   */
+  public boolean isShowAddMember() {
+    return this.showAddMember;
+  }
+  
+  /**
+   * if should show add member button
+   * @param showAddMember1 the showAddMember to set
+   */
+  public void setShowAddMember(boolean showAddMember1) {
+    this.showAddMember = showAddMember1;
+  }
+
+
   /**
    * if shuld show join group
    * @return true if should show join group

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -208,7 +209,7 @@ public abstract class ConfigPropertiesCascadeBase {
 
     for (String key : (Set<String>)(Object)tempResult.keySet()) {
       
-      String value = setValues ? this.properties.getProperty(key) : "";
+      String value = setValues ? tempResult.getProperty(key) : "";
       
       //lets look for EL
       if (key.endsWith(EL_CONFIG_SUFFIX)) {
@@ -225,8 +226,31 @@ public abstract class ConfigPropertiesCascadeBase {
       result.put(key, ConfigPropertiesCascadeUtils.defaultString(value));
     }
     
+    substituteLocalReferences(result);
+
+    
     return result;
     
+  }
+
+
+  /**
+   * you can refer to other properties with $$propertyName$$
+   * @param result
+   */
+  protected void substituteLocalReferences(Properties result) {
+    
+    //do the references
+    
+    for (Object propertyName : new LinkedHashSet<Object>(result.keySet())) {
+      String value = result.getProperty((String)propertyName);
+      String newValue = substituteLocalReferencesOneField(result, value);
+      
+      //next run, dont do the ones that dont change...
+      if (!GrouperClientUtils.equals(value, newValue)) {
+        result.put(propertyName, newValue);
+      }      
+    }
   }
 
   /** properties from the properties file(s) */
@@ -388,6 +412,8 @@ public abstract class ConfigPropertiesCascadeBase {
     value = ConfigPropertiesCascadeUtils.trim(value);
     value = substituteCommonVars(value);
 
+    value = substituteLocalReferencesOneField(this, value);
+    
     if (!required && ConfigPropertiesCascadeUtils.isBlank(value)) {
       return new PropertyValueResult(null, true);
     }
@@ -909,8 +935,9 @@ public abstract class ConfigPropertiesCascadeBase {
       }
     }
       if (LOG != null && LOG.isDebugEnabled()) {
+        Properties theProperties = configObject.properties();
         debugMap.put("configObjectPropertyCount", configObject == null ? null 
-            : (configObject.properties() == null ? "propertiesNull" : configObject.properties().size()));
+            : (theProperties == null ? "propertiesNull" : theProperties.size()));
       }
     
     return configObject;
@@ -1333,5 +1360,101 @@ public abstract class ConfigPropertiesCascadeBase {
     return result;
   }
   
+  /**
+   * pattern to find where the variables are in the textm, e.g. $$something$$
+   */
+  private static Pattern substitutePattern = Pattern.compile("\\$\\$([^\\s\\$]+?)\\$\\$");
+
+  /**
+   * 
+   * @param thePropertiesOrConfigPropertiesCascadeBase to get data from
+   * @param value 
+   * @return the subsituted string
+   */
+  protected String substituteLocalReferencesOneField(Object thePropertiesOrConfigPropertiesCascadeBase, String value) {
+
+    //lets resolve variables, do a loop in case the substituted value also has variables
+    for (int i=0;i<20;i++) {
+      
+      String newValue = substituteLocalReferencesOneSubstitution(thePropertiesOrConfigPropertiesCascadeBase, value);
+        
+      //next run, dont do the ones that dont change...
+      if (GrouperClientUtils.equals(value, newValue)) {
+        break;
+      }
+      value = newValue;
+      
+    }
+    return value;
+  }
+  
+  /**
+   * 
+   * @param thePropertiesOrConfigPropertiesCascadeBase to get data from.  either Properties or ConfigPropertiesCascadeBAse
+   * @param value 
+   * @return the subsituted string
+   */
+  protected String substituteLocalReferencesOneSubstitution(Object thePropertiesOrConfigPropertiesCascadeBase, String value) {
+
+    if (GrouperClientUtils.isBlank(value) || !value.contains("$$")) {
+      return value;
+    }
+    
+    Properties theProperties = null;
+    ConfigPropertiesCascadeBase configPropertiesCascadeBase = null;
+    
+    if (thePropertiesOrConfigPropertiesCascadeBase instanceof Properties) {
+      theProperties = (Properties)thePropertiesOrConfigPropertiesCascadeBase;
+    } else {
+      configPropertiesCascadeBase = (ConfigPropertiesCascadeBase)thePropertiesOrConfigPropertiesCascadeBase;
+    }
+    
+    Matcher matcher = substitutePattern.matcher(value);
+    
+    StringBuilder result = new StringBuilder();
+    
+    int index = 0;
+    
+    //loop through and find each script
+    while(matcher.find()) {
+      result.append(value.substring(index, matcher.start()));
+      
+      //here is the script inside the dollars
+      String variable = matcher.group(1);
+      
+      index = matcher.end();
+
+      boolean hasProperty = false;
+      String propertyValue = null;
+      
+      if (theProperties != null) { 
+        hasProperty = theProperties.containsKey(variable);
+        if (hasProperty) {
+          propertyValue = theProperties.getProperty(variable);
+        }
+      } else {
+        PropertyValueResult propertyValueResult = configPropertiesCascadeBase.propertyValueString(variable, null, false);
+        hasProperty = propertyValueResult.isHasKey();
+        if (hasProperty) {
+          propertyValue = propertyValueResult.getTheValue();
+        }
+      }
+
+      if (!hasProperty) {
+        LOG.debug("Cant find text for variable: '" + variable + "'");
+        //if we cant find it just keep the variable name
+        propertyValue = "$$" + variable + "$$";
+      } else {
+        propertyValue = GrouperClientUtils.defaultString(propertyValue);
+      }
+      
+      result.append(propertyValue);
+    }
+    
+    result.append(value.substring(index, value.length()));
+    return result.toString();
+    
+  }
+
 
 }

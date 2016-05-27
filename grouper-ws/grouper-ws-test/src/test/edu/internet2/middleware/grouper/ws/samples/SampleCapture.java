@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -111,6 +112,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefActionsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefNameInheritanceRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefNameInheritanceRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesBatchRest;
@@ -119,12 +121,20 @@ import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssign
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRest2;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributesWithValueRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefDeleteRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefDeleteRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefNameDeleteRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefNameDeleteRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefNameSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefNameSaveRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefSaveRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAttributeDefSaveRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeAssignActionRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeAssignActionRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefNamesRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefNamesRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
@@ -163,6 +173,9 @@ import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMe
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRest2;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.membership.WsSampleGetMembershipsRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.messaging.WsSampleAcknowledgeMessageRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.messaging.WsSampleReceiveMessageRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.messaging.WsSampleSendMessageRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleAssignPermissionsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.permission.WsSampleGetPermissionAssignmentsRest;
@@ -187,9 +200,24 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
+ * <pre>
  * capture a sample and put in text file.  To run this, I have my properties files set correctly,
  * and run a server (or tcp forwarder) on 8091.  make sure 8092 is available for the capture server port.
  * set the web service properties to go to 8092
+ * 
+ * edit grouper-ws-generated.properties, make sure all settings correct and port should be 8092
+ * 
+ * edit grouper-ws.properties
+ * 
+ * # port for hitting tests
+ * ws.testing.port=8092
+ *
+ * # port that the sample capture proxy will forward to
+ * ws.sampleForwardTo.port=8091
+ * 
+ * make sure that nothing is listening on 8092.  Make sure the app server or tcp/ip port forwarder
+ * is listening on 8091
+ * </pre>
  */
 public class SampleCapture {
 
@@ -209,24 +237,30 @@ public class SampleCapture {
 
 //    captureGetGrouperPrivileges();
 
-    captureGroupSave();
+//    captureGroupSave();
 
+    
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
-    
+    captureAcknowledgeMessage();  
 //    captureAddMember();
+//    captureAssignAttributeDefActions();
 //    captureAssignAttributeDefNameInheritance();
 //    captureAssignAttributes();
 //    captureAssignAttributesBatch();
 //    captureAssignAttributesWithValue();
 //    captureAssignGrouperPrivileges();
 //    captureAssignPermissions();
+//    captureAttributeDefDelete();
 //    captureAttributeDefNameDelete();
 //    captureAttributeDefNameSave();
+//    captureAttributeDefSave();
 //    captureDeleteMember();
+//    captureFindAttributeAssignAction();
 //    captureFindAttributeDefNames();
+//    captureFindAttributeDefs();
 //    captureFindGroups();
 //    captureFindStems();
 //    captureGetAttributeAssignments();
@@ -240,12 +274,99 @@ public class SampleCapture {
 //    captureGroupSave();
 //    captureHasMember();
 //    captureMemberChangeSubject();
+//    captureReceiveMessage();
 ////    captureRampart();
+      captureSendMessage();
 //    captureStemDelete();
 //    captureStemSave();
     
 
   }
+
+  /**
+   * receive message
+   */
+  public static void captureSendMessage() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleSendMessageRest.class, "sendMessage", null);
+    
+  }
+
+  /**
+   * receive message
+   */
+  public static void captureReceiveMessage() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleReceiveMessageRest.class, "receiveMessage", null);
+    
+  }
+
+
+  /**
+   * acknowledge message
+   */
+  public static void captureAcknowledgeMessage() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAcknowledgeMessageRest.class, "findAttributeDefs", null);
+    
+  }
+
+
+  /**
+   * find attribute defs
+   */
+  public static void captureFindAttributeDefs() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindAttributeDefsRest.class, "findAttributeDefs", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindAttributeDefsRestLite.class, "findAttributeDefs", null);
+    
+  }
+
+
+  /**
+   * find action captures
+   */
+  public static void captureFindAttributeAssignAction() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindAttributeAssignActionRest.class, "findAttributeAssignAction", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindAttributeAssignActionRestLite.class, "findAttributeAssignAction", null);
+    
+  }
+
+
+  /**
+   * assign attribute actions captures
+   */
+  public static void captureAssignAttributeDefActions() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignAttributeDefActionsRest.class, "assignAttributeDefActions", null);
+    
+  }
+
+  /**
+   * attribute def save
+   */
+  public static void captureAttributeDefSave() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
+    
+  }
+
+  /**
+   * attribute def delete
+   */
+  public static void captureAttributeDefDelete() {
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAttributeDefDeleteRest.class, "attributeDefDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAttributeDefDeleteRestLite.class, "attributeDefDelete", null);
+    
+  }
+
 
   /** certain data has to exist for samples to run */
   private static void setupData() {
@@ -505,7 +626,11 @@ public class SampleCapture {
       role2.getPermissionRoleDelegate()
         .assignSubjectRolePermission("write", permissionDefName2, SubjectTestHelper.SUBJ1);
 
-      
+      GrouperBuiltinMessagingSystem.createQueue("def");
+      GrouperBuiltinMessagingSystem.allowSendToQueue("def", SubjectTestHelper.SUBJ0);
+      GrouperBuiltinMessagingSystem.allowReceiveFromQueue("def", SubjectTestHelper.SUBJ0);
+
+
       //anything else?
 
     } catch (Exception e) {
@@ -674,7 +799,6 @@ public class SampleCapture {
     
   }
   
-  
   /**
    * all group save captures
    */
@@ -783,7 +907,7 @@ public class SampleCapture {
   public static void captureSample(WsSampleClientType clientType,
         Class<? extends WsSample> clientClass, 
         String samplesFolderName, String fileNameInfo) {
-    captureSample(clientType, clientClass, samplesFolderName, fileNameInfo);
+    captureSample(clientType, clientClass, samplesFolderName, fileNameInfo, 0);
   }
 
   /**

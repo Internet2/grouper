@@ -16,4 +16,6 @@ public class GrouperMessageSendResult {
   public GrouperMessageSendResult() {
   }
 
+  
+  
 }

@@ -223,11 +223,13 @@ public class RuleSubjectActAs {
    */
   private static GrouperCache<MultiKey, Boolean> subjectAllowedCache() {
     if (subjectAllowedCache == null) {
-      
-      subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(
-          RuleSubjectActAs.class.getName() + "subjectAllowedCache", 1000, false, 
-          60*60*24, actAsCacheMinutes()*60, false);
-  
+      synchronized(RuleSubjectActAs.class) {
+        if (subjectAllowedCache == null) {
+          subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(
+              RuleSubjectActAs.class.getName() + "subjectAllowedCache", 1000, false, 
+              60*60*24, actAsCacheMinutes()*60, false);
+        }
+      }
     }
     return subjectAllowedCache;
   }

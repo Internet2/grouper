@@ -165,6 +165,15 @@ public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
    * 
    */
   public static final String WS_ATTRIBUTE_DEF_NAME_DELETE_MAX = "ws.attributeDefName.delete.max";
+  
+  /**
+   * name of param for attributedef delete, max attributedefs to be able to delete at once,
+   * default is 1000000
+   *  # Max number of attributedefs to be able to pass to attributedefDelete service,
+   * default is 1000000 ws.attributedef.delete.max = 20000
+   * 
+   */
+  public static final String WS_ATTRIBUTE_DEF_DELETE_MAX = "ws.attributeDef.delete.max";
 
   /**
    * name of param for group save, max groups to be able to save at once,
@@ -183,6 +192,15 @@ public final class GrouperWsConfig extends ConfigPropertiesCascadeBase {
    * 
    */
   public static final String WS_ATTRIBUTE_DEF_NAME_SAVE_MAX = "ws.attributeDefName.save.max";
+  
+  /**
+   * name of param for attributeDef save, max attributeDef to be able to save at once,
+   * default is 1000000
+   *  # Max number of attributeDefs to be able to pass to attributeDefSave service,
+   * default is 1000000 ws.attributeDef.save.max = 20000
+   * 
+   */
+  public static final String WS_ATTRIBUTE_DEF_SAVE_MAX = "ws.attributeDef.save.max";
 
   /**
    * name of param for stem delete, max stems to be able to delete at once,

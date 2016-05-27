@@ -331,7 +331,7 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
   @Override
   public void init() throws SourceUnavailableException {
     try {
-      Properties props = getInitParams();
+      Properties props = initParams();
       setupEnvironment(props);
       
       {
@@ -629,7 +629,7 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    Properties props = this.getInitParams();
+    Properties props = this.initParams();
     String dbUrl = props.getProperty("PROVIDER_URL");
     String dbUser = props.getProperty("SECURITY_PRINCIPAL");
     String dbResult = dbUser + "@" + dbUrl;

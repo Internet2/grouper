@@ -48,6 +48,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class GrouperStatusServlet extends HttpServlet {
 
+  /**
+   * keep track of the request in threadlocal
+   */
+  private static ThreadLocal<HttpServletRequest> requestThreadLocal = new InheritableThreadLocal<HttpServletRequest>();
+
+  /**
+   * get a reference to the request object
+   * @return the request
+   */
+  public static HttpServletRequest retrieveRequest() {
+    return requestThreadLocal.get();
+  }
+  
   /** last error */
   private static String lastDiagnosticsError;
 
@@ -100,6 +113,8 @@ public class GrouperStatusServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     
+    requestThreadLocal.set(request);
+    
     startNanos.set(System.nanoTime());
     
     StringBuilder outerResult = new StringBuilder("<?xml version=\"1.0\" ?>\n"
@@ -129,7 +144,14 @@ public class GrouperStatusServlet extends HttpServlet {
       String diagnosticTypeString = request.getParameter("diagnosticType");
       
       if (StringUtils.isBlank(diagnosticTypeString)) {
-        throw new RuntimeException("You need to pass in the diagnosticType parameter.  e.g. status?diagnosticType=trivial|db|sources|all");
+        StringBuilder diagnosticTypes = new StringBuilder();
+        for (DiagnosticType diagnosticType : DiagnosticType.values()) {
+          if (diagnosticTypes.length() > 0) {
+            diagnosticTypes.append("|");
+          }
+          diagnosticTypes.append(diagnosticType.name());
+        }
+        throw new RuntimeException("You need to pass in the diagnosticType parameter.  e.g. status?diagnosticType=" + diagnosticTypes + ", note you can also pass comma separated job names in URL params 'includeOnly' or 'exclude'");
       }
       
       DiagnosticType diagnosticType = DiagnosticType.valueOfIgnoreCase(diagnosticTypeString, true);
@@ -144,15 +166,37 @@ public class GrouperStatusServlet extends HttpServlet {
       // failure, in which case, throw an exception. If there
       // is a failure, the error text (if any) of the task
       // will be picked up and utilized in the catch block.
+      boolean failureOverall = false;
+      RuntimeException firstException = null;
+      int failureCount = 0;
       for (DiagnosticTask diagnosticTask : tasksToExecute) {
         currentTask = diagnosticTask;
-        if (diagnosticTask.executeTask()){
-          result.append(diagnosticTask.retrieveSuccessText().toString());
-        } else {
-          throw new RuntimeException();
+        try {
+          if (diagnosticTask.executeTask()){
+            result.append(diagnosticTask.retrieveSuccessText().toString());
+          } else {
+            failureOverall = true;
+            failureCount++;
+          }
+        } catch (RuntimeException re) {
+          failureCount++;
+          failureOverall = true;
+          if (firstException == null) {
+            firstException = re;
+          } else {
+            GrouperUtil.injectInException(firstException, "Exception " + failureCount + ": " + GrouperUtil.getFullStackTrace(re));
+          }
         }
       }
 
+      if (firstException != null) {
+        GrouperUtil.injectInException(firstException, failureCount + " errors: ");
+        throw firstException;
+      }
+      if (failureOverall) {
+        throw new RuntimeException();
+      }
+      
       result.append("\n\n");
 
       // Append the error count.
@@ -247,6 +291,9 @@ public class GrouperStatusServlet extends HttpServlet {
       
       
       try {
+        
+        requestThreadLocal.remove();
+        
         GrouperSession.stopQuietly(grouperSession);
         
         HttpSession httpSession = request.getSession(false);

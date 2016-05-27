@@ -18,4 +18,8 @@
 - So copy each of the *.example* files to a name without .example in it, and customize to your environment.
 - e.g. copy sources.example.xml to sources.xml, then customize
 - the .example shows you which files need customization, and will not prompt you to commit the real file to CVS (since it is ignored and not stored in CVS)
-- note some files without .example also might need customization (e.g. grouper.properties)
+- note some files without .example also might need customization
+- all the files with *.base* are the base config which has a hierarchy.  do not edit any .base. files, only edit the overlays.
+
+https://spaces.internet2.edu/display/Grouper/Grouper+configuration+overlay
+

@@ -147,9 +147,9 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
       } else {
         loaderResultsCache.remove(this.jobName);
         if (lastSuccess == null) {
-          throw new RuntimeException("Cant find a success, expecting one in the last " + minutesSinceLastSuccess + " minutes");
+          throw new RuntimeException("Cant find a success in job " + this.jobName + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
         }
-        throw new RuntimeException("Cant find a success since: " + GrouperUtil.dateStringValue(lastSuccess) 
+        throw new RuntimeException("Cant find a success in job " + this.jobName + " since: " + GrouperUtil.dateStringValue(lastSuccess) 
             + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
       }
       

@@ -42,7 +42,6 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1018,12 +1017,17 @@ public abstract class AttributeAssignBaseDelegate {
   private static GrouperCache<MultiKey, Boolean> objectHasAttributeCache = null;
 
   /**
+   * synchronize on this object
+   */
+  private static Object objectHasAttributeCacheSemaphore = new Object();
+  
+  /**
    * lazy load, cache if group or stem has attribute.  multikey is group|stem, name, attributeName, subjectSourceId of caller, subjectId of caller
    * @return field set cache
    */
   private static GrouperCache<MultiKey, Boolean> objectHasAttributeCache() {
     if (objectHasAttributeCache == null) {
-      synchronized(GrouperStartup.class) {
+      synchronized(objectHasAttributeCacheSemaphore) {
         if (objectHasAttributeCache == null) {
           objectHasAttributeCache = new GrouperCache<MultiKey, Boolean>("edu.internet2.middleware.grouper.attr.assign.AttributeAssignBaseDelegate.objectHasAttributeCache",
             5000, false, 60, 60, false);
