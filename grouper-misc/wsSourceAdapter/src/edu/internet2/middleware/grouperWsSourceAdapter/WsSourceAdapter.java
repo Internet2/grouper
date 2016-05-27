@@ -177,7 +177,7 @@ public class WsSourceAdapter extends BaseSourceAdapter {
    */
   @Override
   public void init() throws SourceUnavailableException {
-    Properties properties = getInitParams();
+    Properties properties = initParams();
     
     this.baseUrl = properties.getProperty("baseUrl");
     if (this.baseUrl == null || "".equals(this.baseUrl.trim())) {

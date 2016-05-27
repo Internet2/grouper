@@ -563,12 +563,11 @@ public class GrouperClientXmppMain {
        }
      }
      if (cronTrigger == null) {
-                 .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString)).build();
        try {
          cronTrigger = TriggerBuilder.newTrigger()
-             .withIdentity(triggerName)
-             .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))
-             .build();   
+                 .withIdentity(triggerName)
+                 .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))
+                 .build();
        } catch (RuntimeException pe) {
          throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
        }

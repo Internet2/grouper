@@ -19,7 +19,7 @@ dependencies {
 sourceSets {
   main{
     java {
-      srcDir 'src/edu'
+      srcDir 'src'
     }
     resources {
       srcDirs 'conf'
