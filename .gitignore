@@ -4,7 +4,7 @@
 **/*.iml
 /**/bin/*
 **/*.log
-grouper.*
+
 grouper/logs/
 grouper/build.properties
 grouper/build.log
@@ -36,4 +36,10 @@ subject/doc/
 grouper-ws/grouper-ws/build/*
 grouper-ws/grouper-ws/webapp/WEB-INF/lib/*
 grouper-misc/grouperActivemq/dist2/
-/grouper.api-2.3.0
+
+build/
+
+**/.gradle/
+
+**/*.ipr
+**/*.iws
