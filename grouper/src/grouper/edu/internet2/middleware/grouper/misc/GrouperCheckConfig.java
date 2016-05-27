@@ -1274,7 +1274,7 @@ public class GrouperCheckConfig {
     checkJar("dom4j-1.6.1.jar", 313898, "org.dom4j.Attribute", "1.6.1");
     checkJar("ehcache-core-2.4.3.jar", 1006424, "net.sf.ehcache.terracotta.TerracottaClientRejoinListener", "null");
     checkJar("ezmorph.jar", 86542, "net.sf.ezmorph.array.AbstractArrayMorpher", "1.0.6");
-    checkJar("grouperClient.jar", 4332468, "edu.internet2.middleware.grouperClient.ClientOperation", "2.3.0");
+    checkJar("grouperClient.jar", 4341330, "edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.InitializationException", "2.3.0");
     checkJar("hibernate-c3p0-5.0.4.Final.jar", 11578, "org.hibernate.c3p0.internal.StrategyRegistrationProviderImpl", "5.0.4.Final");
     checkJar("hibernate-commons-annotations-5.0.0.Final.jar", 75113, "org.hibernate.annotations.common.AssertionFailure", "5.0.0.Final");
     checkJar("hibernate-core-5.0.4.Final.jar", 5567398, "org.hibernate.NullPrecedence", "5.0.4.Final");
@@ -1290,7 +1290,7 @@ public class GrouperCheckConfig {
     checkJar("jsr107cache.jar", 8302, "net.sf.jsr107cache.Cache", "1.0");
     checkJar("jta.jar", 8374, "javax.transaction.HeuristicCommitException", "1.0.1B");
     checkJar("jug.jar", 19091, "com.ccg.net.ethernet.BadAddressException", "1.1.1");
-    checkJar("log4j.jar", 391834, "org.apache.log4j.xml.XMLLayout", "1.2.15");
+    checkJar("log4j.jar", 489883, "org.apache.log4j.Appender", "1.2.17");
     checkJar("mailapi.jar", 178533, "javax.mail.Address", "1.3.2");
     checkJar("mchange-commons-java-0.2.11.jar", 606472, "com.mchange.v1.db.sql.schemarep.ColumnRep", "0.2.11");
     checkJar("morphString.jar", 78679, "edu.internet2.middleware.morphString.Crypto", "1.2");
