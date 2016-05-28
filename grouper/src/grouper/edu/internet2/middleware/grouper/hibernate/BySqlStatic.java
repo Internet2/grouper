@@ -18,6 +18,13 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.logging.Log;
+import org.hibernate.HibernateException;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.type.Type;
+
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -26,14 +33,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.hibernate.HibernateException;
-import org.hibernate.impl.SessionImpl;
-import org.hibernate.type.Type;
-
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 

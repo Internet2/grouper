@@ -19,16 +19,15 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import java.io.Serializable;
-
-import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.id.UUIDHexGenerator;
-import org.hibernate.impl.SessionFactoryImpl;
-
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.id.UUIDHexGenerator;
+import org.hibernate.internal.SessionFactoryImpl;
+
+import java.io.Serializable;
 
 
 /**

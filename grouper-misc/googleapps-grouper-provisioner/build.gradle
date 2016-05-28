@@ -3,15 +3,15 @@ description = 'Googleapps grouper provisioner'
 
 dependencies {
   compile project(':grouper')
-  compile group: 'com.google.apis', name: 'google-api-services-admin-directory', version: 'directory_v1-rev62-1.21.0'
-  compile group: 'com.google.apis', name: 'google-api-services-groupssettings', version: 'v1-rev54-1.21.0'
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.7'
-  compile group: 'org.apache.commons', name: 'commons-jexl', version: '2.1.1'
-  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-  compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
-  testCompile group: 'org.powermock', name: 'powermock-api', version: '1.4.9'
-  testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.4.9'
-  testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.4.9'
+  compile group: 'com.google.apis', name: 'google-api-services-admin-directory', version: google_api_admin_version
+  compile group: 'com.google.apis', name: 'google-api-services-groupssettings', version: google_api_group_settings_version
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4j_log4j12_version
+  compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
+  compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
+  compile group: 'commons-collections', name: 'commons-collections', version: commons_collections_version
+  testCompile group: 'org.powermock', name: 'powermock-api', version: powermock_version
+  testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: powermock_version
+  testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: powermock_version
 }
 
 sourceSets {

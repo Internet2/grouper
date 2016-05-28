@@ -12,5 +12,6 @@ dependencies {
     }
     testCompile project(path: ":grouper", configuration: "tests")
     compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
+    compile group: 'org.hibernate', name: 'hibernate-c3p0', version: hibernate_core_version
 }
 

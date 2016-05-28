@@ -32,23 +32,6 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import org.apache.ddlutils.Platform;
-import org.apache.ddlutils.PlatformFactory;
-import org.apache.ddlutils.io.DatabaseIO;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
-import org.apache.ddlutils.platform.SqlBuilder;
-import org.hibernate.HibernateException;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -59,6 +42,22 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.ddlutils.Platform;
+import org.apache.ddlutils.PlatformFactory;
+import org.apache.ddlutils.io.DatabaseIO;
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
+import org.apache.ddlutils.platform.SqlBuilder;
+import org.hibernate.HibernateException;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
@@ -87,6 +86,7 @@ class Hib3RegistryDAO implements RegistryDAO {
     dropForeignKeys(sw);
 
     // run schema export and save the ddl to the outputFile.
+   
     try {
       new SchemaExport( Hib3DAO.getConfiguration() )
         .setDelimiter(";")

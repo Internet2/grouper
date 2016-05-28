@@ -15,17 +15,16 @@
  */
 package edu.internet2.middleware.grouper.helper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.Date;
-
-import org.hibernate.Session;
-
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
@@ -36,17 +35,16 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.permissions.role.Role;
-import org.hibernate.impl.SessionImpl;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.Date;
 
 /**
  * load test data (will not error if already there)

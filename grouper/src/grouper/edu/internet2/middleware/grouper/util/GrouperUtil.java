@@ -130,6 +130,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.util.ExpirableCache;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 
 /**
@@ -7749,7 +7750,7 @@ public class GrouperUtil {
    * @param transaction
    */
   public static void rollbackQuietly(Transaction transaction) {
-    if (transaction != null && transaction.isActive()) {
+    if (transaction != null && transaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
       try {
         transaction.rollback();
       } catch (Exception e) {

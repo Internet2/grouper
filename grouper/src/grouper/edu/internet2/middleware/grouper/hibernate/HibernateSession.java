@@ -18,13 +18,6 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import java.util.List;
-import org.hibernate.Hibernate;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.StaleStateException;
-import org.hibernate.type.StandardBasicTypes;
-import org.hibernate.type.Type;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperReadonlyException;
@@ -39,15 +32,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
-import org.hibernate.impl.SessionImpl;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -490,7 +490,7 @@ public class HibernateSession {
     // committed or rolledback,
     // then commit.
     if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
-        && hibernateSession.immediateTransaction.isActive()) {
+        && hibernateSession.immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
 
       LOG.debug("endTransactionAutoCommit");
       
@@ -552,7 +552,7 @@ public class HibernateSession {
       // then rollback.
       //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
       if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
-        if (hibernateSession.immediateTransaction.isActive()) {
+        if (hibernateSession.immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE)) {
           LOG.debug("endTransactionRollback");
           hibernateSession.immediateTransaction.rollback();
         }
@@ -908,7 +908,7 @@ public class HibernateSession {
       return false;
     }
     return this.activeHibernateSession().immediateTransaction == null ? false : this
-        .activeHibernateSession().immediateTransaction.isActive();
+        .activeHibernateSession().immediateTransaction.getStatus().isOneOf(TransactionStatus.ACTIVE);
   }
 
   /**
