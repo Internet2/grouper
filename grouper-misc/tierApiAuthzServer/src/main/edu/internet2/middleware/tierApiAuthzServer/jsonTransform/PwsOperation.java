@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
 
 import edu.internet2.middleware.tierApiAuthzServer.util.ExpirableCache;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**

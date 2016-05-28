@@ -1,0 +1,30 @@
+description = 'Grouper TIER API AuthZ Server'
+
+apply plugin: "war"
+
+dependencies {
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: json_lib_version, classifier: 'jdk15'
+    compile group: 'commons-httpclient', name: 'commons-httpclient', version: commons_httpclient_version
+    compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
+    compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
+    compile group: 'commons-codec', name: 'commons-codec', version: commons_codec_version
+    compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
+    provided group: 'javax.servlet', name: 'servlet-api', version: servlet_api_version
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main'
+        }
+        resources {
+            srcDirs 'clients', 'misc', 'src/resources'
+            include '**/*.properties'
+        }
+    }
+    test {
+        java {
+            srcDirs 'src/test'
+        }
+    }
+}

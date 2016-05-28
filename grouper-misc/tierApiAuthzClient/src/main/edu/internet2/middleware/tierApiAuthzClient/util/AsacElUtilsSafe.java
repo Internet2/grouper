@@ -3,6 +3,9 @@
  */
 package edu.internet2.middleware.tierApiAuthzClient.util;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,9 +40,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.Log;
 
 /**
  * utility methods for grouper that are safe to use in expression language.  Generally these are static methods.
@@ -1450,7 +1450,7 @@ public class AsacElUtilsSafe {
     // do this before length since if array with null in it, we want ti get
     // it back
     if (objectOrArrayOrCollection != null
-        && objectOrArrayOrCollection.getClass().isArray()) {
+            && objectOrArrayOrCollection.getClass().isArray()) {
       return objectOrArrayOrCollection;
     }
     int length = length(objectOrArrayOrCollection);
@@ -1461,12 +1461,12 @@ public class AsacElUtilsSafe {
     if (objectOrArrayOrCollection instanceof Collection) {
       Collection collection = (Collection) objectOrArrayOrCollection;
       Object first = collection.iterator().next();
-      return toArray(collection, first == null ? Object.class : first
-          .getClass());
+      Class clazz = first == null ? Object.class : first.getClass();
+      return toArray(collection, clazz);
     }
     // make an array of the type of object passed in, size one
     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),
-        1);
+            1);
     Array.set(array, 0, objectOrArrayOrCollection);
     return array;
   }

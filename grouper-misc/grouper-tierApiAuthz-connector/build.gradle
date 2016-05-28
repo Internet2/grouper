@@ -1,0 +1,27 @@
+description = 'Grouper TIER API AuthZ Connector'
+
+dependencies {
+    compile group: 'commons-httpclient', name: 'commons-httpclient', version: commons_httpclient_version
+    compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
+    compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
+    compile group: 'commons-codec', name: 'commons-codec', version: commons_codec_version
+    compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
+    
+    compile project(':grouper')
+    compile project(':subject')
+    compile project(':grouper-misc:grouperClient')
+    compile project(':grouper-misc:morphString')
+    compile project(':grouper-misc:tierApiAuthzServer')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main'
+        }
+        resources {
+            srcDirs 'src/resources', 'misc'
+            include '**/*.properties'
+        }
+    }
+}

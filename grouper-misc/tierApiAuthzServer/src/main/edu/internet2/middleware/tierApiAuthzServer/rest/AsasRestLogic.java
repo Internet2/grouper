@@ -51,7 +51,7 @@ import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEnti
 import edu.internet2.middleware.tierApiAuthzServer.j2ee.AsasHttpServletRequest;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**

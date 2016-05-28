@@ -26,8 +26,8 @@ import java.util.Map;
 
 import edu.internet2.middleware.tierApiAuthzServer.jsonTransform.PwsNode.PwsNodeType;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**

@@ -4,11 +4,11 @@
 package edu.internet2.middleware.tierApiAuthzClient.ws;
 
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientUtils;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.HttpMethodBase;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.methods.DeleteMethod;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.methods.GetMethod;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.methods.PostMethod;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 
 /**
  * types of http methods accepted by grouper rest

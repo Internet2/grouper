@@ -18,6 +18,9 @@
  */
 package edu.internet2.middleware.tierApiAuthzServer.util;
 
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.logging.Log;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -82,11 +85,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.httpclient.HttpMethodBase;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
-
-
 
 
 /**
@@ -2708,7 +2706,7 @@ public class StandardApiServerCommonUtils  {
     // do this before length since if array with null in it, we want ti get
     // it back
     if (objectOrArrayOrCollection != null
-        && objectOrArrayOrCollection.getClass().isArray()) {
+            && objectOrArrayOrCollection.getClass().isArray()) {
       return objectOrArrayOrCollection;
     }
     int length = length(objectOrArrayOrCollection);
@@ -2719,12 +2717,12 @@ public class StandardApiServerCommonUtils  {
     if (objectOrArrayOrCollection instanceof Collection) {
       Collection collection = (Collection) objectOrArrayOrCollection;
       Object first = collection.iterator().next();
-      return toArray(collection, first == null ? Object.class : first
-          .getClass());
+      Class clazz = first == null ? Object.class : first.getClass();
+      return toArray(collection, clazz);
     }
     // make an array of the type of object passed in, size one
     Object array = Array.newInstance(objectOrArrayOrCollection.getClass(),
-        1);
+            1);
     Array.set(array, 0, objectOrArrayOrCollection);
     return array;
   }

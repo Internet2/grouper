@@ -26,14 +26,14 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONArray;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONNull;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONObject;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONSerializer;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.math.NumberUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**

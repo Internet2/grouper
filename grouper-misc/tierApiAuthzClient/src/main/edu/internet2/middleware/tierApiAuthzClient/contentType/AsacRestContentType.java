@@ -11,9 +11,8 @@ import edu.internet2.middleware.tierApiAuthzClient.json.JsonConverter;
 import edu.internet2.middleware.tierApiAuthzClient.util.JsonIndenter;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientConfig;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientUtils;
-import edu.internet2.middleware.tierApiAuthzClient.util.XmlIndenter;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * possible content types by grouper ws rest

@@ -20,17 +20,18 @@ import java.util.regex.Pattern;
 
 import edu.internet2.middleware.tierApiAuthzClient.corebeans.AsacFolderLookup;
 import edu.internet2.middleware.tierApiAuthzClient.corebeans.AsacResultProblem;
-import edu.internet2.middleware.tierApiAuthzClientExt.net.sf.json.JSONObject;
-import edu.internet2.middleware.tierApiAuthzClientExt.net.sf.json.JsonConfig;
-import edu.internet2.middleware.tierApiAuthzClientExt.net.sf.json.util.PropertyFilter;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.Expression;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.JexlException;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.MapContext;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.impl.Jdk14Logger;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
+import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.Jdk14Logger;
+
 
 public class StandardApiClientUtils extends StandardApiClientCommonUtils {
 
@@ -332,9 +333,7 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
       
     }
     
-    /**
-     * @see edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.MapContext#get(java.lang.String)
-     */
+
     @Override
     public Object get(String name) {
       
@@ -346,10 +345,7 @@ public class StandardApiClientUtils extends StandardApiClientCommonUtils {
       }
       return retrieveClass(name);
     }
-  
-    /**
-     * @see edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.jexl2.MapContext#has(java.lang.String)
-     */
+
     @Override
     public boolean has(String name) {
       boolean superHas = super.has(name);

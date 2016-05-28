@@ -25,29 +25,29 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.tierApiAuthzClient.contentType.AsacRestContentType;
 import edu.internet2.middleware.tierApiAuthzClient.corebeans.AsacResponseBeanBase;
 import edu.internet2.middleware.tierApiAuthzClient.exceptions.StandardApiClientWsException;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientConfig;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientLog;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientUtils;
-import edu.internet2.middleware.tierApiAuthzClientExt.edu.internet2.middleware.morphString.Crypto;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.Credentials;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.Header;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.HttpException;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.HttpMethodBase;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.HttpStatus;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.UsernamePasswordCredentials;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.auth.AuthScope;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.params.DefaultHttpParams;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.params.HttpMethodParams;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.protocol.Protocol;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.commons.logging.Log;
+
 
 /**
  * this is the client that all requests go through.  if you add an instance field, make sure to add to copyFrom()

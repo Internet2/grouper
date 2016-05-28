@@ -19,9 +19,8 @@
  */
 package edu.internet2.middleware.tierApiAuthzServer.util;
 
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
 
-
+import org.apache.commons.logging.Log;
 
 /**
  *

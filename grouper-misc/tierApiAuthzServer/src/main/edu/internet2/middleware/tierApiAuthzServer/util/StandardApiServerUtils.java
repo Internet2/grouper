@@ -51,20 +51,21 @@ import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasA
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.tierApiAuthzServer.j2ee.TaasFilterJ2ee;
 import edu.internet2.middleware.tierApiAuthzServer.version.TaasWsVersion;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JSONObject;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.JsonConfig;
-import edu.internet2.middleware.tierApiAuthzServerExt.net.sf.json.util.PropertyFilter;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.collections.keyvalue.MultiKey;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.Expression;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.JexlException;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.jexl2.MapContext;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.exception.ExceptionUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.logging.impl.Jdk14Logger;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
+import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.Jdk14Logger;
+
 
 /**
  * utility methods for the authz standard api server

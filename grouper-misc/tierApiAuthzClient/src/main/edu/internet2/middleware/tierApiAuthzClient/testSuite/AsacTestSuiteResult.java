@@ -10,8 +10,8 @@ import edu.internet2.middleware.tierApiAuthzClient.contentType.AsacRestContentTy
 import edu.internet2.middleware.tierApiAuthzClient.corebeans.AsacResponseBeanBase;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientUtils;
 import edu.internet2.middleware.tierApiAuthzClient.ws.StandardApiClientWs;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.httpclient.Header;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.lang.StringUtils;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * result bean for test

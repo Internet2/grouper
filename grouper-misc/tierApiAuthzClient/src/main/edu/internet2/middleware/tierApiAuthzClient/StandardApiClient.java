@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.tierApiAuthzClient.api.AsacApiDefaultResource;
 import edu.internet2.middleware.tierApiAuthzClient.api.AsacApiDefaultVersionResource;
 import edu.internet2.middleware.tierApiAuthzClient.api.AsacApiFolderSave;
@@ -43,9 +44,7 @@ import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientConfig;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientLog;
 import edu.internet2.middleware.tierApiAuthzClient.util.StandardApiClientUtils;
 import edu.internet2.middleware.tierApiAuthzClient.ws.StandardApiClientWs;
-import edu.internet2.middleware.tierApiAuthzClientExt.edu.internet2.middleware.morphString.Crypto;
-import edu.internet2.middleware.tierApiAuthzClientExt.org.apache.commons.logging.Log;
-
+import org.apache.commons.logging.Log;
 
 
 /**

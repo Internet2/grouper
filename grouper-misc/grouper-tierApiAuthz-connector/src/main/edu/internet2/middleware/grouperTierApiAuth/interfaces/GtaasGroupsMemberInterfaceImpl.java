@@ -22,7 +22,7 @@ import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasA
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups.AsasApiUser;
 import edu.internet2.middleware.tierApiAuthzServer.interfaces.entity.AsasApiEntityLookup;
 import edu.internet2.middleware.tierApiAuthzServer.logging.TaasRequestLog;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**

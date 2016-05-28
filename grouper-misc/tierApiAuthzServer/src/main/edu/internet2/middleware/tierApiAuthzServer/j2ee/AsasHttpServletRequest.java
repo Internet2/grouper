@@ -32,7 +32,7 @@ import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidReq
 import edu.internet2.middleware.tierApiAuthzServer.rest.AsasRestHttpMethod;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerConfig;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
-import edu.internet2.middleware.tierApiAuthzServerExt.org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.collections.IteratorUtils;
 
 /**
  * wrap request so that no nulls are given to axis (since it handles badly)

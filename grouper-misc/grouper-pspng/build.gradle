@@ -1,0 +1,18 @@
+description = 'Grouper PGP NG'
+dependencies {
+    compile project(':subject')
+    compile project(':grouper')
+    compile project(':grouper-misc:grouperClient')
+
+    compile group: 'org.ldaptive', name: 'ldaptive-unboundid', version: ldaptive_version
+    compile group: 'org.ldaptive', name: 'ldaptive', version: ldaptive_version
+    
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}

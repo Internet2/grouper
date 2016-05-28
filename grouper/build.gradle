@@ -61,13 +61,13 @@ sourceSets {
             exclude 'test/**', 'doc/**'
         }
         resources {
-            srcDirs 'conf', 'confCustom', 'src/grouper'
-            include '**/*.xml', '**/*.properties'
+            srcDirs 'conf', 'confCustom', 'src/grouper', 'misc'
+            include '**/*.xml', '**/*.properties', '**/*.txt', '**/*.sh', '**/*.schema', '**/*.sql'
         }
     }
     test {
         java {
-            srcDir 'src/test/edu'
+            srcDir 'src/test'
         }
         resources {
             srcDir 'confForTest'
