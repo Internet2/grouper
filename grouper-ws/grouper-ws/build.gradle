@@ -1,42 +1,44 @@
 description = 'Grouper WS'
 
+apply plugin: "war"
+
 dependencies {
-  compile project(':subject')
-  compile project(':grouper')
-  compile project(':grouper-ui')
-  compile project(':grouper-misc:grouperClient')
-  compile "commons-io:commons-io:$commons_io_version"
-  compile "commons-lang:commons-lang:$commons_lang_version"
-  compile "commons-logging:commons-logging:$commons_logging_version"
-  compile "commons-math:commons-math:$commons_math_version"
-  compile "com.thoughtworks.xstream:xstream:$xstream_version"
-  compile "commons-net:commons-net:$commons_net_version"
-  compile "org.apache.ws.security:wss4j:$wss4j_version"
-  compile "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version"
-  compile("org.apache.rampart:rampart-core:$rampart_core_version") {
-    exclude(group: 'org.apache.ws.security', module: 'wss4j')
-  }
-  compile("org.apache.rampart:rampart-policy:$rampart_policy_version") {
-    exclude(group: 'org.apache.ws.security', module: 'wss4j')
-  }
-  compile("org.apache.rampart:rampart-trust:$rampart_trust_version") {
-    exclude(group: 'org.apache.ws.security', module: 'wss4j')
-  }
-  testCompile project(path: ":grouper", configuration: "tests")
+    compile project(':subject')
+    compile project(':grouper')
+    compile project(':grouper-ui')
+    compile project(':grouper-misc:grouperClient')
+    compile "commons-io:commons-io:$commons_io_version"
+    compile "commons-lang:commons-lang:$commons_lang_version"
+    compile "commons-logging:commons-logging:$commons_logging_version"
+    compile "commons-math:commons-math:$commons_math_version"
+    compile "com.thoughtworks.xstream:xstream:$xstream_version"
+    compile "commons-net:commons-net:$commons_net_version"
+    compile "org.apache.ws.security:wss4j:$wss4j_version"
+    compile "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version"
+    compile("org.apache.rampart:rampart-core:$rampart_core_version") {
+        exclude(group: 'org.apache.ws.security', module: 'wss4j')
+    }
+    compile("org.apache.rampart:rampart-policy:$rampart_policy_version") {
+        exclude(group: 'org.apache.ws.security', module: 'wss4j')
+    }
+    compile("org.apache.rampart:rampart-trust:$rampart_trust_version") {
+        exclude(group: 'org.apache.ws.security', module: 'wss4j')
+    }
+    testCompile project(path: ":grouper", configuration: "tests")
 }
 
 sourceSets {
-  main{
-    java {
-      srcDirs 'src/grouper-ws'
+    main {
+        java {
+            srcDirs 'src/grouper-ws'
+        }
+        resources {
+            srcDirs 'conf'
+        }
     }
-    resources {
-      srcDirs 'conf'
+    test {
+        java {
+            srcDirs 'src/test'
+        }
     }
-  }
-  test {
-    java {
-      srcDirs 'src/test'
-    }
-  }
 }

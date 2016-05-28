@@ -1,27 +1,33 @@
-
 description = 'Grouper WS Generated Client'
+
+repositories {
+    flatDir {
+        dirs '../lib'
+    }
+}
+
 dependencies {
-  compile project(':grouper-ws:grouper-ws')
-  compile "org.apache.axis2:axis2-adb:$axis2_adb_version"
-  compile "org.apache.axis2:axis2-codegen:$axis2_codengen_version"
-  compile "org.apache.axis2:axis2-java2wsdl:$axis2_java2wsdl_version"
-  compile "org.apache.axis2:axis2-kernel:$axis2_karnel_version"
-  compile "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version"
-  compile "org.apache.axis2:axis2-transport-local:$axis2_transport_local_version"
-  compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':grouper-ws:grouper-ws')
+    compile "org.apache.axis2:axis2-adb:$axis2_adb_version"
+    compile "org.apache.axis2:axis2-codegen:$axis2_codengen_version"
+    compile "org.apache.axis2:axis2-java2wsdl:$axis2_java2wsdl_version"
+    compile "org.apache.axis2:axis2-kernel:$axis2_karnel_version"
+    compile "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version"
+    compile "org.apache.axis2:axis2-transport-local:$axis2_transport_local_version"
+
 }
 sourceSets {
-  main{
-    java {
-      srcDir 'src'
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'conf'
+        }
     }
-    resources {
-      srcDir 'conf'
+    test {
+        java {
+            srcDir 'test'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'test'
-    }
-  }
 }

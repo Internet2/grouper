@@ -1,4 +1,4 @@
-apply plugin: "java"
+
 description = 'Grouper SCIM'
 dependencies {
   compile("org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version") {

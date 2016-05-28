@@ -1,8 +1,12 @@
 description = 'Grouper UI'
+
+apply plugin: "war"
+
 dependencies {
     compile project(':subject')
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
+    
     compile "ant:ant-jakarta-oro:$ant_jakarta_oro_version"
     compile "antlr:antlr:$antlr_version"
     compile "asm:asm:$asm_version"
@@ -52,21 +56,28 @@ dependencies {
     compile "org.wso2.charon:org.wso2.charon.core:$org_wso2_charon_core_version"
     compile "org.apache.wink:wink-client:$wink_client_version"
     compile "org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version"
+    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
+    compile "org.hibernate:hibernate-core:$hibernate_core_version"
+
     runtime "p6spy:p6spy:$p6spy_version"
     runtime "postgresql:postgresql:$postgresql_version"
     runtime "mysql:mysql-connector-java:$mysql_connector_java_version"
-    testCompile "com.jamonapi:jamon:$jamon_version"
-    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
-    compile "org.hibernate:hibernate-core:$hibernate_core_version"
+    
     provided "javax.servlet:jstl:$jstl_version"
     provided "javax.servlet:jsp-api:$jsp_api_version"
     provided "javax.servlet:servlet-api:$servlet_api_version"
+
+    testCompile "com.jamonapi:jamon:$jamon_version"
 }
 
 sourceSets {
     main {
         java {
-            srcDir 'java/src'
+            srcDirs 'java/src', 'srcPoc', 
+                    'contrib/penn-auth/java/src', 
+                    'contrib/struts-patch/java/src',
+                    'contrib/yale-cas-auth/java/src'
+                    
         }
         resources {
             srcDirs 'conf', 'misc'

@@ -1,8 +1,8 @@
-apply plugin: 'java'
 description = 'Grouper WS Test'
+
 repositories {
     flatDir {
-        dirs '../grouper-ws-java-generated-client/lib'
+        dirs '../lib'
     }
 }
 

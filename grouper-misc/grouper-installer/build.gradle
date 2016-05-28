@@ -1,20 +1,20 @@
-apply plugin: "java"
+
 description = 'Grouper Installer'
 sourceSets {
-  main{
-    java {
-      srcDirs 'src/java', 'src/ext'
+    main {
+        java {
+            srcDirs 'src/java', 'src/ext'
+        }
+        resources {
+            srcDirs 'conf'
+        }
     }
-    resources {
-      srcDirs 'conf'
+    test {
+        java {
+            srcDir 'src/test'
+        }
+        resources {
+            srcDir 'testFiles'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test'
-    }
-    resources {
-      srcDir 'testFiles'
-    }
-  }
 }

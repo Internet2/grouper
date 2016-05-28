@@ -1,22 +1,22 @@
-apply plugin: "java"
+
 description = 'MorphString'
 
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src/java'
+    main {
+        java {
+            srcDir 'src/java'
+        }
+        resources {
+            srcDirs 'conf'
+        }
     }
-    resources {
-      srcDirs 'conf'
+    test {
+        java {
+            srcDir 'src/test'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test'
-    }
-    resources {
-      srcDir 'src/test/resources'
-    }
-  }
 }

@@ -1,16 +1,21 @@
 description = 'Grouper WS Manual Client'
 
+repositories {
+    flatDir {
+        dirs '../lib'
+    }
+}
+
 dependencies {
-	compile project(':grouper-ws:grouper-ws')
-	compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':grouper-ws:grouper-ws')
 }
 sourceSets {
-	main{
-		java {
-			srcDir 'src/java-manual-client'
-		}
-		resources {
-			srcDirs 'conf'
-		}
-	}
+    main {
+        java {
+            srcDir 'src/java-manual-client'
+        }
+        resources {
+            srcDirs 'conf'
+        }
+    }
 }

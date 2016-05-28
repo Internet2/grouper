@@ -1,15 +1,22 @@
-apply plugin: "java"
+
 description = 'POC Secure User Data'
 
+dependencies {
+    compile project(':grouper-misc:grouperClient')
+}
+
 sourceSets {
-  main{
-    java {
-      srcDir 'src/main'
+    main {
+        java {
+            srcDirs 'src/main', 'src/edu'
+        }
+        resources {
+            srcDirs 'sql', 'conf'
+        }
     }
-  }
-  test {
-  	java {
-  		srcDir 'src/test'
-  	}
-  }
+    test {
+        java {
+            srcDir 'src/test'
+        }
+    }
 }
