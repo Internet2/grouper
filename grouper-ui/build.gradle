@@ -58,6 +58,7 @@ dependencies {
     compile "org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version"
     compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
     compile "org.hibernate:hibernate-core:$hibernate_core_version"
+    compile "cas:casclient:$cas_client_version"
 
     runtime "p6spy:p6spy:$p6spy_version"
     runtime "postgresql:postgresql:$postgresql_version"

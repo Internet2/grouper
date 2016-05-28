@@ -7,6 +7,9 @@ dependencies {
     compile project(':grouper')
     compile project(':grouper-ui')
     compile project(':grouper-misc:grouperClient')
+
+    compile fileTree(dir: '../lib', include: ['*.jar'])
+    
     compile "commons-io:commons-io:$commons_io_version"
     compile "commons-lang:commons-lang:$commons_lang_version"
     compile "commons-logging:commons-logging:$commons_logging_version"
