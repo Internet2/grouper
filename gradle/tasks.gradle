@@ -14,11 +14,11 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
-task wrapper(type: Wrapper, description: "Gradle's wrapper") {
+task wrapper(type: Wrapper, description: "Gradle's wrapper to upgrade embedded Gradle version") {
   gradleVersion = project.gradleVersion
 }
 
-task distTar(type: Tar, dependsOn: build) {
+task distTar(type: Tar, dependsOn: build, description: "Aggregate project artifacts into a TAR") {
     configurations.archives.allArtifacts.each {
         from it.file
     }
@@ -27,7 +27,7 @@ task distTar(type: Tar, dependsOn: build) {
     from javadocJar
 }
 
-task distZip(type: Zip, dependsOn: build) {
+task distZip(type: Zip, dependsOn: build, description: "Aggregate project artifacts into a ZIP") {
     configurations.archives.allArtifacts.each {
         from it.file
     }

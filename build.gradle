@@ -150,8 +150,8 @@ allprojects {
 
 
 subprojects {
-    task allDepInsight(type: DependencyInsightReportTask) << {}
-    task allDeps(type: DependencyReportTask) {}
+    task allDepInsight(type: DependencyInsightReportTask, description: "Generate dependency insight for all dependencies") << {}
+    task allDeps(type: DependencyReportTask, description: "List all project dependencies") {}
 
     apply plugin: 'java'
     apply plugin: 'project-report'
@@ -223,7 +223,7 @@ subprojects {
     }
 }
 
-task javadoc(type: Javadoc, description: "Aggregate all Javadocs into a single directory") {
+task javadoc(type: Javadoc) {
     source subprojects.collect { project -> project.sourceSets.main.allJava }
     failOnError = false
     destinationDir = new File(buildDir, 'javadoc')
@@ -236,12 +236,12 @@ task aggregateDist(type: Zip, description: "Aggregate all distributions into a s
     }
 }
 
-task aggregateJavadocsIntoJar(type: Jar, dependsOn: javadoc) {
+task aggregateJavadocsIntoJar(type: Jar, dependsOn: javadoc, description: "Aggregate all Javadocs into a single directory") {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
 
-task rootSourcesJar(type: Jar) {
+task rootSourcesJar(type: Jar, description: "Generate sources jar for the root project") {
     baseName = "${project.archivesBaseName}"
     from rootProject.file("src")
 }
