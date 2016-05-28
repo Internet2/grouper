@@ -74,10 +74,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDirs 'java/src', 'srcPoc', 
-                    'contrib/penn-auth/java/src', 
-                    'contrib/struts-patch/java/src',
-                    'contrib/yale-cas-auth/java/src'
+            srcDirs 'java/src', 'srcPoc', 'contrib/struts-patch/java/src', 'contrib/yale-cas-auth/java/src'
                     
         }
         resources {

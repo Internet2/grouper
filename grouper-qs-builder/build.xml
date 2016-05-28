@@ -251,29 +251,6 @@
 			  </antcall> 
 	 </target>
 	 
-	 <target name="make-javadoc">
-		 <condition property="grouper.folder.for.javadoc" value="${grouper.folder}">
-			 <and>
-				 <isset property="grouper.folder"/>
-				 <not><isset property="grouper.with-java.folder"/></not>
-			 </and>
-		 </condition>
-	     <condition property="grouper.folder.for.javadoc" value="${grouper.with-java.folder}">
-			<isset property="grouper.with-java.folder"/>
-		 </condition>
-		  <condition property="grouper.folder.for.javadoc" value="temp/grouper">
-				<and>
-					<not><isset property="grouper.with-java.folder"/></not>
-					<not><isset property="grouper.folder"/></not>
-					<available file="temp/grouper/java/src"/>
-				</and>
-		 </condition>
-		 <fail unless="grouper.folder.for.javadoc">Cannot determine a grouper folder to generate Javadoc</fail>
-		 
-		 <ant dir="${quickstart.dir}/grouper-ui" target="html">
-			 <property name="grouper.folder" value="${grouper.folder.for.javadoc}"/>
-		 </ant>
-		 
-	 </target>
+
 	 
 </project>
