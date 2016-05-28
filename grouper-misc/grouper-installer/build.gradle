@@ -6,7 +6,7 @@ sourceSets {
             srcDirs 'src/java', 'src/ext'
         }
         resources {
-            srcDirs 'conf'
+            srcDirs 'conf', 'misc'
         }
     }
     test {
