@@ -18,3 +18,20 @@ task wrapper(type: Wrapper, description: "Gradle's wrapper") {
   gradleVersion = project.gradleVersion
 }
 
+task distTar(type: Tar, dependsOn: build) {
+    configurations.archives.allArtifacts.each {
+        from it.file
+    }
+    from testJar
+    from sourcesJar
+    from javadocJar
+}
+
+task distZip(type: Zip, dependsOn: build) {
+    configurations.archives.allArtifacts.each {
+        from it.file
+    }
+    from testJar
+    from sourcesJar
+    from javadocJar
+}

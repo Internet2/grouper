@@ -92,8 +92,8 @@ def projectMavenDeployer = {
                 email 'fox@washington.edu'
             }
             contributor {
-              name 'Lasbrey Nwachukwu'
-              email 'lnwachukwu@unicon.net'
+                name 'Lasbrey Nwachukwu'
+                email 'lnwachukwu@unicon.net'
             }
         }
 
@@ -139,7 +139,6 @@ allprojects {
     apply plugin: "signing"
     apply plugin: "org.standardout.versioneye"
     apply plugin: "nebula.lint"
-    apply plugin: "distribution"
 
     gradleLint.rules = ['dependency-parentheses', 'dependency-tuple']
 
@@ -164,12 +163,6 @@ subprojects {
     */
     conf2ScopeMappings.mappings.remove(configurations.findByName("testCompile"))
     conf2ScopeMappings.mappings.remove(configurations.findByName("testRuntime"))
-
-    task packageSources(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-
-    }
 
     repositories {
         mavenLocal()
@@ -212,7 +205,7 @@ subprojects {
         includePlugins = false
         includeSubProjects = true
     }
-    
+
     javadoc {
         failOnError = false
     }
@@ -235,6 +228,12 @@ task javadoc(type: Javadoc, description: "Aggregate all Javadocs into a single d
     failOnError = false
     destinationDir = new File(buildDir, 'javadoc')
     classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
+}
+
+task aggregateDist(type: Zip, description: "Aggregate all distributions into a single directory") {
+    subprojects.each {
+        from it.getTasksByName("distZip", false)
+    }
 }
 
 task aggregateJavadocsIntoJar(type: Jar, dependsOn: javadoc) {

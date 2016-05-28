@@ -59,11 +59,11 @@ sourceSets {
     main {
         java {
             srcDirs 'src/grouper'
-            exclude 'test/**', 'doc/**'
+            exclude 'test/**', 'doc/**', 'misc/**'
         }
         resources {
-            srcDirs 'conf', 'confCustom', 'src/grouper', 'misc'
-            include '**/*.xml', '**/*.properties', '**/*.txt', '**/*.sh', '**/*.schema', '**/*.sql'
+            srcDirs 'conf', 'confCustom', 'src/grouper', 'misc', 'bin'
+            include '**/*.xml', '**/*.properties', '**/*.txt', '**/*.sh', '**/*.schema', '**/*.sql', '**/*.sh', '**/*.bat'
         }
     }
     test {
