@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.pspng;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

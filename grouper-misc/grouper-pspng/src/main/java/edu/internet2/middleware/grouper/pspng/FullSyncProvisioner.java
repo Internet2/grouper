@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 

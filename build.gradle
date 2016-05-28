@@ -227,6 +227,7 @@ subprojects {
 
 task javadoc(type: Javadoc, description: "Aggregate all Javadocs into a single directory") {
     source subprojects.collect { project -> project.sourceSets.main.allJava }
+    failOnError = false
     destinationDir = new File(buildDir, 'javadoc')
     classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
 }

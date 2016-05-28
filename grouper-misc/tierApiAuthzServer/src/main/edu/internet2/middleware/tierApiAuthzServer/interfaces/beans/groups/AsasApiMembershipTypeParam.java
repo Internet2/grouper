@@ -20,7 +20,6 @@
 package edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups;
 
 import edu.internet2.middleware.tierApiAuthzServer.exceptions.AsasRestInvalidRequest;
-import edu.internet2.middleware.tierApiAuthzServer.rest.AsasRestPost;
 import edu.internet2.middleware.tierApiAuthzServer.util.StandardApiServerUtils;
 
 

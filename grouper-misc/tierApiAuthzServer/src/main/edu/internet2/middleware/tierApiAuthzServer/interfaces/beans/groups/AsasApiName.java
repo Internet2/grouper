@@ -20,7 +20,6 @@
 package edu.internet2.middleware.tierApiAuthzServer.interfaces.beans.groups;
 
 import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasName;
-import edu.internet2.middleware.tierApiAuthzServer.corebeans.AsasUserContainer;
 
 
 /**

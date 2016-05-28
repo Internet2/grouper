@@ -73,7 +73,6 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
@@ -141,7 +140,6 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 
 /**
  * consolidated static list of of rest web services (only web service methods here
