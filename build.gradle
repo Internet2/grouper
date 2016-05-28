@@ -91,6 +91,10 @@ def projectMavenDeployer = {
                 name 'Jim Fox'
                 email 'fox@washington.edu'
             }
+            contributor {
+              name 'Lasbrey Nwachukwu'
+              email 'lnwachukwu@unicon.net'
+            }
         }
 
         mailingLists {
