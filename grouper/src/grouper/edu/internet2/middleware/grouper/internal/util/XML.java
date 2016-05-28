@@ -35,7 +35,7 @@ import  org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * XML Utility class.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: XML.java,v 1.1 2007-05-21 16:16:41 blair Exp $
  * @since   1.2.0
@@ -46,7 +46,7 @@ public class XML {
 
   /**
    * Return string with escaped '&gt;', '&lt;', '&quot;', '&amp;' and '&apos;'.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static String escape(String s) {

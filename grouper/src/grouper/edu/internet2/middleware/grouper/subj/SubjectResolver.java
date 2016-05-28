@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Subject resolution interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: SubjectResolver.java,v 1.5 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.1

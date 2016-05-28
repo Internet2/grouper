@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Query by {@link GroupType}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupTypeFilter.java,v 1.2 2008-11-04 15:19:56 shilen Exp $
  * @since   1.2.0

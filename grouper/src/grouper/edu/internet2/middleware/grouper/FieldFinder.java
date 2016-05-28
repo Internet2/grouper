@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Find fields.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: FieldFinder.java,v 1.48 2009-08-11 20:18:08 mchyzer Exp $
  */

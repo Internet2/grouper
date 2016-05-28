@@ -65,7 +65,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 /**
  * Top level Strut's action which retrieves and makes available a GrouperGroup 
  * object. 
- * <p/>
+ * 
  
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

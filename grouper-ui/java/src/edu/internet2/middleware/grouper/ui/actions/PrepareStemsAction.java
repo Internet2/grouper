@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * Low level Strut's action which controls browsing. Determines what groups / stems 
  * to display according to browse mode. Much code here should be factored out so 
  * that new modes can be easily added. 
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

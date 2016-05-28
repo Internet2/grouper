@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 
 /** 
  * Grouper log helper class.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: LogHelper.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  * @since   1.0

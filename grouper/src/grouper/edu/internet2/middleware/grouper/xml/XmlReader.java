@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Read XML representation of the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: XmlReader.java,v 1.2 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0

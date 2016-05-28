@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Get {@link Group} attribute value.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: getGroupAttr.java,v 1.6 2009-04-14 07:41:24 mchyzer Exp $
  * @since   0.0.1
@@ -43,7 +43,7 @@ public class getGroupAttr {
 
   /**
    * Get {@link Group} attribute value.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Group} to retrieve attribute on.

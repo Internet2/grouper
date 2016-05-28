@@ -74,7 +74,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
  * (e.g. union, intersection, etc).  A composite group has no immediate members.
  * All subjects in a composite group are effective members.
  * 
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Composite.java,v 1.71 2009-12-07 07:31:08 mchyzer Exp $
  * @since   1.0

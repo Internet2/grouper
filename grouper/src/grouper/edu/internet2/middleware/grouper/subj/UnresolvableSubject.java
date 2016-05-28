@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
 /** 
  * {@link Subject} from id, type and source. Used when an actual subject could not be resolved.
  * Allows the UI to continue working when, otherwise, a SubjectNotFoundException would cause an error.
- * <p/>
+ * 
  * @author  Gary Brown.
  * @version $Id: UnresolvableSubject.java,v 1.6 2009-10-31 16:27:12 mchyzer Exp $
  */

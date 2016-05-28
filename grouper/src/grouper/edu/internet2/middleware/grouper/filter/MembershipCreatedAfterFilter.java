@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
 
 /** 
  * Query by memberships created after the specified date.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: MembershipCreatedAfterFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  * @since   1.1.0
@@ -61,7 +61,7 @@ public class MembershipCreatedAfterFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns memberships created after the
    * specified date. 
-   * <p/>
+   * 
    * @param   d   Find memberships created after this date.
    * @param   ns  Restrict results to within this stem.
    */

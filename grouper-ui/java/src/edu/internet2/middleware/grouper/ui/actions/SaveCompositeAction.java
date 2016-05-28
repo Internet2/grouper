@@ -55,7 +55,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 
 /**
  * Top level Strut's action which Saves a CompositeMember for a Group.  
- * <p/>
+ * 
 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

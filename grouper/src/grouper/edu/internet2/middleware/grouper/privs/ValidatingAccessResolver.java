@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides parameter validation for {@link AccessResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: ValidatingAccessResolver.java,v 1.13 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

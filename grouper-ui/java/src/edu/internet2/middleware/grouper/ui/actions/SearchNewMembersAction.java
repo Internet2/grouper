@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 /**
  * Top level search for people or groups which can be made members or
  * privilegees of the context group. 
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

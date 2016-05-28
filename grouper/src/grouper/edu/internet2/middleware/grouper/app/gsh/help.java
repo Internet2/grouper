@@ -28,7 +28,7 @@ import bsh.Interpreter;
 
 /**
  * Display usage information.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: help.java,v 1.20 2009-08-12 12:44:45 shilen Exp $
  * @since   0.0.1
@@ -301,7 +301,7 @@ public class help {
   
   /**
    * Display usage information.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @since   0.0.1

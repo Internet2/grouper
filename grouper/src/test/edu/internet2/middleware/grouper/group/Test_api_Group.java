@@ -88,7 +88,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test {@link Group}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Test_api_Group.java,v 1.11 2009-12-07 07:31:09 mchyzer Exp $
  * @since   1.2.1

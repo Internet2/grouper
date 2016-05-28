@@ -61,7 +61,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 
 /**
  * Imports new members into a group. 
- * <p/>
+ * 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="50%"><strong><font face="Arial, Helvetica, sans-serif">Request 

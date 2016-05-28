@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * Top level Strut's action which removes a group`s Composite Member.  
- * <p/>
+ * 
 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

@@ -57,7 +57,7 @@ public class AuditTypeFinder {
   
   /** 
    * Find an {@link AuditType}.
-   * <p/>
+   * 
    * @param   auditCategory  Find {@link AuditType} with this name.
    * @param   auditAction  Find {@link AuditType} with this name.
    * @param exceptionIfNotFound 
@@ -85,7 +85,7 @@ public class AuditTypeFinder {
 
   /** 
    * Find an {@link AuditType}.
-   * <p/>
+   * 
    * @param   auditCategory  Find {@link AuditType} with this name.
    * @return  {@link GroupType}
    */
@@ -96,7 +96,7 @@ public class AuditTypeFinder {
 
   /** 
    * Find an {@link AuditType}.
-   * <p/>
+   * 
    * @param   auditTypeId  Find {@link AuditType} with this id.
    * @param exceptionIfNotFound 
    * @return  {@link GroupType}

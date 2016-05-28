@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Not currently used. 
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: PopulateChainAction.java,v 1.6 2009-03-15 06:37:51 mchyzer Exp $

@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
 
 /**
  * Grouper Management Shell.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperShell.java,v 1.18 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1

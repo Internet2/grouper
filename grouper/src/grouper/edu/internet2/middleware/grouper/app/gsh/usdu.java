@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * usdu all
- * <p/>
+ * 
  * @author  Chris Hyzer
  * @version $Id: usdu.java,v 1.1 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -41,7 +41,7 @@ public class usdu {
 
   /**
    * usdu all
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @return  True if succeeds.
@@ -53,7 +53,7 @@ public class usdu {
 
   /**
    * usdu all
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param options 

@@ -78,7 +78,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
 
 /** 
  * Schema specification for a Group type.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupType.java,v 1.89 2009-06-10 05:31:35 mchyzer Exp $
  */
@@ -121,7 +121,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
 
   /**
    * Create a new {@link GroupType}.  
-   * <p/>
+   * 
    * Create a new custom group type that can be assigned to existing or
    * new groups.  If the type already exists, a {@link SchemaException}
    * will be thrown.  If the subject is not root-like, an 
@@ -151,7 +151,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
 
   /**
    * Create a new {@link GroupType}.  
-   * <p/>
+   * 
    * Create a new custom group type that can be assigned to existing or
    * new groups.  If the type already exists, a {@link SchemaException}
    * will be thrown.  If the subject is not root-like, an 
@@ -183,7 +183,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
 
   /**
    * Create a new {@link GroupType}.  
-   * <p/>
+   * 
    * Create a new custom group type that can be assigned to existing or
    * new groups.  If the type already exists, a {@link SchemaException}
    * will be thrown.  If the subject is not root-like, an 
@@ -584,7 +584,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
 
   /**
    * Delete a custom {@link GroupType} definition.
-   * <p/>
+   * 
    * <pre class="eg">
    * try {
    *   aGroupType.delete(s);
@@ -702,7 +702,7 @@ public class GroupType extends GrouperAPI implements Serializable, Comparable {
 
   /**
    * Delete a custom {@link Field} from a custom {@link GroupType}.
-   * <p/>
+   * 
    * Delete a field from this group type.  If the field does not exist
    * in this type a {@link SchemaException} will be thrown.  If the
    * subject is not root-like, an {@link InsufficientPrivilegeException}

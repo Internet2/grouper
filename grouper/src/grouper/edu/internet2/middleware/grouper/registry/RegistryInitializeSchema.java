@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Install the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: RegistryInitializeSchema.java,v 1.17 2009-04-28 20:08:08 mchyzer Exp $    
  * @since   1.2.0

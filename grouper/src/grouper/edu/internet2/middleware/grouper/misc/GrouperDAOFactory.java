@@ -92,7 +92,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 
 /** 
  * Factory for returning <code>GrouperDAO</code> objects.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperDAOFactory.java,v 1.15 2009-10-26 02:26:07 mchyzer Exp $
  * @since   1.2.0
@@ -107,7 +107,7 @@ public abstract class GrouperDAOFactory {
 
   /**
    * Return singleton {@link GrouperDAOFactory} implementation.
-   * <p/>
+   * 
    * @return factory
    * @since   1.2.0
    */
@@ -121,7 +121,7 @@ public abstract class GrouperDAOFactory {
   /**
    * Return singleton {@link GrouperDAOFactory} implementation using the specified
    * configuration.
-   * <p/>
+   * 
    * @return factory
    * @throws  IllegalArgumentException if <i>cfg</i> is null.
    * @since   1.2.1

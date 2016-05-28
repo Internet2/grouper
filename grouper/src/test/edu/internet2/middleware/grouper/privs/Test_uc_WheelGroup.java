@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test wheel group use cases.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Test_uc_WheelGroup.java,v 1.3 2009-08-11 20:18:09 mchyzer Exp $
  * @since   1.2.1

@@ -247,7 +247,7 @@ public interface Entity extends GrouperSetElement, Comparable, GrouperObject {
 
   /**
    * Convert this group to a {@link Member} object.
-   * <p/>
+   * 
    * <pre class="eg">
    * Member m = g.toMember();
    * </pre>
@@ -259,7 +259,7 @@ public interface Entity extends GrouperSetElement, Comparable, GrouperObject {
 
   /**
    * Convert this group to a {@link Subject} object.
-   * <p/>
+   * 
    * <pre class="eg">
    * Subject subj = g.toSubject();
    * </pre>

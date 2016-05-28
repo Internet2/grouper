@@ -189,7 +189,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /** 
  * A group within the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Group.java,v 1.269 2009-12-15 06:47:06 mchyzer Exp $
  */
@@ -5262,7 +5262,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
   /**
    * Convert this group to a {@link Member} object.
-   * <p/>
+   * 
    * <pre class="eg">
    * Member m = g.toMember();
    * </pre>
@@ -5293,7 +5293,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
   /**
    * Convert this group to a {@link Subject} object.
-   * <p/>
+   * 
    * <pre class="eg">
    * Subject subj = g.toSubject();
    * </pre>

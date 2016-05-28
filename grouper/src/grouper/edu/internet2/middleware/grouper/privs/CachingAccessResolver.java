@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides caching for {@link AccessResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: CachingAccessResolver.java,v 1.16 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

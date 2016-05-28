@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Base {@link QueryFilter} that all other query filters should extend.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: BaseQueryFilter.java,v 1.4 2008-11-05 16:18:46 shilen Exp $
  * @param <ValueType> Group, Membership, Stem
@@ -64,7 +64,7 @@ public class BaseQueryFilter<ValueType> implements QueryFilter<ValueType> {
 
   /**
    * Filter candidates by scope.
-   * <p/>
+   * 
    * @param   ns          Restrict results to this scope.
    * @param   candidates  A Set of candidate objects
    * @return  A set of filtered objects
@@ -107,7 +107,7 @@ public class BaseQueryFilter<ValueType> implements QueryFilter<ValueType> {
 
   /**
    * Get filter results.
-   * <p/>
+   * 
    * @param   s   Get groups within this session context.
    * @return  Objects that match filter constraints.
    * @throws  QueryException

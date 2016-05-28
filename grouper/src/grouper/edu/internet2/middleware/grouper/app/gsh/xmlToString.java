@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.xml.XmlExporter;
 
 /**
  * Export Groups Registry to XML string.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: xmlToString.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
@@ -44,7 +44,7 @@ public class xmlToString {
 
   /**
    * Export Groups Registry to XML <tt>String</tt>.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @return  XML string.

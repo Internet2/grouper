@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 /**
  * Top level Strut's action called when ErrorFilter catches an exception
  * 
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: PopulateFilterErrorAction.java,v 1.1 2008-04-09 14:42:00 isgwb Exp $

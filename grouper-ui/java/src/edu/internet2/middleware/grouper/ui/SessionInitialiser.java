@@ -63,7 +63,7 @@ import edu.internet2.middleware.grouper.ui.util.MembershipExporter;
 import edu.internet2.middleware.grouper.ui.util.MembershipImportManager;
 
 /**
- * Initialises HttpSession after login. <p/>Should probably make an interface
+ * Initialises HttpSession after login. Should probably make an interface
  * and allow site specific initialisation
  * <p />
  * 

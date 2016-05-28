@@ -26,7 +26,7 @@ import bsh.Interpreter;
 
 /**
  * Assert condition for GrouperShell testing.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: assertTrue.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -37,7 +37,7 @@ public class assertTrue {
 
   /**
    * Assert truth of condition.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   msg         Message text for assertion.

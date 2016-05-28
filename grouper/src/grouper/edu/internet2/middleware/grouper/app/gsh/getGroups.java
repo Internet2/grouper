@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.filter.GrouperQuery;
 
 /**
  * Query for groups by name.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: getGroups.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -46,7 +46,7 @@ public class getGroups {
 
   /**
    * Query for groups by name.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Find groups with <i>name</i> as part of their name.

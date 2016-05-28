@@ -87,7 +87,7 @@ public class XmlExportGsh {
   
   /**
    * Export the registry as GrouperSystem
-   * <p/>
+   * 
    * @param   args    args[0] = name of Xml file to write to
    * @since   1.1.0
    */

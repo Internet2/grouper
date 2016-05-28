@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Composite Type.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: CompositeType.java,v 1.4 2009-03-02 07:33:25 mchyzer Exp $    
  * @since   1.0

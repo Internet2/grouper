@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper
 /**
  * Base helper class for converters that need to handle
  * collections of items (arrays, Lists, Maps, etc).
- * <p/>
+ * 
  * <p>Typically, subclasses of this will converter the outer
  * structure of the collection, loop through the contents and
  * call readItem() or writeItem() for each item.</p>

@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.misc;
 
 /** 
  * An object that can have memberships assigned to it.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Owner.java,v 1.2 2009-02-01 22:38:49 mchyzer Exp $
  * @since   1.2.0

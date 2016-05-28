@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
  * Find <code>Field</code>s belonging to a <code>GroupType</code>.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: typeGetFields.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
@@ -44,7 +44,7 @@ public class typeGetFields {
 
   /**
    * Find <code>Field</code>s belonging to a <code>GroupType</code>.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Find this <code>GroupType</code>'s <code>Field</code>s.

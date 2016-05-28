@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 /**
  * Test {@link GrouperSession}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: TestGrouperSession.java,v 1.9 2009-08-11 20:34:18 mchyzer Exp $
  * @since   1.2.1

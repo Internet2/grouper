@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Valida
  * for registering listeners, as well as a {@link #fire()} method for firing
  * events to the listeners.
  *
- * <p/>
+ * 
  * To use this class, suppose you want to support ActionEvents.  You would do:
  * <code><pre>
  * public class MyActionEventSource

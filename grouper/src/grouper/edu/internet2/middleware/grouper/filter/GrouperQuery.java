@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperQuery.java,v 1.3 2009-08-11 20:18:09 mchyzer Exp $
  */

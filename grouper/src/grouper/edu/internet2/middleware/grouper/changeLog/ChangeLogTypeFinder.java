@@ -57,7 +57,7 @@ public class ChangeLogTypeFinder {
   
   /** 
    * Find an {@link ChangeLogType}.
-   * <p/>
+   * 
    * @param   changeLogCategory  Find {@link ChangeLogType} with this name.
    * @param   changeLogAction  Find {@link ChangeLogType} with this name.
    * @param exceptionIfNotFound 
@@ -85,7 +85,7 @@ public class ChangeLogTypeFinder {
 
   /** 
    * Find an {@link ChangeLogType}.
-   * <p/>
+   * 
    * @param   changeLogTypeId  Find {@link ChangeLogType} with this id.
    * @param exceptionIfNotFound 
    * @return  {@link GroupType}

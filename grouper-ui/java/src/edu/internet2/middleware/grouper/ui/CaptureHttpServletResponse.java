@@ -40,7 +40,7 @@ import java.io.*;
  * Captures response data so that it is not immediately sent to end user.
  * Typically used in Filters to post process output. Use the toString() method
  * to obtain captured output.
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: CaptureHttpServletResponse.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $

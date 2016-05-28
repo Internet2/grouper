@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find groups within the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupFinder.java,v 1.62 2009-11-17 02:52:29 mchyzer Exp $
  */

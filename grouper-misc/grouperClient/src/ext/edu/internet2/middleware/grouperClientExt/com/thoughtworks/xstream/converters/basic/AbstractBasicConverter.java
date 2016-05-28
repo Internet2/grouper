@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.Hie
 /**
  * Base helper class for converters that can store the
  * state of an object as a single String.
- * <p/>
+ * 
  * <p>Subclasses should implement the toString(Object) and
  * fromString(String) methods for the conversion.</p>
  *

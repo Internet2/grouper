@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Exception thrown when an operation cannot be performed.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: UnableToPerformException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.2.1

@@ -27,7 +27,7 @@ package edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.conve
 
 /**
  * SingleValueConverter implementations are marshallable to/from a single value String representation.
- * <p/>
+ * 
  * <p>{@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter}
  * provides a starting point for objects that can store all information in a single value String.</p>
  *

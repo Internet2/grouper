@@ -123,7 +123,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * and updates-or-creates the equivalent {@link Stem}s, {@link Group}s and
  * {@link Membership}s.  This class can be used to load data exported by 
  * {@link XmlExporter}.
- * <p/>
+ * 
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
@@ -241,7 +241,7 @@ public class XmlImporter {
 
   /**
    * Process an Xml file as the 'root' user.
-   * <p/>
+   * 
    * @param   args    args[0] = name of Xml file to process
    * @since   1.1.0
    */

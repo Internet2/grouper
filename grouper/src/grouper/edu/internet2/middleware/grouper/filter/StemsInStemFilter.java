@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Query by stem name exact, and get all stem children, or just immediate
- * <p/>
+ * 
  * @author  mchyzer
  * @version $Id: StemsInStemFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */

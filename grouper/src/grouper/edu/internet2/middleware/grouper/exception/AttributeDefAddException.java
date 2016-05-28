@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when an attribute def cannot be added to the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AttributeDefAddException.java,v 1.1 2009-06-24 06:22:24 mchyzer Exp $
  */

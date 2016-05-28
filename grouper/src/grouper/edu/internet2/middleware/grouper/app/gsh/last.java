@@ -26,7 +26,7 @@ import bsh.Interpreter;
 
 /**
  * Run previous {@link GrouperShell} commands.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: last.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -41,7 +41,7 @@ public class last {
 
   /**
    * Run last command.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @throws  GrouperShellException
@@ -58,7 +58,7 @@ public class last {
 
   /**
    * Run the command at position <i>idx</i>.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   idx   Run command <i>idx</i>.

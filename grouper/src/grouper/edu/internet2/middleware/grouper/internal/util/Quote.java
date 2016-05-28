@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.internal.util;
 
 /**
  * Utility class for enclosing data in enclosing "quotes" of various types.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Quote.java,v 1.2 2007-04-17 17:35:00 blair Exp $
  * @since   1.2.0
@@ -52,7 +52,7 @@ public class Quote {
 
   /**
    * Enclose <code>input</code> within parentheses.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static String parens(String input) {
@@ -61,7 +61,7 @@ public class Quote {
 
   /**
    * Enclose <code>input</code> in single quotes.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static String single(boolean input) {
@@ -70,7 +70,7 @@ public class Quote {
 
   /**
    * Enclose <code>input</code> in single quotes.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static String single(String input) {

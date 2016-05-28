@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 /**
  * Top level Strut's action which retrieves and makes available group members.  
  
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

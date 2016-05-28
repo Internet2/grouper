@@ -64,7 +64,7 @@ public interface GrouperSet {
   /**
    * set the parent id of this set.  
    * the parent is the relationship leading up to this relationship.
-   * e.g. if this is the graph: A->B->C, and the relationship is A->C, then the parent is A->B
+   * e.g. if this is the graph: A-&gt;B-&gt;C, and the relationship is A-&gt;C, then the parent is A-&gt;B
    * @param grouperSetId 
    */
   public void __setParentGrouperSetId(String grouperSetId);
@@ -78,7 +78,7 @@ public interface GrouperSet {
   /**
    * get the parent set
    * the parent is the relationship leading up to this relationship.
-   * e.g. if this is the graph: A->B->C, and the relationship is A->C, then the parent is A->B
+   * e.g. if this is the graph: A-&gt;B-&gt;C, and the relationship is A-&gt;C, then the parent is A-&gt;B
    * @return parent
    */
   public GrouperSet __getParentGrouperSet();

@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.pit.PITUtils;
 
 /**
  * Obliterate a stem no matter what is in there.
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: delStem.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   2.0.2
@@ -48,7 +48,7 @@ public class obliterateStem {
 
   /**
    * Obliterate a stem.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Stem} to delete.

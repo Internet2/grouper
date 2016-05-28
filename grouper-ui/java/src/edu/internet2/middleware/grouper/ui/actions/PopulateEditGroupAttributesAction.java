@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 
 /**
  * Deal with attributes from custom types.
- * <p/>
+ * 
  *<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

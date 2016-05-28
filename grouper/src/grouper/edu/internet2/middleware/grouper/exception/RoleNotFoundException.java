@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.exception;
 /**
  * Exception thrown when an role is not found within the
  * Registry.
- * <p/>
+ * 
  * @author mchyzer
  * @version $Id: RoleNotFoundException.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
  */

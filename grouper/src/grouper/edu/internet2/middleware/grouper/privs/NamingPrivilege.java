@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * An instance of a granted naming privilege.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: NamingPrivilege.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
  */
@@ -295,7 +295,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
   /**
    * Get object {@link Stem} that the privilege was
    * granted on.
-   * <p/>
+   * 
    * @return  {@link Stem} object.
    */
   public Stem getStem() {

@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 
 /** 
  * Query by exact stem name.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: StemNameExactFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */

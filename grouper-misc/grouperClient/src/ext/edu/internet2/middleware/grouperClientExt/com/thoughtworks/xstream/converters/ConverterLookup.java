@@ -36,7 +36,7 @@ public interface ConverterLookup {
 
     /**
      * Lookup a converter for a specific type.
-     * <p/>
+     * 
      * This type may be any Class, including primitive and array types. It may also be null, signifying
      * the value to be converted is a null type.
      */

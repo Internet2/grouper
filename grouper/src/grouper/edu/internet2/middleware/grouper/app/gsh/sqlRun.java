@@ -31,7 +31,7 @@ import bsh.Interpreter;
 
 /**
  * Run a sql script against DB (like ant does it)
- * <p/>
+ * 
  * @author  Chris Hyzer
  * @version $Id: sqlRun.java,v 1.3 2008-11-13 20:26:10 mchyzer Exp $
  * @since   0.0.1
@@ -40,7 +40,7 @@ public class sqlRun {
 
   /**
    * Create tables and init schema (depending on configuration in grouper.properties)
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param scriptFile 
@@ -55,7 +55,7 @@ public class sqlRun {
 
   /**
    * Executes an SQL statement.
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   sql

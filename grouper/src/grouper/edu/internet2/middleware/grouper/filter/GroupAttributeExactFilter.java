@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Query by group attribute exactly, not with like or lower.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupAttributeExactFilter.java,v 1.2 2008-11-04 15:19:56 shilen Exp $
  */

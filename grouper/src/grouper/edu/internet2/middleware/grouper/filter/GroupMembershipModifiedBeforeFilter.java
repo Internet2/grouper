@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /**
- * Query by groups that had a membership change before the specified date. <p/>
+ * Query by groups that had a membership change before the specified date. 
  * 
  * @author shilen
  * 
@@ -55,7 +55,7 @@ public class GroupMembershipModifiedBeforeFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns groups that had a membership change
    * before the specified date. 
-   * <p/>
+   * 
    * @param   d   Find groups with membership changes before this date.
    * @param   ns  Restrict results to within this stem.
    */

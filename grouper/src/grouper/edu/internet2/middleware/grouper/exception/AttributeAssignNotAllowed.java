@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when an attribute assignment is not allowed for some reason
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: AttributeAssignNotAllowed.java,v 1.1 2009-10-26 17:20:58 mchyzer Exp $
  */

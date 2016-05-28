@@ -36,7 +36,7 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a member is not unique (e.g. if only searching
  * by subject id)
  * Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: MemberNotUniqueException.java,v 1.1 2008-10-20 14:41:20 mchyzer Exp $
  */

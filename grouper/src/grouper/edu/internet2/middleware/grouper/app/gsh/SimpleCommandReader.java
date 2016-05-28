@@ -26,7 +26,7 @@ import  java.util.LinkedList;
 
 /**
  * {@link GrouperShell} Command Reader for simple evaluations.
- * <p/>
+ * 
  * @author  blair christensen.
  * @since   0.1.1
  */

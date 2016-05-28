@@ -55,7 +55,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 /**
  * Top level Strut's action which saves new / updated stem - automatically gives 
  * creator STEM / CREATE privilege.  
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

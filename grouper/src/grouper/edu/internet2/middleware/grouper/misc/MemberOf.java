@@ -48,7 +48,7 @@ import edu.internet2.middleware.grouper.Stem;
  * No duplicates will be returned (e.g. if immediate and effective).
  * 
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: MemberOf.java,v 1.3 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0

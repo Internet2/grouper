@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.subj;
 
 /**
  * Decorator for {@link SubjectResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: SubjectResolverDecorator.java,v 1.3 2007-08-27 15:53:53 blair Exp $
  * @since   1.2.1

@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find all {@link Subject} sources.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: getSources.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -41,7 +41,7 @@ public class getSources {
 
   /**
    * Find all {@link Subject} sources.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @return  Set of sources.

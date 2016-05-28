@@ -77,7 +77,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * A membership is the object which represents a join of member
  * and group.  Has metadata like type and creator,
  * and, if an effective membership, the parent membership
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: MembershipFinder.java,v 1.108 2009-12-17 06:57:57 mchyzer Exp $
  */
@@ -1076,7 +1076,7 @@ public class MembershipFinder {
    * A stem can have potentially unlimited effective 
    * memberships
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1207,7 +1207,7 @@ public class MembershipFinder {
    * (e.g. union, intersection, etc).  A composite group has no immediate members.
    * All subjects in a composite group are effective members.
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1235,7 +1235,7 @@ public class MembershipFinder {
    * (e.g. union, intersection, etc).  A composite group has no immediate members.
    * All subjects in a composite group are effective members.
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1284,7 +1284,7 @@ public class MembershipFinder {
    * members).  Note that a member can have an immediate membership 
    * and an effective membership.
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1337,7 +1337,7 @@ public class MembershipFinder {
    * A group can have potentially unlimited effective 
    * memberships
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1366,7 +1366,7 @@ public class MembershipFinder {
    * A group can have potentially unlimited effective 
    * memberships
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1394,7 +1394,7 @@ public class MembershipFinder {
    * A group can have potentially unlimited effective 
    * memberships
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.
@@ -1446,7 +1446,7 @@ public class MembershipFinder {
    * An attributeDef can have potentially unlimited effective 
    * memberships
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * </pre>
    * @param   s     Get membership within this session context.

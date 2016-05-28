@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Query by group name.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupNameFilter.java,v 1.4 2009-03-27 19:32:41 shilen Exp $
  */

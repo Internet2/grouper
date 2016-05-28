@@ -48,7 +48,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 /** 
  * Query by stem attribute (granted they arent real attributes as in another table,
  * but the 4 name columns).
- * <p/>
+ * 
  * @author mchyzer
  * @version $Id: StemAttributeFilter.java,v 1.3 2009-01-02 06:57:11 mchyzer Exp $
  */

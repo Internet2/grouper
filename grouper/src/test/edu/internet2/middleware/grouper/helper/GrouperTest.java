@@ -85,7 +85,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Grouper-specific JUnit assertions.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperTest.java,v 1.3 2009-12-10 08:54:15 mchyzer Exp $
  * @since   1.1.0

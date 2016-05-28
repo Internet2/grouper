@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Source;
 
 /**
  * Report on system and configuration information.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperInfo.java,v 1.4 2008-11-08 03:42:33 mchyzer Exp $
  * @since   1.1.0
@@ -80,7 +80,7 @@ public class GrouperInfo {
   
   /**
    * Print system and configuration information to STDOUT.
-   * <p/>
+   * 
    * <pre class="eg">
    * % java edu.internet2.middleware.grouper.GrouperInfo
    * </pre>

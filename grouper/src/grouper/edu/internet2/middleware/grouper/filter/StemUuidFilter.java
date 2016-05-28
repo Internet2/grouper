@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 
 /** 
  * Query by stem uuid.
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: StemUuidFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */

@@ -65,10 +65,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Protects access to resources not listed in the init parameter 'ignore'.
  * Checks if HttpServletRequest.getRemoteUser() has been set, and ensures that a
  * Grouper session is initialised for the user, and that the HttpSession is
- * setup appropriately. <p/>LoginCheckFilter can work with any authentication
+ * setup appropriately. LoginCheckFilter can work with any authentication
  * scheme which causes the getRemoteUser() method to return an appropriate
  * value. This includes other Filters which precede the LoginCheckFilter. The
- * contributed Yale CAS authentication solution uses this approach <p/>If you
+ * contributed Yale CAS authentication solution uses this approach If you
  * use Tomcat's default authentication, or some other implementation of HTTP
  * Basic Authentication, then logging out will not work properly
  * <p />

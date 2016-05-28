@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.ui.Message;
  * Top level Strut's action which does any setup needed prior to letting user 
  * change debug preferences. If none set for session, code tries to load a file 
  * with saved values. 
-  * <p/>
+  * 
   <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

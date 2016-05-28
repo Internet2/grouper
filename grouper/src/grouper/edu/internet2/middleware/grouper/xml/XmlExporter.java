@@ -276,7 +276,7 @@ public class XmlExporter {
   // MAIN //
   /**
    * Export Groups Registry to XML output.
-   * <p/>
+   * 
    * @since   1.1.0
    */
   public static void main(String args[]) {
@@ -336,7 +336,7 @@ public class XmlExporter {
 
   /**
    * Exports data for the entire repository
-   * <p/>
+   * 
    * @param   writer    Write XML here.
    * @throws  GrouperException
    * @since   1.1.0
@@ -353,7 +353,7 @@ public class XmlExporter {
 
   /**
    * Export a single group.
-   * <p/>
+   * 
    * @param   writer        Write XML here.
    * @param   g             Export this group.
    * @param   relative      If true export in a format suitable for relocating within the Groups Registry.
@@ -372,7 +372,7 @@ public class XmlExporter {
   
   /**
    * Export a single stem.
-   * <p/>
+   * 
    * @param   writer        Write XML here.
    * @param   ns            Export this stem.
    * @param   relative      If true export in a format suitable for relocating within the Groups Registry.
@@ -388,7 +388,7 @@ public class XmlExporter {
 
   /**
    * Export a single stem.
-   * <p/>
+   * 
    * @param   writer        Write XML here.
    * @param   ns            Export this stem.
    * @param   relative      If true export in a format suitable for relocating within the Groups Registry.

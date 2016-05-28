@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
  * Add a {@link GroupType}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: typeAdd.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
@@ -40,7 +40,7 @@ public class typeAdd {
 
   /**
    * Add a {@link GroupType}.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Name of {@link GroupType} to add.

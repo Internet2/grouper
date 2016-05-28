@@ -122,7 +122,7 @@ import edu.internet2.middleware.subject.Subject;
  * and group.  Has metadata like type and creator,
  * and, if an effective membership, the parent membership
  * 
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Membership.java,v 1.141 2009-12-21 06:15:02 mchyzer Exp $
  */

@@ -34,7 +34,7 @@ package edu.internet2.middleware.tierApiAuthzServer.exceptions;
 
 /**
  * Exception thrown when an EL (expression language) is evaluated with a missing variable
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: ExpressionLanguageMissingVariableException.java,v 1.1 2013/06/20 06:02:51 mchyzer Exp $
  */

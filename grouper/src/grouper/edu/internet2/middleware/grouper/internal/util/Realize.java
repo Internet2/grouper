@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Reflectively instantiate classes.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Realize.java,v 1.5 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.2.0

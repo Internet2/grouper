@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
 
 /** 
  * Query by group uuid.
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: GroupUuidFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */

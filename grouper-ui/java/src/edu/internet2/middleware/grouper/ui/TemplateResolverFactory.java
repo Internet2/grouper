@@ -45,7 +45,7 @@ import java.util.ResourceBundle;
  * <i>edu.internet2.middleware.grouper.ui.TemplateResolver </i> in
  * resources/media.resources to the name of a class which implements this
  * interface. If none is specified <i>DefaultTemplateREsolverImpl </i> is used.
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: TemplateResolverFactory.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $

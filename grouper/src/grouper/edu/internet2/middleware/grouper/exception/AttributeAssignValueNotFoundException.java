@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.exception;
 /**
  * Exception thrown when an attribute assign value is not found within the Groups
  * Registry.
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: AttributeAssignValueNotFoundException.java,v 1.1 2009-06-28 19:02:17 mchyzer Exp $
  */

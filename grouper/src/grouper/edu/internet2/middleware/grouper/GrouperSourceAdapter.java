@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * Source adapter for using Grouper groups as I2MI Subjects.
- * <p/>
+ * 
  * <p>
  * This is an adapter I2MI Subjects of type <i>group</i>.  It allows
  * groups within a Group Groups Registry to be referenced as I2MI
@@ -156,7 +156,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Get a {@link Group} subject by UUID.
-   * <p/>
+   * 
    * <pre class="eg">
    * // Use it within the Grouper API
    * try {
@@ -187,7 +187,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /**
    * Get a {@link Group} subject by UUID.
-   * <p/>
+   * 
    * <pre class="eg">
    * // Use it within the Grouper API
    * try {
@@ -232,7 +232,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   
   /**
    * Gets a {@link Group} subject by its name.
-   * <p/>
+   * 
    * <pre class="eg">
    * // Use it within the Grouper API
    * try {
@@ -349,7 +349,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   
   /**
    * Gets a {@link Group} subject by its name.
-   * <p/>
+   * 
    * <pre class="eg">
    * // Use it within the Grouper API
    * try {
@@ -410,7 +410,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   /** 
    * Initializes the Grouper source adapter.
-   * <p/>
+   * 
    * <p>
    * No initialization is currently performed by this adapter.
    * </p>
@@ -470,7 +470,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   
   /**
    * Searches for {@link Group} subjects by naming attributes.
-   * <p/>
+   * 
    * <p>
    * This method performs a fuzzy search on the <i>stem</i>,
    * <i>extension</i>, <i>displayExtension</i>, <i>name</i> and

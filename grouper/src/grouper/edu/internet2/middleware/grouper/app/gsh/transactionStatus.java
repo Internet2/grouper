@@ -22,7 +22,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 /**
  * Transasction activities
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: transactionStatus.java,v 1.1 2008-09-22 15:06:40 mchyzer Exp $
  * @since   0.0.1
@@ -31,7 +31,7 @@ public class transactionStatus {
 
   /**
    * Transaction status, return the number of open transactions
-   * <p/>
+   * 
    * @param   interpreter           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @return  instructions for use

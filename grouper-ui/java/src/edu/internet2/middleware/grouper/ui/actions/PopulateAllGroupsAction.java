@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 /**
  * Top level Strut's action which does any necessary setup for initial display of 
  * AllGroups. 
- * <p/>
+ * 
  
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

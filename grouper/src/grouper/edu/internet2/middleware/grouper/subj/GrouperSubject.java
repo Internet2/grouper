@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperSubject.java,v 1.12 2009-10-22 14:03:18 mchyzer Exp $
  */

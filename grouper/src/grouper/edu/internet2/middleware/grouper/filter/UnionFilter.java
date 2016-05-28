@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
 
 /** 
  * Returns the union of two other query filters.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: UnionFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  */
@@ -57,7 +57,7 @@ public class UnionFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns the union of two other query
    * filters.
-   * <p/>
+   * 
    * @param   a   First query filter
    * @param   b   Second query filter
    */

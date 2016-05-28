@@ -159,7 +159,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * A namespace within the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Stem.java,v 1.209 2009-12-15 06:47:06 mchyzer Exp $
  */

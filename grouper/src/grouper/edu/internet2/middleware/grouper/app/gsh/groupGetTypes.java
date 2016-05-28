@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 
 /**
  * Get a {@link Group}'s {@link GroupType}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: groupGetTypes.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
@@ -43,7 +43,7 @@ public class groupGetTypes {
 
   /**
    * Get a {@link Group}s {@link GroupType}.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Name of {@link Group}.

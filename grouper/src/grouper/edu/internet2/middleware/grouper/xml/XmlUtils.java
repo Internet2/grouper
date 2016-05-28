@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * XML Utilities.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: XmlUtils.java,v 1.4 2008-10-15 03:57:06 mchyzer Exp $
  * @since   1.1.0

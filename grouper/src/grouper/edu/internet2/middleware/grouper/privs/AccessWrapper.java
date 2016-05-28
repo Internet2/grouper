@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Class implementing wrapper around {@link AccessAdapter} interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AccessWrapper.java,v 1.18 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

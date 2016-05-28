@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AttributeDefResolver}.
- * <p/>
+ * 
  * @author  mchyzer
  * @version $Id: GrouperAllAttrDefResolver.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  */

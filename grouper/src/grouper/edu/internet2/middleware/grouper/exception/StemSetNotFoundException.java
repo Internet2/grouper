@@ -17,7 +17,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when an stem set is not found within the Groups Registry.
- * <p/>
+ * 
  * @author  shilen.
  * @version $Id$
  */

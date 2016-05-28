@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.conver
 
 /**
  * Base abstract implementation of  {@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.SingleValueConverter}.
- * <p/>
+ * 
  * <p>Subclasses should implement methods canConvert(Class) and fromString(String) for the conversion.</p>
  *
  * @author Joe Walnes

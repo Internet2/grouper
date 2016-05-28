@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStrea
 /**
  * A {@link SAXSource JAXP TrAX Source} that enables using XStream object serialization as
  * direct input for XSLT processors without resorting to an intermediate representation such as
- * text XML, DOM or DOM4J. <p/> The following example shows how to apply an XSL Transformation
+ * text XML, DOM or DOM4J.  The following example shows how to apply an XSL Transformation
  * to a set of Java objects gathered into a List (<code>source</code>):
  * </p>
  * 
@@ -67,7 +67,7 @@ public class TraxSource extends SAXSource {
 
     /**
      * If {@link javax.xml.transform.TransformerFactory#getFeature} returns <code>true</code>
-     * when passed this value as an argument, the Transformer natively supports XStream. <p/>
+     * when passed this value as an argument, the Transformer natively supports XStream. 
      * <strong>Note</strong>: This implementation does not override the
      * {@link SAXSource#FEATURE} value defined by its superclass to be considered as a SAXSource
      * by Transformer implementations not natively supporting this XStream-specific source
@@ -172,7 +172,7 @@ public class TraxSource extends SAXSource {
     // -------------------------------------------------------------------------
 
     /**
-     * Sets the SAX InputSource to be used for the Source. <p/> As this implementation only
+     * Sets the SAX InputSource to be used for the Source.  As this implementation only
      * supports object lists as data source, this method always throws an
      * {@link UnsupportedOperationException}.
      * </p>
@@ -185,7 +185,7 @@ public class TraxSource extends SAXSource {
     }
 
     /**
-     * Set the XMLReader to be used for the Source. <p/> As this implementation only supports
+     * Set the XMLReader to be used for the Source.  As this implementation only supports
      * object lists as data source, this method throws an {@link UnsupportedOperationException}
      * if the provided reader object does not implement the SAX {@link XMLFilter} interface.
      * Otherwise, a {@link SaxWriter} instance will be attached as parent of the filter chain.
@@ -201,7 +201,7 @@ public class TraxSource extends SAXSource {
     }
 
     /**
-     * Returns the XMLReader to be used for the Source. <p/> This implementation returns a
+     * Returns the XMLReader to be used for the Source.  This implementation returns a
      * specific XMLReader ({@link SaxWriter}) generating the XML from a list of input objects.
      * </p>
      * 
@@ -250,7 +250,7 @@ public class TraxSource extends SAXSource {
     }
 
     /**
-     * Sets the list of objects to marshal. <p/> When dealing with non-text input (such as SAX
+     * Sets the list of objects to marshal.  When dealing with non-text input (such as SAX
      * or DOM), XSLT processors support multiple root node children for the source tree (see <a
      * href="http://www.w3.org/TR/xslt#root-node-children">section 3.1</a> of the &quot;XSL
      * Transformations (XSLT) Version 1.0&quot; specification. Using a list of objects as source

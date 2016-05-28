@@ -69,7 +69,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Strut's action which displays audit log entries. 
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

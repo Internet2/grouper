@@ -72,7 +72,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * with respect to a group or stem. This page does not differentiate privileges
  * assigned directly from those derived from group memberships - may 
  * give unexpected behaviour. 
- * <p/>
+ * 
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

@@ -44,7 +44,7 @@ import  java.util.Set;
 
 /** 
  * Query for groups with a member.
- * <p/>
+ * 
  * @author  Shilen Patel
  */
 public class GroupMemberFilter extends BaseQueryFilter {
@@ -59,7 +59,7 @@ public class GroupMemberFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns groups a member belongs to.
    * specified date. 
-   * <p/>
+   * 
    * @param   subj  Find groups that this subject is a member of.
    * @param   ns    Restrict results to within this stem.
    */

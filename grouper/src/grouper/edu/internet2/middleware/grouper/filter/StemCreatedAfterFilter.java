@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Query by stems created after the specified date.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: StemCreatedAfterFilter.java,v 1.3 2008-11-05 16:18:46 shilen Exp $
  */
@@ -60,7 +60,7 @@ public class StemCreatedAfterFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns stems created after the
    * specified date. 
-   * <p/>
+   * 
    * @param   d   Find stems created after this date.
    * @param   ns  Restrict results to within this stem.
    */

@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 /** 
  * Query by approximate group name 
  * (current group name, display name, extension, display extension only).
- * <p/>
+ * 
  * @author shilen
  * @version $Id: GroupCurrentNameFilter.java,v 1.1 2009-03-27 19:32:41 shilen Exp $
  */

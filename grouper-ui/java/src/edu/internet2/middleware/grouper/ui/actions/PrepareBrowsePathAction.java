@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 
 /**
  * Low level Strut's action which makes list of parent stems (browsePath) for the 'browseParent' available.  
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

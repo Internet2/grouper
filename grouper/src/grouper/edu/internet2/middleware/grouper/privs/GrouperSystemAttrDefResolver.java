@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AttributeDefResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperSystemAttrDefResolver.java,v 1.2 2009-09-28 05:06:46 mchyzer Exp $
  * @since   1.2.1

@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find stems within the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: StemFinder.java,v 1.54 2009-11-18 17:03:50 mchyzer Exp $
  */

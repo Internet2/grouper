@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlExportUtils;
  * This class reads an XML file representing all or part of a Groups Registry
  * and updates-or-creates the equivalent {@link Stem}s, {@link Group}s and
  * {@link Membership}s, etc (all data)
- * <p/>
+ * 
  * @author  Chris Hyzer
  * @version $Id: XmlImporter.java,v 1.24 2009-11-11 16:48:11 mchyzer Exp $
  * @since   1.0
@@ -76,7 +76,7 @@ public class XmlImportGsh {
   
   /**
    * Process an Xml file as the 'root' user.
-   * <p/>
+   * 
    * @param   args    args[0] = name of Xml file to process
    * @since   1.1.0
    */

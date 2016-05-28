@@ -66,7 +66,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Top level Strut's action which saves privileges for a subject 
  * for a group and / or makes the subject a member of the group. 
- * <p/>
+ * 
 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

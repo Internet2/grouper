@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.xml.XmlReader;
 
 /**
  * Import Groups Registry from XML string.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: xmlFromString.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
@@ -44,7 +44,7 @@ public class xmlFromString {
 
   /**
    * Import Groups Registry from XML string.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   xml         Import XML from this <tt>String</tt>.

@@ -26,7 +26,7 @@ import bsh.Interpreter;
 
 /**
  * {@link GrouperShell} History.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: history.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -37,7 +37,7 @@ public class history {
 
   /**
    * Print commands that have been run.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @throws  GrouperShellException
@@ -52,7 +52,7 @@ public class history {
 
   /**
    * Print the last <i>cnt</i> commands that have been run.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   cnt   Print the last <i>cnt</i> commands.

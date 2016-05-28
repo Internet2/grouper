@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: WheelAccessResolver.java,v 1.26 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

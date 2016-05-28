@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  * Top level Strut's action called on any Exception - can arise normally - or 
  * from within template.jsp. 
  * 
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: PopulateErrorAction.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $

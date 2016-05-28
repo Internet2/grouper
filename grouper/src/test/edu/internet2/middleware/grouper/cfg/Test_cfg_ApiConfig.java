@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 /**
  * Test {@link ApiConfig}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Test_cfg_ApiConfig.java,v 1.1 2009-03-20 19:56:42 mchyzer Exp $
  * @since   1.2.1
