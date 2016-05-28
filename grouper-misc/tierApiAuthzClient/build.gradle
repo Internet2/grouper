@@ -1,12 +1,12 @@
 description = 'Grouper TIER API AuthZ Client'
 
 dependencies {
-    compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
-    compile group: 'commons-httpclient', name: 'commons-httpclient', version: commons_httpclient_version
-    compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
-    compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
-    compile group: 'commons-codec', name: 'commons-codec', version: commons_codec_version
-    compile group: 'net.sf.json-lib', name: 'json-lib', version: json_lib_version, classifier: 'jdk15'
+    compile "commons-logging:commons-logging:$commons_logging_version"
+    compile "commons-httpclient:commons-httpclient:$commons_httpclient_version"
+    compile "org.apache.commons:commons-jexl:$commons_jexl_version"
+    compile "commons-lang:commons-lang:$commons_lang_version"
+    compile "commons-codec:commons-codec:$commons_codec_version"
+    compile "net.sf.json-lib:json-lib:$json_lib_version:jdk15"
     compile project(':grouper-misc:morphString')
 }
 

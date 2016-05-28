@@ -1,21 +1,21 @@
 apply plugin: "java"
 description = 'Grouper SCIM'
 dependencies {
-  compile(group: 'org.wso2.charon', name: 'org.wso2.charon.samples', version: org_wso2_charon_samples_version) {
+  compile("org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version") {
     exclude(group: 'javax.transaction', module: 'jta')
   }
-  compile(group: 'commons-httpclient', name: 'commons-httpclient', version: commons_httpclient_version) {
+  compile("commons-httpclient:commons-httpclient:$commons_httpclient_version") {
     exclude(group: 'javax.transaction', module: 'jta')
   }
-  compile(group: 'org.json', name: 'json', version: json_version) {
+  compile("org.json:json:$json_version") {
     exclude(group: 'javax.transaction', module: 'jta')
   }
-  compile(group: 'org.apache.wink', name: 'wink-client', version: wink_client_version) {
+  compile("org.apache.wink:wink-client:$wink_client_version") {
     exclude(group: 'javax.transaction', module: 'jta')
   }
-  compile group: 'javax.transaction', name:'jta', version: jta_version
+  compile "javax.transaction:jta:$jta_version"
 
-  provided group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
+  provided "org.hibernate:hibernate-core:$hibernate_core_version"
 
   testCompile project(path: ":grouper", configuration: "tests")
   testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")

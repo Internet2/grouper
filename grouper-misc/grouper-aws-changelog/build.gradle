@@ -4,17 +4,17 @@ description = 'Grouper aws changelog'
 dependencies {
   compile project(':grouper')
   compile project(':grouper-misc:grouperClient')
-  compile group: 'org.aspectj', name: 'aspectjrt', version: aspectj_version
-  compile group: 'commons-codec', name: 'commons-codec', version: commons_codec_version
-  compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
-  compile group: 'org.freemarker', name: 'freemarker', version: freemarker_version
-  compile group: 'org.apache.httpcomponents', name: 'httpclient', version: commons_httpclient4_version
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
-  compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
-  compile group: 'javax.mail', name: 'mail', version: mail_version
-  compile group: 'joda-time', name: 'joda-time', version: joda_time_version
-  compile group: 'com.amazonaws', name: 'aws-java-sdk', version: aws_java_version
+  compile "org.aspectj:aspectjrt:$aspectj_version"
+  compile "commons-codec:commons-codec:$commons_codec_version"
+  compile "commons-logging:commons-logging:$commons_logging_version"
+  compile "org.freemarker:freemarker:$freemarker_version"
+  compile "org.apache.httpcomponents:httpclient:$commons_httpclient4_version"
+  compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
+  compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
+  compile "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+  compile "javax.mail:mail:$mail_version"
+  compile "joda-time:joda-time:$joda_time_version"
+  compile "com.amazonaws:aws-java-sdk:$aws_java_version"
 }
 
 sourceSets {

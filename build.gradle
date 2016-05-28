@@ -123,7 +123,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.netflix.nebula:gradle-lint-plugin:0.27.0"
+        classpath "com.netflix.nebula:gradle-lint-plugin:0.30.2"
         classpath "org.standardout:gradle-versioneye-plugin:1.4.0"
     }
 }
@@ -213,8 +213,8 @@ subprojects {
     }
 
     dependencies {
-        compile group: 'log4j', name: 'log4j', version: log4j_version
-        testCompile group: 'junit', name: 'junit', version: junit_version
+        compile "log4j:log4j:$log4j_version"
+        testCompile "junit:junit:$junit_version"
     }
 
 

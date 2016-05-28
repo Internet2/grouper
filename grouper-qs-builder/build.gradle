@@ -3,8 +3,8 @@ description = 'Grouper Gs Builder'
 dependencies {
   compile project(':subject')
   compile project(':grouper-ui')
-  provided group: 'javax.servlet', name: 'servlet-api', version: servlet_api_version
-  provided group: 'org.apache.struts', name: 'struts-core', version: struts_el_version
+  provided "javax.servlet:servlet-api:$servlet_api_version"
+  provided "org.apache.struts:struts-core:$struts_el_version"
 }
 sourceSets {
   main{

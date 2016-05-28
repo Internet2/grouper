@@ -3,7 +3,7 @@ apply plugin: 'java'
 description = 'Apacheds Ldappc Schema'
 
 dependencies {
-    compile group: 'org.apache.directory.server', name: 'apacheds-server-unit', version: apacheds_server_version
+    compile "org.apache.directory.server:apacheds-server-unit:$apacheds_server_version"
 }
 
 sourceSets {

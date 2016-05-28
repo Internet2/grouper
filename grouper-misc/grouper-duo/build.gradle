@@ -4,11 +4,9 @@ description = 'Grouper duo'
 dependencies {
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
-    compile group: 'com.squareup.okio', name: 'okio', version: okio_version
-    compile group: 'com.squareup.okhttp', name: 'okhttp', version: ok_http_version
-    compile(group: 'org.json', name: 'json', version: json_version) {
-        exclude(group: 'javax.transaction', module: 'jta')
-    }
+    compile "com.squareup.okio:okio:$okio_version"
+    compile "com.squareup.okhttp:okhttp:$ok_http_version"
+    compile "org.json:json:$json_version"
     compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 

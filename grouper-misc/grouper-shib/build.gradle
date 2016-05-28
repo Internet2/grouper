@@ -1,17 +1,14 @@
 description = 'Grouper Plugin for Shibboleth'
 dependencies {
-    compile group: 'org.slf4j', name: 'slf4j-api', version: slf4j_log4j12_version
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: slf4j_log4j12_version
-    compile group: 'xerces', name: 'xml-apis', version: xml_apis_version
-    compile group: 'javax.transaction', name: 'jta', version: jta_version
+    compile "org.slf4j:slf4j-api:$slf4j_log4j12_version"
+    compile "org.slf4j:slf4j-log4j12:$slf4j_log4j12_version"
+    compile "xerces:xml-apis:$xml_apis_version"
+    compile "javax.transaction:jta:$jta_version"
     compile project(':grouper')
     compile project(':subject')
-    compile(group: 'edu.internet2.middleware', name: 'shibboleth-common', version: shibboleth_common_version) {
-        exclude(group: 'ch.qos.logback', module: 'logback-classic')
-        exclude(group: 'org.slf4j', module: 'log4j-over-slf4j')
-    }
+    compile "edu.internet2.middleware:shibboleth-common:$shibboleth_common_version"
     testCompile project(path: ":grouper", configuration: "tests")
-    compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
-    compile group: 'org.hibernate', name: 'hibernate-c3p0', version: hibernate_core_version
+    compile "org.hibernate:hibernate-core:$hibernate_core_version"
+    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
 }
 

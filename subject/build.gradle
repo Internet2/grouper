@@ -2,20 +2,20 @@ description = 'Subject API'
 dependencies {
     compile project(':grouper-misc:morphString')
     compile project(':grouper-misc:grouperClient')
-    compile group: 'commons-collections', name: 'commons-collections', version: commons_collections_version
-    compile group: 'cglib', name: 'cglib', version: cglib_version
-    compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
-    compile group: 'commons-digester', name: 'commons-digester', version: commons_digester_version
-    compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
-    compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
-    compile group: 'com.mchange', name: 'c3p0', version: c3p0_version
-    compile group: 'org.hibernate', name: 'hibernate-c3p0', version: hibernate_core_version
-    compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
-    compile group: 'commons-pool', name: 'commons-pool', version: commons_pool_version
-    compile group: 'edu.vt.middleware', name: 'vt-ldap', version: vt_ldap_version
-    compile group: 'hsqldb', name: 'hsqldb', version: hsqldb_version
-    compile group: 'org.bouncycastle', name: 'bcprov-jdk16', version: bcprov_jdk16_version
-    runtime group: 'p6spy', name: 'p6spy', version: p6spy_version
+    compile "commons-collections:commons-collections:$commons_collections_version"
+    compile "cglib:cglib:$cglib_version"
+    compile "commons-logging:commons-logging:$commons_logging_version"
+    compile "commons-digester:commons-digester:$commons_digester_version"
+    compile "commons-lang:commons-lang:$commons_lang_version"
+    compile "org.apache.commons:commons-jexl:$commons_jexl_version"
+    compile "com.mchange:c3p0:$c3p0_version"
+    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
+    compile "org.hibernate:hibernate-core:$hibernate_core_version"
+    compile "commons-pool:commons-pool:$commons_pool_version"
+    compile "edu.vt.middleware:vt-ldap:$vt_ldap_version"
+    compile "hsqldb:hsqldb:$hsqldb_version"
+    compile "org.bouncycastle:bcprov-jdk16:$bcprov_jdk16_version"
+    runtime "p6spy:p6spy:$p6spy_version"
 }
 
 sourceSets {
