@@ -2,13 +2,10 @@ apply plugin: 'java'
 description = 'Grouper Web Services'
 
 dependencies {
-    compile "commons-net:commons-net:$commons_net_version"
-    compile "org.apache.ws.security:wss4j:$wss4j_version"
-    compile "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version"
-    compile "org.apache.rampart:rampart-core:$rampart_core_version"
-    compile "org.apache.rampart:rampart-policy:$rampart_policy_version"
-    compile "org.apache.rampart:rampart-trust:$rampart_trust_version"
-
+    compile libraries.commons
+    compile libraries.thoughtworks
+    compile libraries.rampart
+    compile libraries.wss
 }
 
 sourceSets {

@@ -3,9 +3,8 @@ description = 'Grouper duo'
 dependencies {
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
-    compile "com.squareup.okio:okio:$okio_version"
-    compile "com.squareup.okhttp:okhttp:$ok_http_version"
-    compile "org.json:json:$json_version"
+    compile libraries.squareup
+    compile libraries.json
     compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 

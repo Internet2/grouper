@@ -1,38 +1,34 @@
 description = 'Grouper Kim Connector'
 dependencies {
-  compile project(':grouper')
-  compile project(':grouper-misc:grouperClient')
+    compile project(':grouper')
+    compile project(':grouper-misc:grouperClient')
+    
+    compile libraries.hibernate
+    compile libraries.commons
+    compile libraries.spring
+    compile libraries.ant
+    compile libraries.servletapi
+    compile libraries.jdom
 
-  compile "org.hibernate:hibernate-annotations:$hibernate_annotations_version"
-  compile "javax.persistence:persistence-api:$persistence_api_version"
-  compile "org.springframework:spring-beans:$spring_beans_version"
-  compile "commons-validator:commons-validator:$common_validator_version"
-  compile "org.springframework:spring-core:$spring_core_version"
-  compile "org.springframework:spring-jdbc:$spring_jdbc_version"
-  compile "org.springframework:spring-dao:$spring_dao_version"
-  compile "ant-contrib:ant-contrib:$ant_contrib_version"
-  compile "javax.servlet:servlet-api:$servlet_api_version"
-  compile "jdom:jdom:$jdom_version"
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':grouper-ws:grouper-ws')
 
-  compile fileTree(dir: 'lib', include: ['*.jar'])
-  compile project(':grouper-ws:grouper-ws')
-
-  testCompile project(path: ":grouper", configuration: "tests")
-  testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
+    testCompile project(path: ":grouper", configuration: "tests")
+    testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src'
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDirs 'misc'
+        }
     }
-    resources {
-      srcDirs 'misc'
+    test {
+        java {
+            srcDir 'test'
+        }
     }
-  }
-  test {
-  	java {
-  		srcDir 'test'
-  	}
-  }
 }

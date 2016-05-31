@@ -39,7 +39,7 @@
   </if> 
 
 	<filter filtersfile="build.properties"/>
-	<property file=".lastbuild.properties"/>
+	 
 
 	<!-- 
 		   In a production environment it is usual to build a clean distribution when incorporating changes,
@@ -727,9 +727,7 @@
 				<istrue value="${default.webapp.folder.cleanable}"/>
 			</and>
 		</condition>
-		<propertyfile file=".lastbuild.properties">
-				<entry key="last.webapp.folder" value="${webapp.folder}"/>
-			</propertyfile>
+ 
 		<condition property="webapp.class.folder" value="${webapp.folder}/WEB-INF/classes">
 			<not>
 				<isset property="webapp.class.folder"/>
@@ -869,9 +867,7 @@
 <echo></echo>
 
 <input message="Make your choice (${last.target})&gt;" defaultvalue="${last.target}" addproperty="do.this"/>
-<propertyfile file=".lastbuild.properties">
-				<entry key="last.target" value="${do.this}"/>
-			</propertyfile>
+
 <antcall target="${do.this}"/>
 	</target>
 	

@@ -3,13 +3,9 @@ description = 'Grouper TIER API AuthZ Server'
 apply plugin: "war"
 
 dependencies {
-    compile "net.sf.json-lib:json-lib:$json_lib_version:jdk15"
-    compile "commons-httpclient:commons-httpclient:$commons_httpclient_version"
-    compile "org.apache.commons:commons-jexl:$commons_jexl_version"
-    compile "commons-lang:commons-lang:$commons_lang_version"
-    compile "commons-codec:commons-codec:$commons_codec_version"
-    compile "commons-logging:commons-logging:$commons_logging_version"
-    provided "javax.servlet:servlet-api:$servlet_api_version"
+    compile libraries.jsonlib
+    compile libraries.commons
+    provided libraries.servletapi
 }
 
 sourceSets {

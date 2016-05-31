@@ -3,9 +3,7 @@ dependencies {
     compile project(':subject')
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
-
-    compile "org.ldaptive:ldaptive-unboundid:$ldaptive_version"
-    compile "org.ldaptive:ldaptive:$ldaptive_version"
+    compile libraries.ldaptive
     
 }
 

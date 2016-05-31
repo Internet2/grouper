@@ -3,56 +3,39 @@ dependencies {
     compile project(':subject')
     compile project(':grouper-misc:morphString')
     compile project(':grouper-misc:grouperClient')
-    compile "ant:ant-jakarta-oro:$ant_jakarta_oro_version"
-    compile "antlr:antlr:$antlr_version"
-    compile "asm:asm:$asm_version"
-    compile "asm:asm-util:$asm_util_version"
-    compile "backport-util-concurrent:backport-util-concurrent:$backport_util_concurrent_version"
-    compile "commons-beanutils:commons-beanutils:$commons_beanutils_version"
-    compile "commons-betwixt:commons-betwixt:$commons_betwixt_version"
-    compile "commons-cli:commons-cli:$commons_cli_version"
-    compile "commons-collections:commons-collections:$commons_collections_version"
-    compile "commons-digester:commons-digester:$commons_digester_version"
-    compile "commons-discovery:commons-discovery:$commons_discovery_version"
-    compile "org.apache.commons:commons-jexl:$commons_jexl_version"
-    compile "commons-httpclient:commons-httpclient:$commons_httpclient_version"
-    compile "commons-io:commons-io:$commons_io_version"
-    compile "commons-lang:commons-lang:$commons_lang_version"
-    compile "commons-logging:commons-logging:$commons_logging_version"
-    compile "commons-math:commons-math:$commons_math_version"
-    compile "com.thoughtworks.xstream:xstream:$xstream_version"
-    compile "com.mchange:c3p0:$c3p0_version"
-    compile "dom4j:dom4j:$dom4j_version"
-    compile "javassist:javassist:$javassist_version"
-    compile "javax.activation:activation:$activation_version"
-    compile "javax.mail:mail:$mail_version"
-    compile "javax.transaction:jta:$jta_version"
-    compile "jug:jug:$jug_version"
-    compile "net.sf.ehcache:ehcache-core:$ehcache_core_version"
-    compile "net.sf.ezmorph:ezmorph:$ezmorph_version"
-    compile "net.sf.json-lib:json-lib:$json_lib_version:jdk15"
-    compile "net.sf.jsr107cache:jsr107cache:$jsr107cache_version"
-    compile "odmg:odmg:$odmg_version"
-    compile "org.quartz-scheduler:quartz:$quartz_version"
-    compile "org.apache.ant:ant:$ant_version"
-    compile "org.apache.ddlutils:ddlutils:$ddlutils_version"
-    compile "org.beanshell:bsh:$bsh_version"
-    compile "xpp3:xpp3_min:$xpp3_min_version"
-    compile "jivesoftware:smack:$smack_version"
-    compile "org.mortbay.jetty:jetty:$jetty_version"
-    compile "org.mortbay.jetty:jetty-util:$jetty_util_version"
-    compile "org.slf4j:slf4j-log4j12:$slf4j_log4j12_version"
-    compile "hsqldb:hsqldb:$hsqldb_version"
-    compile "org.wso2.charon:org.wso2.charon.core:$org_wso2_charon_core_version"
-    compile "org.apache.wink:wink-client:$wink_client_version"
-    compile "org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version"
-    runtime "p6spy:p6spy:$p6spy_version"
-    runtime "postgresql:postgresql:$postgresql_version"
-    runtime "mysql:mysql-connector-java:$mysql_connector_java_version"
-    testCompile "com.jamonapi:jamon:$jamon_version"
-    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
-    compile "org.hibernate:hibernate-core:$hibernate_core_version"
-    provided "javax.servlet:servlet-api:$servlet_api_version"
+    compile libraries.commons
+    compile libraries.ant
+    compile libraries.asm
+    compile libraries.backport
+    compile libraries.thoughtworks
+    compile libraries.hibernate
+    compile libraries.dom4j
+    compile libraries.javassist
+    compile libraries.activation
+    compile libraries.mail
+    compile libraries.jug
+    compile libraries.ehcache
+    compile libraries.jsonlib
+
+    compile libraries.ezmorph
+    compile libraries.odmg
+    compile libraries.quartz
+    compile libraries.ddlutils
+    compile libraries.beanshell
+    compile libraries.xpp3
+    compile libraries.smack
+    compile libraries.jetty
+    compile libraries.slf4j
+    compile libraries.charon
+    compile libraries.wink
+
+    testCompile libraries.jamon
+
+    runtime libraries.p6spy
+    runtime libraries.postgresql
+    runtime libraries.mysql
+
+    provided libraries.servletapi
 }
 
 sourceSets {

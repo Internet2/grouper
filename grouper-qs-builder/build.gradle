@@ -1,19 +1,20 @@
-apply plugin:'java'
-description = 'Grouper Gs Builder'
+apply plugin: 'java'
+description = 'Grouper QS Builder'
 dependencies {
-  compile project(':subject')
-  compile project(':grouper-ui')
-  provided "javax.servlet:servlet-api:$servlet_api_version"
-  provided "org.apache.struts:struts-core:$struts_el_version"
+    compile project(':subject')
+    compile project(':grouper-ui')
+    provided libraries.servletapi
+    provided libraries.struts
 }
+
 sourceSets {
-  main{
-    java {
-      srcDir 'custom-grouper-ui/java'
+    main {
+        java {
+            srcDir 'custom-grouper-ui/java'
+        }
+        resources {
+            srcDirs 'custom-grouper-ui/resources'
+        }
     }
-    resources {
-      srcDirs 'custom-grouper-ui/resources'
-    }
-  }
 }
 

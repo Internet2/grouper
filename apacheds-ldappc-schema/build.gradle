@@ -1,7 +1,7 @@
 description = 'Apacheds Ldappc Schema'
 
 dependencies {
-    compile "org.apache.directory.server:apacheds-server-unit:$apacheds_server_version"
+    compile libraries.apacheds
 }
 
 sourceSets {

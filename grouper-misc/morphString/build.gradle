@@ -1,6 +1,4 @@
-
-description = 'MorphString'
-
+description = 'Grouper MorphString'
 
 sourceSets {
     main {

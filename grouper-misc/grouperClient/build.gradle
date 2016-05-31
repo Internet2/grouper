@@ -1,17 +1,21 @@
 description = 'Grouper Client'
 dependencies {
-    compile "joda-time:joda-time:$joda_time_version"
-    compile "org.jdom:jdom:$jdom_version"
-    compile "dom4j:dom4j:$dom4j_version"
-    compile "org.codehaus.jettison:jettison:$jettison_version"
-    compile "xom:xom:$xom_version"
-    compile "cglib:cglib:$cglib_version"
-    compile "net.sf.json-lib:json-lib:$json_lib_version:jdk15"
-    compile "org.quartz-scheduler:quartz:$quartz_version"
-    compile "jivesoftware:smack:$smack_version"
-    compile "xpp3:xpp3_min:$xpp3_min_version"
-    compile "javax.mail:mail:$mail_version"
-    testCompile "junit:junit:$junit_version"
+
+    compile libraries.jodatime
+    compile libraries.jdom
+    compile libraries.dom4j
+
+    compile libraries.cglib
+    compile libraries.jsonlib
+
+    compile libraries.quartz
+    compile libraries.smack
+    compile libraries.xpp3
+    compile libraries.mail
+    compile libraries.jettison
+    compile libraries.xom
+
+
 }
 
 sourceSets {

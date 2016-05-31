@@ -3,18 +3,16 @@ description = 'Grouper aws changelog'
 dependencies {
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
-    compile "org.aspectj:aspectjrt:$aspectj_version"
-    compile "commons-codec:commons-codec:$commons_codec_version"
-    compile "commons-logging:commons-logging:$commons_logging_version"
-    compile "org.freemarker:freemarker:$freemarker_version"
-    compile "org.apache.httpcomponents:httpclient:$commons_httpclient4_version"
-    compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
-    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
-    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
-    compile "javax.mail:mail:$mail_version"
-    compile "joda-time:joda-time:$joda_time_version"
-    compile "com.amazonaws:aws-java-sdk:$aws_java_version"
+    compile libraries.aspectj
+    compile libraries.commons
+    compile libraries.freemarker
+    compile libraries.httpclient
+    compile libraries.jackson
+    compile libraries.mail
+    compile libraries.jodatime
+    compile libraries.awssdk
 }
+
 
 sourceSets {
     main {

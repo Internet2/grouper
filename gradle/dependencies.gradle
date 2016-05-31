@@ -1,0 +1,260 @@
+ext.libraries = [
+        activemq    : [
+                "org.apache.activemq:activemq-core:$activemq_version"
+        ],
+        commons     : [
+                "commons-io:commons-io:$commons_io_version",
+                "commons-lang:commons-lang:$commons_lang_version",
+                "commons-logging:commons-logging:$commons_logging_version",
+                "commons-math:commons-math:$commons_math_version",
+                "commons-net:commons-net:$commons_net_version",
+                "commons-fileupload:commons-fileupload:$commons_fileupload_version",
+                dependencies.create("commons-httpclient:commons-httpclient:$commons_httpclient_version") {
+                    exclude(group: 'javax.transaction', module: 'jta')
+                },
+                "org.apache.commons:commons-jexl:$commons_jexl_version",
+                "commons-codec:commons-codec:$commons_codec_version",
+                "commons-beanutils:commons-beanutils:$commons_beanutils_version",
+                "commons-betwixt:commons-betwixt:$commons_betwixt_version",
+                "commons-cli:commons-cli:$commons_cli_version",
+                "commons-collections:commons-collections:$commons_collections_version",
+                "commons-digester:commons-digester:$commons_digester_version",
+                "commons-discovery:commons-discovery:$commons_discovery_version",
+                "commons-validator:commons-validator:$common_validator_version",
+                "commons-pool:commons-pool:$commons_pool_version"
+
+        ],
+        rampart     : [
+                dependencies.create("org.apache.rampart:rampart-core:$rampart_core_version") {
+                    exclude(group: 'org.apache.ws.security', module: 'wss4j')
+                    force = true
+                },
+                dependencies.create("org.apache.rampart:rampart-policy:$rampart_core_version") {
+                    exclude(group: 'org.apache.ws.security', module: 'wss4j')
+                    force = true
+                },
+                dependencies.create("org.apache.rampart:rampart-trust:$rampart_core_version") {
+                    exclude(group: 'org.apache.ws.security', module: 'wss4j')
+                    force = true
+                }
+        ],
+        thoughtworks: [
+                "com.thoughtworks.xstream:xstream:$xstream_version"
+        ],
+        wss       : [
+                "org.apache.ws.security:wss4j:$wss4j_version",
+                "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version",
+                "org.apache.axis2:axis2-adb:$axis2_adb_version",
+                "org.apache.axis2:axis2-codegen:$axis2_codengen_version",
+                "org.apache.axis2:axis2-java2wsdl:$axis2_java2wsdl_version",
+                "org.apache.axis2:axis2-kernel:$axis2_karnel_version",
+                "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version",
+                "org.apache.axis2:axis2-transport-local:$axis2_transport_local_version"
+        ],
+        jsonlib     : [
+                "net.sf.json-lib:json-lib:$json_lib_version:jdk15"
+        ],
+        json        : [
+                dependencies.create("org.json:json:$json_version") {
+                    exclude(group: 'javax.transaction', module: 'jta')
+                }
+        ],
+        jackson     : [
+                "com.fasterxml.jackson.core:jackson-core:$jackson_version",
+                "com.fasterxml.jackson.core:jackson-annotations:$jackson_version",
+                "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+        ],
+        mail        : [
+                "javax.mail:mail:$mail_version"
+        ],
+        freemarker  : [
+                "org.freemarker:freemarker:$freemarker_version"
+        ],
+        jodatime    : [
+                "joda-time:joda-time:$joda_time_version"
+        ],
+        awssdk      : [
+                "com.amazonaws:aws-java-sdk:$aws_java_version"
+        ],
+        httpclient  : [
+                "org.apache.httpcomponents:httpclient:$commons_httpclient4_version"
+        ],
+        aspectj     : [
+                "org.aspectj:aspectjrt:$aspectj_version"
+        ],
+        squareup    : [
+                "com.squareup.okio:okio:$okio_version",
+                "com.squareup.okhttp:okhttp:$ok_http_version"
+        ],
+        ant         : [
+                "ant:ant-jakarta-oro:$ant_jakarta_oro_version",
+                "antlr:antlr:$antlr_version",
+                "org.apache.ant:ant:$ant_version",
+                "ant-contrib:ant-contrib:$ant_contrib_version"
+        ],
+        asm         : [
+                "asm:asm:$asm_version",
+                "asm:asm-util:$asm_util_version"
+        ],
+        charon      : [
+                "org.wso2.charon:org.wso2.charon.core:$org_wso2_charon_core_version",
+                "org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version"
+        ],
+        hibernate   : [
+                "org.hibernate:hibernate-c3p0:$hibernate_core_version",
+                "org.hibernate:hibernate-core:$hibernate_core_version",
+                "javax.transaction:jta:$jta_version",
+                "com.mchange:c3p0:$c3p0_version",
+                "hsqldb:hsqldb:$hsqldb_version",
+                "org.hibernate:hibernate-annotations:$hibernate_annotations_version",
+                "javax.persistence:persistence-api:$persistence_api_version"
+        ],
+        wink        : [
+                "org.apache.wink:wink-client:$wink_client_version"
+        ],
+        ehcache     : [
+                "net.sf.ehcache:ehcache-core:$ehcache_core_version",
+                "net.sf.jsr107cache:jsr107cache:$jsr107cache_version"
+        ],
+        jetty       : [
+                "org.mortbay.jetty:jetty:$jetty_version",
+                "org.mortbay.jetty:jetty-util:$jetty_util_version"
+        ],
+        backport    : [
+                "backport-util-concurrent:backport-util-concurrent:$backport_util_concurrent_version"
+        ],
+        dom4j       : [
+                "dom4j:dom4j:$dom4j_version"
+        ],
+        javassist   : [
+                "javassist:javassist:$javassist_version"
+        ],
+        activation  : [
+                "javax.activation:activation:$activation_version"
+        ],
+        jug         : [
+                "jug:jug:$jug_version"
+        ],
+        ezmorph     : [
+                "net.sf.ezmorph:ezmorph:$ezmorph_version"
+        ],
+        odmg        : [
+                "odmg:odmg:$odmg_version"
+        ],
+        ddlutils    : [
+                "org.apache.ddlutils:ddlutils:$ddlutils_version"
+        ],
+        beanshell   : [
+                "org.beanshell:bsh:$bsh_version"
+        ],
+        xpp3        : [
+                "xpp3:xpp3_min:$xpp3_min_version"
+        ],
+        smack       : [
+                "jivesoftware:smack:$smack_version"
+        ],
+        slf4j       : [
+                "org.slf4j:slf4j-api:$slf4j_log4j12_version",
+                "org.slf4j:slf4j-log4j12:$slf4j_log4j12_version"
+        ],
+        jamon       : [
+                "com.jamonapi:jamon:$jamon_version"
+        ],
+        p6spy       : [
+                "p6spy:p6spy:$p6spy_version"
+        ],
+        postgresql  : [
+                "postgresql:postgresql:$postgresql_version"
+        ],
+        mysql       : [
+                "mysql:mysql-connector-java:$mysql_connector_java_version"
+        ],
+        servletapi  : [
+                "javax.servlet:servlet-api:$servlet_api_version",
+                "javax.servlet:jsp-api:$jsp_api_version",
+                "javax.servlet:jstl:$jstl_version"
+        ],
+        xerces      : [
+                "xerces:xml-apis:$xml_apis_version"
+        ],
+        shibcommon  : [
+                dependencies.create("edu.internet2.middleware:shibboleth-common:$shibboleth_common_version") {
+                    exclude(group: 'ch.qos.logback', module: 'logback-classic')
+                    exclude(group: 'org.slf4j', module: 'log4j-over-slf4j')
+                }
+        ],
+        atlassian   : [
+                "com.atlassian.seraph:atlassian-seraph:$atlassian_seraph_version",
+                "com.atlassian.user:atlassian-user:$atlassian_user_version",
+                "com.atlassian.event:atlassian-event:$atlassian_event_version",
+                dependencies.create("com.atlassian.confluence:confluence:$atlassian_confluence_version") {
+                    transitive = false
+                }
+        ],
+        log4j       : [
+                "log4j:log4j:$log4j_version"
+        ],
+        junit       : [
+                "junit:junit:$junit_version"
+        ],
+        ldaptive    : [
+                "org.ldaptive:ldaptive-unboundid:$ldaptive_version",
+                "org.ldaptive:ldaptive:$ldaptive_version"
+        ],
+        jdom        : [
+                "jdom:jdom:$jdom_version"
+        ],
+        spring      : [
+                "org.springframework:spring-beans:$spring_beans_version",
+                "org.springframework:spring-core:$spring_core_version",
+                "org.springframework:spring-jdbc:$spring_jdbc_version",
+                "org.springframework:spring-dao:$spring_dao_version"
+        ],
+        powermock   : [
+                "org.powermock:powermock-api:$powermock_version",
+                "org.powermock:powermock-api-mockito:$powermock_version",
+                "org.powermock:powermock-module-junit4:$powermock_version",
+        ],
+        googleapis  : [
+                "com.google.apis:google-api-services-admin-directory:$google_api_admin_version",
+                "com.google.apis:google-api-services-groupssettings:$google_api_group_settings_version"
+        ],
+        apacheds    : [
+                "org.apache.directory.server:apacheds-server-unit:$apacheds_server_version"
+        ],
+        cglib       : [
+                "cglib:cglib:$cglib_version",
+        ],
+        bouncycastle: [
+                "org.bouncycastle:bcprov-jdk16:$bcprov_jdk16_version"
+        ],
+        vtldap      : [
+                "edu.vt.middleware:vt-ldap:$vt_ldap_version"
+        ],
+        jettison    : [
+                "org.codehaus.jettison:jettison:$jettison_version"
+        ],
+        xom         : [
+                "xom:xom:$xom_version"
+        ],
+        struts      : [
+                "struts:struts:$struts_version",
+                "org.apache.struts:struts-el:$struts_el_version",
+                "org.apache.struts:struts-core:$struts_el_version"
+        ],
+        taglibs     : [
+                "taglibs:standard:$standard_version"
+        ],
+        opencsv     : [
+                "au.com.bytecode:opencsv:$opencsv_version"
+        ],
+        csrfguard   : [
+                "org.owasp:csrfguard:$csrfguard_version"
+        ],
+        casclient   : [
+                "cas:casclient:$cas_client_version"
+        ],
+        quartz      : [
+                "org.quartz-scheduler:quartz:$quartz_version"
+        ]
+]

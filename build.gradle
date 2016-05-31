@@ -139,7 +139,7 @@ allprojects {
     apply plugin: "signing"
     apply plugin: "org.standardout.versioneye"
     apply plugin: "nebula.lint"
-
+        
     gradleLint.rules = ['dependency-parentheses', 'dependency-tuple']
 
     signing {
@@ -150,14 +150,16 @@ allprojects {
 
 
 subprojects {
-    task allDepInsight(type: DependencyInsightReportTask, description: "Generate dependency insight for all dependencies") << {}
+    task allDepInsight(type: DependencyInsightReportTask, description: "Generate dependency insight for all dependencies") << {
+    }
     task allDeps(type: DependencyReportTask, description: "List all project dependencies") {}
 
     apply plugin: 'java'
     apply plugin: 'project-report'
 
     apply from: rootProject.file("gradle/tasks.gradle")
-
+    apply from: rootProject.file("gradle/dependencies.gradle")
+    
     /*
         Don't publish test dependencies into the final POM.
     */
@@ -211,8 +213,8 @@ subprojects {
     }
 
     dependencies {
-        compile "log4j:log4j:$log4j_version"
-        testCompile "junit:junit:$junit_version"
+        compile libraries.log4j
+        testCompile libraries.junit
     }
 
 

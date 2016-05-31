@@ -1,12 +1,7 @@
 description = 'Grouper TIER API AuthZ Connector'
 
 dependencies {
-    compile "commons-httpclient:commons-httpclient:$commons_httpclient_version"
-    compile "org.apache.commons:commons-jexl:$commons_jexl_version"
-    compile "commons-lang:commons-lang:$commons_lang_version"
-    compile "commons-codec:commons-codec:$commons_codec_version"
-    compile "commons-logging:commons-logging:$commons_logging_version"
-    
+    compile libraries.commons
     compile project(':grouper')
     compile project(':subject')
     compile project(':grouper-misc:grouperClient')

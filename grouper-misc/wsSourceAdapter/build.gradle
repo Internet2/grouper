@@ -1,36 +1,27 @@
-
 description = 'WsSourceAdapter'
 
 dependencies {
-  compile project(':grouper')
-  compile project(':subject')
-  compile "commons-httpclient:commons-httpclient:$commons_httpclient_version"
-  compile "commons-io:commons-io:$commons_io_version"
-  compile "commons-logging:commons-logging:$commons_logging_version"
-  compile "commons-lang:commons-lang:$commons_lang_version"
-  compile "commons-codec:commons-codec:$commons_codec_version"
-  compile "commons-beanutils:commons-beanutils:$commons_beanutils_version"
-  compile "commons-digester:commons-digester:$commons_digester_version"
-  compile "org.apache.commons:commons-jexl:$commons_jexl_version"
-  compile "commons-collections:commons-collections:$commons_collections_version"
-  compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':grouper')
+    compile project(':subject')
+    compile libraries.commons
+    compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src'
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDirs 'conf'
+        }
     }
-    resources {
-      srcDirs 'conf'
+    test {
+        java {
+            srcDir 'src/test'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test'
-    }
-    resources {
-      srcDir 'src/test/resources'
-    }
-  }
 }

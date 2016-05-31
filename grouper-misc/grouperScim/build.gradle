@@ -1,39 +1,28 @@
-
 description = 'Grouper SCIM'
 dependencies {
-  compile("org.wso2.charon:org.wso2.charon.samples:$org_wso2_charon_samples_version") {
-    exclude(group: 'javax.transaction', module: 'jta')
-  }
-  compile("commons-httpclient:commons-httpclient:$commons_httpclient_version") {
-    exclude(group: 'javax.transaction', module: 'jta')
-  }
-  compile("org.json:json:$json_version") {
-    exclude(group: 'javax.transaction', module: 'jta')
-  }
-  compile("org.apache.wink:wink-client:$wink_client_version") {
-    exclude(group: 'javax.transaction', module: 'jta')
-  }
-  compile "javax.transaction:jta:$jta_version"
-
-  provided "org.hibernate:hibernate-core:$hibernate_core_version"
-
-  testCompile project(path: ":grouper", configuration: "tests")
-  testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
-  provided project(':grouper')
+    compile libraries.charon
+    compile libraries.commons
+    compile libraries.json
+    compile libraries.wink
+    compile libraries.hibernate
+    
+    testCompile project(path: ":grouper", configuration: "tests")
+    testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
+    provided project(':grouper')
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src/main'
+    main {
+        java {
+            srcDir 'src/main'
+        }
+        resources {
+            srcDirs '.settings'
+        }
     }
-    resources {
-      srcDirs '.settings'
+    test {
+        java {
+            srcDir 'src/test'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test'
-    }
-  }
 }

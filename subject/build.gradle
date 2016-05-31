@@ -2,20 +2,11 @@ description = 'Subject API'
 dependencies {
     compile project(':grouper-misc:morphString')
     compile project(':grouper-misc:grouperClient')
-    compile "commons-collections:commons-collections:$commons_collections_version"
-    compile "cglib:cglib:$cglib_version"
-    compile "commons-logging:commons-logging:$commons_logging_version"
-    compile "commons-digester:commons-digester:$commons_digester_version"
-    compile "commons-lang:commons-lang:$commons_lang_version"
-    compile "org.apache.commons:commons-jexl:$commons_jexl_version"
-    compile "com.mchange:c3p0:$c3p0_version"
-    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
-    compile "org.hibernate:hibernate-core:$hibernate_core_version"
-    compile "commons-pool:commons-pool:$commons_pool_version"
-    compile "edu.vt.middleware:vt-ldap:$vt_ldap_version"
-    compile "hsqldb:hsqldb:$hsqldb_version"
-    compile "org.bouncycastle:bcprov-jdk16:$bcprov_jdk16_version"
-    runtime "p6spy:p6spy:$p6spy_version"
+    compile libraries.commons
+    compile libraries.hibernate
+    compile libraries.vtldap
+    compile libraries.bouncycastle
+    runtime libraries.p6spy
 }
 
 sourceSets {

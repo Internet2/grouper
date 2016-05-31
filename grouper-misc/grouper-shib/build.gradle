@@ -1,14 +1,12 @@
 description = 'Grouper Plugin for Shibboleth'
 dependencies {
-    compile "org.slf4j:slf4j-api:$slf4j_log4j12_version"
-    compile "org.slf4j:slf4j-log4j12:$slf4j_log4j12_version"
-    compile "xerces:xml-apis:$xml_apis_version"
-    compile "javax.transaction:jta:$jta_version"
+    compile libraries.slf4j
+    compile libraries.hibernate
+    compile libraries.xerces
+    compile libraries.shibcommon
+    
     compile project(':grouper')
     compile project(':subject')
-    compile "edu.internet2.middleware:shibboleth-common:$shibboleth_common_version"
     testCompile project(path: ":grouper", configuration: "tests")
-    compile "org.hibernate:hibernate-core:$hibernate_core_version"
-    compile "org.hibernate:hibernate-c3p0:$hibernate_core_version"
 }
 

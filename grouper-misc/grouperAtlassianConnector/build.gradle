@@ -1,27 +1,18 @@
 description = 'Grouper Atlassian Connector'
 
 dependencies {
-    compile "org.slf4j:slf4j-api:$slf4j_log4j12_version"
-    compile "org.slf4j:slf4j-log4j12:$slf4j_log4j12_version"
-    compile "xerces:xml-apis:$xml_apis_version"
-    compile "javax.transaction:jta:$jta_version"
-    compile "com.atlassian.seraph:atlassian-seraph:$atlassian_seraph_version"
-    compile "com.atlassian.user:atlassian-user:$atlassian_user_version"
-    compile "com.atlassian.event:atlassian-event:$atlassian_event_version"
-    compile("com.atlassian.confluence:confluence:$atlassian_confluence_version") {
-        transitive = false
-    }
-
+    compile libraries.slf4j
+    compile libraries.hibernate
+    compile libraries.atlassian
+    compile libraries.xerces
+    compile libraries.shibcommon
+    
     compile project(':grouper')
     compile project(':subject')
     compile project(':grouper-misc:grouper-aws-changelog')
     compile project(':grouper-misc:grouperClient')
-    compile("edu.internet2.middleware:shibboleth-common:$shibboleth_common_version") {
-        exclude(group: 'ch.qos.logback', module: 'logback-classic')
-        exclude(group: 'org.slf4j', module: 'log4j-over-slf4j')
-    }
+
     testCompile project(path: ":grouper", configuration: "tests")
-    compile "org.hibernate:hibernate-core:$hibernate_core_version"
 }
 
 sourceSets {
