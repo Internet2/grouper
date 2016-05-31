@@ -6,7 +6,7 @@ dependencies {
     compile project(':subject')
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
-    
+
     compile libraries.ant
     compile libraries.asm
     compile libraries.backport
@@ -37,9 +37,9 @@ dependencies {
     compile libraries.csrfguard
     compile libraries.casclient
     runtime libraries.p6spy
-    runtime libraries.postgresql  
+    runtime libraries.postgresql
     runtime libraries.mysql
-    
+
     provided libraries.servletapi
 
     testCompile libraries.jamon
@@ -49,10 +49,10 @@ sourceSets {
     main {
         java {
             srcDirs 'java/src', 'srcPoc', 'contrib/struts-patch/java/src', 'contrib/yale-cas-auth/java/src'
-                    
+
         }
         resources {
-            srcDirs 'conf', 'misc'
+            srcDirs '../grouper/conf' 
         }
     }
     test {
@@ -60,5 +60,26 @@ sourceSets {
             srcDir 'java/test'
         }
     }
+}
+
+war {
+    manifest {
+        attributes("Implementation-Title": project.name,
+                   "Implementation-Vendor": project.group,
+                   "Created-By": project.group,
+                   "Implementation-Date": new Date(),
+                   "Implementation-Version": project.version)
+    }
+    from fileTree(dir: 'webapp', include: '**/*.*', exclude: 'WEB-INF')
+    webInf {
+        from files('webapp/WEB-INF')
+    }
+    webInf {
+        from files('conf/grouperText') into "classes/grouperText"
+    }
+    webInf {
+        from files('conf/resources') into "classes/resources"
+    }
+    includeEmptyDirs false
 }
 
