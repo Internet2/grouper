@@ -322,5 +322,23 @@ public class GcLdapSearchAttributeConfig {
     this.ldapName = ldapName1;
   }
 
-  
+  /** ldap search scope */
+  private String searchScope = null;
+
+  /**
+   * ldap search scope
+   * @return ldap search scope
+   */
+  public String getSearchScope() {
+    return this.searchScope;
+  }
+
+  /**
+   * ldap search scope
+   * @param theSearchScope
+   */
+  public void setSearchScope(String theSearchScope) {
+    this.searchScope = theSearchScope;
+  }
+
 }
