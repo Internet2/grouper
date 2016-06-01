@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefActions;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritanceLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributes;
@@ -250,7 +251,7 @@ public class SampleCapture {
 
 //    captureAcknowledgeMessage();  
 //    captureAddMember();
-//    captureAssignAttributeDefActions();
+    captureAssignAttributeDefActions();
 //    captureAssignAttributeDefNameInheritance();
 //    captureAssignAttributes();
 //    captureAssignAttributesBatch();
@@ -268,7 +269,7 @@ public class SampleCapture {
 //    captureFindGroups();
 //    captureFindStems();
 //    captureGetAttributeAssignments();
-    captureGetAttributeAssignActions();    
+//    captureGetAttributeAssignActions();    
 //    captureGetGrouperPrivileges();
 //    captureGetGroups();
 //    captureGetMembers();
@@ -347,7 +348,9 @@ public class SampleCapture {
   public static void captureAssignAttributeDefActions() {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributeDefActionsRest.class, "assignAttributeDefActions", null);
-    
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributeDefActions.class, "assignAttributeDefActions", (String)null);
+
   }
 
   /**

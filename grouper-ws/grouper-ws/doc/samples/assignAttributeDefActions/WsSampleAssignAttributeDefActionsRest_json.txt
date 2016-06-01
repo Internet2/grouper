@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 177
 Content-Type: text/x-json; charset=UTF-8
 
@@ -48,8 +48,8 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 901
-Date: Tue, 12 Apr 2016 22:25:38 GMT
+Content-Length: 902
+Date: Wed, 01 Jun 2016 21:32:38 GMT
 Connection: close
 
 {
@@ -70,7 +70,7 @@ Connection: close
     ]
     ,
     "responseMetadata":{
-      "millis":"305",
+      "millis":"3335",
       "serverVersion":"2.3.0"
     },
     "resultMetadata":{
@@ -96,7 +96,7 @@ Connection: close
       "multiAssignable":"F",
       "multiValued":"T",
       "name":"test:testAttributeAssignDefNameDef",
-      "uuid":"1c6cfb3cd643434da6b8ae48a51a7988",
+      "uuid":"5ee922f892714298bf0271b0653fc816",
       "valueType":"integer"
     }
   }
