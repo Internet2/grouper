@@ -1,8 +1,11 @@
 description = 'Grouper UI'
 
 apply plugin: "war"
+apply plugin: "com.bmuschko.tomcat"
 
 dependencies {
+    tomcat libraries.tomcat
+    
     compile project(':subject')
     compile project(':grouper')
     compile project(':grouper-misc:grouperClient')
@@ -52,7 +55,7 @@ sourceSets {
 
         }
         resources {
-            srcDirs '../grouper/conf' 
+            srcDirs '../grouper/conf'
         }
     }
     test {
@@ -80,6 +83,11 @@ war {
     webInf {
         from files('conf/resources') into "classes/resources"
     }
+    webInf {
+        from files('conf/grouper-ui.properties', 
+                   'conf/grouper-ui.base.properties',
+                   'conf/Owasp.CsrfGuard.overlay.properties',
+                   'conf/Owasp.CsrfGuard.properties' ) into "classes"
+    }
     includeEmptyDirs false
 }
-

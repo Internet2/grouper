@@ -38,10 +38,15 @@ ext.libraries = [
                     force = true
                 }
         ],
+        tomcat      : [
+                "org.apache.tomcat.embed:tomcat-embed-core:$tomcat_version",
+                "org.apache.tomcat.embed:tomcat-embed-logging-juli:$tomcat_version",
+                "org.apache.tomcat.embed:tomcat-embed-jasper:$tomcat_version"
+        ],
         thoughtworks: [
                 "com.thoughtworks.xstream:xstream:$xstream_version"
         ],
-        wss       : [
+        wss         : [
                 "org.apache.ws.security:wss4j:$wss4j_version",
                 "org.apache.axis2:axis2-transport-http:$axis2_transport_http_version",
                 "org.apache.axis2:axis2-adb:$axis2_adb_version",
@@ -105,7 +110,7 @@ ext.libraries = [
                 "org.hibernate:hibernate-core:$hibernate_core_version",
                 "javax.transaction:jta:$jta_version",
                 "com.mchange:c3p0:$c3p0_version",
-                "hsqldb:hsqldb:$hsqldb_version",
+                "org.hsqldb:hsqldb:$hsqldb_version",
                 "org.hibernate:hibernate-annotations:$hibernate_annotations_version",
                 "javax.persistence:persistence-api:$persistence_api_version"
         ],
