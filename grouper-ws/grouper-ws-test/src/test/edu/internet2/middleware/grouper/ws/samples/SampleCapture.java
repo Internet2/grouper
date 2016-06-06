@@ -76,6 +76,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNa
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSaveLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefSave;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefSaveLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNames;
@@ -251,7 +253,7 @@ public class SampleCapture {
 
 //    captureAcknowledgeMessage();  
 //    captureAddMember();
-    captureAssignAttributeDefActions();
+//    captureAssignAttributeDefActions();
 //    captureAssignAttributeDefNameInheritance();
 //    captureAssignAttributes();
 //    captureAssignAttributesBatch();
@@ -261,7 +263,7 @@ public class SampleCapture {
 //    captureAttributeDefDelete();
 //    captureAttributeDefNameDelete();
 //    captureAttributeDefNameSave();
-//    captureAttributeDefSave();
+    captureAttributeDefSave();
 //    captureDeleteMember();
 //    captureFindAttributeAssignAction();
 //    captureFindAttributeDefNames();
@@ -357,11 +359,15 @@ public class SampleCapture {
    * attribute def save
    */
   public static void captureAttributeDefSave() {
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
-    captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
-    
+//    captureSample(WsSampleClientType.REST_BEANS,  
+//        WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
+//    captureSample(WsSampleClientType.REST_BEANS,  
+//        WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
+//    captureSample(WsSampleClientType.GENERATED_SOAP,  
+//        WsSampleAttributeDefSave.class, "attributeDefSave", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefSaveLite.class, "attributeDefSave", (String)null);
+
   }
 
   /**

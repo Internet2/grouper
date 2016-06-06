@@ -3135,7 +3135,7 @@ public class GrouperService {
       String paramName1, String paramValue1) {
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
-        GrouperServiceUtils.currentServiceClass(), "attributeDefDeleteLite",
+        GrouperServiceUtils.currentServiceClass(), "attributeDefSaveLite",
         new Object[]{clientVersion,
       attributeDefLookupUuid, attributeDefLookupName,
       uuidOfAttributeDef, nameOfAttributeDef,
