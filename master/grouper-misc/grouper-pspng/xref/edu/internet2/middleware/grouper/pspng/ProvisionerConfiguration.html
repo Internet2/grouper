@@ -75,8 +75,8 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_comment">// and NOT in neither a group or stem do_not_provision_to attribute</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">protected</strong> String groupSelectionExpression_defaultValue
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>        = <span class="jxr_string">"${utils.containedWithin(provisionerName, stemAttributes['etc:attribute:userData:provision_to'], groupAttributes['etc:attribute:userData:provision_to']) "</span> 
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>            + <span class="jxr_string">"&amp;&amp; !utils.containedWithin(provisionerName, stemAttributes['etc:attribute:userData:do_not_provision_to'], groupAttributes['etc:attribute:userData:do_not_provision_to'])}"</span>;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>        = <span class="jxr_string">"${utils.containedWithin(provisionerName, stemAttributes['etc:pspng:provision_to'], groupAttributes['etc:pspng:provision_to']) "</span> 
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>            + <span class="jxr_string">"&amp;&amp; !utils.containedWithin(provisionerName, stemAttributes['etc:pspng:do_not_provision_to'], groupAttributes['etc:pspng:do_not_provision_to'])}"</span>;
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_comment">// Does the provisioning process need User information from the target system or</em>
