@@ -2576,7 +2576,7 @@ public class GrouperDdlUtils {
    * @return true if expect records, and records there.  false if records not there.  exception
    * if exception is thrown and expect true.false if exception and not expect true
    */
-  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, String tableName, boolean falseIfDropBeforeCreate) {
+  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, final String tableName, boolean falseIfDropBeforeCreate) {
     
     if (falseIfDropBeforeCreate && isDropBeforeCreate) {
       if (expectTrue) {
@@ -2597,6 +2597,52 @@ public class GrouperDdlUtils {
         
       } else {
         
+        Boolean result = (Boolean)HibernateSession.callbackHibernateSession(
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+            ResultSet rs1 = null;
+            ResultSet rs2 = null;
+            ResultSet rs3 = null;
+            try {
+              
+              Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
+
+              rs1 = connection.getMetaData().getTables(connection.getCatalog(), "%", tableName, null);
+              if (rs1.next()) {
+                return true;
+              }
+              
+              rs2 = connection.getMetaData().getTables(connection.getCatalog(), "%", tableName.toUpperCase(), null);
+              if (rs2.next()) {
+                return true;
+              }
+              
+              rs3 = connection.getMetaData().getTables(connection.getCatalog(), "%", tableName.toLowerCase(), null);
+              if (rs3.next()) {
+                return true;
+              }
+             
+              return false;
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            } finally {
+              GrouperUtil.closeQuietly(rs1);
+              GrouperUtil.closeQuietly(rs2);
+              GrouperUtil.closeQuietly(rs3);
+            }
+          }
+          
+        });
+        
+        if (result) {
+          return result;
+        }
+        
+        // Do this check just in case the above didn't work.  If it really doesn't exist, it should be very quick.
         count = HibernateSession.bySqlStatic().select(int.class, 
             "select count(*) from " + tableName + " where 1=0");
         

@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 716
 Content-Type: application/xhtml+xml; charset=UTF-8
 
@@ -59,10 +59,10 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 22:25:31 GMT
+Date: Wed, 01 Jun 2016 21:32:23 GMT
 Connection: close
 
-772
+771
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -86,7 +86,7 @@ Connection: close
         </li>
       </ul>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">12238</p>
+        <p class="millis">1601</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.3.0</p>
       </div>
@@ -116,7 +116,7 @@ Connection: close
         <p class="multiAssignable">F</p>
         <p class="multiValued">T</p>
         <p class="name">test:testAttributeAssignDefNameDef</p>
-        <p class="uuid">5a0758f638f7481d82581a736751dd22</p>
+        <p class="uuid">a44873b802d54bae874e61a45e3bb88a</p>
         <p class="valueType">integer</p>
       </div>
     </div>

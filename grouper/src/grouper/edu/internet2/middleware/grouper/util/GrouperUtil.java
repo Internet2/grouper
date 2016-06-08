@@ -125,7 +125,6 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperId;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -11602,6 +11601,14 @@ public class GrouperUtil {
           }
         }
       }
+      
+      if (result instanceof ChangeToVersionCustomizable) {
+        ((ChangeToVersionCustomizable)result).customizeChangeToVersion(input);
+      }
+      if (input instanceof ChangeToVersionCustomizable) {
+        ((ChangeToVersionCustomizable)input).customizeChangeFromVersion(result);
+      }
+      
       if (logMessage != null) {
         for (String inputFieldName : nonNull(inputFieldMap.keySet())) {
           logMessage.append("field not found output: ").append(inputFieldName).append(", ");

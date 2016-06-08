@@ -18,6 +18,7 @@
  */
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.util.ChangeToVersionCustomizable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
@@ -39,7 +41,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  * 
  * @author mchyzer
  */
-public class WsAttributeDef implements Comparable<WsAttributeDef> {
+public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersionCustomizable {
 
   /**
    * integer ID for object
@@ -487,6 +489,108 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
   }
 
   /**
+   * can be assigned to these types
+   * @return assignable tos
+   */
+  private String[] retrieveAssignableTos() {
+    
+    Set<String> assignableTosSet = new TreeSet<String>();
+    
+    //ATTRIBUTE_DEF, ATTRIBUTE_DEF_ASSIGNMENT, EFFECTIVE_MEMBERSHIP,
+    //EFFECTIVE_MEMBERSHIP_ASSIGNMENT, GROUP, GROUP_ASSIGNMENT, IMMEDIATE_MEMBERSHIP,
+    //IMMEDIATE_MEMBERSHIP_ASSIGNMENT, MEMBER, MEMBER_ASSIGNMENT, STEM, STEM_ASSIGNMENT
+    
+    if (GrouperUtil.booleanValue(this.assignToAttributeDef, false)) {
+      assignableTosSet.add("ATTRIBUTE_DEF");
+    }
+    
+    if (GrouperUtil.booleanValue(this.assignToAttributeDefAssignment, false)) {
+      assignableTosSet.add("ATTRIBUTE_DEF_ASSIGNMENT");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToEffectiveMembership, false)) {
+      assignableTosSet.add("EFFECTIVE_MEMBERSHIP");
+    }
+    
+    if (GrouperUtil.booleanValue(this.assignToEffectiveMembershipAssignment, false)) {
+      assignableTosSet.add("EFFECTIVE_MEMBERSHIP_ASSIGNMENT");
+    }
+    
+    if (GrouperUtil.booleanValue(this.assignToGroup, false)) {
+      assignableTosSet.add("GROUP");
+    }
+    
+    if (GrouperUtil.booleanValue(this.assignToGroupAssignment, false)) {
+      assignableTosSet.add("GROUP_ASSIGNMENT");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToImmediateMembership, false)) {
+      assignableTosSet.add("IMMEDIATE_MEMBERSHIP");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToImmediateMembershipAssignment, false)) {
+      assignableTosSet.add("IMMEDIATE_MEMBERSHIP_ASSIGNMENT");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToMember, false)) {
+      assignableTosSet.add("MEMBER");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToMemberAssignment, false)) {
+      assignableTosSet.add("MEMBER_ASSIGNMENT");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToStem, false)) {
+      assignableTosSet.add("STEM");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToStemAssignment, false)) {
+      assignableTosSet.add("STEM_ASSIGNMENT");
+    }
+    
+    if (assignableTosSet.size() == 0) {
+      return null;
+    }
+    
+    return GrouperUtil.toArray(assignableTosSet, String.class);
+    
+  }
+
+  /**
+   * can be assigned to these types
+   * @param assignableTos1
+   */
+  private void assignAssignableTos(String[] assignableTos1) {
+    
+    Set<String> assignableTosSet = GrouperUtil.length(assignableTos1) == 0 ? new HashSet<String>() : GrouperUtil.toSet(assignableTos1);
+    
+    this.assignToAttributeDef = assignableTosSet.contains("ATTRIBUTE_DEF") ? "T" : "F";
+
+    this.assignToAttributeDefAssignment = assignableTosSet.contains("ATTRIBUTE_DEF_ASSIGNMENT") ? "T" : "F";
+
+    this.assignToEffectiveMembership = assignableTosSet.contains("EFFECTIVE_MEMBERSHIP") ? "T" : "F";
+    
+    this.assignToEffectiveMembershipAssignment = assignableTosSet.contains("EFFECTIVE_MEMBERSHIP_ASSIGNMENT") ? "T" : "F";
+
+    this.assignToGroup = assignableTosSet.contains("GROUP") ? "T" : "F";
+
+    this.assignToGroupAssignment = assignableTosSet.contains("GROUP_ASSIGNMENT") ? "T" : "F";
+
+    this.assignToImmediateMembership = assignableTosSet.contains("IMMEDIATE_MEMBERSHIP") ? "T" : "F";
+
+    this.assignToImmediateMembershipAssignment = assignableTosSet.contains("IMMEDIATE_MEMBERSHIP_ASSIGNMENT") ? "T" : "F";
+
+    this.assignToMember = assignableTosSet.contains("MEMBER") ? "T" : "F";
+
+    this.assignToMemberAssignment = assignableTosSet.contains("MEMBER_ASSIGNMENT") ? "T" : "F";
+
+    this.assignToStem = assignableTosSet.contains("STEM") ? "T" : "F";
+
+    this.assignToStemAssignment = assignableTosSet.contains("STEM_ASSIGNMENT") ? "T" : "F";
+
+  }
+
+  /**
    * no arg constructor
    */
   public WsAttributeDef() {
@@ -636,5 +740,29 @@ public class WsAttributeDef implements Comparable<WsAttributeDef> {
       return 1;
     }
     return GrouperUtil.compare(this.getName(), o2.getName());
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.util.ChangeToVersionCustomizable#customizeChangeFromVersion(java.lang.Object)
+   */
+  public void customizeChangeFromVersion(Object objectToConvertTo) {
+    
+    if (objectToConvertTo != null) {
+      //we need to convert between a field for each assignable to the list of assignables
+      String[] assignableTos = this.retrieveAssignableTos();
+      GrouperUtil.assignField(objectToConvertTo, "assignableTos", assignableTos);
+    }    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.util.ChangeToVersionCustomizable#customizeChangeToVersion(java.lang.Object)
+   */
+  public void customizeChangeToVersion(Object objectToConvertFrom) {
+    
+    if (objectToConvertFrom != null) {
+      String[] assignableTos = (String[])GrouperUtil.fieldValue(objectToConvertFrom, "assignableTos");
+      this.assignAssignableTos(assignableTos);
+    }
+    
   }
 }
