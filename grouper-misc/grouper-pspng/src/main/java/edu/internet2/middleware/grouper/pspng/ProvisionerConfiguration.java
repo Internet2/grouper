@@ -67,8 +67,8 @@ public class ProvisionerConfiguration {
     // and NOT in neither a group or stem do_not_provision_to attribute
 
     protected String groupSelectionExpression_defaultValue
-      = "${utils.containedWithin(provisionerName, stemAttributes['etc:attribute:userData:provision_to'], groupAttributes['etc:attribute:userData:provision_to']) " 
-          + "&& !utils.containedWithin(provisionerName, stemAttributes['etc:attribute:userData:do_not_provision_to'], groupAttributes['etc:attribute:userData:do_not_provision_to'])}";
+      = "${utils.containedWithin(provisionerName, stemAttributes['etc:pspng:provision_to'], groupAttributes['etc:pspng:provision_to']) " 
+          + "&& !utils.containedWithin(provisionerName, stemAttributes['etc:pspng:do_not_provision_to'], groupAttributes['etc:pspng:do_not_provision_to'])}";
 
     
     // Does the provisioning process need User information from the target system or

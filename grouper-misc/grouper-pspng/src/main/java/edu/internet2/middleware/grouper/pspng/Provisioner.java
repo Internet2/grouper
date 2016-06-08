@@ -36,10 +36,18 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
@@ -159,6 +167,8 @@ public abstract class Provisioner
     
     this.config = config;
     this.provisionerName = provisionerName;
+
+    checkAttributeDefinitions();
     
     grouperGroupInfoCache 
       = new GrouperCache<String, GrouperGroupInfo>(String.format("PSP-%s-GrouperGroupInfoCache", getName()),
@@ -193,6 +203,54 @@ public abstract class Provisioner
           false);
   }
   
+
+  /**
+   * This creates any attributes missing within the etc:pspng: folder.
+   */
+  private void checkAttributeDefinitions() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    if ( grouperSession == null )
+      grouperSession = GrouperSession.startRootSession();
+    
+    String pspngManagementStemName = "etc:pspng";
+    
+    Stem pspngManagementStem = StemFinder.findByName(grouperSession, pspngManagementStemName, false);
+    if (pspngManagementStem == null) {
+      pspngManagementStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+        .assignDescription("Location for pspng-management objects.")
+        .assignName(pspngManagementStemName).save();
+    }
+
+    //see if provision_to_def attributeDef is there
+    String provisionToDefName = pspngManagementStemName + ":provision_to_def";
+    AttributeDef provisionToDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+        provisionToDefName, false, new QueryOptions().secondLevelCache(false));
+    if (provisionToDef == null) {
+      provisionToDef = pspngManagementStem.addChildAttributeDef("provision_to_def", AttributeDefType.type);
+      provisionToDef.setAssignToGroup(true);
+      provisionToDef.setAssignToStem(true);
+      provisionToDef.setMultiAssignable(true);
+      provisionToDef.setValueType(AttributeDefValueType.string);
+      provisionToDef.store();
+    }
+    
+    //see if do_not_provision_to_def attributeDef is there
+    String doNotProvisionToDefName = pspngManagementStemName + ":do_not_provision_to_def";
+    AttributeDef doNotProvisionToDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+        doNotProvisionToDefName, false, new QueryOptions().secondLevelCache(false));
+    if (doNotProvisionToDef == null) {
+      doNotProvisionToDef = pspngManagementStem.addChildAttributeDef("do_not_provision_to_def", AttributeDefType.type);
+      doNotProvisionToDef.setAssignToGroup(true);
+      doNotProvisionToDef.setAssignToStem(true);
+      doNotProvisionToDef.setMultiAssignable(true);
+      doNotProvisionToDef.setValueType(AttributeDefValueType.string);
+      doNotProvisionToDef.store();
+    }
+    
+    GrouperCheckConfig.checkAttribute(pspngManagementStem, provisionToDef, "provision_to", "provision_to", "Defines what provisioners should process a group or groups within a folder", true);
+    GrouperCheckConfig.checkAttribute(pspngManagementStem, doNotProvisionToDef, "do_not_provision_to", "do_not_provision_to", "Defines what provisioners should not process a group or groups within a folder. Since the default is already for provisioners to not provision any groups, this attribute is to override a provision_to attribute set on an ancestor folder. ", true);
+  }
+
 
   /**
    * Action method that handles membership additions where a person-subject is added to a 
@@ -325,6 +383,45 @@ public abstract class Provisioner
   protected abstract Map<Subject, TSUserClass> 
   fetchTargetSystemUsers(Collection<Subject> personSubjects) throws PspException;
 
+
+  /**
+   * This method returns the work items that are supposed to be provisioned
+   * by calling shouldGroupBeProvisioned on each group mentioned
+   * by a workItem. If a workItem's group is within the scope of this provisioner
+   * or if the workItem is not related to a group, then it is included in the
+   * returned list of work items that should be processed further. Otherwise, it
+   * is marked as completed and not returned.
+   * 
+   * If the workItem is not to be processed, 
+   * @param workItems WorkItems read from the triggering source (Changelog or messaging).
+   * This will include both events that affect groups and those that do not. Generally, we
+   * pass on non-group changes in case a provisioner wants to process them. 
+   * @return The list of workItems that are to be provisioned
+   * @throws PspException
+   */
+  public List<ProvisioningWorkItem> 
+  filterWorkItems(List<ProvisioningWorkItem> workItems) throws PspException {
+    List<ProvisioningWorkItem> result = new ArrayList<ProvisioningWorkItem>();
+    
+    LOG.debug("Filtering provisioning batch of {} items");
+    
+    for ( ProvisioningWorkItem workItem : workItems ) {
+      GrouperGroupInfo g = workItem.getGroupInfo(this);
+      if ( g == null ) {
+        result.add(workItem);
+      }
+      else if ( shouldGroupBeProvisioned(g) ) {
+        result.add(workItem);
+      }
+      else {
+        // Not going to process this item, so mark it as a success and don't add it to result
+        workItem.markAsSuccess("Ignoring work item {} because group {} is not provisioned", 
+            workItem, g.name);
+      }
+    }
+    
+    return result;
+  }
 
   /**
    * Get ready for a provisioning batch. If this is overridden, make sure you call super()
@@ -995,7 +1092,7 @@ public abstract class Provisioner
     return provisionerName;
   }
 
-  public void provisionBatchOfItems(List<ProvisioningWorkItem> workItems) {
+  public void provisionBatchOfItems(List<ProvisioningWorkItem> allWorkItems) {
 	  
 	// Mark the items as successful if we are not enabled.
 	// Note: They are being marked as successful so that there is an easy mechanism
@@ -1004,15 +1101,28 @@ public abstract class Provisioner
 	// this provisioner from the configuration.
 	if ( ! config.isEnabled() ) {
 		LOG.warn("{} is disabled. Provisioning not being done, and marking requested items as complete.", getName());
-		for ( ProvisioningWorkItem workItem : workItems ) 
+		for ( ProvisioningWorkItem workItem : allWorkItems ) 
 			workItem.markAsSuccess("Provisioner %s is not enabled", getName());
 		return;
 	}
 	
+	// Let the provisioner filter out any unnecessary work items.
+	// This particularly filters out groups that we're not supposed to provision
+	List<ProvisioningWorkItem> filteredWorkItems;
+    MDC.put("step", "filter/");
+    try {
+      filteredWorkItems = filterWorkItems(allWorkItems);
+    }
+    catch (PspException e) {
+      LOG.error("Unable to filter the provisioning batch", e);
+      MDC.remove("step");
+      throw new RuntimeException("No entries provisioned. Batch-filtering failed: " + e.getMessage(), e);
+    }
+    
     // Tell the provisioner about this batch of workItems
     MDC.put("step", "start/");
     try {
-      startProvisioningBatch(workItems);
+      startProvisioningBatch(allWorkItems);
     }
     catch (PspException e) {
       LOG.error("Unable to begin the provisioning batch", e);
@@ -1022,7 +1132,7 @@ public abstract class Provisioner
     
     // Go through the workItems that were not marked as processed by the startProvisioningBatch
     // and provision them
-    for ( ProvisioningWorkItem workItem : workItems ) {
+    for ( ProvisioningWorkItem workItem : allWorkItems ) {
       MDC.put("step", String.format("prov/%s/", workItem.getMdcLabel()));
       if ( !workItem.hasBeenProcessed() ) {
         try {
@@ -1040,7 +1150,7 @@ public abstract class Provisioner
     MDC.put("step", "fin/");
     List<ProvisioningWorkItem> workItemsToFinish = new ArrayList<ProvisioningWorkItem>();
     try {
-      for ( ProvisioningWorkItem workItem : workItems ) {
+      for ( ProvisioningWorkItem workItem : allWorkItems ) {
         if ( !workItem.hasBeenProcessed() )
           workItemsToFinish.add(workItem);
       }
