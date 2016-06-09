@@ -161,19 +161,19 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     GrouperDdlUtils.justTesting = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>       assertTrue(<span class="jxr_string">"Starting out, tables should be there"</span>, GrouperDdlUtils.assertTablesThere(false, <strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>       assertTrue(<span class="jxr_string">"Starting out, tables should be there"</span>, GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">null</strong>, false, <strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>       
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>       <em class="jxr_comment">//now lets remove all tables and object</em>
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>       GrouperDdlUtils.bootstrapHelper(false, <strong class="jxr_keyword">true</strong>, false, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>, false, <strong class="jxr_keyword">null</strong>, false);
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>       
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>       assertFalse(<span class="jxr_string">"Just removed tables, shouldnt be there"</span>, GrouperDdlUtils.assertTablesThere(false, false));
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>       assertFalse(<span class="jxr_string">"Just removed tables, shouldnt be there"</span>, GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">null</strong>, false, false));
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>   
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>       <em class="jxr_comment">//lets add all tables and object</em>
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>       GrouperDdlUtils.bootstrapHelper(false, <strong class="jxr_keyword">true</strong>, false, false, <strong class="jxr_keyword">true</strong>, false, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">null</strong>, false);
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>       
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>       <em class="jxr_comment">//if we init data, the root stem should be there...</em>
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>       assertTrue(<span class="jxr_string">"Just added all tables, and registry init, it should be there"</span>, 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>           GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>           GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L169" href="#L169">169</a>   
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>       <em class="jxr_comment">//should also have at least two rows in ddl</em>
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>       <strong class="jxr_keyword">int</strong> count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
@@ -184,7 +184,7 @@
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>       <em class="jxr_comment">//try again, everything should be there (even not from junit)</em>
 <a class="jxr_linenumber" name="L177" href="#L177">177</a>       GrouperDdlUtils.bootstrapHelper(false, false, <strong class="jxr_keyword">true</strong>, false, false, false, false, <strong class="jxr_keyword">null</strong>, false);
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>       
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>       assertTrue(<span class="jxr_string">"Should not change anything"</span>, GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>       assertTrue(<span class="jxr_string">"Should not change anything"</span>, GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>   
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>       <em class="jxr_comment">//at this point, hibernate should not be shut off</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>       assertTrue(<span class="jxr_string">"at this point, hibernate should not be shut off"</span>, 

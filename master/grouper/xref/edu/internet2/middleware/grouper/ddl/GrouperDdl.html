@@ -186,7 +186,7 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>       
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>       <strong class="jxr_keyword">int</strong> count = 0;
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>       
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>         
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>           <span class="jxr_string">"select count(*) from grouper_fields where type='attribute' and name='name'"</span>);
@@ -561,7 +561,7 @@
 <a class="jxr_linenumber" name="L553" href="#L553">553</a>       
 <a class="jxr_linenumber" name="L554" href="#L554">554</a>       addAttributeFloatValueCol(database);
 <a class="jxr_linenumber" name="L555" href="#L555">555</a> 
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, Membership.TABLE_GROUPER_MEMBERSHIPS, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, Membership.TABLE_GROUPER_MEMBERSHIPS, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L557" href="#L557">557</a>         
 <a class="jxr_linenumber" name="L558" href="#L558">558</a>         <strong class="jxr_keyword">int</strong> count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, 
 <a class="jxr_linenumber" name="L559" href="#L559">559</a>             <span class="jxr_string">"select count(*) from grouper_memberships ms, grouper_members m "</span> +
@@ -1996,7 +1996,7 @@
 <a class="jxr_linenumber" name="L1988" href="#L1988">1988</a>       
 <a class="jxr_linenumber" name="L1989" href="#L1989">1989</a> 
 <a class="jxr_linenumber" name="L1990" href="#L1990">1990</a>       <em class="jxr_comment">// add additional privileges for attribute read and update</em>
-<a class="jxr_linenumber" name="L1991" href="#L1991">1991</a>       <strong class="jxr_keyword">boolean</strong> tableThere = GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">true</strong>, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1991" href="#L1991">1991</a>       <strong class="jxr_keyword">boolean</strong> tableThere = GrouperDdlUtils.assertTablesThere(ddlVersionBean, <strong class="jxr_keyword">true</strong>, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1992" href="#L1992">1992</a>       <strong class="jxr_keyword">if</strong> (tableThere) {
 <a class="jxr_linenumber" name="L1993" href="#L1993">1993</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L1994" href="#L1994">1994</a>           String typeUuidGroup = HibernateSession.bySqlStatic().select(String.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select grouptype_uuid from grouper_fields where name='admins'"</span>);
@@ -2081,33 +2081,33 @@
 <a class="jxr_linenumber" name="L2073" href="#L2073">2073</a>       
 <a class="jxr_linenumber" name="L2074" href="#L2074">2074</a>       <em class="jxr_comment">// legacy attributes</em>
 <a class="jxr_linenumber" name="L2075" href="#L2075">2075</a>       <strong class="jxr_keyword">boolean</strong> needsLegacyAttributesUpgrade = false;
-<a class="jxr_linenumber" name="L2076" href="#L2076">2076</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_attributes"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2076" href="#L2076">2076</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_attributes"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2077" href="#L2077">2077</a>         needsLegacyAttributesUpgrade = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L2078" href="#L2078">2078</a>         
 <a class="jxr_linenumber" name="L2079" href="#L2079">2079</a>         <em class="jxr_comment">// drop legacy table if it happens to exist for some reason</em>
-<a class="jxr_linenumber" name="L2080" href="#L2080">2080</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_attributes_legacy"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2080" href="#L2080">2080</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_attributes_legacy"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2081" href="#L2081">2081</a>           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, <span class="jxr_string">"grouper_attributes_legacy"</span>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L2082" href="#L2082">2082</a>         }
 <a class="jxr_linenumber" name="L2083" href="#L2083">2083</a>         
 <a class="jxr_linenumber" name="L2084" href="#L2084">2084</a>         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, <span class="jxr_string">"grouper_attributes"</span>, <span class="jxr_string">"grouper_attributes_legacy"</span>);
 <a class="jxr_linenumber" name="L2085" href="#L2085">2085</a>       }
 <a class="jxr_linenumber" name="L2086" href="#L2086">2086</a>       
-<a class="jxr_linenumber" name="L2087" href="#L2087">2087</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_types"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2087" href="#L2087">2087</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_types"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2088" href="#L2088">2088</a>         needsLegacyAttributesUpgrade = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L2089" href="#L2089">2089</a>         
 <a class="jxr_linenumber" name="L2090" href="#L2090">2090</a>         <em class="jxr_comment">// drop legacy table if it happens to exist for some reason</em>
-<a class="jxr_linenumber" name="L2091" href="#L2091">2091</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_types_legacy"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2091" href="#L2091">2091</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_types_legacy"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2092" href="#L2092">2092</a>           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, <span class="jxr_string">"grouper_types_legacy"</span>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L2093" href="#L2093">2093</a>         }
 <a class="jxr_linenumber" name="L2094" href="#L2094">2094</a>         
 <a class="jxr_linenumber" name="L2095" href="#L2095">2095</a>         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, <span class="jxr_string">"grouper_types"</span>, <span class="jxr_string">"grouper_types_legacy"</span>);
 <a class="jxr_linenumber" name="L2096" href="#L2096">2096</a>       }
 <a class="jxr_linenumber" name="L2097" href="#L2097">2097</a>       
-<a class="jxr_linenumber" name="L2098" href="#L2098">2098</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_groups_types"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2098" href="#L2098">2098</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_groups_types"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2099" href="#L2099">2099</a>         needsLegacyAttributesUpgrade = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L2100" href="#L2100">2100</a>         
 <a class="jxr_linenumber" name="L2101" href="#L2101">2101</a>         <em class="jxr_comment">// drop legacy table if it happens to exist for some reason</em>
-<a class="jxr_linenumber" name="L2102" href="#L2102">2102</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_groups_types_legacy"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2102" href="#L2102">2102</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_groups_types_legacy"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2103" href="#L2103">2103</a>           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, <span class="jxr_string">"grouper_groups_types_legacy"</span>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L2104" href="#L2104">2104</a>         }
 <a class="jxr_linenumber" name="L2105" href="#L2105">2105</a>         
@@ -2116,7 +2116,7 @@
 <a class="jxr_linenumber" name="L2108" href="#L2108">2108</a>       
 <a class="jxr_linenumber" name="L2109" href="#L2109">2109</a>       <strong class="jxr_keyword">int</strong> legacyAttributesCount = 0;
 <a class="jxr_linenumber" name="L2110" href="#L2110">2110</a>       
-<a class="jxr_linenumber" name="L2111" href="#L2111">2111</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2111" href="#L2111">2111</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2112" href="#L2112">2112</a>         legacyAttributesCount = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from grouper_fields where type = 'attribute'"</span>);
 <a class="jxr_linenumber" name="L2113" href="#L2113">2113</a>       
 <a class="jxr_linenumber" name="L2114" href="#L2114">2114</a>         <strong class="jxr_keyword">boolean</strong> groupTypeUuidThere = GrouperDdlUtils.ddlutilsFindColumn(database, <span class="jxr_string">"grouper_fields"</span>, <span class="jxr_string">"grouptype_uuid"</span>, false) != <strong class="jxr_keyword">null</strong>;
@@ -2125,7 +2125,7 @@
 <a class="jxr_linenumber" name="L2117" href="#L2117">2117</a>         <strong class="jxr_keyword">if</strong> (groupTypeUuidThere || isNullableThere || legacyAttributesCount &gt; 0) {
 <a class="jxr_linenumber" name="L2118" href="#L2118">2118</a>           needsLegacyAttributesUpgrade = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L2119" href="#L2119">2119</a>           
-<a class="jxr_linenumber" name="L2120" href="#L2120">2120</a>           <strong class="jxr_keyword">boolean</strong> legacyFieldsTableThere = GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_fields_legacy"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L2120" href="#L2120">2120</a>           <strong class="jxr_keyword">boolean</strong> legacyFieldsTableThere = GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_fields_legacy"</span>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L2121" href="#L2121">2121</a>           
 <a class="jxr_linenumber" name="L2122" href="#L2122">2122</a>           <strong class="jxr_keyword">if</strong> (!legacyFieldsTableThere &amp;&amp; !groupTypeUuidThere) {
 <a class="jxr_linenumber" name="L2123" href="#L2123">2123</a>             <em class="jxr_comment">// this isn't good.</em>
@@ -2179,13 +2179,13 @@
 <a class="jxr_linenumber" name="L2171" href="#L2171">2171</a>       
 <a class="jxr_linenumber" name="L2172" href="#L2172">2172</a>       <strong class="jxr_keyword">int</strong> legacyAttributesCount = 0;
 <a class="jxr_linenumber" name="L2173" href="#L2173">2173</a>       
-<a class="jxr_linenumber" name="L2174" href="#L2174">2174</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2174" href="#L2174">2174</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2175" href="#L2175">2175</a>         legacyAttributesCount = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from grouper_fields where type = 'attribute'"</span>);
 <a class="jxr_linenumber" name="L2176" href="#L2176">2176</a>       
 <a class="jxr_linenumber" name="L2177" href="#L2177">2177</a>         <em class="jxr_comment">// remove the old tables/columns</em>
-<a class="jxr_linenumber" name="L2178" href="#L2178">2178</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_attributes"</span>, <strong class="jxr_keyword">true</strong>) ||
-<a class="jxr_linenumber" name="L2179" href="#L2179">2179</a>             GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_types"</span>, <strong class="jxr_keyword">true</strong>) ||
-<a class="jxr_linenumber" name="L2180" href="#L2180">2180</a>             GrouperDdlUtils.assertTablesThere(false, false, <span class="jxr_string">"grouper_groups_types"</span>, <strong class="jxr_keyword">true</strong>) ||
+<a class="jxr_linenumber" name="L2178" href="#L2178">2178</a>         <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_attributes"</span>, <strong class="jxr_keyword">true</strong>) ||
+<a class="jxr_linenumber" name="L2179" href="#L2179">2179</a>             GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_types"</span>, <strong class="jxr_keyword">true</strong>) ||
+<a class="jxr_linenumber" name="L2180" href="#L2180">2180</a>             GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, <span class="jxr_string">"grouper_groups_types"</span>, <strong class="jxr_keyword">true</strong>) ||
 <a class="jxr_linenumber" name="L2181" href="#L2181">2181</a>             GrouperDdlUtils.ddlutilsFindColumn(database, <span class="jxr_string">"grouper_fields"</span>, <span class="jxr_string">"grouptype_uuid"</span>, false) != <strong class="jxr_keyword">null</strong> || 
 <a class="jxr_linenumber" name="L2182" href="#L2182">2182</a>             GrouperDdlUtils.ddlutilsFindColumn(database, <span class="jxr_string">"grouper_fields"</span>, <span class="jxr_string">"is_nullable"</span>, false) != <strong class="jxr_keyword">null</strong> || 
 <a class="jxr_linenumber" name="L2183" href="#L2183">2183</a>             legacyAttributesCount &gt; 0) {
@@ -2239,7 +2239,7 @@
 <a class="jxr_linenumber" name="L2231" href="#L2231">2231</a>       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
 <a class="jxr_linenumber" name="L2232" href="#L2232">2232</a>           <span class="jxr_string">"audit_entry_act_as_created_idx"</span>, false, <span class="jxr_string">"act_as_member_id"</span>, <span class="jxr_string">"created_on"</span>);
 <a class="jxr_linenumber" name="L2233" href="#L2233">2233</a>       
-<a class="jxr_linenumber" name="L2234" href="#L2234">2234</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2234" href="#L2234">2234</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2235" href="#L2235">2235</a>         <strong class="jxr_keyword">int</strong> count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from grouper_audit_entry where act_as_member_id is null and logged_in_member_id is not null"</span>);
 <a class="jxr_linenumber" name="L2236" href="#L2236">2236</a>         <strong class="jxr_keyword">if</strong> (count &gt; 0) {
 <a class="jxr_linenumber" name="L2237" href="#L2237">2237</a>           ddlVersionBean.getAdditionalScripts().append(
@@ -2279,7 +2279,7 @@
 <a class="jxr_linenumber" name="L2271" href="#L2271">2271</a>       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, <span class="jxr_string">"255"</span>, false, false);
 <a class="jxr_linenumber" name="L2272" href="#L2272">2272</a>       
 <a class="jxr_linenumber" name="L2273" href="#L2273">2273</a>       <em class="jxr_comment">// stem privilege changing to stemAdmin</em>
-<a class="jxr_linenumber" name="L2274" href="#L2274">2274</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, Field.TABLE_GROUPER_FIELDS, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2274" href="#L2274">2274</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, Field.TABLE_GROUPER_FIELDS, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2275" href="#L2275">2275</a>         <strong class="jxr_keyword">int</strong> count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from grouper_fields where name='stemmers'"</span>);
 <a class="jxr_linenumber" name="L2276" href="#L2276">2276</a>         <strong class="jxr_keyword">if</strong> (count &gt; 0) {
 <a class="jxr_linenumber" name="L2277" href="#L2277">2277</a>           ddlVersionBean.getAdditionalScripts().append(
@@ -2290,7 +2290,7 @@
 <a class="jxr_linenumber" name="L2282" href="#L2282">2282</a>         }
 <a class="jxr_linenumber" name="L2283" href="#L2283">2283</a>       }
 <a class="jxr_linenumber" name="L2284" href="#L2284">2284</a>       
-<a class="jxr_linenumber" name="L2285" href="#L2285">2285</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(false, false, PITField.TABLE_GROUPER_PIT_FIELDS, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L2285" href="#L2285">2285</a>       <strong class="jxr_keyword">if</strong> (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, PITField.TABLE_GROUPER_PIT_FIELDS, <strong class="jxr_keyword">true</strong>)) {
 <a class="jxr_linenumber" name="L2286" href="#L2286">2286</a>         <strong class="jxr_keyword">int</strong> count = HibernateSession.bySqlStatic().select(<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"select count(*) from grouper_pit_fields where name='stemmers'"</span>);
 <a class="jxr_linenumber" name="L2287" href="#L2287">2287</a>         <strong class="jxr_keyword">if</strong> (count &gt; 0) {
 <a class="jxr_linenumber" name="L2288" href="#L2288">2288</a>           ddlVersionBean.getAdditionalScripts().append(
@@ -13147,7 +13147,7 @@
 <a class="jxr_linenumber" name="L13139" href="#L13139">13139</a> <em class="jxr_javadoccomment">   * @param ddlVersionBean</em>
 <a class="jxr_linenumber" name="L13140" href="#L13140">13140</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L13141" href="#L13141">13141</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> addGroupSetOwnerIdColumn(Database database, <a href="../../../../../edu/internet2/middleware/grouper/ddl/DdlVersionBean.html">DdlVersionBean</a> ddlVersionBean) {
-<a class="jxr_linenumber" name="L13142" href="#L13142">13142</a>     <strong class="jxr_keyword">boolean</strong> tableExists = GrouperDdlUtils.assertTablesThere(false, false, GroupSet.TABLE_GROUPER_GROUP_SET, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L13142" href="#L13142">13142</a>     <strong class="jxr_keyword">boolean</strong> tableExists = GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, GroupSet.TABLE_GROUPER_GROUP_SET, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L13143" href="#L13143">13143</a>      
 <a class="jxr_linenumber" name="L13144" href="#L13144">13144</a>     Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindTable(database, GroupSet.TABLE_GROUPER_GROUP_SET, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L13145" href="#L13145">13145</a>     <strong class="jxr_keyword">boolean</strong> columnNew = tableExists &amp;&amp; grouperGroupSet.findColumn(GroupSet.COLUMN_OWNER_ID) == <strong class="jxr_keyword">null</strong>;
@@ -14164,7 +14164,7 @@
 <a class="jxr_linenumber" name="L14156" href="#L14156">14156</a>     }
 <a class="jxr_linenumber" name="L14157" href="#L14157">14157</a> 
 <a class="jxr_linenumber" name="L14158" href="#L14158">14158</a>     <em class="jxr_comment">//see if the table is there</em>
-<a class="jxr_linenumber" name="L14159" href="#L14159">14159</a>     <strong class="jxr_keyword">boolean</strong> tableThere = GrouperDdlUtils.assertTablesThere(<strong class="jxr_keyword">true</strong>, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L14159" href="#L14159">14159</a>     <strong class="jxr_keyword">boolean</strong> tableThere = GrouperDdlUtils.assertTablesThere(ddlVersionBean, <strong class="jxr_keyword">true</strong>, false, <span class="jxr_string">"grouper_fields"</span>, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L14160" href="#L14160">14160</a>     <strong class="jxr_keyword">if</strong> (tableThere) {
 <a class="jxr_linenumber" name="L14161" href="#L14161">14161</a>       <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L14162" href="#L14162">14162</a>         <em class="jxr_comment">//first, see if tables are there</em>
