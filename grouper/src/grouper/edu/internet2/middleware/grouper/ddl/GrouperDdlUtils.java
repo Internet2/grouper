@@ -1569,13 +1569,13 @@ public class GrouperDdlUtils {
    * @param falseIfDropBeforeCreate 
    */
   public static void ddlutilsDropViewIfExists(DdlVersionBean ddlVersionBean, String viewName, boolean falseIfDropBeforeCreate) {
-    boolean exists = assertTablesThere(false, false, viewName, falseIfDropBeforeCreate);
+    boolean exists = assertTablesThere(ddlVersionBean, false, false, viewName, falseIfDropBeforeCreate);
     if (!exists) {
       viewName = viewName.toUpperCase();
       //MCH 20090131 mysql can be case sensitive, and we moved to lower case view names,
       //so see if the upper case one if there...
       //at some point (grouper 1.6 or 1.7?) we can remove this
-      exists = assertTablesThere(false, false, viewName, falseIfDropBeforeCreate);
+      exists = assertTablesThere(ddlVersionBean, false, false, viewName, falseIfDropBeforeCreate);
     }
     if (exists) {
       if (ddlVersionBean.isPostgres()) {
@@ -2499,7 +2499,7 @@ public class GrouperDdlUtils {
    * @param falseIfDropBeforeCreate 
    */
   public static void ddlutilsDropTable(DdlVersionBean ddlVersionBean, String tableName, boolean falseIfDropBeforeCreate) {
-    if (GrouperDdlUtils.assertTablesThere(false, false, tableName, falseIfDropBeforeCreate)) {
+    if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, tableName, falseIfDropBeforeCreate)) {
       if (ddlVersionBean.isOracle()) {
         ddlVersionBean.appendAdditionalScriptUnique("\ndrop table " + tableName + " cascade constraints;\n");
       } else {
@@ -2558,17 +2558,19 @@ public class GrouperDdlUtils {
   
   /**
    * see if tables are there (at least the grouper groups one)
+   * @param ddlVersionBean 
    * @param expectRecords 
    * @param expectTrue pritn exception if expecting true
    * @return true if expect records, and records there.  false if records not there.  exception
    * if exception is thrown and expect true.false if exception and not expect true
    */
-  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue) {
-    return assertTablesThere(expectRecords, expectTrue, "grouper_stems", false);
+  public static boolean assertTablesThere(DdlVersionBean ddlVersionBean, boolean expectRecords, boolean expectTrue) {
+    return assertTablesThere(ddlVersionBean, expectRecords, expectTrue, "grouper_stems", false);
   }
 
   /**
    * see if tables are there (at least the grouper groups one)
+   * @param ddlVersionBean
    * @param expectRecords 
    * @param expectTrue pritn exception if expecting true
    * @param tableName 
@@ -2576,7 +2578,7 @@ public class GrouperDdlUtils {
    * @return true if expect records, and records there.  false if records not there.  exception
    * if exception is thrown and expect true.false if exception and not expect true
    */
-  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, final String tableName, boolean falseIfDropBeforeCreate) {
+  public static boolean assertTablesThere(final DdlVersionBean ddlVersionBean, boolean expectRecords, boolean expectTrue, final String tableName, boolean falseIfDropBeforeCreate) {
     
     if (falseIfDropBeforeCreate && isDropBeforeCreate) {
       if (expectTrue) {
@@ -2590,7 +2592,7 @@ public class GrouperDdlUtils {
       //first, see if tables are there
       int count = -1;
       
-      if (expectRecords || GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDdl.legacySeeIfTableExists", false)) {
+      if (expectRecords || GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDdl.legacySeeIfTableExists", false) || ddlVersionBean == null) {
         
         count = HibernateSession.bySqlStatic().select(int.class, 
             "select count(*) from " + tableName);
@@ -2611,17 +2613,17 @@ public class GrouperDdlUtils {
               
               Connection connection = ((SessionImpl)hibernateSession.getSession()).connection();
 
-              rs1 = connection.getMetaData().getTables(connection.getCatalog(), "%", tableName, null);
+              rs1 = connection.getMetaData().getTables(connection.getCatalog(), ddlVersionBean.getPlatform().getModelReader().getDefaultSchemaPattern(), tableName, null);
               if (rs1.next()) {
                 return true;
               }
               
-              rs2 = connection.getMetaData().getTables(connection.getCatalog(), "%", tableName.toUpperCase(), null);
+              rs2 = connection.getMetaData().getTables(connection.getCatalog(), ddlVersionBean.getPlatform().getModelReader().getDefaultSchemaPattern(), tableName.toUpperCase(), null);
               if (rs2.next()) {
                 return true;
               }
               
-              rs3 = connection.getMetaData().getTables(connection.getCatalog(), "%", tableName.toLowerCase(), null);
+              rs3 = connection.getMetaData().getTables(connection.getCatalog(), ddlVersionBean.getPlatform().getModelReader().getDefaultSchemaPattern(), tableName.toLowerCase(), null);
               if (rs3.next()) {
                 return true;
               }
@@ -2725,7 +2727,7 @@ public class GrouperDdlUtils {
     boolean tableThere = false;
     String sampleTableNameExists = null;
     for (String sampleTableName : sampleTablenames) {
-      tableThere = assertTablesThere(false, false, sampleTableName, false);
+      tableThere = assertTablesThere(null, false, false, sampleTableName, false);
       if (tableThere) {
         sampleTableNameExists = sampleTableName;
         break;

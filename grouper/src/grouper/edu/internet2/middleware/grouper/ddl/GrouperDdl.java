@@ -178,7 +178,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       int count = 0;
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_fields", true)) {
         
         count = HibernateSession.bySqlStatic().select(int.class, 
           "select count(*) from grouper_fields where type='attribute' and name='name'");
@@ -553,7 +553,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       addAttributeFloatValueCol(database);
 
-      if (GrouperDdlUtils.assertTablesThere(false, false, Membership.TABLE_GROUPER_MEMBERSHIPS, true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, Membership.TABLE_GROUPER_MEMBERSHIPS, true)) {
         
         int count = HibernateSession.bySqlStatic().select(int.class, 
             "select count(*) from grouper_memberships ms, grouper_members m " +
@@ -1988,7 +1988,7 @@ public enum GrouperDdl implements DdlVersionable {
       
 
       // add additional privileges for attribute read and update
-      boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields", true);
+      boolean tableThere = GrouperDdlUtils.assertTablesThere(ddlVersionBean, true, false, "grouper_fields", true);
       if (tableThere) {
         try {
           String typeUuidGroup = HibernateSession.bySqlStatic().select(String.class, "select grouptype_uuid from grouper_fields where name='admins'");
@@ -2073,33 +2073,33 @@ public enum GrouperDdl implements DdlVersionable {
       
       // legacy attributes
       boolean needsLegacyAttributesUpgrade = false;
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes", true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_attributes", true)) {
         needsLegacyAttributesUpgrade = true;
         
         // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes_legacy", true)) {
+        if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_attributes_legacy", true)) {
           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_attributes_legacy", true);
         }
         
         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_attributes", "grouper_attributes_legacy");
       }
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types", true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_types", true)) {
         needsLegacyAttributesUpgrade = true;
         
         // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_types_legacy", true)) {
+        if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_types_legacy", true)) {
           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_types_legacy", true);
         }
         
         GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "grouper_types", "grouper_types_legacy");
       }
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types", true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_groups_types", true)) {
         needsLegacyAttributesUpgrade = true;
         
         // drop legacy table if it happens to exist for some reason
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types_legacy", true)) {
+        if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_groups_types_legacy", true)) {
           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, "grouper_groups_types_legacy", true);
         }
         
@@ -2108,7 +2108,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       int legacyAttributesCount = 0;
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_fields", true)) {
         legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
       
         boolean groupTypeUuidThere = GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null;
@@ -2117,7 +2117,7 @@ public enum GrouperDdl implements DdlVersionable {
         if (groupTypeUuidThere || isNullableThere || legacyAttributesCount > 0) {
           needsLegacyAttributesUpgrade = true;
           
-          boolean legacyFieldsTableThere = GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields_legacy", true);
+          boolean legacyFieldsTableThere = GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_fields_legacy", true);
           
           if (!legacyFieldsTableThere && !groupTypeUuidThere) {
             // this isn't good.
@@ -2171,13 +2171,13 @@ public enum GrouperDdl implements DdlVersionable {
       
       int legacyAttributesCount = 0;
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_fields", true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_fields", true)) {
         legacyAttributesCount = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where type = 'attribute'");
       
         // remove the old tables/columns
-        if (GrouperDdlUtils.assertTablesThere(false, false, "grouper_attributes", true) ||
-            GrouperDdlUtils.assertTablesThere(false, false, "grouper_types", true) ||
-            GrouperDdlUtils.assertTablesThere(false, false, "grouper_groups_types", true) ||
+        if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_attributes", true) ||
+            GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_types", true) ||
+            GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, "grouper_groups_types", true) ||
             GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "grouptype_uuid", false) != null || 
             GrouperDdlUtils.ddlutilsFindColumn(database, "grouper_fields", "is_nullable", false) != null || 
             legacyAttributesCount > 0) {
@@ -2231,7 +2231,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,
           "audit_entry_act_as_created_idx", false, "act_as_member_id", "created_on");
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, true)) {
         int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_audit_entry where act_as_member_id is null and logged_in_member_id is not null");
         if (count > 0) {
           ddlVersionBean.getAdditionalScripts().append(
@@ -2271,7 +2271,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitMembersTable, PITMember.COLUMN_SUBJECT_IDENTIFIER0, Types.VARCHAR, "255", false, false);
       
       // stem privilege changing to stemAdmin
-      if (GrouperDdlUtils.assertTablesThere(false, false, Field.TABLE_GROUPER_FIELDS, true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, Field.TABLE_GROUPER_FIELDS, true)) {
         int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_fields where name='stemmers'");
         if (count > 0) {
           ddlVersionBean.getAdditionalScripts().append(
@@ -2282,7 +2282,7 @@ public enum GrouperDdl implements DdlVersionable {
         }
       }
       
-      if (GrouperDdlUtils.assertTablesThere(false, false, PITField.TABLE_GROUPER_PIT_FIELDS, true)) {
+      if (GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, PITField.TABLE_GROUPER_PIT_FIELDS, true)) {
         int count = HibernateSession.bySqlStatic().select(int.class, "select count(*) from grouper_pit_fields where name='stemmers'");
         if (count > 0) {
           ddlVersionBean.getAdditionalScripts().append(
@@ -13139,7 +13139,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean
    */
   private static void addGroupSetOwnerIdColumn(Database database, DdlVersionBean ddlVersionBean) {
-    boolean tableExists = GrouperDdlUtils.assertTablesThere(false, false, GroupSet.TABLE_GROUPER_GROUP_SET, true);
+    boolean tableExists = GrouperDdlUtils.assertTablesThere(ddlVersionBean, false, false, GroupSet.TABLE_GROUPER_GROUP_SET, true);
      
     Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindTable(database, GroupSet.TABLE_GROUPER_GROUP_SET, true);
     boolean columnNew = tableExists && grouperGroupSet.findColumn(GroupSet.COLUMN_OWNER_ID) == null;
@@ -14156,7 +14156,7 @@ public enum GrouperDdl implements DdlVersionable {
     }
 
     //see if the table is there
-    boolean tableThere = GrouperDdlUtils.assertTablesThere(true, false, "grouper_fields", true);
+    boolean tableThere = GrouperDdlUtils.assertTablesThere(ddlVersionBean, true, false, "grouper_fields", true);
     if (tableThere) {
       try {
         //first, see if tables are there
