@@ -71,11 +71,11 @@
             <version>${project.version}</version>
             <type>test-jar</type>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>grouper-ui</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>grouperClient</artifactId>
