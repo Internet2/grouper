@@ -177,22 +177,37 @@ public class GrouperInstallerUtils  {
       return false;
     }
   }
-  
+
   /**
    * move a file
    * @param file
    * @param newFile move to new file
    */
   public static void fileMove(File file, File newFile) {
+    fileMove(file, newFile, true);
+  }
+
+  /**
+   * move a file
+   * @param file
+   * @param newFile move to new file
+   * @param exceptionIfError
+   * @return if success
+   */
+  public static boolean fileMove(File file, File newFile, boolean exceptionIfError) {
     fileDelete(newFile);
     if (!file.renameTo(newFile)) {
       copyFile( file, newFile );
       if (!file.delete()) {
+        if (!exceptionIfError) {
+          return false;
+        }
         deleteQuietly(newFile);
         throw new RuntimeException("Could not native Java rename, and failed to delete original file '" + file +
                 "' after copy to '" + newFile + "'");
       }
     }
+    return true;
   }
   
   /** override map for properties in thread local to be used in a web server or the like */
@@ -7586,7 +7601,10 @@ public class GrouperInstallerUtils  {
    * @return the list that matches
    */
   public static List<File> jarFindJar(File dir, String fileName) {
-    return jarFindJar(toList(dir.listFiles()), fileName);
+    if (dir.getName().equals("grouper") || dir.getName().equals("custom") || dir.getName().equals("jdbcSamples")) {
+      return jarFindJar(dir.getParentFile(), fileName);
+    }
+    return jarFindJar(GrouperInstallerUtils.fileListRecursive(dir), fileName);
   }
   
   /**
@@ -7598,15 +7616,19 @@ public class GrouperInstallerUtils  {
     
     Pattern pattern = Pattern.compile("^(.*)-[0-9].*.jar$");
     Matcher matcher = pattern.matcher(fileName);
+    String baseName = null;
     if (matcher.matches()) {
-      return matcher.group(1);
-    }
-    if (fileName.endsWith(".jar")) {
-      return fileName.substring(0, fileName.length() - ".jar".length());
+      baseName = matcher.group(1);
+    } else if (fileName.endsWith(".jar")) {
+      baseName = fileName.substring(0, fileName.length() - ".jar".length());
+    } else {
+      return null;
     }
     
-    return null;
-    
+    if (baseName.endsWith("-core")) {
+      baseName = baseName.substring(0, baseName.length() - "-core".length());
+    }
+    return baseName;
   }
   
   /**
