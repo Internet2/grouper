@@ -3294,7 +3294,8 @@ public class GrouperInstaller {
     this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
       + File.separator + "grouper" + File.separator));
     this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
-      + File.separator + "jdbcSamples" + File.separator));
+      + File.separator + "jdbcSamples" + File.separator), 
+      new File(new File(this.upgradeExistingLibDirectoryString).getParentFile().getAbsolutePath() + File.separator + "jdbcSamples"));
 
     System.out.println("\n##################################");
     System.out.println("Patch API\n");

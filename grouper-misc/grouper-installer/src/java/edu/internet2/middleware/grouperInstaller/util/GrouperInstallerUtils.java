@@ -9582,9 +9582,12 @@ public class GrouperInstallerUtils  {
    * @return the hex sha1
    */
   public static String fileSha1(File file) {
+    
+    FileInputStream fis = null;
+    
     try {
       MessageDigest md = MessageDigest.getInstance("SHA1");
-      FileInputStream fis = new FileInputStream(file);
+      fis = new FileInputStream(file);
       byte[] dataBytes = new byte[1024];
    
       int nread = 0; 
@@ -9603,6 +9606,8 @@ public class GrouperInstallerUtils  {
       return sb.toString();
     } catch (Exception e) {
       throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath(), e);
+    } finally {
+      closeQuietly(fis);
     }
   }
 
