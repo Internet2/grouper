@@ -3287,15 +3287,24 @@ public class GrouperInstaller {
     System.out.println("Press <enter> to continue after you have merged the sources.xml");
     readFromStdIn("grouperInstaller.autorun.continueAfterMergingSourcesXml");
     
-    
     System.out.println("\n##################################");
     System.out.println("Upgrading API jars\n");
 
     this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
       + File.separator + "grouper" + File.separator));
-    this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
-      + File.separator + "jdbcSamples" + File.separator), 
-      new File(new File(this.upgradeExistingLibDirectoryString).getParentFile().getAbsolutePath() + File.separator + "jdbcSamples"));
+    if (this.appToUpgrade.isApiOrganized()) {
+
+      //if we need to put the jars in the jdbcSamples dir...
+      this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
+          + File.separator + "jdbcSamples" + File.separator), 
+          new File(new File(this.upgradeExistingLibDirectoryString).getParentFile().getAbsolutePath() + File.separator + "jdbcSamples"));
+    
+    } else {
+    
+      this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
+          + File.separator + "jdbcSamples" + File.separator));
+    
+    }
 
     System.out.println("\n##################################");
     System.out.println("Patch API\n");
@@ -4412,6 +4421,11 @@ public class GrouperInstaller {
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFileUi();
       }
+
+      @Override
+      public boolean isApiOrganized() {
+        return false;
+      }
     },
     
     /**
@@ -4510,6 +4524,11 @@ public class GrouperInstaller {
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFileApi();
       }
+
+      @Override
+      public boolean isApiOrganized() {
+        return true;
+      }
     },
 
     /**
@@ -4574,6 +4593,10 @@ public class GrouperInstaller {
         throw new RuntimeException("Not implemented");
       }
 
+      @Override
+      public boolean isApiOrganized() {
+        return false;
+      }
     },
 
     /**
@@ -4644,6 +4667,10 @@ public class GrouperInstaller {
         grouperInstaller.fixIndexFileWs();
       }
 
+      @Override
+      public boolean isApiOrganized() {
+        return false;
+      }
     }, 
     
     /**
@@ -4706,6 +4733,10 @@ public class GrouperInstaller {
       @Override
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFilePsp();
+      }
+      @Override
+      public boolean isApiOrganized() {
+        return true;
       }
     }, 
     
@@ -4772,8 +4803,18 @@ public class GrouperInstaller {
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFilePspng();
       }
+      @Override
+      public boolean isApiOrganized() {
+        return true;
+      }
     };
 
+    /**
+     * if the organization is API organzied (e.g. has lib/jdbcSamples dir)
+     * @return true/false
+     */
+    public abstract boolean isApiOrganized();
+    
     /**
      * validate that the existing directory is valid, and find all the file paths
      * @param grouperInstaller 
@@ -5046,9 +5087,18 @@ public class GrouperInstaller {
                   || (!GrouperInstallerUtils.contentEquals(newFileInPatch, newFileInGrouper)
                       //its ok if the patch is already reverted?
                       && !GrouperInstallerUtils.contentEquals(oldFileInPatch, newFileInGrouper))) {
-                System.out.println("Cannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
-                    + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
-                patchHasProblem = true;
+                
+                System.out.print("Problem reverting patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                    + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath()
+                    + "\n  Do you want to force revert this patch (t|f)? [f]: ");
+                
+                boolean forceRevertPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceRevertPatch");
+                
+                if (!forceRevertPatch) {
+                  System.out.println("\nCannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                      + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
+                  patchHasProblem = true;
+                }
               }
             }
           }
@@ -5320,11 +5370,19 @@ public class GrouperInstaller {
                   || (!GrouperInstallerUtils.contentEquals(oldFileInPatch, oldFileInGrouper)
                       //patch is already applied?  thats ok i guess
                       && !GrouperInstallerUtils.contentEquals(newFileInPatch, oldFileInGrouper))) {
-                System.out.println("Cannot apply patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
-                    + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath());
-                patchHasProblem = true;
+                
+                System.out.println("Problem applying patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
+                    + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath()
+                    + "\n  Do you want to force install this patch (t|f)? [f]: ");
+                
+                boolean forceInstallPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceInstallPatch");
+                
+                if (!forceInstallPatch) {
+                  System.out.println("Cannot apply patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
+                      + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath());
+                  patchHasProblem = true;
+                }
               }
-              
             }
           }
         }
