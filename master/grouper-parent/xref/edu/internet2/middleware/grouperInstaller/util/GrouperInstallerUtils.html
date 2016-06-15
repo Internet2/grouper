@@ -7622,7 +7622,7 @@
 <a class="jxr_linenumber" name="L7614" href="#L7614">7614</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L7615" href="#L7615">7615</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarFileBaseName(String fileName) {
 <a class="jxr_linenumber" name="L7616" href="#L7616">7616</a>     
-<a class="jxr_linenumber" name="L7617" href="#L7617">7617</a>     Pattern pattern = Pattern.compile(<span class="jxr_string">"^(.*)-[0-9].*.jar$"</span>);
+<a class="jxr_linenumber" name="L7617" href="#L7617">7617</a>     Pattern pattern = Pattern.compile(<span class="jxr_string">"^(.*?)-[0-9].*.jar$"</span>);
 <a class="jxr_linenumber" name="L7618" href="#L7618">7618</a>     Matcher matcher = pattern.matcher(fileName);
 <a class="jxr_linenumber" name="L7619" href="#L7619">7619</a>     String baseName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L7620" href="#L7620">7620</a>     <strong class="jxr_keyword">if</strong> (matcher.matches()) {
