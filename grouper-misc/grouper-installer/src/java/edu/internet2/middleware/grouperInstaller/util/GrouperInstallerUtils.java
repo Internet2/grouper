@@ -7614,7 +7614,7 @@ public class GrouperInstallerUtils  {
    */
   public static String jarFileBaseName(String fileName) {
     
-    Pattern pattern = Pattern.compile("^(.*)-[0-9].*.jar$");
+    Pattern pattern = Pattern.compile("^(.*?)-[0-9].*.jar$");
     Matcher matcher = pattern.matcher(fileName);
     String baseName = null;
     if (matcher.matches()) {
