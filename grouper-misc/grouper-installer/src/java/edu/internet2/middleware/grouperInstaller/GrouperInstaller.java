@@ -60,6 +60,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import edu.internet2.middleware.grouperInstaller.GrouperInstaller.GrouperDirectories.GrouperInstallType;
 import edu.internet2.middleware.grouperInstaller.GrouperInstallerIndexFile.PatchFileType;
 import edu.internet2.middleware.grouperInstaller.util.GiDbUtils;
 import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
@@ -78,6 +79,59 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclien
  */
 public class GrouperInstaller {
 
+  /**
+   * location of where grouper is an find all the files within
+   */
+  private GrouperDirectories grouperDirectories = new GrouperDirectories();
+  
+  /**
+   * structure and logic to locate where grouper is installed (or will be?)
+   */
+  public static class GrouperDirectories {
+
+    /**
+     * which type of install are we
+     */
+    public static enum GrouperInstallType {
+
+      /**
+       * installed Grouper env
+       */
+      installed,
+      
+      /**
+       * source Grouper env
+       */
+      source;
+      
+    }
+
+    /**
+     * are we an installed directory or source directory
+     */
+    private GrouperInstallType grouperInstallType;
+
+    
+    /**
+     * are we an installed directory or source directory
+     * @return the grouperInstallType
+     */
+    public GrouperInstallType getGrouperInstallType() {
+      return this.grouperInstallType;
+    }
+
+    
+    /**
+     * are we an installed directory or source directory
+     * @param grouperInstallType1 the grouperInstallType to set
+     */
+    public void setGrouperInstallType(GrouperInstallType grouperInstallType1) {
+      this.grouperInstallType = grouperInstallType1;
+    }
+
+    
+    
+  }
   
   /**
    * default ip address to listen for stuff
@@ -1338,6 +1392,14 @@ public class GrouperInstaller {
       this.buildWs(false);
     }    
     
+    if (this.appToUpgrade == AppToUpgrade.PSPNG) {
+      this.untarredPspngDir = new File(sourceDir + File.separator + "grouper-misc" + File.separator + "grouper-pspng");
+      this.buildPspng(this.untarredPspngDir);
+
+      this.untarredPspngDir = new File(sourceTagDir + File.separator + "grouper-misc" + File.separator + "grouper-pspng");
+      this.buildPspng(this.untarredPspngDir);
+    }    
+
     if (this.appToUpgrade == AppToUpgrade.PSP) {
       this.untarredApiDir = new File(sourceDir + File.separator + "grouper");
       this.buildPsp(pspSourceDir);
@@ -1837,7 +1899,7 @@ public class GrouperInstaller {
   /**
    * patch pattern
    */
-  private static final Pattern patchNamePattern = Pattern.compile("^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp)_patch_\\d+$");
+  private static final Pattern patchNamePattern = Pattern.compile("^grouper_v(\\d+)_(\\d+)_(\\d+)_(api|ws|ui|psp|pspng)_patch_\\d+$");
 
   
   /**
@@ -2048,6 +2110,27 @@ public class GrouperInstaller {
             PatchFileType.clazz);
 
         break;
+      case PSPNG:
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-pspng"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-pspng" 
+                + File.separator + "target" + File.separator + "dependency"),
+            PatchFileType.lib);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-pspng"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-pspng" 
+                + File.separator + "src" + File.separator + "main" + File.separator + "java"),
+            PatchFileType.clazz);
+
+        this.patchCreateProcessFiles(theIndexOfFiles, 
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-pspng"),
+            new File(theSourceDir.getAbsolutePath() + File.separator + "grouper-misc" + File.separator + "grouper-pspng" 
+                + File.separator + "target" + File.separator + "classes"),
+            PatchFileType.clazz);
+
+        break;
     }
     
     //print out files for debugging
@@ -2251,6 +2334,8 @@ public class GrouperInstaller {
     commands.add("dependency:copy-dependencies");
     commands.add("package");
     commands.add("-DskipTests");
+    commands.add("-Drat.ignoreErrors=true");
+    commands.add("-Dlicense.skip=true");
     
     System.out.println("\n##################################");
     System.out.println("Building PSP with command:\n" + pspDir.getAbsolutePath() + "> " 
@@ -2584,7 +2669,6 @@ public class GrouperInstaller {
       GrouperInstallerUtils.sleep(2000);
     }
     
-    
     //get the directory where the existing installation is
     this.upgradeExistingApplicationDirectoryString = upgradeExistingDirectory();
 
@@ -2841,6 +2925,39 @@ public class GrouperInstaller {
 
     //patch it
     this.patchPsp();
+  }
+
+  /**
+   * upgrade the pspng
+   */
+  private void upgradePspng() {
+
+    this.upgradeApiPreRevertPatch();
+
+    System.out.println("You need to revert all patches to upgrade");
+    this.patchRevertPspng();
+    
+    this.upgradeApiPostRevertPatch();
+    
+    System.out.println("\n##################################");
+    System.out.println("Upgrading PSPNG\n");
+    
+    //copy the jars there
+    System.out.println("\n##################################");
+    System.out.println("Upgrading PSPNG jars\n");
+
+    this.upgradeJars(new File(this.untarredPspngDir + File.separator + "lib" + File.separator + "custom" + File.separator),
+        new File(new File(this.upgradeExistingLibDirectoryString).getParentFile().getAbsolutePath() + File.separator + "custom"));
+
+    System.out.println("\n##################################");
+    System.out.println("Upgrading PSPNG files\n");
+
+    //copy files there (this is the conf examples)
+    this.copyFiles(this.untarredPspngDir + File.separator + "conf" + File.separator,
+        this.upgradeExistingApplicationDirectoryString + "conf" + File.separator, null);
+
+    //patch it
+    this.patchPspng();
   }
 
   
@@ -3170,14 +3287,24 @@ public class GrouperInstaller {
     System.out.println("Press <enter> to continue after you have merged the sources.xml");
     readFromStdIn("grouperInstaller.autorun.continueAfterMergingSourcesXml");
     
-    
     System.out.println("\n##################################");
     System.out.println("Upgrading API jars\n");
 
     this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
       + File.separator + "grouper" + File.separator));
-    this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
-      + File.separator + "jdbcSamples" + File.separator));
+    if (this.appToUpgrade.isApiOrganized()) {
+
+      //if we need to put the jars in the jdbcSamples dir...
+      this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
+          + File.separator + "jdbcSamples" + File.separator), 
+          new File(new File(this.upgradeExistingLibDirectoryString).getParentFile().getAbsolutePath() + File.separator + "jdbcSamples"));
+    
+    } else {
+    
+      this.upgradeJars(new File(this.untarredApiDir + File.separator + "lib" 
+          + File.separator + "jdbcSamples" + File.separator));
+    
+    }
 
     System.out.println("\n##################################");
     System.out.println("Patch API\n");
@@ -3706,10 +3833,8 @@ public class GrouperInstaller {
       throw new RuntimeException("Why does jar directory not exist? " + fromDir);
     }
     
-    File jarDir = null;
-    
     int changes = 0;
-    
+
     for (File jarFile : fromDir.listFiles()) {
       
       //only do jar files
@@ -3717,64 +3842,51 @@ public class GrouperInstaller {
         continue;
       }
       
-      File existingJar = this.findLibraryFile(jarFile.getName(), false);
+      // File existingJar = this.findLibraryFile(jarFile.getName(), false);
 
       List<File> relatedJars = null;
       
-      for (int i=0;i<10;i++) {
-        
-        if (i==9) {
-          throw new RuntimeException("Why didnt you clear out the jars??? " + GrouperInstallerUtils.toStringForLog(relatedJars));
-        }
-
-        relatedJars = GrouperInstallerUtils.jarFindJar(toDir, jarFile.getName());
-        
-        if (GrouperInstallerUtils.length(relatedJars) > 1) {
-          
-          System.out.println("There are multiple related jars for " + jarFile.getName() + ": " + GrouperInstallerUtils.toStringForLog(relatedJars));
-          System.out.println("There should be only one, remove the others, if this is a mistake, then you need to\n  rename the prefix so they are different, and report to the Grouper team");
-          System.out.println("Press <enter> to continue...");
-          readFromStdIn("grouperInstaller.autorun.continueAfterFoundMultipleJars");
-
-        } else {
-        
-          break;
-
-        }
-          
-      }
+      relatedJars = GrouperInstallerUtils.jarFindJar(toDir, jarFile.getName());
       
-      
-      if (existingJar == null) {
-        //see if one exists by another version
-        if (GrouperInstallerUtils.length(relatedJars) == 1) {
-          existingJar = relatedJars.get(0);
-        }
-      }
-      
-      if (existingJar != null) {
-        try {
-          //case difference
-          if (!GrouperInstallerUtils.equals(jarFile.getCanonicalFile().getName(), existingJar.getCanonicalFile().getName())) {
-            File tmpFile = new File(existingJar.getParentFile().getAbsoluteFile() + File.separator + existingJar.getName()+ ".tmp");
-            GrouperInstallerUtils.fileMove(existingJar, tmpFile);
-            existingJar = new File(existingJar.getParentFile().getAbsoluteFile() + File.separator + jarFile.getName());
-            GrouperInstallerUtils.fileMove(tmpFile, existingJar);
+      boolean foundFile = false;
+      if (GrouperInstallerUtils.length(relatedJars) > 0) {
+        
+        for (File relatedJar : relatedJars) {
+          if (GrouperInstallerUtils.fileSha1(relatedJar).equals(GrouperInstallerUtils.fileSha1(jarFile))) {
+            if (relatedJar.getName().equals(jarFile.getName())) {
+              foundFile = true;
+              continue;
+            }
           }
-        } catch (Exception e) {
-          throw new RuntimeException("Problem with file: " + jarFile, e);
+          
+          File bakFile = bakFile(relatedJar);
+          
+          System.out.println("Deleting " + relatedJar.getAbsolutePath() + ", backed up to: " + bakFile.getAbsolutePath());
+          changes++;
+          boolean moved = GrouperInstallerUtils.fileMove(relatedJar, bakFile, false);
+          if (!moved) {
+            System.out.println("Non-fatal error: could not delete file: " + relatedJar.getAbsolutePath() 
+                + ",\ndelete this file when all processed are terminated.  Press <enter> to acknowledge this.");
+            readFromStdIn("grouperInstaller.autorun.continueAfterCantDeleteJar");
+          }
         }
       }
-      changes += this.compareAndReplaceJar(existingJar, jarFile, false, toDir) ? 1 : 0;
-
-      if (jarDir == null) {
-        jarDir = existingJar.getParentFile();
+      if (!foundFile) {
+        changes += this.compareAndReplaceJar(null, jarFile, false, toDir) ? 1 : 0;
       }
+          
       
+//      if (existingJar == null) {
+//        //see if one exists by another version
+//        if (GrouperInstallerUtils.length(relatedJars) == 1) {
+//          existingJar = relatedJars.get(0);
+//        }
+//      }
+
     }
 
     System.out.println("Upgraded " + changes + " jar files from: " + fromDir.getAbsolutePath()
-        + "\n  to: " + jarDir.getAbsolutePath());
+        + "\n  to: " + toDir.getAbsolutePath());
     
   }
   
@@ -4309,6 +4421,11 @@ public class GrouperInstaller {
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFileUi();
       }
+
+      @Override
+      public boolean isApiOrganized() {
+        return false;
+      }
     },
     
     /**
@@ -4407,6 +4524,11 @@ public class GrouperInstaller {
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFileApi();
       }
+
+      @Override
+      public boolean isApiOrganized() {
+        return true;
+      }
     },
 
     /**
@@ -4471,6 +4593,10 @@ public class GrouperInstaller {
         throw new RuntimeException("Not implemented");
       }
 
+      @Override
+      public boolean isApiOrganized() {
+        return false;
+      }
     },
 
     /**
@@ -4541,6 +4667,10 @@ public class GrouperInstaller {
         grouperInstaller.fixIndexFileWs();
       }
 
+      @Override
+      public boolean isApiOrganized() {
+        return false;
+      }
     }, 
     
     /**
@@ -4604,8 +4734,87 @@ public class GrouperInstaller {
       public void fixIndexFile(GrouperInstaller grouperInstaller) {
         grouperInstaller.fixIndexFilePsp();
       }
+      @Override
+      public boolean isApiOrganized() {
+        return true;
+      }
+    }, 
+    
+    /**
+     * upgrading the UI
+     */
+    PSPNG {
+    
+      @Override
+      public void patchStatus(GrouperInstaller grouperInstaller) {
+        grouperInstaller.patchStatusPspng();
+      }
+    
+      @Override
+      public void patch(GrouperInstaller grouperInstaller) {
+        grouperInstaller.patchPspng();
+      }
+    
+      @Override
+      public void revertPatch(GrouperInstaller grouperInstaller) {
+        grouperInstaller.patchRevertPspng();
+      }
+    
+      @Override
+      public boolean validateExistingDirectory(GrouperInstaller grouperInstaller) {
+        //API and client are in the UI
+        if (!API.validateExistingDirectory(grouperInstaller)) {
+          return false;
+        }
+        
+        File customLibDir = new File(grouperInstaller.upgradeExistingApplicationDirectoryString + "lib" + File.separator + "custom");
+        if (!customLibDir.exists()) {
+          return false;
+        }
+    
+        //see if psp jar is there
+        String grouperVersion = grouperInstaller.grouperVersionOfJar().toString();
+
+        List<File> files = GrouperInstallerUtils.jarFindJar(customLibDir, "grouper-pspng-" + grouperVersion + ".jar");
+
+        if (GrouperInstallerUtils.length(files) == 0) {
+          return false;
+        }
+    
+        return true;
+      }
+    
+      @Override
+      public void downloadAndBuildGrouperProjects(GrouperInstaller grouperInstaller) {
+        API.downloadAndBuildGrouperProjects(grouperInstaller);
+        
+        //####################################
+        //download and configure psp
+        grouperInstaller.downloadAndBuildPspng();
+    
+      }
+    
+      @Override
+      public void upgradeApp(GrouperInstaller grouperInstaller) {
+        grouperInstaller.upgradePspng();
+      }
+    
+      @Override
+      public void fixIndexFile(GrouperInstaller grouperInstaller) {
+        grouperInstaller.fixIndexFilePspng();
+      }
+      @Override
+      public boolean isApiOrganized() {
+        return true;
+      }
     };
 
+    /**
+     * if the organization is API organzied (e.g. has lib/jdbcSamples dir)
+     * @return true/false
+     */
+    public abstract boolean isApiOrganized();
+    
     /**
      * validate that the existing directory is valid, and find all the file paths
      * @param grouperInstaller 
@@ -4878,9 +5087,18 @@ public class GrouperInstaller {
                   || (!GrouperInstallerUtils.contentEquals(newFileInPatch, newFileInGrouper)
                       //its ok if the patch is already reverted?
                       && !GrouperInstallerUtils.contentEquals(oldFileInPatch, newFileInGrouper))) {
-                System.out.println("Cannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
-                    + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
-                patchHasProblem = true;
+                
+                System.out.print("Problem reverting patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                    + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath()
+                    + "\n  Do you want to force revert this patch (t|f)? [f]: ");
+                
+                boolean forceRevertPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceRevertPatch");
+                
+                if (!forceRevertPatch) {
+                  System.out.println("\nCannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                      + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
+                  patchHasProblem = true;
+                }
               }
             }
           }
@@ -5152,11 +5370,19 @@ public class GrouperInstaller {
                   || (!GrouperInstallerUtils.contentEquals(oldFileInPatch, oldFileInGrouper)
                       //patch is already applied?  thats ok i guess
                       && !GrouperInstallerUtils.contentEquals(newFileInPatch, oldFileInGrouper))) {
-                System.out.println("Cannot apply patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
-                    + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath());
-                patchHasProblem = true;
+                
+                System.out.println("Problem applying patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
+                    + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath()
+                    + "\n  Do you want to force install this patch (t|f)? [f]: ");
+                
+                boolean forceInstallPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceInstallPatch");
+                
+                if (!forceInstallPatch) {
+                  System.out.println("Cannot apply patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
+                      + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath());
+                  patchHasProblem = true;
+                }
               }
-              
             }
           }
         }
@@ -5681,6 +5907,14 @@ public class GrouperInstaller {
   }
 
   /**
+   * fix index file psp
+   */
+  private void fixIndexFilePspng() {
+    this.fixIndexFile(AppToUpgrade.PSPNG);
+    this.fixIndexFile(AppToUpgrade.API);
+  }
+
+  /**
    * patch status ui
    */
   private void patchStatusUi() {
@@ -5702,6 +5936,14 @@ public class GrouperInstaller {
   private void patchStatusPsp() {
     this.patchStatus(AppToUpgrade.API);
     this.patchStatus(AppToUpgrade.PSP);
+  }
+
+  /**
+   * patch status pspng
+   */
+  private void patchStatusPspng() {
+    this.patchStatus(AppToUpgrade.API);
+    this.patchStatus(AppToUpgrade.PSPNG);
   }
 
 
@@ -5734,11 +5976,19 @@ public class GrouperInstaller {
   }
   
   /**
-   * patch the client
+   * patch the psp
    */
   private void patchPsp() {
     this.downloadAndInstallPatches(AppToUpgrade.API);
     this.downloadAndInstallPatches(AppToUpgrade.PSP);
+  }
+
+  /**
+   * patch the pspng
+   */
+  private void patchPspng() {
+    this.downloadAndInstallPatches(AppToUpgrade.API);
+    this.downloadAndInstallPatches(AppToUpgrade.PSPNG);
   }
 
   /**
@@ -5777,10 +6027,18 @@ public class GrouperInstaller {
   }
   
   /**
-   * revert patch the client
+   * revert patch the psp
    */
   private void patchRevertPsp() {
     this.revertPatches(AppToUpgrade.PSP);
+    this.revertPatches(AppToUpgrade.API);
+  }
+
+  /**
+   * revert patch the pspng
+   */
+  private void patchRevertPspng() {
+    this.revertPatches(AppToUpgrade.PSPNG);
     this.revertPatches(AppToUpgrade.API);
   }
 
@@ -6277,8 +6535,12 @@ public class GrouperInstaller {
     
     //####################################
     //download and configure ui
-    downloadAndConfigureUi();
-
+    System.out.print("Do you want to install the user interface (t|f)? [t]: ");
+    boolean installUi = readFromStdInBoolean(true, "grouperInstaller.autorun.installUi");
+    if (installUi) {
+      downloadAndConfigureUi();
+    }
+    
     //####################################
     //get ant
     downloadAndUnzipAnt();
@@ -6292,109 +6554,133 @@ public class GrouperInstaller {
     //####################################
     //ask for tomcat port
     configureTomcat();
-    
-    //####################################
-    //build UI
-    buildUi(true);
 
-    //####################################
-    //configureTomcatUiWebapp
-    configureTomcatUiWebapp();
-
-    //####################################
-    //copy api patch level to ui
     File apiPatchStatusFile = new File(GrouperInstallerUtils.fileAddLastSlashIfNotExists(
         this.untarredApiDir.getAbsolutePath()) + "grouperPatchStatus.properties");
-    File uiPatchStatusFile = new File(GrouperInstallerUtils.fileAddLastSlashIfNotExists(
-        this.grouperUiBuildToDirName()) + "WEB-INF" + File.separator + "grouperPatchStatus.properties");
-    System.out.println("Copying applied API patch status to UI:");
-    System.out.println("  - from: "  + apiPatchStatusFile.getAbsolutePath());
-    System.out.println("  - to: "  + uiPatchStatusFile.getAbsolutePath());
-    GrouperInstallerMergePatchFiles.mergePatchFiles(
-        apiPatchStatusFile, uiPatchStatusFile, true);
 
     //####################################
-    // patch the ui
-    this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName());
-    this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
-        + "WEB-INF" + File.separator + "classes" + File.separator ;
-    this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
-        + "WEB-INF" + File.separator + "lib" + File.separator;
-    this.patchUi();
+    //build UI
+    if (installUi) {
 
+      buildUi(true);
+
+      //####################################
+      //configureTomcatUiWebapp
+      configureTomcatUiWebapp();
+  
+      //####################################
+      //copy api patch level to ui
+      File uiPatchStatusFile = new File(GrouperInstallerUtils.fileAddLastSlashIfNotExists(
+          this.grouperUiBuildToDirName()) + "WEB-INF" + File.separator + "grouperPatchStatus.properties");
+      System.out.println("Copying applied API patch status to UI:");
+      System.out.println("  - from: "  + apiPatchStatusFile.getAbsolutePath());
+      System.out.println("  - to: "  + uiPatchStatusFile.getAbsolutePath());
+      GrouperInstallerMergePatchFiles.mergePatchFiles(
+          apiPatchStatusFile, uiPatchStatusFile, true);
+
+      //####################################
+      // patch the ui
+      this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName());
+      this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
+          + "WEB-INF" + File.separator + "classes" + File.separator ;
+      this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperUiBuildToDirName())
+          + "WEB-INF" + File.separator + "lib" + File.separator;
+      this.patchUi();
+    }
+    
     //####################################
     //set the GrouperSystem password
     tomcatConfigureGrouperSystem();
 
-    //####################################
-    //bounce tomcat
-    tomcatBounce("restart");
+    if (installUi) {
+      //####################################
+      //bounce tomcat
+      tomcatBounce("restart");
+      
+      //####################################
+      //tell user to go to url
+      System.out.println("##################################\n");
+      System.out.println("Go here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
+      System.out.println("\n##################################\n");
+    }
     
-    //####################################
-    //tell user to go to url
-    System.out.println("##################################\n");
-    System.out.println("Go here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
-    System.out.println("\n##################################\n");
-
-    this.downloadAndConfigureWs();
+    System.out.print("Do you want to install web services (t|f)? [t]: ");
+    boolean installWs = readFromStdInBoolean(true, "grouperInstaller.autorun.installWs");
     
-    //####################################
-    //build WS
-    buildWs(true);
+    if (installWs) {
+      this.downloadAndConfigureWs();
+      
+      //####################################
+      //build WS
+      buildWs(true);
+      
+      //####################################
+      //copy to tomcat
+      configureTomcatWsWebapp();
+  
+      //####################################
+      //copy api patch level to ui
+      File wsPatchStatusFile = new File(GrouperInstallerUtils.fileAddLastSlashIfNotExists(
+          this.grouperWsBuildToDirName()) + "WEB-INF" + File.separator + "grouperPatchStatus.properties");
+      System.out.println("Copying applied API patch status to WS:");
+      System.out.println("  - from: "  + apiPatchStatusFile.getAbsolutePath());
+      System.out.println("  - to: "  + wsPatchStatusFile.getAbsolutePath());
+      GrouperInstallerMergePatchFiles.mergePatchFiles(
+          apiPatchStatusFile, wsPatchStatusFile, true);
+  
+      //####################################
+      // patch the ws
+      this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName());
+      this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
+          + "WEB-INF" + File.separator + "classes" + File.separator ;
+      this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
+          + "WEB-INF" + File.separator + "lib" + File.separator;
+  
+      this.patchWs();
+  
+      //####################################
+      //bounce tomcat
+      tomcatBounce("restart");
+  
+      //####################################
+      //tell user to go to url
+      System.out.println("This is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
+    }
     
-    //####################################
-    //copy to tomcat
-    configureTomcatWsWebapp();
-
-    //####################################
-    //copy api patch level to ui
-    File wsPatchStatusFile = new File(GrouperInstallerUtils.fileAddLastSlashIfNotExists(
-        this.grouperWsBuildToDirName()) + "WEB-INF" + File.separator + "grouperPatchStatus.properties");
-    System.out.println("Copying applied API patch status to WS:");
-    System.out.println("  - from: "  + apiPatchStatusFile.getAbsolutePath());
-    System.out.println("  - to: "  + wsPatchStatusFile.getAbsolutePath());
-    GrouperInstallerMergePatchFiles.mergePatchFiles(
-        apiPatchStatusFile, wsPatchStatusFile, true);
-
-    //####################################
-    // patch the ws
-    this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName());
-    this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
-        + "WEB-INF" + File.separator + "classes" + File.separator ;
-    this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.grouperWsBuildToDirName())
-        + "WEB-INF" + File.separator + "lib" + File.separator;
-
-    this.patchWs();
-
-    //####################################
-    //bounce tomcat
-    tomcatBounce("restart");
-
-    //####################################
-    //tell user to go to url
-    System.out.println("This is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
-
-    //download and build client
-    this.downloadAndBuildClient();
-
-    //####################################
-    //configure where WS is
-    this.configureClient();
+    System.out.print("Do you want to install the web services client (t|f)? [t]: ");
+    boolean installClient = readFromStdInBoolean(true, "grouperInstaller.autorun.installClient");
     
+    if (installClient) {
+      //download and build client
+      this.downloadAndBuildClient();
+  
+      //####################################
+      //configure where WS is
+      this.configureClient();
+      
+      if (installWs) {
+        //####################################
+        //add grouper system to WS group
+        this.addGrouperSystemWsGroup();
+        
+        //####################################
+        //run a client command
+        this.runClientCommand();
+      }
+    }
+
     //####################################
-    //add grouper system to WS group
-    this.addGrouperSystemWsGroup();
-    
-    //####################################
-    //run a client command
-    this.runClientCommand();
-    
-    //####################################
-    //install psp
-    System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
-    if (readFromStdInBoolean(true, "grouperInstaller.autorun.installPsp")) {
-    	downloadAndBuildPsp();              
-      GrouperInstallerUtils.copyDirectory(this.untarredPspDir, this.untarredApiDir);
+    //install pspng
+    System.out.print("Do you want to install the provisioning service provider next generation (t|f)? [t]: ");
+    boolean installPspng = readFromStdInBoolean(true, "grouperInstaller.autorun.installPspng");
+    if (installPspng) {
+      downloadAndBuildPspng();  
+      
+      //copy jars
+      GrouperInstallerUtils.copyDirectory(new File(this.untarredPspngDir.getAbsolutePath() + File.separator + "lib" + File.separator + "custom"), 
+          new File(this.untarredApiDir.getAbsolutePath() + File.separator + "lib" + File.separator + "custom"));
+      GrouperInstallerUtils.copyDirectory(new File(this.untarredPspngDir.getAbsolutePath() + File.separator + "dist"), 
+          new File(this.untarredApiDir.getAbsolutePath() + File.separator + "lib" + File.separator + "custom"));
 
       //####################################
       // patch the PSP
@@ -6403,25 +6689,50 @@ public class GrouperInstaller {
           + "conf" + File.separator;
       this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
           + "lib" + File.separator + "grouper" + File.separator;
-      patchPsp();
+      patchPspng();
             
     }
 
+
+    if (!installPspng) {
+      //####################################
+      //install psp
+      System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
+      if (readFromStdInBoolean(true, "grouperInstaller.autorun.installPsp")) {
+      	downloadAndBuildPsp();              
+        GrouperInstallerUtils.copyDirectory(this.untarredPspDir, this.untarredApiDir);
+  
+        //####################################
+        // patch the PSP
+        this.upgradeExistingApplicationDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath());
+        this.upgradeExistingClassesDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
+            + "conf" + File.separator;
+        this.upgradeExistingLibDirectoryString = GrouperInstallerUtils.fileAddLastSlashIfNotExists(this.untarredApiDir.getAbsolutePath())
+            + "lib" + File.separator + "grouper" + File.separator;
+        patchPsp();
+              
+      }
+    }
+    
     reportOnConflictingJars();
 
     //#####################################
     //start the loader
     startLoader();
-    
+
     //#####################################
     //success
     System.out.println("\nInstallation success!");
-    System.out.println("\nGo here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
-    System.out.println("\nThis is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
+    if (installUi) {
+      System.out.println("\nGo here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
+    }
+    if (installWs) {
+      System.out.println("\nThis is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
+    }
     System.out.println("\n##################################\n");
-    
+
   }
-  
+
   /**
    * 
    */
@@ -6431,8 +6742,20 @@ public class GrouperInstaller {
     this.untarredPspDir = untar(unzippedPspFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspDownloadTarEtc");
   }
   
+  /**
+   * 
+   */
+  private void downloadAndBuildPspng() {
+    File pspngDir = downloadPspng();
+    File unzippedPspngFile = unzip(pspngDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc");
+    this.untarredPspngDir = untar(unzippedPspngFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc");
+  }
+  
   /** untarred psp dir file */
   private File untarredPspDir;
+  
+  /** untarred pspng dir file */
+  private File untarredPspngDir;
   
   /**
    * 
@@ -8746,6 +9069,10 @@ public class GrouperInstaller {
       } else {
         if (!GrouperInstallerUtils.isBlank(defaultDirectory)) {
           grouperInstallDirectoryFile = new File(defaultDirectory);
+          if (!grouperInstallDirectoryFile.exists() || !grouperInstallDirectoryFile.isDirectory()) {
+            System.out.println("Error: cant find directory: '" + input + "'");
+            System.exit(1);
+          }
         }
       }
       grouperInstallDirectoryString = grouperInstallDirectoryFile.getAbsolutePath();
@@ -8787,6 +9114,22 @@ public class GrouperInstaller {
     return grouperInstallDirectoryString;
   }
 
+  /**
+   * 
+   * @return see if operating on a source directory or deployed directory
+   */
+  @SuppressWarnings("unused")
+  private GrouperInstallType sourceOrDeployed() {
+
+    if (this.grouperDirectories.getGrouperInstallType() == null) {
+             
+    }
+    
+    return this.grouperDirectories.getGrouperInstallType();
+  }
+
+
+  
   /**
    * 
    * @return directory where existing installation exists
@@ -8900,7 +9243,7 @@ public class GrouperInstaller {
     defaultAppToUpgrade = GrouperInstallerUtils.defaultIfBlank(defaultAppToUpgrade, AppToUpgrade.API.name().toLowerCase());
     
     for (int i=0;i<10;i++) {
-      System.out.print("What do you want to " + action + "?  api, ui, ws, or psp? [" + defaultAppToUpgrade + "]: ");
+      System.out.print("What do you want to " + action + "?  api, ui, ws, pspng, or psp? [" + defaultAppToUpgrade + "]: ");
       appToUpgradeString = readFromStdIn("grouperInstaller.autorun.appToUpgrade");
       if (GrouperInstallerUtils.isBlank(appToUpgradeString)) {
         appToUpgradeString = defaultAppToUpgrade;
@@ -8908,10 +9251,10 @@ public class GrouperInstaller {
       try {
         return AppToUpgrade.valueOfIgnoreCase(appToUpgradeString, true);
       } catch (Exception e) {
-        System.out.print("Error: please enter: 'api', 'ui', 'ws', 'psp', or blank for default [" + defaultAppToUpgrade + "]");
+        System.out.print("Error: please enter: 'api', 'ui', 'ws', 'pspng', 'psp', or blank for default [" + defaultAppToUpgrade + "]");
       }
     }
-    throw new RuntimeException("Expecting api, ui, ws, or psp but was: '" + appToUpgradeString + "'");
+    throw new RuntimeException("Expecting api, ui, ws, pspng, or psp but was: '" + appToUpgradeString + "'");
   }
 
   /**
@@ -9456,6 +9799,28 @@ public class GrouperInstaller {
   }
   
   /**
+   * 
+   * @return the file of the directory of the psp
+   */
+  private File downloadPspng() {
+    String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+    
+    if (!urlToDownload.endsWith("/")) {
+      urlToDownload += "/";
+    }
+    urlToDownload += "release/";
+
+    String pspFileName = "grouper.pspng-" + this.version + ".tar.gz";
+    urlToDownload += this.version + "/" + pspFileName;
+
+    File pspFile = new File(this.grouperTarballDirectoryString + pspFileName);
+    
+    downloadFile(urlToDownload, pspFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc");
+
+    return pspFile;
+  }
+  
+  /**
    * upgrade the ws
    */
   private void upgradeWs() {
@@ -9661,6 +10026,63 @@ public class GrouperInstaller {
     
     return false;
   }
+  /**
+   * build PSPNG
+   * @param pspngDir
+   */
+  private void buildPspng(File pspngDir) {
+
+    if (!pspngDir.exists() || pspngDir.isFile()) {
+      throw new RuntimeException("Cant find psp: " + pspngDir.getAbsolutePath());
+    }
+    
+    File pspngBuildToDir = new File(pspngDir.getAbsolutePath() 
+        + File.separator + "target" + File.separator + "classes");
+    
+    boolean rebuildPspng = true;
+    
+    if (pspngBuildToDir.exists()) {
+      System.out.print("The PSPNG has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildPspng = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildPspngAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildPspng) {
+      return;
+    }
+    
+    List<String> commands = new ArrayList<String>();
+    
+//    \bin\mvn compile -DskipTests
+    addMavenCommands(commands);
+
+    //put 'compile -DskipTests' in there so it wont run tests which we dont want to do
+    // dependency:copy-dependencies package -DskipTests
+    //not compile
+    commands.add("dependency:copy-dependencies");
+    commands.add("package");
+    commands.add("-DskipTests");
+    commands.add("-Drat.ignoreErrors=true");
+    commands.add("-Dlicense.skip=true");
+        
+    System.out.println("\n##################################");
+    System.out.println("Building PSPNG with command:\n" + pspngDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, new File(pspngDir.getAbsolutePath()), null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    System.out.println("\nEnd building PSPNG");
+    System.out.println("##################################\n");
+    
+  }
+
   /**
    * edit an xml file attribute in a xml file
    * @param file
