@@ -39,6 +39,7 @@
         <module>grouper-ws-java-generated-client</module>
         <module>grouper-ws-java-manual-client</module>
         <module>grouper-ws-test</module>
+        <module>grouper-ws-scim</module>
     </modules>
 	
 	<build>
