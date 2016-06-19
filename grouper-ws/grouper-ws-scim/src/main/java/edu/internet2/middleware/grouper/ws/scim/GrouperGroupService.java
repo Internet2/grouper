@@ -15,16 +15,15 @@
  */
 package edu.internet2.middleware.grouper.ws.scim;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import javax.ws.rs.core.Response.Status;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
 import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
@@ -37,35 +36,64 @@ import edu.psu.swe.scim.spec.protocol.search.PageRequest;
 import edu.psu.swe.scim.spec.protocol.search.SortRequest;
 import edu.psu.swe.scim.spec.resources.ScimExtension;
 import edu.psu.swe.scim.spec.resources.ScimGroup;
-import edu.psu.swe.scim.spec.schema.Meta;
-import edu.psu.swe.scim.spec.schema.ResourceReference;
 
 @Named
 @ApplicationScoped
 public class GrouperGroupService implements Provider<ScimGroup> {
 
   @Override
-  public ScimGroup create(ScimGroup resource) throws UnableToCreateResourceException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public ScimGroup update(String id, ScimGroup resource)
-      throws UnableToUpdateResourceException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public ScimGroup get(String id) throws UnableToRetrieveResourceException {
+  public ScimGroup create(ScimGroup scimGroup) throws UnableToCreateResourceException {
+  
+    GroupSave groupSave = new GroupSave(GrouperSession.startRootSession());
+    Group group = groupSave.assignName(scimGroup.getId())
+        .assignDisplayName(scimGroup.getDisplayName())
+      .assignCreateParentStemsIfNotExist(true)
+      .save();
     
-    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), id, false);
+    Group savedGroup = GroupFinder.findByName(GrouperSession.startRootSession(), group.getName(), true);
+    
+    ScimGroup scmGroup = new ScimGroup();
+    
+    scmGroup.setId(savedGroup.getName());
+    scmGroup.setDisplayName(savedGroup.getDisplayName());
+    scmGroup.setExternalId(savedGroup.getUuid());
+    
+    
+    return scmGroup;
+  }
+
+  @Override
+  public ScimGroup update(String name, ScimGroup scimGroup)
+      throws UnableToUpdateResourceException {
+    
+    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), name, true);
+    
+    if (grp == null) {
+      throw new UnableToUpdateResourceException(Status.NOT_FOUND, "Resource with id " + scimGroup.getId() + " not found");
+    }
+    
+    grp.setDisplayName(scimGroup.getDisplayName());
+    
+    Group savedGroup = GroupFinder.findByName(GrouperSession.startRootSession(), grp.getName(), true);
+    
+    ScimGroup scmGroup = new ScimGroup();
+    
+    scmGroup.setId(savedGroup.getName());
+    scmGroup.setDisplayName(savedGroup.getDisplayName());
+    scmGroup.setExternalId(savedGroup.getUuid());
+    
+    return scmGroup;
+  }
+
+  @Override
+  public ScimGroup get(String name) throws UnableToRetrieveResourceException {
+    
+    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), name, false);
     ScimGroup group = new ScimGroup();
     
-    group.setId(grp.getId());
+    group.setId(grp.getName());
     group.setDisplayName(grp.getDisplayName());
-    group.setExternalId(UUID.randomUUID().toString());
+    group.setExternalId(grp.getUuid());
     
     return group;
   }
@@ -73,13 +101,16 @@ public class GrouperGroupService implements Provider<ScimGroup> {
   @Override
   public List<ScimGroup> find(Filter filter, PageRequest pageRequest,
       SortRequest sortRequest) throws UnableToRetrieveResourceException {
+    
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public void delete(String id) throws UnableToDeleteResourceException {
-    // TODO Auto-generated method stub
+  public void delete(String name) throws UnableToDeleteResourceException {
+   
+    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), name, false);
+    grp.delete();
     
   }
 

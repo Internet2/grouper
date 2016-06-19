@@ -281,7 +281,7 @@
             <dependency>
 			    <groupId>org.apache.commons</groupId>
 			    <artifactId>commons-digester3</artifactId>
-			    <version>{commons.digester.version}</version>
+			    <version>${commons.digester.version}</version>
 			</dependency>
             
             <dependency>
