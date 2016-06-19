@@ -34,6 +34,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+
+import javax.imageio.stream.FileImageInputStream;
+
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
