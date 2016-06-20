@@ -72,6 +72,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperP
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissions;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefDelete;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSave;
@@ -260,10 +262,10 @@ public class SampleCapture {
 //    captureAssignAttributesWithValue();
 //    captureAssignGrouperPrivileges();
 //    captureAssignPermissions();
-//    captureAttributeDefDelete();
+    captureAttributeDefDelete();
 //    captureAttributeDefNameDelete();
 //    captureAttributeDefNameSave();
-    captureAttributeDefSave();
+//    captureAttributeDefSave();
 //    captureDeleteMember();
 //    captureFindAttributeAssignAction();
 //    captureFindAttributeDefNames();
@@ -359,12 +361,12 @@ public class SampleCapture {
    * attribute def save
    */
   public static void captureAttributeDefSave() {
-//    captureSample(WsSampleClientType.REST_BEANS,  
-//        WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
-//    captureSample(WsSampleClientType.REST_BEANS,  
-//        WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
-//    captureSample(WsSampleClientType.GENERATED_SOAP,  
-//        WsSampleAttributeDefSave.class, "attributeDefSave", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefSave.class, "attributeDefSave", (String)null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleAttributeDefSaveLite.class, "attributeDefSave", (String)null);
 
@@ -378,6 +380,10 @@ public class SampleCapture {
         WsSampleAttributeDefDeleteRest.class, "attributeDefDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefDeleteRestLite.class, "attributeDefDelete", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefDelete.class, "attributeDefDelete", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefDeleteLite.class, "attributeDefDelete", (String)null);
     
   }
 
