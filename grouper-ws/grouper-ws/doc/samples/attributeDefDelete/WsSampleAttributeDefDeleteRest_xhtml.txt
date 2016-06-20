@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRest, manually written lite/rest, format: xhtml, for version: 2.4.0
 
 
 #########################################
@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 699
 Content-Type: application/xhtml+xml; charset=UTF-8
 
@@ -60,10 +60,10 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 22:31:49 GMT
+Date: Mon, 20 Jun 2016 17:08:56 GMT
 Connection: close
 
-7fc
+7fe
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -73,9 +73,9 @@ Connection: close
   <body>
     <div title="WsAttributeDefDeleteResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">462</p>
+        <p class="millis">19237</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">2.3.0</p>
+        <p class="serverVersion">2.4.0</p>
       </div>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
@@ -310,7 +310,7 @@ public class WsSampleAttributeDefDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+Server version: 2.4.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , paramNames: 
 , params: null
