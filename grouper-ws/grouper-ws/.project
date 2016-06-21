@@ -30,6 +30,21 @@
 			<type>2</type>
 			<locationURI>GROUPER_MASTER_SOURCE</locationURI>
 		</link>
+		<link>
+			<name>GROUPER_V2_3_CLIENT_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_V2_3_CLIENT_SOURCE</locationURI>
+		</link>
+		<link>
+			<name>GROUPER_V2_3_CONF</name>
+			<type>2</type>
+			<locationURI>GROUPER_V2_3_CONF</locationURI>
+		</link>
+		<link>
+			<name>GROUPER_V2_3_SOURCE</name>
+			<type>2</type>
+			<locationURI>GROUPER_V2_3_SOURCE</locationURI>
+		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
@@ -43,6 +58,18 @@
 		<variable>
 			<name>GROUPER_MASTER_SOURCE</name>
 			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper/src/grouper</value>
+		</variable>
+		<variable>
+			<name>GROUPER_V2_3_CLIENT_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_3/grouper-misc/grouperClient/src/java</value>
+		</variable>
+		<variable>
+			<name>GROUPER_V2_3_CONF</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_3/grouper/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_V2_3_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_3/grouper/src/grouper</value>
 		</variable>
 	</variableList>
 </projectDescription>
