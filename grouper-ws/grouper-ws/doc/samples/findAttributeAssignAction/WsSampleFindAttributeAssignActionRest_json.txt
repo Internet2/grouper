@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRest, manually written lite/rest, format: json, for version: 2.3.0
+Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRest, manually written lite/rest, format: json, for version: 2.4.0
 
 
 #########################################
@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 116
 Content-Type: text/x-json; charset=UTF-8
 
@@ -44,14 +44,14 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 984
-Date: Tue, 12 Apr 2016 22:55:34 GMT
+Date: Tue, 21 Jun 2016 15:38:12 GMT
 Connection: close
 
 {
   "WsGetAttributeAssignActionsResults":{
     "responseMetadata":{
-      "millis":"27",
-      "serverVersion":"2.3.0"
+      "millis":"80",
+      "serverVersion":"2.4.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -61,7 +61,7 @@ Connection: close
     "wsAttributeAssignActionTuples":[
       {
         "action":"assign",
-        "attributeDefId":"80166f3ecc4e4ea28d9b76c06e9b8b3a",
+        "attributeDefId":"f1c379e1ba0140559fba42be20f5d453",
         "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
       }
     ]
@@ -86,7 +86,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"80166f3ecc4e4ea28d9b76c06e9b8b3a",
+        "uuid":"f1c379e1ba0140559fba42be20f5d453",
         "valueType":"integer"
       }
     ]
@@ -265,5 +265,5 @@ public class WsSampleFindAttributeAssignActionRest implements WsSampleRest {
 #########################################
 
 
-{"WsGetAttributeAssignActionsResults":{"responseMetadata":{"millis":"27","serverVersion":"2.3.0"},"resultMetadata":{"resultCode":"SUCCESS","resultMessage":", Found 1 results.","success":"T"},"wsAttributeAssignActionTuples":[{"action":"assign","attributeDefId":"80166f3ecc4e4ea28d9b76c06e9b8b3a","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"}],"wsAttributeDefs":[{"assignToAttributeDef":"F","assignToAttributeDefAssignment":"F","assignToEffectiveMembership":"F","assignToEffectiveMembershipAssignment":"F","assignToGroup":"F","assignToGroupAssignment":"F","assignToImmediateMembership":"F","assignToImmediateMembershipAssignment":"F","assignToMember":"F","assignToMemberAssignment":"F","assignToStem":"F","assignToStemAssignment":"F","attributeDefType":"attr","extension":"testAttributeAssignDefNameDef","idIndex":"10033","multiAssignable":"F","multiValued":"T","name":"test:testAttributeAssignDefNameDef","uuid":"80166f3ecc4e4ea28d9b76c06e9b8b3a","valueType":"integer"}]}}
-Server version: 2.3.0, result code: SUCCESS, result message: , Found 1 results.
+{"WsGetAttributeAssignActionsResults":{"responseMetadata":{"millis":"80","serverVersion":"2.4.0"},"resultMetadata":{"resultCode":"SUCCESS","resultMessage":", Found 1 results.","success":"T"},"wsAttributeAssignActionTuples":[{"action":"assign","attributeDefId":"f1c379e1ba0140559fba42be20f5d453","nameOfAttributeDef":"test:testAttributeAssignDefNameDef"}],"wsAttributeDefs":[{"assignToAttributeDef":"F","assignToAttributeDefAssignment":"F","assignToEffectiveMembership":"F","assignToEffectiveMembershipAssignment":"F","assignToGroup":"F","assignToGroupAssignment":"F","assignToImmediateMembership":"F","assignToImmediateMembershipAssignment":"F","assignToMember":"F","assignToMemberAssignment":"F","assignToStem":"F","assignToStemAssignment":"F","attributeDefType":"attr","extension":"testAttributeAssignDefNameDef","idIndex":"10033","multiAssignable":"F","multiValued":"T","name":"test:testAttributeAssignDefNameDef","uuid":"f1c379e1ba0140559fba42be20f5d453","valueType":"integer"}]}}
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

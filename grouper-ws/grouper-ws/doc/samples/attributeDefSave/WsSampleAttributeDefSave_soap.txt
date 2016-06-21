@@ -71,7 +71,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefSaveResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 03 Jun 2016 19:25:43 GMT
+Date: Tue, 21 Jun 2016 19:36:51 GMT
 
 af1
 <?xml version='1.0' encoding='UTF-8'?>
@@ -107,11 +107,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 soap soap,name=
             <ns:attributeDefType>attr</ns:attributeDefType>
             <ns:description>This is a description1 soap soap</ns:description>
             <ns:extension>testAttributeDef_soap</ns:extension>
-            <ns:idIndex>10050</ns:idIndex>
+            <ns:idIndex>10042</ns:idIndex>
             <ns:multiAssignable>F</ns:multiAssignable>
             <ns:multiValued>F</ns:multiValued>
             <ns:name>test1:testAttributeDef_soap</ns:name>
-            <ns:uuid>bb3295ba45c746f69faaa193eb4032bc</ns:uuid>
+            <ns:uuid>63ea92a63e18470b80110536c5035017</ns:uuid>
             <ns:valueType>string</ns:valueType>
           </ns:wsAttributeDef>
         </ns:results>
@@ -128,11 +128,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 soap soap,name=
             <ns:attributeDefType>attr</ns:attributeDefType>
             <ns:description>This is a description2 soap soap</ns:description>
             <ns:extension>testAttributDef2ToSave1Rest_soap</ns:extension>
-            <ns:idIndex>10051</ns:idIndex>
+            <ns:idIndex>10043</ns:idIndex>
             <ns:multiAssignable>F</ns:multiAssignable>
             <ns:multiValued>F</ns:multiValued>
             <ns:name>test1:testAttributDef2ToSave1Rest_soap</ns:name>
-            <ns:uuid>5cf22bb63cae4e1f876b85107b5d9e12</ns:uuid>
+            <ns:uuid>ec547d6fd1a348309f2e0681ea9f4eb9</ns:uuid>
             <ns:valueType>string</ns:valueType>
           </ns:wsAttributeDef>
         </ns:results>
@@ -320,12 +320,12 @@ public class WsSampleAttributeDefSave implements WsSampleGenerated {
 
 
 WsAttributeDefSaveResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@24356511,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@2d7e51a9,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefSaveResult@4bad1871,edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefSaveResult@511fc987},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@8412c82,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@6ed10f09,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefSaveResult@6050cbe6,edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefSaveResult@587a9a70},localResultsTracker=true]
 WsAttributeDefSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@41b0dc8,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@c25c793,localWsAttributeDefTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@37ac2c76,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@89b1388,localWsAttributeDefTracker=true]
 WsAttributeDefSaveResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@4518a20,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@5433d17,localWsAttributeDefTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@7d1f4a21,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@113bfcb4,localWsAttributeDefTracker=true]

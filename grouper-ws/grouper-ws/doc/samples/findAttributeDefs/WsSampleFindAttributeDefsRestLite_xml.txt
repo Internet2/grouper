@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 162
 Content-Type: text/xml; charset=UTF-8
 
@@ -39,7 +39,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 23:01:56 GMT
+Date: Tue, 21 Jun 2016 19:37:46 GMT
 Connection: close
 
 3f9
@@ -49,7 +49,7 @@ Connection: close
       <idIndex>10032</idIndex>
       <extension>testAttrNameDef</extension>
       <name>test:testAttrNameDef</name>
-      <uuid>b9789685bd614bdeab0839d802779d16</uuid>
+      <uuid>9ae698d2349a43e2a820a2e468e4e5cc</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -74,7 +74,7 @@ idIndex>
       </idIndex>
       <extension>testAttributeAssignAssignNameDef</extension>
       <name>test:testAttributeAssignAssignNameDef</name>
-      <uuid>562da47ae6794ef196fdb51f42085f45</uuid>
+      <uuid>c35b625127af44529eef4740233c6d2f</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>F</multiValued>
@@ -98,7 +98,7 @@ idIndex>
 3ff
 AttributeAssignDefNameDef</extension>
       <name>test:testAttributeAssignDefNameDef</name>
-      <uuid>dff267b38e154f54af32532a4faec8ca</uuid>
+      <uuid>4880a9ac60de4f17843baa51966d76c7</uuid>
       <attributeDefType>attr</attributeDefType>
       <multiAssignable>F</multiAssignable>
       <multiValued>T</multiValued>
@@ -128,7 +128,7 @@ clientVersion: 2.3.0, scope: test:, splitScope: null, wsAttributeDefLookup: Arra
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>25</millis>
+    <millis>66</millis>
     <serverVersion>2.3.0</serverVersion>
   </responseMetadata>
 </WsFindAttributeDefsResults>
