@@ -4959,91 +4959,103 @@
 <a class="jxr_linenumber" name="L4951" href="#L4951">4951</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
 <a class="jxr_linenumber" name="L4952" href="#L4952">4952</a>       wsSendMessageResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
 <a class="jxr_linenumber" name="L4953" href="#L4953">4953</a>     }
-<a class="jxr_linenumber" name="L4954" href="#L4954">4954</a>     <strong class="jxr_keyword">return</strong> wsSendMessageResults;
-<a class="jxr_linenumber" name="L4955" href="#L4955">4955</a>   }
-<a class="jxr_linenumber" name="L4956" href="#L4956">4956</a> 
-<a class="jxr_linenumber" name="L4957" href="#L4957">4957</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4958" href="#L4958">4958</a> <em class="jxr_javadoccomment">   * @param clientVersion</em>
-<a class="jxr_linenumber" name="L4959" href="#L4959">4959</a> <em class="jxr_javadoccomment">   * @param queueOrTopicName</em>
-<a class="jxr_linenumber" name="L4960" href="#L4960">4960</a> <em class="jxr_javadoccomment">   * @param messageSystemName</em>
-<a class="jxr_linenumber" name="L4961" href="#L4961">4961</a> <em class="jxr_javadoccomment">   * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)</em>
-<a class="jxr_linenumber" name="L4962" href="#L4962">4962</a> <em class="jxr_javadoccomment">   * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)</em>
-<a class="jxr_linenumber" name="L4963" href="#L4963">4963</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
-<a class="jxr_linenumber" name="L4964" href="#L4964">4964</a> <em class="jxr_javadoccomment">   * @param params</em>
-<a class="jxr_linenumber" name="L4965" href="#L4965">4965</a> <em class="jxr_javadoccomment">   * @return the results of message receive call</em>
-<a class="jxr_linenumber" name="L4966" href="#L4966">4966</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L4967" href="#L4967">4967</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageResults.html">WsMessageResults</a> receiveMessage(<strong class="jxr_keyword">final</strong> String clientVersion,
-<a class="jxr_linenumber" name="L4968" href="#L4968">4968</a>       String queueOrTopicName, String messageSystemName,
-<a class="jxr_linenumber" name="L4969" href="#L4969">4969</a>       <strong class="jxr_keyword">final</strong> Integer blockMillis, <strong class="jxr_keyword">final</strong> Integer maxMessagesToReceiveAtOnce,
-<a class="jxr_linenumber" name="L4970" href="#L4970">4970</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
-<a class="jxr_linenumber" name="L4971" href="#L4971">4971</a> 
-<a class="jxr_linenumber" name="L4972" href="#L4972">4972</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageResults.html">WsMessageResults</a> wsReceiveMessageResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageResults.html">WsMessageResults</a>();
-<a class="jxr_linenumber" name="L4973" href="#L4973">4973</a> 
-<a class="jxr_linenumber" name="L4974" href="#L4974">4974</a>     <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> grouperWsVersion = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L4954" href="#L4954">4954</a> 
+<a class="jxr_linenumber" name="L4955" href="#L4955">4955</a>     <em class="jxr_comment">//set response headers</em>
+<a class="jxr_linenumber" name="L4956" href="#L4956">4956</a>     GrouperServiceUtils.addResponseHeaders(wsSendMessageResults.getResultMetadata(), <strong class="jxr_keyword">this</strong>.soap);
+<a class="jxr_linenumber" name="L4957" href="#L4957">4957</a> 
+<a class="jxr_linenumber" name="L4958" href="#L4958">4958</a>     <strong class="jxr_keyword">return</strong> wsSendMessageResults;
+<a class="jxr_linenumber" name="L4959" href="#L4959">4959</a>   }
+<a class="jxr_linenumber" name="L4960" href="#L4960">4960</a> 
+<a class="jxr_linenumber" name="L4961" href="#L4961">4961</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L4962" href="#L4962">4962</a> <em class="jxr_javadoccomment">   * @param clientVersion</em>
+<a class="jxr_linenumber" name="L4963" href="#L4963">4963</a> <em class="jxr_javadoccomment">   * @param queueOrTopicName</em>
+<a class="jxr_linenumber" name="L4964" href="#L4964">4964</a> <em class="jxr_javadoccomment">   * @param messageSystemName</em>
+<a class="jxr_linenumber" name="L4965" href="#L4965">4965</a> <em class="jxr_javadoccomment">   * @param blockMillis - the millis to block waiting for messages, max of 20000 (optional)</em>
+<a class="jxr_linenumber" name="L4966" href="#L4966">4966</a> <em class="jxr_javadoccomment">   * @param maxMessagesToReceiveAtOnce - max number of messages to receive at once, though can't be more than the server maximum (optional)</em>
+<a class="jxr_linenumber" name="L4967" href="#L4967">4967</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
+<a class="jxr_linenumber" name="L4968" href="#L4968">4968</a> <em class="jxr_javadoccomment">   * @param params</em>
+<a class="jxr_linenumber" name="L4969" href="#L4969">4969</a> <em class="jxr_javadoccomment">   * @return the results of message receive call</em>
+<a class="jxr_linenumber" name="L4970" href="#L4970">4970</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L4971" href="#L4971">4971</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageResults.html">WsMessageResults</a> receiveMessage(<strong class="jxr_keyword">final</strong> String clientVersion,
+<a class="jxr_linenumber" name="L4972" href="#L4972">4972</a>       String queueOrTopicName, String messageSystemName,
+<a class="jxr_linenumber" name="L4973" href="#L4973">4973</a>       <strong class="jxr_keyword">final</strong> Integer blockMillis, <strong class="jxr_keyword">final</strong> Integer maxMessagesToReceiveAtOnce,
+<a class="jxr_linenumber" name="L4974" href="#L4974">4974</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
 <a class="jxr_linenumber" name="L4975" href="#L4975">4975</a> 
-<a class="jxr_linenumber" name="L4976" href="#L4976">4976</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L4976" href="#L4976">4976</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageResults.html">WsMessageResults</a> wsReceiveMessageResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageResults.html">WsMessageResults</a>();
 <a class="jxr_linenumber" name="L4977" href="#L4977">4977</a> 
-<a class="jxr_linenumber" name="L4978" href="#L4978">4978</a>       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
-<a class="jxr_linenumber" name="L4979" href="#L4979">4979</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L4980" href="#L4980">4980</a> 
-<a class="jxr_linenumber" name="L4981" href="#L4981">4981</a>       wsReceiveMessageResults = GrouperServiceLogic.receiveMessage(grouperWsVersion,
-<a class="jxr_linenumber" name="L4982" href="#L4982">4982</a>           queueOrTopicName, messageSystemName,
-<a class="jxr_linenumber" name="L4983" href="#L4983">4983</a>           blockMillis, maxMessagesToReceiveAtOnce, actAsSubjectLookup, params);
+<a class="jxr_linenumber" name="L4978" href="#L4978">4978</a>     <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> grouperWsVersion = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L4979" href="#L4979">4979</a> 
+<a class="jxr_linenumber" name="L4980" href="#L4980">4980</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L4981" href="#L4981">4981</a> 
+<a class="jxr_linenumber" name="L4982" href="#L4982">4982</a>       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+<a class="jxr_linenumber" name="L4983" href="#L4983">4983</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L4984" href="#L4984">4984</a> 
-<a class="jxr_linenumber" name="L4985" href="#L4985">4985</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L4986" href="#L4986">4986</a>       wsReceiveMessageResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
-<a class="jxr_linenumber" name="L4987" href="#L4987">4987</a>     }
-<a class="jxr_linenumber" name="L4988" href="#L4988">4988</a>     <strong class="jxr_keyword">return</strong> wsReceiveMessageResults;
-<a class="jxr_linenumber" name="L4989" href="#L4989">4989</a>   }
-<a class="jxr_linenumber" name="L4990" href="#L4990">4990</a> 
-<a class="jxr_linenumber" name="L4991" href="#L4991">4991</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L4992" href="#L4992">4992</a> <em class="jxr_javadoccomment">   * @param clientVersion</em>
-<a class="jxr_linenumber" name="L4993" href="#L4993">4993</a> <em class="jxr_javadoccomment">   * @param queueOrTopicName</em>
-<a class="jxr_linenumber" name="L4994" href="#L4994">4994</a> <em class="jxr_javadoccomment">   * @param messageSystemName</em>
-<a class="jxr_linenumber" name="L4995" href="#L4995">4995</a> <em class="jxr_javadoccomment">   * @param acknowledgeType specify what to do with the messages (required)</em>
-<a class="jxr_linenumber" name="L4996" href="#L4996">4996</a> <em class="jxr_javadoccomment">   * @param messageIds - messageIds to be marked as processed (required)</em>
-<a class="jxr_linenumber" name="L4997" href="#L4997">4997</a> <em class="jxr_javadoccomment">   * @param anotherQueueOrTopicName - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE</em>
-<a class="jxr_linenumber" name="L4998" href="#L4998">4998</a> <em class="jxr_javadoccomment">   * @param anotherQueueType - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE</em>
-<a class="jxr_linenumber" name="L4999" href="#L4999">4999</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
-<a class="jxr_linenumber" name="L5000" href="#L5000">5000</a> <em class="jxr_javadoccomment">   * @param params</em>
-<a class="jxr_linenumber" name="L5001" href="#L5001">5001</a> <em class="jxr_javadoccomment">   * @return the results of message receive call</em>
-<a class="jxr_linenumber" name="L5002" href="#L5002">5002</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L5003" href="#L5003">5003</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageAcknowledgeResults.html">WsMessageAcknowledgeResults</a> acknowledge(<strong class="jxr_keyword">final</strong> String clientVersion,
-<a class="jxr_linenumber" name="L5004" href="#L5004">5004</a>       String queueOrTopicName, String messageSystemName, String acknowledgeType,
-<a class="jxr_linenumber" name="L5005" href="#L5005">5005</a>       String[] messageIds, String anotherQueueOrTopicName, String anotherQueueType,
-<a class="jxr_linenumber" name="L5006" href="#L5006">5006</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
-<a class="jxr_linenumber" name="L5007" href="#L5007">5007</a> 
-<a class="jxr_linenumber" name="L5008" href="#L5008">5008</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageAcknowledgeResults.html">WsMessageAcknowledgeResults</a> wsMessageResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageAcknowledgeResults.html">WsMessageAcknowledgeResults</a>();
-<a class="jxr_linenumber" name="L5009" href="#L5009">5009</a> 
-<a class="jxr_linenumber" name="L5010" href="#L5010">5010</a>     <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> grouperWsVersion = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L5011" href="#L5011">5011</a> 
-<a class="jxr_linenumber" name="L5012" href="#L5012">5012</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L5013" href="#L5013">5013</a> 
-<a class="jxr_linenumber" name="L5014" href="#L5014">5014</a>       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
-<a class="jxr_linenumber" name="L5015" href="#L5015">5015</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L5016" href="#L5016">5016</a> 
-<a class="jxr_linenumber" name="L5017" href="#L5017">5017</a>       <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeType.html">GrouperMessageAcknowledgeType</a> messageAcknowledgeType = <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeType.html">GrouperMessageAcknowledgeType</a>
-<a class="jxr_linenumber" name="L5018" href="#L5018">5018</a>           .valueOfIgnoreCase(acknowledgeType, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L5019" href="#L5019">5019</a>       
-<a class="jxr_linenumber" name="L5020" href="#L5020">5020</a>       <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageQueueType.html">GrouperMessageQueueType</a> messageQueueType = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L5021" href="#L5021">5021</a>       <strong class="jxr_keyword">if</strong> (anotherQueueType != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L5022" href="#L5022">5022</a>         messageQueueType = <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageQueueType.html">GrouperMessageQueueType</a>
-<a class="jxr_linenumber" name="L5023" href="#L5023">5023</a>             .valueOfIgnoreCase(anotherQueueType, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L5024" href="#L5024">5024</a>       }
-<a class="jxr_linenumber" name="L5025" href="#L5025">5025</a>      
-<a class="jxr_linenumber" name="L5026" href="#L5026">5026</a> 
-<a class="jxr_linenumber" name="L5027" href="#L5027">5027</a>       wsMessageResults = GrouperServiceLogic.acknowledge(grouperWsVersion,
-<a class="jxr_linenumber" name="L5028" href="#L5028">5028</a>           queueOrTopicName, messageSystemName,
-<a class="jxr_linenumber" name="L5029" href="#L5029">5029</a>           messageAcknowledgeType, messageIds, anotherQueueOrTopicName, messageQueueType,
-<a class="jxr_linenumber" name="L5030" href="#L5030">5030</a>           actAsSubjectLookup, params);
-<a class="jxr_linenumber" name="L5031" href="#L5031">5031</a> 
-<a class="jxr_linenumber" name="L5032" href="#L5032">5032</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L5033" href="#L5033">5033</a>       wsMessageResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
-<a class="jxr_linenumber" name="L5034" href="#L5034">5034</a>     }
-<a class="jxr_linenumber" name="L5035" href="#L5035">5035</a>     <strong class="jxr_keyword">return</strong> wsMessageResults;
-<a class="jxr_linenumber" name="L5036" href="#L5036">5036</a>   }
-<a class="jxr_linenumber" name="L5037" href="#L5037">5037</a> 
-<a class="jxr_linenumber" name="L5038" href="#L5038">5038</a> }
+<a class="jxr_linenumber" name="L4985" href="#L4985">4985</a>       wsReceiveMessageResults = GrouperServiceLogic.receiveMessage(grouperWsVersion,
+<a class="jxr_linenumber" name="L4986" href="#L4986">4986</a>           queueOrTopicName, messageSystemName,
+<a class="jxr_linenumber" name="L4987" href="#L4987">4987</a>           blockMillis, maxMessagesToReceiveAtOnce, actAsSubjectLookup, params);
+<a class="jxr_linenumber" name="L4988" href="#L4988">4988</a> 
+<a class="jxr_linenumber" name="L4989" href="#L4989">4989</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L4990" href="#L4990">4990</a>       wsReceiveMessageResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
+<a class="jxr_linenumber" name="L4991" href="#L4991">4991</a>     }
+<a class="jxr_linenumber" name="L4992" href="#L4992">4992</a>     
+<a class="jxr_linenumber" name="L4993" href="#L4993">4993</a>     <em class="jxr_comment">//set response headers</em>
+<a class="jxr_linenumber" name="L4994" href="#L4994">4994</a>     GrouperServiceUtils.addResponseHeaders(wsReceiveMessageResults.getResultMetadata(), <strong class="jxr_keyword">this</strong>.soap);
+<a class="jxr_linenumber" name="L4995" href="#L4995">4995</a> 
+<a class="jxr_linenumber" name="L4996" href="#L4996">4996</a>     <strong class="jxr_keyword">return</strong> wsReceiveMessageResults;
+<a class="jxr_linenumber" name="L4997" href="#L4997">4997</a>   }
+<a class="jxr_linenumber" name="L4998" href="#L4998">4998</a> 
+<a class="jxr_linenumber" name="L4999" href="#L4999">4999</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L5000" href="#L5000">5000</a> <em class="jxr_javadoccomment">   * @param clientVersion</em>
+<a class="jxr_linenumber" name="L5001" href="#L5001">5001</a> <em class="jxr_javadoccomment">   * @param queueOrTopicName</em>
+<a class="jxr_linenumber" name="L5002" href="#L5002">5002</a> <em class="jxr_javadoccomment">   * @param messageSystemName</em>
+<a class="jxr_linenumber" name="L5003" href="#L5003">5003</a> <em class="jxr_javadoccomment">   * @param acknowledgeType specify what to do with the messages (required)</em>
+<a class="jxr_linenumber" name="L5004" href="#L5004">5004</a> <em class="jxr_javadoccomment">   * @param messageIds - messageIds to be marked as processed (required)</em>
+<a class="jxr_linenumber" name="L5005" href="#L5005">5005</a> <em class="jxr_javadoccomment">   * @param anotherQueueOrTopicName - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE</em>
+<a class="jxr_linenumber" name="L5006" href="#L5006">5006</a> <em class="jxr_javadoccomment">   * @param anotherQueueType - required if acknowledgeType is SEND_TO_ANOTHER_TOPIC_OR_QUEUE</em>
+<a class="jxr_linenumber" name="L5007" href="#L5007">5007</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
+<a class="jxr_linenumber" name="L5008" href="#L5008">5008</a> <em class="jxr_javadoccomment">   * @param params</em>
+<a class="jxr_linenumber" name="L5009" href="#L5009">5009</a> <em class="jxr_javadoccomment">   * @return the results of message receive call</em>
+<a class="jxr_linenumber" name="L5010" href="#L5010">5010</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L5011" href="#L5011">5011</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageAcknowledgeResults.html">WsMessageAcknowledgeResults</a> acknowledge(<strong class="jxr_keyword">final</strong> String clientVersion,
+<a class="jxr_linenumber" name="L5012" href="#L5012">5012</a>       String queueOrTopicName, String messageSystemName, String acknowledgeType,
+<a class="jxr_linenumber" name="L5013" href="#L5013">5013</a>       String[] messageIds, String anotherQueueOrTopicName, String anotherQueueType,
+<a class="jxr_linenumber" name="L5014" href="#L5014">5014</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
+<a class="jxr_linenumber" name="L5015" href="#L5015">5015</a> 
+<a class="jxr_linenumber" name="L5016" href="#L5016">5016</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageAcknowledgeResults.html">WsMessageAcknowledgeResults</a> wsMessageResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsMessageAcknowledgeResults.html">WsMessageAcknowledgeResults</a>();
+<a class="jxr_linenumber" name="L5017" href="#L5017">5017</a> 
+<a class="jxr_linenumber" name="L5018" href="#L5018">5018</a>     <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> grouperWsVersion = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L5019" href="#L5019">5019</a> 
+<a class="jxr_linenumber" name="L5020" href="#L5020">5020</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L5021" href="#L5021">5021</a> 
+<a class="jxr_linenumber" name="L5022" href="#L5022">5022</a>       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+<a class="jxr_linenumber" name="L5023" href="#L5023">5023</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L5024" href="#L5024">5024</a> 
+<a class="jxr_linenumber" name="L5025" href="#L5025">5025</a>       <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeType.html">GrouperMessageAcknowledgeType</a> messageAcknowledgeType = <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageAcknowledgeType.html">GrouperMessageAcknowledgeType</a>
+<a class="jxr_linenumber" name="L5026" href="#L5026">5026</a>           .valueOfIgnoreCase(acknowledgeType, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L5027" href="#L5027">5027</a>       
+<a class="jxr_linenumber" name="L5028" href="#L5028">5028</a>       <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageQueueType.html">GrouperMessageQueueType</a> messageQueueType = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L5029" href="#L5029">5029</a>       <strong class="jxr_keyword">if</strong> (anotherQueueType != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L5030" href="#L5030">5030</a>         messageQueueType = <a href="../../../../../../edu/internet2/middleware/grouperClient/messaging/GrouperMessageQueueType.html">GrouperMessageQueueType</a>
+<a class="jxr_linenumber" name="L5031" href="#L5031">5031</a>             .valueOfIgnoreCase(anotherQueueType, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L5032" href="#L5032">5032</a>       }
+<a class="jxr_linenumber" name="L5033" href="#L5033">5033</a>      
+<a class="jxr_linenumber" name="L5034" href="#L5034">5034</a> 
+<a class="jxr_linenumber" name="L5035" href="#L5035">5035</a>       wsMessageResults = GrouperServiceLogic.acknowledge(grouperWsVersion,
+<a class="jxr_linenumber" name="L5036" href="#L5036">5036</a>           queueOrTopicName, messageSystemName,
+<a class="jxr_linenumber" name="L5037" href="#L5037">5037</a>           messageAcknowledgeType, messageIds, anotherQueueOrTopicName, messageQueueType,
+<a class="jxr_linenumber" name="L5038" href="#L5038">5038</a>           actAsSubjectLookup, params);
+<a class="jxr_linenumber" name="L5039" href="#L5039">5039</a> 
+<a class="jxr_linenumber" name="L5040" href="#L5040">5040</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L5041" href="#L5041">5041</a>       wsMessageResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
+<a class="jxr_linenumber" name="L5042" href="#L5042">5042</a>     }
+<a class="jxr_linenumber" name="L5043" href="#L5043">5043</a> 
+<a class="jxr_linenumber" name="L5044" href="#L5044">5044</a>     <em class="jxr_comment">//set response headers</em>
+<a class="jxr_linenumber" name="L5045" href="#L5045">5045</a>     GrouperServiceUtils.addResponseHeaders(wsMessageResults.getResultMetadata(), <strong class="jxr_keyword">this</strong>.soap);
+<a class="jxr_linenumber" name="L5046" href="#L5046">5046</a> 
+<a class="jxr_linenumber" name="L5047" href="#L5047">5047</a>     <strong class="jxr_keyword">return</strong> wsMessageResults;
+<a class="jxr_linenumber" name="L5048" href="#L5048">5048</a>   }
+<a class="jxr_linenumber" name="L5049" href="#L5049">5049</a> 
+<a class="jxr_linenumber" name="L5050" href="#L5050">5050</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
