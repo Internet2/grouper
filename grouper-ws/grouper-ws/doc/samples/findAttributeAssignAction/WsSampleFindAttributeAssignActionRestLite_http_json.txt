@@ -1,4 +1,4 @@
-Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRestLite, manually written lite/rest, format: http_json, for version: 2.3.0
+Grouper web service sample of service: findAttributeAssignAction, WsSampleFindAttributeAssignActionRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
 
 
 #########################################
@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeAssignActions HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 115
 
 wsLiteObjectType=WsRestGetAttributeAssignActionsLiteRequest&wsNameOfAttributeDef=test:testAttributeAssignDefNameDef
@@ -34,15 +34,15 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
-Content-Length: 985
-Date: Tue, 12 Apr 2016 22:56:01 GMT
+Content-Length: 984
+Date: Tue, 21 Jun 2016 15:38:29 GMT
 Connection: close
 
 {
   "WsGetAttributeAssignActionsResults":{
     "responseMetadata":{
-      "millis":"101",
-      "serverVersion":"2.3.0"
+      "millis":"33",
+      "serverVersion":"2.4.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
@@ -52,7 +52,7 @@ Connection: close
     "wsAttributeAssignActionTuples":[
       {
         "action":"assign",
-        "attributeDefId":"2f8d9dcd52854666a123348966b0130e",
+        "attributeDefId":"b32f5914c78d455caa5fbbb460c36b1c",
         "nameOfAttributeDef":"test:testAttributeAssignDefNameDef"
       }
     ]
@@ -77,7 +77,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"2f8d9dcd52854666a123348966b0130e",
+        "uuid":"b32f5914c78d455caa5fbbb460c36b1c",
         "valueType":"integer"
       }
     ]
@@ -253,4 +253,4 @@ public class WsSampleFindAttributeAssignActionRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.3.0, result code: SUCCESS, result message: , Found 1 results.
+Server version: 2.4.0, result code: SUCCESS, result message: , Found 1 results.

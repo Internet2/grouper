@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 255
 
 wsLiteObjectType=WsRestAttributeDefSaveLiteRequest&assignToAttributeDef=T&attributeDefType=attr&createParentStemsIfNotExist=T&description=This+is+a+test+description&multiAssignable=F&multiValued=F&nameOfAttributeDef=test1:testAttributeDef&valueType=string
@@ -35,13 +35,13 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 1148
-Date: Tue, 12 Apr 2016 22:44:56 GMT
+Date: Tue, 21 Jun 2016 19:36:01 GMT
 Connection: close
 
 {
   "WsAttributeDefSaveLiteResult":{
     "responseMetadata":{
-      "millis":"20195",
+      "millis":"20293",
       "serverVersion":"2.3.0"
     },
     "resultMetadata":{
@@ -69,7 +69,7 @@ Connection: close
       "multiAssignable":"F",
       "multiValued":"F",
       "name":"test1:testAttributeDef",
-      "uuid":"9097c9a5c18043599d5e95e2d360974f",
+      "uuid":"9de2f4ec0d844e8389d777073b43b722",
       "valueType":"string"
     }
   }

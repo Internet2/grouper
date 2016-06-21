@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefDelete, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDelete, code generated classes, format: soap, for version: 2.3.0
 
 
 #########################################
@@ -50,7 +50,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefDeleteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 20 Jun 2016 18:59:32 GMT
+Date: Tue, 21 Jun 2016 19:33:45 GMT
 
 763
 <?xml version='1.0' encoding='UTF-8'?>
@@ -61,7 +61,7 @@ Date: Mon, 20 Jun 2016 18:59:32 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.3.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -239,9 +239,9 @@ public class WsSampleAttributeDefDelete implements WsSampleGenerated {
 
 
 WsAttributeDefDeleteResults[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@4b92d1d8,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@140ee2ab,localResultMetadataTracker=true,
-  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResult@6ef38f6f},localResultsTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@521c49e5,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@3f378380,localResultMetadataTracker=true,
+  localResults={edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDefDeleteResult@c5e89dc},localResultsTracker=true]
 WsAttributeDefDeleteResult[
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@72b51b8,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@2d020ab5,localWsAttributeDefTracker=true]
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@fc42518,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@165f52be,localWsAttributeDefTracker=true]

@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRestLite, manually written lite/rest, format: http_json, for version: 2.4.0
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRestLite, manually written lite/rest, format: http_json, for version: 2.3.0
 
 
 #########################################
@@ -35,14 +35,14 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 995
-Date: Mon, 20 Jun 2016 17:09:19 GMT
+Date: Tue, 21 Jun 2016 19:33:35 GMT
 Connection: close
 
 {
   "WsAttributeDefDeleteLiteResult":{
     "responseMetadata":{
-      "millis":"21",
-      "serverVersion":"2.4.0"
+      "millis":"28",
+      "serverVersion":"2.3.0"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS_ATTRIBUTE_DEF_NOT_FOUND",
@@ -237,7 +237,7 @@ public class WsSampleAttributeDefDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: 2.4.0, result code: SUCCESS_ATTRIBUTE_DEF_NOT_FOUND, result message: Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef]
+Server version: 2.3.0, result code: SUCCESS_ATTRIBUTE_DEF_NOT_FOUND, result message: Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef]
 , actAsSubject: null
 , paramNames: 
 , params: nullCant find attribute def: 'WsAttributeDefLookup[pitAttributeDefs=[],name=test1:testAttributeDef,

@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 111
 
 wsLiteObjectType=WsRestFindAttributeDefsLiteRequest&nameOfAttributeDef=test1:testAttributeDef_xhtml&scope=test:
@@ -35,7 +35,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json;charset=UTF-8
 Content-Length: 2378
-Date: Tue, 12 Apr 2016 23:01:49 GMT
+Date: Tue, 21 Jun 2016 19:37:42 GMT
 Connection: close
 
 {
@@ -60,7 +60,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttrNameDef",
-        "uuid":"2731b660b61c4e1fad36919b163b5f44",
+        "uuid":"d28af2d961cf4e42a6f0c0b012f0ffe1",
         "valueType":"string"
       },
       {
@@ -82,7 +82,7 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"F",
         "name":"test:testAttributeAssignAssignNameDef",
-        "uuid":"3acc99a941914357bd558ee9bb39c4d6",
+        "uuid":"b7a28adc1a64449d967015e422e081b2",
         "valueType":"marker"
       },
       {
@@ -104,13 +104,13 @@ Connection: close
         "multiAssignable":"F",
         "multiValued":"T",
         "name":"test:testAttributeAssignDefNameDef",
-        "uuid":"a9bd2eba141b43e29e5b2a7e63e15566",
+        "uuid":"7a65ae3d08d94b5b94074a6669592840",
         "valueType":"integer"
       }
     ]
     ,
     "responseMetadata":{
-      "millis":"76",
+      "millis":"33",
       "serverVersion":"2.3.0"
     },
     "resultMetadata":{

@@ -3000,13 +3000,12 @@ public class GrouperService {
     
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "acknowledge",
-        new Object[]{clientVersion, queueOrTopicName, messageIds, acknowledgeType, messageIds, anotherQueueOrTopicName, anotherQueueType,
+        new Object[]{clientVersion, queueOrTopicName, messageSystemName, acknowledgeType, messageIds, anotherQueueOrTopicName, anotherQueueType,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
       });
-    
-    return (WsMessageAcknowledgeResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
+    return (WsMessageAcknowledgeResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   }
   

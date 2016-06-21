@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 2625
 Content-Type: application/xhtml+xml; charset=UTF-8
 
@@ -111,10 +111,10 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 22:42:43 GMT
+Date: Tue, 21 Jun 2016 19:33:56 GMT
 Connection: close
 
-ce5
+ce4
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -124,7 +124,7 @@ ce5
   <body>
     <div title="WsAttributeDefSaveResults">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">11384</p>
+        <p class="millis">2806</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.3.0</p>
       </div>
@@ -165,7 +165,7 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributeDef_xhtml</p>
-            <p class="uuid">d147ab518e994320a9d3bdff34211a6f</p>
+            <p class="uuid">00cccd5247a643c2b39cdc4041d8c4de</p>
             <p class="valueType">string</p>
           </div>
         </li>
@@ -196,7 +196,7 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xhtml,name
             <p class="multiAssignable">F</p>
             <p class="multiValued">F</p>
             <p class="name">test1:testAttributDef2ToSave1Rest_xhtml</p>
-            <p class="uuid">a6515d5d6f1d4327a984579c86e2c63b</p>
+            <p class="uuid">3ba72645107743298e2853cb5463c756</p>
             <p class="valueType">string</p>
           </div>
         </li>

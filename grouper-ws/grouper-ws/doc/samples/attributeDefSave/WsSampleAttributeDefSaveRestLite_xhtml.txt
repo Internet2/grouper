@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 1456
 Content-Type: application/xhtml+xml; charset=UTF-8
 
@@ -78,7 +78,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 22:44:04 GMT
+Date: Tue, 21 Jun 2016 19:35:12 GMT
 Connection: close
 
 753
@@ -91,7 +91,7 @@ Connection: close
   <body>
     <div title="WsAttributeDefSaveLiteResult">
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">20239</p>
+        <p class="millis">20435</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.3.0</p>
       </div>
@@ -125,7 +125,7 @@ wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:
         <p class="multiAssignable">F</p>
         <p class="multiValued">F</p>
         <p class="name">test1:testAttributeDef</p>
-        <p class="uuid">ab95cada322343718cc7d0851e89f38f</p>
+        <p class="uuid">26d37656b31e40c5b910dd50885842bd</p>
         <p class="valueType">string</p>
       </div>
     </div>

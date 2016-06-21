@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 2224
 Content-Type: text/xml; charset=UTF-8
 
@@ -88,7 +88,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 22:43:37 GMT
+Date: Tue, 21 Jun 2016 19:34:48 GMT
 Connection: close
 
 3f8
@@ -100,7 +100,7 @@ Connection: close
         <extension>testAttributeDef_xml</extension>
         <description>This is a description1 rest xml</description>
         <name>test1:testAttributeDef_xml</name>
-        <uuid>13fedc2e843b4ec19168f549cc564aef</uuid>
+        <uuid>35b40a15940548598476f17d6dd9af3c</uuid>
         <attributeDefType>attr</attributeDefType>
         <multiAssignable>F</multiAssignable>
         <multiValued>F</multiValued>
@@ -132,7 +132,7 @@ assignToStemAssignment>
         <extension>testAttributDef2ToSave1Rest_xml</extension>
         <description>This is a description2 rest xml</description>
         <name>test1:testAttributDef2ToSave1Rest_xml</name>
-        <uuid>fc2f903db9064744b57a87659b962922</uuid>
+        <uuid>f15cb92cdbd0477c82d41bc8792499a2</uuid>
         <attributeDefType>attr</attributeDefType>
         <multiAssignable>F</multiAssignable>
         <multiValued>F</multiValued>
@@ -169,7 +169,7 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 rest xml,name=t
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>20544</millis>
+    <millis>21598</millis>
     <serverVersion>2.3.0</serverVersion>
   </responseMetadata>
 </

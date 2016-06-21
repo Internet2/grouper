@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 427
 Content-Type: text/xml; charset=UTF-8
 
@@ -45,7 +45,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 22:45:22 GMT
+Date: Tue, 21 Jun 2016 19:36:26 GMT
 Connection: close
 
 3e6
@@ -61,7 +61,7 @@ wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>20312</millis>
+    <millis>21043</millis>
     <serverVersion>2.3.0</serverVersion>
   </responseMetadata>
   <wsAttributeDef>
@@ -69,7 +69,7 @@ wsAttributeDef=WsAttributeDef[description=This is a test description,name=test1:
     <extension>testAttributeDef</extension>
     <description>This is a test description</description>
     <name>test1:testAttributeDef</name>
-    <uuid>7757df9553c941e4b87b47a8f44eb174</uuid>
+    <uuid>43563224e10847dd90362455be2fdbc3</uuid>
     <attributeDefType>attr</attributeDefType>
     <multiAssignable>F</multiAssignable>
     <multiValued>F</multiValued>

@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/messaging HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 177
 Content-Type: text/xml; charset=UTF-8
 
@@ -41,10 +41,10 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 23:17:45 GMT
+Date: Tue, 21 Jun 2016 19:38:06 GMT
 Connection: close
 
-16a
+16b
 <WsMessageResults>
   <queueOrTopicName>def</queueOrTopicName>
   <messages/>
@@ -55,7 +55,7 @@ Connection: close
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
-    <millis>27</millis>
+    <millis>327</millis>
     <serverVersion>2.3.0</serverVersion>
   </responseMetadata>
 </WsMessageResults>

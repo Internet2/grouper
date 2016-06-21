@@ -1,4 +1,4 @@
-Grouper web service sample of service: attributeDefSave, WsSampleAttributeDefDeleteLite, code generated classes, format: soap, for version: 2.4.0
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteLite, code generated classes, format: soap, for version: 2.3.0
 
 
 #########################################
@@ -54,7 +54,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 20 Jun 2016 18:59:38 GMT
+Date: Tue, 21 Jun 2016 19:33:49 GMT
 
 6a7
 <?xml version='1.0' encoding='UTF-8'?>
@@ -65,7 +65,7 @@ Date: Mon, 20 Jun 2016 18:59:38 GMT
         <ns:responseMetadata xsi:type="ns:WsResponseMeta">
           <ns:millis xsi:nil="true" />
           <ns:resultWarnings xsi:nil="true" />
-          <ns:serverVersion>2.4.0</ns:serverVersion>
+          <ns:serverVersion>2.3.0</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata xsi:type="ns:WsResultMeta">
           <ns:params xsi:nil="true" />
@@ -224,6 +224,6 @@ public class WsSampleAttributeDefDeleteLite implements WsSampleGenerated {
 
 
 WsAttributeDefDeleteLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@364e5499,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@509424a9,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@2df2fc93,localWsAttributeDefTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@69012085,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@48fe319e,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@286ba182,localWsAttributeDefTracker=true]

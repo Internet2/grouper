@@ -74,7 +74,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:attributeDefSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 05 Jun 2016 04:39:25 GMT
+Date: Tue, 21 Jun 2016 19:37:17 GMT
 
 6bf
 <?xml version='1.0' encoding='UTF-8'?>
@@ -103,11 +103,11 @@ wsAttributeDef=WsAttributeDef[description=This is a description1 soap soap,...
           <ns:attributeDefType>attr</ns:attributeDefType>
           <ns:description>This is a description1 soap soap</ns:description>
           <ns:extension>testAttributeDef_soap</ns:extension>
-          <ns:idIndex>10048</ns:idIndex>
+          <ns:idIndex>10044</ns:idIndex>
           <ns:multiAssignable>F</ns:multiAssignable>
           <ns:multiValued>F</ns:multiValued>
           <ns:name>test1:testAttributeDef_soap</ns:name>
-          <ns:uuid>828a8d00e03f46f9afa469382e4b343b</ns:uuid>
+          <ns:uuid>e84c7ee7b871421eaea2db4b32638b5d</ns:uuid>
           <ns:valueType>string</ns:valueType>
         </ns:wsAttributeDef>
       </ns:return>
@@ -269,6 +269,6 @@ public class WsSampleAttributeDefSaveLite implements WsSampleGenerated {
 
 
 WsAttributeDefSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@5cffacb2,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@15a309d1,localResultMetadataTracker=true,
-  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@2d98370,localWsAttributeDefTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResponseMeta@23dcb18c,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsResultMeta@6e0c70b8,localResultMetadataTracker=true,
+  localWsAttributeDef=edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsAttributeDef@72bc7879,localWsAttributeDefTracker=true]

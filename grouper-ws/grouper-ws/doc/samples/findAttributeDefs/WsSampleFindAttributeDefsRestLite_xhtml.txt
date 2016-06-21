@@ -13,7 +13,7 @@ POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.0
-Host: localhost:8093
+Host: localhost:8092
 Content-Length: 1036
 Content-Type: application/xhtml+xml; charset=UTF-8
 
@@ -70,7 +70,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Tue, 12 Apr 2016 23:01:37 GMT
+Date: Tue, 21 Jun 2016 19:37:34 GMT
 Connection: close
 
 e33
@@ -103,7 +103,7 @@ e33
           <p class="multiAssignable">F</p>
           <p class="multiValued">T</p>
           <p class="name">test:testAttrNameDef</p>
-          <p class="uuid">c5248372c3f34082bf6b23807fa3d00d</p>
+          <p class="uuid">6009eb624eac4ce8a1ec3580d7568860</p>
           <p class="valueType">string</p>
         </li>
         <li title="WsAttributeDef">
@@ -126,7 +126,7 @@ e33
           <p class="multiAssignable">F</p>
           <p class="multiValued">F</p>
           <p class="name">test:testAttributeAssignAssignNameDef</p>
-          <p class="uuid">06b91dbe758943ea9e44d20ce04a7c7e</p>
+          <p class="uuid">6c3edf5f8d04419382520565984ab48a</p>
           <p class="valueType">marker</p>
         </li>
         <li title="WsAttributeDef">
@@ -149,12 +149,12 @@ e33
           <p class="multiAssignable">F</p>
           <p class="multiValued">T</p>
           <p class="name">test:testAttributeAssignDefNameDef</p>
-          <p class="uuid">a2fc1e2a4caf4ea0af6d67b1a4af5676</p>
+          <p class="uuid">b47fc746d78943509a3c7982afb9fc6f</p>
           <p class="valueType">integer</p>
         </li>
       </ul>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">21</p>
+        <p class="millis">70</p>
         <p class="resultWarnings" />
         <p class="serverVersion">2.3.0</p>
       </div>
