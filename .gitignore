@@ -43,3 +43,4 @@ build/
 
 **/*.ipr
 **/*.iws
+/grouper.*.tar.gz
