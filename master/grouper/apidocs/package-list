@@ -35,6 +35,7 @@ edu.internet2.middleware.grouper.hooks.logic
 edu.internet2.middleware.grouper.internal.dao
 edu.internet2.middleware.grouper.internal.dao.hib3
 edu.internet2.middleware.grouper.internal.util
+edu.internet2.middleware.grouper.j2ee
 edu.internet2.middleware.grouper.j2ee.status
 edu.internet2.middleware.grouper.ldap
 edu.internet2.middleware.grouper.log
