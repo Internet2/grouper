@@ -32,10 +32,13 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpSessionAttributeListener;
 import javax.servlet.http.HttpSessionBindingEvent;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.j2ee.ServletContextUtils;
 
 /**
  * Ensure that GrouperSessions are closed when a HttpSession dies
@@ -45,7 +48,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * @version $Id: GrouperSessionAttributeListener.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
  */
 public class GrouperSessionAttributeListener implements
-		HttpSessionAttributeListener {
+		HttpSessionAttributeListener, ServletContextListener {
 
 	/*
 	 * (non-Javadoc)
@@ -84,4 +87,20 @@ public class GrouperSessionAttributeListener implements
 		// TODO Auto-generated method stub
 
 	}
+	
+  /**
+   * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
+   */
+  public void contextDestroyed(ServletContextEvent arg0) {
+    
+    ServletContextUtils.contextDestroyed();
+  }
+
+  /**
+   * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
+   */
+  public void contextInitialized(ServletContextEvent arg0) {
+  }
+
+
 }
