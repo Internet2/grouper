@@ -58,6 +58,7 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -678,7 +679,8 @@ public class GrouperServiceJ2ee implements Filter {
       threadLocalServlet.remove();
       
       HooksContext.clearThreadLocal();
-      NDC.remove();
+      ServletRequestUtils.requestEnd();
+
     }
 
   }
