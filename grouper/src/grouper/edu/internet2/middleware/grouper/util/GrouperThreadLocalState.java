@@ -115,7 +115,7 @@ public class GrouperThreadLocalState {
 
       //try to get the Crypto one
       try {
-        ThreadLocal threadLocalCrypto = (ThreadLocal)GrouperUtil.callMethod(theClass, "threadLocalCrypto");
+        ThreadLocal threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(theClass, null, "threadLocalCrypto", false, true, false);
         if (threadLocalCrypto != null) {
           threadLocalCrypto.remove();
         }
