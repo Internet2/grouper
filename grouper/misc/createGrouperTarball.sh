@@ -22,19 +22,26 @@ if [ ! -d "$releaseDir" ]; then
 
 fi
 
-tarballName=grouperAll_"$version"
+tarballName=grouper.all-"$version"
 tmpDir=/tmp/"$tarballName"
-tarball="$tmpDir".tgz
+tarball="$tmpDir".tar.gz
 
 rm -rf "$tmpDir"
 mkdir "$tmpDir"
 rm -f $tarball
-rm "$releaseDir"/"$tarballName".tgz
+rm "$releaseDir"/"$tarballName".tar.gz
 
 mkdir "$tmpDir"/downloads
 cp -R "$grouperBase"/downloads/tools "$tmpDir"/downloads
 mkdir "$tmpDir"/release
-cp -R "$releaseDir" "$tmpDir"/release
+mkdir "$tmpDir"/release/"$version"
+cp "$releaseDir"/*.tar.gz "$tmpDir"/release/"$version"
+cp "$releaseDir"/*.jar "$tmpDir"/release/"$version"
+cp "$releaseDir"/quickstart.xml "$tmpDir"/release/"$version"
+cp "$releaseDir"/subjects.sql "$tmpDir"/release/"$version"
+
+mkdir "$tmpDir"/release/"$version"/patches
+cp -R "$releaseDir"/patches/*.tar.gz "$tmpDir"/release/"$version"/patches
 
 cd /tmp
 
@@ -44,4 +51,4 @@ mv "$tarball" "$releaseDir"
 
 rm -rf "$tmpDir"
 
-echo "tarball is $releaseDir/$tarballName".tgz
+echo "tarball is $releaseDir/$tarballName".tar.gz
