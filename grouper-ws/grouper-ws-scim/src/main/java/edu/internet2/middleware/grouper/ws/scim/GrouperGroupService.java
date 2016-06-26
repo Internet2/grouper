@@ -44,58 +44,76 @@ public class GrouperGroupService implements Provider<ScimGroup> {
   @Override
   public ScimGroup create(ScimGroup scimGroup) throws UnableToCreateResourceException {
   
-    GroupSave groupSave = new GroupSave(GrouperSession.startRootSession());
-    Group group = groupSave.assignName(scimGroup.getId())
-        .assignDisplayName(scimGroup.getDisplayName())
-      .assignCreateParentStemsIfNotExist(true)
-      .save();
-    
-    Group savedGroup = GroupFinder.findByName(GrouperSession.startRootSession(), group.getName(), true);
-    
-    ScimGroup scmGroup = new ScimGroup();
-    
-    scmGroup.setId(savedGroup.getName());
-    scmGroup.setDisplayName(savedGroup.getDisplayName());
-    scmGroup.setExternalId(savedGroup.getUuid());
-    
-    
-    return scmGroup;
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      GroupSave groupSave = new GroupSave(grouperSession);
+      Group group = groupSave.assignName(scimGroup.getId())
+          .assignDisplayName(scimGroup.getDisplayName())
+          .assignCreateParentStemsIfNotExist(true)
+          .save();
+            
+      Group savedGroup = GroupFinder.findByName(grouperSession, group.getName(), true);
+      
+      ScimGroup scmGroup = new ScimGroup();
+      
+      scmGroup.setId(savedGroup.getName());
+      scmGroup.setDisplayName(savedGroup.getDisplayName());
+      scmGroup.setExternalId(savedGroup.getUuid());
+      return scmGroup;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   @Override
   public ScimGroup update(String name, ScimGroup scimGroup)
       throws UnableToUpdateResourceException {
     
-    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), name, true);
-    
-    if (grp == null) {
-      throw new UnableToUpdateResourceException(Status.NOT_FOUND, "Resource with id " + scimGroup.getId() + " not found");
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      Group grp = GroupFinder.findByName(grouperSession, name, false);
+      
+      if (grp == null) {
+        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "Resource with id " + scimGroup.getId() + " not found");
+      }
+      
+      grp.setDisplayName(scimGroup.getDisplayName());
+      
+      Group savedGroup = GroupFinder.findByName(grouperSession, grp.getName(), true);
+      
+      ScimGroup scmGroup = new ScimGroup();
+      scmGroup.setId(savedGroup.getName());
+      scmGroup.setDisplayName(savedGroup.getDisplayName());
+      scmGroup.setExternalId(savedGroup.getUuid());
+      return scmGroup;
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
     }
     
-    grp.setDisplayName(scimGroup.getDisplayName());
-    
-    Group savedGroup = GroupFinder.findByName(GrouperSession.startRootSession(), grp.getName(), true);
-    
-    ScimGroup scmGroup = new ScimGroup();
-    
-    scmGroup.setId(savedGroup.getName());
-    scmGroup.setDisplayName(savedGroup.getDisplayName());
-    scmGroup.setExternalId(savedGroup.getUuid());
-    
-    return scmGroup;
   }
 
   @Override
   public ScimGroup get(String name) throws UnableToRetrieveResourceException {
     
-    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), name, false);
-    ScimGroup group = new ScimGroup();
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      Group grp = GroupFinder.findByName(grouperSession, name, false);
+      if (grp == null) {
+        throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "Group "+name+" doesn't exist");
+      }
+      ScimGroup group = new ScimGroup();
+      group.setId(grp.getName());
+      group.setDisplayName(grp.getDisplayName());
+      group.setExternalId(grp.getUuid());
+      return group;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
     
-    group.setId(grp.getName());
-    group.setDisplayName(grp.getDisplayName());
-    group.setExternalId(grp.getUuid());
-    
-    return group;
   }
 
   @Override
@@ -109,9 +127,17 @@ public class GrouperGroupService implements Provider<ScimGroup> {
   @Override
   public void delete(String name) throws UnableToDeleteResourceException {
    
-    Group grp = GroupFinder.findByName(GrouperSession.startRootSession(), name, false);
-    grp.delete();
-    
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      Group grp = GroupFinder.findByName(grouperSession, name, false);
+      if (grp == null) {
+        throw new UnableToDeleteResourceException(Status.NOT_FOUND, "Group "+name+" doesn't exist");
+      }
+      grp.delete();
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 
   @Override
