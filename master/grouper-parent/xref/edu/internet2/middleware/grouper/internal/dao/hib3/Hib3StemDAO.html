@@ -1714,7 +1714,7 @@
 <a class="jxr_linenumber" name="L1706" href="#L1706">1706</a>         {
 <a class="jxr_linenumber" name="L1707" href="#L1707">1707</a>           sql.append(<span class="jxr_string">" or exists (select 1 from Stem theStem543, MembershipEntry fieldMembership, StemSet stemSet "</span> +
 <a class="jxr_linenumber" name="L1708" href="#L1708">1708</a>               <span class="jxr_string">" where fieldMembership.ownerStemId = theStem543.uuid "</span> +
-<a class="jxr_linenumber" name="L1709" href="#L1709">1709</a>               <span class="jxr_string">" and stemSet.ifHasStemId = theStem543.parentUuid "</span> +
+<a class="jxr_linenumber" name="L1709" href="#L1709">1709</a>               <span class="jxr_string">" and stemSet.ifHasStemId in (theStem543.parentUuid, theStem543.uuid) "</span> +
 <a class="jxr_linenumber" name="L1710" href="#L1710">1710</a>               <span class="jxr_string">" and stemSet.thenHasStemId = "</span> + stemVariable + <span class="jxr_string">".uuid and fieldMembership.fieldId in ("</span>);
 <a class="jxr_linenumber" name="L1711" href="#L1711">1711</a>           <em class="jxr_comment">//look for groups where the user or GrouperAll has a privilege</em>
 <a class="jxr_linenumber" name="L1712" href="#L1712">1712</a>           Collection&lt;String&gt; accessPrivs = PrivilegeHelper.fieldIdsFromPrivileges(NamingPrivilege.ALL_PRIVILEGES);
