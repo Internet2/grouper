@@ -11,18 +11,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -35,9 +27,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2Preferen
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Main;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
@@ -1052,16 +1041,35 @@ public class IndexContainer {
 
   /**
    * Should the admin ui link the displayed under quick links?
+   * @return true if allowed to see admin link
    */
   public boolean isAdminUIQuickLinkDisplayed() {
-    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", true);
+    boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.adminui", true);
+    if (result) {
+      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.adminui.forGroup", loggedInSubject);
+      //null error means allow
+      if (error == null) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
    * Should the lite ui link the displayed under quick links?
+   * @return true if the lite ui link should be shown
    */
   public boolean isLiteUIQuickLinkDisplayed() {
-    return GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.liteui", true);
+    boolean result = GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.quicklink.menu.liteui", true);
+    if (result) {
+      Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      String error = GrouperUiFilter.requireUiGroup("uiV2.quicklink.menu.liteui.forGroup", loggedInSubject);
+      //null error means allow
+      if (error == null) {
+        return true;
+      }
+    }
+    return false;
   }
-
 }
