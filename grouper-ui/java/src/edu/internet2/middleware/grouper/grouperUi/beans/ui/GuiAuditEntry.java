@@ -601,11 +601,6 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_DEF_UPDATE");
 
-        case CSV_EXPORT:
-        	
-        	this.setupExportProperties();
-        	return TextContainer.retrieveFromRequest().getText().get("audits_CSV_EXPORT");
-        	
         case ENTITY_ADD:
           
           this.setupEntity();
@@ -762,10 +757,6 @@ public class GuiAuditEntry {
           
           return TextContainer.retrieveFromRequest().getText().get("audits_GROUP_UPDATE");
           
-        case IMPORT:
-        	this.setupImportProperties();
-        	return TextContainer.retrieveFromRequest().getText().get("audits_IMPORT");
-        
         case MEMBER_CHANGE_SUBJECT:
           
           return TextContainer.retrieveFromRequest().getText().get("audits_MEMBER_CHANGE_SUBJECT");
@@ -1065,18 +1056,18 @@ public class GuiAuditEntry {
   }
   
   private void setupExportProperties() {
-	int exportSize = Integer.valueOf(this.auditEntry.retrieveStringValue("exportSize"));
-	String file = this.auditEntry.retrieveStringValue("file");
-	this.file = file;
-	this.exportSize = exportSize;
+  	int exportSize = Integer.valueOf(this.auditEntry.retrieveStringValue("exportSize"));
+  	String file = this.auditEntry.retrieveStringValue("file");
+  	this.file = file;
+  	this.exportSize = exportSize;
   }
   
   public int getExportSize() {
-	return exportSize;
+    return exportSize;
   }
   
   public String getFile() {
-	return file;
+    return file;
  }
 
   private void setupImportProperties() {

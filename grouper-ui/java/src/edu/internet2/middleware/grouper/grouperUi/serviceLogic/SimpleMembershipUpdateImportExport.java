@@ -358,26 +358,6 @@ public class SimpleMembershipUpdateImportExport {
     
   }
 
-	private static void auditExport(final int exportSize, final String groupExtensionFileName) {
-		HibernateSession.callbackHibernateSession(
-	          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-	    	      new HibernateHandler() {
-	    	          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-	    	              throws GrouperDAOException {
-	    	        	  
-	    	        	  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.CSV_EXPORT, "exportSize", String.valueOf(exportSize)
-	    	        			  , "file", groupExtensionFileName);
-	    	                    
-	    	              String description = "exported : " + exportSize + " subjects in : " + groupExtensionFileName 
-	    	                  + " file.";
-	    	              auditEntry.setDescription(description);
-	    	              auditEntry.saveOrUpdate(true);
-	    	        	  
-	    	        	  return null;
-	    	          }
-	      });
-	}	
-  
 	private static void auditExport(final String groupId, final String groupName, final int exportSize, final String groupExtensionFileName) {
 		HibernateSession.callbackHibernateSession(
 	          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
