@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.internet2.middleware.grouper.ws.scim;
+package edu.internet2.middleware.grouper.ws.scim.group;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -31,6 +32,8 @@ import edu.psu.swe.scim.server.exception.UnableToRetrieveExtensionsException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
 import edu.psu.swe.scim.server.provider.Provider;
+import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
+import edu.psu.swe.scim.spec.protocol.filter.FilterResponse;
 import edu.psu.swe.scim.spec.protocol.search.Filter;
 import edu.psu.swe.scim.spec.protocol.search.PageRequest;
 import edu.psu.swe.scim.spec.protocol.search.SortRequest;
@@ -109,6 +112,16 @@ public class GrouperGroupService implements Provider<ScimGroup> {
       group.setId(grp.getName());
       group.setDisplayName(grp.getDisplayName());
       group.setExternalId(grp.getUuid());
+      
+      GroupExtension groupExtension = new GroupExtension();
+      groupExtension.setDescription(grp.getDescription());
+      
+      try {
+        group.addExtension(groupExtension);
+      } catch (InvalidExtensionException e) {
+        e.printStackTrace();
+      }
+      
       return group;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -117,7 +130,7 @@ public class GrouperGroupService implements Provider<ScimGroup> {
   }
 
   @Override
-  public List<ScimGroup> find(Filter filter, PageRequest pageRequest,
+  public FilterResponse<ScimGroup> find(Filter filter, PageRequest pageRequest,
       SortRequest sortRequest) throws UnableToRetrieveResourceException {
     
     // TODO Auto-generated method stub
@@ -140,11 +153,10 @@ public class GrouperGroupService implements Provider<ScimGroup> {
     }
   }
 
-  @Override
-  public List<Class<? extends ScimExtension>> getExtensionList()
-      throws UnableToRetrieveExtensionsException {
-    // TODO Auto-generated method stub
-    return null;
+  @SuppressWarnings("unchecked")
+  public List<Class<? extends ScimExtension>> getExtensionList() throws UnableToRetrieveExtensionsException {
+    List list =  Arrays.asList(GroupExtension.class);
+    return list;
   }
 
 }
