@@ -208,7 +208,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAcknowledgeMessages"));
+    TestRunner.run(new GrouperServiceLogicTest("testFindGroups"));
   }
 
   /**
@@ -577,7 +577,29 @@ public class GrouperServiceLogicTest extends GrouperTest {
    
     assertGroupSetsAndOrder(GrouperUtil.toSet(testRole, testRole2), wsGroups);    
     
+    //try again with previous version
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+    wsQueryFilter.assignGrouperSession(null);
+
+    WsQueryFilter firstQueryFilter = new WsQueryFilter();
+    firstQueryFilter.setQueryFilterType(WsQueryFilterType.FIND_BY_GROUP_NAME_APPROXIMATE.name());
+    firstQueryFilter.setGroupName("oup2");
     
+    WsQueryFilter secondQueryFilter = new WsQueryFilter();
+    secondQueryFilter.setQueryFilterType(WsQueryFilterType.FIND_BY_GROUP_NAME_APPROXIMATE.name());
+    secondQueryFilter.setGroupName("test");
+    
+    WsQueryFilter complexQueryFilter = new WsQueryFilter();
+    complexQueryFilter.setQueryFilterType(WsQueryFilterType.AND.name());
+    complexQueryFilter.setQueryFilter0(firstQueryFilter);
+    complexQueryFilter.setQueryFilter1(secondQueryFilter);
+
+    wsGroups = GrouperServiceLogic.findGroups(
+        GROUPER_VERSION, complexQueryFilter, null, false, null, null).getGroupResults();
+
+    assertGroupSetsAndOrder(GrouperUtil.toSet(testGroup2), wsGroups);
+
+
   }
   
   
