@@ -437,7 +437,7 @@ public class GrouperUiFilter implements Filter {
    * @param subjectLoggedIn
    * @return the error message group name
    */
-  private static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
+  public static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
     
     //see if member of login group
     String groupToRequire = GrouperUiConfig.retrieveConfig().propertyValueString(mediaKeyOfGroup);
