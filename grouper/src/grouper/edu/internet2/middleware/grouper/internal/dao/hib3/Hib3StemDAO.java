@@ -1706,7 +1706,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         {
           sql.append(" or exists (select 1 from Stem theStem543, MembershipEntry fieldMembership, StemSet stemSet " +
               " where fieldMembership.ownerStemId = theStem543.uuid " +
-              " and stemSet.ifHasStemId = theStem543.parentUuid " +
+              " and stemSet.ifHasStemId in (theStem543.parentUuid, theStem543.uuid) " +
               " and stemSet.thenHasStemId = " + stemVariable + ".uuid and fieldMembership.fieldId in (");
           //look for groups where the user or GrouperAll has a privilege
           Collection<String> accessPrivs = PrivilegeHelper.fieldIdsFromPrivileges(NamingPrivilege.ALL_PRIVILEGES);

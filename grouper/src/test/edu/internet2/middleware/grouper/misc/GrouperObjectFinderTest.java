@@ -127,12 +127,26 @@ public class GrouperObjectFinderTest extends GrouperTest {
     Group group6 = new GroupSave(grouperSession).assignName("test:stem6:stem6sub:group6").save();
     group6.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
 
+    Stem stem7 = new StemSave(grouperSession).assignName("test:stem7").save();
+    stem7.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+
+    Stem stem8 = new StemSave(grouperSession).assignName("test:stem8").save();
+    Stem stem8sub = new StemSave(grouperSession).assignName("test:stem8:stem8sub").save();
+    Stem stem8subsub = new StemSave(grouperSession).assignName("test:stem8:stem8sub:stem8subsub").save();
+    stem8subsub.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+
+    Stem stem9 = new StemSave(grouperSession).assignName("test:stem9").save();
+    Stem stem9sub = new StemSave(grouperSession).assignName("test:stem9:stem9sub").save();
+    AttributeDef attributeDef9sub = new AttributeDefSave(grouperSession).assignName("test:stem9:stem9sub:attributeDef9")
+        .assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    attributeDef9sub.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+
     GrouperSession.stopQuietly(grouperSession);
-    
+
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
-    
+
     QueryOptions queryOptions = QueryOptions.create("displayExtension", true, 1, 50);
-    
+
     GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
       .assignObjectPrivilege(ObjectPrivilege.view)
       .assignParentStemId(test.getId())
@@ -146,12 +160,14 @@ public class GrouperObjectFinderTest extends GrouperTest {
 
     List<GrouperObject> results = new ArrayList<GrouperObject>(grouperObjectFinder.findGrouperObjects());
     
-    assertEquals(5, results.size());
+    assertEquals(7, results.size());
     assertEquals(stem1.getName(), results.get(0).getName());
     assertEquals(stem2.getName(), results.get(1).getName());
     assertEquals(stem4.getName(), results.get(2).getName());
     assertEquals(stem5.getName(), results.get(3).getName());
     assertEquals(stem6.getName(), results.get(4).getName());
+    assertEquals(stem8.getName(), results.get(5).getName());
+    assertEquals(stem9.getName(), results.get(6).getName());
     
     GrouperSession.stopQuietly(grouperSession);
 
@@ -167,9 +183,10 @@ public class GrouperObjectFinderTest extends GrouperTest {
 
     results = new ArrayList<GrouperObject>(grouperObjectFinder.findGrouperObjects());
     
-    assertEquals(2, results.size());
+    assertEquals(3, results.size());
     assertEquals(stem2.getName(), results.get(0).getName());
     assertEquals(stem3.getName(), results.get(1).getName());
+    assertEquals(stem7.getName(), results.get(2).getName());
     
     GrouperSession.stopQuietly(grouperSession);
 
