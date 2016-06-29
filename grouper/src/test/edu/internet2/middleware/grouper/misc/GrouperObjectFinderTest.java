@@ -20,7 +20,6 @@ package edu.internet2.middleware.grouper.misc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import junit.textui.TestRunner;
 
@@ -155,6 +154,26 @@ public class GrouperObjectFinderTest extends GrouperTest {
     assertEquals(stem6.getName(), results.get(4).getName());
     
     GrouperSession.stopQuietly(grouperSession);
+
+  
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    grouperObjectFinder = new GrouperObjectFinder()
+      .assignObjectPrivilege(ObjectPrivilege.view)
+      .assignParentStemId(test.getId())
+      .assignQueryOptions(queryOptions)
+      .assignSplitScope(true).assignStemScope(Scope.ONE)
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject());
+
+    results = new ArrayList<GrouperObject>(grouperObjectFinder.findGrouperObjects());
+    
+    assertEquals(2, results.size());
+    assertEquals(stem2.getName(), results.get(0).getName());
+    assertEquals(stem3.getName(), results.get(1).getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+  
   }
   
   /**
