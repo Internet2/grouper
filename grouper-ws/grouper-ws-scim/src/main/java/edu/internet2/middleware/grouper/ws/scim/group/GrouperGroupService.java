@@ -48,25 +48,30 @@ public class GrouperGroupService implements Provider<ScimGroup> {
   public ScimGroup create(ScimGroup scimGroup) throws UnableToCreateResourceException {
   
     GrouperSession grouperSession = null;
+    ScimGroup scimGroupOutput = null;
     try {
       grouperSession = GrouperSession.startRootSession();
       GroupSave groupSave = new GroupSave(grouperSession);
       Group group = groupSave.assignName(scimGroup.getId())
           .assignDisplayName(scimGroup.getDisplayName())
           .assignCreateParentStemsIfNotExist(true)
+          .assignDescription(scimGroup.getExtension(GroupExtension.class).getDescription())
           .save();
             
       Group savedGroup = GroupFinder.findByName(grouperSession, group.getName(), true);
       
-      ScimGroup scmGroup = new ScimGroup();
+      scimGroupOutput = new ScimGroup();
       
-      scmGroup.setId(savedGroup.getName());
-      scmGroup.setDisplayName(savedGroup.getDisplayName());
-      scmGroup.setExternalId(savedGroup.getUuid());
-      return scmGroup;
+      scimGroupOutput.setId(savedGroup.getName());
+      scimGroupOutput.setDisplayName(savedGroup.getDisplayName());
+      scimGroupOutput.setExternalId(savedGroup.getUuid());
+    } catch(InvalidExtensionException ie) {
+      //throw new UnableToCreateResourceException(Status., what);
+      ie.printStackTrace();
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    return scimGroupOutput;
   }
 
   @Override
@@ -74,6 +79,7 @@ public class GrouperGroupService implements Provider<ScimGroup> {
       throws UnableToUpdateResourceException {
     
     GrouperSession grouperSession = null;
+    ScimGroup scimGroupOutput = null;
     try {
       grouperSession = GrouperSession.startRootSession();
       Group grp = GroupFinder.findByName(grouperSession, name, false);
@@ -83,18 +89,22 @@ public class GrouperGroupService implements Provider<ScimGroup> {
       }
       
       grp.setDisplayName(scimGroup.getDisplayName());
+      grp.setDescription(scimGroup.getExtension(GroupExtension.class).getDescription());
       
       Group savedGroup = GroupFinder.findByName(grouperSession, grp.getName(), true);
       
-      ScimGroup scmGroup = new ScimGroup();
-      scmGroup.setId(savedGroup.getName());
-      scmGroup.setDisplayName(savedGroup.getDisplayName());
-      scmGroup.setExternalId(savedGroup.getUuid());
-      return scmGroup;
+      scimGroupOutput = new ScimGroup();
+      scimGroupOutput.setId(savedGroup.getName());
+      scimGroupOutput.setDisplayName(savedGroup.getDisplayName());
+      scimGroupOutput.setExternalId(savedGroup.getUuid());
       
-    } finally {
+    } catch(InvalidExtensionException ie) {
+      ie.printStackTrace();
+    } 
+    finally {
       GrouperSession.stopQuietly(grouperSession);
     }
+    return scimGroupOutput;
     
   }
 
