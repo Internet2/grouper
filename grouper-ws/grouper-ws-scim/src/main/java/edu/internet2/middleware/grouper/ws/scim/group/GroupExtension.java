@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.psu.swe.scim.spec.annotation.ScimAttribute;
 import edu.psu.swe.scim.spec.annotation.ScimExtensionType;
 import edu.psu.swe.scim.spec.resources.ScimExtension;
@@ -27,6 +28,10 @@ public class GroupExtension implements ScimExtension {
   @ScimAttribute(returned=Returned.DEFAULT, required=true)
   @XmlElement
   private String description;
+  
+  @ScimAttribute(returned=Returned.DEFAULT, required=true)
+  @XmlElement
+  private TypeOfGroup typeOfGroup;
 
   /**
    * Provides the URN associated with this extension which, as defined by the
