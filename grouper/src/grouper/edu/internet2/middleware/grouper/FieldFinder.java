@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Find fields.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: FieldFinder.java,v 1.48 2009-08-11 20:18:08 mchyzer Exp $
  */
@@ -105,12 +105,17 @@ public class FieldFinder {
   }
   
   /**
+   * synchronize on this object
+   */
+  private static Object fieldGrouperCacheSemaphore = new Object();
+
+  /**
    * init and return the cache
    * @return the cache
    */
   private static Map<String,Field> fieldCache() {
     //synchronize on GrouperStartup to avoid deadlock
-    synchronized(GrouperStartup.class) {
+    synchronized(fieldGrouperCacheSemaphore) {
       Map<String,Field> theFieldCache = fieldGrouperCache().get(Boolean.TRUE);
       if (theFieldCache == null || theFieldCache.size() == 0) {
         theFieldCache = internal_updateKnownFields();
@@ -378,12 +383,17 @@ public class FieldFinder {
   }
 
   /**
+   * synchronize on this object
+   */
+  private static Object internal_updateKnownFieldsSemaphore = new Object();
+
+  /**
    * @return map
    */
   public static Map<String, Field> internal_updateKnownFields() {
 
     //synchronize on GrouperStartup to avoid deadlock
-    synchronized(GrouperStartup.class) {
+    synchronized(internal_updateKnownFieldsSemaphore) {
       GrouperStartup.startup();
       Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
   

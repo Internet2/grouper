@@ -417,12 +417,35 @@ public class XmlImportMain {
     total += XmlExportRoleSet.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignAction.dbCount(xmlExportMain);
     total += XmlExportAttributeAssignActionSet.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssign.dbCount(xmlExportMain);
-    total += XmlExportAttributeAssignValue.dbCount();
+    total += XmlExportAttributeAssign.dbCount(xmlExportMain, true);
+    total += XmlExportAttributeAssignValue.dbCount(xmlExportMain, true);
     total += XmlExportAttributeDefNameSet.dbCount(xmlExportMain);
     total += XmlExportAttributeDefScope.dbCount(xmlExportMain);
     total += XmlExportAuditType.dbCount();
     total += XmlExportAuditEntry.dbCount();
+    return total;
+  }
+  
+  /**
+   * get a db count of exportable rows
+   * @param xmlExportMain 
+   * @return db count
+   */
+  public static int dbCountGsh(XmlExportMain xmlExportMain) {
+    int total = 0;
+    total += XmlExportStem.dbCount(xmlExportMain);
+    total += XmlExportGroup.dbCount(xmlExportMain);
+    total += XmlExportComposite.dbCount(xmlExportMain);
+    total += XmlExportAttributeDef.dbCount(xmlExportMain);
+    total += XmlExportMembership.dbCount(xmlExportMain);
+    total += XmlExportAttributeDefName.dbCount(xmlExportMain);
+    total += XmlExportRoleSet.dbCount(xmlExportMain);
+    total += XmlExportAttributeAssignAction.dbCount(xmlExportMain);
+    total += XmlExportAttributeAssignActionSet.dbCount(xmlExportMain);
+    total += XmlExportAttributeDefNameSet.dbCount(xmlExportMain);
+    total += XmlExportAttributeDefScope.dbCount(xmlExportMain);
+    total += XmlExportAttributeAssign.dbCount(xmlExportMain, false);
+    total += XmlExportAttributeAssignValue.dbCount(xmlExportMain, false);
     return total;
   }
   

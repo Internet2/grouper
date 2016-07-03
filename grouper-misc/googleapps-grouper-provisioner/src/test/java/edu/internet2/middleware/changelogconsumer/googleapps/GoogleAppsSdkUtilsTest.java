@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * These tests are intended to be run sequentially. At some point they maybe set up to run independently.

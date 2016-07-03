@@ -835,9 +835,33 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             sql.append(") ");
           }
           if (membershipIdsSize > 0) {
-            sql.append(" and ms.uuid in (");
-            sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
-            sql.append(") ");
+            sql.append(" and ( ");
+            int count = 0;
+            for (String membershipId : membershipIds) {
+              
+              if (count > 0) {
+                sql.append(" or ");
+              }
+
+              //membershipId should have a colon in it
+              String immediateMembershipId = GrouperUtil.prefixOrSuffix(membershipId, ":", true);
+              String groupSetId = GrouperUtil.prefixOrSuffix(membershipId, ":", false);
+              String immediateMembershipIdVar = "immediateMembershipId" + count;
+              String groupSetIdVar = "groupSetId" + count;
+              
+              sql.append(" ( ms.immediateMembershipId = :" + immediateMembershipIdVar + " and ms.groupSetId = :" + groupSetIdVar + " )");
+              byHqlStatic.setString(immediateMembershipIdVar, immediateMembershipId);
+              byHqlStatic.setString(groupSetIdVar, groupSetId);
+              
+              count++;
+            }
+            sql.append(" ) ");
+
+            // dont do this!!!!!
+            // GRP-1304: delete membership from UI has major performance problem
+            //sql.append(" and ms.uuid in (");
+            //sql.append(HibUtils.convertToInClause(membershipIds, byHqlStatic));
+            //sql.append(") ");
           }
           
           if (!StringUtils.isBlank(filterForMember)) {

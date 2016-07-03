@@ -19,14 +19,6 @@
  */
 package edu.internet2.middleware.grouper.subj;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.hibernate.impl.SessionImpl;
-
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -34,6 +26,13 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.JdbcConnectionBean;
 import edu.internet2.middleware.subject.provider.JdbcConnectionProvider;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.hibernate.internal.SessionImpl;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
 
 
 /**

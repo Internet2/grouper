@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when there is a problem with a Grouper Session.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: SessionException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */

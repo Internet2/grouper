@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 /**
  * Top level Strut's action which saves form input to the HttpSession + a file for 
  * post session retrieval. 
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

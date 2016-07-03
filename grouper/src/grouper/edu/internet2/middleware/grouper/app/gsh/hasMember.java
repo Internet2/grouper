@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Is the subject a member of this group.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: hasMember.java,v 1.5 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
@@ -48,7 +48,7 @@ public class hasMember {
 
   /**
    * Is the subject a member of this group.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   group       Check membership in this {@link Group}.
@@ -83,7 +83,7 @@ public class hasMember {
 
   /**
    * Is the subject a member of this group.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   group       Check membership in this {@link Group}.

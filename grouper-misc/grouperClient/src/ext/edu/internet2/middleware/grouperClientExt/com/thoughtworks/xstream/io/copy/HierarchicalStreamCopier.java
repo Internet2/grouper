@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.Hie
 
 /**
  * Tool for copying the contents of one HierarichalStreamReader to a HierarichalStreamWriter.
- * <p/>
+ * 
  * This is useful for transforming the output of one format to another (e.g. binary to XML)
  * without needing to know details about the classes and avoiding the overhead of serialization.
  *

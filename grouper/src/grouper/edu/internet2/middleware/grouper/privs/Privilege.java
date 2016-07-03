@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /** 
  * Privilege schema specification.  Access the constants for Groups from AccessPrivilege
  * and Stems from NamingPrivilege.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Privilege.java,v 1.9 2009-09-21 06:14:26 mchyzer Exp $
  */

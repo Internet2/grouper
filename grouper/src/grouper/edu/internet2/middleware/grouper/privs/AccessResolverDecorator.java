@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator for {@link AccessResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AccessResolverDecorator.java,v 1.3 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

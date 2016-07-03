@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperSubject.java,v 1.12 2009-10-22 14:03:18 mchyzer Exp $
  */
@@ -310,7 +310,7 @@ public class GrouperSubject extends SubjectImpl {
       ((GrouperSubjectAttributeMap)this.getAttributes(false)).put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
     }
     catch (SubjectNotFoundException eSNF0) {
-      LOG.error(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
+      LOG.warn(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
     }
     try {
       // Don't bother with any of the modify* attrs unless we can find

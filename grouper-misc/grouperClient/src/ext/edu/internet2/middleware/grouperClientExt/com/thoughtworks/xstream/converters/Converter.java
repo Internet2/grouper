@@ -32,22 +32,22 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.Hie
 /**
  * Converter implementations are responsible marshalling Java objects
  * to/from textual data.
- * <p/>
+ * 
  * <p>If an exception occurs during processing, a {@link ConversionException}
  * should be thrown.</p>
- * <p/>
+ * 
  * <p>If working with the high level {@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream} facade,
  * you can register new converters using the XStream.registerConverter() method.</p>
- * <p/>
+ * 
  * <p>If working with the lower level API, the
  * {@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.ConverterLookup} implementation is
  * responsible for looking up the appropriate converter.</p>
- * <p/>
+ * 
  * <p>Converters for object that can store all information in a single value
  * should implement {@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.SingleValueConverter}.
  * <p>{@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter}
  * provides a starting point.</p>
- * <p/>
+ * 
  * <p>{@link edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.collections.AbstractCollectionConverter}
  * provides a starting point for objects that hold a collection of other objects
  * (such as Lists and Maps).</p>

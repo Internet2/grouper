@@ -62,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Responsible for retrieving group, identified by request
  * parameter groupId, to make available for editing. 
- * <p/>
+ * 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

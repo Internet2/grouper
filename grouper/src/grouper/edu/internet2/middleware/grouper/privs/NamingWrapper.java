@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Class implementing wrapper around {@link NamingAdapter} interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: NamingWrapper.java,v 1.18 2009-10-03 13:47:13 shilen Exp $
  * @since   1.2.1

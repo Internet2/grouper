@@ -939,7 +939,7 @@ public class GrouperHelper {
 	/**
 	 * Given the UI browsing mode return a Map where each key is a valid stem
 	 * for browsing. The Map is used to filter out stems which would lead to a 
-	 * dead end.<p/>
+	 * dead end.
 	 * In a future version, this code should be factored into a new Class with interface
 	 * so that new browse modes can be defined and implemented.
 	 * 
@@ -1201,7 +1201,7 @@ public class GrouperHelper {
 
   /**
    * Given simple query, scoping stem and ui browseMode return list of
-   * matching groups, pruned to give results relevant to browseMode.<p/>
+   * matching groups, pruned to give results relevant to browseMode.
    * The browseMode filtering needs to be factored into a new Class with interface
    * so that new browse modes can be added easily
    * 
@@ -1222,7 +1222,7 @@ public class GrouperHelper {
 	
 	/**
 	 * Given simple query, scoping stem and ui browseMode return list of
-	 * matching groups, pruned to give results relevant to browseMode.<p/>
+	 * matching groups, pruned to give results relevant to browseMode.
 	 * The browseMode filtering needs to be factored into a new Class with interface
 	 * so that new browse modes can be added easily
 	 * 
@@ -1400,7 +1400,7 @@ public class GrouperHelper {
 	
 	/**
 	 * Given a GrouperSession s, return a subset of Groups where
-	 * s.subject is a member, determined by start and pageSize.<p/>
+	 * s.subject is a member, determined by start and pageSize.
 	 * totalCount is a dubious means to return a second value to allow the UI
 	 * to page results
 	 * 
@@ -1457,7 +1457,7 @@ public class GrouperHelper {
 		
 	/**
 	 * Given a GrouperSession s, and an array of privileges, get subset of groups
-	 * where s.subject() has atleast one of the privileges, determined by start and pageSize<p/>
+	 * where s.subject() has atleast one of the privileges, determined by start and pageSize
 	 * resultCount is a dubious means to return a second value to allow the UI
 	 * to page results
 	 * 
@@ -1523,7 +1523,7 @@ public class GrouperHelper {
 
 	/**
 	 * Given a GrouperSession s, and an array of privileges, get subset of stems
-	 * where s.subject() has atleast one of the privileges, determined by start and pageSize<p/>
+	 * where s.subject() has atleast one of the privileges, determined by start and pageSize
 	 * resultCount is a dubious means to return a second value to allow the UI
 	 * to page results
 	 * 

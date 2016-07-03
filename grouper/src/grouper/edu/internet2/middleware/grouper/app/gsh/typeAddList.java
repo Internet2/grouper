@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 
 /**
  * Add a list to to a {@link GroupType}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: typeAddList.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
@@ -44,7 +44,7 @@ public class typeAddList {
 
   /**
    * Add a list to a {@link GroupType}.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   type        Add to this {@link GroupType}.

@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
 /**
  * Find group types.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupTypeFinder.java,v 1.35 2009-03-15 06:37:21 mchyzer Exp $
  */
@@ -77,7 +77,7 @@ public class GroupTypeFinder {
 
   /** 
    * Find a {@link GroupType}.
-   * <p/>
+   * 
    * A {@link SchemaException} will be thrown if the type is not found.
    * <pre class="eg">
    * try {
@@ -113,7 +113,7 @@ public class GroupTypeFinder {
 
   /** 
    * Find a {@link GroupType}.
-   * <p/>
+   * 
    * A {@link SchemaException} will be thrown if the type is not found.
    * <pre class="eg">
    * try {
@@ -153,7 +153,7 @@ public class GroupTypeFinder {
 
   /** 
    * Find a {@link GroupType}.
-   * <p/>
+   * 
    * A {@link SchemaException} will be thrown if the type is not found.
    * <pre class="eg">
    * try {

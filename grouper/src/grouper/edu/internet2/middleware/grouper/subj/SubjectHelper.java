@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
  * {@link Subject} utility helper class.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: SubjectHelper.java,v 1.7 2009-12-28 06:08:37 mchyzer Exp $
  */

@@ -55,7 +55,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 
 /**
  * Top level Strut's action which removes specified Stems from list of saved Stems.  
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

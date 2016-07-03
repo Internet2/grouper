@@ -1,21 +1,24 @@
-apply plugin:'java'
 description = 'Apacheds Ldappc Schema'
 
+dependencies {
+    compile libraries.apacheds
+}
+
 sourceSets {
-  main{
-    java {
-      srcDirs 'src/main/java'
+    main {
+        java {
+            srcDirs 'src/main/java'
+        }
+        resources {
+            srcDirs 'src/main/schema'
+        }
     }
-    resources {
-      srcDirs 'src/main/schema'
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test/java'
-    }
-    resources {
-      srcDir 'src/test/resources'
-    }
-  }
 }

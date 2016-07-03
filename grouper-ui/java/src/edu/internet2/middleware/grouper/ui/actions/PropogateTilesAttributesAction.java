@@ -48,7 +48,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * Low level Strut's actiopn which acts as a controller for dynamic tiles. It 
  * attempts to add some level of inheritance between tiles - making attributes from 
  * 'parent' tiles available to 'subtiles'. 
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: PropogateTilesAttributesAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $

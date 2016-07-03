@@ -50,6 +50,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class ByHqlStatic implements HqlQuery {
   
+  /**
+   * if use resulttransformer to change columns to object
+   */
+  private boolean convertHqlColumnsToObject;
+  
+  /**
+   * if use resulttransformer to change columns to object
+   * @param theConvert
+   * @return this for chaining
+   */
+  public ByHqlStatic assignConvertHqlColumnsToObject(boolean theConvert) {
+    this.convertHqlColumnsToObject = theConvert;
+    return this;
+  }
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ByHqlStatic.class);
 
@@ -506,6 +521,8 @@ public class ByHqlStatic implements HqlQuery {
     byHql.setCacheRegion(ByHqlStatic.this.cacheRegion);
     byHql.setQuery(ByHqlStatic.this.query);
     byHql.options(ByHqlStatic.this.queryOptions);
+    byHql.setConvertHqlColumnsToObject(ByHqlStatic.this.convertHqlColumnsToObject);
+    
     return byHql;
     
   }

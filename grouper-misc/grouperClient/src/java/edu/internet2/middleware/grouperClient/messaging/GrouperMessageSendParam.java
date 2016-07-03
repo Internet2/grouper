@@ -36,7 +36,7 @@ public class GrouperMessageSendParam {
    * @param theGrouperMessageSystemName
    * @return this for chaining
    */
-  public GrouperMessageSendParam assignGropuerMessageSystemName(String theGrouperMessageSystemName) {
+  public GrouperMessageSendParam assignGrouperMessageSystemName(String theGrouperMessageSystemName) {
     if (this.grouperMessageSystemParam == null) {
       this.grouperMessageSystemParam = new GrouperMessageSystemParam();
     }
@@ -44,6 +44,20 @@ public class GrouperMessageSendParam {
     return this;
   }
   
+  /**
+   * if objects should be auto created if not there, e.g. 
+   * queues, topics, privileges
+   * @param theAutocreate
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignAutocreateObjects(boolean theAutocreate) {
+    if (this.grouperMessageSystemParam == null) {
+      this.grouperMessageSystemParam = new GrouperMessageSystemParam();
+    }
+    this.grouperMessageSystemParam.assignAutocreateObjects(theAutocreate);
+    return this;
+  }
+
   /**
    * describes the queue or topic
    */
@@ -61,18 +75,31 @@ public class GrouperMessageSendParam {
 
   /**
    * assign queue or topic to send the message to
-   * @param theQueueOrTopic
+   * @param theQueueOrTopicName
    * @return this for chaining
    */
-  public GrouperMessageSendParam assignQueueOrTopic(String theQueueOrTopic) {
+  public GrouperMessageSendParam assignQueueOrTopicName(String theQueueOrTopicName) {
     if (this.grouperMessageQueueParam == null) {
       this.grouperMessageQueueParam = new GrouperMessageQueueParam();
     }
-    this.grouperMessageQueueParam.assignQueueOrTopic(theQueueOrTopic);
+    this.grouperMessageQueueParam.assignQueueOrTopicName(theQueueOrTopicName);
     return this;
   }
   
-  
+  /**
+   * assign if queue or topic
+   * @param grouperMessageQueueType
+   * @return this for chaining
+   */
+  public GrouperMessageSendParam assignQueueType(GrouperMessageQueueType grouperMessageQueueType) {
+    if (this.grouperMessageQueueParam == null) {
+      this.grouperMessageQueueParam = new GrouperMessageQueueParam();
+    }
+    this.grouperMessageQueueParam.assignQueueType(grouperMessageQueueType);
+    return this;
+  }
+
+
   /**
    * message body for the message
    */

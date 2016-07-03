@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 
 /**
  * Add a composite member.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: addComposite.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
@@ -45,7 +45,7 @@ public class addComposite {
 
   /**
    * Add a composite member.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   group       Add {@link Composite} to {@link Group} with this name.

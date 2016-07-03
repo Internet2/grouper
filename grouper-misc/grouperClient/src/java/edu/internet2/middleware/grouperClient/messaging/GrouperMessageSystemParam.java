@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouperClient.messaging;
 
 
+
 /**
  * method chaining system config
  */
@@ -14,6 +15,31 @@ public class GrouperMessageSystemParam {
    * 
    */
   public GrouperMessageSystemParam() {
+  }
+
+  /**
+   * if objects should be auto created if not there, e.g. 
+   * queues, topics, privileges
+   */
+  private boolean autocreateObjects;
+
+  /**
+   * if objects should be auto created if not there, e.g. 
+   * queues, topics, privileges
+   * @param theAutocreate
+   * @return this for chaining
+   */
+  public GrouperMessageSystemParam assignAutocreateObjects(boolean theAutocreate) {
+    this.autocreateObjects = theAutocreate;
+    return this;
+  }
+  
+  
+  /**
+   * @return the autocreateObjects
+   */
+  public boolean isAutocreateObjects() {
+    return this.autocreateObjects;
   }
 
   /**

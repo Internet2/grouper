@@ -663,6 +663,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     return attributeAssignDeletesSet == null ? null : Collections.unmodifiableSet(attributeAssignDeletesSet);
   }
   
+  
   /**
    * delete this object
    */
@@ -707,8 +708,11 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   
   
           //delete the assignment
-          GrouperDAOFactory.getFactory().getAttributeAssign().delete(AttributeAssign.this);
-  
+          try {
+            GrouperDAOFactory.getFactory().getAttributeAssign().delete(AttributeAssign.this);
+          } catch (RuntimeException re) {
+            throw re;
+          }
           if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
             AuditEntry auditEntry = new AuditEntry();
             AttributeDefName theAttributeDefName = AttributeAssign.this.getAttributeDefName();
@@ -1285,7 +1289,16 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
 
   }
 
-  
+  /**
+   * if this is a stem attribute, this is the foreign key
+   * @return the ownerStem
+   */
+  public Stem getOwnerStemFailsafe() {
+    
+    return this.ownerStemId == null ? null : GrouperDAOFactory.getFactory().getStem().findByUuid(this.ownerStemId, false);
+
+  }
+
   /**
    * if this is a group attribute, this is the foreign key
    * @param ownerAttributeGroupId1 the ownerAttributeGroupId to set

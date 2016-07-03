@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 
 /**
  * Set {@link Stem} attribute value.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: setStemAttr.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
@@ -43,7 +43,7 @@ public class setStemAttr {
 
   /**
    * Set {@link Stem} attribute value.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Stem} to retrieve attribute on.

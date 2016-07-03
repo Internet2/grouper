@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Strut's action which adds a Subject to the 'saved' list. 
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

@@ -1,6 +1,7 @@
-rootProject.name = 'grouper-parent'
+rootProject.name = 'grouper'
 
 include ':grouper-misc:morphString'
+
 include ':grouper-misc:grouperClient'
 
 include ':subject'
@@ -12,6 +13,7 @@ include ':grouper-ws:grouper-ws-java-manual-client'
 include ':grouper-ws:grouper-ws-test'
 
 include ':grouper-misc:grouper-shib'
+include ':grouper-misc:grouper-pspng'
 include ':grouper-misc:grouperScim'
 include ':grouper-misc:grouper-installer'
 include ':grouper-misc:grouper-voot'
@@ -23,10 +25,16 @@ include ':grouper-misc:grouperAtlassianConnector'
 include ':grouper-misc:grouperKimConnector'
 include ':grouper-misc:morphString'
 include ':grouper-misc:cmuBilling'
-include ':grouper-misc:poc_secureUserData'
 include ':grouper-misc:grouper-duo'
 include ':grouper-misc:wsSourceAdapter'
+include ':grouper-misc:grouper-ui-dojo'
+include ':grouper-misc:grouper-tier-scim'
+include ':grouper-misc:tierApiAuthzServer'
+include ':grouper-misc:tierApiAuthzClient'
+include ':grouper-misc:grouper-tierApiAuthz-connector'
+
+include ':apacheds-ldappc-schema'
 
 include ':grouper-ui'
-include ':grouper-ui-dojo'
+
 include ':grouper-qs-builder'

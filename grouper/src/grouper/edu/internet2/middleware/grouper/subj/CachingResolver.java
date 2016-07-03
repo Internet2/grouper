@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Decorator that provides caching for {@link SubjectResolver}.
  * 
  * TODO the caching of findAll should work based on group restricted to, not stem name
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: CachingResolver.java,v 1.8 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.1

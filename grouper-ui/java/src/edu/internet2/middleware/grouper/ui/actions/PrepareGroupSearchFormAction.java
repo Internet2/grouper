@@ -138,7 +138,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
     <td>&nbsp;</td>
   </tr>
 </table>
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: PrepareGroupSearchFormAction.java,v 1.11 2009-08-12 04:52:14 mchyzer Exp $

@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 /**
  * Test {@link AccessWrapper}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Test_privs_AccessWrapper.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  * @since   1.2.1

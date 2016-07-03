@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: R.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
  * @since   1.2.0
@@ -84,7 +84,7 @@ public class R {
 
   /**
    * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public R() {
@@ -94,7 +94,7 @@ public class R {
 
   /**
    * Add test subjects to registry.
-   * <p/>
+   * 
    * @since   1.2.1
    */
   public void addSubjects(int number) {
@@ -115,7 +115,7 @@ public class R {
 
   /**
    * Initializes and returns a pre-defined context.
-   * <p/>
+   * 
    * @throws  GrouperException
    * @throws  IllegalStateException
    * @since   1.2.0
@@ -140,7 +140,7 @@ public class R {
 
   /**
    * Adds a child {@link Group} beneath <i>parent</i>.
-   * <p/>
+   * 
    * @return  Child {@link Group}. 
    * @throws  GrouperException
    * @since   1.2.0
@@ -163,7 +163,7 @@ public class R {
 
   /**
    * Adds a child {@link Stem} beneath the root stem.
-   * <p/>
+   * 
    * @return  Child {@link Stem}.
    * @throws  GrouperException
    * @since   1.2.0
@@ -176,7 +176,7 @@ public class R {
 
   /**
    * Adds a child {@link Stem} beneath <i>parent</i>.
-   * <p/>
+   * 
    * @return  Child {@link Stem}.
    * @throws  GrouperException
    * @since   1.2.0
@@ -210,7 +210,7 @@ public class R {
 
   /**
    * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperSystem</i>.
-   * <p/>
+   * 
    * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
    * @throws  GrouperException
    * @since   1.2.0
@@ -223,7 +223,7 @@ public class R {
 
   /**
    * Starts, associates and returns a {@link GrouperSession} running as <i>subj</i>.
-   * <p/>
+   * 
    * @return  Return {@link GrouperSession} running as <i>subj</i>.
    * @throws  GrouperException
    * @since   1.2.0 
@@ -242,7 +242,7 @@ public class R {
 
   /**
    * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperAll</i>.
-   * <p/>
+   * 
    * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
    * @throws  GrouperException
    * @since   1.2.0
@@ -255,7 +255,7 @@ public class R {
 
   /**
    * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperSystem</i>.
-   * <p/>
+   * 
    * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
    * @throws  GrouperException
    * @since   1.2.0
@@ -307,7 +307,7 @@ public class R {
 
   /**
    * Returns a cached {@link Stem}.
-   * <p/>
+   * 
    * @return  Cached {@link Stem} if it exists.
    * @throws  GrouperException
    * @since   1.2.0
@@ -326,7 +326,7 @@ public class R {
 
   /**
    * Set {@link GrouperSession} associated with this {@link R}.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public void setSession(GrouperSession s) {

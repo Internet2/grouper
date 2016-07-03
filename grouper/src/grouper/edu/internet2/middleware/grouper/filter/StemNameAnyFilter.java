@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Query by stem name.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: StemNameAnyFilter.java,v 1.3 2008-11-05 16:18:46 shilen Exp $
  */

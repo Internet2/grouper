@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Rollback a transaction
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: transactionRollback.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -43,7 +43,7 @@ public class transactionRollback {
 
   /**
    * Rollback a transaction
-   * <p/>
+   * 
    * @param   interpreter           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param grouperRollbackTypeString to use for starting transaction, must be a 

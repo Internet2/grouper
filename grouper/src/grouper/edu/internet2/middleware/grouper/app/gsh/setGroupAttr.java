@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 
 /**
  * Set {@link Group} attribute value.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: setGroupAttr.java,v 1.4 2009-03-24 17:12:09 mchyzer Exp $
  * @since   0.0.1
@@ -44,7 +44,7 @@ public class setGroupAttr {
 
   /**
    * Set {@link Group} attribute value.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Group} to retrieve attribute on.

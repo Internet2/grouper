@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.xml.XmlReader;
 
 /**
  * Update Groups Registry from XML file.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: xmlUpdateFromFile.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
@@ -44,7 +44,7 @@ public class xmlUpdateFromFile {
 
   /**
    * Update Groups Registry from XML file.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   file        Use this XML in this file for updates.

@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefDeleteLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
@@ -147,6 +149,44 @@ public enum GrouperWsRestDelete {
     }
 
   }, 
+  
+  /** attributeDef delete requests */
+  attributeDefs {
+
+    /**
+     * handle the incoming request based on DELETE HTTP method and attributeDef resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/attributeDef
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (!StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException(
+            "Why are you passing something after the attributeDef ??? " + operation);
+      }
+
+      if (requestObject instanceof WsRestAttributeDefDeleteRequest) {
+        return GrouperServiceRest.attributeDefDelete(clientVersion,
+            (WsRestAttributeDefDeleteRequest) requestObject);
+      }
+
+      if (requestObject instanceof WsRestAttributeDefDeleteLiteRequest) {
+        return GrouperServiceRest.attributeDefDeleteLite(clientVersion,
+            (WsRestAttributeDefDeleteLiteRequest) requestObject);
+      }
+
+      throw new WsInvalidQueryException("Not expecting type: " + requestObject.getClass());
+    }
+
+  },
   
   /** stem delete requests */
   stems {

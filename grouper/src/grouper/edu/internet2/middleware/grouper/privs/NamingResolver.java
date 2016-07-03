@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Facade for the {@link NamingAdapter} interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: NamingResolver.java,v 1.12 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
@@ -75,7 +75,7 @@ public interface NamingResolver {
 
   /**
    * Get all groups where <i>subject</i> has <i>privilege</i>.
-   * <p/>
+   * 
    * @param subject 
    * @param privilege 
    * @return  set
@@ -88,7 +88,7 @@ public interface NamingResolver {
 
   /**
    * Get all privileges <i>subject</i> has on <i>group</i>.
-   * <p/>
+   * 
    * @param stem 
    * @param subject 
    * @return  set of naming privileges
@@ -101,7 +101,7 @@ public interface NamingResolver {
 
   /**
    * Get all subjects with <i>privilege</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param stem 
    * @param privilege 
    * @return  set of subjects
@@ -115,7 +115,7 @@ public interface NamingResolver {
 
   /**
    * Grant <i>privilege</i> to <i>subject</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param stem 
    * @param subject 
    * @param privilege 
@@ -131,7 +131,7 @@ public interface NamingResolver {
 
   /**
    * Check whether <i>subject</i> has <i>privilege</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param stem 
    * @param subject 
    * @param privilege 
@@ -145,7 +145,7 @@ public interface NamingResolver {
 
   /**
    * Revoke <i>privilege</i> from all subjects on <i>group</i>.
-   * <p/>
+   * 
    * @param stem 
    * @param privilege 
    * @throws  IllegalArgumentException if any parameter is null.
@@ -159,7 +159,7 @@ public interface NamingResolver {
 
   /**
    * Revoke <i>privilege</i> from <i>subject</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param stem 
    * @param subject 
    * @param privilege 

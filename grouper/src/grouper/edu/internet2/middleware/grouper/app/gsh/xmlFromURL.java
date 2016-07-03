@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.xml.XmlReader;
 
 /**
  * Import Groups Registry from XML URL.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: xmlFromURL.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
@@ -45,7 +45,7 @@ public class xmlFromURL {
 
   /**
    * Import Groups Registry from XML URL.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   url         Import XML from this URL.

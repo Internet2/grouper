@@ -69,7 +69,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Top level Struts Action which shows all the ways in which a member is 
  * a member of a group - used so users can follow effective memberships.   
- * <p/>
+ * 
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

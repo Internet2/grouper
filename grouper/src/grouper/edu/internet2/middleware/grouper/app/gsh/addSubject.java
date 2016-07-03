@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 /**
  * Add {@link RegistrySubject} to Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: addSubject.java,v 1.3 2009-02-13 13:51:58 mchyzer Exp $
  * @since   0.0.1
@@ -42,7 +42,7 @@ public class addSubject {
 
   /**
    * Add {@link RegistrySubject} to Groups Registry.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   id          Subject <i>id</i>.
@@ -72,7 +72,7 @@ public class addSubject {
 
   /**
    * Add {@link RegistrySubject} to Groups Registry.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   id          Subject <i>id</i>.

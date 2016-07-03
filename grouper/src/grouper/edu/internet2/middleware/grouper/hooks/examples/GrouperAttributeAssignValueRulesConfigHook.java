@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hooks.AttributeAssignValueHooks;
@@ -99,6 +100,8 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
     
     RuleSubjectActAs.actAsThreadLocalAssign(runningSubject);
     
+    //see if deleting the parent attribute assignment, if so, then allow it (still refresh rules cache)
+    
     try {
       
       //do this as admin
@@ -121,6 +124,12 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
                 return null;
               }
             }
+          }
+          
+          //if we are importing, then dont validate
+          if (AttributeAssignSave.inSaveThreadlocal()) {
+            //there are issues with constraint violations here...
+            return null;
           }
           
           //we want to avoid circular references

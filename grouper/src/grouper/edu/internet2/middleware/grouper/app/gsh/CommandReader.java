@@ -27,7 +27,7 @@ import  bsh.Interpreter;
 
 /**
  * {@link GrouperShell} Command Reader interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: CommandReader.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
  * @since   0.1.1

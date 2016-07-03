@@ -2394,7 +2394,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * 
    * All immediate subjects, and effective members are members.  
    * 
-   * <p/>
+   * 
    * <pre class="eg">
    * // Does this member belong to the specified group?
    * if (m.isMember(g, f)) {
@@ -2521,7 +2521,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /**
    * Convert this member back to a {@link Group} object.
-   * <p/>
+   * 
    * <pre class="eg">
    * try {
    *   Group g = m.toGroup();

@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -53,6 +54,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiService;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -67,6 +69,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.IndexContainer.IndexPanel;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -78,6 +81,8 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleFinder;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
@@ -1136,6 +1141,35 @@ public class UiV2Main extends UiServiceLogicBase {
   }
 
   /**
+   * miscellaneous
+   * @param request
+   * @param response
+   */
+  public void miscellaneous(HttpServletRequest request, HttpServletResponse response) {
+  
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to read privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/miscellaneous.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  /**
    * my services
    * @param request
    * @param response
@@ -1284,6 +1318,50 @@ public class UiV2Main extends UiServiceLogicBase {
 
   
   
+  /**
+   * global inherited privileges
+   * @param request
+   * @param response
+   */
+  public void globalInheritedPrivileges(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadPrivilegeInheritance()) {
+        throw new RuntimeException("Not allowed to read privilege inheritance! " + GrouperUtil.subjectToString(loggedInSubject));
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      RulesContainer rulesContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer();
+      
+      Set<GuiRuleDefinition> guiRuleDefinitions = new TreeSet<GuiRuleDefinition>();
+      {
+        Set<RuleDefinition> groupRuleDefinitions  = RuleFinder.findPrivilegeInheritRules(true);
+        for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(groupRuleDefinitions)) {
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          if (guiRuleDefinition.getOwnerGuiStem() != null) {
+            guiRuleDefinitions.add(guiRuleDefinition);
+          }
+        }
+      }
+      
+      rulesContainer.setGuiRuleDefinitions(guiRuleDefinitions);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/index/globalInheritedPrivileges.jsp"));
+  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
   /**
    * init stems user manages
    */
@@ -1438,7 +1516,7 @@ public class UiV2Main extends UiServiceLogicBase {
         Set<Group> groups = new GroupFinder()
             .assignSubject(GrouperSession.staticGrouperSession().getSubject())
             .assignField(Group.getDefaultList())
-            .assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
+            .assignPrivileges(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
             .assignQueryOptions(new QueryOptions().paging(
                 GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.index.numberOfObjectsInSectionDefault", 10), 1, false)).findGroups();
     

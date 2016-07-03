@@ -36,6 +36,7 @@ public class AllChangeLogTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.changeLog");
     suite.addTest(AllEsbConsumerTests.suite());
     //$JUnit-BEGIN$
+    suite.addTestSuite(ChangeLogEntryTest.class);
     suite.addTestSuite(ChangeLogTypeTest.class);
     suite.addTestSuite(ChangeLogIdTest.class);
     suite.addTestSuite(ChangeLogTest.class);

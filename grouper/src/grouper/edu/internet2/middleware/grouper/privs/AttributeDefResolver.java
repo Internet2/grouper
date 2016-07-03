@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Facade for the {@link AttributeDefAdapter} interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AttributeDefResolver.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1
@@ -72,7 +72,7 @@ public interface AttributeDefResolver {
   
   /**
    * Get all attributedefs where <i>subject</i> has <i>privilege</i>.
-   * <p/>
+   * 
    * @param subject 
    * @param privilege 
    * @return the set
@@ -85,7 +85,7 @@ public interface AttributeDefResolver {
 
   /**
    * Get all privileges <i>subject</i> has on <i>attributeDef</i>.
-   * <p/>
+   * 
    * @param attributeDef 
    * @param subject 
    * @return the set
@@ -98,7 +98,7 @@ public interface AttributeDefResolver {
 
   /**
    * Get all subjects with <i>privilege</i> on <i>attributeDef</i>.
-   * <p/>
+   * 
    * @param attributeDef 
    * @param privilege 
    * @return the set
@@ -111,7 +111,7 @@ public interface AttributeDefResolver {
 
   /**
    * Grant <i>privilege</i> to <i>subject</i> on <i>attributeDef</i>.
-   * <p/>
+   * 
    * @param attributeDef 
    * @param subject 
    * @param privilege 
@@ -128,7 +128,7 @@ public interface AttributeDefResolver {
 
   /**
    * Check whether <i>subject</i> has <i>privilege</i> on <i>attributeDef</i>.
-   * <p/>
+   * 
    * @param attributeDef 
    * @param subject 
    * @param privilege 
@@ -142,7 +142,7 @@ public interface AttributeDefResolver {
 
   /**
    * Revoke <i>privilege</i> from all subjects on <i>attributeDef</i>.
-   * <p/>
+   * 
    * @param attributeDef 
    * @param privilege 
    * @throws  IllegalArgumentException if any parameter is null.
@@ -157,7 +157,7 @@ public interface AttributeDefResolver {
 
   /**
    * Revoke <i>privilege</i> from <i>subject</i> on <i>attributeDef</i>.
-   * <p/>
+   * 
    * @param attributeDef 
    * @param subject 
    * @param privilege 

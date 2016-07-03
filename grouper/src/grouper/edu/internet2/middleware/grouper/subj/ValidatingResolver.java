@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Decorator that provides parameter validation for {@link SubjectResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: ValidatingResolver.java,v 1.8 2009-12-30 04:22:57 mchyzer Exp $
  * @since   1.2.1

@@ -8307,6 +8307,10 @@ public class GrouperInstallerUtils  {
       thread.join();
       
       if (theException[0] != null) {
+        
+        //append this stack
+        injectInException(theException[0], getFullStackTrace(new RuntimeException("caller stack")));
+        
         throw theException[0];
       }
   
@@ -9576,7 +9580,7 @@ public class GrouperInstallerUtils  {
       }
       return sb.toString();
     } catch (Exception e) {
-      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath());
+      throw new RuntimeException("Problem getting checksum of file: " + file.getAbsolutePath(), e);
     }
   }
 
@@ -9996,6 +10000,32 @@ public class GrouperInstallerUtils  {
   public static CommandResult execCommand(final String[] arguments, final boolean exceptionOnExitValueNeZero, final boolean waitFor, 
       final String[] envVariables, final File workingDirectory, final String outputFilePrefix, 
       final boolean printOutputErrorAsReceived, boolean printProgress) {
+    return execCommand(arguments, exceptionOnExitValueNeZero, waitFor, envVariables, 
+        workingDirectory, outputFilePrefix, printOutputErrorAsReceived, printProgress, true);
+  }
+
+  /**
+   * <pre>This will execute a command (with args). Under normal operation, 
+   * if the exit code of the command is not zero, an exception will be thrown.
+   * If the parameter exceptionOnExitValueNeZero is set to true, the 
+   * results of the call will be returned regardless of the exit status.
+   * Example call: execCommand(new String[]{"/bin/bash", "-c", "cd /someFolder; runSomeScript.sh"}, true);
+   * </pre>
+   * @param arguments are the commands
+   * @param exceptionOnExitValueNeZero if this is set to false, the 
+   * results of the call will be returned regardless of the exit status
+   * @param waitFor if we should wait for this process to end
+   * @param workingDirectory 
+   * @param envVariables are env vars with name=val
+   * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
+   * @param printOutputErrorAsReceived if should print output error as received
+   * @param printProgress if dots for progress should be used
+   * @param logError true if errors should be logged.  otherwise they will only be thrown
+   * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
+   */
+  public static CommandResult execCommand(final String[] arguments, final boolean exceptionOnExitValueNeZero, final boolean waitFor, 
+      final String[] envVariables, final File workingDirectory, final String outputFilePrefix, 
+      final boolean printOutputErrorAsReceived, boolean printProgress, final boolean logError) {
     
     final CommandResult[] result = new CommandResult[1];
     
@@ -10003,7 +10033,7 @@ public class GrouperInstallerUtils  {
 
       public void run() {
         result[0] = execCommandHelper(arguments, exceptionOnExitValueNeZero, waitFor, 
-            envVariables, workingDirectory, outputFilePrefix, printOutputErrorAsReceived);
+            envVariables, workingDirectory, outputFilePrefix, printOutputErrorAsReceived, logError);
       }
     };
 
@@ -10029,10 +10059,11 @@ public class GrouperInstallerUtils  {
    * @param envVariables are env vars with name=val
    * @param outputFilePrefix will be the file prefix and Out.log and Err.log will be added to them
    * @param printOutputErrorAsReceived if should print output error as received
+   * @param logError if error should be logged, otherwise it will only be thrown
    * @return the output text of the command, and the error and return code if exceptionOnExitValueNeZero is false.
    */
   private static CommandResult execCommandHelper(String[] arguments, boolean exceptionOnExitValueNeZero, boolean waitFor, 
-      String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printOutputErrorAsReceived) {
+      String[] envVariables, File workingDirectory, String outputFilePrefix, boolean printOutputErrorAsReceived, boolean logError) {
     
     if (printOutputErrorAsReceived && !isBlank(outputFilePrefix)) {
       throw new RuntimeException("Cant print as received and have output file prefix");
@@ -10084,8 +10115,10 @@ public class GrouperInstallerUtils  {
         }
       }
     } catch (Exception e) {
-      LOG.error("Error running command: " + command, e);
-      throw new RuntimeException("Error running command", e);
+      if (logError) {
+        LOG.error("Error running command: " + command, e);
+      }
+      throw new RuntimeException("Error running command: " + command, e);
     } finally {
       try {
         process.destroy();
@@ -10098,7 +10131,9 @@ public class GrouperInstallerUtils  {
       String message = "Process exit status=" + process.exitValue() + ": out: " + 
         (outputGobbler == null ? null : outputGobbler.getResultString())
         + ", err: " + (errorGobbler == null ? null : errorGobbler.getResultString());
-      LOG.error(message + ", on command: " + command + (workingDirectory == null ? "" : (", workingDir: " + workingDirectory.getAbsolutePath())));
+      if (logError) {
+        LOG.error(message + ", on command: " + command + (workingDirectory == null ? "" : (", workingDir: " + workingDirectory.getAbsolutePath())));
+      }
       throw new RuntimeException(message);
     }
 
@@ -10539,7 +10574,7 @@ public class GrouperInstallerUtils  {
       return null;
     }
     if (nodes.getLength() != 1) {
-      throw new RuntimeException("There is more than 1 Server element in server.xml: " + xmlFile.getAbsolutePath());
+      throw new RuntimeException("There is more than 1 xpath expression: '" + xpathExpression + "' element in server.xml: " + xmlFile.getAbsolutePath());
     }
     
     

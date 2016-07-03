@@ -28,17 +28,5 @@ Clone the repository and execute the build via:
 
 ```bash
 git clone git@github.com:Internet2/grouper.git
-cd grouper-parent
-mvn clean package
+gradlew[.bat] build -x test -x javadoc --parallel
 ```
-
-### Documentation
-To build the project documentation, execute the following:
-
-```bash
-cd grouper-parent
-mvn site site:deploy
-cd /tmp/grouper-parent
-[launch] index.html
-```
-

@@ -18,49 +18,6 @@
  */
 package edu.internet2.middleware.grouper.ddl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.ddlutils.Platform;
-import org.apache.ddlutils.PlatformFactory;
-import org.apache.ddlutils.model.Column;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.ForeignKey;
-import org.apache.ddlutils.model.Index;
-import org.apache.ddlutils.model.IndexColumn;
-import org.apache.ddlutils.model.NonUniqueIndex;
-import org.apache.ddlutils.model.Reference;
-import org.apache.ddlutils.model.Table;
-import org.apache.ddlutils.model.UniqueIndex;
-import org.apache.ddlutils.platform.SqlBuilder;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.SQLExec;
-import org.hibernate.ObjectNotFoundException;
-import org.hibernate.impl.SessionImpl;
-
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -92,6 +49,48 @@ import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.ddlutils.Platform;
+import org.apache.ddlutils.PlatformFactory;
+import org.apache.ddlutils.model.Column;
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.ForeignKey;
+import org.apache.ddlutils.model.Index;
+import org.apache.ddlutils.model.IndexColumn;
+import org.apache.ddlutils.model.NonUniqueIndex;
+import org.apache.ddlutils.model.Reference;
+import org.apache.ddlutils.model.Table;
+import org.apache.ddlutils.model.UniqueIndex;
+import org.apache.ddlutils.platform.SqlBuilder;
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.SQLExec;
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.internal.SessionImpl;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  *
@@ -2588,8 +2587,19 @@ public class GrouperDdlUtils {
     
     try {
       //first, see if tables are there
-      int count = HibernateSession.bySqlStatic().select(int.class, 
-          "select count(*) from " + tableName);
+      int count = -1;
+      
+      if (expectRecords || GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDdl.legacySeeIfTableExists", false)) {
+        
+        count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from " + tableName);
+        
+      } else {
+        
+        count = HibernateSession.bySqlStatic().select(int.class, 
+            "select count(*) from " + tableName + " where 1=0");
+        
+      }
       if (!expectRecords) {
         return true;
       }

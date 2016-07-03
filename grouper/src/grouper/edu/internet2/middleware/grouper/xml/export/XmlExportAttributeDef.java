@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -37,6 +38,8 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.Dom4JReader;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -690,6 +693,133 @@ public class XmlExportAttributeDef {
     
     xStream.marshal(this, compactWriter);
   
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer) throws IOException {
+    //new AttributeDefSave(grouperSession).assignName(this.name).assignCreateParentStemsIfNotExist(true)
+    //.assignDescription(this.description).assignDisplayName(this.displayName).save();
+
+    writer.write("AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession).assignName(\""
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.name) 
+        + "\").assignCreateParentStemsIfNotExist(true)");
+    if (!StringUtils.isBlank(this.description)) {
+      writer.write(".assignDescription(\""
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(this.description)
+        + "\")");
+    }
+      
+    if (GrouperUtil.booleanValue(this.assignToAttributeDef, false)) {
+      writer.write(".assignToAttributeDef(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToAttributeDefAssn, false)) {
+      writer.write(".assignToAttributeDefAssn(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToEffMembership, false)) {
+      writer.write(".assignToEffMembership(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToEffMembershipAssn, false)) {
+      writer.write(".assignToEffMembershipAssn(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToGroup, false)) {
+      writer.write(".assignToGroup(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToGroupAssn, false)) {
+      writer.write(".assignToGroupAssn(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToImmMembership, false)) {
+      writer.write(".assignToImmMembership(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToImmMembershipAssn, false)) {
+      writer.write(".assignToImmMembershipAssn(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToMember, false)) {
+      writer.write(".assignToMember(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToMemberAssn, false)) {
+      writer.write(".assignToMemberAssn(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToStem, false)) {
+      writer.write(".assignToStem(true)");
+    }
+    if (GrouperUtil.booleanValue(this.assignToStemAssn, false)) {
+      writer.write(".assignToStemAssn(true)");
+    }
+
+    if (GrouperUtil.booleanValue(this.assignToImmMembership, false)) {
+      writer.write(".assignToImmMembership(true)");
+    }
+
+    if (GrouperUtil.booleanValue(this.attributeDefPublic, false)) {
+      writer.write(".assignAttributeDefPublic(true)");
+    }
+    
+    
+    writer.write(".assignAttributeDefType(AttributeDefType." + AttributeDefType.valueOfIgnoreCase(this.attributeDefType, true).name() + ")");
+    
+    writer.write(".assignMultiAssignable(" + GrouperUtil.booleanValue(this.multiAssignable, false) + ")");
+    writer.write(".assignMultiValued(" + GrouperUtil.booleanValue(this.multiValued, false) + ")");
+    writer.write(".assignValueType(AttributeDefValueType." + AttributeDefValueType.valueOfIgnoreCase(this.valueType, true).name() + ");\n");
+    
+    writer.write("AttributeDef attributeDef = attributeDefSave.save();\n");
+    writer.write("gshTotalObjectCount++;\nif (attributeDefSave.getSaveResultType() != SaveResultType.NO_CHANGE) {"
+        + "System.out.println(\"Made change for attributeDef: \" + attributeDef.getName()); gshTotalChangeCount++;}\n");
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain 
+   */
+  public static void exportAttributeDefsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+  
+        //select all attributeDefs in order
+        Query query = session.createQuery(
+            "select distinct theAttributeDef " + exportFromOnQuery(xmlExportMain, true));
+  
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+  
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
+        try {
+          results = query.scroll();
+          while(results.next()) {
+            Object object = results.get(0);
+            final AttributeDef attributeDef = (AttributeDef)object;
+            final XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(grouperVersion);
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportAttributeDef.toGsh(grouperVersion, writer);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting attributeDef to gsh: " + attributeDef, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
+          }
+        } finally {
+          HibUtils.closeQuietly(results);
+        }
+        
+        return null;
+      }
+    });
   }
 
   /**

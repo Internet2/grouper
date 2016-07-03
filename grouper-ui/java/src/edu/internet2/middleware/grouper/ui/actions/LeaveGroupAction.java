@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.*;
 /**
  * Top level Strut's action which, assuming user has optout privilege,
  * removes user from members attribute of group. 
- * <p/>
+ * 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

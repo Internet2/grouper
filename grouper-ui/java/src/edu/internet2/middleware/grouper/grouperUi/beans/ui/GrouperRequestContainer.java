@@ -375,4 +375,28 @@ public class GrouperRequestContainer {
     this.stemContainer = theStemContainer;
   }
   
+  /**
+   * container for rules
+   */
+  private RulesContainer rulesContainer;
+  
+  /**
+   * container for rules screens
+   * @return container for rules screens
+   */
+  public RulesContainer getRulesContainer() {
+    if (this.rulesContainer == null) {
+      this.rulesContainer = new RulesContainer();
+    }
+    return this.rulesContainer;
+  }
+  
+  /**
+   * container for rules screens
+   * @param theRulesContainer
+   */
+  public void setRulesContainer(RulesContainer theRulesContainer) {
+    this.rulesContainer = theRulesContainer;
+  }
+  
 }

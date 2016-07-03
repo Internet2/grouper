@@ -295,6 +295,34 @@ public class XmlExportRoleSet {
   }
 
   /**
+   * @param exportVersion 
+   * @param writer
+   * @param ifHasRoleName 
+   * @param thenHasRoleName 
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String ifHasRoleName, String thenHasRoleName) throws IOException {
+    writer.write("ifHasRole = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasRoleName) + "\", false);\n");
+    writer.write("thenHasRole = GroupFinder.findByName(grouperSession, \""
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasRoleName) + "\", false);\n");
+
+    writer.write("if (ifHasRole != null) { ");
+
+    writer.write("if (thenHasRole != null) { ");
+
+    //addCompositeMember(CompositeType type, Group left, Group right)
+    writer.write("boolean changed = ifHasRole.getRoleInheritanceDelegate().addRoleToInheritFromThis(thenHasRole); if (changed) { gshTotalChangeCount++; System.out.println(\"Made change for role inheritance: \" + ifHasRole.getName() + \" then has role \" + thenHasRole.getName());  }");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasRole: \" + thenHasRole.getName()); gshTotalErrorCount++; } ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasRole: \" + ifHasRole.getName()); gshTotalErrorCount++; }\n");
+
+  }
+
+  /**
    * parse the xml file for groups
    * @param xmlImportMain
    */
@@ -452,6 +480,67 @@ public class XmlExportRoleSet {
         } catch (IOException ioe) {
           throw new RuntimeException("Problem with streaming roleSets", ioe);
         }
+        return null;
+      }
+    });
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportRoleSetsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.ifHasRoleId ), "
+            + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theRoleSet.thenHasRoleId ), "
+            + " theRoleSet "
+            + exportFromOnQuery(xmlExportMain, false));
+
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
+        try {
+          results = query.scroll();
+          while(results.next()) {
+            final String ifHasRoleName = (String)results.get(0);
+            final String thenHasRoleName = (String)results.get(1);
+            final RoleSet roleSet = (RoleSet)results.get(2);
+            final XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(grouperVersion);
+
+            //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+            //    + ", " + stemName + ", " + nameOfAttributeDef 
+            //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+            
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportRoleSet.toGsh(grouperVersion, writer, ifHasRoleName, thenHasRoleName);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting roleSet to gsh: " + ifHasRoleName + ", " + thenHasRoleName, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
+          }
+        } finally {
+          HibUtils.closeQuietly(results);
+        }
+          
         return null;
       }
     });

@@ -43,7 +43,7 @@ import org.apache.struts.action.ActionMapping;
  * Need to relook at this again, but intended to cope with access to protected pages
  * during basic Http Authentication. 
  * 
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: Populate401Action.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $

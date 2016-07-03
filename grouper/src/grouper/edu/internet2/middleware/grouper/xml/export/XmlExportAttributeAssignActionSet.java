@@ -394,6 +394,124 @@ public class XmlExportAttributeAssignActionSet {
     return queryBuilder.toString();
   }
 
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeAssignActionSetsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+    //get the members
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef, AttributeAssignAction theAttributeAssignAction where theAttributeAssignAction.id = theAttributeAssignActionSet.ifHasAttrAssignActionId and theAttributeDef.id = theAttributeAssignAction.attributeDefId ), "
+            + " ( select theAttributeAssignAction.nameDb from AttributeAssignAction as theAttributeAssignAction where theAttributeAssignAction.id = theAttributeAssignActionSet.ifHasAttrAssignActionId ), "
+            + " ( select theAttributeAssignAction.nameDb from AttributeAssignAction as theAttributeAssignAction where theAttributeAssignAction.id = theAttributeAssignActionSet.thenHasAttrAssignActionId ), "
+            + " theAttributeAssignActionSet "
+            + exportFromOnQuery(xmlExportMain, false));
+
+//        //select all action sets (immediate is depth = 1)
+//        Query query = session.createQuery(
+//            "select distinct  " + exportFromOnQuery(xmlExportMain, true));
+
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+        //this is an efficient low-memory way to iterate through a resultset
+        ScrollableResults results = null;
+        try {
+          results = query.scroll();
+          while(results.next()) {
+            final String nameOfAttributeDef = (String)results.get(0);
+            final String ifHasActionName = (String)results.get(1);
+            final String thenHasActionName = (String)results.get(2);
+            final AttributeAssignActionSet attributeAssignActionSet = (AttributeAssignActionSet)results.get(3);
+            final XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = attributeAssignActionSet.xmlToExportAttributeAssignActionSet(grouperVersion);
+
+            //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+            //    + ", " + stemName + ", " + nameOfAttributeDef 
+            //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+            
+            HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+              
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try {
+                  xmlExportAttributeAssignActionSet.toGsh(grouperVersion, writer, nameOfAttributeDef, ifHasActionName, thenHasActionName);
+                } catch (IOException ioe) {
+                  throw new RuntimeException("Problem exporting action hierarchy to gsh: " + nameOfAttributeDef + ", " + ifHasActionName + ", " + thenHasActionName, ioe);
+                }
+                return null;
+              }
+            });
+            xmlExportMain.incrementRecordCount();
+          }
+        } finally {
+          HibUtils.closeQuietly(results);
+        }
+        
+        return null;
+      }
+    });
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param nameOfAttributeDef
+   * @param ifHasActionName 
+   * @param thenHasActionName 
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String nameOfAttributeDef, String ifHasActionName, String thenHasActionName) throws IOException {
+    
+    //readWrite = permissionDef.getAttributeDefActionDelegate().findAction("readWrite", true);
+    //admin = permissionDef.getAttributeDefActionDelegate().findAction("admin", true);
+    // 
+    //readWrite.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(read);
+    
+    if (nameOfAttributeDef == null) {
+      throw new RuntimeException("Why is nameOfAttributeDef null?");
+    }
+
+    writer.write("AttributeDef attributeDef = AttributeDefFinder.findByName(\""
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\", false);\n");
+
+    writer.write("if (attributeDef != null) { ");
+
+    writer.write("AttributeAssignAction ifHasAction = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasActionName) + "\", false); ");
+
+    writer.write("if (ifHasAction != null) { ");
+
+    writer.write("AttributeAssignAction thenHasAction = attributeDef.getAttributeDefActionDelegate().findAction(\"" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasActionName) + "\", false); ");
+
+    writer.write("if (thenHasAction != null) { ");
+
+    writer.write(" boolean changed = ifHasAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(thenHasAction); gshTotalObjectCount++; "
+        + "if (changed) { gshTotalChangeCount++; System.out.println(\"Made change for action inheritance for attributeDef: " 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + ", if has action: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasActionName) 
+        + " then has action: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasActionName) + "\"); } ");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find thenHasAction: '" 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(thenHasActionName) + "', attributeDefName: '" 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); gshTotalErrorCount++; }");
+
+    writer.write(" } else { System.out.println(\"ERROR: cant find ifHasAction: '" 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(ifHasActionName) + "', attributeDefName: '" 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); gshTotalErrorCount++; }");
+    
+    writer.write(" } else { System.out.println(\"ERROR: cant find attributeDef: '" 
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); gshTotalErrorCount++; }\n");
+
+  }
 
   /**
    * 

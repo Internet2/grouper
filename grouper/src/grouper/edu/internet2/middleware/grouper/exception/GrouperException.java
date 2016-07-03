@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Generic Grouper exception.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.1.0

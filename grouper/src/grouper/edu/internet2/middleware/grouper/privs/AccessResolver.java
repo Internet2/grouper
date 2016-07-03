@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Facade for the {@link AccessAdapter} interface.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AccessResolver.java,v 1.12 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
@@ -71,7 +71,7 @@ public interface AccessResolver {
   
   /**
    * Get all groups where <i>subject</i> has <i>privilege</i>.
-   * <p/>
+   * 
    * @param subject 
    * @param privilege 
    * @return the set
@@ -98,7 +98,7 @@ public interface AccessResolver {
   
   /**
    * Get all stems which have groups where <i>subject</i> has <i>privilege</i>.
-   * <p/>
+   * 
    * @param subject 
    * @param privilege 
    * @return the set
@@ -111,7 +111,7 @@ public interface AccessResolver {
 
   /**
    * Get all privileges <i>subject</i> has on <i>group</i>.
-   * <p/>
+   * 
    * @param group 
    * @param subject 
    * @return the set
@@ -124,7 +124,7 @@ public interface AccessResolver {
 
   /**
    * Get all subjects with <i>privilege</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param group 
    * @param privilege 
    * @return the set
@@ -137,7 +137,7 @@ public interface AccessResolver {
 
   /**
    * Grant <i>privilege</i> to <i>subject</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param group 
    * @param subject 
    * @param privilege 
@@ -154,7 +154,7 @@ public interface AccessResolver {
 
   /**
    * Check whether <i>subject</i> has <i>privilege</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param group 
    * @param subject 
    * @param privilege 
@@ -168,7 +168,7 @@ public interface AccessResolver {
 
   /**
    * Revoke <i>privilege</i> from all subjects on <i>group</i>.
-   * <p/>
+   * 
    * @param group 
    * @param privilege 
    * @throws  IllegalArgumentException if any parameter is null.
@@ -183,7 +183,7 @@ public interface AccessResolver {
 
   /**
    * Revoke <i>privilege</i> from <i>subject</i> on <i>group</i>.
-   * <p/>
+   * 
    * @param group 
    * @param subject 
    * @param privilege 

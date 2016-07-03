@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Cache for if wheel member
- * <p/>
+ * 
  * @version $Id: WheelAccessResolver.java,v 1.26 2009-09-21 06:14:26 mchyzer Exp $
  * @since   2.1.0
  */

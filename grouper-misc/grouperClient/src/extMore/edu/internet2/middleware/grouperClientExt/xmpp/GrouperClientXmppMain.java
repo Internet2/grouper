@@ -35,8 +35,8 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Message.Type;
+import org.jivesoftware.smack.packet.Packet;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -539,8 +539,9 @@ public class GrouperClientXmppMain {
      
      String jobGroup = Scheduler.DEFAULT_GROUP;
      JobDetail jobDetail = JobBuilder.newJob(jobClass)
-                      .withIdentity(jobName, jobGroup)
-                      .storeDurably(true).build();
+         .withIdentity(jobName, jobGroup)
+         .storeDurably(true)
+         .build();
 
      Scheduler scheduler = GrouperClientXmppMain.scheduler();
 
@@ -562,15 +563,14 @@ public class GrouperClientXmppMain {
        }
      }
      if (cronTrigger == null) {
-         cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerName, jobGroup)
-                 .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString)).build();
-     }
-
-     try {
-         CronScheduleBuilder builder = (CronScheduleBuilder) cronTrigger.getScheduleBuilder();
-         builder.cronSchedule(quartzCronString);
-     } catch (Exception pe) {
-       throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
+       try {
+         cronTrigger = TriggerBuilder.newTrigger()
+                 .withIdentity(triggerName)
+                 .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))
+                 .build();
+       } catch (RuntimeException pe) {
+         throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
+       }
      }
 
      try {

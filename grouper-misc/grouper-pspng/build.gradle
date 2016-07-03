@@ -1,0 +1,16 @@
+description = 'Grouper PGP NG'
+dependencies {
+    compile project(':subject')
+    compile project(':grouper')
+    compile project(':grouper-misc:grouperClient')
+    compile libraries.ldaptive
+    
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}

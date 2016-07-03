@@ -78,11 +78,15 @@ public class Hib3MessageDAO extends Hib3DAO implements MessageDAO {
    * @see edu.internet2.middleware.grouper.internal.dao.MessageDAO#findByQueue(String, int)
    */
   public List<GrouperMessageHibernate> findByQueue(String queue, int pageSize) {
+    
     List<GrouperMessageHibernate> messages = HibernateSession.byHqlStatic()
       .createQuery("from GrouperMessageHibernate gmh "
-          + " where gmh.queueName = :theQueueName and gmh.state = 'IN_QUEUE' "
+          + " where gmh.queueName = :theQueueName"
+          + " and (gmh.state = 'IN_QUEUE' or (gmh.state = 'GET_ATTEMPTED'"
+          + " and gmh.attemptTimeExpiresMillis < :attemptTimeExpired )) "
           + " order by gmh.sentTimeMicros, gmh.id ")
-      .setString("theQueueName", queue).options(QueryOptions.create(null, null, 1, pageSize))
+      .setString("theQueueName", queue).setLong("attemptTimeExpired", System.currentTimeMillis())
+      .options(QueryOptions.create(null, null, 1, pageSize))
       .list(GrouperMessageHibernate.class);
     return messages;
   }

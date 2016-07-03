@@ -89,7 +89,7 @@ public class TestGQGroupCreatedBefore extends TestCase {
       GrouperQuery gq = GrouperQuery.createQuery(
         s, new GroupCreatedBeforeFilter(when, root)
       );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("groups",  GrouperTest.filterOutBuiltInGroups(gq.getGroups()).size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);
@@ -113,7 +113,7 @@ public class TestGQGroupCreatedBefore extends TestCase {
       GrouperQuery gq = GrouperQuery.createQuery(
         s, new GroupCreatedBeforeFilter(when, root)
       );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 3);
+      Assert.assertTrue("groups",  GrouperTest.filterOutBuiltInGroups(gq.getGroups()).size()      == 3);
       Assert.assertTrue("members", gq.getMembers().size()     == 1);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);

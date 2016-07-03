@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides caching for {@link NamingResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: CachingNamingResolver.java,v 1.12 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

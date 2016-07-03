@@ -177,7 +177,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
 
   /**
    * Get all privileges held by this subject on this stem.
-   * <p/>
+   * 
    * <pre class="eg">
    * Set privs = np.getPrivs(s, ns, subj);
    * </pre>

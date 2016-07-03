@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.exception;
 /**
  * Exception thrown when a role set is not found within the Groups
  * Registry.
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: RoleSetNotFoundException.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
  */

@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
  * Add an <code>Attribute</code> to a <code>GroupType</code>.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: typeAddAttr.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
@@ -43,7 +43,7 @@ public class typeAddAttr {
 
   /**
    * Add an <code>Attribute</code> to a <code>GroupType</code>.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   type        Add to this <code>GroupType</code>.

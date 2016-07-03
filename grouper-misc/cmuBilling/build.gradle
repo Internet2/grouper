@@ -1,4 +1,4 @@
-apply plugin: "java"
+
 description = 'CMU Billing'
 dependencies {
   compile project(':grouper-misc:grouperClient')

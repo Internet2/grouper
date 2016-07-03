@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.Str
 /**
  * A HierarchicalStreamReader that reads from a binary stream created by
  * {@link BinaryStreamWriter}.
- * <p/>
+ * 
  * <p>This produces
  *
  * @author Joe Walnes

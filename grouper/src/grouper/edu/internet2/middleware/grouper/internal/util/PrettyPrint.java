@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * Utility class for pretty printing objects.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: PrettyPrint.java,v 1.7 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
@@ -57,7 +57,7 @@ public class PrettyPrint {
 
   /**
    * Return a pretty printed string of the specified object (if possible).
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static String pp(Object obj) {

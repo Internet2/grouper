@@ -1,0 +1,25 @@
+description = 'Grouper TIER API AuthZ Client'
+
+dependencies {
+    compile libraries.commons
+    compile libraries.jsonlib
+    
+    compile project(':grouper-misc:morphString')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main'
+        }
+        resources {
+            srcDirs 'misc', 'src/resources'
+            include '**/*.properties', '**/*.txt'
+        }
+    }
+    test {
+        java {
+            srcDirs 'src/test'
+        }
+    }
+}

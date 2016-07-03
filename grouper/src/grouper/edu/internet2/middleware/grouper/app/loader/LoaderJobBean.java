@@ -87,9 +87,6 @@ public class LoaderJobBean {
     /** constant for field name for: ldapAttributeFilterExpression */
     public static final String FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION = "ldapAttributeFilterExpression";
 
-    /** constant for field name for: ldapErrorUnresolvable */
-    public static final String FIELD_LDAP_ERROR_UNRESOLVABLE = "ldapErrorUnresolvable";
-
     /** constant for field name for: ldapExtraAttributes */
     public static final String FIELD_LDAP_EXTRA_ATTRIBUTES = "ldapExtraAttributes";
 
@@ -149,7 +146,7 @@ public class LoaderJobBean {
         FIELD_ATTRIBUTE_LOADER_ATTR_QUERY, FIELD_ATTRIBUTE_LOADER_ATTR_SET_QUERY, FIELD_ATTRIBUTE_LOADER_ATTRS_LIKE, FIELD_GROUP_LIKE_STRING, 
         FIELD_GROUP_NAME_OVERALL, FIELD_GROUP_QUERY, FIELD_GROUP_TYPES, FIELD_GROUPER_LOADER_DB, 
         FIELD_GROUPER_LOADER_TYPE, FIELD_GROUPER_SESSION, FIELD_HIB3_GROUPLOADER_LOG_OVERALL, 
-        FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION, FIELD_LDAP_ERROR_UNRESOLVABLE, 
+        FIELD_LDAP_ATTRIBUTE_FILTER_EXPRESSION, 
         FIELD_LDAP_EXTRA_ATTRIBUTES, FIELD_LDAP_FILTER, FIELD_LDAP_GROUP_ATTRIBUTE, FIELD_LDAP_GROUP_DESCRIPTION_EXPRESSION, 
         FIELD_LDAP_GROUP_DISPLAY_EXTENSION_EXPRESSION, FIELD_LDAP_GROUP_NAME_EXPRESSION, FIELD_LDAP_QUARTZ_CRON, FIELD_LDAP_SEARCH_DN, 
         FIELD_LDAP_SEARCH_SCOPE, FIELD_LDAP_SERVER_ID, FIELD_LDAP_SOURCE_ID, FIELD_LDAP_SUBJECT_ATTRIBUTE, 
@@ -422,36 +419,6 @@ public class LoaderJobBean {
     this.ldapGroupReaders = ldapGroupReaders1;
   }
 
-  
-  
-  /**
-   * Value could be true or false (default to true).  If true, then there will be 
-   * an error if there are unresolvable subjects in the results.  If you know there
-   * are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
-   */
-  private String ldapErrorUnresolvable;
-  
-  
-  /**
-   * Value could be true or false (default to true).  If true, then there will be 
-   * an error if there are unresolvable subjects in the results.  If you know there
-   * are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
-   * @return the ldapErrorUnresolvable
-   */
-  public String getLdapErrorUnresolvable() {
-    return this.ldapErrorUnresolvable;
-  }
-
-  
-  /**
-   * Value could be true or false (default to true).  If true, then there will be 
-   * an error if there are unresolvable subjects in the results.  If you know there
-   * are subjects in LDAP which are not resolvable by Grouper, set to false, they will be ignored
-   * @param ldapErrorUnresolvable1 the ldapErrorUnresolvable to set
-   */
-  public void setLdapErrorUnresolvable(String ldapErrorUnresolvable1) {
-    this.ldapErrorUnresolvable = ldapErrorUnresolvable1;
-  }
 
   /**
    * optional, for LDAP_GROUP_LIST, or LDAP_GROUPS_FROM_ATTRIBUTES   
@@ -1074,7 +1041,6 @@ public class LoaderJobBean {
    * @param andGroups1
    * @param ldapGroupAttribute1 
    * @param extraAttributes1 
-   * @param errorUnresolvable1
    * @param ldapGroupNameExpression1 
    * @param ldapGroupDisplayExtensionExpression1 
    * @param ldapGroupDescriptionExpression1 
@@ -1097,7 +1063,7 @@ public class LoaderJobBean {
       GrouperLoaderType grouperLoaderType1, String groupNameOverall1,
       Hib3GrouperLoaderLog hib3GrouploaderLogOverall1, GrouperSession grouperSession1, List<Group> andGroups1,
       String ldapGroupAttribute1, String extraAttributes1, 
-      String errorUnresolvable1, String ldapGroupNameExpression1, 
+      String ldapGroupNameExpression1, 
       String ldapGroupDisplayExtensionExpression1, String ldapGroupDescriptionExpression1,
       String ldapSubjectExpression1, List<GroupType> groupTypes1, String ldapGroupReaders1,
       String ldapGroupViewers1, String ldapGroupAdmins1, String ldapGroupUpdaters1, String ldapGroupOptins1,
@@ -1122,7 +1088,6 @@ public class LoaderJobBean {
     this.ldapAttributeFilterExpression = ldapAttributeFilterExpression1;
     this.ldapGroupAttribute = ldapGroupAttribute1;
     this.ldapExtraAttributes = extraAttributes1;
-    this.ldapErrorUnresolvable = errorUnresolvable1;
     this.ldapGroupNameExpression = ldapGroupNameExpression1;
     this.ldapGroupDisplayNameExpression = ldapGroupDisplayExtensionExpression1;
     this.ldapGroupDescriptionExpression = ldapGroupDescriptionExpression1;

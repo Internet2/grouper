@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * {@link GrouperShell} Shell Command Reader.
- * <p/>
+ * 
  * @author  blair christensen.
  * @since   0.1.1
  */

@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * usdu by a specific member
- * <p/>
+ * 
  * @author  Chris Hyzer
  * @version $Id: usduByMember.java,v 1.1 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -39,7 +39,7 @@ public class usduByMember {
 
   /**
    * usdu by member
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param member 
@@ -52,7 +52,7 @@ public class usduByMember {
 
   /**
    * usdu by source
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param member 

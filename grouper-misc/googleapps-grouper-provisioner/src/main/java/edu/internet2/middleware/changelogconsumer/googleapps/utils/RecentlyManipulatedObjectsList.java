@@ -15,7 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps.utils;
 
-import edu.internet2.middleware.changelogconsumer.googleapps.GoogleAppsFullSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

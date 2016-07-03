@@ -8,10 +8,8 @@ import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import edu.internet2.middleware.grouperAtlassianConnector.db.AtlassianCwdUser;
-import edu.internet2.middleware.grouperAtlassianConnector.db.GrouperAtlassianDataReconcile;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;

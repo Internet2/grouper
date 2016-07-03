@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
 
 /** 
  * Query by exact group alternate name.
- * <p/>
+ * 
  * @author shilen
  * @version $Id: GroupAlternateNameExactFilter.java,v 1.1 2009-03-27 19:32:41 shilen Exp $
  */

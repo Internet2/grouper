@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 
 /**
  * add a type after a group insert
@@ -36,6 +37,9 @@ public class GroupHookAddType extends
   public void groupPostInsert(HooksContext hooksContext,
       HooksGroupBean postInsertBean) {
 
+    if (GrouperCheckConfig.inCheckConfig) {
+      return;
+    }
     super.groupPostInsert(hooksContext, postInsertBean);
     try {
       Group group = postInsertBean.getGroup();

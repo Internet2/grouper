@@ -1,23 +1,23 @@
 description = 'Grouper AMQ'
 dependencies {
-  compile project(':subject')
-  compile project(':grouper')
-  compile project(':grouper-misc:grouperClient')
-  compile group: 'org.apache.activemq', name: 'activemq-core', version: activemq_version
+    compile project(':subject')
+    compile project(':grouper')
+    compile project(':grouper-misc:grouperClient')
+    compile libraries.activemq
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'source'
+    main {
+        java {
+            srcDir 'source'
+        }
+        resources {
+            srcDirs 'misc'
+        }
     }
-    resources {
-      srcDirs 'misc'
+    test {
+        java {
+            srcDir 'test'
+        }
     }
-  }
-  test {
-  	java {
-  		srcDir 'test'
-  	}
-  }
 }

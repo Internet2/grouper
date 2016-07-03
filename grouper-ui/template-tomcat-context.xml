@@ -1,5 +1,0 @@
-<Context path="@deploy.context.path@" docBase="@deploy.docbase@"
-        debug="0" privileged="false" reloadable="false" swallowOutput="true"
-        />
-
-

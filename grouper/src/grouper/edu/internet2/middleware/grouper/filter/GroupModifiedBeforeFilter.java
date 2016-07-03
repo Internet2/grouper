@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /** 
  * Query by groups modified before the specified date.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupModifiedBeforeFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
  * @since   1.1.0
@@ -60,7 +60,7 @@ public class GroupModifiedBeforeFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns groups modified before the
    * specified date. 
-   * <p/>
+   * 
    * @param   d   Find groups modified before this date.
    * @param   ns  Restrict results to within this stem.
    */

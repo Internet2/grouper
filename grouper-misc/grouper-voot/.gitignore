@@ -3,3 +3,4 @@ build.properties
 dist
 logs
 spy.log
+/target

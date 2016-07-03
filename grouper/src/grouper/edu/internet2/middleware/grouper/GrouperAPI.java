@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
 
 /** 
  * Base Grouper API class.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperAPI.java,v 1.23 2009-11-01 14:57:22 mchyzer Exp $
  * @since   1.2.0

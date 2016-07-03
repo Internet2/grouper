@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 /**
  * Top level Strut's action which does any necessary setup for initial display of 
  * Search Subjects  -a new menu item in 0.9 which allows a Subject centric view of the repository.
- * <p/>
+ * 
  
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

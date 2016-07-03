@@ -26,12 +26,12 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.GetSubjects;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGetSubjectsResults;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsParam;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubject;
-import edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GetSubjects;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGetSubjectsResults;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsParam;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.WsSubjectLookup;
 
 /**
  *

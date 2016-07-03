@@ -22,18 +22,18 @@ package edu.internet2.middleware.grouper.changeLog;
 
 /**
  * interface which could be on the enum, or class, or whatever.
- * generally you will use the enum AuditTypeBuiltin
+ * generally you will use the enum ChangeLogTypeBuiltin
  */
 public interface ChangeLogTypeIdentifier {
 
   /**
-   * get the audit category
+   * get the changelog category
    * @return the id
    */
   public String getChangeLogCategory();
 
   /**
-   * get the action name of the audit type
+   * get the action name of the changelog type
    * @return the name
    */
   public String getActionName();

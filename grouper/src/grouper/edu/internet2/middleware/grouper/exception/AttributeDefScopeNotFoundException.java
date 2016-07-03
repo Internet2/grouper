@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.exception;
 /**
  * Exception thrown when an attribute def scope is not found within the Groups
  * Registry.
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: AttributeDefScopeNotFoundException.java,v 1.1 2009-06-29 15:58:24 mchyzer Exp $
  */

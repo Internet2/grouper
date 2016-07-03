@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 /**
  * Top level Strut's action which does any setup needed prior to creating a 
  * new group e.g. setting flags so EditGroup.jsp behaves appropriately. 
- * <p/>
+ * 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

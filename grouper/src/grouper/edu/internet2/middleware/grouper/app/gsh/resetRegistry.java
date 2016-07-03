@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 /**
  * Reset Groups Registry to default state.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: resetRegistry.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -38,7 +38,7 @@ public class resetRegistry {
 
   /**
    * Reset Groups Registry to default state.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @return  True if succeeds.

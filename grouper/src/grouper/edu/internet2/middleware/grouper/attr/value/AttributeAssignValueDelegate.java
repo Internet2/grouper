@@ -35,8 +35,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue.AttributeAssignValueType;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -205,6 +207,8 @@ public class AttributeAssignValueDelegate {
       AttributeAssignValue existing = existingValues.iterator().next();
       existing.assignValue(attributeAssignValue);
       
+      //link them together in case someone calls get value
+      attributeAssignValue.setAttributeAssignId(existing.getAttributeAssignId());
       if (!existing.getCurrentAssignValueType().compatibleWith(attributeDef.getValueType())) {
         throw new RuntimeException("Types not compatible: " 
             + attributeAssignValue.getCurrentAssignValueType() + ", " 
@@ -1748,5 +1752,108 @@ public class AttributeAssignValueDelegate {
       .toString();
   }
 
+  /**
+   * replace values, update if possible... works for single or multi-assign
+   * @param expectedAttributeAssignValues
+   * @return the number of records updated
+   */
+  public int replaceValues(Set<AttributeAssignValue> expectedAttributeAssignValues) {
+    Set<AttributeAssignValue> existingAttributeAssignValues = this.getAttributeAssignValues();
+
+    Iterator<AttributeAssignValue> expectedAttributeAssignValueIterator = expectedAttributeAssignValues.iterator();
+    
+    int count = 0;
+    
+    // loop through expected values
+    while (expectedAttributeAssignValueIterator.hasNext()) {
+      
+      AttributeAssignValue expectedAttributeAssignValue = expectedAttributeAssignValueIterator.next();
+      
+      Iterator<AttributeAssignValue> existingAttributeAssignValueIterator = existingAttributeAssignValues.iterator();
+      
+      //loop through existing values
+      while (existingAttributeAssignValueIterator.hasNext()) {
+        AttributeAssignValue existingAttributeAssignValue = existingAttributeAssignValueIterator.next();
+        
+        // if the same then remove both from each set
+        if (GrouperUtil.equals(expectedAttributeAssignValue.getValue(), existingAttributeAssignValue.getValue())) {
+          expectedAttributeAssignValueIterator.remove();
+          existingAttributeAssignValueIterator.remove();
+          break;
+        }
+      }
+    }
+
+    //see if there are changes
+    if (GrouperUtil.length(existingAttributeAssignValues) > 0 || GrouperUtil.length(expectedAttributeAssignValues) > 0) {
+
+      AttributeDefName theAttributeDefName = attributeAssign.getAttributeDefName();
+      
+      if (!theAttributeDefName.getAttributeDef().isMultiValued()) {
+        
+        if (GrouperUtil.length(expectedAttributeAssignValues) > 1) {
+          throw new RuntimeException("Why assigning more than one value to a single valued attribute definition? " 
+              + GrouperUtil.toStringForLog(expectedAttributeAssignValues) + ", " + theAttributeDefName.getName());  
+        }
+        
+        if (GrouperUtil.length(expectedAttributeAssignValues) == 1) {
+          count++;
+          AttributeAssignValue object = expectedAttributeAssignValues.iterator().next();
+          this.assignValue(object);
+          if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+            System.out.println("Made change assigned attribute value '" + object.valueString(true) + "' on " + this.attributeAssign);
+          }
+        } else {
+          count++;
+          //must be a delete
+          AttributeAssignValue object = existingAttributeAssignValues.iterator().next();
+          if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+            System.out.println("Deleted attribute value '" + object.valueString(true) + "' from " + this.attributeAssign);
+          }
+          this.deleteValue(object);
+        }
+        
+      } else {
+        
+        expectedAttributeAssignValueIterator = expectedAttributeAssignValues.iterator();
+        Iterator<AttributeAssignValue> existingAttributeAssignValueIterator = existingAttributeAssignValues.iterator();
+        
+        // loop through expected values
+        while (expectedAttributeAssignValueIterator.hasNext()) {
+          
+          AttributeAssignValue expectedAttributeAssignValue = expectedAttributeAssignValueIterator.next();
+          
+          count++;
+
+          if (existingAttributeAssignValueIterator.hasNext()) {
+            AttributeAssignValue existingAttributeAssignValue = existingAttributeAssignValueIterator.next();
+            String oldValue = existingAttributeAssignValue.valueString(true);
+            existingAttributeAssignValue.assignValue(expectedAttributeAssignValue);
+            existingAttributeAssignValue.saveOrUpdate();
+            if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+              System.out.println("Made change updated attribute value from '" + oldValue + "' to '" + existingAttributeAssignValue.valueString(true) + "' on " + this.attributeAssign);
+            }
+          } else {
+            expectedAttributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+            expectedAttributeAssignValue.saveOrUpdate();
+            if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+              System.out.println("Made change added attribute value '" + expectedAttributeAssignValue.valueString(true) + "' on " + this.attributeAssign);
+            }
+          }
+        }
+        
+        //delete extra things that need to be deleted 
+        while (existingAttributeAssignValueIterator.hasNext()) {
+          count++;
+          AttributeAssignValue attributeAssignValue = existingAttributeAssignValueIterator.next();
+          if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
+            System.out.println("Made change deleted attribute value '" + attributeAssignValue.valueString(true) + "' from " + this.attributeAssign);
+          }
+          attributeAssignValue.delete();
+        }
+      }
+    }
+    return count;
+  }
 
 }

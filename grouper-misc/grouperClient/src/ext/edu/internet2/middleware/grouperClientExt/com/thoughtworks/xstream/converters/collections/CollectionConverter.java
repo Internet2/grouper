@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper
 /**
  * Converts most common Collections (Lists and Sets) to XML, specifying a nested
  * element for each item.
- * <p/>
+ * 
  * <p>Supports java.util.ArrayList, java.util.HashSet,
  * java.util.LinkedList, java.util.Vector and java.util.LinkedHashSet.</p>
  *

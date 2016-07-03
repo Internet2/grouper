@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
 /** 
  * Query filter that retrieves child stems.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: ChildStemFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  * @since   1.2.1

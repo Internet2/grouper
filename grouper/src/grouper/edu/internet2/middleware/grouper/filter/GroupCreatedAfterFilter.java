@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /** 
  * Query by groups created after the specified date.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupCreatedAfterFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
  */
@@ -60,7 +60,7 @@ public class GroupCreatedAfterFilter extends BaseQueryFilter {
   /**
    * {@link QueryFilter} that returns groups created after the
    * specified date. 
-   * <p/>
+   * 
    * @param   d   Find groups created after this date.
    * @param   ns  Restrict results to within this stem.
    */

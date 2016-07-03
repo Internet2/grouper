@@ -24,7 +24,6 @@ import com.google.api.services.admin.directory.Directory;
 import com.google.api.services.admin.directory.DirectoryRequest;
 import com.google.api.services.admin.directory.DirectoryScopes;
 import com.google.api.services.admin.directory.model.*;
-import com.google.api.services.admin.directory.model.Groups;
 import com.google.api.services.groupssettings.Groupssettings;
 import com.google.api.services.groupssettings.GroupssettingsRequest;
 import com.google.api.services.groupssettings.GroupssettingsScopes;

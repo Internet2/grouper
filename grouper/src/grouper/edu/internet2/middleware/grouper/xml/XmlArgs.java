@@ -36,7 +36,7 @@ import  java.util.Properties;
 
 /**
  * XML Command Line Argument Processing.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: XmlArgs.java,v 1.4 2009-03-31 06:58:28 mchyzer Exp $
  * @since   1.1.0

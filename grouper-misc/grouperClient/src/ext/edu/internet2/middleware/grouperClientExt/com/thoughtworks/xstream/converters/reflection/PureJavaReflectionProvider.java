@@ -48,7 +48,7 @@ import java.util.Map;
 /**
  * Pure Java ObjectFactory that instantiates objects using standard Java reflection, however the types of objects
  * that can be constructed are limited.
- * <p/>
+ * 
  * Can newInstance: classes with public visibility, outer classes, static inner classes, classes with default constructors
  * and any class that implements java.io.Serializable.
  * Cannot newInstance: classes without public visibility, non-static inner classes, classes without default constructors.

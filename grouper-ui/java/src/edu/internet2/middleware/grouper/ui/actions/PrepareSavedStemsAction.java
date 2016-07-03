@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * for listing saved stems. 
  * 
  * 
- * <p/>
+ * 
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

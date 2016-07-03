@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 
 /**
  * Delete a stem.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: delStem.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
@@ -43,7 +43,7 @@ public class delStem {
 
   /**
    * Delete a stem.
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param   name  <i>name</i> of {@link Stem} to delete.

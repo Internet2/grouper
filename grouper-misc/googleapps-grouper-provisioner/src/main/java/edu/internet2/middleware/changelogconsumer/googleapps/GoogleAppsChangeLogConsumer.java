@@ -24,7 +24,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.changeLog.*;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;

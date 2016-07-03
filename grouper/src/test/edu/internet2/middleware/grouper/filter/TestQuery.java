@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
+import java.util.Set;
 
 import junit.framework.Assert;
 import junit.textui.TestRunner;
@@ -62,7 +63,7 @@ public class TestQuery extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestQuery.class);
-    TestRunner.run(TestQuery.class);
+    TestRunner.run(new TestQuery("testGroupModifiedBeforeFilterFindSomething"));
   }
   
   /**
@@ -174,7 +175,9 @@ public class TestQuery extends GrouperTest {
       GrouperQuery gq = GrouperQuery.createQuery(
         r.rs, new GroupModifiedBeforeFilter(new Date(), r.root)
       );
-      T.amount( "groups: " + GrouperUtil.toStringForLog(gq.getGroups())  , 0,  gq.getGroups().size()       );
+      Set<Group> groups = gq.getGroups();
+      groups = filterOutBuiltInGroups(groups);
+      T.amount( "groups: " + GrouperUtil.toStringForLog(groups)  , 0,  groups.size()       );
       T.amount( "members" , 0,  gq.getMembers().size()      );
       T.amount( "mships"  , 0,  gq.getMemberships().size()  );
       T.amount( "stems"   , 0,  gq.getStems().size()        );
@@ -199,7 +202,9 @@ public class TestQuery extends GrouperTest {
       GrouperQuery gq = GrouperQuery.createQuery(
         r.rs, new GroupModifiedBeforeFilter(d, r.root)
       );
-      T.amount( "groups"  , 2,  gq.getGroups().size()       );
+      Set<Group> groups = gq.getGroups();
+      groups = filterOutBuiltInGroups(groups);
+      T.amount( "groups"  , 2,  groups.size()       );
       T.amount( "members" , 0,  gq.getMembers().size()      );
       T.amount( "mships"  , 0,  gq.getMemberships().size()  );
       T.amount( "stems"   , 0,  gq.getStems().size()        );

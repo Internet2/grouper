@@ -1,38 +1,34 @@
 description = 'Grouper Kim Connector'
 dependencies {
-  compile project(':grouper')
-  compile project(':grouper-misc:grouperClient')
+    compile project(':grouper')
+    compile project(':grouper-misc:grouperClient')
+    
+    compile libraries.hibernate
+    compile libraries.commons
+    compile libraries.spring
+    compile libraries.ant
+    compile libraries.servletapi
+    compile libraries.jdom
 
-  compile group: 'org.hibernate', name:'hibernate-annotations', version: hibernate_annotations_version
-  compile group: 'javax.persistence', name:'persistence-api', version: persistence_api_version
-  compile group: 'org.springframework', name:'spring-beans', version: spring_beans_version
-  compile group: 'commons-validator', name:'commons-validator', version: common_validator_version
-  compile group: 'org.springframework', name:'spring-core', version: spring_core_version
-  compile group: 'org.springframework', name:'spring-jdbc', version: spring_jdbc_version
-  compile group: 'org.springframework', name:'spring-dao', version: spring_dao_version
-  compile group: 'ant-contrib', name:'ant-contrib', version: ant_contrib_version
-  compile group: 'javax.servlet', name:'servlet-api', version: servlet_api_version
-  compile group: 'jdom', name:'jdom', version: jdom_version
+    compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':grouper-ws:grouper-ws')
 
-  compile fileTree(dir: 'lib', include: ['*.jar'])
-  compile project(':grouper-ws:grouper-ws')
-
-  testCompile project(path: ":grouper", configuration: "tests")
-  testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
+    testCompile project(path: ":grouper", configuration: "tests")
+    testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src'
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDirs 'misc'
+        }
     }
-    resources {
-      srcDirs 'misc'
+    test {
+        java {
+            srcDir 'test'
+        }
     }
-  }
-  test {
-  	java {
-  		srcDir 'test'
-  	}
-  }
 }

@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 
 /** 
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: BaseMemberOf.java,v 1.7 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0

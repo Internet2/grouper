@@ -79,7 +79,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Context for interacting with the Grouper API and Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperSession.java,v 1.101 2009-11-05 20:06:42 isgwb Exp $
  */
@@ -189,7 +189,7 @@ public class GrouperSession implements Serializable {
 
   /**
    * Default constructor.  Dont call this, use the factory: start(Subject)
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public GrouperSession() {

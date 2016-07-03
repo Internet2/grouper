@@ -79,7 +79,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 @see edu.internet2.middleware.grouper.ui.GroupMembershipMenuFilter
  * 
 
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: PrepareMenuAction.java,v 1.7 2009-08-12 04:52:14 mchyzer Exp $

@@ -48,7 +48,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link ChildGroupFilter}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: TestGsh.java,v 1.12 2009-11-05 17:59:40 mchyzer Exp $
  * @since   1.2.1

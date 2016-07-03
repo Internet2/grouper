@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Create tables and init schema (if configured)
- * <p/>
+ * 
  * @author  Chris Hyzer
  * @version $Id: registryInitializeSchema.java,v 1.2 2008-10-24 05:51:47 mchyzer Exp $
  * @since   0.0.1
@@ -44,7 +44,7 @@ public class registryInitializeSchema {
   
   /**
    * Create tables and init schema (depending on configuration in grouper.properties)
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @return  a string
@@ -56,7 +56,7 @@ public class registryInitializeSchema {
 
   /**
    * Create tables and init schema (depending on configuration in grouper.properties)
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param options 

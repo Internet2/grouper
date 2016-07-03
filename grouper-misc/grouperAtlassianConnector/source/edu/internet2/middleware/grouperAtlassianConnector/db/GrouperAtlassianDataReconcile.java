@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2015 Internet2
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,18 +19,12 @@
  */
 package edu.internet2.middleware.grouperAtlassianConnector.db;
 
-import edu.internet2.middleware.grouperAtlassianConnector.GrouperAccessProvider;
-import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianUtils;
-import edu.internet2.middleware.grouperAtlassianConnector.GrouperProfileProvider;
-import edu.internet2.middleware.grouperAwsChangelog.GrouperAwsSqsListener;
-import edu.internet2.middleware.grouperAwsChangelog.GrouperSqsMessage;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
-import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -46,11 +40,18 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import edu.internet2.middleware.grouperAtlassianConnector.GrouperAccessProvider;
+import edu.internet2.middleware.grouperAtlassianConnector.GrouperAtlassianUtils;
+import edu.internet2.middleware.grouperAtlassianConnector.GrouperProfileProvider;
+import edu.internet2.middleware.grouperAwsChangelog.GrouperAwsSqsListener;
+import edu.internet2.middleware.grouperAwsChangelog.GrouperSqsMessage;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
+import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
 
 
 
@@ -64,27 +65,27 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    * @param args
    */
   public static void main(String[] args) {
-    
+
     if (GrouperClientUtils.length(args) == 2
-        && GrouperClientUtils.equals(args[0], "full")
-        && GrouperClientUtils.equals(args[1], "readonly")) {
+            && GrouperClientUtils.equals(args[0], "full")
+            && GrouperClientUtils.equals(args[1], "readonly")) {
       new GrouperAtlassianDataReconcile().reconcileGrouperAndAtlassian(true);
     } else if (GrouperClientUtils.length(args) == 2
-          && GrouperClientUtils.equals(args[0], "full")
-          && GrouperClientUtils.equals(args[1], "notReadonly")) {
+            && GrouperClientUtils.equals(args[0], "full")
+            && GrouperClientUtils.equals(args[1], "notReadonly")) {
       new GrouperAtlassianDataReconcile().reconcileGrouperAndAtlassian(false);
     } else {
       scheduleAtlassianFullRefreshJob();
       listenForAwsRefreshes();
     }
-    
-    
-    
+
+
+
     //  //lets list users
     //  for (AtlassianCwdUser atlassianCwdUser : AtlassianCwdUser.retrieveUsers().values()) {
     //    System.out.println(atlassianCwdUser.toString());
     //  }
-    
+
 //    new GcDbAccess().callbackConnection(new GcConnectionCallback() {
 //
 //      @Override
@@ -210,13 +211,13 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
 //      }
 //    });
 
-    
+
 //    AtlassianCwdUser atlassianCwdUser = new AtlassianCwdUser();
 //    atlassianCwdUser.initNewObject();
 //    atlassianCwdUser.setUserName("testuser");
 //
 //    atlassianCwdUser.store();
-    
+
 //    AtlassianCwdUser atlassianCwdUser = new DbAccess().primaryKey(10621L).select(AtlassianCwdUser.class);
 //    
 //    atlassianCwdUser.setDisplayName("Test User3");
@@ -241,17 +242,17 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       synchronized (GrouperAtlassianDataReconcile.class) {
         theDirectoryId = directoryId;
         if (theDirectoryId == null) {
-          
+
           // see if the properties file specifies
           Integer directoryIdInt = GrouperClientConfig.retrieveConfig().propertyValueInt("atlassian.directoryId");
-          
+
           if (directoryIdInt == null) {
-            
+
             List<Long> resultList = new GcDbAccess().sql("select id from cwd_directory").selectList(Long.class);
-            
+
             if (GrouperClientUtils.length(resultList) != 1) {
               throw new RuntimeException("Cant find directory id, specify one in the grouper.client.properties "
-                  + "as atlassian.directoryId, there is not a unizue one in the cwd_directory table");
+                      + "as atlassian.directoryId, there is not a unizue one in the cwd_directory table");
             }
             theDirectoryId = resultList.get(0);
           } else {
@@ -263,31 +264,31 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     }
     return theDirectoryId;
   }
-  
+
   /**
-   * 
+   *
    */
   public static void listenForAwsRefreshes() {
     while(true) {
-      
+
       try {
-        
+
         List<GrouperSqsMessage> grouperSqsMessages = GrouperAwsSqsListener.checkMessages(true);
-        
+
         LOG.info("Received " + GrouperClientUtils.length(grouperSqsMessages) + " message(s) from Grouper");
-        
+
         //if we get a message, do a full refresh
         new GrouperAtlassianDataReconcile().reconcileGrouperAndAtlassian(false);
-        
+
         for (GrouperSqsMessage grouperSqsMessage : GrouperClientUtils.nonNull(grouperSqsMessages)) {
-          
+
           EsbEvents esbEvents = GcDecodeEsbEvents.decodeEsbEvents(grouperSqsMessage.getMessageBody());
 
           esbEvents = GcDecodeEsbEvents.unencryptEsbEvents(esbEvents);
-          
+
           GrouperAwsSqsListener.deleteMessage(grouperSqsMessage.getReceiptHandle());
         }
-        
+
       } catch (Exception e) {
         LOG.error("error", e);
       }
@@ -296,14 +297,14 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       GrouperClientUtils.sleep(30000);
     }
   }
-  
+
   /**
    * schedule full refresh job
    */
   public static void scheduleAtlassianFullRefreshJob() {
-    
+
     String cronString = GrouperClientConfig.retrieveConfig().propertyValueString("atlassian.fullRefreshAws.quartz.cron");
-    
+
     //if not specified dont run
     if (GrouperClientUtils.isBlank(cronString)) {
       LOG.warn("No cron for full refresh in config file, not scheduling it: atlassian.fullRefreshAws.quartz.cron");
@@ -314,9 +315,9 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
 
     scheduleJob(jobName, cronString, GrouperAtlassianDataReconcile.class);
 
-    
+
   }
-  
+
   /**
    * schedule a cron job
    * @param jobName something unique and descriptive
@@ -332,8 +333,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
 
     String jobGroup = Scheduler.DEFAULT_GROUP;
     JobDetail jobDetail = JobBuilder.newJob(jobClass)
-            .withIdentity(jobName, jobGroup)
-            .storeDurably(true).build();
+            .withIdentity(jobName, jobGroup).storeDurably(true).build();
 
     Scheduler scheduler = scheduler();
 
@@ -355,15 +355,11 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       }
     }
     if (cronTrigger == null) {
-      cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerName, jobGroup)
-              .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString)).build();
-    }
-
-    try {
-      CronScheduleBuilder builder = (CronScheduleBuilder) cronTrigger.getScheduleBuilder();
-      builder.cronSchedule(quartzCronString);
-    } catch (Exception pe) {
-      throw new RuntimeException("Problems parsing: '" + quartzCronString + "'", pe);
+      cronTrigger = TriggerBuilder.newTrigger()
+              .withIdentity(triggerName, jobGroup)
+              .startNow()
+              .withSchedule(CronScheduleBuilder.cronSchedule(quartzCronString))
+              .build();
     }
 
     try {
@@ -388,14 +384,14 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
   }
 
   /**
-  * scheduler factory singleton
-  */
+   * scheduler factory singleton
+   */
   private static SchedulerFactory schedulerFactory = null;
 
   /**
-  * lazy load (and start the scheduler) the scheduler factory
-  * @return the scheduler factory
-  */
+   * lazy load (and start the scheduler) the scheduler factory
+   * @return the scheduler factory
+   */
   public static SchedulerFactory schedulerFactory() {
     if (schedulerFactory == null) {
       schedulerFactory = new StdSchedulerFactory();
@@ -408,70 +404,70 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     return schedulerFactory;
   }
 
-  
+
   /**
-   * 
+   *
    * @param readonly
    */
   public void reconcileGrouperAndAtlassian(boolean readonly) {
-    
+
     //dont run this multiple times at the same time
     synchronized (GrouperAtlassianDataReconcile.class) {
-    
+
       this.retrieveAllFromAtlassian();
       this.retrieveAllFromGrouper();
-      
-      reconcileGroups(readonly);    
-      
+
+      reconcileGroups(readonly);
+
       reconcilePeople(readonly);
 
       reconcileUserData(readonly);
 
       reconcileMemberships(readonly);
     }
-    
+
   }
 
-  
+
   /**
    * assume groups are reconciled before this
    * @param readonly
    */
   private void reconcileMemberships(boolean readonly) {
-    
+
     String usersToNotRemoveString = GrouperClientConfig.retrieveConfig().propertyValueString("atlassian.users.do.not.remove");
     Set<String> usersToNotRemoveSet = new HashSet<String>(
-        GrouperClientUtils.nonNull(GrouperClientUtils.splitTrimToList(usersToNotRemoveString, ",")));
-    
+            GrouperClientUtils.nonNull(GrouperClientUtils.splitTrimToList(usersToNotRemoveString, ",")));
+
     //get all groups
     //if we have reconciled groups, then they should be in here...
     for (String groupName : GrouperClientUtils.nonNull(this.atlassianGroupnameToGroupMap).keySet()) {
-      
+
       Set<String> grouperUsersInGroup = GrouperClientUtils.nonNull(this.grouperGroupNameToUserNames.get(groupName));
-      
+
       AtlassianCwdGroup atlassianCwdGroup = this.atlassianGroupnameToGroupMap.get(groupName);
-      
+
       Set<Long> atlassianUserIdsInGroup = GrouperClientUtils.nonNull(this.atlassianGroupToUserSetMap.get(atlassianCwdGroup.getId()));
-      
+
       Set<String> atlassianUsersInGroup = new HashSet<String>();
       for (Long userId : atlassianUserIdsInGroup) {
-        
+
         AtlassianCwdUser atlassianCwdUser = this.atlassianUserIdToUserMap.get(userId);
         atlassianUsersInGroup.add(atlassianCwdUser.getUserName());
       }
-      
+
       Set<String> usersToAdd = new HashSet<String>(grouperUsersInGroup);
       usersToAdd.removeAll(atlassianUsersInGroup);
 
       for (String username : usersToAdd) {
 
         AtlassianCwdUser atlassianCwdUser = this.atlassianUsernameToUserMap.get(username);
-        
+
         if (atlassianCwdUser == null) {
           //it isnt in the user group forget it
           continue;
         }
-        
+
         AtlassianCwdMembership atlassianCwdMembership = AtlassianCwdVersion.currentVersion().newMembership();
         atlassianCwdMembership.initNewObject();
         atlassianCwdMembership.setChildId(atlassianCwdUser.getId());
@@ -480,54 +476,54 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
         atlassianCwdMembership.setParentId(atlassianCwdGroup.getId());
         atlassianCwdMembership.setParentName(atlassianCwdGroup.getGroupName());
         atlassianCwdMembership.setLowerParentName(GrouperClientUtils.defaultString(atlassianCwdGroup.getGroupName()).toLowerCase());
-        
+
         //memberships
         if (readonly) {
-          
+
           System.out.println("Adding " + username + " to group " + groupName);
-          
+
         } else {
-          
+
           LOG.info("Adding " + username + " to group " + groupName);
           atlassianCwdMembership.store();
-          
+
         }
 
       }
-      
+
       Set<String> usersToRemove = new HashSet<String>(atlassianUsersInGroup);
       usersToRemove.removeAll(grouperUsersInGroup);
 
       for (String username : usersToRemove) {
 
         AtlassianCwdUser atlassianCwdUser = this.atlassianUsernameToUserMap.get(username);
-        
+
         MultiKey multiKey = new MultiKey(atlassianCwdGroup.getId(), atlassianCwdUser.getId());
-        
+
         AtlassianCwdMembership atlassianCwdMembership = this.atlassianGroupAndUserToMembershipMap.get(multiKey);
 
         if (usersToNotRemoveSet.contains(atlassianCwdUser.getUserName())) {
           System.out.println("Skipping taking out membership of " + atlassianCwdUser.getUserName() + " from group " + groupName + ", membershipId: " + atlassianCwdMembership.getId());
           continue;
         }
-        
+
         //memberships
         if (readonly) {
-          
+
           System.out.println("Removing " + atlassianCwdUser.getUserName() + " from group " + groupName + ", membershipId: " + atlassianCwdMembership.getId());
-          
+
         } else {
-          
+
           LOG.info("Removing " + atlassianCwdUser.getUserName() + " from group " + groupName + ", membershipId: " + atlassianCwdMembership.getId());
           atlassianCwdMembership.delete();
-          
+
         }
 
       }
-      
+
 
     }
-    
+
   }
 
   /**
@@ -537,10 +533,10 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     //reconcile people
     Set<AtlassianCwdUser> usersToAddOrEdit = new HashSet<AtlassianCwdUser>();
     for (String username : this.grouperUserNameToUser.keySet()) {
-      
+
       AtlassianCwdUser grouperUser = this.grouperUserNameToUser.get(username);
       AtlassianCwdUser atlassianUser = this.atlassianUsernameToUserMap.get(username);
-      
+
       if (atlassianUser == null) {
         usersToAddOrEdit.add(grouperUser);
       } else {
@@ -562,24 +558,24 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
         }
       }
     }
-    
+
     //store
     for (AtlassianCwdUser atlassianCwdUser : usersToAddOrEdit) {
 
       this.atlassianUsernameToUserMap.put(atlassianCwdUser.getUserName(), atlassianCwdUser);
-      
+
       if (readonly) {
-        System.out.println((atlassianCwdUser.getId() == null ? "Adding" : "Updating") 
-            + " user: " + atlassianCwdUser.getUserName());
+        System.out.println((atlassianCwdUser.getId() == null ? "Adding" : "Updating")
+                + " user: " + atlassianCwdUser.getUserName());
       } else {
-        LOG.info((atlassianCwdUser.getId() == null ? "Adding" : "Updating") 
-            + " user: " + atlassianCwdUser.getUserName());
+        LOG.info((atlassianCwdUser.getId() == null ? "Adding" : "Updating")
+                + " user: " + atlassianCwdUser.getUserName());
         atlassianCwdUser.store();
 
         this.atlassianUserIdToUserMap.put(atlassianCwdUser.getId(), atlassianCwdUser);
       }
     }
-    
+
     //dont delete users, just remove members
   }
 
@@ -587,7 +583,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    * @param readonly
    */
   private void reconcileUserData(boolean readonly) {
-    
+
     if (!AtlassianCwdVersion.currentVersion().doUserMappings()) {
       if (readonly) {
         System.out.println(AtlassianCwdVersion.currentVersion() + " doesnt do user mappings");
@@ -596,7 +592,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       }
       return;
     }
-    
+
     //reconcile people
     Set<String> userMappingUsernamesToAdd = new HashSet<String>();
     for (String username : this.grouperUserNameToUser.keySet()) {
@@ -607,14 +603,14 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
         userMappingUsernamesToAdd.add(username);
       }
     }
-    
+
     //store
     for (String username : userMappingUsernamesToAdd) {
 
       AtlassianUserMapping atlassianUserMapping = AtlassianCwdVersion.currentVersion().newUserMapping();
       atlassianUserMapping.setLowerUsername(username.toLowerCase());
       atlassianUserMapping.setUsername(username);
-      
+
       this.atlassianUsernameToUserMappingMap.put(username, atlassianUserMapping);
 
       if (readonly) {
@@ -628,7 +624,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     //dont delete userdata, just remove members
   }
 
-  
+
   /**
    * @param readonly
    */
@@ -636,11 +632,11 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     //reconcile groups
     //do inserts
     Set<String> groupNamesToAddToAtlassian = new HashSet<String>(GrouperClientUtils.nonNull(this.grouperGroupNames));
-    
+
     groupNamesToAddToAtlassian.removeAll(this.atlassianGroupnameToGroupMap.keySet());
-    
+
     for (String groupNameToAdd : groupNamesToAddToAtlassian) {
-      
+
       AtlassianCwdGroup atlassianCwdGroup = AtlassianCwdVersion.currentVersion().newGroup();
       atlassianCwdGroup.initNewObject();
       atlassianCwdGroup.setGroupName(groupNameToAdd);
@@ -660,7 +656,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
       }
 
     }
-    
+
     //dont delete groups, just remove members
   }
 
@@ -668,7 +664,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    * group names in grouper
    */
   private Set<String> grouperGroupNames = null;
-  
+
   /**
    * map of user name to user in grouper
    */
@@ -678,31 +674,31 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
    * map of group name to list of user names
    */
   private Map<String, Set<String>> grouperGroupNameToUserNames = null;
-  
+
   /**
    * get all data from grouper
    */
   public void retrieveAllFromGrouper() {
-    
+
     GrouperAccessProvider grouperAccessProvider = new GrouperAccessProvider();
     GrouperProfileProvider grouperProfileProvider = new GrouperProfileProvider();
-    
+
     grouperAccessProvider.flushCaches();
     grouperProfileProvider.flushCaches();
-    
+
     List<String> groupNames = grouperAccessProvider.list();
     this.grouperGroupNames = new HashSet<String>(groupNames);
-    
+
     List<String> userNames = grouperProfileProvider.list();
-    
+
     this.grouperUserNameToUser = new HashMap<String, AtlassianCwdUser>();
-    
+
     for (String username : GrouperClientUtils.nonNull(userNames)) {
       Map<String, String> propertySet = grouperProfileProvider.getPropertySet(username);
-      
+
       String email = propertySet.get(GrouperAtlassianUtils.PROPERTY_SET_EMAIL);
       String name = propertySet.get(GrouperAtlassianUtils.PROPERTY_SET_NAME);
-      
+
       AtlassianCwdUser atlassianCwdUser = AtlassianCwdVersion.currentVersion().newUser();
       atlassianCwdUser.initNewObject();
       atlassianCwdUser.setDisplayName(name);
@@ -715,18 +711,18 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     }
 
     this.grouperGroupNameToUserNames = new HashMap<String, Set<String>>();
-    
+
     for (String groupName : GrouperClientUtils.nonNull(this.grouperGroupNames)) {
 
       HashSet<String> users = new HashSet<String>(GrouperClientUtils.nonNull(
-          grouperAccessProvider.listUsersInGroup(groupName)));
-      this.grouperGroupNameToUserNames.put(groupName, 
-          users);
-      
+              grouperAccessProvider.listUsersInGroup(groupName)));
+      this.grouperGroupNameToUserNames.put(groupName,
+              users);
+
     }
 
   }
-  
+
   /**
    * username to user map
    */
@@ -775,11 +771,11 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     if (AtlassianCwdVersion.currentVersion().doUserMappings()) {
       this.atlassianUsernameToUserMappingMap = AtlassianCwdVersion.currentVersion().retrieveUserMappings();
     }
-    
+
     this.atlassianUsernameToUserMap = AtlassianCwdVersion.currentVersion().retrieveUsers();
-    
+
     this.atlassianUserIdToUserMap = new HashMap<Long, AtlassianCwdUser>();
-    
+
     for (AtlassianCwdUser atlassianCwdUser : GrouperClientUtils.nonNull(this.atlassianUsernameToUserMap).values()) {
       this.atlassianUserIdToUserMap.put(atlassianCwdUser.getId(), atlassianCwdUser);
     }
@@ -787,18 +783,18 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     this.atlassianGroupnameToGroupMap = AtlassianCwdVersion.currentVersion().retrieveGroups();
 
     this.atlassianGroupIdToGroupMap = new HashMap<Long, AtlassianCwdGroup>();
-    
+
     for (AtlassianCwdGroup atlassianCwdGroup : GrouperClientUtils.nonNull(this.atlassianGroupnameToGroupMap).values()) {
       this.atlassianGroupIdToGroupMap.put(atlassianCwdGroup.getId(), atlassianCwdGroup);
     }
 
     this.atlassianGroupAndUserToMembershipMap = new HashMap<MultiKey, AtlassianCwdMembership>();
     this.atlassianGroupToUserSetMap = new HashMap<Long, Set<Long>>();
-    
+
     List<AtlassianCwdMembership> memberships = AtlassianCwdVersion.currentVersion().retrieveMemberships();
-    
+
     for (AtlassianCwdMembership atlassianCwdMembership : GrouperClientUtils.nonNull(memberships)) {
-      
+
       Long parentId = atlassianCwdMembership.getParentId();
       if (parentId == null) {
         AtlassianCwdGroup parentGroup = this.atlassianGroupnameToGroupMap.get(atlassianCwdMembership.getParentName());
@@ -810,24 +806,24 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
         AtlassianCwdUser childUser = this.atlassianUsernameToUserMap.get(atlassianCwdMembership.getChildName());
         childId = childUser.getId();
       }
-      
+
       //keep this in a map to lookup the membership
       this.atlassianGroupAndUserToMembershipMap.put(
-          new MultiKey(parentId, childId),
-          atlassianCwdMembership);
+              new MultiKey(parentId, childId),
+              atlassianCwdMembership);
 
       //keep a set of usernames for this group
       Set<Long> userIds = this.atlassianGroupToUserSetMap.get(parentId);
       if (userIds == null) {
-        
+
         userIds = new HashSet<Long>();
         this.atlassianGroupToUserSetMap.put(parentId, userIds);
-        
+
       }
-      
+
       userIds.add(childId);
     }
-  
+
   }
 
   /**
@@ -837,5 +833,5 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
     LOG.debug("Running full refresh from cron");
     reconcileGrouperAndAtlassian(false);
   }
-  
+
 }

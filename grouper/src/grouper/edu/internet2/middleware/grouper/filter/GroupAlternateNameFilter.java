@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /** 
  * Query by approximate group alternate name.
- * <p/>
+ * 
  * @author shilen
  * @version $Id: GroupAlternateNameFilter.java,v 1.1 2009-03-27 19:32:41 shilen Exp $
  */

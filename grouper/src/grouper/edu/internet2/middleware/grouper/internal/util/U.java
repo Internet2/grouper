@@ -46,7 +46,7 @@ public class U {
 
   /**
    * TODO 20070418 relocate to somewhere more appropriate.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static String constructName(String stem, String extn) {
@@ -58,7 +58,7 @@ public class U {
 
   /**
    * TODO 20070418 relocate to somewhere more appropriate.
-   * <p/>
+   * 
    * @since   1.2.0
    */ 
   public static boolean getBooleanProperty(Properties props, String key) {

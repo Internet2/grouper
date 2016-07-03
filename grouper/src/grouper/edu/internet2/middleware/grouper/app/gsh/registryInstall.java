@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.registry.RegistryInstall;
 
 /**
  * Install default data in the registry if it is not already there
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: registryInstall.java,v 1.1 2008-09-13 03:16:54 mchyzer Exp $
  * @since   0.0.1
@@ -38,7 +38,7 @@ public class registryInstall {
 
   /**
    * Install default data in the registry if it is not already there
-   * <p/>
+   * 
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @return  True if succeeds.

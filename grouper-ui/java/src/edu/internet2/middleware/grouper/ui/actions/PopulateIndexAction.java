@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 /**
  * Top level Strut's action which, if user is logged in, forwards th user to 'home' 
  * otherwise the initial screen which should have a login link. 
- * <p/>
+ * 
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

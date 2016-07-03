@@ -54,7 +54,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * An instance of a granted access privilege.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AccessPrivilege.java,v 1.12 2009-09-25 16:13:45 tzeller Exp $
  */
@@ -354,7 +354,7 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable<Object> {
 
   /**
    * Get {@link Group} that the privilege was granted on.
-   * <p/>
+   * 
    * @return  {@link Group}
    */
   public Group getGroup() {

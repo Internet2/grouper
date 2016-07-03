@@ -181,7 +181,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
 
   /**
    * Default DAO implementation to be used if an alternative is not configured.
-   * <p/>
+   * 
    * @since   1.2.0
    */
   public static final String DEFAULT_DAO_FACTORY  = Hib3DAOFactory.class.getName();

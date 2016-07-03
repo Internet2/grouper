@@ -21,14 +21,14 @@
   <dt></dt>
   <dt>Create Groups*</dt>
   <dd>lets you create new groups or (sub)folders, as permitted by location</dd>
-  <dd>&nbsp;&nbsp;&nbsp;-- folders where you have <strong>create group </strong> privilege or <strong>create folder</strong> privilege --</dd>
+  <dd>&nbsp;&nbsp;&nbsp;-- folders where you have <strong>admin </strong> privilege or <strong>create</strong> privilege --</dd>
   <dt>Explore</dt>
   <dd>lets you explore all groups that are visible to you</dd>
   <dd>&nbsp;&nbsp;&nbsp;-- groups where you have <strong>view</strong> privilege --</dd>
   <dt>Search</dt>
   <dd>Lets you search for any entity known to Grouper. Allows an entity-centric 
     approach i.e. you can list all groups where the entity is a member or has 
-    an Access privilege, or folders where the entity has one of the Create privileges.</dd>
+    an Access privilege, or folders where the entity has one of the Folder privileges.</dd>
   <dt>Group workspace</dt>
   <dd>As described below, Grouper provides several ways of finding groups. It 
     is possible, from the <em>Group Summary</em> page, to save, for the duration 

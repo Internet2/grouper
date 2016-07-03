@@ -15,9 +15,14 @@
  */
 package edu.internet2.middleware.grouper.j2ee.status;
 
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -84,6 +89,36 @@ public abstract class DiagnosticTask {
     if (ignoreDiagnostics) {
       this.appendSuccessTextLine(this.retrieveNameFriendly() + " ignored in config");
     }
+    
+    HttpServletRequest httpServletRequest = GrouperStatusServlet.retrieveRequest();
+    
+    if (!ignoreDiagnostics) {
+      if (httpServletRequest != null) {
+        String includeOnly = httpServletRequest.getParameter("includeOnly");
+        if (!StringUtils.isBlank(includeOnly)) {
+          Set<String> includes = GrouperUtil.splitTrimToSet(includeOnly, ",");
+          if (!includes.contains(this.retrieveName())) {
+            this.appendSuccessTextLine(this.retrieveNameFriendly() + " ignored in config since URL param contains includeOnly which doesn't have '" + this.retrieveName() + "'");
+            ignoreDiagnostics = true;
+          }
+        }
+      }
+    }
+
+    
+    if (!ignoreDiagnostics) {
+      if (httpServletRequest != null) {
+        String exclude = httpServletRequest.getParameter("exclude");
+        if (!StringUtils.isBlank(exclude)) {
+          Set<String> excludes = GrouperUtil.splitTrimToSet(exclude, ",");
+          if (excludes.contains(this.retrieveName())) {
+            this.appendSuccessTextLine(this.retrieveNameFriendly() + " ignored in config since URL param contains exclude which has '" + this.retrieveName() + "'");
+            ignoreDiagnostics = true;
+          }
+        }
+      }
+    }
+
     return ignoreDiagnostics;
 
   }

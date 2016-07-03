@@ -58,7 +58,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /** 
  * Install the Groups Registry.  When there is a newly created (or truncated database),
  * this will put the base records that grouper needs to operate (e.g. root stem)
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: RegistryInstall.java,v 1.12 2009-09-21 06:14:27 mchyzer Exp $    
  */

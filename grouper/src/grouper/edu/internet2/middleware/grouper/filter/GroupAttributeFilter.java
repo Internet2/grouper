@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Query by group attribute.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupAttributeFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
  */

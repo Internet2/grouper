@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link NamingResolver}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperAllNamingResolver.java,v 1.12 2009-09-21 06:14:26 mchyzer Exp $
  * @since   1.2.1

@@ -33,6 +33,8 @@
 package edu.internet2.middleware.grouper.helper;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -83,7 +85,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Grouper-specific JUnit assertions.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperTest.java,v 1.3 2009-12-10 08:54:15 mchyzer Exp $
  * @since   1.1.0
@@ -954,6 +956,13 @@ public class GrouperTest extends TestCase {
    * @param set2 received set
    */
   public void assertGroupSetsAndOrder(Set<Group> set1, Set<Group> set2) {
+
+    if (set1 == set2) {
+      return;
+    }
+
+    set2 = filterOutBuiltInGroups(set2);
+    
     int set1length = GrouperUtil.length(set1);
     int set2length = GrouperUtil.length(set2);
     if (set1length != set2length) {
@@ -1213,5 +1222,29 @@ public class GrouperTest extends TestCase {
     }
     
   }
+
+  /**
+   * 
+   * @param groups
+   * @return the filtered groups
+   */
+  public static Set<Group> filterOutBuiltInGroups(Set<Group> groups) {
+    if (GrouperUtil.length(groups) > 0) {
+      //dont change calling set
+      groups = new LinkedHashSet<Group>(groups);
+ 
+      //remove anything from etc
+      Iterator<Group> iterator = groups.iterator();
+      while (iterator.hasNext()) {
+        Group current = iterator.next();
+        if (current.getName().startsWith("etc")) {
+          iterator.remove();
+        }
+      }
+    }  
+    return groups;
+  }
+  
+
 } // public class GrouperTest
 

@@ -77,7 +77,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 /**
  * Find I2MI subjects.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: SubjectFinder.java,v 1.47 2009-12-28 06:08:37 mchyzer Exp $
  */

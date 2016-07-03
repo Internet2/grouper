@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when a stem cannot be modified within the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: StemModifyException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */

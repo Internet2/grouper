@@ -1,198 +1,260 @@
-description = 'Grouper Root Project'
+description = 'Internet2 Grouper Project $version'
 defaultTasks "clean", "build"
 
 ext {
-  publishSnapshots = Boolean.getBoolean("publishSnapshots")
-  publishReleases = Boolean.getBoolean("publishReleases")
-  sonatypeUsername = System.getProperty("sonatypeUsername")
-  sonatypePassword = System.getProperty("sonatypePassword")
+    publishSnapshots = Boolean.getBoolean("publishSnapshots")
+    publishReleases = Boolean.getBoolean("publishReleases")
+    sonatypeUsername = System.getProperty("sonatypeUsername")
+    sonatypePassword = System.getProperty("sonatypePassword")
 }
 
-allprojects  {
-  apply plugin: 'maven'
-  apply plugin: "idea"
-  apply plugin: "eclipse"
-  apply plugin: "signing"
+def projectMavenDeployer = {
+    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+    if (publishReleases) {
+        repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            authentication(userName: sonatypeUsername, password: sonatypePassword);
+        }
+    }
+
+    if (publishSnapshots) {
+        snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+            authentication(userName: sonatypeUsername, password: sonatypePassword);
+        }
+    }
+
+    pom.project {
+        url "https://www.internet2.edu/products-services/trust-identity-middleware/grouper/"
+        inceptionYear 2000
+        name project.name
+        description project.name
+        issueManagement {
+            system "JIRA"
+            url "https://bugs.internet2.edu/jira/projects/GRP"
+        }
+
+        scm {
+            url 'scm:git@github.com:Internet2/grouper.git'
+            connection 'scm:git@github.com:Internet2/grouper.git'
+            developerConnection 'scm:git@github.com:Internet2/grouper.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'mchyzer'
+                name 'Chris Hyzer'
+            }
+            developer {
+                id 'sipatel2'
+                name 'Shilen Patel'
+            }
+            developer {
+                id 'bafbl'
+                name 'Bert Bee-Lindgren'
+            }
+            developer {
+                id 'sachdeva-vivek'
+                name 'Vivek Sachdeva'
+            }
+            developer {
+                id 'langedb'
+                name 'David Langenberg'
+            }
+            developer {
+                id 'mmoayyed'
+                name 'Misagh Moayyed'
+            }
+        }
+
+        contributors {
+            contributor {
+                name 'William G. Thompson'
+                email 'wgthom@gmail.com'
+            }
+            contributor {
+                name 'Tom Zeller'
+                email 'tzeller@dragonacea.biz'
+            }
+            contributor {
+                name 'John Gasper'
+                email 'jtgasper3@unicon.com'
+            }
+            contributor {
+                name 'Jim Fox'
+                email 'fox@washington.edu'
+            }
+            contributor {
+                name 'Lasbrey Nwachukwu'
+                email 'lnwachukwu@unicon.net'
+            }
+        }
+
+        mailingLists {
+            mailingList {
+                name "grouper-user"
+                subscribe "https://lists.internet2.edu/sympa/subscribe/grouper-users"
+                unsubscribe "https://lists.internet2.edu/sympa/sigrequest/grouper-users"
+                post "grouper-users@internet2.edu"
+                archive "https://lists.internet2.edu/sympa/arc/grouper-users"
+            }
+            mailingList {
+                name "grouper-dev"
+                subscribe "https://lists.internet2.edu/sympa/subscribe/grouper-dev"
+                unsubscribe "https://lists.internet2.edu/sympa/sigrequest/grouper-dev"
+                post "grouper-dev@internet2.edu"
+                archive "https://lists.internet2.edu/sympa/arc/grouper-dev"
+            }
+        }
+
+    }
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url "https://maven.eveoh.nl/content/repositories/releases" }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath "com.netflix.nebula:gradle-lint-plugin:0.30.2"
+        classpath "org.standardout:gradle-versioneye-plugin:1.4.0"
+    }
+}
+
+allprojects {
+    apply plugin: "maven"
+    apply plugin: "idea"
+    apply plugin: "eclipse"
+    apply plugin: "signing"
+    apply plugin: "org.standardout.versioneye"
+    apply plugin: "nebula.lint"
+        
+    gradleLint.rules = ['dependency-parentheses', 'dependency-tuple']
+
+    signing {
+        required = (publishReleases && sonatypeUsername != null && sonatypePassword != null)
+        sign configurations.archives
+    }
 }
 
 
 subprojects {
-  apply plugin: 'java'
-  apply from: rootProject.file("gradle/tasks.gradle")
-
-  task packageSources(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-
-  }
-
-  repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
-    maven { url "https://shibboleth.net/nexus/content/groups/public" }
-    maven { url "http://oss.sonatype.org/content/repositories/releases/" }
-    maven { url "http://repo1.maven.org/maven2" }
-    maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
-    maven { url "http://central.maven.org/maven2" }
-    maven { url "http://maven.ala.org.au/repository" }
-    maven { url "http://mvnrepository.com/artifact" }
-    maven { url "https://maven.atlassian.com/repository/public" }
-  }
-  
-  configurations {
-    tests
-
-    provided
-    compile.extendsFrom(provided)
-  }
-
-  artifacts {
-    tests testJar
-
-    archives sourcesJar
-    archives javadocJar
-    archives testJar
-  }
-
-  jar {
-    manifest {
-      attributes("Implementation-Title": project.name,
-        "Implementation-Vendor": project.group,
-        "Created-By": project.group,
-        "Implementation-Date": new Date(),
-        "Implementation-Version": project.version)
+    task allDepInsight(type: DependencyInsightReportTask, description: "Generate dependency insight for all dependencies") << {
     }
-  }
+    task allDeps(type: DependencyReportTask, description: "List all project dependencies") {}
 
-  javadoc {
-    failOnError = false
-  }
+    apply plugin: 'java'
+    apply plugin: 'project-report'
 
-  dependencies {
-    compile group: 'log4j', name: 'log4j', version: log4j_version
-    testCompile group: 'junit', name: 'junit', version: junit_version
-  }
+    apply from: rootProject.file("gradle/tasks.gradle")
+    apply from: rootProject.file("gradle/dependencies.gradle")
+    
+    /*
+        Don't publish test dependencies into the final POM.
+    */
+    conf2ScopeMappings.mappings.remove(configurations.findByName("testCompile"))
+    conf2ScopeMappings.mappings.remove(configurations.findByName("testRuntime"))
 
-  signing {
-    required = (publishReleases && sonatypeUsername != null && sonatypePassword != null)
-    sign configurations.archives
-  }
-
-  uploadArchives {
     repositories {
-      mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-        if (publishReleases) {
-          repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-            authentication(userName: sonatypeUsername, password: sonatypePassword);
-          }
-        }
-
-        if (publishSnapshots) {
-          snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-            authentication(userName: sonatypeUsername, password: sonatypePassword);
-          }
-        }
-
-        pom.project {
-          url "https://www.internet2.edu/products-services/trust-identity-middleware/grouper/"
-          inceptionYear 2000
-          name project.name
-          description project.name
-          issueManagement {
-            system "JIRA"
-            url "https://bugs.internet2.edu/jira/projects/GRP"
-          }
-
-          scm {
-            url 'scm:git@github.com:Internet2/grouper.git'
-            connection 'scm:git@github.com:Internet2/grouper.git'
-            developerConnection 'scm:git@github.com:Internet2/grouper.git'
-          }
-
-          licenses {
-            license {
-              name 'The Apache Software License, Version 2.0'
-              url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-              distribution 'repo'
-            }
-          }
-
-          developers {
-            developer {
-              id 'mchyzer'
-              name 'Chris Hyzer'
-            }
-            developer {
-              id 'sipatel2'
-              name 'Shilen Patel'
-            }
-            developer {
-              id 'sachdeva-vivek'
-              name 'Vivek Sachdeva'
-            }
-            developer {
-              id 'langedb'
-              name 'David Langenberg'
-            }
-            developer {
-              id 'mmoayyed'
-              name 'Misagh Moayyed'
-            }
-          }
-
-          contributors {
-            contributor {
-              name 'William G. Thompson'
-              email 'wgthom@gmail.com'
-            }
-            contributor {
-              name 'Tom Zeller'
-              email 'tzeller@dragonacea.biz'
-            }
-            contributor {
-              name 'John Gasper'
-              email 'jtgasper3@unicon.com'
-            }
-            contributor {
-              name 'Jim Fox'
-              email 'fox@washington.edu'
-            }
-          }
-
-          mailingLists {
-            mailingList {
-              name "grouper-user"
-              subscribe "https://lists.internet2.edu/sympa/subscribe/grouper-users"
-              unsubscribe "https://lists.internet2.edu/sympa/sigrequest/grouper-users"
-              post "grouper-users@internet2.edu"
-              archive "https://lists.internet2.edu/sympa/arc/grouper-users"
-            }
-            mailingList {
-              name "grouper-dev"
-              subscribe "https://lists.internet2.edu/sympa/subscribe/grouper-dev"
-              unsubscribe "https://lists.internet2.edu/sympa/sigrequest/grouper-dev"
-              post "grouper-dev@internet2.edu"
-              archive "https://lists.internet2.edu/sympa/arc/grouper-dev"
-            }
-          }
-
-        }
-      }
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url "https://shibboleth.net/nexus/content/groups/public" }
+        maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
+        maven { url "http://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
+        maven { url "http://maven.ala.org.au/repository" }
+        maven { url "https://maven.atlassian.com/repository/public" }
     }
-  }
+
+    configurations {
+        tests
+
+        provided
+        compile.extendsFrom(provided)
+    }
+
+    artifacts {
+        tests testJar
+
+        archives sourcesJar
+        archives javadocJar
+        archives testJar
+    }
+
+    jar {
+        manifest {
+            attributes("Implementation-Title": project.name,
+                    "Implementation-Vendor": project.group,
+                    "Created-By": project.group,
+                    "Implementation-Date": new Date(),
+                    "Implementation-Version": project.version)
+        }
+    }
+
+    versioneye {
+        includePlugins = false
+        includeSubProjects = true
+    }
+
+    javadoc {
+        failOnError = false
+    }
+
+    dependencies {
+        compile libraries.log4j
+        testCompile libraries.junit
+    }
+
+
+    uploadArchives {
+        repositories {
+            mavenDeployer projectMavenDeployer
+        }
+    }
 }
 
-/**
- * Aggregate all javadocs into a single directory
- **/
- task alljavadoc(type: Javadoc) {
-  source subprojects.collect { 
-    project -> project.sourceSets.main.allJava 
-  }
-  classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
-  destinationDir = file("${buildDir}/javadoc")
-  failOnError = false
-} 
+task javadoc(type: Javadoc) {
+    source subprojects.collect { project -> project.sourceSets.main.allJava }
+    failOnError = false
+    destinationDir = new File(buildDir, 'javadoc')
+    classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
+}
+
+task aggregateDist(type: Zip, description: "Aggregate all distributions into a single directory") {
+    subprojects.each {
+        from it.getTasksByName("distZip", false)
+    }
+}
+
+task aggregateJavadocsIntoJar(type: Jar, dependsOn: javadoc, description: "Aggregate all Javadocs into a single directory") {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task rootSourcesJar(type: Jar, description: "Generate sources jar for the root project") {
+    baseName = "${project.archivesBaseName}"
+    from rootProject.file("src")
+}
+
+artifacts {
+    archives aggregateJavadocsIntoJar
+    archives rootSourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer projectMavenDeployer
+    }
+}

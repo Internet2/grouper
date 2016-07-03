@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
 /** 
  * Generate UUIDs.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GrouperUuid.java,v 1.2 2009-08-11 20:18:09 mchyzer Exp $
  * @since   1.2.0

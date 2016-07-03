@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -71,6 +72,7 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -115,10 +117,22 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testNoLocking"));
+    TestRunner.run(new TestGroup("testFindGroupsInStemWithoutPrivilege"));
     //TestRunner.run(TestGroup.class);
   }
 
+  /**
+   * 
+   */
+  public void testFindGroupsInStemWithoutPrivilege() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Group group = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    
+    GrouperDAOFactory.getFactory().getGroup().findGroupsInStemWithoutPrivilege(grouperSession, stem.getId(),
+        Scope.ONE, grouperSession.getSubject(), AccessPrivilege.ADMIN, null, false, null);
+  }
+  
   /**
    * 
    */
@@ -777,6 +791,8 @@ public class TestGroup extends GrouperTest {
         group2.store();
         fail("Should throw this exception");
       } catch (GrouperStaleStateException sose) {
+        //good
+      } catch (GrouperStaleObjectStateException sose) {
         //good
       }
       

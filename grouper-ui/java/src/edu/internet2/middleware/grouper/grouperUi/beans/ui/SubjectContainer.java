@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -39,6 +40,23 @@ public class SubjectContainer {
    * gui paging for search results when looking for a group to add the subject to
    */
   private GuiPaging guiPagingSearchGroupResults;
+
+  /**
+   * if can view privilege inheritance
+   * @return true if can
+   */
+  public boolean isCanReadPrivilegeInheritance() {
+
+    boolean privilegeInheritanceDoesntRequireRulesPrivileges = GrouperUiConfig.retrieveConfig()
+        .propertyValueBoolean("uiV2.privilegeInheritanceDoesntRequireRulesPrivileges", true);
+    
+    if (privilegeInheritanceDoesntRequireRulesPrivileges) {
+      return true;
+    }
+    
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getRulesContainer().isCanReadRules();
+  }
+  
 
   /**
    * gui paging for search results when looking for a group to add the subject to

@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 /**
  * Start a transaction
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: transactionStart.java,v 1.1 2008-09-22 15:06:40 mchyzer Exp $
  * @since   0.0.1
@@ -37,7 +37,7 @@ public class transactionStart {
 
   /**
    * Start a transaction
-   * <p/>
+   * 
    * @param   interpreter           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param grouperTransactionTypeString to use for starting transaction, must be a 

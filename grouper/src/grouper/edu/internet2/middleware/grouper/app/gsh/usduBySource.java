@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Source;
 
 /**
  * usdu by a specific source
- * <p/>
+ * 
  * @author  Chris Hyzer
  * @version $Id: usduBySource.java,v 1.1 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -40,7 +40,7 @@ public class usduBySource {
 
   /**
    * usdu by source
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param sourceName 
@@ -53,7 +53,7 @@ public class usduBySource {
 
   /**
    * usdu by source
-   * <p/>
+   * 
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
    * @param sourceName 

@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
 /** 
  * Query by all stem attributes.
- * <p/>
+ * 
  * @author  mchyzer
  * @version $Id: StemAnyAttributeFilter.java,v 1.2 2008-11-05 16:18:46 shilen Exp $
  */

@@ -22,7 +22,10 @@ package edu.internet2.middleware.grouper.xml.export;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -389,6 +392,134 @@ public class XmlExportAttributeAssignAction {
       }
 
     });
+  }
+
+  /**
+   * 
+   * @param writer
+   * @param xmlExportMain
+   */
+  public static void exportAttributeAssignActionsGsh(final Writer writer, final XmlExportMain xmlExportMain) {
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        Session session = hibernateHandlerBean.getHibernateSession().getSession();
+
+        //select all members in order
+        Query query = session.createQuery(
+            "select distinct "
+            + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theAttributeAssignAction.attributeDefId ), "
+            + " theAttributeAssignAction "
+            + exportFromOnQuery(xmlExportMain, true));
+        
+        try {
+  
+          final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
+
+          //this is an efficient low-memory way to iterate through a resultset
+          ScrollableResults results = null;
+          try {
+            results = query.scroll();
+            
+            String previousNameOfAttributeDef = null;
+            Set<String> actionList = null;
+            
+            XmlExportAttributeAssignAction xmlExportAttributeAssignAction = null;
+            String nameOfAttributeDef = null;
+            
+            while(results.next()) {
+              nameOfAttributeDef = (String)results.get(0);
+              
+              final AttributeAssignAction attributeAssignAction = (AttributeAssignAction)results.get(1);
+              xmlExportAttributeAssignAction = attributeAssignAction.xmlToExportAttributeAssignAction(grouperVersion);
+
+              final XmlExportAttributeAssignAction XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION = xmlExportAttributeAssignAction;
+              final Set<String> ACTION_LIST = actionList;
+              final String PREVIOUS_NAME_OF_ATTRIBUTE_DEF = previousNameOfAttributeDef;
+              
+              //writer.write("" + subjectId + ", " + sourceId + ", " + listName + ", " + groupName 
+              //    + ", " + stemName + ", " + nameOfAttributeDef 
+              //    + ", " + enabledTime + ", " + disabledTime  + "\n");
+              
+              if (!StringUtils.equals(nameOfAttributeDef, previousNameOfAttributeDef)) {
+                if (previousNameOfAttributeDef != null && actionList != null) {
+
+                  HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+                    
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      try {
+                        XML_EXPORT_ATTRIBUTE_ASSIGN_ACTION.toGsh(grouperVersion, writer, PREVIOUS_NAME_OF_ATTRIBUTE_DEF, ACTION_LIST);
+                      } catch (IOException ioe) {
+                        throw new RuntimeException("Problem exporting attribute actions to gsh: " + PREVIOUS_NAME_OF_ATTRIBUTE_DEF 
+                            + ", " + GrouperUtil.toStringForLog(ACTION_LIST), ioe);
+                      }
+                      return null;
+                    }
+                  });
+
+                } 
+                actionList = new LinkedHashSet<String>();
+                previousNameOfAttributeDef = nameOfAttributeDef;
+              }
+              actionList.add(xmlExportAttributeAssignAction.getName());
+              xmlExportMain.incrementRecordCount();
+            }
+            
+            if (actionList != null && xmlExportAttributeAssignAction != null) {
+
+              xmlExportAttributeAssignAction.toGsh(grouperVersion, writer, nameOfAttributeDef, actionList);
+
+            }
+
+            
+          } finally {
+            HibUtils.closeQuietly(results);
+          }
+          
+        } catch (IOException ioe) {
+          throw new RuntimeException("Problem with streaming memberships", ioe);
+        }
+        return null;
+      }
+    });
+  }
+
+  /**
+   * @param exportVersion 
+   * @param writer
+   * @param nameOfAttributeDef
+   * @param actionList
+   * @throws IOException 
+   */
+  public void toGsh(
+      @SuppressWarnings("unused") GrouperVersion exportVersion, Writer writer, 
+      String nameOfAttributeDef, Set<String> actionList) throws IOException {
+
+    if (GrouperUtil.length(actionList) == 0) {
+      throw new RuntimeException("Why is actionList null? " + nameOfAttributeDef);
+    }
+
+    if (nameOfAttributeDef == null) {
+      throw new RuntimeException("Why is nameOfAttributeDef null?");
+    }
+    
+    writer.write("attributeDef = AttributeDefFinder.findByName(\""
+        + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\", false);\n");
+
+    writer.write("if (attributeDef != null) { ");
+
+    //addCompositeMember(CompositeType type, Group left, Group right)
+    String actionsCommaSeparated = GrouperUtil.join(actionList.iterator(), ",");
+    writer.write("int changeCount = attributeDef.getAttributeDefActionDelegate().configureActionList(\"" + actionsCommaSeparated + "\"); "
+        + "gshTotalObjectCount+=" + actionList.size() + "; if (changeCount > 0) { gshTotalChangeCount+=changeCount; "
+            + "System.out.println(\"Made \" + changeCount + \" changes for actionList of attributeDef: " + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "\");  }");
+
+    writer.write(" } else { gshTotalErrorCount++;  System.out.println(\"ERROR: cant find attributeDef: '" + GrouperUtil.escapeDoubleQuotesSlashesAndNewlinesForString(nameOfAttributeDef) + "'\"); }\n");
+
   }
 
   /**

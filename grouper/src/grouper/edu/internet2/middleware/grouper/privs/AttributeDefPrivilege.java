@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * An instance of a granted access privilege to attribute.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: AttributeDefPrivilege.java,v 1.1 2009-09-21 06:14:26 mchyzer Exp $
  */
@@ -323,7 +323,7 @@ public class AttributeDefPrivilege implements GrouperPrivilege, Comparable {
 
   /**
    * Get {@link AttributeDef} that the privilege was granted on.
-   * <p/>
+   * 
    * @return  {@link AttributeDef}
    */
   public AttributeDef getAttributeDef() {

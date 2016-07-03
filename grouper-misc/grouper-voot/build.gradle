@@ -5,7 +5,7 @@ dependencies {
     compile project(':grouper-misc:grouperClient')
     compile project(':grouper-ws:grouper-ws')
     testCompile project(path: ":grouper", configuration: "tests")
-    compile group: 'org.hibernate', name: 'hibernate-core', version: hibernate_core_version
+    compile libraries.hibernate
 }
 
 sourceSets {

@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Add a member.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: addMember.java,v 1.5 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
@@ -50,7 +50,7 @@ public class addMember {
 
   /**
    * Add a member.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   group       Add {@link Member} to {@link Group} with this name.
@@ -92,7 +92,7 @@ public class addMember {
 
   /**
    * Add a member.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   group       Add {@link Member} to {@link Group} with this name.

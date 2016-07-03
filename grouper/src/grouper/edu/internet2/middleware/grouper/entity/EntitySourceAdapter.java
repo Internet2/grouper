@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * Source adapter for Entities
- * <p/>
+ * 
  * <p>
  * @author  chris hyzer.
  * @version $Id: GrouperSourceAdapter.java,v 1.31 2009-08-12 04:52:21 mchyzer Exp $

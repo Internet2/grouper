@@ -62,7 +62,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 /**
  * Top level Strut's action which does setup for adding a composite member
  * to a group. Will remove existing members, or CompositeMember 
- * <p/>
+ * 
  * <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

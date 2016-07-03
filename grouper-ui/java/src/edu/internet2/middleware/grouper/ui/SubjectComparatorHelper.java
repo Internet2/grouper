@@ -54,7 +54,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * 'subject.sort.default', 'subject.display.&lt;sourceId&gt;' and 'subject.display.default' are looked up until a value is found</li>
  * </ul>
  * If the sort field contains spaces, the field is 'split' and each sub part is assumed to be separate attribute to sort on.
- * <p/>
+ * 
  * In order to sort subjects with the same type together, you can configure, in media.properties a pre-sort string e.g.
  * <ul><li>subject.pre-sort.g\:gsa=a</li>
  * <li>subject.pre-sort.qsuob=b</li>

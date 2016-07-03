@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Check if subject has privilege.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: hasPriv.java,v 1.4 2009-11-02 03:50:51 mchyzer Exp $
  * @since   0.0.1
@@ -54,7 +54,7 @@ public class hasPriv {
 
   /**
    * Check if subject has privilege.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   name        Check for privilege on this {@link Group} or {@link Stem}.

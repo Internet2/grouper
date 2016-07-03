@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
  * {@link Subject} from a {@link Membership} - getMember().getSubject()
  * only called if necessary i.e. the UI pages results and so it is often not
  * necessary to instantiate all the Subjects (and Members) 
- * <p/>
+ * 
  * @author  Gary Brown.
  * @version $Id: LazySubject.java,v 1.11 2009-10-31 16:27:12 mchyzer Exp $
  */

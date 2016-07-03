@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Grouper API logging.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: EventLog.java,v 1.10 2009-08-18 23:11:38 shilen Exp $
  */

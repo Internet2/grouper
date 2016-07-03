@@ -35,7 +35,7 @@ package edu.internet2.middleware.grouper.exception;
 /**
  * Exception thrown when an attribute assign action set is not found within the Groups
  * Registry.
- * <p/>
+ * 
  * @author  mchyzer.
  * @version $Id: AttributeAssignActionSetNotFoundException.java,v 1.1 2009-10-26 02:26:08 mchyzer Exp $
  */

@@ -747,9 +747,21 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectId.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name());
+
+      PITMember pitMember = null;
+      if (changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged).equals("subjectIdentifier0")) {
+        // because of the odd way that member attributes are updated (in a separate transaction), it's possible that the object was previously deleted.
+        pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(
+            changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), false);
+      } else {
+        pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(
+            changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), true);
+      }
+
+      if (pitMember == null) {
+        return;
+      }
       
-      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id), true);
       pitMember.setSubjectId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
       pitMember.setSubjectSourceId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
       pitMember.setSubjectTypeId(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));

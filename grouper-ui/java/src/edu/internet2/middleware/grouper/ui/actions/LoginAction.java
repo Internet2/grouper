@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
  * Basic HTTP Authentication.  
  * 
  * It is assumed that some other mechanism will be used e.g. CAS.
- * <p/>
+ * 
  * 
  * @author Gary Brown.
  * @version $Id: LoginAction.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $

@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /** 
  * A {@link Subject} local to the Groups Registry.
- * <p/>
+ * 
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
  * @version $Id: RegistrySubject.java,v 1.19 2009-09-02 05:57:26 mchyzer Exp $
@@ -157,7 +157,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
   
   /**
    * Return the value of the specified attribute.
-   * <p/>
+   * 
    * @param name 
    * @return attribute value
    */
@@ -167,7 +167,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
 
   /**
    * Return the values for the specified attribute.
-   * <p/>
+   * 
    * @param name 
    * @return attributes
    */
@@ -177,7 +177,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
 
   /**
    * Return this subject's description.
-   * <p/>
+   * 
    * @return description
    */
   public String getDescription() {
@@ -191,7 +191,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
 
   /**
    * Return the subject id.
-   * <p/>
+   * 
    * @return id
    */
   public String getId() {
@@ -200,7 +200,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
 
   /**
    * Return the subject's name.
-   * <p/>
+   * 
    * @return the name
    */
   public String getName() {
@@ -209,7 +209,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
 
   /**
    * Return the source.
-   * <p/>
+   * 
    * <p><b>NOTE:</b> The current implementation is very crude and inefficient.  It
    * attempts to query for the subject to identify the source.</p>
    * @return the source

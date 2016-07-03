@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * General Groups Registry schema exception.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: SchemaException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */

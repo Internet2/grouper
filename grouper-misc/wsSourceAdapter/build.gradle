@@ -1,36 +1,27 @@
-
 description = 'WsSourceAdapter'
 
 dependencies {
-  compile project(':grouper')
-  compile project(':subject')
-  compile group: 'commons-httpclient', name: 'commons-httpclient', version: commons_httpclient_version
-  compile group: 'commons-io', name: 'commons-io', version: commons_io_version
-  compile group: 'commons-logging', name: 'commons-logging', version: commons_logging_version
-  compile group: 'commons-lang', name: 'commons-lang', version: commons_lang_version
-  compile group: 'commons-codec', name: 'commons-codec', version: commons_codec_version
-  compile group: 'commons-beanutils', name: 'commons-beanutils', version: commons_beanutils_version
-  compile group: 'commons-digester', name: 'commons-digester', version: commons_digester_version
-  compile group: 'org.apache.commons', name: 'commons-jexl', version: commons_jexl_version
-  compile group: 'commons-collections', name: 'commons-collections', version: commons_collections_version
-  compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile project(':grouper')
+    compile project(':subject')
+    compile libraries.commons
+    compile fileTree(dir: 'lib', include: ['*.jar'])
 }
 
 sourceSets {
-  main{
-    java {
-      srcDir 'src/edu'
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDirs 'conf'
+        }
     }
-    resources {
-      srcDirs 'conf'
+    test {
+        java {
+            srcDir 'src/test'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
     }
-  }
-  test {
-    java {
-      srcDir 'src/test'
-    }
-    resources {
-      srcDir 'src/test/resources'
-    }
-  }
 }

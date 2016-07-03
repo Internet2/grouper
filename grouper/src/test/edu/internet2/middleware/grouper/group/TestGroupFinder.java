@@ -247,7 +247,7 @@ public class TestGroupFinder extends GrouperTest {
     grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
     groups = new GroupFinder().assignPrivileges(AccessPrivilege.READ_PRIVILEGES)
         .assignQueryOptions(new QueryOptions().paging(1000, 1, false)).findGroups();
-    
+    groups = GrouperTest.filterOutBuiltInGroups(groups);
     assertEquals(GrouperUtil.toStringForLog(groups), 2, groups.size());
     
     assertTrue(groups.contains(group2b));
@@ -382,7 +382,8 @@ public class TestGroupFinder extends GrouperTest {
     try {
       R         r     = R.populateRegistry(1, 2, 0);
       GroupType testType = GroupType.createType(r.rs, "testType");
-      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      Set<Group> groups = GrouperTest.filterOutBuiltInGroups(
+          GrouperDAOFactory.getFactory().getGroup().getAllGroups());
       assertTrue(groups.size() == 2);
       for (Group group : groups) {
         group.addType(testType);
@@ -448,7 +449,8 @@ public class TestGroupFinder extends GrouperTest {
     try {
       R         r     = R.populateRegistry(1, 1, 0);
       GroupType testType = GroupType.createType(r.rs, "testType");
-      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      Set<Group> groups = GrouperTest.filterOutBuiltInGroups(
+          GrouperDAOFactory.getFactory().getGroup().getAllGroups());
       assertTrue(groups.size() == 1);
       for (Group group : groups) {
         group.addType(testType);

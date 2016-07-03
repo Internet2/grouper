@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Create XML representation of the Groups Registry.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: XmlWriter.java,v 1.4 2009-03-23 02:59:25 mchyzer Exp $
  * @since   1.1.0

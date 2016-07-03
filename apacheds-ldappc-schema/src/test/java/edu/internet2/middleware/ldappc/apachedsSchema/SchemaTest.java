@@ -69,9 +69,11 @@ public class SchemaTest extends AbstractServerTest {
         Set schemas = configuration.getBootstrapSchemas();
         Set newset = new HashSet();
         newset.addAll(schemas);
+        /*
         newset.add(new EduMemberSchema());
         newset.add(new EduPermissionSchema());
         newset.add(new EduPersonSchema());
+        */
         configuration.setBootstrapSchemas(newset);
 
         super.setUp();

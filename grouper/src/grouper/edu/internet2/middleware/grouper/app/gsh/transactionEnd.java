@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * End a transaction
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: transactionEnd.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
@@ -42,7 +42,7 @@ public class transactionEnd {
 
   /**
    * End a transaction
-   * <p/>
+   * 
    * @param   interpreter           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @return  instructions for use

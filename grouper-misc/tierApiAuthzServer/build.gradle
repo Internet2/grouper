@@ -1,0 +1,26 @@
+description = 'Grouper TIER API AuthZ Server'
+
+apply plugin: "war"
+
+dependencies {
+    compile libraries.jsonlib
+    compile libraries.commons
+    provided libraries.servletapi
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main'
+        }
+        resources {
+            srcDirs 'clients', 'misc', 'src/resources'
+            include '**/*.properties'
+        }
+    }
+    test {
+        java {
+            srcDirs 'src/test'
+        }
+    }
+}

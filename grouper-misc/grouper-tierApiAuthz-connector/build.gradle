@@ -1,0 +1,22 @@
+description = 'Grouper TIER API AuthZ Connector'
+
+dependencies {
+    compile libraries.commons
+    compile project(':grouper')
+    compile project(':subject')
+    compile project(':grouper-misc:grouperClient')
+    compile project(':grouper-misc:morphString')
+    compile project(':grouper-misc:tierApiAuthzServer')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main'
+        }
+        resources {
+            srcDirs 'src/resources', 'misc'
+            include '**/*.properties'
+        }
+    }
+}

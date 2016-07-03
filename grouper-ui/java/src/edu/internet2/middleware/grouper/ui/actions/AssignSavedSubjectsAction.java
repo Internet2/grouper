@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 /**
  * Top level Strut's action which retrieves and makes available the list
  * of saved subjects for assignment of privileges.
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

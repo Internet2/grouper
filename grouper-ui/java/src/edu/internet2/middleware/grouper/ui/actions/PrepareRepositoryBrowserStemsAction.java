@@ -74,7 +74,7 @@ import edu.internet2.middleware.grouper.ui.util.StemAsMap;
  * to display according to browse mode. This class replaces PrepareStemsAction. It has
  * been refactored to use RepositoryBrowser instances - loaded according to browse mode.
  * This allows sites to add their own browse modes and to change the behaviour of existing modes.
- * <p/>
+ * 
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 

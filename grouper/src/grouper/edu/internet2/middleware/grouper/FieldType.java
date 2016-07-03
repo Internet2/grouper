@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Field Type.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: FieldType.java,v 1.15 2009-09-21 06:14:27 mchyzer Exp $    
  */

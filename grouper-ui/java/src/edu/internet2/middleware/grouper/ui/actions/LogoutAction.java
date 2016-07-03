@@ -62,7 +62,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Top level Strut's action which invalidates HttpSession and sets cookie 
  * to alllow challenge from whatever is managing authenticated access. 
- * <p/>
+ * 
  
  <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 

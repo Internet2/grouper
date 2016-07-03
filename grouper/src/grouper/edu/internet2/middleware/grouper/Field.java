@@ -82,7 +82,7 @@ import edu.internet2.middleware.grouper.xml.export.XmlImportable;
 /** 
  * Schema specification for a Group attribute or list.
  * Reference to members list is: Group.getDefaultList()
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: Field.java,v 1.48 2009-09-24 18:07:16 shilen Exp $    
  */

@@ -22,6 +22,9 @@
                 <ul class="nav nav-tabs">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});" >${textContainer.text['attributeDefAttributeDefNameTab'] }</a></li>
                   <li class="active"><a href="#" onclick="return false;" >${textContainer.text['attributeDefPrivilegesTab'] }</a></li>
+                  <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">
+                    <%@ include file="attributeDefMoreTab.jsp" %>
+                  </c:if>
                 </ul>
                 <p class="lead">${textContainer.text['attributeDefPrivilegesDecription'] }</p>
                 <form class="form-inline form-small form-filter" id="attributeDefFilterPrivilegesFormId">

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 
 /**
  * Get members of a group.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: getMembers.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
@@ -44,7 +44,7 @@ public class getMembers {
 
   /**
    * Get members of a group.
-   * <p/>
+   * 
    * @param   i           BeanShell interpreter.
    * @param   stack       BeanShell call stack.
    * @param   group       Get {@link Member}s of this {@link Group}.

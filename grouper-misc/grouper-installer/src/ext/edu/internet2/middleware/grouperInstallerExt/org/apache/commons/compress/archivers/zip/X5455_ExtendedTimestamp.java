@@ -501,7 +501,7 @@ public class X5455_ExtendedTimestamp implements ZipExtraField, Cloneable, Serial
     /**
      * Utility method converts java.util.Date (milliseconds since epoch)
      * into a ZipLong (seconds since epoch).
-     * <p/>
+     * 
      * Also makes sure the converted ZipLong is not too big to fit
      * in 32 unsigned bits.
      *

@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when an EL (expression language) is evaluated with a missing variable
- * <p/>
+ * 
  * @author  chris hyzer
  * @version $Id: GrantPrivilegeException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */

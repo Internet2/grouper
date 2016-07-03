@@ -34,7 +34,7 @@ package edu.internet2.middleware.grouper.exception;
 
 /**
  * Exception thrown when a group is modified to be the same as one that already exists
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: GroupModifyAlreadyExistsException.java,v 1.2 2009-08-11 20:18:08 mchyzer Exp $
  */

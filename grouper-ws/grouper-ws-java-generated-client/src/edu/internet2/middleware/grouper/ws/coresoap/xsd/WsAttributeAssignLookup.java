@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Internet2
+ * Copyright 2012, 2016 Internet2
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -401,7 +401,7 @@
                             if (!"WsAttributeAssignLookup".equals(type)){
                                 //find namespace for the prefix
                                 java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
-                                return (WsAttributeAssignLookup)edu.internet2.middleware.grouper.ws.soap_v2_2.xsd.ExtensionMapper.getTypeObject(
+                                return (WsAttributeAssignLookup)edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExtensionMapper.getTypeObject(
                                      nsUri,type,reader);
                               }
                         

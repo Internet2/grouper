@@ -77,7 +77,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test {@link Stem}.
- * <p/>
+ * 
  * @author  blair christensen.
  * @version $Id: TestStemApi.java,v 1.14 2009-12-10 08:54:15 mchyzer Exp $
  * @since   1.2.1
