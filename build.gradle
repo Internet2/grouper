@@ -140,131 +140,133 @@ allprojects {
     apply plugin: "signing"
     apply plugin: "org.standardout.versioneye"
     apply plugin: "nebula.lint"
-    
+
     gradleLint.rules = ['dependency-parentheses', 'dependency-tuple']
 
     signing {
         required = (publishReleases && sonatypeUsername != null && sonatypePassword != null)
         sign configurations.archives
     }
+    
 }
 
 
 subprojects {
-    task allDepInsight(type: DependencyInsightReportTask, description: "Generate dependency insight for all dependencies") << {}
+    task allDepInsight(type: DependencyInsightReportTask, description: "Generate dependency insight for all dependencies") << {
+    }
     task allDeps(type: DependencyReportTask, description: "List all project dependencies") {}
 
-    apply plugin: 'java'
-    apply plugin: 'project-report'
+    apply plugin: "java"
+    apply plugin: "project-report"
 
     apply from: rootProject.file("gradle/tasks.gradle")
     apply from: rootProject.file("gradle/dependencies.gradle")
-    
-       /*
-        Don't publish test dependencies into the final POM.
-        */
-        conf2ScopeMappings.mappings.remove(configurations.findByName("testCompile"))
-        conf2ScopeMappings.mappings.remove(configurations.findByName("testRuntime"))
 
-        repositories {
-            mavenLocal()
-            mavenCentral()
-            jcenter()
-            maven { url "https://shibboleth.net/nexus/content/groups/public" }
-            maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
-            maven { url "http://oss.sonatype.org/content/repositories/releases/" }
-            maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
-            maven { url "http://maven.ala.org.au/repository" }
-            maven { url "https://maven.atlassian.com/repository/public" }
-        }
+    /*
+     Don't publish test dependencies into the final POM.
+     */
+    conf2ScopeMappings.mappings.remove(configurations.findByName("testCompile"))
+    conf2ScopeMappings.mappings.remove(configurations.findByName("testRuntime"))
 
-        configurations {
-            tests
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url "https://shibboleth.net/nexus/content/groups/public" }
+        maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
+        maven { url "http://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
+        maven { url "http://maven.ala.org.au/repository" }
+        maven { url "https://maven.atlassian.com/repository/public" }
+    }
 
-            provided
-            compile.extendsFrom(provided)
-        }
+    configurations {
+        tests
 
-        artifacts {
-            tests testJar
+        provided
+        compile.extendsFrom(provided)
+    }
 
-            archives sourcesJar
-            archives javadocJar
-            archives testJar
-        }
+    artifacts {
+        tests testJar
 
-        ext.buildDate = null
-        compileJava.doLast {
-            buildDate = new Date()
-            jar.manifest {
-                attributes(
-                    'Built-Date': project.buildDate
-                    )
-            }
-        }
-        tasks.jar.onlyIf { return project.buildDate != null}
+        archives sourcesJar
+        archives javadocJar
+        archives testJar
+    }
+
+    ext.buildDate = null
+    compileJava.doLast {
+        buildDate = new Date()
         jar.manifest {
-            attributes('Implementation-Title': project.name,
+            attributes(
+                    'Built-Date': project.buildDate
+            )
+        }
+    }
+    tasks.jar.onlyIf { return project.buildDate != null }
+    jar.manifest {
+        attributes('Implementation-Title': project.name,
                 'Implementation-Version': project.version,
                 'Built-By': System.getProperty('user.name'),
                 'Built-JDK': System.getProperty('java.version'),
                 'Source-Compatibility': project.sourceCompatibility,
                 'Target-Compatibility': project.targetCompatibility
-                )
-        }
-
-        versioneye {
-            includePlugins = false
-            includeSubProjects = true
-        }
-
-        javadoc {
-            failOnError = false
-        }
-
-        dependencies {
-            compile libraries.log4j
-            testCompile libraries.junit
-        }
-
-
-        uploadArchives {
-            repositories {
-                mavenDeployer projectMavenDeployer
-            }
-        }
+        )
     }
 
-    task javadoc(type: Javadoc) {
-        source subprojects.collect { project -> project.sourceSets.main.allJava }
+    versioneye {
+        includePlugins = false
+        includeSubProjects = true
+    }
+
+    javadoc {
         failOnError = false
-        destinationDir = new File(buildDir, 'javadoc')
-        classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
     }
 
-    task aggregateDist(type: Zip, description: "Aggregate all distributions into a single directory") {
-        subprojects.each {
-            from it.getTasksByName("distZip", false)
-        }
+    dependencies {
+        compile libraries.log4j
+        testCompile libraries.junit
     }
 
-    task aggregateJavadocsIntoJar(type: Jar, dependsOn: javadoc, description: "Aggregate all Javadocs into a single directory") {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    task rootSourcesJar(type: Jar, description: "Generate sources jar for the root project") {
-        baseName = "${project.archivesBaseName}"
-        from rootProject.file("src")
-    }
-
-    artifacts {
-        archives aggregateJavadocsIntoJar
-        archives rootSourcesJar
-    }
 
     uploadArchives {
         repositories {
             mavenDeployer projectMavenDeployer
         }
     }
+}
+
+task javadoc(type: Javadoc) {
+    source subprojects.collect { project -> project.sourceSets.main.allJava }
+    failOnError = false
+    destinationDir = new File(buildDir, 'javadoc')
+    classpath = files(subprojects.collect { project -> project.sourceSets.main.compileClasspath })
+}
+
+task aggregateDist(type: Zip, description: "Aggregate all distributions into a single directory") {
+    subprojects.each {
+        from it.getTasksByName("distZip", false)
+    }
+}
+
+task aggregateJavadocsIntoJar(type: Jar, dependsOn: javadoc, description: "Aggregate all Javadocs into a single directory") {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task rootSourcesJar(type: Jar, description: "Generate sources jar for the root project") {
+    baseName = "${project.archivesBaseName}"
+    from rootProject.file("src")
+}
+
+artifacts {
+    archives aggregateJavadocsIntoJar
+    archives rootSourcesJar
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer projectMavenDeployer
+    }
+}
