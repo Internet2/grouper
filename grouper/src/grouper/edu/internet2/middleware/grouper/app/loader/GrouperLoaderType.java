@@ -2528,6 +2528,26 @@ public enum GrouperLoaderType {
 
       }
       
+      // If somebody has a case problem between loader data and subject source, we may be adding and removing the same subjects
+      // if the source is case insensitive.
+      // If so, delete them from both lists.
+      Map<MultiKey, Subject> subjectsToAddMap = new LinkedHashMap<MultiKey, Subject>();
+      for (Subject subject : subjectsToAdd) {
+        subjectsToAddMap.put(new MultiKey(subject.getSourceId(), subject.getId()), subject);
+      }
+
+      Iterator<LoaderMemberWrapper> currentMembersIter = currentMembers.iterator();
+      while (currentMembersIter.hasNext()) {
+        LoaderMemberWrapper member = currentMembersIter.next();
+        Subject subjectToAdd = subjectsToAddMap.get(new MultiKey(member.getSourceId(), member.getSubjectId()));
+        
+        if (subjectToAdd != null) {
+          subjectsToAdd.remove(subjectToAdd);
+          currentMembersIter.remove();
+          LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.");
+        }
+      }
+            
       
       //here are members to remove
       final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);

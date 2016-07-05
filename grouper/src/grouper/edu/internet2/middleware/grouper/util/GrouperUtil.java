@@ -11601,6 +11601,14 @@ public class GrouperUtil {
           }
         }
       }
+      
+      if (result instanceof ChangeToVersionCustomizable) {
+        ((ChangeToVersionCustomizable)result).customizeChangeToVersion(input);
+      }
+      if (input instanceof ChangeToVersionCustomizable) {
+        ((ChangeToVersionCustomizable)input).customizeChangeFromVersion(result);
+      }
+      
       if (logMessage != null) {
         for (String inputFieldName : nonNull(inputFieldMap.keySet())) {
           logMessage.append("field not found output: ").append(inputFieldName).append(", ");

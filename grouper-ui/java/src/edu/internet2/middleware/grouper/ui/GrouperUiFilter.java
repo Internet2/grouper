@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -103,6 +104,7 @@ import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
+import edu.internet2.middleware.grouper.util.GrouperThreadLocalState;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -435,7 +437,7 @@ public class GrouperUiFilter implements Filter {
    * @param subjectLoggedIn
    * @return the error message group name
    */
-  private static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
+  public static String requireUiGroup(String mediaKeyOfGroup, Subject subjectLoggedIn) {
     
     //see if member of login group
     String groupToRequire = GrouperUiConfig.retrieveConfig().propertyValueString(mediaKeyOfGroup);
@@ -935,7 +937,7 @@ public class GrouperUiFilter implements Filter {
     
     HooksContext.clearThreadLocal();
     GrouperContext.deleteDefaultContext();
-
+    GrouperThreadLocalState.removeCurrentThreadLocals();
   }
 
   /**
@@ -1052,8 +1054,9 @@ public class GrouperUiFilter implements Filter {
       sendErrorEmailIfNeeded();
      
       finallyRequest();
+      
+      ServletRequestUtils.requestEnd();
     }
-
   }
 
   /**

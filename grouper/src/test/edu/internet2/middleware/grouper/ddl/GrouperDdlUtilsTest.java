@@ -153,19 +153,19 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.justTesting = true;
 
     try {
-      assertTrue("Starting out, tables should be there", GrouperDdlUtils.assertTablesThere(false, true));
+      assertTrue("Starting out, tables should be there", GrouperDdlUtils.assertTablesThere(null, false, true));
       
       //now lets remove all tables and object
       GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, false);
       
-      assertFalse("Just removed tables, shouldnt be there", GrouperDdlUtils.assertTablesThere(false, false));
+      assertFalse("Just removed tables, shouldnt be there", GrouperDdlUtils.assertTablesThere(null, false, false));
   
       //lets add all tables and object
       GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
       
       //if we init data, the root stem should be there...
       assertTrue("Just added all tables, and registry init, it should be there", 
-          GrouperDdlUtils.assertTablesThere(true, true));
+          GrouperDdlUtils.assertTablesThere(null, true, true));
   
       //should also have at least two rows in ddl
       int count = HibernateSession.bySqlStatic().select(int.class, 
@@ -176,7 +176,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       //try again, everything should be there (even not from junit)
       GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null, false);
       
-      assertTrue("Should not change anything", GrouperDdlUtils.assertTablesThere(true, true));
+      assertTrue("Should not change anything", GrouperDdlUtils.assertTablesThere(null, true, true));
   
       //at this point, hibernate should not be shut off
       assertTrue("at this point, hibernate should not be shut off", 

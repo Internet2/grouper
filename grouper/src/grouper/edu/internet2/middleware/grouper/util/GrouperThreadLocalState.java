@@ -15,6 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.log4j.NDC;
+
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
@@ -22,6 +25,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.morphString.Crypto;
 
 
 /**
@@ -64,6 +68,9 @@ public class GrouperThreadLocalState {
    */
   private boolean grouperSourceAdapterSearchWithReadPrivilege = false;
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperThreadLocalState.class);
+
   /**
    * store current thread locals here
    */
@@ -88,6 +95,37 @@ public class GrouperThreadLocalState {
     HibernateSession.internal_assignThreadlocalReadonly(this.hibernateSessionReadonlyMode);
     GrouperContextTypeBuiltIn.setThreadLocalContext(this.grouperContextType);
     GrouperSourceAdapter.searchForGroupsWithReadPrivilege(this.grouperSourceAdapterSearchWithReadPrivilege);
+  }
+  
+  /**
+   * remove current thread locals (e.g. at end of request)
+   */
+  @SuppressWarnings("rawtypes")
+  public static void removeCurrentThreadLocals() {
+    GrouperContext.internal_assignCurrentInnerContext(null);
+    GrouperContext.internal_assignCurrentOuterContext(null);
+    GrouperContext.internal_assignDefaultContext(null);
+    GrouperLoader.internal_assignThreadLocalGrouperLoaderDryRun(null);
+    HibernateSession.internal_assignThreadlocalReadonly(null);
+    GrouperContextTypeBuiltIn.setThreadLocalContext(null);
+    GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
+    NDC.remove();
+
+    for (Class theClass : new Class[]{edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, Crypto.class}) {
+
+      //try to get the Crypto one
+      try {
+        ThreadLocal threadLocalCrypto = (ThreadLocal)GrouperUtil.fieldValue(theClass, null, "threadLocalCrypto", false, true, false);
+        if (threadLocalCrypto != null) {
+          threadLocalCrypto.remove();
+        }
+      } catch (Exception e) {
+        LOG.error("cant clear Crypto threadlocal: " + theClass.getName(), e);
+      }
+      
+
+    }
+        
   }
   
   

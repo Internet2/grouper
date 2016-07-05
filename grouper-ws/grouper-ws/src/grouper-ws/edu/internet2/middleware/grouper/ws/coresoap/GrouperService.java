@@ -4951,6 +4951,10 @@ public class GrouperService {
     } catch (Exception e) {
       wsSendMessageResults.assignResultCodeException(null, null, e);
     }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsSendMessageResults.getResultMetadata(), this.soap);
+
     return wsSendMessageResults;
   }
 
@@ -4985,6 +4989,10 @@ public class GrouperService {
     } catch (Exception e) {
       wsReceiveMessageResults.assignResultCodeException(null, null, e);
     }
+    
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsReceiveMessageResults.getResultMetadata(), this.soap);
+
     return wsReceiveMessageResults;
   }
 
@@ -5032,6 +5040,10 @@ public class GrouperService {
     } catch (Exception e) {
       wsMessageResults.assignResultCodeException(null, null, e);
     }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsMessageResults.getResultMetadata(), this.soap);
+
     return wsMessageResults;
   }
 

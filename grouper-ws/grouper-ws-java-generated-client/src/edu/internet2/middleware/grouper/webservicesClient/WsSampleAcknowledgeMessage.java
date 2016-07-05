@@ -106,10 +106,6 @@ public class WsSampleAcknowledgeMessage implements WsSampleGenerated {
       WsMessageAcknowledgeResults wsMessageAcknowledgeResults = acknowledgeResponse
           .get_return();
 
-      if (wsMessageAcknowledgeResults.getQueueOrTopicName().equals("def")) {
-        throw new RuntimeException("didnt get correct queue or topic name! ");
-      }
-
       if (!StringUtils.equals("T",
           wsMessageAcknowledgeResults.getResultMetadata().getSuccess())) {
         throw new RuntimeException("didnt get success! ");

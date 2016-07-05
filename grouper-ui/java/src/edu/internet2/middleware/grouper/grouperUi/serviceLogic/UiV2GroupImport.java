@@ -474,7 +474,8 @@ public class UiV2GroupImport {
       String bulkAddOption = request.getParameter("bulkAddOptions");
       Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
-      Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+      final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
+
       String fileName = null;
       if (StringUtils.equals(bulkAddOption, "import")) {
 
@@ -768,7 +769,6 @@ public class UiV2GroupImport {
 
         GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
             loggedInSubject, group);
-
         
         if (StringUtils.equals(bulkAddOption, "import")) {
           auditImport(group.getUuid(), group.getName(), fileName, addedCount, deletedCount);
@@ -796,18 +796,18 @@ public class UiV2GroupImport {
   }
   
     private void auditImport(final String groupId, final String groupName, final String fileName,
-			final int countAdded, final int countDeleted) {
+        final int countAdded, final int countDeleted) {
       HibernateSession.callbackHibernateSession(
 		    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
 			    new HibernateHandler() {
 				    public Object callback(HibernateHandlerBean hibernateHandlerBean)
 					    throws GrouperDAOException {
 						  
-						AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_IMPORT, "file", fileName, "totalAdded", 
-								String.valueOf(countAdded), "groupId", groupId, "groupName", groupName, "totalDeleted", String.valueOf(countDeleted));
+				      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_IMPORT, "file", fileName, "totalAdded", 
+				          String.valueOf(countAdded), "groupId", groupId, "groupName", groupName, "totalDeleted", String.valueOf(countDeleted));
 						  
-						String description = "Added : " + countAdded + " subjects "
-								  + "  and deleted "+countDeleted + " subjects in group ."+groupName;
+				      String description = "Added : " + countAdded + " subjects "
+				          + "  and deleted "+countDeleted + " subjects in group ."+groupName;
 						auditEntry.setDescription(description);
 						auditEntry.saveOrUpdate(true);
 						  
