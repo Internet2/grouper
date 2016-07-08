@@ -3315,6 +3315,9 @@ public class GrouperInstaller {
     //make sure log4j is debugging sql statements
     log4jDebugSql(this.upgradeExistingClassesDirectoryString + "log4j.properties");
     
+    //verify that grouper.hibernate.properties doesn't have legacy properties
+    removeLegacyHibernateProperties(this.upgradeExistingClassesDirectoryString + "grouper.hibernate.properties");
+    
     System.out.println("\n##################################");
     System.out.println("Upgrading DB (registry)\n");
 
@@ -7012,6 +7015,44 @@ public class GrouperInstaller {
    * if this file has been taken care of for a while
    */
   private Set<File> log4jDebugDone = new HashSet<File>();
+  
+  /**
+   * if this file has been taken care of for a while
+   */
+  private Set<File> removeLegacyHibernatePropertiesDone = new HashSet<File>();
+  
+  /**
+   * @param hibernateFileLocation
+   */
+  public void removeLegacyHibernateProperties(String hibernateFileLocation) {
+
+    //if not a file dont worry about it
+    File hibernateFile = new File(hibernateFileLocation);
+
+    if (this.removeLegacyHibernatePropertiesDone.contains(hibernateFile)) {
+      return;
+    }
+
+    this.removeLegacyHibernatePropertiesDone.add(hibernateFile);
+
+    if (!hibernateFile.exists()) {
+      System.out.println("Cant find grouper.hibernate.properties: " + hibernateFileLocation);
+      return;
+    }
+    
+    //see if its there
+    Properties hibernateProperties = GrouperInstallerUtils.propertiesFromFile(hibernateFile);
+    String current = GrouperInstallerUtils.propertiesValue(hibernateProperties, "hibernate.cache.region.factory_class");
+    
+    if (current == null) {
+      //not there, we're good
+      return;
+    }
+
+
+    removeRedundantProperties(hibernateFile, GrouperInstallerUtils.toSet("hibernate.cache.region.factory_class"));
+    System.out.println("File " + hibernateFile.getAbsolutePath() + " has property hibernate.cache.region.factory_class set to \"" + current + "\".  Removing since this is now in the grouper.hibernate.base.properties file.");
+  }
   
   /**
    * @param log4jLocation
