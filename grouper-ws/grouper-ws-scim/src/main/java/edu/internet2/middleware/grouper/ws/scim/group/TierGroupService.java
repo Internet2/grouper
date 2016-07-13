@@ -33,9 +33,9 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.ws.scim.TierMetaExtension;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
 import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveExtensionsException;
@@ -52,59 +52,59 @@ import edu.psu.swe.scim.spec.resources.ScimGroup;
 
 @Named
 @ApplicationScoped
-public class GrouperGroupService implements Provider<ScimGroup> {
+public class TierGroupService implements Provider<ScimGroup> {
   
-  private static final Log LOG = LogFactory.getLog(GrouperGroupService.class);
+  private static final Log LOG = LogFactory.getLog(TierGroupService.class);
 
   @Override
   public ScimGroup create(ScimGroup scimGroup) throws UnableToCreateResourceException {
   
     GrouperSession grouperSession = null;
     ScimGroup scimGroupOutput = null;
+    String groupName = null;
     try {
+      TierGroupExtension tierGroupExtension = scimGroup.getExtension(TierGroupExtension.class);
+      groupName = tierGroupExtension != null && tierGroupExtension.getSystemName() != null ? tierGroupExtension.getSystemName() : scimGroup.getDisplayName();
+      if (groupName == null || !groupName.contains(":")) {
+        throw new UnableToCreateResourceException(Status.BAD_REQUEST, "name must contain atleast one colon (:)"); 
+      }
       grouperSession = GrouperSession.startRootSession();
-      GroupSave groupSave = new GroupSave(grouperSession);
-      Group group = groupSave.assignName(scimGroup.getId())
+      GroupSave groupSave = new GroupSave(grouperSession)
+          .assignName(groupName)
           .assignDisplayName(scimGroup.getDisplayName())
           .assignCreateParentStemsIfNotExist(true)
-          .assignSaveMode(SaveMode.INSERT)
-          .assignTypeOfGroup(scimGroup.getExtension(GroupExtension.class).getTypeOfGroup() == null ? null: 
-            TypeOfGroup.valueOf(scimGroup.getExtension(GroupExtension.class).getTypeOfGroup()))
-          .assignDescription(scimGroup.getExtension(GroupExtension.class).getDescription())
-          .assignPrivAllAttrRead(scimGroup.getExtension(GroupExtension.class).getAssignAttributeReadPrivToAll())
-          .assignPrivAllOptin(scimGroup.getExtension(GroupExtension.class).getAssignOptInPrivToAll())
-          .assignPrivAllOptout(scimGroup.getExtension(GroupExtension.class).getAssignOptOutPrivToAll())
-          .assignPrivAllRead(scimGroup.getExtension(GroupExtension.class).getAssignReadPrivToAll())
-          .assignPrivAllView(scimGroup.getExtension(GroupExtension.class).getAssignViewPrivToAll())
-          .save();
-            
+          .assignSaveMode(SaveMode.INSERT);
+      if (tierGroupExtension != null) {
+        groupSave.assignDescription(scimGroup.getExtension(TierGroupExtension.class).getDescription());
+        groupSave.assignIdIndex(scimGroup.getExtension(TierGroupExtension.class).getIdIndex());
+      }
+
+      Group group = groupSave.save();
+      
       Group savedGroup = GroupFinder.findByName(grouperSession, group.getName(), true);
-      
       scimGroupOutput = new ScimGroup();
-      
-      scimGroupOutput.setId(savedGroup.getName());
-      scimGroupOutput.setDisplayName(savedGroup.getDisplayName());
-      scimGroupOutput.setExternalId(savedGroup.getUuid());
-      GroupExtension groupExtension = new GroupExtension();
-      groupExtension.setDescription(savedGroup.getDescription());
-      groupExtension.setTypeOfGroup(savedGroup.getTypeOfGroup().getName());
-      Set<AccessPrivilege> privs = savedGroup.getPrivs(SubjectFinder.findAllSubject());
-      Set<String> privNames = new HashSet<String>();
-      for (AccessPrivilege accessPriv: privs) {
-        privNames.add(accessPriv.getName());
+      scimGroupOutput.setId(savedGroup.getId());
+      scimGroupOutput.setDisplayName(savedGroup.getDisplayExtension());
+      if (tierGroupExtension != null) {
+        TierGroupExtension groupExtension = new TierGroupExtension();
+        groupExtension.setDescription(savedGroup.getDescription());
+        groupExtension.setIdIndex(savedGroup.getIdIndex());
+        groupExtension.setSystemName(tierGroupExtension.getSystemName());
+        scimGroupOutput.addExtension(groupExtension);
       }
       
-      groupExtension.setAssignAttributeReadPrivToAll(privNames.contains(AccessPrivilege.GROUP_ATTR_READ.getName()));
-      groupExtension.setAssignOptInPrivToAll(privNames.contains(AccessPrivilege.OPTIN.getName()));
-      groupExtension.setAssignOptOutPrivToAll(privNames.contains(AccessPrivilege.OPTOUT.getName()));
-      groupExtension.setAssignReadPrivToAll(privNames.contains(AccessPrivilege.READ.getName()));
-      groupExtension.setAssignViewPrivToAll(privNames.contains(AccessPrivilege.VIEW.getName()));
-      scimGroupOutput.addExtension(groupExtension);
+      //Add the TierMetaExtension
+      //TODO create a new filter to get the correct response duration
+      //TODO change the result code to a constant or use an existing constant
+      TierMetaExtension tierMetaExtension = new TierMetaExtension();
+      tierMetaExtension.setResponseDurationMillis(8686L);
+      tierMetaExtension.setResultCode("SUCCESS_CREATED");
+      scimGroupOutput.addExtension(tierMetaExtension);
       
     } catch(IllegalArgumentException e) {
       throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Please check the request payload and try again.");
     } catch(GroupAddAlreadyExistsException e) {
-      throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Group with name "+scimGroup.getId()+" already exists.");
+      throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Group with name "+groupName+" already exists.");
     } catch(InvalidExtensionException ie) {
       LOG.error("Unable to create group with id "+scimGroup.getId(), ie);
       throw new UnableToCreateResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
@@ -139,36 +139,22 @@ public class GrouperGroupService implements Provider<ScimGroup> {
       GroupSave groupSave = new GroupSave(grouperSession).assignName(scimGroup.getId())
           .assignUuid(grp.getUuid())
           .assignSaveMode(SaveMode.UPDATE)
-          .assignDescription(scimGroup.getExtension(GroupExtension.class).getDescription())
-          .assignPrivAllAttrRead(scimGroup.getExtension(GroupExtension.class).getAssignAttributeReadPrivToAll())
-          .assignPrivAllOptin(scimGroup.getExtension(GroupExtension.class).getAssignOptInPrivToAll())
-          .assignPrivAllOptout(scimGroup.getExtension(GroupExtension.class).getAssignOptOutPrivToAll())
-          .assignPrivAllRead(scimGroup.getExtension(GroupExtension.class).getAssignReadPrivToAll())
-          .assignPrivAllView(scimGroup.getExtension(GroupExtension.class).getAssignViewPrivToAll());
+          .assignDescription(scimGroup.getExtension(TierGroupExtension.class).getDescription());
       
-      if (scimGroup.getExtension(GroupExtension.class).getTypeOfGroup() != null) {
-        groupSave.assignTypeOfGroup(TypeOfGroup.valueOf(scimGroup.getExtension(GroupExtension.class).getTypeOfGroup()));
-      }
       Group savedGroup = groupSave.save();
       
       scimGroupOutput = new ScimGroup();
       scimGroupOutput.setId(savedGroup.getName());
       scimGroupOutput.setDisplayName(savedGroup.getDisplayName());
       scimGroupOutput.setExternalId(savedGroup.getUuid());
-      GroupExtension groupExtension = new GroupExtension();
+      TierGroupExtension groupExtension = new TierGroupExtension();
       groupExtension.setDescription(savedGroup.getDescription());
-      groupExtension.setTypeOfGroup(savedGroup.getTypeOfGroup().getName());
       Set<AccessPrivilege> privs = savedGroup.getPrivs(SubjectFinder.findAllSubject());
       Set<String> privNames = new HashSet<String>();
       for (AccessPrivilege accessPriv: privs) {
         privNames.add(accessPriv.getName());
       }
       
-      groupExtension.setAssignAttributeReadPrivToAll(privNames.contains(AccessPrivilege.GROUP_ATTR_READ.getName()));
-      groupExtension.setAssignOptInPrivToAll(privNames.contains(AccessPrivilege.OPTIN.getName()));
-      groupExtension.setAssignOptOutPrivToAll(privNames.contains(AccessPrivilege.OPTOUT.getName()));
-      groupExtension.setAssignReadPrivToAll(privNames.contains(AccessPrivilege.READ.getName()));
-      groupExtension.setAssignViewPrivToAll(privNames.contains(AccessPrivilege.VIEW.getName()));
       scimGroupOutput.addExtension(groupExtension);
       
     } catch(IllegalArgumentException e) {
@@ -199,20 +185,14 @@ public class GrouperGroupService implements Provider<ScimGroup> {
       group.setDisplayName(grp.getDisplayName());
       group.setExternalId(grp.getUuid());
       
-      GroupExtension groupExtension = new GroupExtension();
+      TierGroupExtension groupExtension = new TierGroupExtension();
       groupExtension.setDescription(grp.getDescription());
-      groupExtension.setTypeOfGroup(grp.getTypeOfGroup().getName());
       Set<AccessPrivilege> privs = grp.getPrivs(SubjectFinder.findAllSubject());
       Set<String> privNames = new HashSet<String>();
       for (AccessPrivilege accessPriv: privs) {
         privNames.add(accessPriv.getName());
       }
       
-      groupExtension.setAssignAttributeReadPrivToAll(privNames.contains(AccessPrivilege.GROUP_ATTR_READ.getName()));
-      groupExtension.setAssignOptInPrivToAll(privNames.contains(AccessPrivilege.OPTIN.getName()));
-      groupExtension.setAssignOptOutPrivToAll(privNames.contains(AccessPrivilege.OPTOUT.getName()));
-      groupExtension.setAssignReadPrivToAll(privNames.contains(AccessPrivilege.READ.getName()));
-      groupExtension.setAssignViewPrivToAll(privNames.contains(AccessPrivilege.VIEW.getName()));
       group.addExtension(groupExtension);      
       return group;
     } catch(InvalidExtensionException ie) {
@@ -249,8 +229,7 @@ public class GrouperGroupService implements Provider<ScimGroup> {
 
   @SuppressWarnings("unchecked")
   public List<Class<? extends ScimExtension>> getExtensionList() throws UnableToRetrieveExtensionsException {
-    List list =  Arrays.asList(GroupExtension.class);
-    return list;
+    return Arrays.asList(TierGroupExtension.class, TierMetaExtension.class);
   }
   
 }
