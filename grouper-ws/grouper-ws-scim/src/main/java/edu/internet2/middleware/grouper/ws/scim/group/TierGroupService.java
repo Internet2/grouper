@@ -16,9 +16,7 @@
 package edu.internet2.middleware.grouper.ws.scim.group;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -32,10 +30,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.scim.TierMetaExtension;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
 import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
@@ -80,9 +76,8 @@ public class TierGroupService implements Provider<ScimGroup> {
         groupSave.assignIdIndex(scimGroup.getExtension(TierGroupExtension.class).getIdIndex());
       }
 
-      Group group = groupSave.save();
+      Group savedGroup = groupSave.save();
       
-      Group savedGroup = GroupFinder.findByName(grouperSession, group.getName(), true);
       scimGroupOutput = new ScimGroup();
       scimGroupOutput.setId(savedGroup.getId());
       scimGroupOutput.setDisplayName(savedGroup.getDisplayName());
