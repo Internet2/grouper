@@ -14,7 +14,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import edu.psu.swe.scim.spec.annotation.ScimAttribute;
 import edu.psu.swe.scim.spec.annotation.ScimExtensionType;
 import edu.psu.swe.scim.spec.resources.ScimExtension;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 /**
  * @author vsachdeva
@@ -35,7 +37,8 @@ public class TierMetaExtension implements ScimExtension {
   
   @ScimAttribute(description="number of milliseconds taken to generate the response", returned=DEFAULT, mutability=READ_ONLY)
   @XmlElement
-  private Long responseDurationMillis;
+  @Setter(value=AccessLevel.NONE)
+  private Long responseDurationMillis = System.currentTimeMillis() - TierFilter.retrieveRequestStartMillis();
   
   /**
    * Provides the URN associated with this extension which, as defined by the
