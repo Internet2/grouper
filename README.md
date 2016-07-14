@@ -41,4 +41,3 @@ mvn site site:deploy
 cd /tmp/grouper-parent
 [launch] index.html
 ```
-
