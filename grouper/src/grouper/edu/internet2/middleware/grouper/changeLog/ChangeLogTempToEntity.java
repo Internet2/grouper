@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -660,6 +662,11 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long endTime = changeLogEntry.getCreatedOnDb();
 
+    GroupType groupType = GroupTypeFinder.findByUuid(typeId, false);
+    if (groupType == null) {
+      return;
+    }
+    
     // remove group sets
     Set<Field> fields = FieldFinder.findAllByGroupType(typeId);
     Iterator<Field> iter = fields.iterator();
