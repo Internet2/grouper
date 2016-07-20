@@ -483,7 +483,7 @@
 <a class="jxr_linenumber" name="L475" href="#L475">475</a> 
 <a class="jxr_linenumber" name="L476" href="#L476">476</a>       <em class="jxr_comment">//make sure matches</em>
 <a class="jxr_linenumber" name="L477" href="#L477">477</a>       <strong class="jxr_keyword">if</strong> ((hasUuid &amp;&amp; !StringUtils.equals(<strong class="jxr_keyword">this</strong>.uuid, theGroup.getUuid()))
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>           || (hasName &amp;&amp; !StringUtils.equals(<strong class="jxr_keyword">this</strong>.groupName, theGroup.getName()))
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>           || (hasName &amp;&amp; !StringUtils.equals(<strong class="jxr_keyword">this</strong>.groupName, theGroup.getName()) &amp;&amp; !StringUtils.equals(<strong class="jxr_keyword">this</strong>.groupName, theGroup.getAlternateName()))
 <a class="jxr_linenumber" name="L479" href="#L479">479</a>           || (hasIdIndex &amp;&amp; !GrouperUtil.equals(GrouperUtil.longValue(<strong class="jxr_keyword">this</strong>.idIndex), theGroup.getIdIndex()))){
 <a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">this</strong>.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
 <a class="jxr_linenumber" name="L481" href="#L481">481</a>         String error = <span class="jxr_string">"Group name '"</span> + <strong class="jxr_keyword">this</strong>.groupName + <span class="jxr_string">"', uuid '"</span> + <strong class="jxr_keyword">this</strong>.uuid
