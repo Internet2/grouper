@@ -208,7 +208,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testFindGroups"));
+    TestRunner.run(new GrouperServiceLogicTest("testHasMember"));
   }
 
   /**
@@ -895,18 +895,32 @@ public class GrouperServiceLogicTest extends GrouperTest {
       .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
       .assignDescription("description").save();
 
+    Group groupAlternate = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+        .assignName("test2:groupAlternate").assignCreateParentStemsIfNotExist(true).save();
+
     // add members
     group1.addMember(SubjectTestHelper.SUBJ0);
+    
+    //note, this is deleted later
     group1.addMember(SubjectTestHelper.SUBJ1);    
+    groupAlternate.addMember(SubjectTestHelper.SUBJ0);
+    groupAlternate.addMember(SubjectTestHelper.SUBJ1);    
     
     group1.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.UPDATE);
 
     ChangeLogTempToEntity.convertRecords();
-    
+
+    //note, this is deleted here
     group1.deleteMember(SubjectTestHelper.SUBJ1);    
+    groupAlternate.deleteMember(SubjectTestHelper.SUBJ1);    
     ChangeLogTempToEntity.convertRecords();
     
     WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
+    WsGroupLookup wsGroupAlternateLookup = new WsGroupLookup(groupAlternate.getName(), null);
+    
+    groupAlternate.move(StemFinder.findByName(GrouperSession.staticGrouperSession(), "test", true));
+    ChangeLogTempToEntity.convertRecords();
+
     WsSubjectLookup wsSubjectLookup0 = new WsSubjectLookup(SubjectTestHelper.SUBJ0.getId(), null, null);
     WsSubjectLookup wsSubjectLookup1 = new WsSubjectLookup(SubjectTestHelper.SUBJ1.getId(), null, null);
     WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup0, wsSubjectLookup1};
@@ -928,6 +942,37 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(2, GrouperUtil.length(wsHasMemberResults.getResults()));
     WsSubject wsSubject1 = wsHasMemberResults.getResults()[0].getWsSubject();
     WsSubject wsSubject2 = wsHasMemberResults.getResults()[1].getWsSubject();
+    
+    if (wsSubject1.getId().equals(SubjectTestHelper.SUBJ0.getId())) {
+      assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject2.getId());
+      assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+      assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+    } else {
+      assertEquals(SubjectTestHelper.SUBJ0.getId(), wsSubject2.getId());
+      assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject1.getId());
+      assertEquals(WsHasMemberResultCode.IS_NOT_MEMBER, wsHasMemberResults.getResults()[0].resultCode());
+      assertEquals(WsHasMemberResultCode.IS_MEMBER, wsHasMemberResults.getResults()[1].resultCode());
+    }
+
+    //###############################################
+    //alternate name
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    wsHasMemberResults = GrouperServiceLogic.hasMember(
+        GROUPER_VERSION, wsGroupAlternateLookup, wsSubjectLookups, WsMemberFilter.Immediate, 
+        null, null, true, true, null, null, null, null);
+    
+    assertEquals(wsHasMemberResults.getResultMetadata().getResultMessage(),
+        WsHasMemberResultsCode.SUCCESS.name(), 
+        wsHasMemberResults.getResultMetadata().getResultCode());
+    
+    wsGroup = wsHasMemberResults.getWsGroup();
+    assertEquals(groupAlternate.getUuid(), wsGroup.getUuid());
+    assertEquals(groupAlternate.getName(), wsGroup.getName());
+    
+    assertEquals(2, GrouperUtil.length(wsHasMemberResults.getResults()));
+    wsSubject1 = wsHasMemberResults.getResults()[0].getWsSubject();
+    wsSubject2 = wsHasMemberResults.getResults()[1].getWsSubject();
     
     if (wsSubject1.getId().equals(SubjectTestHelper.SUBJ0.getId())) {
       assertEquals(SubjectTestHelper.SUBJ1.getId(), wsSubject2.getId());
