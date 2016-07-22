@@ -238,58 +238,32 @@
                       </div>
                     </div>
 
-
-
-                    <div class="row-fluid">
-                      <div class="span2"><strong>${textContainer.text['subjectViewLabelId'] }</strong></div>
-                      <div class="span10">
-                        <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}</p>
-                      </div>
-                    </div>
-                    <c:if test="${grouperRequestContainer.subjectContainer.guiSubject.hasEmailAttributeInSource }">
-                      <div class="row-fluid">
-                        <div class="span2"><strong>${textContainer.text['subjectViewLabelEmail']}</strong></div>
-                        <div class="span10">
-                          <p>${grouperRequestContainer.subjectContainer.guiSubject.email}</p>
+                    <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNamesNonExpandedView}" 
+                      var="attributeName" >
+                      <c:set value="${grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]}" var="attributeValue" />
+                      <c:if test="${attributeValue != null}">
+                        <div class="row-fluid">
+                          <div class="span2"><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></div>
+                          <div class="span10">
+                            <p>${grouper:escapeHtml(attributeValue)}</p>
+                          </div>
                         </div>
-                      </div>
-                    </c:if>
-                    <div class="row-fluid">
-                      <div class="span2"><strong>${textContainer.text['subjectViewLabelName'] }</strong></div>
-                      <div class="span10">
-                        <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.name)}</p>
-                      </div>
-                    </div>
-                    <div class="row-fluid">
-                      <div class="span2"><strong>${textContainer.text['subjectViewLabelDescription'] }</strong></div>
-                      <div class="span10">
-                        <p>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.description)}</p>
-                      </div>
-                    </div>
+                      </c:if>
+                    </c:forEach>
+
                     <div style="display: none;" id="subjectDetailsId">
                       <table class="table table-condensed table-striped">
                         <tbody>
-                          <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNamesNonInternal}" 
+                          <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNamesExpandedView}" 
                               var="attributeName" >
-                            <tr>
-                              <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
-                              <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]) }</td>
-                            </tr>
-
+                            <c:set value="${grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]}" var="attributeValue" />
+                            <c:if test="${attributeValue != null}">
+                              <tr>
+                                <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
+                               <td>${grouper:escapeHtml(attributeValue) }</td>
+                              </tr>
+                            </c:if>
                           </c:forEach>
-
-                          <tr>
-                            <td><strong>${textContainer.text['subjectViewLabelMemberId']}</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.memberId)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['subjectViewLabelSourceId'] }</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}</td>
-                          </tr>
-                          <tr>
-                            <td><strong>${textContainer.text['subjectViewLabelSourceName'] }</strong></td>
-                            <td>${grouper:escapeHtml(grouperRequestContainer.subjectContainer.guiSubject.subject.source.name)}</td>
-                          </tr>
                         </tbody>
                       </table>
                     </div>

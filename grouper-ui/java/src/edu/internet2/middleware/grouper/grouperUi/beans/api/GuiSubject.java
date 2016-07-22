@@ -523,6 +523,48 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
     }
     return attributeNames;
   }
+  
+  /**
+   * attribute names for this subject to show in the expanded view
+   * @return the attribute names for this subject
+   */
+  public Set<String> getAttributeNamesExpandedView() {
+    Set<String> attributeNames = new LinkedHashSet<String>();
+    if (this.subject != null) {
+      String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.expanded." + this.subject.getSourceId());
+      if (GrouperUtil.isBlank(orderCommaSeparated)) {
+        orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.expanded.default");
+      }
+      
+      // still empty, return them all to preserve previous behavior
+      if (GrouperUtil.isBlank(orderCommaSeparated)) {
+        return getAttributeNamesNonInternal();
+      }
+      
+      attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, ","));
+    }
+    return attributeNames;
+  }
+  
+  
+  /**
+   * attribute names for this subject to show in the non-expanded view
+   * @return the attribute names for this subject
+   */
+  public Set<String> getAttributeNamesNonExpandedView() {
+    Set<String> attributeNames = new LinkedHashSet<String>();
+    if (this.subject != null) {
+      String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.nonexpanded." + this.subject.getSourceId());
+      if (GrouperUtil.isBlank(orderCommaSeparated)) {
+        orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.nonexpanded.default");
+      }
+      
+      if (!GrouperUtil.isBlank(orderCommaSeparated)) {
+        attributeNames.addAll(GrouperUtil.splitTrimToSet(orderCommaSeparated, ","));
+      }
+    }
+    return attributeNames;
+  }
 
   /**
    * dynamic map of attribute name to attribute label
@@ -538,8 +580,26 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
       String sourceId = GuiSubject.this.getSubject().getSourceId();
       String sourceTextId = GrouperUiUtils.convertSourceIdToTextId(sourceId);
       
+      String emailAttribute = GrouperEmailUtils.emailAttributeNameForSource(GuiSubject.this.subject.getSourceId());
+      
       // subjectViewLabel__sourceTextId__attributeName
       String key = "subjectViewLabel__" + sourceTextId + "__" + attributeName;
+      
+      if ("sourceId".equals(attributeName)) {
+        key = "subjectViewLabelSourceId";
+      } else if ("sourceName".equals(attributeName)) {
+        key = "subjectViewLabelSourceName";
+      } else if ("memberId".equals(attributeName)) {
+        key = "subjectViewLabelMemberId";
+      } else if ("subjectId".equals(attributeName)) {
+        key = "subjectViewLabelId";
+      } else if ("name".equals(attributeName)) {
+        key = "subjectViewLabelName";
+      } else if ("description".equals(attributeName)) {
+        key = "subjectViewLabelDescription";
+      } else if (!GrouperUtil.isBlank(emailAttribute) && emailAttribute.equals(attributeName)) {
+        key = "subjectViewLabelEmail";
+      }
       
       String value = TextContainer.textOrNull(key);
       
@@ -575,6 +635,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   public Map<String, String> getAttributes() {
     if (this.attributes == null) {
       Map<String, String> result = new LinkedHashMap<String, String>();
+      
       if (this.subject != null) {
         for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes()).keySet()) {
           Object value = this.subject.getAttributes().get(key);
@@ -592,6 +653,14 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
           }
         }
       }
+      
+      result.put("memberId", getMemberId());
+      result.put("sourceId", this.subject.getSourceId());
+      result.put("sourceName", this.subject.getSource().getName());
+      result.put("subjectId", this.subject.getId());
+      result.put("name", this.subject.getName());
+      result.put("description", this.subject.getDescription());
+      
       this.attributes = result;
     }
     return this.attributes;
