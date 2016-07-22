@@ -556,7 +556,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
     if (this.subject != null) {
       String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.nonexpanded." + this.subject.getSourceId());
       if (GrouperUtil.isBlank(orderCommaSeparated)) {
-        orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.nonexpanded.default");
+        orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString("subject2.attributes.order.nonexpanded.default", "subjectId,email,name,description");
       }
       
       if (!GrouperUtil.isBlank(orderCommaSeparated)) {
