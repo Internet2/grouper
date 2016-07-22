@@ -564,7 +564,7 @@
 <a class="jxr_linenumber" name="L556" href="#L556">556</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.subject != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L557" href="#L557">557</a>       String orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded."</span> + <strong class="jxr_keyword">this</strong>.subject.getSourceId());
 <a class="jxr_linenumber" name="L558" href="#L558">558</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.isBlank(orderCommaSeparated)) {
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded.default"</span>);
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         orderCommaSeparated = GrouperUiConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"subject2.attributes.order.nonexpanded.default"</span>, <span class="jxr_string">"subjectId,email,name,description"</span>);
 <a class="jxr_linenumber" name="L560" href="#L560">560</a>       }
 <a class="jxr_linenumber" name="L561" href="#L561">561</a>       
 <a class="jxr_linenumber" name="L562" href="#L562">562</a>       <strong class="jxr_keyword">if</strong> (!GrouperUtil.isBlank(orderCommaSeparated)) {
