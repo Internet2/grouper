@@ -241,14 +241,12 @@
                     <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNamesNonExpandedView}" 
                       var="attributeName" >
                       <c:set value="${grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]}" var="attributeValue" />
-                      <c:if test="${attributeValue != null}">
-                        <div class="row-fluid">
-                          <div class="span2"><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></div>
-                          <div class="span10">
-                            <p>${grouper:escapeHtml(attributeValue)}</p>
-                          </div>
+                      <div class="row-fluid">
+                        <div class="span2"><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></div>
+                        <div class="span10">
+                          <p>${grouper:escapeHtml(attributeValue)}</p>
                         </div>
-                      </c:if>
+                      </div>
                     </c:forEach>
 
                     <div style="display: none;" id="subjectDetailsId">
@@ -257,12 +255,10 @@
                           <c:forEach items="${grouperRequestContainer.subjectContainer.guiSubject.attributeNamesExpandedView}" 
                               var="attributeName" >
                             <c:set value="${grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]}" var="attributeValue" />
-                            <c:if test="${attributeValue != null}">
-                              <tr>
-                                <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
-                               <td>${grouper:escapeHtml(attributeValue) }</td>
-                              </tr>
-                            </c:if>
+                            <tr>
+                              <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
+                              <td>${grouper:escapeHtml(attributeValue) }</td>
+                            </tr>
                           </c:forEach>
                         </tbody>
                       </table>
