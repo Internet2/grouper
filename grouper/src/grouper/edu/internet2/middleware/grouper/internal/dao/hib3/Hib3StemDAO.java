@@ -962,6 +962,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
         stemsSet = byHqlStatic
+          .createQuery(sql.toString())
           .options(queryOptions)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
@@ -969,6 +970,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope) {
         stemsSet = byHqlStatic
+          .createQuery(sql.toString())
           .options(queryOptions)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
