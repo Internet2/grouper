@@ -4390,7 +4390,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   String oldValue = Member.this.dbVersion().getSubjectIdentifier0();
                   String newValue = Member.this.getSubjectIdentifier0();
                   ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                   List<Object> bindVars2 = GrouperUtil.toList(
                       (Object)GrouperUuid.getUuid(), 
                       changeLogType.getId(),
@@ -4400,9 +4400,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                       Member.this.getSubjectSourceId(),
                       Member.this.getSubjectTypeId(),
                       Member.this.getSubjectIdentifier0(),
-                      "subjectIdentifier0",
                       oldValue,
-                      newValue);
+                      newValue,
+                      "subjectIdentifier0");
                   hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2);
                 }
                 
