@@ -4398,7 +4398,7 @@
 <a class="jxr_linenumber" name="L4390" href="#L4390">4390</a>                   String oldValue = Member.<strong class="jxr_keyword">this</strong>.dbVersion().getSubjectIdentifier0();
 <a class="jxr_linenumber" name="L4391" href="#L4391">4391</a>                   String newValue = Member.<strong class="jxr_keyword">this</strong>.getSubjectIdentifier0();
 <a class="jxr_linenumber" name="L4392" href="#L4392">4392</a>                   <a href="../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogType.html">ChangeLogType</a> changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L4393" href="#L4393">4393</a>                   String query2 = <span class="jxr_string">"insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"</span>;
+<a class="jxr_linenumber" name="L4393" href="#L4393">4393</a>                   String query2 = <span class="jxr_string">"insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"</span>;
 <a class="jxr_linenumber" name="L4394" href="#L4394">4394</a>                   List&lt;Object&gt; bindVars2 = GrouperUtil.toList(
 <a class="jxr_linenumber" name="L4395" href="#L4395">4395</a>                       (Object)GrouperUuid.getUuid(), 
 <a class="jxr_linenumber" name="L4396" href="#L4396">4396</a>                       changeLogType.getId(),
@@ -4408,9 +4408,9 @@
 <a class="jxr_linenumber" name="L4400" href="#L4400">4400</a>                       Member.<strong class="jxr_keyword">this</strong>.getSubjectSourceId(),
 <a class="jxr_linenumber" name="L4401" href="#L4401">4401</a>                       Member.<strong class="jxr_keyword">this</strong>.getSubjectTypeId(),
 <a class="jxr_linenumber" name="L4402" href="#L4402">4402</a>                       Member.<strong class="jxr_keyword">this</strong>.getSubjectIdentifier0(),
-<a class="jxr_linenumber" name="L4403" href="#L4403">4403</a>                       <span class="jxr_string">"subjectIdentifier0"</span>,
-<a class="jxr_linenumber" name="L4404" href="#L4404">4404</a>                       oldValue,
-<a class="jxr_linenumber" name="L4405" href="#L4405">4405</a>                       newValue);
+<a class="jxr_linenumber" name="L4403" href="#L4403">4403</a>                       oldValue,
+<a class="jxr_linenumber" name="L4404" href="#L4404">4404</a>                       newValue,
+<a class="jxr_linenumber" name="L4405" href="#L4405">4405</a>                       <span class="jxr_string">"subjectIdentifier0"</span>);
 <a class="jxr_linenumber" name="L4406" href="#L4406">4406</a>                   hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2);
 <a class="jxr_linenumber" name="L4407" href="#L4407">4407</a>                 }
 <a class="jxr_linenumber" name="L4408" href="#L4408">4408</a>                 
