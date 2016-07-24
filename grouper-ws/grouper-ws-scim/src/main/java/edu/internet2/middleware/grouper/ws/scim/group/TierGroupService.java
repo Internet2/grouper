@@ -119,12 +119,22 @@ public class TierGroupService implements Provider<ScimGroup> {
         throw new UnableToUpdateResourceException(Status.BAD_REQUEST, "name must contain atleast one colon (:)"); 
       }
       grouperSession = GrouperSession.startRootSession();
-      Group group = GroupFinder.findByUuid(grouperSession, id, false);
-      if (group == null && NumberUtils.isNumber(id)) {
-       group = GroupFinder.findByIdIndexSecure(Long.valueOf(id), false, null);
+      Group group = null;
+      
+      if (id.startsWith("systemName:")) {
+        group = GroupFinder.findByName(grouperSession, id.substring(11), false);
       }
-      if (group == null) {
-        group = GroupFinder.findByName(grouperSession, id, false);
+      
+      if (id.startsWith("idIndex:")) {
+        if (NumberUtils.isNumber(id.substring(8))) {
+          group = GroupFinder.findByIdIndexSecure(Long.valueOf(id.substring(8)), false, null);
+        } else {
+          throw new UnableToUpdateResourceException(Status.BAD_REQUEST, "idIndex can only be  numeric");
+        }
+      }
+      
+      if (!id.startsWith("systemName:") && !id.startsWith("idIndex:")) {
+        group = GroupFinder.findByUuid(grouperSession, id, false);
       }
       if (group == null) {
         throw new UnableToUpdateResourceException(Status.NOT_FOUND, "group " + id + " not found.");
@@ -175,14 +185,24 @@ public class TierGroupService implements Provider<ScimGroup> {
     GrouperSession grouperSession = null;
     try {
       grouperSession = GrouperSession.startRootSession();
+      Group group = null;
       
-      Group group = GroupFinder.findByUuid(grouperSession, id, false);
-      if (group == null && NumberUtils.isNumber(id)) {
-       group = GroupFinder.findByIdIndexSecure(Long.valueOf(id), false, null);
+      if (id.startsWith("systemName:")) {
+        group = GroupFinder.findByName(grouperSession, id.substring(11), false);
       }
-      if (group == null) {
-        group = GroupFinder.findByName(grouperSession, id, false);
+      
+      if (id.startsWith("idIndex:")) {
+        if (NumberUtils.isNumber(id.substring(8))) {
+          group = GroupFinder.findByIdIndexSecure(Long.valueOf(id.substring(8)), false, null);
+        } else {
+          throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "idIndex can only be  numeric");
+        }
       }
+      
+      if (!id.startsWith("systemName:") && !id.startsWith("idIndex:")) {
+        group = GroupFinder.findByUuid(grouperSession, id, false);
+      }
+      
       if (group == null) {
         throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "group " + id + " not found.");
       }
@@ -222,12 +242,22 @@ public class TierGroupService implements Provider<ScimGroup> {
     GrouperSession grouperSession = null;
     try {
       grouperSession = GrouperSession.startRootSession();
-      Group group = GroupFinder.findByUuid(grouperSession, id, false);
-      if (group == null && NumberUtils.isNumber(id)) {
-       group = GroupFinder.findByIdIndexSecure(Long.valueOf(id), false, null);
+      Group group = null;
+      
+      if (id.startsWith("systemName:")) {
+        group = GroupFinder.findByName(grouperSession, id.substring(11), false);
       }
-      if (group == null) {
-        group = GroupFinder.findByName(grouperSession, id, false);
+      
+      if (id.startsWith("idIndex:")) {
+        if (NumberUtils.isNumber(id.substring(8))) {
+          group = GroupFinder.findByIdIndexSecure(Long.valueOf(id.substring(8)), false, null);
+        } else {
+          throw new UnableToDeleteResourceException(Status.BAD_REQUEST, "idIndex can only be  numeric");
+        }
+      }
+      
+      if (!id.startsWith("systemName:") && !id.startsWith("idIndex:")) {
+        group = GroupFinder.findByUuid(grouperSession, id, false);
       }
       if (group == null) {
         throw new UnableToDeleteResourceException(Status.NOT_FOUND, "group " + id + " not found.");
