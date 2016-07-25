@@ -80,16 +80,16 @@
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> verifyUniqueExtension(<a href="../../../../../../edu/internet2/middleware/grouper/Group.html">Group</a> group) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_comment">//see if there is another group with the same extension</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      String theHqlQuery = <span class="jxr_string">"select count(g) from Group as g where g.extensionDb = :theExtension"</span>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      String theHqlQuery = <span class="jxr_string">"select count(g) from Group as g where g.extensionDb = :theExtension and g.uuid != :theUuid"</span>;
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      String extension = group.getExtension();
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">if</strong> (GrouperConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"hook.group.unique.extension.caseInsensitive"</span>, false)) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>        theHqlQuery = <span class="jxr_string">"select count(g) from Group as g where lower(g.extensionDb) = :theExtension"</span>;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>        theHqlQuery = <span class="jxr_string">"select count(g) from Group as g where lower(g.extensionDb) = :theExtension and g.uuid != :theUuid"</span>;
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>        extension = group.getExtension().toLowerCase();
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">long</strong> count = HibernateSession.byHqlStatic().createQuery(theHqlQuery)
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>        .setString(<span class="jxr_string">"theExtension"</span>, extension).uniqueResult(<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>        .setString(<span class="jxr_string">"theExtension"</span>, extension).setString(<span class="jxr_string">"theUuid"</span>, group.getUuid()).uniqueResult(<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">if</strong> (count &gt; 0) {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>        <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/hooks/logic/HookVeto.html">HookVeto</a>(VETO_GROUP_UNIQUE_EXTENSION, <span class="jxr_string">"The group ID is already in use, please use a different ID"</span>);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
