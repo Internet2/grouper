@@ -72,16 +72,16 @@ public class GroupUniqueExtensionHook extends GroupHooks {
   public static void verifyUniqueExtension(Group group) {
     
     //see if there is another group with the same extension
-    String theHqlQuery = "select count(g) from Group as g where g.extensionDb = :theExtension";
+    String theHqlQuery = "select count(g) from Group as g where g.extensionDb = :theExtension and g.uuid != :theUuid";
     String extension = group.getExtension();
     
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("hook.group.unique.extension.caseInsensitive", false)) {
-      theHqlQuery = "select count(g) from Group as g where lower(g.extensionDb) = :theExtension";
+      theHqlQuery = "select count(g) from Group as g where lower(g.extensionDb) = :theExtension and g.uuid != :theUuid";
       extension = group.getExtension().toLowerCase();
     }
     
     long count = HibernateSession.byHqlStatic().createQuery(theHqlQuery)
-      .setString("theExtension", extension).uniqueResult(long.class);
+      .setString("theExtension", extension).setString("theUuid", group.getUuid()).uniqueResult(long.class);
     if (count > 0) {
       throw new HookVeto(VETO_GROUP_UNIQUE_EXTENSION, "The group ID is already in use, please use a different ID");
     }

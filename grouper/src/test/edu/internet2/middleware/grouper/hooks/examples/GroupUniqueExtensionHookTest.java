@@ -198,4 +198,34 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
 
   }
 
+  /**
+   * @throws Exception
+   */
+  public void testMove() throws Exception {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    Stem testStem2 = new StemSave(grouperSession).assignName("test2").save();
+    new StemSave(grouperSession).assignName("test3").save();
+
+    Group group = new GroupSave(grouperSession).assignName("test:someGroupName").save();
+    new GroupSave(grouperSession).assignName("test2:someGroupName2").save();
+    Group group3 = new GroupSave(grouperSession).assignName("test3:someGroupName3").save();
+
+    group.move(testStem2);
+    group.move(testStem);
+    
+    group3.setExtension("someGroupName4");
+    group3.store();
+    
+    try {
+      group3.setExtension("someGroupName");
+      group3.store();
+      fail("No error??");
+    } catch (HookVeto hv) {
+      //this is a success, it is supposed to veto  
+      assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
+    }
+  }
 }
