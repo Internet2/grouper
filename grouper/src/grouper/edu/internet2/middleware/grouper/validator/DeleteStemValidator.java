@@ -51,7 +51,7 @@ public class DeleteStemValidator extends GrouperValidator {
     if      ( Stem.ROOT_NAME.equals( ns.getName() ) ) {
       v.setErrorMessage("cannot delete root stem");
     }
-    else if ( dao.findAllChildStems( ns, Stem.Scope.ONE ).size() > 0 ) {
+    else if ( dao.findAllChildStems( ns, Stem.Scope.ONE, null, false ).size() > 0 ) {
       v.setErrorMessage("cannot delete stem with child stems");
     }
     else if ( dao.findAllChildGroups( ns, Stem.Scope.ONE ).size() > 0 ) {
