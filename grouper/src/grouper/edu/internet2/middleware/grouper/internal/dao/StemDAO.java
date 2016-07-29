@@ -311,6 +311,20 @@ public interface StemDAO extends GrouperDAO {
   
   /**
    * Find all child stems within specified scope.
+   * @param ns 
+   * @param scope 
+   * @param queryOptions 
+   * @param checkSecurity if true, then possibly check security based on security.show.folders.where.user.can.see.subobjects and 
+   * security.show.all.folders.if.in.group configuration
+   * @return stems
+   * @throws GrouperDAOException 
+   * @since   2.1
+   */
+  Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions, boolean checkSecurity)
+    throws  GrouperDAOException;
+  
+  /**
+   * Find all child stems within specified scope.
    * @since   2.1
    */
   Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions)

@@ -111,7 +111,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("testCreateAttributeDefNamePrivs"));
+    TestRunner.run(new TestStemApi("testCopyPrivs"));
   }
 
   /** size before getting started */
@@ -3000,7 +3000,7 @@ public class TestStemApi extends GrouperTest {
     target1.grantPriv(a, NamingPrivilege.STEM);
     target2.grantPriv(a, NamingPrivilege.CREATE);
     
-    GrouperSession.start(a);
+    GrouperSession sessionA = GrouperSession.start(a);
 
     try {
       source2.copy(target1);
@@ -3018,6 +3018,9 @@ public class TestStemApi extends GrouperTest {
     
     Stem newStem1 = source1.copy(target1);
     Stem newStem2 = source1.copy(target2);
+    
+    sessionA.stop();
+    GrouperSession.startRootSession();
     
     assertEquals(1, newStem1.getChildStems().size());
     assertEquals(1, newStem2.getChildStems().size());

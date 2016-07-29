@@ -93,6 +93,16 @@ public class GrouperObjectFinderTest extends GrouperTest {
   }
 
   /**
+   *
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
+   */
+  public void tearDown() {
+    super.tearDown();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.show.folders.where.user.can.see.subobjects");
+  }
+
+  /**
    * 
    */
   public void testFindFoldersAllowed() {
@@ -198,6 +208,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
    */
   public void testFindObjects() {
     
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "false");
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     List<Stem> stems = new ArrayList<Stem>();

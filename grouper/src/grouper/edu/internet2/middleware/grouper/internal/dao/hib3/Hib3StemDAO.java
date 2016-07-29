@@ -915,7 +915,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     return findAllChildStems(ns, scope, queryOptions);
   }
-
+  
   /**
    * @param ns 
    * @param scope 
@@ -927,6 +927,23 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @since   @HEAD@
    */
   public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions)
+    throws  GrouperDAOException,
+            IllegalStateException {
+    return findAllChildStems(ns, scope, queryOptions, true);
+  }
+
+  /**
+   * @param ns 
+   * @param scope 
+   * @param queryOptions 
+   * @param checkSecurity
+   * @return set stem
+   * @throws GrouperDAOException 
+   * @see     StemDAO#findAllChildStems(Stem, Stem.Scope)
+   * @throws  IllegalStateException if unknown scope.
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions, boolean checkSecurity)
     throws  GrouperDAOException,
             IllegalStateException {
 
@@ -950,7 +967,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         throw new IllegalStateException("unknown search scope: " + scope);
       }
 
-      appendQueryFilterIfNeededViewChildObjects("ns", GrouperSession.staticGrouperSession(), sql, byHqlStatic, true);
+      if (checkSecurity) {
+        appendQueryFilterIfNeededViewChildObjects("ns", GrouperSession.staticGrouperSession(), sql, byHqlStatic, true);
+      }
       
       if (Stem.Scope.ONE == scope) {
         stemsSet = byHqlStatic

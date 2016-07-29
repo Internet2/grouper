@@ -3101,7 +3101,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       long modifyTime, boolean setAlternateName) throws IllegalStateException {
     
     Set       children  = new LinkedHashSet();
-    Iterator<Stem> it = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this, Scope.ONE).iterator();
+    Iterator<Stem> it = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this, Scope.ONE, null, false).iterator();
     
     while (it.hasNext()) {
       Stem child = it.next();
@@ -4061,7 +4061,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             oldStemUuidToNewStem.put(Stem.this.getUuid(), newStem);
             
             for (Stem childStem : GrouperDAOFactory.getFactory().getStem()
-                    .findAllChildStems(Stem.this, Stem.Scope.SUB, true)) {
+                    .findAllChildStems(Stem.this, Stem.Scope.SUB, new QueryOptions().sortAsc("name"), false)) {
               Stem newChildStem = oldStemUuidToNewStem.get(childStem.getParentUuid())
                   .internal_addChildStem(GrouperSession
                       .staticGrouperSession().internal_getRootSession(), childStem.getExtension(),
