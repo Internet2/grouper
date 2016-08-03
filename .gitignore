@@ -44,3 +44,4 @@ build/
 **/*.ipr
 **/*.iws
 /grouper.*.tar.gz
+**/gradle/wrapper/*.*
