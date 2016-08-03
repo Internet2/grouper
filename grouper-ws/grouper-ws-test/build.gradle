@@ -1,3 +1,4 @@
+apply plugin: 'java'
 description = 'Grouper WS Test'
 
 repositories {
@@ -11,6 +12,10 @@ dependencies {
     testCompile project(':grouper-ws:grouper-ws-java-generated-client')
     testCompile project(path: ":grouper", configuration: "tests")
     testCompile project(path: ":grouper-ws:grouper-ws", configuration: "tests")
+}
+
+install {
+    enabled = false
 }
 
 sourceSets {

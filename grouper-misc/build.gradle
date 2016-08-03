@@ -1,1 +1,5 @@
 description = 'Grouper Misc Root Project'
+
+install {
+	enabled = false
+}

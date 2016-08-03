@@ -143,12 +143,14 @@ allprojects {
 
     gradleLint.rules = ['dependency-parentheses', 'dependency-tuple']
 
-/*
+
     signing {
         required = (publishReleases && sonatypeUsername != null && sonatypePassword != null)
-        sign configurations.archives
+        if (required) {
+            sign configurations.archives
+        }
     }
-*/
+
     repositories {
         mavenLocal()
         mavenCentral()

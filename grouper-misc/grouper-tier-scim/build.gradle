@@ -1,1 +1,7 @@
+apply plugin: 'java'
+
 description = 'Grouper TIER SCIM Library'
+
+install {
+	enabled = false
+}
