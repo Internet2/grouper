@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.GrouperService;
@@ -48,8 +49,11 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindExternalSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
@@ -69,9 +73,9 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
@@ -101,6 +105,9 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
@@ -2542,4 +2549,91 @@ public class GrouperServiceRest {
     return results;
   }
   
+  /**
+   * <pre>
+   * based on an external subject query, get the external subjects
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestFindExternalSubjectsRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsFindExternalSubjectsResults findExternalSubjects(GrouperVersion clientVersion,
+      WsRestFindExternalSubjectsRequest wsRestFindExternalSubjectsRequest) {
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestFindExternalSubjectsRequest.getClientVersion()), false, "clientVersion");
+
+    //get the results
+    WsFindExternalSubjectsResults wsFindExternalSubjectsResults = new GrouperService(false).findExternalSubjects(
+        clientVersionString, wsRestFindExternalSubjectsRequest.getWsExternalSubjectLookups(),
+        wsRestFindExternalSubjectsRequest.getActAsSubjectLookup(), wsRestFindExternalSubjectsRequest.getParams());
+
+    //return result
+    return wsFindExternalSubjectsResults;
+  }
+
+  /**
+   * <pre>
+   * based on a submitted object of type WsRestExternalSubjectDeleteRequest, delete the external subjects.  e.g. url:
+   * /v1_3_000/externalSubjects
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestExternalSubjectDeleteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsExternalSubjectDeleteResults externalSubjectDelete(GrouperVersion clientVersion,
+      WsRestExternalSubjectDeleteRequest wsRestExternalSubjectDeleteRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestExternalSubjectDeleteRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestExternalSubjectDeleteRequest.class.getSimpleName()
+            + " in xml, xhtml, json, etc");
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestExternalSubjectDeleteRequest.getClientVersion()), false, "clientVersion");
+  
+    //get the results
+    WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = new GrouperService(false).externalSubjectDelete(
+        clientVersionString, wsRestExternalSubjectDeleteRequest.getWsExternalSubjectLookups(),
+        wsRestExternalSubjectDeleteRequest.getActAsSubjectLookup(), wsRestExternalSubjectDeleteRequest
+            .getTxType(), wsRestExternalSubjectDeleteRequest.getParams());
+  
+    //return result
+    return wsExternalSubjectDeleteResults;
+  
+  }
+
+  /**
+   * <pre>
+   * based on a submitted object of type WsRestExternalSubjectSaveRequest, save external subjects.  e.g. url:
+   * /v1_3_000/externalSubjects
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestExternalSubjectSaveRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsExternalSubjectSaveResults externalSubjectSave(GrouperVersion clientVersion,
+      WsRestExternalSubjectSaveRequest wsRestExternalSubjectSaveRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestExternalSubjectSaveRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestExternalSubjectSaveRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
+        GrouperVersion.stringValueOrNull(wsRestExternalSubjectSaveRequest.getClientVersion()), false, "clientVersion");
+  
+    //get the results
+    WsExternalSubjectSaveResults wsExternalSubjectSaveResults = new GrouperService(false).externalSubjectSave(
+        clientVersionString, wsRestExternalSubjectSaveRequest.getWsExternalSubjectToSaves(),
+        wsRestExternalSubjectSaveRequest.getActAsSubjectLookup(), wsRestExternalSubjectSaveRequest.getTxType(),
+        wsRestExternalSubjectSaveRequest.getParams());
+  
+    //return result
+    return wsExternalSubjectSaveResults;
+  
+  }
+
+
 }

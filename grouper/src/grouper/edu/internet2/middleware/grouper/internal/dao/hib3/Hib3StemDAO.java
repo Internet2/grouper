@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
@@ -51,6 +52,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAccessAdapter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -66,6 +68,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -84,12 +87,16 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.stem.StemHierarchyType;
 import edu.internet2.middleware.grouper.stem.StemSet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -908,7 +915,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     return findAllChildStems(ns, scope, queryOptions);
   }
-
+  
   /**
    * @param ns 
    * @param scope 
@@ -922,6 +929,23 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions)
     throws  GrouperDAOException,
             IllegalStateException {
+    return findAllChildStems(ns, scope, queryOptions, true);
+  }
+
+  /**
+   * @param ns 
+   * @param scope 
+   * @param queryOptions 
+   * @param checkSecurity
+   * @return set stem
+   * @throws GrouperDAOException 
+   * @see     StemDAO#findAllChildStems(Stem, Stem.Scope)
+   * @throws  IllegalStateException if unknown scope.
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, QueryOptions queryOptions, boolean checkSecurity)
+    throws  GrouperDAOException,
+            IllegalStateException {
 
     Set<Stem> stemsSet;
     try {
@@ -931,28 +955,41 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         
       }
 
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder sql = new StringBuilder();
       if (Stem.Scope.ONE == scope) {
-        String sql = "from Stem as ns where ns.parentUuid = :parent";
-        stemsSet = HibernateSession.byHqlStatic()
-          .createQuery(sql)
+        sql.append("from Stem as ns where ns.parentUuid = :parent");
+      } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        sql.append("from Stem as ns where ns.nameDb not like :stem");
+      } else if (Stem.Scope.SUB == scope) {
+        sql.append("from Stem as ns where ns.nameDb like :scope");
+      } else {
+        throw new IllegalStateException("unknown search scope: " + scope);
+      }
+
+      if (checkSecurity) {
+        appendQueryFilterIfNeededViewChildObjects("ns", GrouperSession.staticGrouperSession(), sql, byHqlStatic, true);
+      }
+      
+      if (Stem.Scope.ONE == scope) {
+        stemsSet = byHqlStatic
+          .createQuery(sql.toString())
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .options(queryOptions)
           .setString("parent", ns.getUuid())
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
-        String sql = "from Stem as ns where ns.nameDb not like :stem";
-        stemsSet = HibernateSession.byHqlStatic()
-          .createQuery(sql)
+        stemsSet = byHqlStatic
+          .createQuery(sql.toString())
           .options(queryOptions)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .setString("stem", Stem.DELIM)
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope) {
-        String sql = "from Stem as ns where ns.nameDb like :scope";
-        stemsSet = HibernateSession.byHqlStatic()
-          .createQuery(sql)
+        stemsSet = byHqlStatic
+          .createQuery(sql.toString())
           .options(queryOptions)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
@@ -1556,6 +1593,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         } else {
           sql.append(" where ");
         }
+        changedQuery = true;
         
         Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
         
@@ -1579,6 +1617,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         } else {
           sql.append(" where ");
         }
+        changedQuery = true;
         
         Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
         
@@ -1594,7 +1633,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
         
       }
-          
+
+      changedQuery = appendQueryFilterIfNeededViewChildObjects("ns", grouperSession, sql, byHqlStatic, changedQuery);
+      
       if (queryOptions != null) {
         massageSortFields(queryOptions.getQuerySort());
       }
@@ -1639,6 +1680,153 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     
     return overallResults;
+  }
+
+  /** 
+   * people with true here will see all folders
+   * TODO replace with ehcache
+   */
+  private static ExpirableCache<MultiKey, Boolean> showAllFoldersCache = new ExpirableCache<MultiKey, Boolean>(2);
+  
+  
+  /**
+   * @param stemVariable
+   * @param grouperSession
+   * @param sql
+   * @param byHqlStatic
+   * @param changedQuery
+   * @return if changed
+   */
+  private boolean appendQueryFilterIfNeededViewChildObjects(String stemVariable, GrouperSession grouperSession, StringBuilder sql, ByHqlStatic byHqlStatic, boolean changedQuery) {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("security.show.folders.where.user.can.see.subobjects", true)) {
+      
+      if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+        
+        //exclude superusers with lots of privileges if their performance is bad
+        final String excludesGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.show.all.folders.if.in.group");
+        Boolean exclude = false;
+        
+        if (!StringUtils.isBlank(excludesGroupName)) {
+
+          final MultiKey userKey = new MultiKey(grouperSession.getSubject().getSourceId(), grouperSession.getSubject().getId());
+          exclude = showAllFoldersCache.get(userKey);
+          
+          if (exclude == null) {
+
+            final Subject SUBJECT = grouperSession.getSubject();
+
+            exclude = (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+
+              public Object callback(GrouperSession grouperSession)
+                  throws GrouperSessionException {
+                Group group = GroupFinder.findByName(grouperSession, excludesGroupName, true);
+                return group.hasMember(SUBJECT);
+              }
+
+            });
+            
+            showAllFoldersCache.put(userKey, exclude);
+          }
+        }
+        
+        if (!exclude) {
+          
+          long startMillis = System.currentTimeMillis();
+          try {
+            if (changedQuery) {
+              sql.append(" and ");
+            } else {
+              sql.append(" where ");
+            }
+            changedQuery = true;
+            
+            sql.append(" ( ");
+            
+            Member allMember = MemberFinder.internal_findAllMember();
+            Member member = MemberFinder.internal_findBySubject(grouperSession.getSubject(), null, false);
+            Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
+            if (member != null) {
+              memberIds.add(member.getUuid());
+            }
+    
+            {
+              sql.append(" exists (select 1 from Group theGroup, MembershipEntry fieldMembership, StemSet stemSet " +
+                  " where fieldMembership.ownerGroupId = theGroup.uuid " +
+                  " and stemSet.ifHasStemId = theGroup.parentUuid " +
+                  " and stemSet.thenHasStemId = " + stemVariable + ".uuid and fieldMembership.fieldId in (");
+              //look for groups where the user or GrouperAll has a privilege
+              Collection<String> accessPrivs = PrivilegeHelper.fieldIdsFromPrivileges(AccessPrivilege.ALL_PRIVILEGES);
+              String accessInClause = HibUtils.convertToInClause(accessPrivs, byHqlStatic);
+              
+              sql.append(accessInClause).append(") and fieldMembership.memberUuid in (");
+              
+              String memberInClause = HibUtils.convertToInClause(memberIds, byHqlStatic);
+              sql.append(memberInClause).append(")");
+              
+              // don't return disabled memberships
+              sql.append(" and fieldMembership.enabledDb = 'T'");
+              
+              sql.append(" ) ");
+            }
+            
+            {
+              sql.append(" or exists (select 1 from Stem theStem543, MembershipEntry fieldMembership, StemSet stemSet " +
+                  " where fieldMembership.ownerStemId = theStem543.uuid " +
+                  " and stemSet.ifHasStemId in (theStem543.parentUuid, theStem543.uuid) " +
+                  " and stemSet.thenHasStemId = " + stemVariable + ".uuid and fieldMembership.fieldId in (");
+              //look for groups where the user or GrouperAll has a privilege
+              Collection<String> accessPrivs = PrivilegeHelper.fieldIdsFromPrivileges(NamingPrivilege.ALL_PRIVILEGES);
+              String accessInClause = HibUtils.convertToInClause(accessPrivs, byHqlStatic);
+              
+              sql.append(accessInClause).append(") and fieldMembership.memberUuid in (");
+              
+              String memberInClause = HibUtils.convertToInClause(memberIds, byHqlStatic);
+              sql.append(memberInClause).append(")");
+              
+              // don't return disabled memberships
+              sql.append(" and fieldMembership.enabledDb = 'T'");
+              
+              sql.append(" ) ");
+            }
+            
+            {
+              sql.append(" or exists (select 1 from AttributeDef theAttributeDef, MembershipEntry fieldMembership, StemSet stemSet " +
+                  " where fieldMembership.ownerAttrDefId = theAttributeDef.id " +
+                  " and stemSet.ifHasStemId = theAttributeDef.stemId " +
+                  " and stemSet.thenHasStemId = " + stemVariable + ".uuid and fieldMembership.fieldId in (");
+              //look for groups where the user or GrouperAll has a privilege
+              Collection<String> accessPrivs = PrivilegeHelper.fieldIdsFromPrivileges(AttributeDefPrivilege.ALL_PRIVILEGES);
+              String accessInClause = HibUtils.convertToInClause(accessPrivs, byHqlStatic);
+              
+              sql.append(accessInClause).append(") and fieldMembership.memberUuid in (");
+              
+              String memberInClause = HibUtils.convertToInClause(memberIds, byHqlStatic);
+              sql.append(memberInClause).append(")");
+              
+              // don't return disabled memberships
+              sql.append(" and fieldMembership.enabledDb = 'T'");
+              
+              sql.append(" ) ");
+            }
+            
+            
+            sql.append(" ) ");
+          } finally {
+            int logAfterSeconds = GrouperConfig.retrieveConfig().propertyValueInt("security.show.all.folders.log.above.seconds", -1);
+            if (logAfterSeconds > 0) {
+              int seconds = (int)((System.currentTimeMillis() - startMillis) / 1000);
+              if (seconds > logAfterSeconds && logAfterSeconds > -1) {
+                LOG.error("Showing folders securely too too long.  It took " + seconds
+                    + " seconds but max configured limit is " + logAfterSeconds + " seconds, for user: " 
+                    + grouperSession.getSubject().getSourceId() + ":" + grouperSession.getSubject().getId() + ", "
+                    + grouperSession.getSubject().getName() + ", " + grouperSession.getSubject().getDescription());
+              }
+            }
+          }
+        }        
+      }
+    }
+    return changedQuery;
   }
 
   /**

@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectSave;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -58,8 +59,10 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAcknowledgeMessage;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefActions;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritance;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritanceLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributes;
@@ -71,18 +74,31 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperP
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissions;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefDelete;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSaveLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefSave;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefSaveLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleExternalSubjectDelete;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleExternalSubjectSave;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeAssignAction;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeAssignActionLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNames;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNamesLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefs;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindExternalSubjects;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStems;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStemsLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignActions;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignActionsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignments;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignmentsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGrouperPrivilegesLite;
@@ -107,6 +123,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleMemberChangeSubject;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleMemberChangeSubjectLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleReceiveMessage;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleSendMessage;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
@@ -135,8 +153,13 @@ import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAt
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefNamesRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleFindAttributeDefsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignActionsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignActionsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleGetAttributeAssignmentsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleExternalSubjectDeleteRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleExternalSubjectSaveRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindExternalSubjectsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsAdminsRest;
@@ -238,13 +261,12 @@ public class SampleCapture {
 //    captureGetGrouperPrivileges();
 
 //    captureGroupSave();
-
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
 //        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
 
-    captureAcknowledgeMessage();  
+//    captureAcknowledgeMessage();  
 //    captureAddMember();
 //    captureAssignAttributeDefActions();
 //    captureAssignAttributeDefNameInheritance();
@@ -258,12 +280,16 @@ public class SampleCapture {
 //    captureAttributeDefNameSave();
 //    captureAttributeDefSave();
 //    captureDeleteMember();
+//    captureExternalSubjectDelete();
+    captureExternalSubjectSave();
 //    captureFindAttributeAssignAction();
 //    captureFindAttributeDefNames();
 //    captureFindAttributeDefs();
+//    captureFindExternalSubjects();
 //    captureFindGroups();
 //    captureFindStems();
 //    captureGetAttributeAssignments();
+//    captureGetAttributeAssignActions();
 //    captureGetGrouperPrivileges();
 //    captureGetGroups();
 //    captureGetMembers();
@@ -276,7 +302,7 @@ public class SampleCapture {
 //    captureMemberChangeSubject();
 //    captureReceiveMessage();
 ////    captureRampart();
-      captureSendMessage();
+//      captureSendMessage();
 //    captureStemDelete();
 //    captureStemSave();
     
@@ -289,6 +315,8 @@ public class SampleCapture {
   public static void captureSendMessage() {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleSendMessageRest.class, "sendMessage", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleSendMessage.class, "sendMessage", null);
     
   }
 
@@ -298,16 +326,19 @@ public class SampleCapture {
   public static void captureReceiveMessage() {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleReceiveMessageRest.class, "receiveMessage", null);
-    
-  }
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleReceiveMessage.class, "receiveMessage", null);
 
+  }
 
   /**
    * acknowledge message
    */
   public static void captureAcknowledgeMessage() {
     captureSample(WsSampleClientType.REST_BEANS,  
-        WsSampleAcknowledgeMessageRest.class, "findAttributeDefs", null);
+        WsSampleAcknowledgeMessageRest.class, "acknowledgeMessage", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAcknowledgeMessage.class, "acknowledgeMessage", null);
     
   }
 
@@ -320,6 +351,10 @@ public class SampleCapture {
         WsSampleFindAttributeDefsRest.class, "findAttributeDefs", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindAttributeDefsRestLite.class, "findAttributeDefs", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindAttributeDefs.class, "findAttributeDefs", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindAttributeDefsLite.class, "findAttributeDefs", null);
     
   }
 
@@ -332,6 +367,10 @@ public class SampleCapture {
         WsSampleFindAttributeAssignActionRest.class, "findAttributeAssignAction", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindAttributeAssignActionRestLite.class, "findAttributeAssignAction", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindAttributeAssignAction.class, "findAttributeAssignAction", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindAttributeAssignActionLite.class, "findAttributeAssignAction", null);
     
   }
 
@@ -342,7 +381,9 @@ public class SampleCapture {
   public static void captureAssignAttributeDefActions() {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributeDefActionsRest.class, "assignAttributeDefActions", null);
-    
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignAttributeDefActions.class, "assignAttributeDefActions", (String)null);
+
   }
 
   /**
@@ -353,7 +394,11 @@ public class SampleCapture {
         WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
-    
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefSave.class, "attributeDefSave", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefSaveLite.class, "attributeDefSave", (String)null);
+
   }
 
   /**
@@ -364,6 +409,10 @@ public class SampleCapture {
         WsSampleAttributeDefDeleteRest.class, "attributeDefDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefDeleteRestLite.class, "attributeDefDelete", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefDelete.class, "attributeDefDelete", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAttributeDefDeleteLite.class, "attributeDefDelete", (String)null);
     
   }
 
@@ -630,6 +679,16 @@ public class SampleCapture {
       GrouperBuiltinMessagingSystem.allowSendToQueue("def", SubjectTestHelper.SUBJ0);
       GrouperBuiltinMessagingSystem.allowReceiveFromQueue("def", SubjectTestHelper.SUBJ0);
 
+      ExternalSubjectSave externalSubjectSave = new ExternalSubjectSave(GrouperServiceUtils.testSession)
+          .assignName("My Name")
+          .assignIdentifier("a_ident@b.c").assignEmail("a@b.c");
+      
+      boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
+
+      if (hasJabber) {
+        externalSubjectSave.addAttribute("jabber", "a_jabber@b.c");
+      }
+      externalSubjectSave.save();
 
       //anything else?
 
@@ -1116,6 +1175,21 @@ public class SampleCapture {
   }
 
   /**
+   * all get members captures
+   */
+  public static void captureGetAttributeAssignActions() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetAttributeAssignActions.class, "getAttributeAssignActions", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetAttributeAssignActionsLite.class, "getAttributeAssignActions", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetAttributeAssignActionsRest.class, "getAttributeAssignActions", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetAttributeAssignActionsRestLite.class, "getAttributeAssignActions", null);
+    
+  }
+
+  /**
    * assign attributes captures
    */
   public static void captureAssignAttributes() {
@@ -1263,6 +1337,39 @@ public class SampleCapture {
         WsSampleFindGroupsRest.class, "findGroups", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindGroupsRestLite.class, "findGroups", "_withInput");
+    
+  }
+
+  /**
+   * all find external subjects captures
+   */
+  public static void captureFindExternalSubjects() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleFindExternalSubjects.class, "findExternalSubjects", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleFindExternalSubjectsRest.class, "findExternalSubjects", null);
+    
+  }
+
+  /**
+   * all external subject delete captures
+   */
+  public static void captureExternalSubjectDelete() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleExternalSubjectDelete.class, "externalSubjectDelete", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleExternalSubjectDeleteRest.class, "externalSubjectDelete", null);
+    
+  }
+
+  /**
+   * all external subject save captures
+   */
+  public static void captureExternalSubjectSave() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleExternalSubjectSave.class, "externalSubjectSave", (String)null, 30000);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleExternalSubjectSaveRest.class, "externalSubjectSave", null, 30000);
     
   }
   

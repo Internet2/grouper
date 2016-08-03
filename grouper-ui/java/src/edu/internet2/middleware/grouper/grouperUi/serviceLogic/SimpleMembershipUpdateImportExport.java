@@ -346,7 +346,6 @@ public class SimpleMembershipUpdateImportExport {
       writer.close();
       
       auditExport(group.getUuid(), group.getName(), memberData.size(), groupExtensionFileName);
-  
       throw new ControllerDone();
     } catch (NoSessionException se) {
       throw se;
@@ -358,7 +357,7 @@ public class SimpleMembershipUpdateImportExport {
     }
     
   }
-  
+
 	private static void auditExport(final String groupId, final String groupName, final int exportSize, final String groupExtensionFileName) {
 		HibernateSession.callbackHibernateSession(
 	          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,

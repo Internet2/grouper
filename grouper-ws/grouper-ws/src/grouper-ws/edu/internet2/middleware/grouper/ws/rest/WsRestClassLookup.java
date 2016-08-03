@@ -49,6 +49,9 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
@@ -297,7 +300,20 @@ public class WsRestClassLookup {
     addAliasClass(WsMessage.class);
     addAliasClass(WsMessageResults.class);
     addAliasClass(WsMessageAcknowledgeResults.class);
-    
+
+    addAliasClass(WsExternalSubject.class);
+    addAliasClass(WsExternalSubjectAttribute.class);
+    addAliasClass(WsExternalSubjectDeleteResult.class);
+    addAliasClass(WsExternalSubjectDeleteResults.class);
+    addAliasClass(WsExternalSubjectLookup.class);
+    addAliasClass(WsExternalSubjectSaveResult.class);
+    addAliasClass(WsExternalSubjectSaveResults.class);
+    addAliasClass(WsExternalSubjectToSave.class);
+    addAliasClass(WsFindExternalSubjectsResults.class);
+    addAliasClass(WsRestFindExternalSubjectsRequest.class);
+    addAliasClass(WsRestExternalSubjectDeleteRequest.class);
+    addAliasClass(WsRestExternalSubjectSaveRequest.class);
+
   }
   
   /**

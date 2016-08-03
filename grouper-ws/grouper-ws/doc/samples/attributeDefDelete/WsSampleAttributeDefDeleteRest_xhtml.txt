@@ -1,0 +1,317 @@
+Grouper web service sample of service: attributeDefDelete, WsSampleAttributeDefDeleteRest, manually written lite/rest, format: xhtml, for version: 2.3.0
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouperWs/servicesRest/v2_3_000/attributeDefs HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.0
+Host: localhost:8092
+Content-Length: 699
+Content-Type: application/xhtml+xml; charset=UTF-8
+
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestAttributeDefDeleteRequest</title>
+  </head>
+  <body>
+    <div title="WsRestAttributeDefDeleteRequest">
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+        <p class="subjectSourceId" />
+      </div>
+      <p class="clientVersion" />
+      <p class="txType" />
+      <ul class="wsAttributeDefLookups">
+        <li title="WsAttributeDefLookup">
+          <p class="idIndex" />
+          <p class="name">test:test1</p>
+          <p class="uuid" />
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/xhtml+xml;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 21 Jun 2016 19:33:15 GMT
+Connection: close
+
+7fd
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsAttributeDefDeleteResults</title>
+  </head>
+  <body>
+    <div title="WsAttributeDefDeleteResults">
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">2521</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">2.3.0</p>
+      </div>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
+        <p class="resultMessage">Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, paramNames:
+, params: null</p>
+        <p class="success">T</p>
+      </div>
+      <ul class="results">
+        <li title="WsAttributeDefDeleteResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS_ATTRIBUTE_DEF_NOT_FOUND</p>
+            <p class="resultCode2" />
+            <p class="resultMessage">Cant find attribute def: 'WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1,
+attributeDefFindResult=ATTRIBUTE_DEF_NOT_FOUND]'.</p>
+            <p class="success">T</p>
+          </div>
+          <div class="wsAttributeDef" title="WsAttributeDef">
+            <p class="assignToAttributeDef">F</p>
+            <p class="assignToAttributeDefAssignment">F</p>
+            <p class="assignToEffectiveMembership">F</p>
+            <p class="assignToEffectiveMembershipAssignment">F</p>
+            <p class="assignToGroup">F</p>
+            <p class="assignToGroupAssignment">F</p>
+            <p class="assignToImmediateMembership">F</p>
+            <p class="assignToImmediateMembershipAssignment">F</p>
+            <p class="assignToMember">F</p>
+            <p class="assignToMemberAssignment">F</p>
+            <p class="assignToStem">F</p>
+            <p class="assignToStemAssignment">F</p>
+            <p class="attributeDefType" />
+            <p class="description" />
+            <p class="extension">test1</p>
+            <p class="idIndex" />
+            <p class="multiAssignable" />
+            <p class="multiValued" />
+            <p class="name">test:test1</p>
+            <p class="uuid" />
+            <p class="valueType" />
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/**
+ * 
+ */
+package edu.internet2.middleware.grouper.ws.samples.rest.attribute;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefDeleteRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author vsachdeva
+ *
+ */
+public class WsSampleAttributeDefDeleteRest implements WsSampleRest {
+
+  /**
+   * AttributeDefDelete web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void attributeDefDelete(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION
+              + "/attributeDefs");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER,
+          RestClientSettings.PASS);
+
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(
+              new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT),
+              defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestAttributeDefDeleteRequest attributeDefDeleteRequest = new WsRestAttributeDefDeleteRequest();
+
+      // set the act as id
+      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
+      attributeDefDeleteRequest.setActAsSubjectLookup(actAsSubject);
+
+      WsAttributeDefLookup wsAttributeDefLookup = new WsAttributeDefLookup("test:test1",
+          null);
+      attributeDefDeleteRequest
+          .setWsAttributeDefLookups(new WsAttributeDefLookup[] { wsAttributeDefLookup });
+
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType()
+          .writeString(attributeDefDeleteRequest);
+
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType()
+          .getContentType();
+
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType,
+          "UTF-8"));
+
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      Object result = wsSampleRestType
+          .getWsLiteResponseContentType().parseString(response);
+
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem) result).getResultMetadata()
+            .getResultMessage());
+      }
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsAttributeDefDeleteResults wsAttributeDefDeleteResults = (WsAttributeDefDeleteResults) result;
+
+      String resultMessage = wsAttributeDefDeleteResults.getResultMetadata()
+          .getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: successString: "
+            + successString + ", resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+
+      System.out.println("Server version: "
+          + wsAttributeDefDeleteResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage);
+
+      for (WsAttributeDefDeleteResult wsAttributeDefDeleteResult : GrouperUtil.nonNull(
+          wsAttributeDefDeleteResults.getResults(), WsAttributeDefDeleteResult.class)) {
+        System.out.println("Result: "
+            + wsAttributeDefDeleteResult.getResultMetadata().getResultCode()
+            + " for " + wsAttributeDefDeleteResult.getWsAttributeDef().getName());
+      }
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    attributeDefDelete(WsSampleRestType.xhtml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  @Override
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    attributeDefDelete(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  @Override
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_json.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: 2.3.0, result code: SUCCESS, result message: Success for: clientVersion: 2.3.0, wsAttributeDefLookups: Array size: 1: [0]: WsAttributeDefLookup[pitAttributeDefs=[],name=test:test1]
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, paramNames: 
+, params: null
+Result: SUCCESS_ATTRIBUTE_DEF_NOT_FOUND for test:test1

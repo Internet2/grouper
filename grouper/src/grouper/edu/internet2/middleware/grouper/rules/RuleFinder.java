@@ -84,10 +84,16 @@ public class RuleFinder {
     boolean wheelOrRoot = PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject());
 
     for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+      if (ruleDefinition == null || ruleDefinition.getCheck() == null || ruleDefinition.getCheck().checkTypeEnum() == null) {
+        continue;
+      }
       switch (ruleDefinition.getCheck().checkTypeEnum()) {
         case attributeDefCreate:
         case groupCreate:
         case stemCreate:
+          if (ruleDefinition.getThen() == null || ruleDefinition.getThen().thenEnum() == null) {
+            continue;
+          }
           switch (ruleDefinition.getThen().thenEnum()) {
             case assignAttributeDefPrivilegeToAttributeDefId:
             case assignGroupPrivilegeToGroupId:

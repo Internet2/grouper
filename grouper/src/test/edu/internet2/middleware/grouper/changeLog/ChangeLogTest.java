@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
@@ -95,7 +96,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testGroups"));
+    TestRunner.run(new ChangeLogTest("testTypeUnassignmentAndTypeDeleteTogether"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -3180,6 +3181,41 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(changeLogEntry.getCreatedOnDb(), pitGroupSet.getStartTimeDb());
     assertEquals(changeLogEntry2.getCreatedOnDb(), pitGroupSet.getEndTimeDb());
 
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testTypeUnassignmentAndTypeDeleteTogether() throws Exception {
+    
+    // initialize some data
+    GroupType groupType = GroupType.createType(grouperSession, "testType");
+    groupType.addAttribute(grouperSession, "attr1", false);
+    groupType.addList(grouperSession, "list1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    groupType.addList(grouperSession, "list2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    Group group1 = edu.addChildGroup("test1", "test1");
+    Group group2 = edu.addChildGroup("test2", "test2");
+    ChangeLogTempToEntity.convertRecords();
+
+    // add assignment
+    group1.addType(groupType);
+    group2.addType(groupType);
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+
+    group1.deleteType(groupType);
+    group2.deleteType(groupType);
+    groupType.delete(this.grouperSession);
+    
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
+    
+    ChangeLogTempToEntity.convertRecords();
+    
+    // make sure pit seems happy
+    assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
+    assertEquals(0, new SyncPITTables().showResults(false).processAllDuplicates());
   }
   
   /**

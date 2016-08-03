@@ -31,6 +31,10 @@
     <filter-name>Grouper service filter</filter-name>
     <url-pattern>/servicesRest/*</url-pattern>
   </filter-mapping>
+  <listener>
+      <listener-class>edu.internet2.middleware.grouper.ws.j2ee.GrouperJ2eeListener</listener-class>
+  </listener>
+  
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
 		<display-name>Apache-Axis Servlet</display-name>

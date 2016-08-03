@@ -253,6 +253,22 @@
             }
                 
            /**
+            * auto generated Axis2 call back method for externalSubjectDelete method
+            * override this method for handling normal response from externalSubjectDelete operation
+            */
+           public void receiveResultexternalSubjectDelete(
+                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExternalSubjectDeleteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from externalSubjectDelete operation
+           */
+            public void receiveErrorexternalSubjectDelete(java.lang.Exception e) {
+            }
+                
+           /**
             * auto generated Axis2 call back method for groupSave method
             * override this method for handling normal response from groupSave operation
             */
@@ -314,6 +330,22 @@
            * override this method for handling error response from getGroupsLite operation
            */
             public void receiveErrorgetGroupsLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for findExternalSubjects method
+            * override this method for handling normal response from findExternalSubjects operation
+            */
+           public void receiveResultfindExternalSubjects(
+                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.FindExternalSubjectsResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from findExternalSubjects operation
+           */
+            public void receiveErrorfindExternalSubjects(java.lang.Exception e) {
             }
                 
            /**
@@ -429,19 +461,19 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for assignGrouperPrivileges method
-            * override this method for handling normal response from assignGrouperPrivileges operation
+            * auto generated Axis2 call back method for externalSubjectSave method
+            * override this method for handling normal response from externalSubjectSave operation
             */
-           public void receiveResultassignGrouperPrivileges(
-                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AssignGrouperPrivilegesResponse result
+           public void receiveResultexternalSubjectSave(
+                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.ExternalSubjectSaveResponse result
                         ) {
            }
 
           /**
            * auto generated Axis2 Error handler
-           * override this method for handling error response from assignGrouperPrivileges operation
+           * override this method for handling error response from externalSubjectSave operation
            */
-            public void receiveErrorassignGrouperPrivileges(java.lang.Exception e) {
+            public void receiveErrorexternalSubjectSave(java.lang.Exception e) {
             }
                 
            /**
@@ -461,22 +493,6 @@
             }
                 
            /**
-            * auto generated Axis2 call back method for groupDelete method
-            * override this method for handling normal response from groupDelete operation
-            */
-           public void receiveResultgroupDelete(
-                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GroupDeleteResponse result
-                        ) {
-           }
-
-          /**
-           * auto generated Axis2 Error handler
-           * override this method for handling error response from groupDelete operation
-           */
-            public void receiveErrorgroupDelete(java.lang.Exception e) {
-            }
-                
-           /**
             * auto generated Axis2 call back method for attributeDefNameSaveLite method
             * override this method for handling normal response from attributeDefNameSaveLite operation
             */
@@ -490,6 +506,38 @@
            * override this method for handling error response from attributeDefNameSaveLite operation
            */
             public void receiveErrorattributeDefNameSaveLite(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for assignGrouperPrivileges method
+            * override this method for handling normal response from assignGrouperPrivileges operation
+            */
+           public void receiveResultassignGrouperPrivileges(
+                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.AssignGrouperPrivilegesResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from assignGrouperPrivileges operation
+           */
+            public void receiveErrorassignGrouperPrivileges(java.lang.Exception e) {
+            }
+                
+           /**
+            * auto generated Axis2 call back method for groupDelete method
+            * override this method for handling normal response from groupDelete operation
+            */
+           public void receiveResultgroupDelete(
+                    edu.internet2.middleware.grouper.ws.soap_v2_3.xsd.GroupDeleteResponse result
+                        ) {
+           }
+
+          /**
+           * auto generated Axis2 Error handler
+           * override this method for handling error response from groupDelete operation
+           */
+            public void receiveErrorgroupDelete(java.lang.Exception e) {
             }
                 
            /**

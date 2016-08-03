@@ -15,14 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.soap_v2_3;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefSave;
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+
 
 
 /**
@@ -3000,13 +2995,12 @@ public class GrouperService {
     
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
         GrouperServiceUtils.currentServiceClass(), "acknowledge",
-        new Object[]{clientVersion, queueOrTopicName, messageIds, acknowledgeType, messageIds, anotherQueueOrTopicName, anotherQueueType,
+        new Object[]{clientVersion, queueOrTopicName, messageSystemName, acknowledgeType, messageIds, anotherQueueOrTopicName, anotherQueueType,
       GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
       GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
       });
-    
-    return (WsMessageAcknowledgeResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
+    return (WsMessageAcknowledgeResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
     
   }
   
@@ -3135,7 +3129,7 @@ public class GrouperService {
       String paramName1, String paramValue1) {
 
     Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
-        GrouperServiceUtils.currentServiceClass(), "attributeDefDeleteLite",
+        GrouperServiceUtils.currentServiceClass(), "attributeDefSaveLite",
         new Object[]{clientVersion,
       attributeDefLookupUuid, attributeDefLookupName,
       uuidOfAttributeDef, nameOfAttributeDef,
@@ -3468,6 +3462,96 @@ public class GrouperService {
     
     return (WsMessageResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
 
+  }
+
+  /**
+   * delete an external subject or many (if doesnt exist, ignore)
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsExternalSubjectLookups
+   *            groups to delete
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsExternalSubjectDeleteResults externalSubjectDelete(final String clientVersion,
+      final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
+      String txType, final WsParam[] params) {
+  
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "externalSubjectDelete",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsExternalSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsExternalSubjectDeleteResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
+
+  
+  }
+
+  /**
+   * save an external subject (insert or update).
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsExternalSubjectToSaves
+   *            external subjects to save
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @since 2.3.0.patch
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsExternalSubjectSaveResults externalSubjectSave(final String clientVersion,
+      final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
+      String txType, final WsParam[] params) {
+  
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "externalSubjectSave",
+        new Object[]{clientVersion,
+      GrouperUtil.changeToVersion(wsExternalSubjectToSaves, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      txType, 
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      });
+    
+    return (WsExternalSubjectSaveResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
+    
+  }
+
+  /**
+   * find a external subjects
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names
+   * @return the external subjects, or no external subjects if none found
+   */
+  @SuppressWarnings("unchecked")
+  public WsFindExternalSubjectsResults findExternalSubjects(final String clientVersion,
+      WsExternalSubjectLookup[] wsExternalSubjectLookups,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+  
+    Object result = GrouperUtil.callMethodWithMoreParams(GrouperUtil.newInstance(GrouperServiceUtils.currentServiceClass()), 
+        GrouperServiceUtils.currentServiceClass(), "findExternalSubjects",
+        new Object[]{
+      clientVersion,
+      GrouperUtil.changeToVersion(wsExternalSubjectLookups, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(actAsSubjectLookup, GrouperServiceUtils.currentServiceClass().getPackage().getName()),
+      GrouperUtil.changeToVersion(params, GrouperServiceUtils.currentServiceClass().getPackage().getName())
+      });
+    
+    return (WsFindExternalSubjectsResults)GrouperUtil.changeToVersion(result, THIS_VERSION_PACKAGE);
+    
   }
 
 }

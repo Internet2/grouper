@@ -29,13 +29,16 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -73,7 +76,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
    */
   public static void main(String[] args) {
     
-    TestRunner.run(new GrouperObjectFinderTest("testFindObjects"));
+    TestRunner.run(new GrouperObjectFinderTest("testFindFoldersAllowed"));
 
   }
 
@@ -90,10 +93,122 @@ public class GrouperObjectFinderTest extends GrouperTest {
   }
 
   /**
+   *
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
+   */
+  public void tearDown() {
+    super.tearDown();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.show.folders.where.user.can.see.subobjects");
+  }
+
+  /**
+   * 
+   */
+  public void testFindFoldersAllowed() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem test = new StemSave(grouperSession).assignName("test").save();
+    
+    Stem stem1 = new StemSave(grouperSession).assignName("test:stem1").save();
+    Group group1 = new GroupSave(grouperSession).assignName("test:stem1:group1").save();
+    group1.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ);
+    
+    Stem stem2 = new StemSave(grouperSession).assignName("test:stem2").save();
+    Group group2 = new GroupSave(grouperSession).assignName("test:stem2:group2").save();
+    group2.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
+    
+    Stem stem3 = new StemSave(grouperSession).assignName("test:stem3").save();
+    Group group3 = new GroupSave(grouperSession).assignName("test:stem3:group3").save();
+    group3.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.VIEW);
+    
+    Stem stem4 = new StemSave(grouperSession).assignName("test:stem4").save();
+    Stem stem4sub = new StemSave(grouperSession).assignName("test:stem4:stem4sub").save();
+    stem4sub.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
+    
+    
+    Stem stem5 = new StemSave(grouperSession).assignName("test:stem5").save();
+    AttributeDef attributeDef5 = new AttributeDefSave(grouperSession).assignName("test:stem5:attributeDef5")
+        .assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    attributeDef5.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_DEF_ATTR_READ, false);
+
+    Stem stem6 = new StemSave(grouperSession).assignName("test:stem6").save();
+    Stem stem6sub = new StemSave(grouperSession).assignName("test:stem6:stem6sub").save();
+    Group group6 = new GroupSave(grouperSession).assignName("test:stem6:stem6sub:group6").save();
+    group6.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.VIEW);
+
+    Stem stem7 = new StemSave(grouperSession).assignName("test:stem7").save();
+    stem7.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE);
+
+    Stem stem8 = new StemSave(grouperSession).assignName("test:stem8").save();
+    Stem stem8sub = new StemSave(grouperSession).assignName("test:stem8:stem8sub").save();
+    Stem stem8subsub = new StemSave(grouperSession).assignName("test:stem8:stem8sub:stem8subsub").save();
+    stem8subsub.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ATTR_READ);
+
+    Stem stem9 = new StemSave(grouperSession).assignName("test:stem9").save();
+    Stem stem9sub = new StemSave(grouperSession).assignName("test:stem9:stem9sub").save();
+    AttributeDef attributeDef9sub = new AttributeDefSave(grouperSession).assignName("test:stem9:stem9sub:attributeDef9")
+        .assignAttributeDefType(AttributeDefType.attr).assignValueType(AttributeDefValueType.marker).save();
+    attributeDef9sub.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_ADMIN, false);
+
+    GrouperSession.stopQuietly(grouperSession);
+
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    QueryOptions queryOptions = QueryOptions.create("displayExtension", true, 1, 50);
+
+    GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
+      .assignObjectPrivilege(ObjectPrivilege.view)
+      .assignParentStemId(test.getId())
+      .assignQueryOptions(queryOptions)
+      .assignSplitScope(true).assignStemScope(Scope.ONE)
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject());
+
+//    if (!StringUtils.isBlank(filterText)) {
+//      grouperObjectFinder.assignFilterText(filterText);
+//    }
+
+    List<GrouperObject> results = new ArrayList<GrouperObject>(grouperObjectFinder.findGrouperObjects());
+    
+    assertEquals(7, results.size());
+    assertEquals(stem1.getName(), results.get(0).getName());
+    assertEquals(stem2.getName(), results.get(1).getName());
+    assertEquals(stem4.getName(), results.get(2).getName());
+    assertEquals(stem5.getName(), results.get(3).getName());
+    assertEquals(stem6.getName(), results.get(4).getName());
+    assertEquals(stem8.getName(), results.get(5).getName());
+    assertEquals(stem9.getName(), results.get(6).getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+  
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    grouperObjectFinder = new GrouperObjectFinder()
+      .assignObjectPrivilege(ObjectPrivilege.view)
+      .assignParentStemId(test.getId())
+      .assignQueryOptions(queryOptions)
+      .assignSplitScope(true).assignStemScope(Scope.ONE)
+      .assignSubject(GrouperSession.staticGrouperSession().getSubject());
+
+    results = new ArrayList<GrouperObject>(grouperObjectFinder.findGrouperObjects());
+    
+    assertEquals(3, results.size());
+    assertEquals(stem2.getName(), results.get(0).getName());
+    assertEquals(stem3.getName(), results.get(1).getName());
+    assertEquals(stem7.getName(), results.get(2).getName());
+    
+    GrouperSession.stopQuietly(grouperSession);
+
+  
+  }
+  
+  /**
    * 
    */
   public void testFindObjects() {
     
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "false");
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     List<Stem> stems = new ArrayList<Stem>();

@@ -85,6 +85,20 @@ import edu.internet2.middleware.subject.Subject;
 public class PrivilegeHelper {
 
   /**
+   * convert a collection of privileges to a collection of fieldIds
+   * @param privileges
+   * @return the field
+   */
+  public static Collection<String> fieldIdsFromPrivileges(Collection<Privilege> privileges) {
+    
+    Set<String> result = new LinkedHashSet<String>();
+    for (Privilege privilege : GrouperUtil.nonNull(privileges)) {
+      result.add(privilege.getField().getId());
+    }
+    return result;
+  }
+  
+  /**
    * see if a group has an immediate privilege
    * @param group
    * @param subject

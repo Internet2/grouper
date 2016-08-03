@@ -475,7 +475,7 @@ public class WsGroupLookup {
 
       //make sure matches
       if ((hasUuid && !StringUtils.equals(this.uuid, theGroup.getUuid()))
-          || (hasName && !StringUtils.equals(this.groupName, theGroup.getName()))
+          || (hasName && !StringUtils.equals(this.groupName, theGroup.getName()) && !StringUtils.equals(this.groupName, theGroup.getAlternateName()))
           || (hasIdIndex && !GrouperUtil.equals(GrouperUtil.longValue(this.idIndex), theGroup.getIdIndex()))){
         this.groupFindResult = GroupFindResult.GROUP_UUID_DOESNT_MATCH_NAME;
         String error = "Group name '" + this.groupName + "', uuid '" + this.uuid

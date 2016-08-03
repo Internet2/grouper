@@ -4951,6 +4951,10 @@ public class GrouperService {
     } catch (Exception e) {
       wsSendMessageResults.assignResultCodeException(null, null, e);
     }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsSendMessageResults.getResultMetadata(), this.soap);
+
     return wsSendMessageResults;
   }
 
@@ -4985,6 +4989,10 @@ public class GrouperService {
     } catch (Exception e) {
       wsReceiveMessageResults.assignResultCodeException(null, null, e);
     }
+    
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsReceiveMessageResults.getResultMetadata(), this.soap);
+
     return wsReceiveMessageResults;
   }
 
@@ -5032,7 +5040,133 @@ public class GrouperService {
     } catch (Exception e) {
       wsMessageResults.assignResultCodeException(null, null, e);
     }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsMessageResults.getResultMetadata(), this.soap);
+
     return wsMessageResults;
+  }
+
+  /**
+   * delete an external subject or many (if doesnt exist, ignore)
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsExternalSubjectLookups
+   *            groups to delete
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsExternalSubjectDeleteResults externalSubjectDelete(final String clientVersion,
+      final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
+      String txType, final WsParam[] params) {
+  
+    WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = new WsExternalSubjectDeleteResults();
+
+    try {
+
+      //convert tx type to object
+      final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
+          .convertTransactionType(txType);
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      wsExternalSubjectDeleteResults = GrouperServiceLogic.externalSubjectDelete(grouperWsVersion, 
+          wsExternalSubjectLookups, actAsSubjectLookup, 
+          grouperTransactionType, params);
+    } catch (Exception e) {
+      wsExternalSubjectDeleteResults.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsExternalSubjectDeleteResults.getResultMetadata(), this.soap);
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsExternalSubjectDeleteResults;
+  
+  }
+
+  /**
+   * save an external subject (insert or update).
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsExternalSubjectToSaves
+   *            external subjects to save
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @since 2.3.0.patch
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public WsExternalSubjectSaveResults externalSubjectSave(final String clientVersion,
+      final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
+      String txType, final WsParam[] params) {
+  
+    WsExternalSubjectSaveResults wsExternalSubjectSaveResults = new WsExternalSubjectSaveResults();
+
+    try {
+
+      //convert tx type to object
+      final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
+          .convertTransactionType(txType);
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      wsExternalSubjectSaveResults = GrouperServiceLogic.externalSubjectSave(grouperWsVersion, wsExternalSubjectToSaves,
+          actAsSubjectLookup, 
+          grouperTransactionType, params);
+    } catch (Exception e) {
+      wsExternalSubjectSaveResults.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsExternalSubjectSaveResults.getResultMetadata(), this.soap);
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsExternalSubjectSaveResults;
+  }
+
+  /**
+   * find a external subjects
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names
+   * @return the external subjects, or no external subjects if none found
+   */
+  @SuppressWarnings("unchecked")
+  public WsFindExternalSubjectsResults findExternalSubjects(final String clientVersion,
+      WsExternalSubjectLookup[] wsExternalSubjectLookups,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+  
+    WsFindExternalSubjectsResults wsFindExternalSubjectsResults = new WsFindExternalSubjectsResults();
+
+    try {
+
+      GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+          clientVersion, true);
+
+      wsFindExternalSubjectsResults = GrouperServiceLogic.findExternalSubjects(grouperWsVersion, wsExternalSubjectLookups, 
+          actAsSubjectLookup, 
+          params);
+    } catch (Exception e) {
+      wsFindExternalSubjectsResults.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsFindExternalSubjectsResults.getResultMetadata(), this.soap);
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsFindExternalSubjectsResults;
   }
 
 }

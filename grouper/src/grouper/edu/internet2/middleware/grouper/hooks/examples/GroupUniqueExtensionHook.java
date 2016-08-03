@@ -43,10 +43,18 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * groupUniqueExtensionHook.resolveSubjectByIdOrIdentifier = true
  * 
+ * # set this to true in grouper.properties to make this case insensitive
+ * hook.group.unique.extension.caseInsensitive = true
+ * 
  * </pre>
  */
 public class GroupUniqueExtensionHook extends GroupHooks {
   
+  /**
+   * 
+   */
+  public static final String VETO_GROUP_UNIQUE_EXTENSION = "veto.group.unique.extension";
+
   /**
    * 
    * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
@@ -64,19 +72,27 @@ public class GroupUniqueExtensionHook extends GroupHooks {
   public static void verifyUniqueExtension(Group group) {
     
     //see if there is another group with the same extension
-    long count = HibernateSession.byHqlStatic().createQuery("select count(g) from Group as g where g.extensionDb = :theExtension")
-      .setString("theExtension", group.getExtension()).uniqueResult(long.class);
+    String theHqlQuery = "select count(g) from Group as g where g.extensionDb = :theExtension and g.uuid != :theUuid";
+    String extension = group.getExtension();
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("hook.group.unique.extension.caseInsensitive", false)) {
+      theHqlQuery = "select count(g) from Group as g where lower(g.extensionDb) = :theExtension and g.uuid != :theUuid";
+      extension = group.getExtension().toLowerCase();
+    }
+    
+    long count = HibernateSession.byHqlStatic().createQuery(theHqlQuery)
+      .setString("theExtension", extension).setString("theUuid", group.getUuid()).uniqueResult(long.class);
     if (count > 0) {
-      throw new HookVeto("veto.group.unique.extension", "The group ID is already in use, please use a different ID");
+      throw new HookVeto(VETO_GROUP_UNIQUE_EXTENSION, "The group ID is already in use, please use a different ID");
     }
     
     //see if we are checking subjects
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("groupUniqueExtensionHook.resolveSubjectByIdOrIdentifier", false)) {
       
       //resolve by id or identifier
-      Subject subject = SubjectFinder.findByIdOrIdentifier(group.getExtension(), false);
+      Subject subject = SubjectFinder.findByIdOrIdentifier(extension, false);
       if (subject != null) {
-        throw new HookVeto("veto.group.unique.extension", "The group ID is already in use, please use a different ID");
+        throw new HookVeto(VETO_GROUP_UNIQUE_EXTENSION, "The group ID is already in use, please use a different ID");
       }
     }
   }

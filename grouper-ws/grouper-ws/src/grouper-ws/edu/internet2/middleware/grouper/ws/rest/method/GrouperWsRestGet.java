@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
@@ -37,6 +38,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
@@ -564,6 +566,53 @@ public enum GrouperWsRestGet {
 
     }
 
+  }, 
+  /** external subjects get requests */
+  externalSubjects{
+  
+    /**
+     * handle the incoming request based on GET HTTP method and external subject resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/externalSubjects/a:b
+     * the urlStrings would be size two: {"groups", "a:b"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+  
+      //url should be: /xhtml/v1_3_000/externalSubjects/mchyzer@upenn.edu
+      String externalSubjectIdentifier = GrouperServiceUtils.popUrlString(urlStrings);
+      
+      if (requestObject == null) {
+        requestObject = new WsRestFindExternalSubjectsRequest();
+      }
+      
+      WsRestFindExternalSubjectsRequest wsRestFindExternalSubjectsRequest = (WsRestFindExternalSubjectsRequest)requestObject;
+      
+      if (GrouperUtil.length(wsRestFindExternalSubjectsRequest.getWsExternalSubjectLookups()) == 0 && !StringUtils.isBlank(externalSubjectIdentifier)) {
+        wsRestFindExternalSubjectsRequest.setWsExternalSubjectLookups(new WsExternalSubjectLookup[]{
+            new WsExternalSubjectLookup(externalSubjectIdentifier)});
+        
+      }
+      
+      //handle the URL: /externalSubjects
+      if (requestObject instanceof WsRestFindExternalSubjectsRequest) {
+        
+        //get members of multiple groups
+        return GrouperServiceRest.findExternalSubjects(clientVersion,
+            wsRestFindExternalSubjectsRequest);
+      }
+        
+      
+      throw new RuntimeException("Must pass in a request object of type "
+          + WsRestFindExternalSubjectsRequest.class.getSimpleName() + ". It was "
+          + (requestObject == null ? null : requestObject.getClass()));
+    }
+  
   };
 
   /**

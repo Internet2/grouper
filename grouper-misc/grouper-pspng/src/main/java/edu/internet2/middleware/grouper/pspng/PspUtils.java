@@ -107,7 +107,7 @@ public class PspUtils {
         if ( attributeValues.size() == 0 )
           continue;
         
-        if ( !attributeDef.isMultiValued() ) 
+        if ( ! (attributeDef.isMultiValued() || attributeDef.isMultiAssignable()) ) 
           // Single-Valued: Put the first value into map, replacing whatever was there
           stemPathAttributes.put(attributeName, attributeValues.iterator().next());
         else {
@@ -128,11 +128,35 @@ public class PspUtils {
 
     // Perhaps this should start with something like
     // an iteration over group.getAttributeDelegate().getAttributeAssigns()
-    Map<String, Attribute> attributeMap = group.getAttributesMap(false);
-    
-    for ( String attributeName : attributeMap.keySet() ) {
-      Attribute attributeValue = attributeMap.get(attributeName);
-      result.put(attributeName, attributeValue.getValue());
+    for ( AttributeAssign attributeAssign : group.getAttributeDelegate().getAttributeAssigns()) {
+      AttributeDef attributeDef = attributeAssign.getAttributeDef();
+      AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
+      String attributeName = attributeDefName.getName();
+      
+      Set<AttributeAssignValue> attributeAssignValues = attributeAssign.getValueDelegate().getAttributeAssignValues();
+      
+      List<String> attributeValues = new ArrayList<String>();
+      
+      for ( AttributeAssignValue attributeAssignValue : attributeAssignValues ) {
+        String value = attributeAssignValue.getValueFriendly();
+        attributeValues.add(value);
+      }
+      
+      // Skip the attribute if it doesn't actually have any values
+      if ( attributeValues.size() == 0 )
+        continue;
+      
+      if ( ! (attributeDef.isMultiValued() || attributeDef.isMultiAssignable()) ) 
+        // Single-Valued: Put the first value into map, replacing whatever was there
+        result.put(attributeName, attributeValues.iterator().next());
+      else {
+        // Multi-valued: Put all the values into a collection
+        Collection<Object> valueArray = (Collection<Object>) result.get(attributeName);
+        if ( valueArray == null ) 
+          result.put(attributeName, attributeValues);
+        else
+          valueArray.addAll(attributeValues);
+      }
     }
     return result;
   }

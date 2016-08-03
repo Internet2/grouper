@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ import org.ldaptive.Response;
 import org.ldaptive.ResultCode;
 import org.ldaptive.SearchExecutor;
 import org.ldaptive.SearchFilter;
+import org.ldaptive.SearchOperation;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
 import org.ldaptive.SearchScope;
@@ -302,7 +304,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     // Make sure a baseDn mentioned in our configuration exists.
     ensureLdapOusExist(request.getBaseDn(), true);
     
-    LOG.debug("Doing ldap search: {} / {}", request.getSearchFilter(), request.getBaseDn());
+    LOG.debug("Doing ldap search: {} / {} / {}", 
+        new Object[] {request.getSearchFilter(), request.getBaseDn(), Arrays.toString(request.getReturnAttributes())});
     List<LdapObject> result = new ArrayList<LdapObject>();
     
     Connection conn = getLdapConnection();
@@ -310,11 +313,25 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       conn.open();
       
       // Turn on attribute-value paging if this is an active directory target
-      if ( config.isActiveDirectory() )
+      if ( config.isActiveDirectory() ) {
+        LOG.debug("Using attribute-value paging");
         request.setSearchEntryHandlers(new RangeEntryHandler());
+      }
       
-      PagedResultsClient client = new PagedResultsClient(conn, config.getLdapSearchResultPagingSize());
-      Response<SearchResult> response = client.executeToCompletion(request);
+      Response<SearchResult> response;
+      
+      // Perform search. This is slightly different if paging is enabled or not. 
+      if ( config.isSearchResultPagingEnabled() ) {
+        PagedResultsClient client = new PagedResultsClient(conn, config.getSearchResultPagingSize());
+        LOG.debug("Using ldap search-result paging");
+        response = client.executeToCompletion(request);
+      }
+      else {
+        LOG.debug("Not using ldap search-result paging");
+        SearchOperation searchOp = new SearchOperation(conn);
+        response = searchOp.execute(request);
+      }
+      
       SearchResult searchResult = response.getResult();
       for (LdapEntry entry : searchResult.getEntries()) {
         result.add(new LdapObject(entry, request.getReturnAttributes()));
@@ -346,9 +363,10 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       // Turn on attribute-value paging if this is an active directory target
       if ( config.isActiveDirectory() )
         read.setSearchEntryHandlers(new RangeEntryHandler());
+
+      SearchOperation searchOp = new SearchOperation(conn);
       
-      PagedResultsClient client = new PagedResultsClient(conn, config.getLdapSearchResultPagingSize());
-      Response<SearchResult> response = client.executeToCompletion(read);
+      Response<SearchResult> response = searchOp.execute(read);
       SearchResult searchResult = response.getResult();
       
       LdapEntry result = searchResult.getEntry();

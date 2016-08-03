@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.ldaptive.BindConnectionInitializer;
 import org.ldaptive.ConnectionConfig;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Collects all the various properties and makes them available to the provisioner.
@@ -87,8 +89,8 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     private String userSearchAttributes[];
     protected String userSearchAttributes_defaultValue = "cn,uid,uidNumber,mail,samAccountName,objectclass";
     
-    private int ldapSearchResultPagingSize;
-    protected int ldapSearchResultPagingSize_default_value = 100;
+    protected boolean searchResultPagingEnabled_defaultValue = true;
+    protected int searchResultPagingSize_default_value = 100;
     
     private int ldapUserCacheTime_secs;
     protected int ldapUserCacheTime_secs_defaultValue = 600;
@@ -157,10 +159,6 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
           GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "ouCreationLdifTemplate" , ouCreationLdifTemplate_defaultValue);
       LOG.debug("Ldap Attribute Provisioner {} - Setting ouCreationLdifTemplate to {}", provisionerName, ouCreationLdifTemplate);
       
-      ldapSearchResultPagingSize =
-          GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapSearchResultPagingSize", ldapSearchResultPagingSize_default_value);
-      LOG.debug("Ldap Provisioner {} - Setting ldapSearchResultPagingSize to {}", provisionerName, ldapSearchResultPagingSize);
-  
       ldapUserCacheTime_secs =
           GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapUserCacheTime_secs", ldapUserCacheTime_secs_defaultValue);
       LOG.debug("Ldap Provisioner {} - Setting ldapUserCacheTime_secs to {}", provisionerName, ldapUserCacheTime_secs);
@@ -199,6 +197,20 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
           // Get the part of the property after ldapPropertyPrefix 'ldap.person.'
           String propNameTail = propName.substring(ldapPropertyPrefix.length());
           ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
+          
+          // Some compatibility between old vtldap properties and ldaptive versions
+          // url (vtldap) ==> ldapUrl
+          if ( propNameTail.equalsIgnoreCase("url") )
+            ldaptiveProperties.put("org.ldaptive.ldapUrl", propValue);
+          // tls (vtldap) ==> useStartTls
+          if ( propNameTail.equalsIgnoreCase("tls") )
+            ldaptiveProperties.put("org.ldaptive.useStartTLS", propValue);
+          // user (vtldap) ==> bindDn
+          if ( propNameTail.equalsIgnoreCase("user") )
+            ldaptiveProperties.put("org.ldaptive.bindDn", propValue);
+          // pass (vtldap) ==> bindCredential
+          if ( propNameTail.equalsIgnoreCase("pass") )
+            ldaptiveProperties.put("org.ldaptive.bindCredential", propValue);
         }
       }
       
@@ -301,11 +313,18 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
     }
 
 
-    public int getLdapSearchResultPagingSize() {
-      return ldapSearchResultPagingSize;
+    public boolean isSearchResultPagingEnabled() {
+      Object searchResultPagingEnabled = ldaptiveProperties.get("org.ldaptive.searchResultPagingEnabled");
+      
+      return GrouperUtil.booleanValue(searchResultPagingEnabled, searchResultPagingEnabled_defaultValue);
+    }
+        
+    public int getSearchResultPagingSize() {
+      Object searchResultPagingSize = ldaptiveProperties.get("org.ldaptive.searchResultPagingSize");
+      
+      return GrouperUtil.intValue(searchResultPagingSize, searchResultPagingSize_default_value);
     }
 
-    
     public boolean isActiveDirectory() {
       return isActiveDirectory;
     }

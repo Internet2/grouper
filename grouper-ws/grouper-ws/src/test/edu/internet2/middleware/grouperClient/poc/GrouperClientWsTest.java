@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -64,6 +66,8 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectSave;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -99,7 +103,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.subject.Subject;
-import junit.textui.TestRunner;
 
 /**
  *
@@ -111,7 +114,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAcknowledgeMessage"));
+    TestRunner.run(new GrouperClientWsTest("testExternalSubjectSave"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -38619,5 +38622,493 @@ public class GrouperClientWsTest extends GrouperTest {
     }
 
   }
+
+  /**
+   * @throws Exception
+   */
+  public void testFindExternalSubjects() throws Exception {
+  
+    // set some stuff to query
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    //make sure you have jabber enabled in grouper.properties
+    ExternalSubjectSave assignName = new ExternalSubjectSave(grouperSession).assignEmail("a@b.c")
+        .assignIdentifier("a_ident@b.c").assignName("Some Name");
+    
+    boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
+
+    if (hasJabber) {
+      assignName.addAttribute("jabber", "a_jabber@b.c");
+    }
+    ExternalSubject externalSubject = assignName.save();
+    
+  
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findExternalSubjectsWs --identifier=a_ident@b.c",
+                  " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      Pattern pattern = Pattern
+          .compile("^Index (\\d+): identifier: (.+), name: (.+)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(output, 1, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "a_ident@b.c", matcher.group(2));
+      assertEquals(output, "Some Name", matcher.group(3));
+  
+      // #####################################################
+      // run with invalid args
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      // test a command line template
+      try {
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=findExternalSubjectsWs --identifier=a_ident@b.c --ousdfsdfate=${index}",
+                    " "));
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+      }
+      System.out.flush();
+  
+      System.setOut(systemOut);
+  
+      // #####################################################
+      // run with custom template
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      // test a command line template
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findExternalSubjectsWs --identifier=a_ident@b.c --outputTemplate=${index}",
+                  " "));
+  
+      System.out.flush();
+  
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      assertEquals("0", output);
+  
+      // #####################################################
+      // run again, with params
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=findExternalSubjectsWs --identifier=a_ident@b.c --paramName0=whatever --paramValue0=someValue",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertEquals(output, 1, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "a_ident@b.c", matcher.group(2));
+      assertEquals(output, "Some Name", matcher.group(3));
+  
+      assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
+          && GrouperClientWs.mostRecentRequest.contains("someValue"));
+    
+  
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testExternalSubjectDelete() throws Exception {
+    
+    // set some stuff to query
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    //make sure you have jabber enabled in grouper.properties
+    ExternalSubjectSave assignName = new ExternalSubjectSave(grouperSession).assignEmail("a@b.c")
+        .assignIdentifier("a_ident@b.c").assignName("Some Name");
+    
+    boolean hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
+
+    if (hasJabber) {
+      assignName.addAttribute("jabber", "a_jabber@b.c");
+    }
+    ExternalSubject externalSubject = assignName.save();
+
+    
+    PrintStream systemOut = System.out;
+  
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+  
+    try {
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c", " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      Pattern pattern = Pattern
+          .compile("^Index (\\d+): success: T: code: ([A-Z_]+): identifier: (.+): name:\\s?(.*)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS", matcher.group(2));
+      assertEquals("a_ident@b.c", matcher.group(3));
+      assertEquals("Some Name", matcher.group(4));
+  
+      // #####################################################
+      // run again, should be already deleted
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND", matcher.group(2));
+      assertEquals("a_ident@b.c", matcher.group(3));
+      assertTrue(matcher.group(4), StringUtils.isBlank(matcher.group(4)));
+  
+      // #####################################################
+      // run with invalid args
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      // test a command line template
+      try {
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --ousdfsdfate=${index}",
+                    " "));
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+      }
+      System.out.flush();
+  
+      System.setOut(systemOut);
+  
+      // #####################################################
+      // run with custom template
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      // test a command line template
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --outputTemplate=${index}",
+                  " "));
+  
+      System.out.flush();
+  
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      assertEquals("0", output);
+  
+      // #####################################################
+      // run again, with txType
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --txType=NONE",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND", matcher.group(2));
+      assertEquals("a_ident@b.c", matcher.group(3));
+      assertTrue(matcher.group(4), StringUtils.isBlank(matcher.group(4)));
+  
+      assertTrue(GrouperClientWs.mostRecentRequest,
+          GrouperClientWs.mostRecentRequest.contains("txType")
+              && GrouperClientWs.mostRecentRequest.contains("NONE"));
+  
+      // #####################################################
+      // run again, with params
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+  
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=externalSubjectDeleteWs --identifiers=a_ident@b.c --paramName0=whatever --paramValue0=someValue",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+  
+      System.setOut(systemOut);
+  
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+      matcher = pattern.matcher(outputLines[0]);
+  
+      assertTrue(outputLines[0], matcher.matches());
+  
+      assertEquals("0", matcher.group(1));
+      assertEquals("SUCCESS_EXTERNAL_SUBJECT_NOT_FOUND", matcher.group(2));
+      assertEquals("a_ident@b.c", matcher.group(3));
+      assertTrue(matcher.group(4), StringUtils.isBlank(matcher.group(4)));
+  
+      assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
+          && GrouperClientWs.mostRecentRequest.contains("someValue"));
+  
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+     * @throws Exception
+     */
+    public void testExternalSubjectSave() throws Exception {
+  //sdf
+      PrintStream systemOut = System.out;
+  
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      String output = null;
+      String[] outputLines = null;
+      Pattern pattern = null;
+      Matcher matcher = null;
+      
+      try {
+
+        // ##########################
+        //try with name with slash
+  
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): identifier: (.+): name: (.+)$");
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS_INSERTED", matcher.group(1));
+        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("AnotherName", matcher.group(3));
+  
+        // #####################################################
+        // run again, should be already added
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("AnotherName", matcher.group(3));
+  
+        // #####################################################
+        // run with invalid args
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        // test a command line template
+        try {
+          GrouperClient
+              .main(GrouperClientUtils
+                  .splitTrim(
+                      "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --ousdfsdfate=${index}", 
+                      " "));
+        } catch (Exception e) {
+          assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+        }
+        System.out.flush();
+  
+        System.setOut(systemOut);
+  
+        // #####################################################
+        // run with custom template
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        // test a command line template
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --outputTemplate=${index}", 
+                    " "));
+  
+        System.out.flush();
+  
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        assertEquals("0", output);
+  
+        // #####################################################
+        // run again, with txType
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --txType=NONE", 
+            " "));
+            
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("AnotherName", matcher.group(3));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest,
+            GrouperClientWs.mostRecentRequest.contains("txType")
+                && GrouperClientWs.mostRecentRequest.contains("NONE")
+                && !GrouperClientWs.mostRecentRequest
+                    .contains("includeGroupDetail"));
+  
+        // #####################################################
+        // run again, with saveMode
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+  
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --saveMode=UPDATE", 
+            " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+  
+        System.setOut(systemOut);
+  
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+  
+        matcher = pattern.matcher(outputLines[0]);
+  
+        assertTrue(outputLines[0], matcher.matches());
+  
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("AnotherName", matcher.group(3));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("saveMode")
+            && GrouperClientWs.mostRecentRequest.contains("UPDATE"));
+  
+        // #####################################################
+        // run again, with params
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+
+        GrouperClient
+            .main(GrouperClientUtils
+                .splitTrim(
+                    "--operation=externalSubjectSaveWs --identifier=b_ident@c.d --name=AnotherName --attributeName0=jabber --attributeValue0=b_jabber@c.d --paramName0=whatever --paramValue0=someValue", 
+                    " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+
+        System.setOut(systemOut);
+
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+        matcher = pattern.matcher(outputLines[0]);
+
+        assertTrue(outputLines[0], matcher.matches());
+
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("b_ident@c.d", matcher.group(2));
+        assertEquals("AnotherName", matcher.group(3));
+
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("whatever")
+            && GrouperClientWs.mostRecentRequest.contains("someValue"));
+
+      } finally {
+        System.setOut(systemOut);
+      }
+  
+    }
   
 }
