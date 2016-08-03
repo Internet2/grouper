@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAutoaddBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
@@ -612,54 +613,65 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     new GrouperCache(ExternalSubject.class.getName(), 200, false, 60, 60, false);
   
   /**
-   * see if someone is allowed to edit, cache for 1 minute
+   * see if someone is allowed to edit, cache for 1 minute, note, this method has no security
    * @param subject
    * @return true if allowed to edit
    */
   public static boolean subjectCanEditExternalUser(final Subject subject) {
-    
-    MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
-    
-    Boolean result = subjectCanEditExternalUser.get(multiKey);
-    
-    if (result != null) {
-      return result;
+
+    boolean startedSession = false;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    if (grouperSession == null) {
+      grouperSession = GrouperSession.startRootSession();
+      startedSession = true;
     }
-    
-    //figure it out
-    boolean wheelOrRootCanEdit = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.wheelOrRootCanEdit", true);
-    final String groupAllowedForEdit = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.groupAllowedForEdit");
-    
-    if (wheelOrRootCanEdit) {
-      if (PrivilegeHelper.isWheelOrRoot(subject)) {
-        result = true;
-      }
-    }
-    
-    if (result == null || !result) {
-      if (!StringUtils.isBlank(groupAllowedForEdit)) {
+    try {
+      
+      return (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
         
-        //use root since the current user might not be able to read the group of allowed users
-        GrouperSession rootSession = GrouperSession.staticGrouperSession().internal_getRootSession();
-        result = (Boolean)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
           
-          public Object callback(GrouperSession theRootSession) throws GrouperSessionException {
-            
-            Group theGroupAllowedForEdit = GroupFinder.findByName(theRootSession, groupAllowedForEdit, true);
-            
-            return theGroupAllowedForEdit.hasMember(subject);
+          Boolean result = subjectCanEditExternalUser.get(multiKey);
+          
+          if (result != null) {
+            return result;
+          }
+          
+          //figure it out
+          boolean wheelOrRootCanEdit = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.wheelOrRootCanEdit", true);
+          final String groupAllowedForEdit = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.groupAllowedForEdit");
+          
+          if (wheelOrRootCanEdit) {
+            if (PrivilegeHelper.isWheelOrRoot(subject)) {
+              result = true;
+            }
+          }
+          
+          if (result == null || !result) {
+            if (!StringUtils.isBlank(groupAllowedForEdit)) {
+              
+              //use root since the current user might not be able to read the group of allowed users
+              Group theGroupAllowedForEdit = GroupFinder.findByName(theGrouperSession, groupAllowedForEdit, true);
+              
+              return theGroupAllowedForEdit.hasMember(subject);
+            }
             
           }
-        });
+          
+          //just cache the positives...
+          if (result != null && result) {
+            subjectCanEditExternalUser.put(multiKey, result);
+          }
+          return result != null ? result : false;
+        }
+      });
+    } finally {
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
       }
-      
     }
     
-    //just cache the positives...
-    if (result != null && result) {
-      subjectCanEditExternalUser.put(multiKey, result);
-    }
-    return result != null ? result : false;
   }
   
   /**
@@ -804,7 +816,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
       substitutionMap.put("externalSubject", this);
       
       //do silent since there are warnings on null...
-      String description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true);
+      String description = GrouperUtil.substituteExpressionLanguage(el, substitutionMap, false, true, true);
       this.setDescription(description);
     }
     
@@ -1326,7 +1338,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
     Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
 
     if (!subjectCanEditExternalUser(currentSubject)) {
-      throw new RuntimeException("Subject cannot edit external users (per grouper.properties): " + GrouperUtil.subjectToString(currentSubject));
+      throw new InsufficientPrivilegeException("Subject cannot edit external users (per grouper.properties): " + GrouperUtil.subjectToString(currentSubject));
     }
   }
   

@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefName
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
@@ -506,6 +507,40 @@ public enum GrouperWsRestPut {
 
     }
 
+  }, 
+
+  /** external subjects put requests */
+  externalSubjects{
+
+    /**
+     * handle the incoming request based on PUT HTTP method and external subject resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/externalSubjects/a@b.c
+     * the urlStrings would be size two: {"externalSubjects", "a@b.c"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+  
+      //url should be: /v1_3_000/externalSubjects/aStem:aGroup
+      //who cares
+      String identifier = GrouperServiceUtils.popUrlString(urlStrings);
+  
+      if (requestObject instanceof WsRestExternalSubjectSaveRequest) {
+        if (!StringUtils.isBlank(identifier)) {
+          throw new WsInvalidQueryException("Dont pass identifier when saving batch externalSubjects: '" + identifier + "'");
+        }
+        return GrouperServiceRest.externalSubjectSave(clientVersion, (WsRestExternalSubjectSaveRequest)requestObject);
+      }
+  
+      throw new RuntimeException("Invalid REST PUT ExternalSubject request: " + clientVersion + " , " + identifier
+          + ", " + GrouperUtil.toStringForLog(urlStrings));
+    }
+  
   };
     
     

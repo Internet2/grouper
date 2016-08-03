@@ -37,6 +37,7 @@ public class AllExternalSubjectTests {
     suite.addTestSuite(ExternalSubjectTest.class);
     suite.addTestSuite(ExternalSubjectAttributeTest.class);
     suite.addTestSuite(ExternalSubjectAttrFrameworkTest.class);
+    suite.addTestSuite(ExternalSubjectSaveTest.class);
     //$JUnit-END$
     return suite;
   }
