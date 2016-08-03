@@ -147,6 +147,18 @@ allprojects {
         required = (publishReleases && sonatypeUsername != null && sonatypePassword != null)
         sign configurations.archives
     }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
+        maven { url "http://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "http://maven.ala.org.au/repository" }
+        maven { url "https://maven.atlassian.com/repository/public" }
+        maven { url "https://shibboleth.net/nexus/content/groups/public" }
+        maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
+    }
     
 }
 
@@ -168,17 +180,6 @@ subprojects {
     conf2ScopeMappings.mappings.remove(configurations.findByName("testCompile"))
     conf2ScopeMappings.mappings.remove(configurations.findByName("testRuntime"))
 
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        jcenter()
-        maven { url "https://shibboleth.net/nexus/content/groups/public" }
-        maven { url "http://www.internet2.edu/grouper/downloads/maven2" }
-        maven { url "http://oss.sonatype.org/content/repositories/releases/" }
-        maven { url "http://build.shibboleth.net/nexus/content/repositories/releases" }
-        maven { url "http://maven.ala.org.au/repository" }
-        maven { url "https://maven.atlassian.com/repository/public" }
-    }
 
     configurations {
         tests

@@ -180,7 +180,7 @@ ext.libraries = [
                 "javax.servlet:jstl:$jstl_version"
         ],
         xerces      : [
-                "xerces:xml-apis:$xml_apis_version"
+                "xerces:xercesImpl:$xml_apis_version"
         ],
         shibcommon  : [
                 dependencies.create("edu.internet2.middleware:shibboleth-common:$shibboleth_common_version") {
