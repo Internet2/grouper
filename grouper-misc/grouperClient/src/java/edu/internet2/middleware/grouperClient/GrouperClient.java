@@ -41,8 +41,11 @@ import edu.internet2.middleware.grouperClient.api.GcAttributeDefNameDelete;
 import edu.internet2.middleware.grouperClient.api.GcAttributeDefNameSave;
 import edu.internet2.middleware.grouperClient.api.GcAttributeDefSave;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
+import edu.internet2.middleware.grouperClient.api.GcExternalSubjectDelete;
+import edu.internet2.middleware.grouperClient.api.GcExternalSubjectSave;
 import edu.internet2.middleware.grouperClient.api.GcFindAttributeDefNames;
 import edu.internet2.middleware.grouperClient.api.GcFindAttributeDefs;
+import edu.internet2.middleware.grouperClient.api.GcFindExternalSubjects;
 import edu.internet2.middleware.grouperClient.api.GcFindGroups;
 import edu.internet2.middleware.grouperClient.api.GcFindStems;
 import edu.internet2.middleware.grouperClient.api.GcGetAttributeAssignActions;
@@ -109,8 +112,17 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefSaveResults
 import edu.internet2.middleware.grouperClient.ws.beans.WsAttributeDefToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubject;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectAttribute;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectDeleteResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectDeleteResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectSaveResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectSaveResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsExternalSubjectToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindAttributeDefsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsFindExternalSubjectsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsFindStemsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetAttributeAssignActionsResults;
@@ -402,6 +414,9 @@ public class GrouperClient {
       } else if (GrouperClientUtils.equals(operation, "groupSaveWs")) {
         result = groupSave(argMap, argMapNotUsed);
 
+      } else if (GrouperClientUtils.equals(operation, "externalSubjectSaveWs")) {
+        result = externalSubjectSave(argMap, argMapNotUsed);
+
       } else if (GrouperClientUtils.equals(operation, "attributeDefNameSaveWs")) {
         result = attributeDefNameSave(argMap, argMapNotUsed);
 
@@ -416,6 +431,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "groupDeleteWs")) {
         result = groupDelete(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "externalSubjectDeleteWs")) {
+        result = externalSubjectDelete(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "attributeDefNameDeleteWs")) {
         result = attributeDefNameDelete(argMap, argMapNotUsed);
@@ -437,6 +455,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "findGroupsWs")) {
         result = findGroups(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "findExternalSubjectsWs")) {
+        result = findExternalSubjects(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "findAttributeDefNamesWs")) {
         result = findAttributeDefNames(argMap, argMapNotUsed);
@@ -6625,6 +6646,320 @@ public class GrouperClient {
   
     String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
     result.append(output);
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String findExternalSubjects(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+  
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcFindExternalSubjects gcFindExternalSubjects = new GcFindExternalSubjects();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcFindExternalSubjects.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+      gcFindExternalSubjects.addParam(param);
+    }
+
+    String identifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "identifier", false);
+
+    List<String> identifiers = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "identifiers", false);
+    
+    if (identifiers == null) {
+      identifiers = new ArrayList<String>();
+    }
+    if (!GrouperClientUtils.isBlank(identifier)) {
+      identifiers.add(identifier);
+    }
+    
+    if (GrouperClientUtils.length(identifiers) > 0) {
+      for (String theIdentifier: identifiers) {
+        gcFindExternalSubjects.addIdentifier(theIdentifier);
+      }
+    }
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcFindExternalSubjects.assignActAsSubject(actAsSubject);
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsFindExternalSubjectsResults wsFindExternalSubjectsResults = gcFindExternalSubjects.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsFindExternalSubjectsResults", wsFindExternalSubjectsResults);
+    substituteMap.put("resultMetadata", wsFindExternalSubjectsResults.getResultMetadata());
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.findExternalSubjects.output");
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsFindExternalSubjectsResults, " +
+      "resultMetadata, grouperClientUtils, index, wsExternalSubject");
+  
+    for (WsExternalSubject wsExternalSubject : GrouperClientUtils.nonNull(wsFindExternalSubjectsResults.getExternalSubjectResults(), WsExternalSubject.class)) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsExternalSubject", wsExternalSubject);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String externalSubjectDelete(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    List<String> identifiers = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "identifiers", true);
+    String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+  
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcExternalSubjectDelete gcExternalSubjectDelete = new GcExternalSubjectDelete();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcExternalSubjectDelete.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+      gcExternalSubjectDelete.addParam(param);
+    }
+  
+    String identifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "identifier", false);
+
+    if (identifiers == null) {
+      identifiers = new ArrayList<String>();
+    }
+    if (!GrouperClientUtils.isBlank(identifier)) {
+      identifiers.add(identifier);
+    }
+
+    for (String theIdentifier : identifiers) {
+      WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup(theIdentifier);
+      gcExternalSubjectDelete.addExternalSubjectLookup(wsExternalSubjectLookup);
+    }
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcExternalSubjectDelete.assignActAsSubject(actAsSubject);
+    
+    gcExternalSubjectDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = gcExternalSubjectDelete.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsExternalSubjectDeleteResults", wsExternalSubjectDeleteResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.externalSubjectDelete.output");
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsExternalSubjectDeleteResults, " +
+      "grouperClientUtils, index, wsExternalSubjectDeleteResult, resultMetadata, wsExternalSubject");
+  
+    for (WsExternalSubjectDeleteResult wsExternalSubjectDeleteResult : wsExternalSubjectDeleteResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsExternalSubjectDeleteResult", wsExternalSubjectDeleteResult);
+      substituteMap.put("resultMetadata", wsExternalSubjectDeleteResult.getResultMetadata());
+      substituteMap.put("wsExternalSubject", wsExternalSubjectDeleteResult.getWsExternalSubject());
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String externalSubjectSave(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+     
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcExternalSubjectSave gcExternalSubjectSave = new GcExternalSubjectSave();        
+  
+    for (WsParam param : params) {
+      gcExternalSubjectSave.addParam(param);
+    }
+    
+    WsExternalSubjectToSave wsExternalSubjectToSave = new WsExternalSubjectToSave();
+    gcExternalSubjectSave.addExternalSubjectToSave(wsExternalSubjectToSave);
+    WsExternalSubject wsExternalSubject = new WsExternalSubject();
+    wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
+  
+    String externalSubjectLookupIdentifier = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "externalSubjectLookupIdentifier", false);
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcExternalSubjectSave.assignClientVersion(clientVersion);
+    
+    String identifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "identifier", true);
+    wsExternalSubject.setIdentifier(identifier);
+    
+    WsExternalSubjectLookup wsExternalSubjectLookup = new WsExternalSubjectLookup();
+    wsExternalSubjectToSave.setWsExternalSubjectLookup(wsExternalSubjectLookup);
+    //do the lookup if an edit
+    if (!GrouperClientUtils.isBlank(externalSubjectLookupIdentifier)) {
+        wsExternalSubjectLookup.setIdentifier(externalSubjectLookupIdentifier);
+    } else {
+      //just edit the name passed in
+      wsExternalSubjectLookup.setIdentifier(identifier);
+    }
+    
+    String email = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "email", false);
+    if (email != null) {
+      wsExternalSubject.setEmail(email);
+    }
+    
+    Boolean enabled = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "enabled");
+    if (enabled != null) {
+      wsExternalSubject.setEnabled(enabled ? "T" : "F");
+    }
+    
+    String institution = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "institution", false);
+    if (institution != null) {
+      wsExternalSubject.setInstitution(institution);
+    }
+    
+    String name = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "name", false);
+    if (name != null) {
+      wsExternalSubject.setName(name);
+    }
+
+    String vettedEmailAddress = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "vettedEmailAddresses", false);
+    if (vettedEmailAddress != null) {
+      wsExternalSubject.setVettedEmailAddresses(vettedEmailAddress);
+    }
+
+    int i=0;
+    
+    List<WsExternalSubjectAttribute> wsExternalSubjectAttributes = new ArrayList<WsExternalSubjectAttribute>();
+    
+    while (true) {
+
+      String attributeSystemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeName" + i, false);
+      
+      if (GrouperClientUtils.isBlank(attributeSystemName)) {
+        break;
+      }
+
+      String attributeValue = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "attributeValue" + i, true);
+
+      WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
+      wsExternalSubjectAttribute.setAttributeSystemName(attributeSystemName);
+      wsExternalSubjectAttribute.setAttributeValue(attributeValue);
+      
+      wsExternalSubjectAttributes.add(wsExternalSubjectAttribute);
+      i++;
+    }
+
+    if (wsExternalSubjectAttributes.size() > 0) {   
+      wsExternalSubject.setWsExternalSubjectAttributes(GrouperClientUtils.toArray(wsExternalSubjectAttributes, 
+          WsExternalSubjectAttribute.class));
+    }
+
+    //save mode
+    String saveMode = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "saveMode", false);
+    if (saveMode != null) {
+      wsExternalSubjectToSave.setSaveMode(saveMode);
+    }
+        
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcExternalSubjectSave.assignActAsSubject(actAsSubject);
+    
+    gcExternalSubjectSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsExternalSubjectSaveResults wsExternalSubjectSaveResults = gcExternalSubjectSave.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsExternalSubjectSaveResults", wsExternalSubjectSaveResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("webService.externalSubjectSave.output");
+    }
+    log.debug("Output template: " + GrouperClientUtils.trim(outputTemplate) + ", available variables: wsExternalSubjectSaveResults, " +
+      "grouperClientUtils, index, wsExternalSubjectSaveResult, resultMetadata");
+  
+    //there is one result...  but loop anyways
+    for (WsExternalSubjectSaveResult wsExternalSubjectSaveResult : wsExternalSubjectSaveResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsExternalSubjectSaveResult", wsExternalSubjectSaveResult);
+      substituteMap.put("resultMetadata", wsExternalSubjectSaveResult.getResultMetadata());
+      wsExternalSubjectSaveResult.getWsExternalSubject();
+      substituteMap.put("wsExternalSubject", wsExternalSubject);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
     return result.toString();
   }
 }

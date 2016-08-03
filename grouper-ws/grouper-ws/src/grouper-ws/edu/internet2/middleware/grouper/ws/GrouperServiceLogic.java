@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,6 +70,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -112,133 +114,43 @@ import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult;
+import edu.internet2.middleware.grouper.ws.coresoap.*;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResult.WsAddMemberResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberResults.WsAddMemberResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchEntry;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeBatchResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeDefNameInheritanceResults.WsAssignAttributeDefNameInheritanceResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesBatchResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignAttributesResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResult.WsAssignGrouperPrivilegesResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAssignGrouperPrivilegesResults.WsAssignGrouperPrivilegesResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsLiteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAssignPermissionsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssign;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignActionTuple;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeAssignValue;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDef;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefActionOperationPerformed;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefAssignActionResults.WsAttributeDefAssignActionsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResult.WsAttributeDefDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefName;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResult.WsAttributeDefNameDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameLookup.AttributeDefNameFindResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResult.WsAttributeDefNameSaveResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResult.WsAttributeDefSaveResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResult.WsExternalSubjectDeleteResultCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectLookup.ExternalSubjectFindResult;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectSaveResult.WsExternalSubjectSaveResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults.WsFindAttributeDefsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindExternalSubjectsResults.WsFindExternalSubjectsResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults.WsFindGroupsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults.WsFindStemsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults.WsGetAttributeAssignActionsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignmentsResults.WsGetAttributeAssignmentsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetMembershipsResults.WsGetMembershipsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetPermissionAssignmentsResults.WsGetPermissionAssignmentsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetSubjectsResults.WsGetSubjectsResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResult.WsGroupDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup.GroupFindResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResult.WsGroupSaveResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGroupToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsGrouperPrivilegeResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipAnyLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMembershipLookup;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessage;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageAcknowledgeResults.WsMessageAcknowledgeResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMessageResults.WsMessageResultsCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
-import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
-import edu.internet2.middleware.grouper.ws.coresoap.WsQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStem;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup.StemFindResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResult.WsStemSaveResultCode;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.coresoap.WsStemToSave;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubject;
-import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.exceptions.WebServiceDoneException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -2479,6 +2391,128 @@ public class GrouperServiceLogic {
   
     //this should be the first and only return, or else it is exiting too early
     return wsGroupSaveResults;
+  }
+
+  /**
+   * save an external subject (insert or update).
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsExternalSubjectToSaves
+   *            external subjects to save
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @since 2.3.0.patch
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsExternalSubjectSaveResults externalSubjectSave(final GrouperVersion clientVersion,
+      final WsExternalSubjectToSave[] wsExternalSubjectToSaves, final WsSubjectLookup actAsSubjectLookup,
+      GrouperTransactionType txType, final WsParam[] params) {
+
+    final WsExternalSubjectSaveResults wsExternalSubjectSaveResults = new WsExternalSubjectSaveResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsExternalSubjectSaveResults.getResponseMetadata().warnings());
+
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      
+      theSummary = "clientVersion: " + clientVersion + ", wsExternalSubjectToSaves: "
+          + GrouperUtil.toStringForLog(wsExternalSubjectToSaves, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 200);
+  
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final GrouperSession SESSION = session;
+      
+      final GrouperTransactionType TX_TYPE = txType;
+      
+      final String THE_SUMMARY = theSummary;
+  
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+  
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+  
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              final Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+  
+              int wsExternalSubjectsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+                  wsExternalSubjectToSaves, GrouperWsConfig.WS_GROUP_SAVE_MAX, 1000000, "groupsToSave");
+  
+              wsExternalSubjectSaveResults.setResults(new WsExternalSubjectSaveResult[wsExternalSubjectsLength]);
+  
+              int resultIndex = 0;
+  
+              //loop through all externalSubjects and do the save
+              for (WsExternalSubjectToSave wsExternalSubjectToSave : wsExternalSubjectToSaves) {
+                final WsExternalSubjectSaveResult wsExternalSubjectSaveResult = new WsExternalSubjectSaveResult(wsExternalSubjectToSave.getWsExternalSubjectLookup());
+                wsExternalSubjectSaveResults.getResults()[resultIndex++] = wsExternalSubjectSaveResult;
+                final WsExternalSubjectToSave WS_EXTERNAL_SUBJECT_TO_SAVE = wsExternalSubjectToSave;
+                try {
+                  //this should be autonomous, so that within one group, it is transactional
+                  HibernateSession.callbackHibernateSession(
+                      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+
+                      //make sure everything is in order
+                      WS_EXTERNAL_SUBJECT_TO_SAVE.validate();
+                      
+                      ExternalSubject externalSubject = WS_EXTERNAL_SUBJECT_TO_SAVE.save(SESSION);
+                      
+                      SaveResultType saveResultType = WS_EXTERNAL_SUBJECT_TO_SAVE.saveResultType();
+                      wsExternalSubjectSaveResult.setWsExternalSubject(new WsExternalSubject(externalSubject, 
+                          WS_EXTERNAL_SUBJECT_TO_SAVE.getWsExternalSubjectLookup()));
+                      
+                      if (saveResultType == SaveResultType.INSERT) {
+                        wsExternalSubjectSaveResult.assignResultCode(WsExternalSubjectSaveResultCode.SUCCESS_INSERTED, clientVersion);
+                      } else if (saveResultType == SaveResultType.UPDATE) {
+                        wsExternalSubjectSaveResult.assignResultCode(WsExternalSubjectSaveResultCode.SUCCESS_UPDATED, clientVersion);
+                      } else if (saveResultType == SaveResultType.NO_CHANGE) {
+                        wsExternalSubjectSaveResult.assignResultCode(WsExternalSubjectSaveResultCode.SUCCESS_NO_CHANGES_NEEDED, clientVersion);
+                      } else {
+                        throw new RuntimeException("Invalid saveType: " + saveResultType);
+                      }
+
+                      return null;
+                    }
+
+                  });
+  
+                } catch (Exception e) {
+                  wsExternalSubjectSaveResult.assignResultCodeException(e, wsExternalSubjectToSave, clientVersion);
+                }
+              }
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsExternalSubjectSaveResults.tallyResults(TX_TYPE, THE_SUMMARY, clientVersion)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+  
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsExternalSubjectSaveResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+  
+    //this should be the first and only return, or else it is exiting too early
+    return wsExternalSubjectSaveResults;
   }
 
   /**
@@ -9375,6 +9409,211 @@ public class GrouperServiceLogic {
 
     return wsMessageAcknowledgedResults;
 
+  }
+
+  /**
+   * delete an external subject or many (if doesnt exist, ignore)
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsExternalSubjectLookups
+   *            groups to delete
+   * @param actAsSubjectLookup
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @param params optional: reserved for future use
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsExternalSubjectDeleteResults externalSubjectDelete(final GrouperVersion clientVersion,
+      final WsExternalSubjectLookup[] wsExternalSubjectLookups, final WsSubjectLookup actAsSubjectLookup,
+      GrouperTransactionType txType, final WsParam[] params) {
+  
+    final WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = new WsExternalSubjectDeleteResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsExternalSubjectDeleteResults.getResponseMetadata().warnings());
+  
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+      theSummary = "clientVersion: " + clientVersion + ", wsExternalSubjectLookups: "
+          + GrouperUtil.toStringForLog(wsExternalSubjectLookups, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+  
+      final String THE_SUMMARY = theSummary;
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      final GrouperSession SESSION = session;
+  
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+  
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+  
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+  
+              int externalSubjectsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsExternalSubjectLookups,
+                  GrouperWsConfig.WS_GROUP_DELETE_MAX, 1000000, "groupLookups");
+  
+              wsExternalSubjectDeleteResults.setResults(new WsExternalSubjectDeleteResult[externalSubjectsSize]);
+  
+              int resultIndex = 0;
+  
+              //loop through all external subjects and do the delete
+              for (WsExternalSubjectLookup wsExternalSubjectLookup : wsExternalSubjectLookups) {
+  
+                WsExternalSubjectDeleteResult wsExternalSubjectDeleteResult = new WsExternalSubjectDeleteResult(
+                    wsExternalSubjectLookup);
+                wsExternalSubjectDeleteResults.getResults()[resultIndex++] = wsExternalSubjectDeleteResult;
+  
+                wsExternalSubjectLookup.retrieveExternalSubjectIfNeeded(SESSION);
+                ExternalSubject externalSubject = wsExternalSubjectLookup.retrieveExternalSubject();
+  
+                if (externalSubject == null) {
+  
+                  wsExternalSubjectDeleteResult
+                      .assignResultCode(ExternalSubjectFindResult
+                          .convertToExternalSubjectDeleteCodeStatic(wsExternalSubjectLookup
+                              .retrieveExternalSubjectFindResult()));
+                  wsExternalSubjectDeleteResult.getResultMetadata().setResultMessage(
+                      "Cant find external subject: '" + wsExternalSubjectLookup + "'.  ");
+                  //should we short circuit if transactional?
+                  continue;
+                }
+  
+                //make each group failsafe
+                try {
+                  wsExternalSubjectDeleteResult.assignExternalSubject(externalSubject, wsExternalSubjectLookup);
+  
+                  //if there was already a problem, then dont continue
+                  if (!GrouperUtil.booleanValue(wsExternalSubjectDeleteResult.getResultMetadata()
+                      .getSuccess(), true)) {
+                    continue;
+                  }
+  
+                  externalSubject.delete();
+  
+                  wsExternalSubjectDeleteResult.assignResultCode(WsExternalSubjectDeleteResultCode.SUCCESS);
+                  wsExternalSubjectDeleteResult.getResultMetadata().setResultMessage(
+                      "ExternalSubject '" + externalSubject.getIdentifier() 
+                        + "', '" + externalSubject.getName() + "' was deleted.");
+  
+                } catch (InsufficientPrivilegeException ipe) {
+                  wsExternalSubjectDeleteResult
+                      .assignResultCode(WsExternalSubjectDeleteResultCode.INSUFFICIENT_PRIVILEGES);
+                } catch (Exception e) {
+                  wsExternalSubjectDeleteResult.assignResultCodeException(e, wsExternalSubjectLookup);
+                }
+              }
+  
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsExternalSubjectDeleteResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+  
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsExternalSubjectDeleteResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsExternalSubjectDeleteResults;
+
+  }
+
+  /**
+   * find a external subjects
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param actAsSubjectLookup
+   * @param params optional: reserved for future use
+   * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names
+   * @return the external subjects, or no external subjects if none found
+   */
+  @SuppressWarnings("unchecked")
+  public static WsFindExternalSubjectsResults findExternalSubjects(final GrouperVersion clientVersion,
+      WsExternalSubjectLookup[] wsExternalSubjectLookups,
+      WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
+  
+    final WsFindExternalSubjectsResults wsFindExternalSubjectsResults = new WsFindExternalSubjectsResults();
+  
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+      GrouperWsVersionUtils.assignCurrentClientVersion(clientVersion, wsFindExternalSubjectsResults.getResponseMetadata().warnings());
+  
+      theSummary = "clientVersion: " + clientVersion 
+          + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100)
+          + "\n, wsExternalSubjectLookups: " + GrouperUtil.toStringForLog(wsExternalSubjectLookups, 100);
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      //note, this is the group that can edit them... maybe a different group to view?  or open it up?
+      if (!ExternalSubject.subjectCanEditExternalUser(session.getSubject())) {
+        throw new InsufficientPrivilegeException("Subject cannot view external users (per grouper.properties): " + GrouperUtil.subjectToString(session.getSubject()));
+      }
+      
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+  
+      Set<ExternalSubject> externalSubjects = new TreeSet<ExternalSubject>(new Comparator<ExternalSubject>() {
+
+        public int compare(ExternalSubject o1, ExternalSubject o2) {
+          if (o1 == o2) {
+            return 0;
+          }
+          if (o1 == null) {
+            return -1;
+          }
+          if (o2 == null) {
+            return 1;
+          }
+          return StringUtils.defaultString(o1.getIdentifier()).compareTo(StringUtils.defaultString(o2.getIdentifier()));
+        }
+      });
+      
+      //we could do this in fewer queries if we like...
+      for (WsExternalSubjectLookup wsExternalSubjectLookup : GrouperUtil.nonNull(wsExternalSubjectLookups, WsExternalSubjectLookup.class)) {
+        wsExternalSubjectLookup.retrieveExternalSubjectIfNeeded(session);
+        ExternalSubject externalSubject = wsExternalSubjectLookup.retrieveExternalSubject();
+        if (externalSubject != null) {
+          externalSubjects.add(externalSubject);
+        }
+      }
+      
+      wsFindExternalSubjectsResults.assignExternalSubjectResult(externalSubjects);
+  
+      wsFindExternalSubjectsResults.assignResultCode(WsFindExternalSubjectsResultsCode.SUCCESS);
+      
+      wsFindExternalSubjectsResults.getResultMetadata().appendResultMessage(
+          "Success for: " + theSummary);
+  
+    } catch (Exception e) {
+      wsFindExternalSubjectsResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperWsVersionUtils.removeCurrentClientVersion(true);
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsFindExternalSubjectsResults;
   }
   
         

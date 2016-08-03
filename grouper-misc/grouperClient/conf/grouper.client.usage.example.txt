@@ -215,6 +215,21 @@ findAttributeDefNamesWs web service usage
   e.g.: java -jar grouperClient.jar --operation=findAttributeDefNamesWs --scope=aStem:
   output: Index 0: name: aStem:anAttributeDefName, displayName: A stem:An AttributeDefName
 
+findExternalSubjectsWs web service usage
+  java -jar grouperClient.jar --operation=findExternalSubjectsWs [--identifier=a@b.c] [--identifiers=a@b.c,b@c.d] [--sortString=T|F] [--ascending=T|F] [--pageNumber=2] [--pageSize=50] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup
+  output: Index 0: identifier: a@b.c, name: John Smith
+
+externalSubjectSaveWs web service usage:
+  java -jar grouperClient.jar --operation=externalSubjectSaveWs --identifier=a@b.c --name="John Smith" [--institution="Some School"] [--enabled=T] [--vettedEmailAddresses=a@b.c] [--email=a@b.c] [--txType=NONE|READ_WRITE_NEW] [--saveMode=INSERT_OR_UPDATE|INSERT|UPDATE] [--attributeName0=someName] [--attributeValue0=someValue] [--attributeNameX=xthName] [--attributeValueX=xthValue] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=externalSubjectSaveWs --identifier=a@b.c --name="John Smith"
+  output: Success: T: code: SUCCESS_INSERTED: a@b.c: John Smith
+
+externalSubjectDeleteWs web service usage:
+  java -jar grouperClient.jar --operation=externalSubjectDeleteWs [--identifier=a@b.c] [--identifiers=a@b.c,b@c.d] [--txType=NONE|READ_WRITE_NEW] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=externalSubjectDeleteWs --identifier=a@b.c
+  output line: Index 0: success: T: code: SUCCESS: a@b.c: John Smith
+
 
 ###############################################
 Common options:

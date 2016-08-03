@@ -65,7 +65,7 @@ public class WsGroupDeleteResults implements WsResponseBean, ResultMetadataHolde
 
     /** get the name label for a certain version of client 
      * @param clientVersion 
-     * @return */
+     * @return name for version */
     public String nameForVersion(GrouperVersion clientVersion) {
       return this.name();
     }

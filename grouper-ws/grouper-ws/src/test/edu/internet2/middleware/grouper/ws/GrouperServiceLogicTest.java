@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
@@ -60,11 +62,13 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueOperation;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueResult;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueResult;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAutoSourceAdapter;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectSave;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -121,10 +125,17 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResult.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberResults.WsDeleteMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubject;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectAttribute;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectLookup;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectSaveResults;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectToSave;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefNamesResults.WsFindAttributeDefNamesResultsCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindAttributeDefsResults.WsFindAttributeDefsResultsCode;
+import edu.internet2.middleware.grouper.ws.coresoap.WsFindExternalSubjectsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGetAttributeAssignActionsResults;
@@ -181,7 +192,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
-import junit.textui.TestRunner;
 
 
 /**
@@ -208,8 +218,13 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testHasMember"));
+    TestRunner.run(new GrouperServiceLogicTest("testExternalSubjects"));
   }
+
+  /**
+   * 
+   */
+  private static boolean hasJabber = false;
 
   /**
    * 
@@ -234,6 +249,8 @@ public class GrouperServiceLogicTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
     GrouperWsVersionUtils.assignCurrentClientVersion(GROUPER_VERSION, new StringBuilder());
+
+    hasJabber = StringUtils.equals(GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.attributes.jabber.systemName"), "jabber");
   }
 
   /** grouper version */
@@ -9898,6 +9915,233 @@ public class GrouperServiceLogicTest extends GrouperTest {
     assertEquals(messageAcknowledgeResults.getResultMetadata().getResultMessage(),
         WsMessageResultsCode.INVALID_QUERY.name(),
         messageAcknowledgeResults.getResultMetadata().getResultCode());
+  }
+
+  /**
+   * test get external subjects
+   */
+  public void testExternalSubjects() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    ExternalSubjectSave externalSubjectSave1 = new ExternalSubjectSave(GrouperServiceUtils.testSession)
+        .assignName("name1")
+        .assignIdentifier("abc1@whatever.com");
+    
+    if (hasJabber) {
+      externalSubjectSave1.addAttribute("jabber", "a1@b.c");
+    }
+    ExternalSubject externalSubject1 = externalSubjectSave1.save();
+    
+    ExternalSubjectSave externalSubjectSave2 = new ExternalSubjectSave(GrouperServiceUtils.testSession)
+        .assignName("name2")
+        .assignIdentifier("abc2@whatever.com");
+    
+    if (hasJabber) {
+      externalSubjectSave2.addAttribute("jabber", "a2@b.c");
+    }
+    ExternalSubject externalSubject2 = externalSubjectSave2.save();
+    
+    ExternalSubjectSave externalSubjectSave3 = new ExternalSubjectSave(GrouperServiceUtils.testSession)
+        .assignName("name3")
+        .assignIdentifier("abc3@whatever.com");
+    
+    if (hasJabber) {
+      externalSubjectSave3.addAttribute("jabber", "a3@b.c");
+    }
+    ExternalSubject externalSubject3 = externalSubjectSave3.save();
+
+    ChangeLogTempToEntity.convertRecords();
+
+    WsExternalSubjectLookup wsExternalSubjectLookup1 = new WsExternalSubjectLookup("abc1@whatever.com");
+    WsExternalSubjectLookup wsExternalSubjectLookup2 = new WsExternalSubjectLookup("abc2@whatever.com");
+    WsExternalSubjectLookup wsExternalSubjectLookup3 = new WsExternalSubjectLookup("abc3@whatever.com");
+    
+    //###############################################
+    //valid query
+    
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    WsFindExternalSubjectsResults wsFindExternalSubjectsResults = GrouperServiceLogic.findExternalSubjects(
+        GROUPER_VERSION, new WsExternalSubjectLookup[]{wsExternalSubjectLookup1, wsExternalSubjectLookup2},
+        null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals(wsFindExternalSubjectsResults.getResultMetadata().getResultMessage(),
+        WsFindExternalSubjectsResults.WsFindExternalSubjectsResultsCode.SUCCESS.name(), 
+        wsFindExternalSubjectsResults.getResultMetadata().getResultCode());
+  
+    assertEquals(2, GrouperUtil.length(wsFindExternalSubjectsResults.getExternalSubjectResults()));
+    
+    boolean found1 = false;
+    boolean found2 = false;
+    for (int i=0;i<2;i++) {
+
+      WsExternalSubject wsExternalSubject = wsFindExternalSubjectsResults.getExternalSubjectResults()[i];
+      ExternalSubject externalSubjectToCompare = null;
+      if (StringUtils.equals(externalSubject1.getIdentifier(), wsExternalSubject.getIdentifier())) {
+        found1 = true;
+        externalSubjectToCompare = externalSubject1;
+      } else if (StringUtils.equals(externalSubject2.getIdentifier(), wsExternalSubject.getIdentifier())) {
+        found2 = true;
+        externalSubjectToCompare = externalSubject2;
+      } else {
+        throw new RuntimeException("Huh? " + wsExternalSubject.getIdentifier());
+      }
+      
+      assertEquals(externalSubjectToCompare.getName(), wsExternalSubject.getName());
+      assertEquals(externalSubjectToCompare.getDescription(), wsExternalSubject.getDescription());
+      if (hasJabber) {
+        assertEquals("jabber", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeSystemName());
+        assertEquals(externalSubjectToCompare.retrieveAttribute("jabber", true).getAttributeValue(), wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeValue());
+        externalSubjectSave1.addAttribute("jabber", "a1@b.c");
+      }
+    }
+
+    assertTrue(found1);
+    assertTrue(found2);
+
+    //#######################################################
+    // create a new one
+
+    WsExternalSubjectToSave wsExternalSubjectToSave = new WsExternalSubjectToSave();
+    
+    WsExternalSubject wsExternalSubject = new WsExternalSubject();
+    wsExternalSubject.setIdentifier("abc4@whatever.com");
+    wsExternalSubject.setName("name4");
+    if (hasJabber) {
+      WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
+      wsExternalSubjectAttribute.setAttributeSystemName("jabber");
+      wsExternalSubjectAttribute.setAttributeValue("a4@b.c");
+      wsExternalSubject.setWsExternalSubjectAttributes(new WsExternalSubjectAttribute[]{wsExternalSubjectAttribute});
+    }
+    
+    wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
+
+    WsExternalSubjectSaveResults wsExternalSubjectSaveResults = GrouperServiceLogic.externalSubjectSave(
+        GROUPER_VERSION, new WsExternalSubjectToSave[]{wsExternalSubjectToSave},
+        null, null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals(wsExternalSubjectSaveResults.getResultMetadata().getResultMessage(),
+        WsExternalSubjectSaveResults.WsExternalSubjectSaveResultsCode.SUCCESS.name(), 
+        wsExternalSubjectSaveResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsExternalSubjectSaveResults.getResults()));
+    wsExternalSubject = wsExternalSubjectSaveResults.getResults()[0].getWsExternalSubject();
+    
+    assertEquals("name4", wsExternalSubject.getName());
+    assertEquals("abc4@whatever.com", wsExternalSubject.getIdentifier());
+    if (hasJabber) {
+      assertEquals(1, wsExternalSubject.getWsExternalSubjectAttributes().length);
+      assertEquals("jabber", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeSystemName());
+      assertEquals("a4@b.c", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeValue());
+    }
+
+    //##################################################
+    // edit
+
+    wsExternalSubjectToSave = new WsExternalSubjectToSave();
+    
+    wsExternalSubject = new WsExternalSubject();
+    wsExternalSubject.setIdentifier("abc4@whatever.com");
+    wsExternalSubject.setName("name4a");
+    if (hasJabber) {
+      WsExternalSubjectAttribute wsExternalSubjectAttribute = new WsExternalSubjectAttribute();
+      wsExternalSubjectAttribute.setAttributeSystemName("jabber");
+      wsExternalSubjectAttribute.setAttributeValue("a4a@b.c");
+      wsExternalSubject.setWsExternalSubjectAttributes(new WsExternalSubjectAttribute[]{wsExternalSubjectAttribute});
+    }
+    
+    wsExternalSubjectToSave.setWsExternalSubject(wsExternalSubject);
+
+    wsExternalSubjectSaveResults = GrouperServiceLogic.externalSubjectSave(
+        GROUPER_VERSION, new WsExternalSubjectToSave[]{wsExternalSubjectToSave},
+        null, null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals(wsExternalSubjectSaveResults.getResultMetadata().getResultMessage(),
+        WsExternalSubjectSaveResults.WsExternalSubjectSaveResultsCode.SUCCESS.name(), 
+        wsExternalSubjectSaveResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsExternalSubjectSaveResults.getResults()));
+    wsExternalSubject = wsExternalSubjectSaveResults.getResults()[0].getWsExternalSubject();
+    
+    assertEquals("name4a", wsExternalSubject.getName());
+    assertEquals("abc4@whatever.com", wsExternalSubject.getIdentifier());
+    if (hasJabber) {
+      assertEquals(1, wsExternalSubject.getWsExternalSubjectAttributes().length);
+      assertEquals("jabber", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeSystemName());
+      assertEquals("a4a@b.c", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeValue());
+    }
+
+    //##################################################
+    // find again
+    
+    WsExternalSubjectLookup wsExternalSubjectLookup4 = new WsExternalSubjectLookup();
+    wsExternalSubjectLookup4.setIdentifier("abc4@whatever.com");
+    
+    wsFindExternalSubjectsResults = GrouperServiceLogic.findExternalSubjects(
+        GROUPER_VERSION, new WsExternalSubjectLookup[]{wsExternalSubjectLookup4},
+        null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals(wsFindExternalSubjectsResults.getResultMetadata().getResultMessage(),
+        WsFindExternalSubjectsResults.WsFindExternalSubjectsResultsCode.SUCCESS.name(), 
+        wsFindExternalSubjectsResults.getResultMetadata().getResultCode());
+  
+    assertEquals(1, GrouperUtil.length(wsFindExternalSubjectsResults.getExternalSubjectResults()));
+    wsExternalSubject = wsFindExternalSubjectsResults.getExternalSubjectResults()[0];
+    
+    assertEquals("name4a", wsExternalSubject.getName());
+    assertEquals("abc4@whatever.com", wsExternalSubject.getIdentifier());
+    if (hasJabber) {
+      assertEquals(1, wsExternalSubject.getWsExternalSubjectAttributes().length);
+      assertEquals("jabber", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeSystemName());
+      assertEquals("a4a@b.c", wsExternalSubject.getWsExternalSubjectAttributes()[0].getAttributeValue());
+    }
+
+    //##################################################
+    // delete
+
+    wsExternalSubjectLookup4 = new WsExternalSubjectLookup();
+    wsExternalSubjectLookup4.setIdentifier("abc4@whatever.com");
+    
+    WsExternalSubjectDeleteResults wsExternalSubjectDeleteResults = GrouperServiceLogic.externalSubjectDelete(
+        GROUPER_VERSION, new WsExternalSubjectLookup[]{wsExternalSubjectLookup4},
+        null, null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals(wsExternalSubjectDeleteResults.getResultMetadata().getResultMessage(),
+        WsExternalSubjectDeleteResults.WsExternalSubjectDeleteResultsCode.SUCCESS.name(), 
+        wsExternalSubjectDeleteResults.getResultMetadata().getResultCode());
+
+    //##################################################
+    // try to find again
+
+    //clear cache
+    EhcacheController.ehcacheController().flushCache();
+    
+    wsExternalSubjectLookup4 = new WsExternalSubjectLookup();
+    wsExternalSubjectLookup4.setIdentifier("abc4@whatever.com");
+    
+    wsFindExternalSubjectsResults = GrouperServiceLogic.findExternalSubjects(
+        GROUPER_VERSION, new WsExternalSubjectLookup[]{wsExternalSubjectLookup4},
+        null, null);
+
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+
+    assertEquals(wsFindExternalSubjectsResults.getResultMetadata().getResultMessage(),
+        WsFindExternalSubjectsResults.WsFindExternalSubjectsResultsCode.SUCCESS.name(), 
+        wsFindExternalSubjectsResults.getResultMetadata().getResultCode());
+  
+    assertEquals(0, GrouperUtil.length(wsFindExternalSubjectsResults.getExternalSubjectResults()));
+
   }
     
     

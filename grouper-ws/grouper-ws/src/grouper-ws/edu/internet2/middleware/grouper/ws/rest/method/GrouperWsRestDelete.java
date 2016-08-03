@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefDele
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAttributeDefNameDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
@@ -227,7 +229,54 @@ public enum GrouperWsRestDelete {
             + ", " + GrouperUtil.className(requestObject));
       }
   
-    };
+    }, 
+    /** external subjects delete requests */
+    externalSubjects{
+  
+    /**
+     * handle the incoming request based on DELETE HTTP method and external subject resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/externalSubject/a:b
+     * the urlStrings would be size two: {"group", "a:b"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+  
+      //url should be: /v1_3_000/externalSubjects/a@b.c
+      String externalSubjectIdentifier = GrouperServiceUtils.popUrlString(urlStrings);
+
+      if (requestObject == null) {
+        requestObject = new WsRestExternalSubjectDeleteRequest();
+      }
+      
+      WsRestExternalSubjectDeleteRequest wsRestExternalSubjectDeleteRequest = (WsRestExternalSubjectDeleteRequest)requestObject;
+      
+      if (GrouperUtil.length(wsRestExternalSubjectDeleteRequest.getWsExternalSubjectLookups()) == 0 && !StringUtils.isBlank(externalSubjectIdentifier)) {
+        wsRestExternalSubjectDeleteRequest.setWsExternalSubjectLookups(new WsExternalSubjectLookup[]{
+            new WsExternalSubjectLookup(externalSubjectIdentifier)});
+        
+      }
+      
+      //handle the URL: /externalSubjects
+      if (requestObject instanceof WsRestExternalSubjectDeleteRequest) {
+        
+        //subjects
+        return GrouperServiceRest.externalSubjectDelete(clientVersion,
+            wsRestExternalSubjectDeleteRequest);
+      }
+      
+      throw new RuntimeException("Must pass in a request object of type "
+          + WsRestExternalSubjectDeleteRequest.class.getSimpleName() + ". It was "
+          + (requestObject == null ? null : requestObject.getClass()));
+      
+    }
+  
+  };
 
   /**
    * handle the incoming request based on HTTP method
