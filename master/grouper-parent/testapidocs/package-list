@@ -80,6 +80,6 @@ edu.internet2.middleware.grouperClient.failover
 edu.internet2.middleware.grouperClient.poc
 edu.internet2.middleware.grouperClient.util
 edu.internet2.middleware.grouperInstaller
-edu.internet2.middleware.grouperVoot.restLogic
+edu.internet2.middleware.grouperVoot
 edu.internet2.middleware.morphString
 edu.internet2.middleware.subject.provider
