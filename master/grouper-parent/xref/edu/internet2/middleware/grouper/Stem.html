@@ -3109,7 +3109,7 @@
 <a class="jxr_linenumber" name="L3101" href="#L3101">3101</a>       <strong class="jxr_keyword">long</strong> modifyTime, <strong class="jxr_keyword">boolean</strong> setAlternateName) <strong class="jxr_keyword">throws</strong> IllegalStateException {
 <a class="jxr_linenumber" name="L3102" href="#L3102">3102</a>     
 <a class="jxr_linenumber" name="L3103" href="#L3103">3103</a>     Set       children  = <strong class="jxr_keyword">new</strong> LinkedHashSet();
-<a class="jxr_linenumber" name="L3104" href="#L3104">3104</a>     Iterator&lt;Stem&gt; it = GrouperDAOFactory.getFactory().getStem().findAllChildStems(<strong class="jxr_keyword">this</strong>, Scope.ONE).iterator();
+<a class="jxr_linenumber" name="L3104" href="#L3104">3104</a>     Iterator&lt;Stem&gt; it = GrouperDAOFactory.getFactory().getStem().findAllChildStems(<strong class="jxr_keyword">this</strong>, Scope.ONE, <strong class="jxr_keyword">null</strong>, false).iterator();
 <a class="jxr_linenumber" name="L3105" href="#L3105">3105</a>     
 <a class="jxr_linenumber" name="L3106" href="#L3106">3106</a>     <strong class="jxr_keyword">while</strong> (it.hasNext()) {
 <a class="jxr_linenumber" name="L3107" href="#L3107">3107</a>       <a href="../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> child = it.next();
@@ -4069,7 +4069,7 @@
 <a class="jxr_linenumber" name="L4061" href="#L4061">4061</a>             oldStemUuidToNewStem.put(Stem.<strong class="jxr_keyword">this</strong>.getUuid(), newStem);
 <a class="jxr_linenumber" name="L4062" href="#L4062">4062</a>             
 <a class="jxr_linenumber" name="L4063" href="#L4063">4063</a>             <strong class="jxr_keyword">for</strong> (Stem childStem : GrouperDAOFactory.getFactory().getStem()
-<a class="jxr_linenumber" name="L4064" href="#L4064">4064</a>                     .findAllChildStems(Stem.<strong class="jxr_keyword">this</strong>, Stem.Scope.SUB, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L4064" href="#L4064">4064</a>                     .findAllChildStems(Stem.<strong class="jxr_keyword">this</strong>, Stem.Scope.SUB, <strong class="jxr_keyword">new</strong> <a href="../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a>().sortAsc(<span class="jxr_string">"name"</span>), false)) {
 <a class="jxr_linenumber" name="L4065" href="#L4065">4065</a>               <a href="../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> newChildStem = oldStemUuidToNewStem.get(childStem.getParentUuid())
 <a class="jxr_linenumber" name="L4066" href="#L4066">4066</a>                   .internal_addChildStem(<a href="../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a>
 <a class="jxr_linenumber" name="L4067" href="#L4067">4067</a>                       .staticGrouperSession().internal_getRootSession(), childStem.getExtension(),

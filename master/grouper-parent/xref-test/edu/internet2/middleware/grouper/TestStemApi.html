@@ -119,7 +119,7 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">   * @param args</em>
 <a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> main(String[] args) {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     TestRunner.run(<strong class="jxr_keyword">new</strong> <a href="../../../../edu/internet2/middleware/grouper/TestStemApi.html">TestStemApi</a>(<span class="jxr_string">"testCreateAttributeDefNamePrivs"</span>));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     TestRunner.run(<strong class="jxr_keyword">new</strong> <a href="../../../../edu/internet2/middleware/grouper/TestStemApi.html">TestStemApi</a>(<span class="jxr_string">"testCopyPrivs"</span>));
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>   }
 <a class="jxr_linenumber" name="L116" href="#L116">116</a> 
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>   <em class="jxr_javadoccomment">/** size before getting started */</em>
@@ -3008,7 +3008,7 @@
 <a class="jxr_linenumber" name="L3000" href="#L3000">3000</a>     target1.grantPriv(a, NamingPrivilege.STEM);
 <a class="jxr_linenumber" name="L3001" href="#L3001">3001</a>     target2.grantPriv(a, NamingPrivilege.CREATE);
 <a class="jxr_linenumber" name="L3002" href="#L3002">3002</a>     
-<a class="jxr_linenumber" name="L3003" href="#L3003">3003</a>     GrouperSession.start(a);
+<a class="jxr_linenumber" name="L3003" href="#L3003">3003</a>     GrouperSession sessionA = GrouperSession.start(a);
 <a class="jxr_linenumber" name="L3004" href="#L3004">3004</a> 
 <a class="jxr_linenumber" name="L3005" href="#L3005">3005</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L3006" href="#L3006">3006</a>       source2.copy(target1);
@@ -3027,162 +3027,165 @@
 <a class="jxr_linenumber" name="L3019" href="#L3019">3019</a>     Stem newStem1 = source1.copy(target1);
 <a class="jxr_linenumber" name="L3020" href="#L3020">3020</a>     Stem newStem2 = source1.copy(target2);
 <a class="jxr_linenumber" name="L3021" href="#L3021">3021</a>     
-<a class="jxr_linenumber" name="L3022" href="#L3022">3022</a>     assertEquals(1, newStem1.getChildStems().size());
-<a class="jxr_linenumber" name="L3023" href="#L3023">3023</a>     assertEquals(1, newStem2.getChildStems().size());
-<a class="jxr_linenumber" name="L3024" href="#L3024">3024</a>   }
-<a class="jxr_linenumber" name="L3025" href="#L3025">3025</a>   
-<a class="jxr_linenumber" name="L3026" href="#L3026">3026</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L3027" href="#L3027">3027</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L3028" href="#L3028">3028</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L3029" href="#L3029">3029</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateGroupPrivs() {
-<a class="jxr_linenumber" name="L3030" href="#L3030">3030</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
-<a class="jxr_linenumber" name="L3031" href="#L3031">3031</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
-<a class="jxr_linenumber" name="L3032" href="#L3032">3032</a>     
-<a class="jxr_linenumber" name="L3033" href="#L3033">3033</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
-<a class="jxr_linenumber" name="L3034" href="#L3034">3034</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
-<a class="jxr_linenumber" name="L3035" href="#L3035">3035</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
-<a class="jxr_linenumber" name="L3036" href="#L3036">3036</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
-<a class="jxr_linenumber" name="L3037" href="#L3037">3037</a> 
-<a class="jxr_linenumber" name="L3038" href="#L3038">3038</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
-<a class="jxr_linenumber" name="L3039" href="#L3039">3039</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
-<a class="jxr_linenumber" name="L3040" href="#L3040">3040</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
-<a class="jxr_linenumber" name="L3041" href="#L3041">3041</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
-<a class="jxr_linenumber" name="L3042" href="#L3042">3042</a>     
-<a class="jxr_linenumber" name="L3043" href="#L3043">3043</a>     GrouperSession.start(a);
-<a class="jxr_linenumber" name="L3044" href="#L3044">3044</a> 
-<a class="jxr_linenumber" name="L3045" href="#L3045">3045</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3046" href="#L3046">3046</a>       stem1.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
-<a class="jxr_linenumber" name="L3047" href="#L3047">3047</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
-<a class="jxr_linenumber" name="L3048" href="#L3048">3048</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
-<a class="jxr_linenumber" name="L3049" href="#L3049">3049</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3050" href="#L3050">3050</a>     }
-<a class="jxr_linenumber" name="L3051" href="#L3051">3051</a>     
-<a class="jxr_linenumber" name="L3052" href="#L3052">3052</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3053" href="#L3053">3053</a>       stem2.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
-<a class="jxr_linenumber" name="L3054" href="#L3054">3054</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
-<a class="jxr_linenumber" name="L3055" href="#L3055">3055</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
-<a class="jxr_linenumber" name="L3056" href="#L3056">3056</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3057" href="#L3057">3057</a>     }
-<a class="jxr_linenumber" name="L3058" href="#L3058">3058</a> 
-<a class="jxr_linenumber" name="L3059" href="#L3059">3059</a>     stem3.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
-<a class="jxr_linenumber" name="L3060" href="#L3060">3060</a>     stem4.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
-<a class="jxr_linenumber" name="L3061" href="#L3061">3061</a>   }
-<a class="jxr_linenumber" name="L3062" href="#L3062">3062</a>   
-<a class="jxr_linenumber" name="L3063" href="#L3063">3063</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L3064" href="#L3064">3064</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L3065" href="#L3065">3065</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L3066" href="#L3066">3066</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateStemPrivs() {
-<a class="jxr_linenumber" name="L3067" href="#L3067">3067</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
-<a class="jxr_linenumber" name="L3068" href="#L3068">3068</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
-<a class="jxr_linenumber" name="L3069" href="#L3069">3069</a>     
-<a class="jxr_linenumber" name="L3070" href="#L3070">3070</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
-<a class="jxr_linenumber" name="L3071" href="#L3071">3071</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
-<a class="jxr_linenumber" name="L3072" href="#L3072">3072</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
-<a class="jxr_linenumber" name="L3073" href="#L3073">3073</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
-<a class="jxr_linenumber" name="L3074" href="#L3074">3074</a> 
-<a class="jxr_linenumber" name="L3075" href="#L3075">3075</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
-<a class="jxr_linenumber" name="L3076" href="#L3076">3076</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
-<a class="jxr_linenumber" name="L3077" href="#L3077">3077</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
-<a class="jxr_linenumber" name="L3078" href="#L3078">3078</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
-<a class="jxr_linenumber" name="L3079" href="#L3079">3079</a>     
-<a class="jxr_linenumber" name="L3080" href="#L3080">3080</a>     GrouperSession.start(a);
-<a class="jxr_linenumber" name="L3081" href="#L3081">3081</a> 
-<a class="jxr_linenumber" name="L3082" href="#L3082">3082</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3083" href="#L3083">3083</a>       stem1.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
-<a class="jxr_linenumber" name="L3084" href="#L3084">3084</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
-<a class="jxr_linenumber" name="L3085" href="#L3085">3085</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
-<a class="jxr_linenumber" name="L3086" href="#L3086">3086</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3087" href="#L3087">3087</a>     }
-<a class="jxr_linenumber" name="L3088" href="#L3088">3088</a>     
-<a class="jxr_linenumber" name="L3089" href="#L3089">3089</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3090" href="#L3090">3090</a>       stem2.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
-<a class="jxr_linenumber" name="L3091" href="#L3091">3091</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
-<a class="jxr_linenumber" name="L3092" href="#L3092">3092</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
-<a class="jxr_linenumber" name="L3093" href="#L3093">3093</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3094" href="#L3094">3094</a>     }
-<a class="jxr_linenumber" name="L3095" href="#L3095">3095</a> 
-<a class="jxr_linenumber" name="L3096" href="#L3096">3096</a>     stem3.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
-<a class="jxr_linenumber" name="L3097" href="#L3097">3097</a>     stem4.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
-<a class="jxr_linenumber" name="L3098" href="#L3098">3098</a>   }
-<a class="jxr_linenumber" name="L3099" href="#L3099">3099</a>   
-<a class="jxr_linenumber" name="L3100" href="#L3100">3100</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L3101" href="#L3101">3101</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L3102" href="#L3102">3102</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L3103" href="#L3103">3103</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateAttributeDefPrivs() {
-<a class="jxr_linenumber" name="L3104" href="#L3104">3104</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
-<a class="jxr_linenumber" name="L3105" href="#L3105">3105</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
-<a class="jxr_linenumber" name="L3106" href="#L3106">3106</a>     
-<a class="jxr_linenumber" name="L3107" href="#L3107">3107</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
-<a class="jxr_linenumber" name="L3108" href="#L3108">3108</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
-<a class="jxr_linenumber" name="L3109" href="#L3109">3109</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
-<a class="jxr_linenumber" name="L3110" href="#L3110">3110</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
-<a class="jxr_linenumber" name="L3111" href="#L3111">3111</a> 
-<a class="jxr_linenumber" name="L3112" href="#L3112">3112</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
-<a class="jxr_linenumber" name="L3113" href="#L3113">3113</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
-<a class="jxr_linenumber" name="L3114" href="#L3114">3114</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
-<a class="jxr_linenumber" name="L3115" href="#L3115">3115</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
-<a class="jxr_linenumber" name="L3116" href="#L3116">3116</a>     
-<a class="jxr_linenumber" name="L3117" href="#L3117">3117</a>     GrouperSession.start(a);
-<a class="jxr_linenumber" name="L3118" href="#L3118">3118</a> 
-<a class="jxr_linenumber" name="L3119" href="#L3119">3119</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3120" href="#L3120">3120</a>       stem1.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
-<a class="jxr_linenumber" name="L3121" href="#L3121">3121</a>       fail(<span class="jxr_string">"failed to throw AttributeDefAddException"</span>);
-<a class="jxr_linenumber" name="L3122" href="#L3122">3122</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefAddException e) {
-<a class="jxr_linenumber" name="L3123" href="#L3123">3123</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3124" href="#L3124">3124</a>     }
-<a class="jxr_linenumber" name="L3125" href="#L3125">3125</a>     
-<a class="jxr_linenumber" name="L3126" href="#L3126">3126</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3127" href="#L3127">3127</a>       stem2.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
-<a class="jxr_linenumber" name="L3128" href="#L3128">3128</a>       fail(<span class="jxr_string">"failed to throw AttributeDefAddException"</span>);
-<a class="jxr_linenumber" name="L3129" href="#L3129">3129</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefAddException e) {
-<a class="jxr_linenumber" name="L3130" href="#L3130">3130</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3131" href="#L3131">3131</a>     }
-<a class="jxr_linenumber" name="L3132" href="#L3132">3132</a> 
-<a class="jxr_linenumber" name="L3133" href="#L3133">3133</a>     stem3.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
-<a class="jxr_linenumber" name="L3134" href="#L3134">3134</a>     stem4.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
-<a class="jxr_linenumber" name="L3135" href="#L3135">3135</a>   }
-<a class="jxr_linenumber" name="L3136" href="#L3136">3136</a>   
-<a class="jxr_linenumber" name="L3137" href="#L3137">3137</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L3138" href="#L3138">3138</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L3139" href="#L3139">3139</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L3140" href="#L3140">3140</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateAttributeDefNamePrivs() {
-<a class="jxr_linenumber" name="L3141" href="#L3141">3141</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
-<a class="jxr_linenumber" name="L3142" href="#L3142">3142</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
-<a class="jxr_linenumber" name="L3143" href="#L3143">3143</a>     
-<a class="jxr_linenumber" name="L3144" href="#L3144">3144</a>     AttributeDef attrDef = <strong class="jxr_keyword">this</strong>.top.addChildAttributeDef(<span class="jxr_string">"attrdef"</span>, AttributeDefType.attr);
-<a class="jxr_linenumber" name="L3145" href="#L3145">3145</a>     attrDef.getPrivilegeDelegate().grantPriv(a, AttributeDefPrivilege.ATTR_ADMIN, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3022" href="#L3022">3022</a>     sessionA.stop();
+<a class="jxr_linenumber" name="L3023" href="#L3023">3023</a>     GrouperSession.startRootSession();
+<a class="jxr_linenumber" name="L3024" href="#L3024">3024</a>     
+<a class="jxr_linenumber" name="L3025" href="#L3025">3025</a>     assertEquals(1, newStem1.getChildStems().size());
+<a class="jxr_linenumber" name="L3026" href="#L3026">3026</a>     assertEquals(1, newStem2.getChildStems().size());
+<a class="jxr_linenumber" name="L3027" href="#L3027">3027</a>   }
+<a class="jxr_linenumber" name="L3028" href="#L3028">3028</a>   
+<a class="jxr_linenumber" name="L3029" href="#L3029">3029</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L3030" href="#L3030">3030</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L3031" href="#L3031">3031</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L3032" href="#L3032">3032</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateGroupPrivs() {
+<a class="jxr_linenumber" name="L3033" href="#L3033">3033</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
+<a class="jxr_linenumber" name="L3034" href="#L3034">3034</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
+<a class="jxr_linenumber" name="L3035" href="#L3035">3035</a>     
+<a class="jxr_linenumber" name="L3036" href="#L3036">3036</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
+<a class="jxr_linenumber" name="L3037" href="#L3037">3037</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
+<a class="jxr_linenumber" name="L3038" href="#L3038">3038</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
+<a class="jxr_linenumber" name="L3039" href="#L3039">3039</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
+<a class="jxr_linenumber" name="L3040" href="#L3040">3040</a> 
+<a class="jxr_linenumber" name="L3041" href="#L3041">3041</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+<a class="jxr_linenumber" name="L3042" href="#L3042">3042</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+<a class="jxr_linenumber" name="L3043" href="#L3043">3043</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
+<a class="jxr_linenumber" name="L3044" href="#L3044">3044</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
+<a class="jxr_linenumber" name="L3045" href="#L3045">3045</a>     
+<a class="jxr_linenumber" name="L3046" href="#L3046">3046</a>     GrouperSession.start(a);
+<a class="jxr_linenumber" name="L3047" href="#L3047">3047</a> 
+<a class="jxr_linenumber" name="L3048" href="#L3048">3048</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3049" href="#L3049">3049</a>       stem1.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
+<a class="jxr_linenumber" name="L3050" href="#L3050">3050</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
+<a class="jxr_linenumber" name="L3051" href="#L3051">3051</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
+<a class="jxr_linenumber" name="L3052" href="#L3052">3052</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3053" href="#L3053">3053</a>     }
+<a class="jxr_linenumber" name="L3054" href="#L3054">3054</a>     
+<a class="jxr_linenumber" name="L3055" href="#L3055">3055</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3056" href="#L3056">3056</a>       stem2.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
+<a class="jxr_linenumber" name="L3057" href="#L3057">3057</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
+<a class="jxr_linenumber" name="L3058" href="#L3058">3058</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
+<a class="jxr_linenumber" name="L3059" href="#L3059">3059</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3060" href="#L3060">3060</a>     }
+<a class="jxr_linenumber" name="L3061" href="#L3061">3061</a> 
+<a class="jxr_linenumber" name="L3062" href="#L3062">3062</a>     stem3.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
+<a class="jxr_linenumber" name="L3063" href="#L3063">3063</a>     stem4.addChildGroup(<span class="jxr_string">"group"</span>, <span class="jxr_string">"group"</span>);
+<a class="jxr_linenumber" name="L3064" href="#L3064">3064</a>   }
+<a class="jxr_linenumber" name="L3065" href="#L3065">3065</a>   
+<a class="jxr_linenumber" name="L3066" href="#L3066">3066</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L3067" href="#L3067">3067</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L3068" href="#L3068">3068</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L3069" href="#L3069">3069</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateStemPrivs() {
+<a class="jxr_linenumber" name="L3070" href="#L3070">3070</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
+<a class="jxr_linenumber" name="L3071" href="#L3071">3071</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
+<a class="jxr_linenumber" name="L3072" href="#L3072">3072</a>     
+<a class="jxr_linenumber" name="L3073" href="#L3073">3073</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
+<a class="jxr_linenumber" name="L3074" href="#L3074">3074</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
+<a class="jxr_linenumber" name="L3075" href="#L3075">3075</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
+<a class="jxr_linenumber" name="L3076" href="#L3076">3076</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
+<a class="jxr_linenumber" name="L3077" href="#L3077">3077</a> 
+<a class="jxr_linenumber" name="L3078" href="#L3078">3078</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+<a class="jxr_linenumber" name="L3079" href="#L3079">3079</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+<a class="jxr_linenumber" name="L3080" href="#L3080">3080</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
+<a class="jxr_linenumber" name="L3081" href="#L3081">3081</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
+<a class="jxr_linenumber" name="L3082" href="#L3082">3082</a>     
+<a class="jxr_linenumber" name="L3083" href="#L3083">3083</a>     GrouperSession.start(a);
+<a class="jxr_linenumber" name="L3084" href="#L3084">3084</a> 
+<a class="jxr_linenumber" name="L3085" href="#L3085">3085</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3086" href="#L3086">3086</a>       stem1.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
+<a class="jxr_linenumber" name="L3087" href="#L3087">3087</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
+<a class="jxr_linenumber" name="L3088" href="#L3088">3088</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
+<a class="jxr_linenumber" name="L3089" href="#L3089">3089</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3090" href="#L3090">3090</a>     }
+<a class="jxr_linenumber" name="L3091" href="#L3091">3091</a>     
+<a class="jxr_linenumber" name="L3092" href="#L3092">3092</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3093" href="#L3093">3093</a>       stem2.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
+<a class="jxr_linenumber" name="L3094" href="#L3094">3094</a>       fail(<span class="jxr_string">"failed to throw InsufficientPrivilegeException"</span>);
+<a class="jxr_linenumber" name="L3095" href="#L3095">3095</a>     } <strong class="jxr_keyword">catch</strong> (InsufficientPrivilegeException e) {
+<a class="jxr_linenumber" name="L3096" href="#L3096">3096</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3097" href="#L3097">3097</a>     }
+<a class="jxr_linenumber" name="L3098" href="#L3098">3098</a> 
+<a class="jxr_linenumber" name="L3099" href="#L3099">3099</a>     stem3.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
+<a class="jxr_linenumber" name="L3100" href="#L3100">3100</a>     stem4.addChildStem(<span class="jxr_string">"stem"</span>, <span class="jxr_string">"stem"</span>);
+<a class="jxr_linenumber" name="L3101" href="#L3101">3101</a>   }
+<a class="jxr_linenumber" name="L3102" href="#L3102">3102</a>   
+<a class="jxr_linenumber" name="L3103" href="#L3103">3103</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L3104" href="#L3104">3104</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L3105" href="#L3105">3105</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L3106" href="#L3106">3106</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateAttributeDefPrivs() {
+<a class="jxr_linenumber" name="L3107" href="#L3107">3107</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
+<a class="jxr_linenumber" name="L3108" href="#L3108">3108</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
+<a class="jxr_linenumber" name="L3109" href="#L3109">3109</a>     
+<a class="jxr_linenumber" name="L3110" href="#L3110">3110</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
+<a class="jxr_linenumber" name="L3111" href="#L3111">3111</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
+<a class="jxr_linenumber" name="L3112" href="#L3112">3112</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
+<a class="jxr_linenumber" name="L3113" href="#L3113">3113</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
+<a class="jxr_linenumber" name="L3114" href="#L3114">3114</a> 
+<a class="jxr_linenumber" name="L3115" href="#L3115">3115</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+<a class="jxr_linenumber" name="L3116" href="#L3116">3116</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+<a class="jxr_linenumber" name="L3117" href="#L3117">3117</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
+<a class="jxr_linenumber" name="L3118" href="#L3118">3118</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
+<a class="jxr_linenumber" name="L3119" href="#L3119">3119</a>     
+<a class="jxr_linenumber" name="L3120" href="#L3120">3120</a>     GrouperSession.start(a);
+<a class="jxr_linenumber" name="L3121" href="#L3121">3121</a> 
+<a class="jxr_linenumber" name="L3122" href="#L3122">3122</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3123" href="#L3123">3123</a>       stem1.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
+<a class="jxr_linenumber" name="L3124" href="#L3124">3124</a>       fail(<span class="jxr_string">"failed to throw AttributeDefAddException"</span>);
+<a class="jxr_linenumber" name="L3125" href="#L3125">3125</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefAddException e) {
+<a class="jxr_linenumber" name="L3126" href="#L3126">3126</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3127" href="#L3127">3127</a>     }
+<a class="jxr_linenumber" name="L3128" href="#L3128">3128</a>     
+<a class="jxr_linenumber" name="L3129" href="#L3129">3129</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3130" href="#L3130">3130</a>       stem2.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
+<a class="jxr_linenumber" name="L3131" href="#L3131">3131</a>       fail(<span class="jxr_string">"failed to throw AttributeDefAddException"</span>);
+<a class="jxr_linenumber" name="L3132" href="#L3132">3132</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefAddException e) {
+<a class="jxr_linenumber" name="L3133" href="#L3133">3133</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3134" href="#L3134">3134</a>     }
+<a class="jxr_linenumber" name="L3135" href="#L3135">3135</a> 
+<a class="jxr_linenumber" name="L3136" href="#L3136">3136</a>     stem3.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
+<a class="jxr_linenumber" name="L3137" href="#L3137">3137</a>     stem4.addChildAttributeDef(<span class="jxr_string">"attr"</span>, AttributeDefType.attr);
+<a class="jxr_linenumber" name="L3138" href="#L3138">3138</a>   }
+<a class="jxr_linenumber" name="L3139" href="#L3139">3139</a>   
+<a class="jxr_linenumber" name="L3140" href="#L3140">3140</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L3141" href="#L3141">3141</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L3142" href="#L3142">3142</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L3143" href="#L3143">3143</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testCreateAttributeDefNamePrivs() {
+<a class="jxr_linenumber" name="L3144" href="#L3144">3144</a>     <a href="../../../../edu/internet2/middleware/grouper/helper/R.html">R</a> r = R.populateRegistry(0, 0, 1);
+<a class="jxr_linenumber" name="L3145" href="#L3145">3145</a>     Subject a = r.getSubject(<span class="jxr_string">"a"</span>);
 <a class="jxr_linenumber" name="L3146" href="#L3146">3146</a>     
-<a class="jxr_linenumber" name="L3147" href="#L3147">3147</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
-<a class="jxr_linenumber" name="L3148" href="#L3148">3148</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
-<a class="jxr_linenumber" name="L3149" href="#L3149">3149</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
-<a class="jxr_linenumber" name="L3150" href="#L3150">3150</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
-<a class="jxr_linenumber" name="L3151" href="#L3151">3151</a> 
-<a class="jxr_linenumber" name="L3152" href="#L3152">3152</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
-<a class="jxr_linenumber" name="L3153" href="#L3153">3153</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
-<a class="jxr_linenumber" name="L3154" href="#L3154">3154</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
-<a class="jxr_linenumber" name="L3155" href="#L3155">3155</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
-<a class="jxr_linenumber" name="L3156" href="#L3156">3156</a>     
-<a class="jxr_linenumber" name="L3157" href="#L3157">3157</a>     GrouperSession.start(a);
-<a class="jxr_linenumber" name="L3158" href="#L3158">3158</a> 
-<a class="jxr_linenumber" name="L3159" href="#L3159">3159</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3160" href="#L3160">3160</a>       stem1.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
-<a class="jxr_linenumber" name="L3161" href="#L3161">3161</a>       fail(<span class="jxr_string">"failed to throw AttributeDefNameAddException"</span>);
-<a class="jxr_linenumber" name="L3162" href="#L3162">3162</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefNameAddException e) {
-<a class="jxr_linenumber" name="L3163" href="#L3163">3163</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3164" href="#L3164">3164</a>     }
-<a class="jxr_linenumber" name="L3165" href="#L3165">3165</a>     
-<a class="jxr_linenumber" name="L3166" href="#L3166">3166</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L3167" href="#L3167">3167</a>       stem2.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
-<a class="jxr_linenumber" name="L3168" href="#L3168">3168</a>       fail(<span class="jxr_string">"failed to throw AttributeDefNameAddException"</span>);
-<a class="jxr_linenumber" name="L3169" href="#L3169">3169</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefNameAddException e) {
-<a class="jxr_linenumber" name="L3170" href="#L3170">3170</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L3171" href="#L3171">3171</a>     }
-<a class="jxr_linenumber" name="L3172" href="#L3172">3172</a> 
-<a class="jxr_linenumber" name="L3173" href="#L3173">3173</a>     stem3.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
-<a class="jxr_linenumber" name="L3174" href="#L3174">3174</a>     stem4.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
-<a class="jxr_linenumber" name="L3175" href="#L3175">3175</a>   }
-<a class="jxr_linenumber" name="L3176" href="#L3176">3176</a> }
-<a class="jxr_linenumber" name="L3177" href="#L3177">3177</a> 
+<a class="jxr_linenumber" name="L3147" href="#L3147">3147</a>     AttributeDef attrDef = <strong class="jxr_keyword">this</strong>.top.addChildAttributeDef(<span class="jxr_string">"attrdef"</span>, AttributeDefType.attr);
+<a class="jxr_linenumber" name="L3148" href="#L3148">3148</a>     attrDef.getPrivilegeDelegate().grantPriv(a, AttributeDefPrivilege.ATTR_ADMIN, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3149" href="#L3149">3149</a>     
+<a class="jxr_linenumber" name="L3150" href="#L3150">3150</a>     Stem stem1 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem1"</span>, <span class="jxr_string">"stem1"</span>);    
+<a class="jxr_linenumber" name="L3151" href="#L3151">3151</a>     Stem stem2 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem2"</span>, <span class="jxr_string">"stem2"</span>);    
+<a class="jxr_linenumber" name="L3152" href="#L3152">3152</a>     Stem stem3 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem3"</span>, <span class="jxr_string">"stem3"</span>);
+<a class="jxr_linenumber" name="L3153" href="#L3153">3153</a>     Stem stem4 = <strong class="jxr_keyword">this</strong>.root.addChildStem(<span class="jxr_string">"stem4"</span>, <span class="jxr_string">"stem4"</span>);
+<a class="jxr_linenumber" name="L3154" href="#L3154">3154</a> 
+<a class="jxr_linenumber" name="L3155" href="#L3155">3155</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_READ);
+<a class="jxr_linenumber" name="L3156" href="#L3156">3156</a>     stem2.grantPriv(a, NamingPrivilege.STEM_ATTR_UPDATE);
+<a class="jxr_linenumber" name="L3157" href="#L3157">3157</a>     stem3.grantPriv(a, NamingPrivilege.CREATE);
+<a class="jxr_linenumber" name="L3158" href="#L3158">3158</a>     stem4.grantPriv(a, NamingPrivilege.STEM);
+<a class="jxr_linenumber" name="L3159" href="#L3159">3159</a>     
+<a class="jxr_linenumber" name="L3160" href="#L3160">3160</a>     GrouperSession.start(a);
+<a class="jxr_linenumber" name="L3161" href="#L3161">3161</a> 
+<a class="jxr_linenumber" name="L3162" href="#L3162">3162</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3163" href="#L3163">3163</a>       stem1.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
+<a class="jxr_linenumber" name="L3164" href="#L3164">3164</a>       fail(<span class="jxr_string">"failed to throw AttributeDefNameAddException"</span>);
+<a class="jxr_linenumber" name="L3165" href="#L3165">3165</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefNameAddException e) {
+<a class="jxr_linenumber" name="L3166" href="#L3166">3166</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3167" href="#L3167">3167</a>     }
+<a class="jxr_linenumber" name="L3168" href="#L3168">3168</a>     
+<a class="jxr_linenumber" name="L3169" href="#L3169">3169</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L3170" href="#L3170">3170</a>       stem2.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
+<a class="jxr_linenumber" name="L3171" href="#L3171">3171</a>       fail(<span class="jxr_string">"failed to throw AttributeDefNameAddException"</span>);
+<a class="jxr_linenumber" name="L3172" href="#L3172">3172</a>     } <strong class="jxr_keyword">catch</strong> (AttributeDefNameAddException e) {
+<a class="jxr_linenumber" name="L3173" href="#L3173">3173</a>       assertTrue(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L3174" href="#L3174">3174</a>     }
+<a class="jxr_linenumber" name="L3175" href="#L3175">3175</a> 
+<a class="jxr_linenumber" name="L3176" href="#L3176">3176</a>     stem3.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
+<a class="jxr_linenumber" name="L3177" href="#L3177">3177</a>     stem4.addChildAttributeDefName(attrDef, <span class="jxr_string">"attr"</span>, <span class="jxr_string">"attr"</span>);
+<a class="jxr_linenumber" name="L3178" href="#L3178">3178</a>   }
+<a class="jxr_linenumber" name="L3179" href="#L3179">3179</a> }
+<a class="jxr_linenumber" name="L3180" href="#L3180">3180</a> 
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>

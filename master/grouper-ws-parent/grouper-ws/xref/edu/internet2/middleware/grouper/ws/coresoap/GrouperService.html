@@ -5055,7 +5055,129 @@
 <a class="jxr_linenumber" name="L5047" href="#L5047">5047</a>     <strong class="jxr_keyword">return</strong> wsMessageResults;
 <a class="jxr_linenumber" name="L5048" href="#L5048">5048</a>   }
 <a class="jxr_linenumber" name="L5049" href="#L5049">5049</a> 
-<a class="jxr_linenumber" name="L5050" href="#L5050">5050</a> }
+<a class="jxr_linenumber" name="L5050" href="#L5050">5050</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L5051" href="#L5051">5051</a> <em class="jxr_javadoccomment">   * delete an external subject or many (if doesnt exist, ignore)</em>
+<a class="jxr_linenumber" name="L5052" href="#L5052">5052</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L5053" href="#L5053">5053</a> <em class="jxr_javadoccomment">   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000</em>
+<a class="jxr_linenumber" name="L5054" href="#L5054">5054</a> <em class="jxr_javadoccomment">   * @param wsExternalSubjectLookups</em>
+<a class="jxr_linenumber" name="L5055" href="#L5055">5055</a> <em class="jxr_javadoccomment">   *            groups to delete</em>
+<a class="jxr_linenumber" name="L5056" href="#L5056">5056</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
+<a class="jxr_linenumber" name="L5057" href="#L5057">5057</a> <em class="jxr_javadoccomment">   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to</em>
+<a class="jxr_linenumber" name="L5058" href="#L5058">5058</a> <em class="jxr_javadoccomment">   * NONE (will finish as much as possible).  Generally the only values for this param that make sense</em>
+<a class="jxr_linenumber" name="L5059" href="#L5059">5059</a> <em class="jxr_javadoccomment">   * are NONE (or blank), and READ_WRITE_NEW.</em>
+<a class="jxr_linenumber" name="L5060" href="#L5060">5060</a> <em class="jxr_javadoccomment">   * @param params optional: reserved for future use</em>
+<a class="jxr_linenumber" name="L5061" href="#L5061">5061</a> <em class="jxr_javadoccomment">   * @return the results</em>
+<a class="jxr_linenumber" name="L5062" href="#L5062">5062</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L5063" href="#L5063">5063</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L5064" href="#L5064">5064</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectDeleteResults.html">WsExternalSubjectDeleteResults</a> externalSubjectDelete(<strong class="jxr_keyword">final</strong> String clientVersion,
+<a class="jxr_linenumber" name="L5065" href="#L5065">5065</a>       <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectLookup.html">WsExternalSubjectLookup</a>[] wsExternalSubjectLookups, <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup,
+<a class="jxr_linenumber" name="L5066" href="#L5066">5066</a>       String txType, <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
+<a class="jxr_linenumber" name="L5067" href="#L5067">5067</a>   
+<a class="jxr_linenumber" name="L5068" href="#L5068">5068</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectDeleteResults.html">WsExternalSubjectDeleteResults</a> wsExternalSubjectDeleteResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectDeleteResults.html">WsExternalSubjectDeleteResults</a>();
+<a class="jxr_linenumber" name="L5069" href="#L5069">5069</a> 
+<a class="jxr_linenumber" name="L5070" href="#L5070">5070</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L5071" href="#L5071">5071</a> 
+<a class="jxr_linenumber" name="L5072" href="#L5072">5072</a>       <em class="jxr_comment">//convert tx type to object</em>
+<a class="jxr_linenumber" name="L5073" href="#L5073">5073</a>       <strong class="jxr_keyword">final</strong> GrouperTransactionType grouperTransactionType = <a href="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html">GrouperServiceUtils</a>
+<a class="jxr_linenumber" name="L5074" href="#L5074">5074</a>           .convertTransactionType(txType);
+<a class="jxr_linenumber" name="L5075" href="#L5075">5075</a> 
+<a class="jxr_linenumber" name="L5076" href="#L5076">5076</a>       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+<a class="jxr_linenumber" name="L5077" href="#L5077">5077</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L5078" href="#L5078">5078</a> 
+<a class="jxr_linenumber" name="L5079" href="#L5079">5079</a>       wsExternalSubjectDeleteResults = GrouperServiceLogic.externalSubjectDelete(grouperWsVersion, 
+<a class="jxr_linenumber" name="L5080" href="#L5080">5080</a>           wsExternalSubjectLookups, actAsSubjectLookup, 
+<a class="jxr_linenumber" name="L5081" href="#L5081">5081</a>           grouperTransactionType, params);
+<a class="jxr_linenumber" name="L5082" href="#L5082">5082</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L5083" href="#L5083">5083</a>       wsExternalSubjectDeleteResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
+<a class="jxr_linenumber" name="L5084" href="#L5084">5084</a>     }
+<a class="jxr_linenumber" name="L5085" href="#L5085">5085</a> 
+<a class="jxr_linenumber" name="L5086" href="#L5086">5086</a>     <em class="jxr_comment">//set response headers</em>
+<a class="jxr_linenumber" name="L5087" href="#L5087">5087</a>     GrouperServiceUtils.addResponseHeaders(wsExternalSubjectDeleteResults.getResultMetadata(), <strong class="jxr_keyword">this</strong>.soap);
+<a class="jxr_linenumber" name="L5088" href="#L5088">5088</a> 
+<a class="jxr_linenumber" name="L5089" href="#L5089">5089</a>     <em class="jxr_comment">//this should be the first and only return, or else it is exiting too early</em>
+<a class="jxr_linenumber" name="L5090" href="#L5090">5090</a>     <strong class="jxr_keyword">return</strong> wsExternalSubjectDeleteResults;
+<a class="jxr_linenumber" name="L5091" href="#L5091">5091</a>   
+<a class="jxr_linenumber" name="L5092" href="#L5092">5092</a>   }
+<a class="jxr_linenumber" name="L5093" href="#L5093">5093</a> 
+<a class="jxr_linenumber" name="L5094" href="#L5094">5094</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L5095" href="#L5095">5095</a> <em class="jxr_javadoccomment">   * save an external subject (insert or update).</em>
+<a class="jxr_linenumber" name="L5096" href="#L5096">5096</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L5097" href="#L5097">5097</a> <em class="jxr_javadoccomment">   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000</em>
+<a class="jxr_linenumber" name="L5098" href="#L5098">5098</a> <em class="jxr_javadoccomment">   * @param wsExternalSubjectToSaves</em>
+<a class="jxr_linenumber" name="L5099" href="#L5099">5099</a> <em class="jxr_javadoccomment">   *            external subjects to save</em>
+<a class="jxr_linenumber" name="L5100" href="#L5100">5100</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
+<a class="jxr_linenumber" name="L5101" href="#L5101">5101</a> <em class="jxr_javadoccomment">   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to</em>
+<a class="jxr_linenumber" name="L5102" href="#L5102">5102</a> <em class="jxr_javadoccomment">   * NONE (will finish as much as possible).  Generally the only values for this param that make sense</em>
+<a class="jxr_linenumber" name="L5103" href="#L5103">5103</a> <em class="jxr_javadoccomment">   * are NONE (or blank), and READ_WRITE_NEW.</em>
+<a class="jxr_linenumber" name="L5104" href="#L5104">5104</a> <em class="jxr_javadoccomment">   * @param params optional: reserved for future use</em>
+<a class="jxr_linenumber" name="L5105" href="#L5105">5105</a> <em class="jxr_javadoccomment">   * @since 2.3.0.patch</em>
+<a class="jxr_linenumber" name="L5106" href="#L5106">5106</a> <em class="jxr_javadoccomment">   * @return the results</em>
+<a class="jxr_linenumber" name="L5107" href="#L5107">5107</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L5108" href="#L5108">5108</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L5109" href="#L5109">5109</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectSaveResults.html">WsExternalSubjectSaveResults</a> externalSubjectSave(<strong class="jxr_keyword">final</strong> String clientVersion,
+<a class="jxr_linenumber" name="L5110" href="#L5110">5110</a>       <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectToSave.html">WsExternalSubjectToSave</a>[] wsExternalSubjectToSaves, <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup,
+<a class="jxr_linenumber" name="L5111" href="#L5111">5111</a>       String txType, <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
+<a class="jxr_linenumber" name="L5112" href="#L5112">5112</a>   
+<a class="jxr_linenumber" name="L5113" href="#L5113">5113</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectSaveResults.html">WsExternalSubjectSaveResults</a> wsExternalSubjectSaveResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectSaveResults.html">WsExternalSubjectSaveResults</a>();
+<a class="jxr_linenumber" name="L5114" href="#L5114">5114</a> 
+<a class="jxr_linenumber" name="L5115" href="#L5115">5115</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L5116" href="#L5116">5116</a> 
+<a class="jxr_linenumber" name="L5117" href="#L5117">5117</a>       <em class="jxr_comment">//convert tx type to object</em>
+<a class="jxr_linenumber" name="L5118" href="#L5118">5118</a>       <strong class="jxr_keyword">final</strong> GrouperTransactionType grouperTransactionType = <a href="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html">GrouperServiceUtils</a>
+<a class="jxr_linenumber" name="L5119" href="#L5119">5119</a>           .convertTransactionType(txType);
+<a class="jxr_linenumber" name="L5120" href="#L5120">5120</a> 
+<a class="jxr_linenumber" name="L5121" href="#L5121">5121</a>       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+<a class="jxr_linenumber" name="L5122" href="#L5122">5122</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L5123" href="#L5123">5123</a> 
+<a class="jxr_linenumber" name="L5124" href="#L5124">5124</a>       wsExternalSubjectSaveResults = GrouperServiceLogic.externalSubjectSave(grouperWsVersion, wsExternalSubjectToSaves,
+<a class="jxr_linenumber" name="L5125" href="#L5125">5125</a>           actAsSubjectLookup, 
+<a class="jxr_linenumber" name="L5126" href="#L5126">5126</a>           grouperTransactionType, params);
+<a class="jxr_linenumber" name="L5127" href="#L5127">5127</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L5128" href="#L5128">5128</a>       wsExternalSubjectSaveResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
+<a class="jxr_linenumber" name="L5129" href="#L5129">5129</a>     }
+<a class="jxr_linenumber" name="L5130" href="#L5130">5130</a> 
+<a class="jxr_linenumber" name="L5131" href="#L5131">5131</a>     <em class="jxr_comment">//set response headers</em>
+<a class="jxr_linenumber" name="L5132" href="#L5132">5132</a>     GrouperServiceUtils.addResponseHeaders(wsExternalSubjectSaveResults.getResultMetadata(), <strong class="jxr_keyword">this</strong>.soap);
+<a class="jxr_linenumber" name="L5133" href="#L5133">5133</a> 
+<a class="jxr_linenumber" name="L5134" href="#L5134">5134</a>     <em class="jxr_comment">//this should be the first and only return, or else it is exiting too early</em>
+<a class="jxr_linenumber" name="L5135" href="#L5135">5135</a>     <strong class="jxr_keyword">return</strong> wsExternalSubjectSaveResults;
+<a class="jxr_linenumber" name="L5136" href="#L5136">5136</a>   }
+<a class="jxr_linenumber" name="L5137" href="#L5137">5137</a> 
+<a class="jxr_linenumber" name="L5138" href="#L5138">5138</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L5139" href="#L5139">5139</a> <em class="jxr_javadoccomment">   * find a external subjects</em>
+<a class="jxr_linenumber" name="L5140" href="#L5140">5140</a> <em class="jxr_javadoccomment">   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000</em>
+<a class="jxr_linenumber" name="L5141" href="#L5141">5141</a> <em class="jxr_javadoccomment">   * @param actAsSubjectLookup</em>
+<a class="jxr_linenumber" name="L5142" href="#L5142">5142</a> <em class="jxr_javadoccomment">   * @param params optional: reserved for future use</em>
+<a class="jxr_linenumber" name="L5143" href="#L5143">5143</a> <em class="jxr_javadoccomment">   * @param wsExternalSubjectLookups if you want to just pass in a list of uuids and/or names</em>
+<a class="jxr_linenumber" name="L5144" href="#L5144">5144</a> <em class="jxr_javadoccomment">   * @return the external subjects, or no external subjects if none found</em>
+<a class="jxr_linenumber" name="L5145" href="#L5145">5145</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L5146" href="#L5146">5146</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L5147" href="#L5147">5147</a>   <strong class="jxr_keyword">public</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsFindExternalSubjectsResults.html">WsFindExternalSubjectsResults</a> findExternalSubjects(<strong class="jxr_keyword">final</strong> String clientVersion,
+<a class="jxr_linenumber" name="L5148" href="#L5148">5148</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsExternalSubjectLookup.html">WsExternalSubjectLookup</a>[] wsExternalSubjectLookups,
+<a class="jxr_linenumber" name="L5149" href="#L5149">5149</a>       <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsSubjectLookup.html">WsSubjectLookup</a> actAsSubjectLookup, <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsParam.html">WsParam</a>[] params) {
+<a class="jxr_linenumber" name="L5150" href="#L5150">5150</a>   
+<a class="jxr_linenumber" name="L5151" href="#L5151">5151</a>     <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsFindExternalSubjectsResults.html">WsFindExternalSubjectsResults</a> wsFindExternalSubjectsResults = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/ws/coresoap/WsFindExternalSubjectsResults.html">WsFindExternalSubjectsResults</a>();
+<a class="jxr_linenumber" name="L5152" href="#L5152">5152</a> 
+<a class="jxr_linenumber" name="L5153" href="#L5153">5153</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L5154" href="#L5154">5154</a> 
+<a class="jxr_linenumber" name="L5155" href="#L5155">5155</a>       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
+<a class="jxr_linenumber" name="L5156" href="#L5156">5156</a>           clientVersion, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L5157" href="#L5157">5157</a> 
+<a class="jxr_linenumber" name="L5158" href="#L5158">5158</a>       wsFindExternalSubjectsResults = GrouperServiceLogic.findExternalSubjects(grouperWsVersion, wsExternalSubjectLookups, 
+<a class="jxr_linenumber" name="L5159" href="#L5159">5159</a>           actAsSubjectLookup, 
+<a class="jxr_linenumber" name="L5160" href="#L5160">5160</a>           params);
+<a class="jxr_linenumber" name="L5161" href="#L5161">5161</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L5162" href="#L5162">5162</a>       wsFindExternalSubjectsResults.assignResultCodeException(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, e);
+<a class="jxr_linenumber" name="L5163" href="#L5163">5163</a>     }
+<a class="jxr_linenumber" name="L5164" href="#L5164">5164</a> 
+<a class="jxr_linenumber" name="L5165" href="#L5165">5165</a>     <em class="jxr_comment">//set response headers</em>
+<a class="jxr_linenumber" name="L5166" href="#L5166">5166</a>     GrouperServiceUtils.addResponseHeaders(wsFindExternalSubjectsResults.getResultMetadata(), <strong class="jxr_keyword">this</strong>.soap);
+<a class="jxr_linenumber" name="L5167" href="#L5167">5167</a> 
+<a class="jxr_linenumber" name="L5168" href="#L5168">5168</a>     <em class="jxr_comment">//this should be the first and only return, or else it is exiting too early</em>
+<a class="jxr_linenumber" name="L5169" href="#L5169">5169</a>     <strong class="jxr_keyword">return</strong> wsFindExternalSubjectsResults;
+<a class="jxr_linenumber" name="L5170" href="#L5170">5170</a>   }
+<a class="jxr_linenumber" name="L5171" href="#L5171">5171</a> 
+<a class="jxr_linenumber" name="L5172" href="#L5172">5172</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
