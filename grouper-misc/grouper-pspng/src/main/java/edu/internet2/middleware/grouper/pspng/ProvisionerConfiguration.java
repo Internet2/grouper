@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
 /**
  * Collects all the various properties and makes them available to the provisioner.
@@ -63,12 +64,22 @@ public class ProvisionerConfiguration {
     
 
 
-    // This expression says that the provisionerName has to be in a group or stem provision_to attribute
-    // and NOT in neither a group or stem do_not_provision_to attribute
-
-    protected String groupSelectionExpression_defaultValue
-      = "${utils.containedWithin(provisionerName, stemAttributes['etc:pspng:provision_to'], groupAttributes['etc:pspng:provision_to']) " 
-          + "&& !utils.containedWithin(provisionerName, stemAttributes['etc:pspng:do_not_provision_to'], groupAttributes['etc:pspng:do_not_provision_to'])}";
+    /**
+     * This expression says that the provisionerName has to be in a group or stem provision_to attribute
+     * and NOT in neither a group or stem do_not_provision_to attribute
+     */
+    protected String groupSelectionExpression_defaultValue() {
+      // GRP-1356: pspng should use the default configuration folder
+      // = "${utils.containedWithin(provisionerName, stemAttributes['etc:pspng:provision_to'], groupAttributes['etc:pspng:provision_to']) " 
+      //    + "&& !utils.containedWithin(provisionerName, stemAttributes['etc:pspng:do_not_provision_to'], groupAttributes['etc:pspng:do_not_provision_to'])}";
+      String rootStem = GrouperConfig.retrieveConfig().propertyValueString(
+          "grouper.rootStemForBuiltinObjects", "etc");
+      return "${utils.containedWithin(provisionerName, stemAttributes['" + rootStem 
+          + ":pspng:provision_to'], groupAttributes['" + rootStem + ":pspng:provision_to']) " 
+          + "&& !utils.containedWithin(provisionerName, stemAttributes['" + rootStem 
+          + ":pspng:do_not_provision_to'], groupAttributes['" + rootStem + ":pspng:do_not_provision_to'])}";
+      
+    }
 
     
     // Does the provisioning process need User information from the target system or
@@ -149,7 +160,7 @@ public class ProvisionerConfiguration {
         LOG.debug("Provisioner {} - Setting supportsEmptyGroups to {}", provisionerName, supportsEmptyGroups);
 
         groupSelectionExpression =
-            GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "groupSelectionExpression", groupSelectionExpression_defaultValue);
+            GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "groupSelectionExpression", groupSelectionExpression_defaultValue());
         LOG.debug("Ldap Provisioner {} - Setting groupSelectionExpression to {}", provisionerName, groupSelectionExpression);
 
         userSearch_batchSize =
