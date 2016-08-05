@@ -24,7 +24,7 @@
     <parent>
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-ws-parent</artifactId>
-        <version>2.3.1-SNAPSHOT</version>
+        <version>2.3.0-SNAPSHOT</version>
         <relativePath>../../grouper-ws</relativePath>
     </parent>
 
@@ -32,7 +32,7 @@
     <description>Internet2 Groups Management WS Generated Client</description>
     <artifactId>grouper-ws-java-generated-client</artifactId>
     <packaging>jar</packaging>
-    <version>2.3.1-SNAPSHOT</version>
+    <version>2.3.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
