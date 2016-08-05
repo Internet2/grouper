@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -212,7 +213,10 @@ public abstract class Provisioner
     if ( grouperSession == null )
       grouperSession = GrouperSession.startRootSession();
     
-    String pspngManagementStemName = "etc:pspng";
+    //GRP-1356: pspng should use the default configuration folder
+    //String pspngManagementStemName = "etc:pspng";
+    String pspngManagementStemName = GrouperConfig.retrieveConfig().propertyValueString(
+        "grouper.rootStemForBuiltinObjects", "etc") + ":pspng";
     
     Stem pspngManagementStem = StemFinder.findByName(grouperSession, pspngManagementStemName, false);
     if (pspngManagementStem == null) {
