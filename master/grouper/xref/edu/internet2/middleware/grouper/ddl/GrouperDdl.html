@@ -10025,7 +10025,7 @@
 <a class="jxr_linenumber" name="L10017" href="#L10017">10017</a>       String attributeRootStem = GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"grouper.attribute.rootStem"</span>);
 <a class="jxr_linenumber" name="L10018" href="#L10018">10018</a> 
 <a class="jxr_linenumber" name="L10019" href="#L10019">10019</a>       <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(attributeRootStem)) {
-<a class="jxr_linenumber" name="L10020" href="#L10020">10020</a>         attributeRootStem = <span class="jxr_string">"etc:attribute"</span>;
+<a class="jxr_linenumber" name="L10020" href="#L10020">10020</a>         attributeRootStem = GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"grouper.rootStemForBuiltinObjects"</span>, <span class="jxr_string">"etc"</span>) + <span class="jxr_string">":attribute"</span>;
 <a class="jxr_linenumber" name="L10021" href="#L10021">10021</a>       }
 <a class="jxr_linenumber" name="L10022" href="#L10022">10022</a>       
 <a class="jxr_linenumber" name="L10023" href="#L10023">10023</a>       <em class="jxr_comment">//SELECT </em>

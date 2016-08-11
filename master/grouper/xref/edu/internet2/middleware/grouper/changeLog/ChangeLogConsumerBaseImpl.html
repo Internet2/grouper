@@ -657,227 +657,225 @@
 <a class="jxr_linenumber" name="L649" href="#L649">649</a> 
 <a class="jxr_linenumber" name="L650" href="#L650">650</a>   <strong class="jxr_keyword">private</strong> <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> syncAttribute;
 <a class="jxr_linenumber" name="L651" href="#L651">651</a> 
-<a class="jxr_linenumber" name="L652" href="#L652">652</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String ATTRIBUTE_CONFIG_FOLDER_NAME = <span class="jxr_string">"etc:attribute"</span>;
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String CONFIG_FOLDER_NAME = <span class="jxr_string">"changeLogConsumer"</span>;
 <a class="jxr_linenumber" name="L653" href="#L653">653</a> 
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String CONFIG_FOLDER_NAME = <span class="jxr_string">"changeLogConsumer"</span>;
-<a class="jxr_linenumber" name="L655" href="#L655">655</a> 
-<a class="jxr_linenumber" name="L656" href="#L656">656</a>   <em class="jxr_javadoccomment">/** Property name for marker attribute defined in changeLog.consumer.&lt;consumerName&gt;.syncAttributeName */</em>
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String SYNC_ATTRIBUTE_NAME = <span class="jxr_string">"syncAttributeName"</span>;
-<a class="jxr_linenumber" name="L658" href="#L658">658</a> 
-<a class="jxr_linenumber" name="L659" href="#L659">659</a>   <em class="jxr_javadoccomment">/** Property name for subclassed target consumer defined in changeLog.consumer.&lt;consumerName&gt;.class */</em>
-<a class="jxr_linenumber" name="L660" href="#L660">660</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String CONSUMER_CLASS_NAME = <span class="jxr_string">"class"</span>;
-<a class="jxr_linenumber" name="L661" href="#L661">661</a> 
-<a class="jxr_linenumber" name="L662" href="#L662">662</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">   * expected to be overidden</em>
-<a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">   * @param consumerName</em>
-<a class="jxr_linenumber" name="L665" href="#L665">665</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L666" href="#L666">666</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L667" href="#L667">667</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> isFullSyncRunning(String consumerName) {
-<a class="jxr_linenumber" name="L668" href="#L668">668</a>     <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L669" href="#L669">669</a>   }
-<a class="jxr_linenumber" name="L670" href="#L670">670</a> 
-<a class="jxr_linenumber" name="L671" href="#L671">671</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L672" href="#L672">672</a> <em class="jxr_javadoccomment">   * Process the list of changeLogEntries since the last time this consumer was run.</em>
-<a class="jxr_linenumber" name="L673" href="#L673">673</a> <em class="jxr_javadoccomment">   * This method will be called by grouper daemon (aka grouper loader).</em>
-<a class="jxr_linenumber" name="L674" href="#L674">674</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L675" href="#L675">675</a> <em class="jxr_javadoccomment">   * @param changeLogEntryList</em>
-<a class="jxr_linenumber" name="L676" href="#L676">676</a> <em class="jxr_javadoccomment">   * @param changeLogProcessorMetadata</em>
-<a class="jxr_linenumber" name="L677" href="#L677">677</a> <em class="jxr_javadoccomment">   * @return last processed changeLogEntry Id</em>
-<a class="jxr_linenumber" name="L678" href="#L678">678</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L679" href="#L679">679</a>   @Override
-<a class="jxr_linenumber" name="L680" href="#L680">680</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> processChangeLogEntries(List&lt;ChangeLogEntry&gt; changeLogEntryList,
-<a class="jxr_linenumber" name="L681" href="#L681">681</a>       <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogProcessorMetadata.html">ChangeLogProcessorMetadata</a> changeLogProcessorMetadata) {
-<a class="jxr_linenumber" name="L682" href="#L682">682</a> 
-<a class="jxr_linenumber" name="L683" href="#L683">683</a>     <em class="jxr_comment">// Name of the consumer configured in grouper-loader.properties that extends this class</em>
-<a class="jxr_linenumber" name="L684" href="#L684">684</a>     <em class="jxr_comment">// e.g. changeLog.consumer.&lt;consumerName&gt;.class = edu.example.changeLogConsumer</em>
-<a class="jxr_linenumber" name="L685" href="#L685">685</a>     <strong class="jxr_keyword">if</strong> (consumerName == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L686" href="#L686">686</a>       consumerName = changeLogProcessorMetadata.getConsumerName();
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>     }
-<a class="jxr_linenumber" name="L688" href="#L688">688</a> 
-<a class="jxr_linenumber" name="L689" href="#L689">689</a>     <a href="../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html">GrouperLoaderConfig</a> config = GrouperLoaderConfig.retrieveConfig();
-<a class="jxr_linenumber" name="L690" href="#L690">690</a>     syncAttributeName = config.propertyValueStringRequired(<span class="jxr_string">"changeLog.consumer."</span> + consumerName + <span class="jxr_string">"."</span>
-<a class="jxr_linenumber" name="L691" href="#L691">691</a>         + SYNC_ATTRIBUTE_NAME);
-<a class="jxr_linenumber" name="L692" href="#L692">692</a>     consumerClassName = config.propertyValueStringRequired(<span class="jxr_string">"changeLog.consumer."</span> + consumerName + <span class="jxr_string">"."</span>
-<a class="jxr_linenumber" name="L693" href="#L693">693</a>         + CONSUMER_CLASS_NAME);
-<a class="jxr_linenumber" name="L694" href="#L694">694</a> 
-<a class="jxr_linenumber" name="L695" href="#L695">695</a>     <strong class="jxr_keyword">boolean</strong> retryOnError = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"changeLog.consumer."</span> + consumerName + <span class="jxr_string">".retryOnError"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L696" href="#L696">696</a>     
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>     <em class="jxr_comment">// syncAttribute name configured in grouper-loader.properties</em>
-<a class="jxr_linenumber" name="L698" href="#L698">698</a>     <em class="jxr_comment">// e.g. changeLog.consumer.&lt;consumerName&gt;.&lt;syncAttributeName&gt; = o365</em>
-<a class="jxr_linenumber" name="L699" href="#L699">699</a>     <strong class="jxr_keyword">if</strong> (syncAttribute == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L700" href="#L700">700</a>       syncAttribute = AttributeDefNameFinder.findByName(syncAttributeName, false);
-<a class="jxr_linenumber" name="L701" href="#L701">701</a>       <strong class="jxr_keyword">if</strong> (syncAttribute == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L702" href="#L702">702</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Attribute name doesnt exist, you need to create it via GSH or the UI, something like\n\n"</span>
-<a class="jxr_linenumber" name="L703" href="#L703">703</a>             + <span class="jxr_string">"GrouperSession grouperSession = GrouperSession.startRootSession();\n"</span>
-<a class="jxr_linenumber" name="L704" href="#L704">704</a>             + <span class="jxr_string">"provisioningMarkerAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(\&quot;"</span> + syncAttributeName + <span class="jxr_string">"Def\&quot;).assignToStem(true).assignToGroup(true).save();\n"</span>
-<a class="jxr_linenumber" name="L705" href="#L705">705</a>             + <span class="jxr_string">"this.provisioningMarkerAttributeName = new AttributeDefNameSave(grouperSession, this.provisioningMarkerAttributeDef).assignName(\&quot;"</span> + syncAttributeName + <span class="jxr_string">"\&quot;).save();\n\n"</span>);
-<a class="jxr_linenumber" name="L706" href="#L706">706</a> <em class="jxr_comment">//        new AttributeDefSave</em>
-<a class="jxr_linenumber" name="L707" href="#L707">707</a> <em class="jxr_comment">//        // missing sync attribute, so let's create it</em>
-<a class="jxr_linenumber" name="L708" href="#L708">708</a> <em class="jxr_comment">//        // first check for etc:attribute:changeLogConsumer, and create if missing</em>
-<a class="jxr_linenumber" name="L709" href="#L709">709</a> <em class="jxr_comment">//        Stem configFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(),</em>
-<a class="jxr_linenumber" name="L710" href="#L710">710</a> <em class="jxr_comment">//            ATTRIBUTE_CONFIG_FOLDER_NAME + ":" + CONFIG_FOLDER_NAME, false);</em>
-<a class="jxr_linenumber" name="L711" href="#L711">711</a> <em class="jxr_comment">//        if (configFolder == null) {</em>
-<a class="jxr_linenumber" name="L712" href="#L712">712</a> <em class="jxr_comment">//          final Stem etcAttributeFolder = StemFinder.findByName(</em>
-<a class="jxr_linenumber" name="L713" href="#L713">713</a> <em class="jxr_comment">//              GrouperSession.staticGrouperSession(), ATTRIBUTE_CONFIG_FOLDER_NAME, false);</em>
-<a class="jxr_linenumber" name="L714" href="#L714">714</a> <em class="jxr_comment">//          configFolder = etcAttributeFolder.addChildStem(CONFIG_FOLDER_NAME,</em>
-<a class="jxr_linenumber" name="L715" href="#L715">715</a> <em class="jxr_comment">//              CONFIG_FOLDER_NAME);</em>
-<a class="jxr_linenumber" name="L716" href="#L716">716</a> <em class="jxr_comment">//        }</em>
-<a class="jxr_linenumber" name="L717" href="#L717">717</a> <em class="jxr_comment">//        // next check for attribute definition etc:attribute:changeLogConsumer:&lt;syncAttributeName&gt;AttributeDef, and create if missing</em>
-<a class="jxr_linenumber" name="L718" href="#L718">718</a> <em class="jxr_comment">//        AttributeDef syncAttrDef = AttributeDefFinder.findByName(syncAttributeName</em>
-<a class="jxr_linenumber" name="L719" href="#L719">719</a> <em class="jxr_comment">//            + "Def", false);</em>
-<a class="jxr_linenumber" name="L720" href="#L720">720</a> <em class="jxr_comment">//        if (syncAttrDef == null) {</em>
-<a class="jxr_linenumber" name="L721" href="#L721">721</a> <em class="jxr_comment">//          LOG.info("{} attribute definition {} not found, creating it now.",</em>
-<a class="jxr_linenumber" name="L722" href="#L722">722</a> <em class="jxr_comment">//              consumerName, syncAttributeName + "Def");</em>
-<a class="jxr_linenumber" name="L723" href="#L723">723</a> <em class="jxr_comment">//          syncAttrDef = configFolder.addChildAttributeDef(syncAttributeName + "Def",</em>
-<a class="jxr_linenumber" name="L724" href="#L724">724</a> <em class="jxr_comment">//              AttributeDefType.attr);</em>
-<a class="jxr_linenumber" name="L725" href="#L725">725</a> <em class="jxr_comment">//          syncAttrDef.setAssignToGroup(true);</em>
-<a class="jxr_linenumber" name="L726" href="#L726">726</a> <em class="jxr_comment">//          syncAttrDef.setAssignToStem(true);</em>
-<a class="jxr_linenumber" name="L727" href="#L727">727</a> <em class="jxr_comment">//          syncAttrDef.store();</em>
-<a class="jxr_linenumber" name="L728" href="#L728">728</a> <em class="jxr_comment">//        }</em>
-<a class="jxr_linenumber" name="L729" href="#L729">729</a> <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L730" href="#L730">730</a> <em class="jxr_comment">//        // finally create the attribute etc:attribute:changeLogConsumer:&lt;syncAttributeName&gt;. This is the marker attribute for the consumer.</em>
-<a class="jxr_linenumber" name="L731" href="#L731">731</a> <em class="jxr_comment">//        syncAttribute = configFolder.addChildAttributeDefName(syncAttrDef,</em>
-<a class="jxr_linenumber" name="L732" href="#L732">732</a> <em class="jxr_comment">//            syncAttributeName, syncAttributeName);</em>
-<a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_comment">//        LOG.info("{} created attribute name {}.", consumerName, syncAttributeName);</em>
-<a class="jxr_linenumber" name="L734" href="#L734">734</a>       }
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>     }
-<a class="jxr_linenumber" name="L736" href="#L736">736</a> 
-<a class="jxr_linenumber" name="L737" href="#L737">737</a>     <em class="jxr_comment">// change log sequence to return. will be updated in grouper db to keep track of processing progress.</em>
-<a class="jxr_linenumber" name="L738" href="#L738">738</a>     <strong class="jxr_keyword">long</strong> changeLogEntrySequenceNumber = -1;
-<a class="jxr_linenumber" name="L739" href="#L739">739</a> 
-<a class="jxr_linenumber" name="L740" href="#L740">740</a>     Map&lt;String, Object&gt; overallDebugLog = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L741" href="#L741">741</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
-<a class="jxr_linenumber" name="L742" href="#L742">742</a>       overallDebugLog = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;();
-<a class="jxr_linenumber" name="L743" href="#L743">743</a>       overallDebugLog.put(<span class="jxr_string">"consumerName"</span>, consumerName);
-<a class="jxr_linenumber" name="L744" href="#L744">744</a>       overallDebugLog.put(<span class="jxr_string">"consumerClassName"</span>, consumerClassName);
-<a class="jxr_linenumber" name="L745" href="#L745">745</a>       overallDebugLog.put(<span class="jxr_string">"startingSequenceNumber"</span>, changeLogEntryList.get(0).getSequenceNumber());
-<a class="jxr_linenumber" name="L746" href="#L746">746</a>       overallDebugLog.put(<span class="jxr_string">"numberOfRecords"</span>, GrouperUtil.length(changeLogEntryList));
-<a class="jxr_linenumber" name="L747" href="#L747">747</a>       overallDebugLog.put(<span class="jxr_string">"method"</span>, <span class="jxr_string">"processChangeLogEntries"</span>);
-<a class="jxr_linenumber" name="L748" href="#L748">748</a>       overallDebugLog.put(<span class="jxr_string">"retryOnError"</span>, retryOnError);
-<a class="jxr_linenumber" name="L749" href="#L749">749</a>     }
-<a class="jxr_linenumber" name="L750" href="#L750">750</a>     <strong class="jxr_keyword">int</strong> errorCount = 0;
-<a class="jxr_linenumber" name="L751" href="#L751">751</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>       <strong class="jxr_keyword">for</strong> (ChangeLogEntry changeLogEntry : changeLogEntryList) {
-<a class="jxr_linenumber" name="L753" href="#L753">753</a>   
-<a class="jxr_linenumber" name="L754" href="#L754">754</a>         <em class="jxr_comment">// TODO bail out as soon as we can determine this change doesn't apply to us</em>
-<a class="jxr_linenumber" name="L755" href="#L755">755</a>         <em class="jxr_comment">// is the earliest we can tell?</em>
-<a class="jxr_linenumber" name="L756" href="#L756">756</a>         <em class="jxr_comment">// only supporting provisioing attributes on groups and folders (i.e. groups within folders)?</em>
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <em class="jxr_comment">// capture all group and membership create/updates/delete for marked groups and folders</em>
-<a class="jxr_linenumber" name="L758" href="#L758">758</a>         <em class="jxr_comment">// is this a group or membership event?</em>
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>   <em class="jxr_javadoccomment">/** Property name for marker attribute defined in changeLog.consumer.&lt;consumerName&gt;.syncAttributeName */</em>
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String SYNC_ATTRIBUTE_NAME = <span class="jxr_string">"syncAttributeName"</span>;
+<a class="jxr_linenumber" name="L656" href="#L656">656</a> 
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>   <em class="jxr_javadoccomment">/** Property name for subclassed target consumer defined in changeLog.consumer.&lt;consumerName&gt;.class */</em>
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String CONSUMER_CLASS_NAME = <span class="jxr_string">"class"</span>;
+<a class="jxr_linenumber" name="L659" href="#L659">659</a> 
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L661" href="#L661">661</a> <em class="jxr_javadoccomment">   * expected to be overidden</em>
+<a class="jxr_linenumber" name="L662" href="#L662">662</a> <em class="jxr_javadoccomment">   * @param consumerName</em>
+<a class="jxr_linenumber" name="L663" href="#L663">663</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L664" href="#L664">664</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>   <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">boolean</strong> isFullSyncRunning(String consumerName) {
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>     <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L667" href="#L667">667</a>   }
+<a class="jxr_linenumber" name="L668" href="#L668">668</a> 
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L670" href="#L670">670</a> <em class="jxr_javadoccomment">   * Process the list of changeLogEntries since the last time this consumer was run.</em>
+<a class="jxr_linenumber" name="L671" href="#L671">671</a> <em class="jxr_javadoccomment">   * This method will be called by grouper daemon (aka grouper loader).</em>
+<a class="jxr_linenumber" name="L672" href="#L672">672</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L673" href="#L673">673</a> <em class="jxr_javadoccomment">   * @param changeLogEntryList</em>
+<a class="jxr_linenumber" name="L674" href="#L674">674</a> <em class="jxr_javadoccomment">   * @param changeLogProcessorMetadata</em>
+<a class="jxr_linenumber" name="L675" href="#L675">675</a> <em class="jxr_javadoccomment">   * @return last processed changeLogEntry Id</em>
+<a class="jxr_linenumber" name="L676" href="#L676">676</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>   @Override
+<a class="jxr_linenumber" name="L678" href="#L678">678</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> processChangeLogEntries(List&lt;ChangeLogEntry&gt; changeLogEntryList,
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>       <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogProcessorMetadata.html">ChangeLogProcessorMetadata</a> changeLogProcessorMetadata) {
+<a class="jxr_linenumber" name="L680" href="#L680">680</a> 
+<a class="jxr_linenumber" name="L681" href="#L681">681</a>     <em class="jxr_comment">// Name of the consumer configured in grouper-loader.properties that extends this class</em>
+<a class="jxr_linenumber" name="L682" href="#L682">682</a>     <em class="jxr_comment">// e.g. changeLog.consumer.&lt;consumerName&gt;.class = edu.example.changeLogConsumer</em>
+<a class="jxr_linenumber" name="L683" href="#L683">683</a>     <strong class="jxr_keyword">if</strong> (consumerName == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>       consumerName = changeLogProcessorMetadata.getConsumerName();
+<a class="jxr_linenumber" name="L685" href="#L685">685</a>     }
+<a class="jxr_linenumber" name="L686" href="#L686">686</a> 
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>     <a href="../../../../../edu/internet2/middleware/grouper/app/loader/GrouperLoaderConfig.html">GrouperLoaderConfig</a> config = GrouperLoaderConfig.retrieveConfig();
+<a class="jxr_linenumber" name="L688" href="#L688">688</a>     syncAttributeName = config.propertyValueStringRequired(<span class="jxr_string">"changeLog.consumer."</span> + consumerName + <span class="jxr_string">"."</span>
+<a class="jxr_linenumber" name="L689" href="#L689">689</a>         + SYNC_ATTRIBUTE_NAME);
+<a class="jxr_linenumber" name="L690" href="#L690">690</a>     consumerClassName = config.propertyValueStringRequired(<span class="jxr_string">"changeLog.consumer."</span> + consumerName + <span class="jxr_string">"."</span>
+<a class="jxr_linenumber" name="L691" href="#L691">691</a>         + CONSUMER_CLASS_NAME);
+<a class="jxr_linenumber" name="L692" href="#L692">692</a> 
+<a class="jxr_linenumber" name="L693" href="#L693">693</a>     <strong class="jxr_keyword">boolean</strong> retryOnError = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(<span class="jxr_string">"changeLog.consumer."</span> + consumerName + <span class="jxr_string">".retryOnError"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>     
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>     <em class="jxr_comment">// syncAttribute name configured in grouper-loader.properties</em>
+<a class="jxr_linenumber" name="L696" href="#L696">696</a>     <em class="jxr_comment">// e.g. changeLog.consumer.&lt;consumerName&gt;.&lt;syncAttributeName&gt; = o365</em>
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>     <strong class="jxr_keyword">if</strong> (syncAttribute == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L698" href="#L698">698</a>       syncAttribute = AttributeDefNameFinder.findByName(syncAttributeName, false);
+<a class="jxr_linenumber" name="L699" href="#L699">699</a>       <strong class="jxr_keyword">if</strong> (syncAttribute == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L700" href="#L700">700</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Attribute name doesnt exist, you need to create it via GSH or the UI, something like\n\n"</span>
+<a class="jxr_linenumber" name="L701" href="#L701">701</a>             + <span class="jxr_string">"GrouperSession grouperSession = GrouperSession.startRootSession();\n"</span>
+<a class="jxr_linenumber" name="L702" href="#L702">702</a>             + <span class="jxr_string">"provisioningMarkerAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(\&quot;"</span> + syncAttributeName + <span class="jxr_string">"Def\&quot;).assignToStem(true).assignToGroup(true).save();\n"</span>
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>             + <span class="jxr_string">"this.provisioningMarkerAttributeName = new AttributeDefNameSave(grouperSession, this.provisioningMarkerAttributeDef).assignName(\&quot;"</span> + syncAttributeName + <span class="jxr_string">"\&quot;).save();\n\n"</span>);
+<a class="jxr_linenumber" name="L704" href="#L704">704</a> <em class="jxr_comment">//        new AttributeDefSave</em>
+<a class="jxr_linenumber" name="L705" href="#L705">705</a> <em class="jxr_comment">//        // missing sync attribute, so let's create it</em>
+<a class="jxr_linenumber" name="L706" href="#L706">706</a> <em class="jxr_comment">//        // first check for etc:attribute:changeLogConsumer, and create if missing</em>
+<a class="jxr_linenumber" name="L707" href="#L707">707</a> <em class="jxr_comment">//        Stem configFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(),</em>
+<a class="jxr_linenumber" name="L708" href="#L708">708</a> <em class="jxr_comment">//            ATTRIBUTE_CONFIG_FOLDER_NAME + ":" + CONFIG_FOLDER_NAME, false);</em>
+<a class="jxr_linenumber" name="L709" href="#L709">709</a> <em class="jxr_comment">//        if (configFolder == null) {</em>
+<a class="jxr_linenumber" name="L710" href="#L710">710</a> <em class="jxr_comment">//          final Stem etcAttributeFolder = StemFinder.findByName(</em>
+<a class="jxr_linenumber" name="L711" href="#L711">711</a> <em class="jxr_comment">//              GrouperSession.staticGrouperSession(), ATTRIBUTE_CONFIG_FOLDER_NAME, false);</em>
+<a class="jxr_linenumber" name="L712" href="#L712">712</a> <em class="jxr_comment">//          configFolder = etcAttributeFolder.addChildStem(CONFIG_FOLDER_NAME,</em>
+<a class="jxr_linenumber" name="L713" href="#L713">713</a> <em class="jxr_comment">//              CONFIG_FOLDER_NAME);</em>
+<a class="jxr_linenumber" name="L714" href="#L714">714</a> <em class="jxr_comment">//        }</em>
+<a class="jxr_linenumber" name="L715" href="#L715">715</a> <em class="jxr_comment">//        // next check for attribute definition etc:attribute:changeLogConsumer:&lt;syncAttributeName&gt;AttributeDef, and create if missing</em>
+<a class="jxr_linenumber" name="L716" href="#L716">716</a> <em class="jxr_comment">//        AttributeDef syncAttrDef = AttributeDefFinder.findByName(syncAttributeName</em>
+<a class="jxr_linenumber" name="L717" href="#L717">717</a> <em class="jxr_comment">//            + "Def", false);</em>
+<a class="jxr_linenumber" name="L718" href="#L718">718</a> <em class="jxr_comment">//        if (syncAttrDef == null) {</em>
+<a class="jxr_linenumber" name="L719" href="#L719">719</a> <em class="jxr_comment">//          LOG.info("{} attribute definition {} not found, creating it now.",</em>
+<a class="jxr_linenumber" name="L720" href="#L720">720</a> <em class="jxr_comment">//              consumerName, syncAttributeName + "Def");</em>
+<a class="jxr_linenumber" name="L721" href="#L721">721</a> <em class="jxr_comment">//          syncAttrDef = configFolder.addChildAttributeDef(syncAttributeName + "Def",</em>
+<a class="jxr_linenumber" name="L722" href="#L722">722</a> <em class="jxr_comment">//              AttributeDefType.attr);</em>
+<a class="jxr_linenumber" name="L723" href="#L723">723</a> <em class="jxr_comment">//          syncAttrDef.setAssignToGroup(true);</em>
+<a class="jxr_linenumber" name="L724" href="#L724">724</a> <em class="jxr_comment">//          syncAttrDef.setAssignToStem(true);</em>
+<a class="jxr_linenumber" name="L725" href="#L725">725</a> <em class="jxr_comment">//          syncAttrDef.store();</em>
+<a class="jxr_linenumber" name="L726" href="#L726">726</a> <em class="jxr_comment">//        }</em>
+<a class="jxr_linenumber" name="L727" href="#L727">727</a> <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L728" href="#L728">728</a> <em class="jxr_comment">//        // finally create the attribute etc:attribute:changeLogConsumer:&lt;syncAttributeName&gt;. This is the marker attribute for the consumer.</em>
+<a class="jxr_linenumber" name="L729" href="#L729">729</a> <em class="jxr_comment">//        syncAttribute = configFolder.addChildAttributeDefName(syncAttrDef,</em>
+<a class="jxr_linenumber" name="L730" href="#L730">730</a> <em class="jxr_comment">//            syncAttributeName, syncAttributeName);</em>
+<a class="jxr_linenumber" name="L731" href="#L731">731</a> <em class="jxr_comment">//        LOG.info("{} created attribute name {}.", consumerName, syncAttributeName);</em>
+<a class="jxr_linenumber" name="L732" href="#L732">732</a>       }
+<a class="jxr_linenumber" name="L733" href="#L733">733</a>     }
+<a class="jxr_linenumber" name="L734" href="#L734">734</a> 
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>     <em class="jxr_comment">// change log sequence to return. will be updated in grouper db to keep track of processing progress.</em>
+<a class="jxr_linenumber" name="L736" href="#L736">736</a>     <strong class="jxr_keyword">long</strong> changeLogEntrySequenceNumber = -1;
+<a class="jxr_linenumber" name="L737" href="#L737">737</a> 
+<a class="jxr_linenumber" name="L738" href="#L738">738</a>     Map&lt;String, Object&gt; overallDebugLog = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L739" href="#L739">739</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
+<a class="jxr_linenumber" name="L740" href="#L740">740</a>       overallDebugLog = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;();
+<a class="jxr_linenumber" name="L741" href="#L741">741</a>       overallDebugLog.put(<span class="jxr_string">"consumerName"</span>, consumerName);
+<a class="jxr_linenumber" name="L742" href="#L742">742</a>       overallDebugLog.put(<span class="jxr_string">"consumerClassName"</span>, consumerClassName);
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>       overallDebugLog.put(<span class="jxr_string">"startingSequenceNumber"</span>, changeLogEntryList.get(0).getSequenceNumber());
+<a class="jxr_linenumber" name="L744" href="#L744">744</a>       overallDebugLog.put(<span class="jxr_string">"numberOfRecords"</span>, GrouperUtil.length(changeLogEntryList));
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>       overallDebugLog.put(<span class="jxr_string">"method"</span>, <span class="jxr_string">"processChangeLogEntries"</span>);
+<a class="jxr_linenumber" name="L746" href="#L746">746</a>       overallDebugLog.put(<span class="jxr_string">"retryOnError"</span>, retryOnError);
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>     }
+<a class="jxr_linenumber" name="L748" href="#L748">748</a>     <strong class="jxr_keyword">int</strong> errorCount = 0;
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>       <strong class="jxr_keyword">for</strong> (ChangeLogEntry changeLogEntry : changeLogEntryList) {
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>   
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>         <em class="jxr_comment">// TODO bail out as soon as we can determine this change doesn't apply to us</em>
+<a class="jxr_linenumber" name="L753" href="#L753">753</a>         <em class="jxr_comment">// is the earliest we can tell?</em>
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>         <em class="jxr_comment">// only supporting provisioing attributes on groups and folders (i.e. groups within folders)?</em>
+<a class="jxr_linenumber" name="L755" href="#L755">755</a>         <em class="jxr_comment">// capture all group and membership create/updates/delete for marked groups and folders</em>
+<a class="jxr_linenumber" name="L756" href="#L756">756</a>         <em class="jxr_comment">// is this a group or membership event?</em>
+<a class="jxr_linenumber" name="L757" href="#L757">757</a>   
+<a class="jxr_linenumber" name="L758" href="#L758">758</a>         changeLogEntrySequenceNumber = changeLogEntry.getSequenceNumber();
 <a class="jxr_linenumber" name="L759" href="#L759">759</a>   
-<a class="jxr_linenumber" name="L760" href="#L760">760</a>         changeLogEntrySequenceNumber = changeLogEntry.getSequenceNumber();
-<a class="jxr_linenumber" name="L761" href="#L761">761</a>   
-<a class="jxr_linenumber" name="L762" href="#L762">762</a>         <em class="jxr_comment">// If full sync is running abort this run and try again later</em>
-<a class="jxr_linenumber" name="L763" href="#L763">763</a>         <strong class="jxr_keyword">boolean</strong> fullSyncRunning = isFullSyncRunning(consumerName);
-<a class="jxr_linenumber" name="L764" href="#L764">764</a>         
-<a class="jxr_linenumber" name="L765" href="#L765">765</a>         
-<a class="jxr_linenumber" name="L766" href="#L766">766</a>         <strong class="jxr_keyword">if</strong> (fullSyncRunning) {
-<a class="jxr_linenumber" name="L767" href="#L767">767</a>           <strong class="jxr_keyword">if</strong> (overallDebugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L768" href="#L768">768</a>             overallDebugLog.put(<span class="jxr_string">"fullSyncRunning"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L769" href="#L769">769</a>           }
-<a class="jxr_linenumber" name="L770" href="#L770">770</a>           <strong class="jxr_keyword">return</strong> changeLogEntrySequenceNumber - 1;
-<a class="jxr_linenumber" name="L771" href="#L771">771</a>         }
-<a class="jxr_linenumber" name="L772" href="#L772">772</a>   
-<a class="jxr_linenumber" name="L773" href="#L773">773</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L774" href="#L774">774</a>           <em class="jxr_comment">// process the changeLogEntry</em>
-<a class="jxr_linenumber" name="L775" href="#L775">775</a>           processChangeLogEntry(changeLogEntry);
-<a class="jxr_linenumber" name="L776" href="#L776">776</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L777" href="#L777">777</a>           String message = consumerName
-<a class="jxr_linenumber" name="L778" href="#L778">778</a>               + <span class="jxr_string">" threw an exception processing change log entry sequence number "</span>
-<a class="jxr_linenumber" name="L779" href="#L779">779</a>               + changeLogEntrySequenceNumber + <span class="jxr_string">"."</span>;
-<a class="jxr_linenumber" name="L780" href="#L780">780</a>           LOG.error(message, e);
-<a class="jxr_linenumber" name="L781" href="#L781">781</a>           changeLogProcessorMetadata.registerProblem(e, message,
-<a class="jxr_linenumber" name="L782" href="#L782">782</a>               changeLogEntrySequenceNumber);
-<a class="jxr_linenumber" name="L783" href="#L783">783</a>           changeLogProcessorMetadata.setHadProblem(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L784" href="#L784">784</a>           changeLogProcessorMetadata.setRecordException(e);
-<a class="jxr_linenumber" name="L785" href="#L785">785</a>           changeLogProcessorMetadata
-<a class="jxr_linenumber" name="L786" href="#L786">786</a>               .setRecordExceptionSequence(changeLogEntrySequenceNumber);
-<a class="jxr_linenumber" name="L787" href="#L787">787</a>           errorCount++;
-<a class="jxr_linenumber" name="L788" href="#L788">788</a>           <strong class="jxr_keyword">if</strong> (retryOnError) {
-<a class="jxr_linenumber" name="L789" href="#L789">789</a>             <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L790" href="#L790">790</a>           }
-<a class="jxr_linenumber" name="L791" href="#L791">791</a>         }
-<a class="jxr_linenumber" name="L792" href="#L792">792</a>   
-<a class="jxr_linenumber" name="L793" href="#L793">793</a>       }
-<a class="jxr_linenumber" name="L794" href="#L794">794</a> 
-<a class="jxr_linenumber" name="L795" href="#L795">795</a>       <strong class="jxr_keyword">if</strong> (overallDebugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L796" href="#L796">796</a>         overallDebugLog.put(<span class="jxr_string">"finishedChangeLogSequence"</span>, changeLogEntrySequenceNumber);
-<a class="jxr_linenumber" name="L797" href="#L797">797</a>         <strong class="jxr_keyword">if</strong> (errorCount &gt; 0) {
-<a class="jxr_linenumber" name="L798" href="#L798">798</a>           overallDebugLog.put(<span class="jxr_string">"errorCount"</span>, errorCount);
-<a class="jxr_linenumber" name="L799" href="#L799">799</a>         }
-<a class="jxr_linenumber" name="L800" href="#L800">800</a>       }
-<a class="jxr_linenumber" name="L801" href="#L801">801</a>       
-<a class="jxr_linenumber" name="L802" href="#L802">802</a>       <em class="jxr_comment">// TODO how would we get here?</em>
-<a class="jxr_linenumber" name="L803" href="#L803">803</a>       <strong class="jxr_keyword">if</strong> (changeLogEntrySequenceNumber == -1) {
-<a class="jxr_linenumber" name="L804" href="#L804">804</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(consumerName + <span class="jxr_string">" was unable to dispatch any records."</span>);
-<a class="jxr_linenumber" name="L805" href="#L805">805</a>       }
-<a class="jxr_linenumber" name="L806" href="#L806">806</a>   
-<a class="jxr_linenumber" name="L807" href="#L807">807</a>       <em class="jxr_comment">// the last changeLogEntrySequence processed</em>
-<a class="jxr_linenumber" name="L808" href="#L808">808</a>       <strong class="jxr_keyword">return</strong> changeLogEntrySequenceNumber;
-<a class="jxr_linenumber" name="L809" href="#L809">809</a>     } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L810" href="#L810">810</a>       <strong class="jxr_keyword">if</strong> (overallDebugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L811" href="#L811">811</a>         LOG.debug(GrouperUtil.mapToString(overallDebugLog));
-<a class="jxr_linenumber" name="L812" href="#L812">812</a>       }
-<a class="jxr_linenumber" name="L813" href="#L813">813</a>     }
-<a class="jxr_linenumber" name="L814" href="#L814">814</a>       
-<a class="jxr_linenumber" name="L815" href="#L815">815</a>   }
-<a class="jxr_linenumber" name="L816" href="#L816">816</a> 
-<a class="jxr_linenumber" name="L817" href="#L817">817</a>   <em class="jxr_javadoccomment">/** debug log for the current change log entry */</em>
-<a class="jxr_linenumber" name="L818" href="#L818">818</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, Object&gt; debugLog = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L819" href="#L819">819</a>   
-<a class="jxr_linenumber" name="L820" href="#L820">820</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L821" href="#L821">821</a> <em class="jxr_javadoccomment">   * Call the method of the {@link ChangeLogEventType} enum which matches the {@link ChangeLogEntry} category and action (i.e. the change log event type).</em>
-<a class="jxr_linenumber" name="L822" href="#L822">822</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L823" href="#L823">823</a> <em class="jxr_javadoccomment">   * @param changeLogEntry the change log entry</em>
-<a class="jxr_linenumber" name="L824" href="#L824">824</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L825" href="#L825">825</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processChangeLogEntry(<a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> changeLogEntry) {
-<a class="jxr_linenumber" name="L826" href="#L826">826</a> 
-<a class="jxr_linenumber" name="L827" href="#L827">827</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
-<a class="jxr_linenumber" name="L828" href="#L828">828</a>        <strong class="jxr_keyword">this</strong>.debugLog = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;();
-<a class="jxr_linenumber" name="L829" href="#L829">829</a>        <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"consumerName"</span>, consumerName);
-<a class="jxr_linenumber" name="L830" href="#L830">830</a>        <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"startingSequenceNumber"</span>, changeLogEntry.getSequenceNumber());
-<a class="jxr_linenumber" name="L831" href="#L831">831</a>        <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"method"</span>, <span class="jxr_string">"processChangeLogEntry"</span>);
-<a class="jxr_linenumber" name="L832" href="#L832">832</a>     }
-<a class="jxr_linenumber" name="L833" href="#L833">833</a> 
-<a class="jxr_linenumber" name="L834" href="#L834">834</a>     <em class="jxr_comment">// construct key from changeLogEntry in the form of &lt;category&gt;_&lt;action&gt;</em>
-<a class="jxr_linenumber" name="L835" href="#L835">835</a>     <strong class="jxr_keyword">final</strong> String changeLogEventTypeKey = changeLogEntry.getChangeLogType()
-<a class="jxr_linenumber" name="L836" href="#L836">836</a>         .getChangeLogCategory() + <span class="jxr_string">"_"</span>
-<a class="jxr_linenumber" name="L837" href="#L837">837</a>         + changeLogEntry.getChangeLogType().getActionName();
-<a class="jxr_linenumber" name="L838" href="#L838">838</a> 
-<a class="jxr_linenumber" name="L839" href="#L839">839</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L840" href="#L840">840</a>       <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"changeLogEventTypeKey"</span>, changeLogEventTypeKey);
-<a class="jxr_linenumber" name="L841" href="#L841">841</a>     }
-<a class="jxr_linenumber" name="L842" href="#L842">842</a>     
-<a class="jxr_linenumber" name="L843" href="#L843">843</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImpl.html">ChangeLogEventType</a> changeLogEventType = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L844" href="#L844">844</a> 
-<a class="jxr_linenumber" name="L845" href="#L845">845</a>     <em class="jxr_comment">// look up method to map to call it</em>
-<a class="jxr_linenumber" name="L846" href="#L846">846</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L847" href="#L847">847</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L848" href="#L848">848</a>         changeLogEventType = ChangeLogEventType.valueOf(changeLogEventTypeKey);
-<a class="jxr_linenumber" name="L849" href="#L849">849</a>       } <strong class="jxr_keyword">catch</strong> (IllegalArgumentException e) {
-<a class="jxr_linenumber" name="L850" href="#L850">850</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L851" href="#L851">851</a>           <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"invalidEvent"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L852" href="#L852">852</a>         }      
-<a class="jxr_linenumber" name="L853" href="#L853">853</a>       }
-<a class="jxr_linenumber" name="L854" href="#L854">854</a>       <strong class="jxr_keyword">if</strong> (changeLogEventType != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L855" href="#L855">855</a>         changeLogEventType.process(changeLogEntry, <strong class="jxr_keyword">this</strong>);
-<a class="jxr_linenumber" name="L856" href="#L856">856</a>       }
-<a class="jxr_linenumber" name="L857" href="#L857">857</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L858" href="#L858">858</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L859" href="#L859">859</a>         <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"error"</span>, GrouperUtil.getFullStackTrace(e));
-<a class="jxr_linenumber" name="L860" href="#L860">860</a>       }
-<a class="jxr_linenumber" name="L861" href="#L861">861</a>       <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L862" href="#L862">862</a>     } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L863" href="#L863">863</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L864" href="#L864">864</a>         LOG.debug(GrouperUtil.mapToString(<strong class="jxr_keyword">this</strong>.debugLog));
-<a class="jxr_linenumber" name="L865" href="#L865">865</a>       }
-<a class="jxr_linenumber" name="L866" href="#L866">866</a>     }
-<a class="jxr_linenumber" name="L867" href="#L867">867</a>   }
-<a class="jxr_linenumber" name="L868" href="#L868">868</a> 
-<a class="jxr_linenumber" name="L869" href="#L869">869</a>   <em class="jxr_comment">// TODO implement change log type mapping to methods</em>
-<a class="jxr_linenumber" name="L870" href="#L870">870</a>   <em class="jxr_comment">// TODO in implement class override methods for specific functionality?</em>
-<a class="jxr_linenumber" name="L871" href="#L871">871</a> 
-<a class="jxr_linenumber" name="L872" href="#L872">872</a> }
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>         <em class="jxr_comment">// If full sync is running abort this run and try again later</em>
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>         <strong class="jxr_keyword">boolean</strong> fullSyncRunning = isFullSyncRunning(consumerName);
+<a class="jxr_linenumber" name="L762" href="#L762">762</a>         
+<a class="jxr_linenumber" name="L763" href="#L763">763</a>         
+<a class="jxr_linenumber" name="L764" href="#L764">764</a>         <strong class="jxr_keyword">if</strong> (fullSyncRunning) {
+<a class="jxr_linenumber" name="L765" href="#L765">765</a>           <strong class="jxr_keyword">if</strong> (overallDebugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L766" href="#L766">766</a>             overallDebugLog.put(<span class="jxr_string">"fullSyncRunning"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L767" href="#L767">767</a>           }
+<a class="jxr_linenumber" name="L768" href="#L768">768</a>           <strong class="jxr_keyword">return</strong> changeLogEntrySequenceNumber - 1;
+<a class="jxr_linenumber" name="L769" href="#L769">769</a>         }
+<a class="jxr_linenumber" name="L770" href="#L770">770</a>   
+<a class="jxr_linenumber" name="L771" href="#L771">771</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L772" href="#L772">772</a>           <em class="jxr_comment">// process the changeLogEntry</em>
+<a class="jxr_linenumber" name="L773" href="#L773">773</a>           processChangeLogEntry(changeLogEntry);
+<a class="jxr_linenumber" name="L774" href="#L774">774</a>         } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L775" href="#L775">775</a>           String message = consumerName
+<a class="jxr_linenumber" name="L776" href="#L776">776</a>               + <span class="jxr_string">" threw an exception processing change log entry sequence number "</span>
+<a class="jxr_linenumber" name="L777" href="#L777">777</a>               + changeLogEntrySequenceNumber + <span class="jxr_string">"."</span>;
+<a class="jxr_linenumber" name="L778" href="#L778">778</a>           LOG.error(message, e);
+<a class="jxr_linenumber" name="L779" href="#L779">779</a>           changeLogProcessorMetadata.registerProblem(e, message,
+<a class="jxr_linenumber" name="L780" href="#L780">780</a>               changeLogEntrySequenceNumber);
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>           changeLogProcessorMetadata.setHadProblem(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L782" href="#L782">782</a>           changeLogProcessorMetadata.setRecordException(e);
+<a class="jxr_linenumber" name="L783" href="#L783">783</a>           changeLogProcessorMetadata
+<a class="jxr_linenumber" name="L784" href="#L784">784</a>               .setRecordExceptionSequence(changeLogEntrySequenceNumber);
+<a class="jxr_linenumber" name="L785" href="#L785">785</a>           errorCount++;
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>           <strong class="jxr_keyword">if</strong> (retryOnError) {
+<a class="jxr_linenumber" name="L787" href="#L787">787</a>             <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L788" href="#L788">788</a>           }
+<a class="jxr_linenumber" name="L789" href="#L789">789</a>         }
+<a class="jxr_linenumber" name="L790" href="#L790">790</a>   
+<a class="jxr_linenumber" name="L791" href="#L791">791</a>       }
+<a class="jxr_linenumber" name="L792" href="#L792">792</a> 
+<a class="jxr_linenumber" name="L793" href="#L793">793</a>       <strong class="jxr_keyword">if</strong> (overallDebugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>         overallDebugLog.put(<span class="jxr_string">"finishedChangeLogSequence"</span>, changeLogEntrySequenceNumber);
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>         <strong class="jxr_keyword">if</strong> (errorCount &gt; 0) {
+<a class="jxr_linenumber" name="L796" href="#L796">796</a>           overallDebugLog.put(<span class="jxr_string">"errorCount"</span>, errorCount);
+<a class="jxr_linenumber" name="L797" href="#L797">797</a>         }
+<a class="jxr_linenumber" name="L798" href="#L798">798</a>       }
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>       
+<a class="jxr_linenumber" name="L800" href="#L800">800</a>       <em class="jxr_comment">// TODO how would we get here?</em>
+<a class="jxr_linenumber" name="L801" href="#L801">801</a>       <strong class="jxr_keyword">if</strong> (changeLogEntrySequenceNumber == -1) {
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(consumerName + <span class="jxr_string">" was unable to dispatch any records."</span>);
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>       }
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>   
+<a class="jxr_linenumber" name="L805" href="#L805">805</a>       <em class="jxr_comment">// the last changeLogEntrySequence processed</em>
+<a class="jxr_linenumber" name="L806" href="#L806">806</a>       <strong class="jxr_keyword">return</strong> changeLogEntrySequenceNumber;
+<a class="jxr_linenumber" name="L807" href="#L807">807</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L808" href="#L808">808</a>       <strong class="jxr_keyword">if</strong> (overallDebugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L809" href="#L809">809</a>         LOG.debug(GrouperUtil.mapToString(overallDebugLog));
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>       }
+<a class="jxr_linenumber" name="L811" href="#L811">811</a>     }
+<a class="jxr_linenumber" name="L812" href="#L812">812</a>       
+<a class="jxr_linenumber" name="L813" href="#L813">813</a>   }
+<a class="jxr_linenumber" name="L814" href="#L814">814</a> 
+<a class="jxr_linenumber" name="L815" href="#L815">815</a>   <em class="jxr_javadoccomment">/** debug log for the current change log entry */</em>
+<a class="jxr_linenumber" name="L816" href="#L816">816</a>   <strong class="jxr_keyword">private</strong> Map&lt;String, Object&gt; debugLog = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L817" href="#L817">817</a>   
+<a class="jxr_linenumber" name="L818" href="#L818">818</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L819" href="#L819">819</a> <em class="jxr_javadoccomment">   * Call the method of the {@link ChangeLogEventType} enum which matches the {@link ChangeLogEntry} category and action (i.e. the change log event type).</em>
+<a class="jxr_linenumber" name="L820" href="#L820">820</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L821" href="#L821">821</a> <em class="jxr_javadoccomment">   * @param changeLogEntry the change log entry</em>
+<a class="jxr_linenumber" name="L822" href="#L822">822</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L823" href="#L823">823</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processChangeLogEntry(<a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogEntry.html">ChangeLogEntry</a> changeLogEntry) {
+<a class="jxr_linenumber" name="L824" href="#L824">824</a> 
+<a class="jxr_linenumber" name="L825" href="#L825">825</a>     <strong class="jxr_keyword">if</strong> (LOG.isDebugEnabled()) {
+<a class="jxr_linenumber" name="L826" href="#L826">826</a>        <strong class="jxr_keyword">this</strong>.debugLog = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;String, Object&gt;();
+<a class="jxr_linenumber" name="L827" href="#L827">827</a>        <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"consumerName"</span>, consumerName);
+<a class="jxr_linenumber" name="L828" href="#L828">828</a>        <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"startingSequenceNumber"</span>, changeLogEntry.getSequenceNumber());
+<a class="jxr_linenumber" name="L829" href="#L829">829</a>        <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"method"</span>, <span class="jxr_string">"processChangeLogEntry"</span>);
+<a class="jxr_linenumber" name="L830" href="#L830">830</a>     }
+<a class="jxr_linenumber" name="L831" href="#L831">831</a> 
+<a class="jxr_linenumber" name="L832" href="#L832">832</a>     <em class="jxr_comment">// construct key from changeLogEntry in the form of &lt;category&gt;_&lt;action&gt;</em>
+<a class="jxr_linenumber" name="L833" href="#L833">833</a>     <strong class="jxr_keyword">final</strong> String changeLogEventTypeKey = changeLogEntry.getChangeLogType()
+<a class="jxr_linenumber" name="L834" href="#L834">834</a>         .getChangeLogCategory() + <span class="jxr_string">"_"</span>
+<a class="jxr_linenumber" name="L835" href="#L835">835</a>         + changeLogEntry.getChangeLogType().getActionName();
+<a class="jxr_linenumber" name="L836" href="#L836">836</a> 
+<a class="jxr_linenumber" name="L837" href="#L837">837</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L838" href="#L838">838</a>       <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"changeLogEventTypeKey"</span>, changeLogEventTypeKey);
+<a class="jxr_linenumber" name="L839" href="#L839">839</a>     }
+<a class="jxr_linenumber" name="L840" href="#L840">840</a>     
+<a class="jxr_linenumber" name="L841" href="#L841">841</a>     <a href="../../../../../edu/internet2/middleware/grouper/changeLog/ChangeLogConsumerBaseImpl.html">ChangeLogEventType</a> changeLogEventType = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L842" href="#L842">842</a> 
+<a class="jxr_linenumber" name="L843" href="#L843">843</a>     <em class="jxr_comment">// look up method to map to call it</em>
+<a class="jxr_linenumber" name="L844" href="#L844">844</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L845" href="#L845">845</a>       <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L846" href="#L846">846</a>         changeLogEventType = ChangeLogEventType.valueOf(changeLogEventTypeKey);
+<a class="jxr_linenumber" name="L847" href="#L847">847</a>       } <strong class="jxr_keyword">catch</strong> (IllegalArgumentException e) {
+<a class="jxr_linenumber" name="L848" href="#L848">848</a>         <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L849" href="#L849">849</a>           <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"invalidEvent"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L850" href="#L850">850</a>         }      
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>       }
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>       <strong class="jxr_keyword">if</strong> (changeLogEventType != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>         changeLogEventType.process(changeLogEntry, <strong class="jxr_keyword">this</strong>);
+<a class="jxr_linenumber" name="L854" href="#L854">854</a>       }
+<a class="jxr_linenumber" name="L855" href="#L855">855</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L856" href="#L856">856</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L857" href="#L857">857</a>         <strong class="jxr_keyword">this</strong>.debugLog.put(<span class="jxr_string">"error"</span>, GrouperUtil.getFullStackTrace(e));
+<a class="jxr_linenumber" name="L858" href="#L858">858</a>       }
+<a class="jxr_linenumber" name="L859" href="#L859">859</a>       <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L860" href="#L860">860</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L861" href="#L861">861</a>       <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.debugLog != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L862" href="#L862">862</a>         LOG.debug(GrouperUtil.mapToString(<strong class="jxr_keyword">this</strong>.debugLog));
+<a class="jxr_linenumber" name="L863" href="#L863">863</a>       }
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>     }
+<a class="jxr_linenumber" name="L865" href="#L865">865</a>   }
+<a class="jxr_linenumber" name="L866" href="#L866">866</a> 
+<a class="jxr_linenumber" name="L867" href="#L867">867</a>   <em class="jxr_comment">// TODO implement change log type mapping to methods</em>
+<a class="jxr_linenumber" name="L868" href="#L868">868</a>   <em class="jxr_comment">// TODO in implement class override methods for specific functionality?</em>
+<a class="jxr_linenumber" name="L869" href="#L869">869</a> 
+<a class="jxr_linenumber" name="L870" href="#L870">870</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>

@@ -387,7 +387,7 @@
 <a class="jxr_linenumber" name="L379" href="#L379">379</a>       <em class="jxr_comment">//define the permissions</em>
 <a class="jxr_linenumber" name="L380" href="#L380">380</a>       
 <a class="jxr_linenumber" name="L381" href="#L381">381</a>       Group privilegedGroup = <strong class="jxr_keyword">new</strong> GroupSave(grouperSession)
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         .assignName(SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME)
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         .assignName(SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME())
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>         .assignCreateParentStemsIfNotExist(<strong class="jxr_keyword">true</strong>).save();
 <a class="jxr_linenumber" name="L384" href="#L384">384</a>       Role role = <strong class="jxr_keyword">new</strong> GroupSave(grouperSession)
 <a class="jxr_linenumber" name="L385" href="#L385">385</a>         .assignName(<span class="jxr_string">"subjectAttributes:roles:subjectAttributeRole"</span>).assignTypeOfGroup(TypeOfGroup.role)

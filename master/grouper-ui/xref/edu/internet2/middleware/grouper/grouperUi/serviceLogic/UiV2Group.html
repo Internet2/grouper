@@ -4531,7 +4531,7 @@
 <a class="jxr_linenumber" name="L4523" href="#L4523">4523</a>     
 <a class="jxr_linenumber" name="L4524" href="#L4524">4524</a>         <em class="jxr_comment">// check sql first</em>
 <a class="jxr_linenumber" name="L4525" href="#L4525">4525</a>         AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-<a class="jxr_linenumber" name="L4526" href="#L4526">4526</a>             .findByNameSecure(<span class="jxr_string">"etc:legacy:attribute:legacyGroupType_grouperLoader"</span>, false);
+<a class="jxr_linenumber" name="L4526" href="#L4526">4526</a>             .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString(<span class="jxr_string">"grouper.rootStemForBuiltinObjects"</span>, <span class="jxr_string">"etc"</span>) + <span class="jxr_string">":legacy:attribute:legacyGroupType_grouperLoader"</span>, false);
 <a class="jxr_linenumber" name="L4527" href="#L4527">4527</a>     
 <a class="jxr_linenumber" name="L4528" href="#L4528">4528</a>         <strong class="jxr_keyword">if</strong> (grouperLoader != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L4529" href="#L4529">4529</a>           <strong class="jxr_keyword">if</strong> (group.getAttributeDelegate().hasAttribute(grouperLoader)) {
