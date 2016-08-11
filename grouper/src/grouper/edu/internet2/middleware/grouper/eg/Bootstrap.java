@@ -326,7 +326,8 @@ public class Bootstrap {
     String  extn        = GrouperUtil.extensionFromName(wheelGroupName);
     
     //if etc:wheel (the old way), use that as the friendly name
-    String  displayExtn = StringUtils.equals(wheelGroupName, "etc:wheel") ? "Wheel Group" 
+    String  displayExtn = StringUtils.equals(wheelGroupName, GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":wheel") 
+        ? "Wheel Group" 
         : "Sysadmin group";
     // check to see if group exists
     try {

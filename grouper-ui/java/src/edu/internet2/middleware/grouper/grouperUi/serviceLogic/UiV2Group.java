@@ -4523,7 +4523,7 @@ public class UiV2Group {
     
         // check sql first
         AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-            .findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false);
+            .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
     
         if (grouperLoader != null) {
           if (group.getAttributeDelegate().hasAttribute(grouperLoader)) {

@@ -10017,7 +10017,7 @@ public enum GrouperDdl implements DdlVersionable {
       String attributeRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
 
       if (StringUtils.isBlank(attributeRootStem)) {
-        attributeRootStem = "etc:attribute";
+        attributeRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute";
       }
       
       //SELECT 

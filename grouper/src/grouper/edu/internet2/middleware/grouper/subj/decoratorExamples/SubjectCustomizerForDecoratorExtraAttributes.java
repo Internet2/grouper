@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -53,8 +54,12 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
   /** stem name of the permission resources which represent columns in the attribute table */
   public static final String PERMISSIONS_STEM_NAME = "subjectAttributes:permissions:columnNames";
 
-  /** privileged employee group name */
-  public static final String PRIVILEGED_ADMIN_GROUP_NAME = "etc:privilegedAdmin";
+  /** privileged employee group name
+   * @return the group name
+   */
+  public static String PRIVILEGED_ADMIN_GROUP_NAME() {
+    return GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":privilegedAdmin";
+  }
 
   /** source id we care about */
   private static final String SOURCE_ID = "jdbc";
@@ -83,7 +88,7 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
       public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
 
         //see if admin
-        boolean isAdmin = new MembershipFinder().assignCheckSecurity(false).addGroup(PRIVILEGED_ADMIN_GROUP_NAME)
+        boolean isAdmin = new MembershipFinder().assignCheckSecurity(false).addGroup(PRIVILEGED_ADMIN_GROUP_NAME())
           .addSubject(subjectChecking).hasMembership();
         
         //see which attributes the user has access to based on permissions

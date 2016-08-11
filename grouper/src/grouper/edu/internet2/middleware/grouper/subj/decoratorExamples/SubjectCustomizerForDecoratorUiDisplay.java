@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
@@ -88,7 +89,8 @@ public class SubjectCustomizerForDecoratorUiDisplay extends SubjectCustomizerBas
           
           @Override
           public Object callback(GrouperSession rootSession) throws GrouperSessionException {
-            Group privilegedGroup = GroupFinder.findByName(rootSession, "etc:privilegedGroup", true);
+            Group privilegedGroup = GroupFinder.findByName(rootSession, 
+                GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":privilegedGroup", true);
             return privilegedGroup.hasMember(subjectCallingGrouperSession);
           }
         });
