@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -684,7 +685,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
 
     //first, get the attribute def name
     AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
-        .findByNameSecure("etc:legacy:attribute:legacyGroupType_grouperLoader", false);
+        .findByNameSecure(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":legacy:attribute:legacyGroupType_grouperLoader", false);
     
     //check if the attribute def name is assigned to this group
     if (grouperLoader != null) {

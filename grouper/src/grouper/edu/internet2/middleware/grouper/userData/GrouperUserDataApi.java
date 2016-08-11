@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -72,11 +73,11 @@ public class GrouperUserDataApi {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Subject subject = SubjectFinder.findRootSubject();
 
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:rules:ruleCheckOwnerId", true);
-    GrouperUserDataApi.favoriteAttributeDefNameAdd("etc:grouperUi:grouperUiUserData", subject, attributeDefName);
+    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:ruleCheckOwnerId", true);
+    GrouperUserDataApi.favoriteAttributeDefNameAdd(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":grouperUi:grouperUiUserData", subject, attributeDefName);
 
-    attributeDefName = AttributeDefNameFinder.findByName("etc:attribute:permissionLimits:limitWeekday9to5", true);
-    GrouperUserDataApi.favoriteAttributeDefNameAdd("etc:grouperUi:grouperUiUserData", subject, attributeDefName);
+    attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:permissionLimits:limitWeekday9to5", true);
+    GrouperUserDataApi.favoriteAttributeDefNameAdd(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":grouperUi:grouperUiUserData", subject, attributeDefName);
 
   }
   

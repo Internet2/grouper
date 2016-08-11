@@ -379,7 +379,7 @@ public class TestSubjectDecorator extends GrouperTest {
       //define the permissions
       
       Group privilegedGroup = new GroupSave(grouperSession)
-        .assignName(SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME)
+        .assignName(SubjectCustomizerForDecoratorExtraAttributes.PRIVILEGED_ADMIN_GROUP_NAME())
         .assignCreateParentStemsIfNotExist(true).save();
       Role role = new GroupSave(grouperSession)
         .assignName("subjectAttributes:roles:subjectAttributeRole").assignTypeOfGroup(TypeOfGroup.role)

@@ -649,8 +649,6 @@ public class ChangeLogConsumerBaseImpl extends ChangeLogConsumerBase {
 
   private AttributeDefName syncAttribute;
 
-  public static String ATTRIBUTE_CONFIG_FOLDER_NAME = "etc:attribute";
-
   public static String CONFIG_FOLDER_NAME = "changeLogConsumer";
 
   /** Property name for marker attribute defined in changeLog.consumer.<consumerName>.syncAttributeName */
