@@ -528,7 +528,7 @@
 <a class="jxr_linenumber" name="L520" href="#L520">520</a>         RuleUtils.ruleCheckOwnerIdName(), folder.getUuid());
 <a class="jxr_linenumber" name="L521" href="#L521">521</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L522" href="#L522">522</a>         RuleUtils.ruleCheckTypeName(), 
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         RuleCheckType.membershipRemoveInFolder.name());
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         RuleCheckType.flattenedMembershipRemoveInFolder.name()); <em class="jxr_comment">// changed to effective</em>
 <a class="jxr_linenumber" name="L524" href="#L524">524</a> 
 <a class="jxr_linenumber" name="L525" href="#L525">525</a>     <em class="jxr_comment">//SUB for all descendants, ONE for just children</em>
 <a class="jxr_linenumber" name="L526" href="#L526">526</a>     attributeValueDelegate.assignValue(
@@ -579,7 +579,7 @@
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
 <a class="jxr_linenumber" name="L572" href="#L572">572</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L573" href="#L573">573</a>         RuleUtils.ruleCheckTypeName(),
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         RuleCheckType.membershipRemove.name());
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>         RuleCheckType.flattenedMembershipRemove.name()); <em class="jxr_comment">// changed to effective</em>
 <a class="jxr_linenumber" name="L575" href="#L575">575</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L576" href="#L576">576</a>         RuleUtils.ruleIfConditionEnumName(),
 <a class="jxr_linenumber" name="L577" href="#L577">577</a>         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
@@ -626,7 +626,7 @@
 <a class="jxr_linenumber" name="L618" href="#L618">618</a>         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
 <a class="jxr_linenumber" name="L619" href="#L619">619</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L620" href="#L620">620</a>         RuleUtils.ruleCheckTypeName(),
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>         RuleCheckType.membershipRemove.name());
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>         RuleCheckType.flattenedMembershipRemove.name()); <em class="jxr_comment">// changed to effective</em>
 <a class="jxr_linenumber" name="L622" href="#L622">622</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L623" href="#L623">623</a>         RuleUtils.ruleIfConditionEnumName(),
 <a class="jxr_linenumber" name="L624" href="#L624">624</a>         RuleIfConditionEnum.thisGroupHasImmediateEnabledNoEndDateMembership.name());
@@ -791,7 +791,7 @@
 <a class="jxr_linenumber" name="L783" href="#L783">783</a>         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
 <a class="jxr_linenumber" name="L784" href="#L784">784</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L785" href="#L785">785</a>         RuleUtils.ruleCheckTypeName(), 
-<a class="jxr_linenumber" name="L786" href="#L786">786</a>         RuleCheckType.membershipRemove.name());
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>         RuleCheckType.flattenedMembershipRemove.name()); <em class="jxr_comment">// changed to effective</em>
 <a class="jxr_linenumber" name="L787" href="#L787">787</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L788" href="#L788">788</a>         RuleUtils.ruleIfConditionEnumName(), 
 <a class="jxr_linenumber" name="L789" href="#L789">789</a>         RuleIfConditionEnum.thisPermissionDefHasNoEndDateAssignment.name());
@@ -837,7 +837,7 @@
 <a class="jxr_linenumber" name="L829" href="#L829">829</a>         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
 <a class="jxr_linenumber" name="L830" href="#L830">830</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L831" href="#L831">831</a>         RuleUtils.ruleCheckTypeName(), 
-<a class="jxr_linenumber" name="L832" href="#L832">832</a>         RuleCheckType.membershipRemove.name());
+<a class="jxr_linenumber" name="L832" href="#L832">832</a>         RuleCheckType.flattenedMembershipRemove.name()); <em class="jxr_comment">// changed to effective</em>
 <a class="jxr_linenumber" name="L833" href="#L833">833</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L834" href="#L834">834</a>         RuleUtils.ruleIfConditionEnumName(), 
 <a class="jxr_linenumber" name="L835" href="#L835">835</a>         RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
@@ -885,7 +885,7 @@
 <a class="jxr_linenumber" name="L877" href="#L877">877</a>         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroupInFolder.getUuid());
 <a class="jxr_linenumber" name="L878" href="#L878">878</a>     attributeValueDelegate.assignValue(
 <a class="jxr_linenumber" name="L879" href="#L879">879</a>         RuleUtils.ruleCheckTypeName(), 
-<a class="jxr_linenumber" name="L880" href="#L880">880</a>         RuleCheckType.membershipRemoveInFolder.name());
+<a class="jxr_linenumber" name="L880" href="#L880">880</a>         RuleCheckType.flattenedMembershipRemoveInFolder.name()); <em class="jxr_comment">// changed to effective</em>
 <a class="jxr_linenumber" name="L881" href="#L881">881</a> 
 <a class="jxr_linenumber" name="L882" href="#L882">882</a>     <em class="jxr_comment">//SUB for all descendants, ONE for just children</em>
 <a class="jxr_linenumber" name="L883" href="#L883">883</a>     attributeValueDelegate.assignValue(
