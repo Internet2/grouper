@@ -490,6 +490,14 @@ public enum RuleCheckType {
     }
     
     /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#runDaemon(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      membershipRemoveInFolder.runDaemon(ruleDefinition);
+    }
+    
+    /**
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#isCheckOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
      */
     @Override
@@ -609,6 +617,14 @@ public enum RuleCheckType {
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
       return this.validate(false, ruleDefinition, ruleCheck, false, true, false, false);
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleCheckType#runDaemon(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      membershipRemove.runDaemon(ruleDefinition);
     }
 
     /**

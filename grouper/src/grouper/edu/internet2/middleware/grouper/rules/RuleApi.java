@@ -520,7 +520,7 @@ public class RuleApi {
         RuleUtils.ruleCheckOwnerIdName(), folder.getUuid());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipRemoveInFolder.name());
+        RuleCheckType.flattenedMembershipRemoveInFolder.name()); // changed to effective
 
     //SUB for all descendants, ONE for just children
     attributeValueDelegate.assignValue(
@@ -571,7 +571,7 @@ public class RuleApi {
         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(),
-        RuleCheckType.membershipRemove.name());
+        RuleCheckType.flattenedMembershipRemove.name()); // changed to effective
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(),
         RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
@@ -618,7 +618,7 @@ public class RuleApi {
         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(),
-        RuleCheckType.membershipRemove.name());
+        RuleCheckType.flattenedMembershipRemove.name()); // changed to effective
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(),
         RuleIfConditionEnum.thisGroupHasImmediateEnabledNoEndDateMembership.name());
@@ -783,7 +783,7 @@ public class RuleApi {
         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipRemove.name());
+        RuleCheckType.flattenedMembershipRemove.name()); // changed to effective
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
         RuleIfConditionEnum.thisPermissionDefHasNoEndDateAssignment.name());
@@ -829,7 +829,7 @@ public class RuleApi {
         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroup.getId());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipRemove.name());
+        RuleCheckType.flattenedMembershipRemove.name()); // changed to effective
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfConditionEnumName(), 
         RuleIfConditionEnum.thisPermissionDefHasAssignment.name());
@@ -877,7 +877,7 @@ public class RuleApi {
         RuleUtils.ruleCheckOwnerIdName(), mustBeInGroupInFolder.getUuid());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), 
-        RuleCheckType.membershipRemoveInFolder.name());
+        RuleCheckType.flattenedMembershipRemoveInFolder.name()); // changed to effective
 
     //SUB for all descendants, ONE for just children
     attributeValueDelegate.assignValue(
