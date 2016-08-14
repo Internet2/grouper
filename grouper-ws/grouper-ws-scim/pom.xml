@@ -14,9 +14,9 @@
   <name>grouper-ws-scim Maven Webapp</name>
   <url>http://maven.apache.org</url>
   
-  <properties>
+ <!--  <properties>
   	<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXmlPath>
-  </properties>
+  </properties> -->
   
   <dependencies>
   
@@ -101,6 +101,32 @@
   		<properties>
   			<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/ext/web.xml</webXmlPath>
   		</properties>
+  		<build>  
+		  <resources>  
+		  	<resource>  
+		    	<directory>${basedir}/src/main/resources_demo</directory>  
+		    </resource>  
+		   	<resource>  
+		    	<directory>${basedir}/src/main/resources</directory>  
+		   	</resource>  
+		  </resources>  
+		</build>  
+  	</profile>
+  	<profile>
+  		<id>local</id>
+  		<properties>
+  			<webXmlPath>${project.basedir}/src/main/webapp/WEB-INF/web.xml</webXmlPath>
+  		</properties>
+  		<build>  
+		  <resources>  
+		  	<resource>  
+		    	<directory>${basedir}/src/main/resources_local</directory>  
+		    </resource>  
+		   	<resource>  
+		    	<directory>${basedir}/src/main/resources</directory>  
+		   	</resource>  
+		  </resources>  
+		</build>  
   	</profile>
   </profiles>
  
