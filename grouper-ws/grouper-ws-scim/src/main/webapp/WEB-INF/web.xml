@@ -2,5 +2,30 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	
+	
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Tier Service</web-resource-name>
+			<url-pattern>/v2/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>grouper_user</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<!-- Define the Login Configuration for this Application -->
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name>Grouper Application</realm-name>
+	</login-config>
+
+	<!-- Security roles referenced by this web application -->
+	<security-role>
+		<description>
+			The role that is required to log in to Tier service
+		</description>
+		<role-name>grouper_user</role-name>
+	</security-role>
 
 </web-app>

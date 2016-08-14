@@ -698,7 +698,7 @@ where
          <init-param>
            <param-name>jdbcConnectionProvider</param-name>
            <param-value>edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider</param-value>
-          <!--  <param-value>edu.internet2.middleware.subject.provider.C3p0JdbcConnectionProvider</param-value> -->
+           <param-value>edu.internet2.middleware.subject.provider.C3p0JdbcConnectionProvider</param-value>
          </init-param>
          
          <init-param>
