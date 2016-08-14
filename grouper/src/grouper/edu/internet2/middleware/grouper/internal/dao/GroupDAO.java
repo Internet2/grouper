@@ -910,6 +910,31 @@ public interface GroupDAO extends GrouperDAO {
   public Set<Group> getAllGroupsSplitScopeSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
   
+  
+  Set<Group> findByApproximateDescriptionSecure(String description, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByDescriptionSecure(String description, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByDisplayNameSecure(String displayName, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByApproximateDisplayNameSecure(String displayName, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByExtensionSecure(String extension, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByApproximateExtensionSecure(String extension, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByDisplayExtensionSecure(String displayExtension, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroups);
+  
+  Set<Group> findByApproximateDisplayExtensionSecure(String extension, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups);
+  
 
 } 
 

@@ -10,8 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
+import edu.internet2.middleware.grouper.ws.scim.user.TierUserService;
 import edu.psu.swe.scim.server.provider.ProviderRegistry;
 import edu.psu.swe.scim.spec.resources.ScimGroup;
+import edu.psu.swe.scim.spec.resources.ScimUser;
 
 @WebListener
 public class ScimConfigurator implements ServletContextListener {
@@ -23,11 +25,15 @@ public class ScimConfigurator implements ServletContextListener {
 
   @Inject
   private Instance<TierGroupService> groupProviderInstance;
+  
+  @Inject
+  private Instance<TierUserService> userProviderInstance;
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     try {
       providerRegistry.registerProvider(ScimGroup.class, groupProviderInstance);
+      providerRegistry.registerProvider(ScimUser.class, userProviderInstance);
     } catch (Exception e) {
       e.printStackTrace();
     }

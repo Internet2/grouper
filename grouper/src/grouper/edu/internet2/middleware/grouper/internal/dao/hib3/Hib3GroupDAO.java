@@ -1089,6 +1089,342 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   }
   
+  public Set<Group> findByApproximateDescriptionSecure(final String description, 
+      final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    hql.append(" lower(theGroup.descriptionDb) like :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+    Set<Group> resultGroups = new HashSet<Group>();
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString).options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", "%"+ description.toLowerCase() + "%").listSet(Group.class);
+    }
+    
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+    
+  }
+  
+  public Set<Group> findByDescriptionSecure(final String description, final QueryOptions queryOptions,
+      final Set<TypeOfGroup> typeOfGroups) {
+
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" theGroup.descriptionDb = :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    Set<Group> resultGroups = null;
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString)
+        .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", description).listSet(Group.class);
+    }
+    
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+  
+  }
+  
+  public Set<Group> findByDisplayNameSecure(final String displayName, final QueryOptions queryOptions, 
+      final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" theGroup.displayNameDb = :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    Set<Group> resultGroups = null;
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString)
+        .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", displayName).listSet(Group.class);
+    }
+    
+    
+  //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+  }
+  
+  public Set<Group> findByApproximateDisplayNameSecure(final String displayName, 
+      final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" lower(theGroup.displayNameDb) like :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+    Set<Group> resultGroups = new HashSet<Group>();
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString).options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", "%"+ displayName.toLowerCase() + "%").listSet(Group.class);
+    }
+    
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+    
+  }
+  
+  public Set<Group> findByExtensionSecure(final String extension, final QueryOptions queryOptions, 
+      final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" theGroup.extensionDb = :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    Set<Group> resultGroups = null;
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString)
+        .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", extension).listSet(Group.class);
+    }
+    
+    
+  //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+  }
+  
+  public Set<Group> findByApproximateExtensionSecure(final String extension, 
+      final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" lower(theGroup.extensionDb) like :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+    Set<Group> resultGroups = new HashSet<Group>();
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString).options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", "%"+ extension.toLowerCase() + "%").listSet(Group.class);
+    }
+    
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+    
+  }
+  
+  public Set<Group> findByDisplayExtensionSecure(final String displayExtension, final QueryOptions queryOptions, 
+      final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" theGroup.displayExtensionDb = :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    Set<Group> resultGroups = null;
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString)
+        .setCacheable(true).setCacheRegion(KLASS + ".FindByNameSecure").options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", displayExtension).listSet(Group.class);
+    }
+    
+    
+  //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+  }
+  
+  public Set<Group> findByApproximateDisplayExtensionSecure(final String displayExtension, 
+      final QueryOptions queryOptions, final Set<TypeOfGroup> typeOfGroups) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    StringBuilder hql = new StringBuilder("select distinct theGroup from Group as theGroup ");
+    
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        hql, "theGroup.uuid", AccessPrivilege.VIEW_PRIVILEGES);
+
+    if (changedQuery) {
+      hql.append(" and ");
+    } else {
+      hql.append(" where ");
+    }
+    
+    hql.append(" lower(theGroup.displayExtensionDb) like :value ");
+
+    if (queryOptions != null) {
+      massageSortFields(queryOptions.getQuerySort());
+    }
+    
+    TypeOfGroup.appendHqlQuery("theGroup", typeOfGroups, hql, byHqlStatic);
+    String hqlString = hql.toString();
+    Set<Group> resultGroups = new HashSet<Group>();
+    if (!hqlString.contains(GrouperAccessAdapter.HQL_FILTER_NO_RESULTS_INDICATOR)) {
+      byHqlStatic.createQuery(hqlString).options(queryOptions);
+  
+      resultGroups = byHqlStatic.setString("value", "%"+ displayExtension.toLowerCase() + "%").listSet(Group.class);
+    }
+    
+    //if the hql didnt filter, this will
+    Set<Group> filteredGroups = grouperSession.getAccessResolver()
+      .postHqlFilterGroups(resultGroups, grouperSession.getSubject(), AccessPrivilege.VIEW_PRIVILEGES);
+    
+    return filteredGroups;
+    
+  }
+  
   /**
    * @param name
    * @param exceptionIfNotFound exception if cant find group
