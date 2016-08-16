@@ -109,8 +109,8 @@ public class TierUserService implements Provider<ScimUser> {
           resultSubject = findSubject(attributeName, ace.getCompareValue().toString());
           if (resultSubject != null) {
             ScimUser scimUser = new ScimUser();
-            scimUser.setDisplayName(subject.getName());
-            scimUser.setId(subject.getId());
+            scimUser.setDisplayName(resultSubject.getName());
+            scimUser.setId(resultSubject.getId());
             scimUserList.add(scimUser);
           }
         } else {
