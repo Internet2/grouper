@@ -8,14 +8,15 @@
 	<classpathentry kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/j2ee.jar"/>
-	<classpathentry kind="lib" path="lib/atlassian/atlassian-seraph-2.6.3.jar"/>
 	<classpathentry kind="lib" path="lib/connector/quartz.jar"/>
 	<classpathentry kind="lib" path="lib/connector/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/connector/commons-logging.jar"/>
-	<classpathentry kind="lib" path="lib/atlassian/confluence-5.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/atlassian-user-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/atlassian/atlassian-event-2.3.5.jar"/>
 	<classpathentry kind="lib" path="lib/atlassian/spring-context-2.5.6.SEC03.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/atlassian-event-3.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/confluence-5.10.2.jar"/>
+	<classpathentry kind="lib" path="lib/atlassian/atlassian-seraph-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/connector/json-lib.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper-aws-changelog"/>
 	<classpathentry kind="output" path="bin"/>

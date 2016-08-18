@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -52,6 +53,13 @@ public class AtlassianCwdGroupV2 implements AtlassianCwdGroup {
     return this.id;
   }
 
+  /**
+   * id col
+   * @return the id
+   */
+  public String getIdString() {
+    return GrouperClientUtils.stringValue(this.id);
+  }
   
   /**
    * id col

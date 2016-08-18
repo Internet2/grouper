@@ -53,6 +53,12 @@ public interface AtlassianCwdMembership extends GcSqlAssignPrimaryKey {
   public Long getParentId();
   
   /**
+   * parent id string
+   * @return the parentId
+   */
+  public String getParentIdString();
+  
+  /**
    * parent id
    * @param parentId1 the parentId to set
    */

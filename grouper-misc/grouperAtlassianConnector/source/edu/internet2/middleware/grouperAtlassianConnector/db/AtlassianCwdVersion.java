@@ -39,6 +39,9 @@ import edu.internet2.middleware.grouperAtlassianConnector.db.v3.AtlassianUserMap
 import edu.internet2.middleware.grouperAtlassianConnector.db.v4.AtlassianCwdGroupV4;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v4.AtlassianCwdMembershipV4;
 import edu.internet2.middleware.grouperAtlassianConnector.db.v4.AtlassianCwdUserV4;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v5.AtlassianCwdGroupV5;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v5.AtlassianCwdMembershipV5;
+import edu.internet2.middleware.grouperAtlassianConnector.db.v5.AtlassianCwdUserV5;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -273,6 +276,55 @@ public enum AtlassianCwdVersion {
     @Override
     public List<AtlassianCwdMembership> retrieveMemberships() {
       return AtlassianCwdMembershipV4.retrieveMemberships();
+    }
+  
+    @Override
+    public Map<String, AtlassianUserMapping> retrieveUserMappings() {
+      return null;
+    }
+  
+    @Override
+    public boolean doUserMappings() {
+      return false;
+    }
+  
+    @Override
+    public AtlassianUserMapping newUserMapping() {
+      return null;
+    }
+  }, 
+  /** v5 is jira api e.g. 6.4
+   * docs: https://developer.atlassian.com/static/rest/jira/6.1.html#d2e2900 
+   */
+  V5 {
+  
+    @Override
+    public Map<String, AtlassianCwdUser> retrieveUsers() {
+      return AtlassianCwdUserV5.retrieveUsers();
+    }
+  
+    @Override
+    public AtlassianCwdMembership newMembership() {
+      return new AtlassianCwdMembershipV5();
+    }
+  
+    @Override
+    public AtlassianCwdGroup newGroup() {
+      return new AtlassianCwdGroupV5();
+    }
+  
+    @Override
+    public AtlassianCwdUser newUser() {
+      return new AtlassianCwdUserV5();
+    }
+  
+    @Override
+    public Map<String, AtlassianCwdGroup> retrieveGroups() {
+      return AtlassianCwdGroupV5.retrieveGroups();
+    }
+    @Override
+    public List<AtlassianCwdMembership> retrieveMemberships() {
+      return AtlassianCwdMembershipV5.retrieveMemberships();
     }
   
     @Override

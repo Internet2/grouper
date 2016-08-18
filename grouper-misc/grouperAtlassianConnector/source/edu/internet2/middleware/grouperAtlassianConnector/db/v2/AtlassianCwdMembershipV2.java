@@ -81,6 +81,14 @@ public class AtlassianCwdMembershipV2 implements AtlassianCwdMembership {
   }
   
   /**
+   * parent id col as string
+   * @return the id
+   */
+  public String getParentIdString() {
+    return GrouperClientUtils.stringValue(this.parentId);
+  }
+
+  /**
    * parent id
    * @param parentId1 the parentId to set
    */
