@@ -230,7 +230,8 @@ subprojects {
     }
 
     dependencies {
-        compile libraries.log4j
+        //CH 20160818: some projects do not use log4j
+        //compile libraries.log4j
         testCompile libraries.junit
     }
 
