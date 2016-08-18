@@ -36,6 +36,19 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.digest.DigestUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.UsernamePasswordCredentials;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.auth.AuthScope;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.DeleteMethod;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.GetMethod;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PostMethod;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PutMethod;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.DefaultHttpParams;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpMethodParams;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.Expression;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlContext;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlEngine;
@@ -591,6 +604,158 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
 
   /** cache directory name */
   private static String cacheDirectoryName = null;
+  
+  /**
+   * call HTTP with a url, optional request body, get a response body.  this assumes json by default
+   * @param urlSuffix is after the configured URL
+   * @param serviceAuthn is the config string that identifies the user/pass/url
+   * @param httpCallMethod HTTP
+   * @param body to send if applicable
+   * @return the response
+   */
+  public static HttpCallResponse httpCall(String urlSuffix, String serviceAuthn, HttpCallMethod httpCallMethod, String body) {
+    
+    //make sure right content type is in request (e.g. application/xhtml+xml
+    HttpClient httpClient = new HttpClient();
+
+    DefaultHttpParams.getDefaultParams().setParameter(
+        HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+    httpClient.getParams().setAuthenticationPreemptive(true);
+    
+    int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
+        "grouperClient.webService.httpSocketTimeoutMillis");
+
+    httpClient.getParams().setSoTimeout(soTimeoutMillis);
+    httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
+
+    int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
+        "grouperClient.webService.httpConnectionManagerTimeoutMillis");
+
+    httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
+
+    String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".user");
+
+    boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
+        "encrypt.disableExternalFileLookup");
+
+    //lets lookup if file
+    String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".pass");
+    String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
+
+    String passPrefix = null;
+
+    if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
+
+      passPrefix = "WebService pass: reading encrypted value from file: " + wsPass;
+
+      String encryptKey = GrouperClientUtils.encryptKey();
+      wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
+      
+    } else {
+      passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
+    }
+    
+    if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
+      LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
+    }
+
+    Credentials defaultcreds = new UsernamePasswordCredentials(user, wsPass);
+
+    //set auth scope to null and negative so it applies to all hosts and ports
+    httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
+
+    String urlBase = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".url");
+    if (urlBase == null) {
+      throw new RuntimeException("urlBase is null");
+    }
+    
+    String url = urlBase + urlSuffix;
+
+    String contentType = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + serviceAuthn + ".defaultRequestContentType");
+    contentType = GrouperClientUtils.defaultIfEmpty(contentType, "Application/json");
+
+    HttpMethodBase httpMethodBase = null;
+    
+    if (httpCallMethod == null) {
+      throw new RuntimeException("You need to pass in an httpCallMethod");
+    }
+    
+    HttpCallResponse httpCallResponse = new HttpCallResponse();
+    httpCallResponse.setHttpCallMethod(httpCallMethod);
+    httpCallResponse.setContentType(contentType);
+    httpCallResponse.setUrl(url);
+    
+    //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+    //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+    switch (httpCallMethod) {
+      case GET:
+        
+        httpMethodBase = new GetMethod(url);
+        if (!GrouperClientUtils.isBlank(body)) {
+          throw new RuntimeException("GET cannot have a body");
+        }
+        break;
+      case POST:
+        
+        httpMethodBase = new PostMethod(url);
+        if (!GrouperClientUtils.isBlank(body)) {
+          try {
+            ((PostMethod)httpMethodBase).setRequestEntity(new StringRequestEntity(body, "application/json", "UTF-8"));
+          } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException(uee);
+          }
+        }
+
+        break;
+        
+      case PUT:
+        
+        httpMethodBase = new PutMethod(url);
+        if (!GrouperClientUtils.isBlank(body)) {
+          try {
+            ((PutMethod)httpMethodBase).setRequestEntity(new StringRequestEntity(body, "application/json", "UTF-8"));
+          } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException(uee);
+          }
+        }
+
+        break;
+        
+      case DELETE:
+        
+        httpMethodBase = new DeleteMethod(url);
+        if (!GrouperClientUtils.isBlank(body)) {
+          throw new RuntimeException("DELETE cannot have a body");
+        }
+
+        break;
+        
+      default: 
+        throw new RuntimeException("Not expecting method: " + httpCallMethod);
+    }
+    
+    httpMethodBase.addRequestHeader("Content-Type", contentType);
+    
+    //no keep alive so response is easier to indent for tests
+    httpMethodBase.setRequestHeader("Connection", "close");
+    
+    try {
+
+      int responseCodeInt = httpClient.executeMethod(httpMethodBase);
+
+      httpCallResponse.setHttpResponseCode(responseCodeInt);
+
+    } catch (IOException ioe) {
+      throw new RuntimeException("Error in url: " + url + ", method: " + httpCallMethod + ", body: " + GrouperClientUtils.abbreviate(body, 5000), ioe);
+    }
+    
+    String theResponse = GrouperClientUtils.responseBodyAsString(httpMethodBase);
+    
+    httpCallResponse.setResponseBody(theResponse);
+    
+    return httpCallResponse;
+  }
   
 
 }

@@ -35,6 +35,11 @@ public interface AtlassianCwdGroup extends GcSqlAssignPrimaryKey {
    */
   public Long getId();
 
+  /**
+   * id col
+   * @return the id
+   */
+  public String getIdString();
   
   /**
    * id col

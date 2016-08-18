@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 /**
@@ -51,6 +52,14 @@ public class AtlassianCwdMembershipV4 implements AtlassianCwdMembership {
     return null;
   }
   
+  /**
+   * parent id col as string
+   * @return the id
+   */
+  public String getParentIdString() {
+    return null;
+  }
+
   /**
    * parent id
    * @param parentId1 the parentId to set

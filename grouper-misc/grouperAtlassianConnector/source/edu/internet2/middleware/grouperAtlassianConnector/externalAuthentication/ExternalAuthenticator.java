@@ -30,8 +30,13 @@ import javax.servlet.http.HttpSession;
 
 import com.atlassian.seraph.auth.AuthenticatorException;
 import com.atlassian.seraph.auth.DefaultAuthenticator;
+import com.atlassian.user.User;
 
+import edu.internet2.middleware.grouperClient.api.GcGetSubjects;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetSubjectsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -204,10 +209,30 @@ public class ExternalAuthenticator extends DefaultAuthenticator implements Atlas
    * @see AtlassianGetUserable#getUser(String)
    */
   @Override
-  public Principal getUser(final String username) {
-    
-    return new Principal() {
+  public User getUser(final String username) {
 
+    WsGetSubjectsResults wsGetSubjectsResults = new GcGetSubjects().addWsSubjectLookup(new WsSubjectLookup(null, "pennperson", username)).execute();
+    
+    if (wsGetSubjectsResults.getWsSubjects() == null || wsGetSubjectsResults.getWsSubjects().length == 0) {
+      return null;
+    }
+    
+    final WsSubject wsSubject = wsGetSubjectsResults.getWsSubjects()[0];
+    int emailAttributeIndex = -1;
+    
+    int i=0;
+    for (String attributeName : GrouperClientUtils.nonNull(wsGetSubjectsResults.getSubjectAttributeNames(), String.class)) {
+      if (!GrouperClientUtils.equalsIgnoreCase(attributeName, "email")) {
+        emailAttributeIndex = i;
+        break;
+      }
+      i++;
+    }
+    
+    final int EMAIL_ATTRIBUTE_INDEX = emailAttributeIndex;
+    
+    return new User() {
+      
       /**
        * 
        * @see java.security.Principal#getName()
@@ -261,8 +286,17 @@ public class ExternalAuthenticator extends DefaultAuthenticator implements Atlas
       public String toString() {
         return username;
       }
-      
-      
+
+      public String getEmail() {
+        if (EMAIL_ATTRIBUTE_INDEX != -1) {
+          return wsSubject.getAttributeValue(EMAIL_ATTRIBUTE_INDEX);
+        }
+        return username + "@upenn.edu";
+      }
+
+      public String getFullName() {
+        return wsSubject.getName();
+      }
       
     };
   }

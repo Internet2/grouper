@@ -8,8 +8,8 @@ ADD TO grouper.client.properties for atlassian
 atlassian.root = 
 
 # V0 for old confluence (e.g. 3.4.5), V1 for recent jira, V2 for recent confluence, 
-# V3 for new Jira (e.g. 6.3.1), V4 for old jira (e.g. 4.2.1)
-atlassian.cwd.version = V2
+# V3 for new Jira (e.g. 6.3.1), V4 for old jira (e.g. 4.2.1), V5 is REST API for Jira (e.g. 6.4)
+atlassian.cwd.version = V5
 
 # directory id to use for inserts.  note, you can generally leave this blank unless there
 # are two entries in cwd_directory
@@ -117,3 +117,11 @@ atlassian.authentication.backdoorRequestParameterName =
 # if you are not in prod, and you want to backdoor as someone else, put comma separated usernames here who
 # are allowed to backdoor as someone else
 atlassian.authentication.backdoorAllowedUsers = 
+
+
+# If you are using a REST API to read/update from atlassian, set the connection params like this:
+grouperClient.webService.jira.url = https://jira.url.institution.edu/jira
+grouperClient.webService.jira.user = username
+grouperClient.webService.jira.pass = password
+grouperClient.webService.jira.defaultRequestContentType = Application/json
+
