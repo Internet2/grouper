@@ -5,6 +5,7 @@ apply plugin: "war"
 dependencies {
     compile libraries.jsonlib
     compile libraries.commons
+    compile libraries.log4j
     provided libraries.servletapi
 }
 

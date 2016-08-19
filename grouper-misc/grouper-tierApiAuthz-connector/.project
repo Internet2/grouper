@@ -1,26 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper-tierApiAuthz-connector</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-	</buildSpec>
-	<natures>
-		<nature>org.eclipse.jdt.core.javanature</nature>
-	</natures>
-	<linkedResources>
-		<link>
-			<name>TIER_API_AUTHZ_SERVER_SOURCE</name>
-			<type>2</type>
-			<locationURI>TIER_API_AUTHZ_SERVER_SOURCE</locationURI>
-		</link>
-	</linkedResources>
 	<variableList>
 		<variable>
 			<name>AUTHZ_STANDARD_API_SERVER_SOURCE</name>
@@ -35,4 +14,23 @@
 			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper_v2_2/grouper-misc/tierApiAuthzServer/src/main</value>
 		</variable>
 	</variableList>
+	<name>grouper-tierApiAuthz-connector</name>
+	<comment>Grouper TIER API AuthZ Connector</comment>
+	<projects/>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments/>
+		</buildCommand>
+	</buildSpec>
+	<linkedResources>
+		<link>
+			<name>TIER_API_AUTHZ_SERVER_SOURCE</name>
+			<type>2</type>
+			<locationURI>TIER_API_AUTHZ_SERVER_SOURCE</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

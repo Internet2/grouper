@@ -4,6 +4,9 @@
 **/*.iml
 /**/bin/*
 **/*.log
+**/.settings
+**/.classpath
+**/.project
 
 grouper/logs/
 grouper/build.properties

@@ -2,6 +2,7 @@ description = 'Apacheds Ldappc Schema'
 
 dependencies {
     compile libraries.apacheds
+    compile libraries.log4j
 }
 
 sourceSets {

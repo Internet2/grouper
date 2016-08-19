@@ -2,6 +2,7 @@
 description = 'CMU Billing'
 dependencies {
   compile project(':grouper-misc:grouperClient')
+  compile libraries.log4j
 }
 sourceSets {
   main{

@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>grouper</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-	</buildSpec>
+	<variableList>
+		<variable>
+			<name>GROUPER_TRUNK_CLIENT_CONF</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/conf</value>
+		</variable>
+		<variable>
+			<name>GROUPER_TRUNK_CLIENT_SOURCE</name>
+			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/src/java</value>
+		</variable>
+	</variableList>
+	<name>grouper-grouper</name>
+	<comment>Grouper API</comment>
+	<projects/>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments/>
+		</buildCommand>
+	</buildSpec>
 	<linkedResources>
 		<link>
 			<name>GROUPER_TRUNK_CLIENT_CONF</name>
@@ -26,14 +34,4 @@
 			<locationURI>GROUPER_TRUNK_CLIENT_SOURCE</locationURI>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>GROUPER_TRUNK_CLIENT_CONF</name>
-			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/conf</value>
-		</variable>
-		<variable>
-			<name>GROUPER_TRUNK_CLIENT_SOURCE</name>
-			<value>file:/C:/Users/mchyzer/Documents/GitHub/grouper/grouper-misc/grouperClient/src/java</value>
-		</variable>
-	</variableList>
 </projectDescription>

@@ -4,17 +4,18 @@ dependencies {
     compile libraries.jodatime
     compile libraries.jdom
     compile libraries.dom4j
-
+  
     compile libraries.cglib
     compile libraries.jsonlib
-
+  
     compile libraries.quartz
     compile libraries.smack
     compile libraries.xpp3
     compile libraries.mail
     compile libraries.jettison
     compile libraries.xom
-
+    compile libraries.log4j
+    
 
 }
 
@@ -26,7 +27,7 @@ sourceSets {
         }
         resources {
             srcDir 'conf'
-            include '**/*.properties'
+            //  TODO take this out????   include '**/*.properties'
         }
     }
     test {

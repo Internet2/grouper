@@ -3,6 +3,7 @@ description = 'Grouper TIER API AuthZ Client'
 dependencies {
     compile libraries.commons
     compile libraries.jsonlib
+    compile libraries.log4j
     
     compile project(':grouper-misc:morphString')
 }

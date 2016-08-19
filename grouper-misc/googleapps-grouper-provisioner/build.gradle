@@ -5,7 +5,7 @@ dependencies {
     compile libraries.googleapis
     compile libraries.commons
     compile libraries.slf4j
-
+    
     testCompile libraries.powermock
 }
 

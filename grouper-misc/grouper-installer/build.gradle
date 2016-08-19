@@ -1,5 +1,10 @@
 
 description = 'Grouper Installer'
+dependencies {
+
+    compile libraries.log4j
+
+}
 sourceSets {
     main {
         java {

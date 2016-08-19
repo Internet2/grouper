@@ -28,7 +28,8 @@ dependencies {
     compile libraries.slf4j
     compile libraries.charon
     compile libraries.wink
-
+    compile libraries.log4j
+    
     testCompile libraries.jamon
 
     runtime libraries.p6spy

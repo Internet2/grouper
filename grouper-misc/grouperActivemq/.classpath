@@ -3,11 +3,133 @@
 	<classpathentry kind="src" path="source"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/quartz.jar"/>
-	<classpathentry kind="lib" path="lib/smack.jar"/>
-	<classpathentry kind="lib" path="lib/activemq-core-5.7.0.jar"/>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="misc"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
+	<classpathentry kind="src" path="/subject"/>
+	<classpathentry kind="src" path="/morphString"/>
+	<classpathentry kind="src" path="/grouperClient"/>
+	<classpathentry kind="src" path="/grouper-grouper"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.activemq/activemq-core/5.7.0/5cefbc06d13b129fa8265bbe86fdfd3a2b8e284/activemq-core-5.7.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.activemq/activemq-core/5.7.0/1e07c5849fbb28bac3bf2528a801758fc58db6af/activemq-core-5.7.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/junit/junit/4.11/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-math/commons-math/1.1/commons-math-1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-net/commons-net/3.3/ccfa0721eae567b3c47cfaf3cca20e2491362bf6/commons-net-3.3-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-net/commons-net/3.3/cd0d5510908225f76c5fe5a3f1df4fa44866f81e/commons-net-3.3.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-fileupload/commons-fileupload/1.2/c7859b375ae5bc1b4a4f2b91ce6d1d387e676e61/commons-fileupload-1.2-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-fileupload/commons-fileupload/1.2/a10c06183fe21f3bb3dda3b5946b93db6e2ad5cc/commons-fileupload-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-httpclient/commons-httpclient/3.0/commons-httpclient-3.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/commons/commons-jexl/2.1.1/commons-jexl-2.1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.10/11fb3d88ae7e3b757d70237064210ceb954a5a04/commons-codec-1.10-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.10/4b95f4897fa13f2cd904aee711aeafc0c5295cd8/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-beanutils/commons-beanutils/1.9.2/commons-beanutils-1.9.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-betwixt/commons-betwixt/0.8/commons-betwixt-0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-collections/commons-collections/3.2.2/78c50ebda5784937ca1615fc0e1d0cb35857d572/commons-collections-3.2.2-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-collections/commons-collections/3.2.2/8ad72fe39fa8c91eaaf12aadb21e0c3661fe26d5/commons-collections-3.2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-digester/commons-digester/1.7/commons-digester-1.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-discovery/commons-discovery/0.4/commons-discovery-0.4.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-validator/commons-validator/1.1.4/bf1ab9a45a7a17aea2ec9adaf0575808fab78996/commons-validator-1.1.4-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-validator/commons-validator/1.1.4/1033bc3f5e304f447d7987f0f5db8c6133d9695b/commons-validator-1.1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-pool/commons-pool/1.6/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/hibernate/hibernate-c3p0/5.0.4.Final/hibernate-c3p0-5.0.4.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/hibernate/hibernate-core/5.0.4.Final/hibernate-core-5.0.4.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/hibernate/hibernate-ehcache/5.0.4.Final/hibernate-ehcache-5.0.4.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/transaction/jta/1.1/jta-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/com/mchange/c3p0/0.9.5.2/c3p0-0.9.5.2.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.3.4/b4baa284c54ec5459d12328ad9055e0aed35414d/hsqldb-2.3.4-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.3.4/5564c057c826418f8e32de5815a14aee91781b37/hsqldb-2.3.4.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.persistence/persistence-api/1.0/2773a7910e8f0c7d59749dc4fcef2a4b94fcf85a/persistence-api-1.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.persistence/persistence-api/1.0/5725f57873e05e068803e2bf9d5a8ea3740ffec5/persistence-api-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/edu/vt/middleware/vt-ldap/3.3.5/vt-ldap-3.3.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/bouncycastle/bcprov-jdk16/1.46/bcprov-jdk16-1.46.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/p6spy/p6spy/1.1/p6spy-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/ant/ant-jakarta-oro/1.6.1/ant-jakarta-oro-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant/1.7.1/c94ffbfe67f4cd1042d44d25f253b8ce4252cb12/ant-1.7.1-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant/1.7.1/1d33711018e7649a8427fff62a87f94f4e7d310f/ant-1.7.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/ant-contrib/ant-contrib/20020829/422276fbe0c78dd49733c9264c5bd3dd5e11a2c0/ant-contrib-20020829.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/asm/asm/3.3.1/asm-3.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/asm/asm-util/3.3.1/asm-util-3.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/backport-util-concurrent/backport-util-concurrent/3.1/backport-util-concurrent-3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/com/thoughtworks/xstream/xstream/1.4.7/xstream-1.4.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javassist/javassist/3.12.0.GA/javassist-3.12.0.GA.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/activation/activation/1.1.1/activation-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/mail/mail/1.4.7/mail-1.4.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/jug/jug/1.1.2/jug-1.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/net/sf/ehcache/ehcache-core/2.4.3/ehcache-core-2.4.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/net.sf.json-lib/json-lib/2.3/f35340c0a0380141f62c72b76c8fb4bfa638d8c1/json-lib-2.3-jdk15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/net/sf/ezmorph/ezmorph/1.0.6/ezmorph-1.0.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/odmg/odmg/3.0/odmg-3.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/quartz-scheduler/quartz/2.2.2/quartz-2.2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/ddlutils/ddlutils/1.0/ddlutils-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/beanshell/bsh/2.0b5/bsh-2.0b5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/jivesoftware/smack/3.1.0/smack-3.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/mortbay/jetty/jetty/6.1.24/jetty-6.1.24.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/mortbay/jetty/jetty-util/6.1.24/jetty-util-6.1.24.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.21/f285ac123f201fb4b028bac556928d7cf527ef48/slf4j-api-1.7.21-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.21/139535a69a4239db087de9bab0bee568bf8e0b70/slf4j-api-1.7.21.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-log4j12/1.7.21/16b1333786ea93d16bff6fb0f5e3b82716d1b008/slf4j-log4j12-1.7.21-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-log4j12/1.7.21/7238b064d1aba20da2ac03217d700d91e02460fa/slf4j-log4j12-1.7.21.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/wso2/charon/org.wso2.charon.core/1.0.0/org.wso2.charon.core-1.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/wso2/charon/org.wso2.charon.samples/1.0.0/org.wso2.charon.samples-1.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/wink/wink-client/1.4/wink-client-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.servlet/jsp-api/2.0/e6def06602b51b1d9be51f6c3fcdf163ecd01644/jsp-api-2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.servlet/jstl/1.1.1/40e9d538628d96661dc5ed4b0dc5f3e90e51d4c3/jstl-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/postgresql/postgresql/8.4-701.jdbc4/postgresql-8.4-701.jdbc4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/mysql/mysql-connector-java/5.1.17/60d52df83d1cc6bcfcb4bf7da3d5b3b912e82d8b/mysql-connector-java-5.1.17.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/joda-time/joda-time/2.9.4/53c1bcc94f55a63bed4715f766d5d5f5c411bc33/joda-time-2.9.4-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/joda-time/joda-time/2.9.4/1c295b462f16702ebe720bbb08f62e1ba80da41b/joda-time-2.9.4.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/cglib/cglib/3.1/e651cbd93cb1c2155afdea6675c50e567f7ce91e/cglib-3.1-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/cglib/cglib/3.1/1f1cb6c7a7479e0c7fd7987109e503914bebe84a/cglib-3.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.codehaus.jettison/jettison/1.3.5/22c72303ad1a30b3b6ac3a471cc7bd197dfecb61/jettison-1.3.5-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.codehaus.jettison/jettison/1.3.5/cdd210ae7fe10fd6bc3d9159142cb2a4da417020/jettison-1.3.5.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/xom/xom/1.2.5/89b7d070b6725921605a900b070bd9034ede720d/xom-1.2.5-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/xom/xom/1.2.5/4166493b9f04e91b858ba4150b28b4d197f8f8ea/xom-1.2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1/c45b919f5434f9c33c546af9e6dfc5e1466b4b3e/geronimo-jms_1.1_spec-1.1.1-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1/c872b46c601d8dc03633288b81269f9e42762cea/geronimo-jms_1.1_spec-1.1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.activemq/kahadb/5.7.0/5f588e9c10a3253a2e70a106e66fd99012a6e5a1/kahadb-5.7.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.activemq/kahadb/5.7.0/c45eff4b78ca1f5f7469e4f4e094dbd4c8038adf/kahadb-5.7.0.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.activemq.protobuf/activemq-protobuf/1.1/1a999c15504cdf0911f7fb333fdb1db6876020a0/activemq-protobuf-1.1-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.activemq.protobuf/activemq-protobuf/1.1/26682eb801f70563511f7c424dc10e8b3e66340e/activemq-protobuf-1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.mqtt-client/mqtt-client/1.3/c22deef0d0fc4d697f6862c849fa3559e92da9f1/mqtt-client-1.3-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.mqtt-client/mqtt-client/1.3/e3722695b436f4d254263eb50bdc0a5784f74634/mqtt-client-1.3.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1/3d3b34584f4137c4ab7db496bceb5d75704f7354/geronimo-j2ee-management_1.1_spec-1.0.1-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1/5372615b0c04c1913c95c34a0414cef720ca2855/geronimo-j2ee-management_1.1_spec-1.0.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-context/3.0.7.RELEASE/dbfc275d26fe2ce29767ccbaa1b2245df7fa325d/spring-context-3.0.7.RELEASE-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-context/3.0.7.RELEASE/e0072743c5c485e0b36a8fce109dcd5c08c5323f/spring-context-3.0.7.RELEASE.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.jasypt/jasypt/1.9.0/7345fb69a07951acddfd3e0a0989aac52f9f655/jasypt-1.9.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.jasypt/jasypt/1.9.0/857a1a55a81641c31b2a9b4b292120c1d4432bd/jasypt-1.9.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-beanutils/commons-beanutils-core/1.7.0/commons-beanutils-core-1.7.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/jboss/logging/jboss-logging/3.3.0.Final/jboss-logging-3.3.0.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/hibernate/javax/persistence/hibernate-jpa-2.1-api/1.0.0.Final/hibernate-jpa-2.1-api-1.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/javassist/javassist/3.18.1-GA/javassist-3.18.1-GA.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/jboss/jandex/2.0.0.CR1/jandex-2.0.0.CR1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.hibernate.common/hibernate-commons-annotations/5.0.0.Final/cb1fee47f3d3947bfb3a6e0e35ca55d35d155632/hibernate-commons-annotations-5.0.0.Final-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.hibernate.common/hibernate-commons-annotations/5.0.0.Final/18a9e99c0150d7afa5042c53c01e7b3db0e55f0f/hibernate-commons-annotations-5.0.0.Final.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/ant/ant-launcher/1.7.1/ant-launcher-1.7.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/asm/asm-tree/3.3.1/asm-tree-3.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/xmlpull/xmlpull/1.1.3.1/xmlpull-1.1.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-dbcp/commons-dbcp/1.2.1/commons-dbcp-1.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-logging/commons-logging-api/1.0.4/commons-logging-api-1.0.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/stax/stax-api/1.0.1/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/oro/oro/2.0.8/oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/mortbay/jetty/servlet-api/2.5-20081211/servlet-api-2.5-20081211.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/json/json/20090211/json-20090211.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.ws.commons.axiom/axiom-api/1.2.11/8b5933738d2a8afba3d19a402b631479ebbc9424/axiom-api-1.2.11-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.ws.commons.axiom/axiom-api/1.2.11/b24f205af38900582b397e3a808d5e249c828e87/axiom-api-1.2.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/ws/commons/axiom/axiom-impl/1.2.11/axiom-impl-1.2.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/wso2/charon/org.wso2.charon.utils/1.0.0/org.wso2.charon.utils-1.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/jdom/jdom/1.1/jdom-1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/4.2/10735cd06b779a5f172fba69ea6f7b9cdc61a4d/asm-4.2-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/4.2/4b2c12b92dd045aeabf5b2aeeb3220bf010da9d4/asm-4.2.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/xerces/xercesImpl/2.8.0/393b9a589bc36ae0274f7ec59c5ed2016e4048d7/xercesImpl-2.8.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/xerces/xercesImpl/2.8.0/cfd3ebe2f8034e660344f9108c3e2daf78c29cc3/xercesImpl-2.8.0.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/xalan/xalan/2.7.0/fe8fb14a14470c747d80c611852985ded830dab5/xalan-2.7.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/xalan/xalan/2.7.0/a33c0097f1c70b20fa7ded220ea317eb3500515e/xalan-2.7.0.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.hawtdispatch/hawtdispatch-transport/1.11/ac1ea64758a334fe0052a5ab99a18fca91be1c96/hawtdispatch-transport-1.11-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.hawtdispatch/hawtdispatch-transport/1.11/f930133932548bba115b00a2a166613c15fe0ba7/hawtdispatch-transport-1.11.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.hawtbuf/hawtbuf/1.9/6cb00b387469d1867bbb866d60fa099ad760138a/hawtbuf-1.9-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.hawtbuf/hawtbuf/1.9/4a42b835d1df77db8c9a144a11ebb4600a372f5f/hawtbuf-1.9.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/3.0.7.RELEASE/feff9b02e66e8de037d05f32b4a961b8b53eb693/spring-aop-3.0.7.RELEASE-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-aop/3.0.7.RELEASE/e52176ba360e47d132bbc80dc144a916dd75eee7/spring-aop-3.0.7.RELEASE.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/3.0.7.RELEASE/aa62a32a51e13a2ddf54f7a705a9921d8fcd7d09/spring-beans-3.0.7.RELEASE-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-beans/3.0.7.RELEASE/5915c3eee8dc193b19b648719d653439c57fc0d8/spring-beans-3.0.7.RELEASE.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/3.0.7.RELEASE/ed3b044e7107205ab134a539e922510ec72c4636/spring-core-3.0.7.RELEASE-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-core/3.0.7.RELEASE/2c90825834a037aab6f6a71bbd05d81680832c49/spring-core-3.0.7.RELEASE.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/3.0.7.RELEASE/8f34eb890274c931967a8327f19998e96971e377/spring-expression-3.0.7.RELEASE-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-expression/3.0.7.RELEASE/61999bb2e1e5f7a1c13e91a58761c48dc1d71cf9/spring-expression-3.0.7.RELEASE.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-asm/3.0.7.RELEASE/30152fb33f5f7ca7a410dbd139857685ed67988b/spring-asm-3.0.7.RELEASE-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.springframework/spring-asm/3.0.7.RELEASE/cadd0ed7b1aeea0c2858ada0d6397e8423aad6a3/spring-asm-3.0.7.RELEASE.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/geronimo/specs/geronimo-activation_1.1_spec/1.0.2/geronimo-activation_1.1_spec-1.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/geronimo/specs/geronimo-javamail_1.4_spec/1.6/geronimo-javamail_1.4_spec-1.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/jaxen/jaxen/1.1.1/jaxen-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/geronimo/specs/geronimo-stax-api_1.0_spec/1.0.1/geronimo-stax-api_1.0_spec-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/codehaus/woodstox/wstx-asl/3.2.9/wstx-asl-3.2.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.hawtdispatch/hawtdispatch/1.11/276b4680c71fe9447dae2fc69c58faccd68089f/hawtdispatch-1.11-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.fusesource.hawtdispatch/hawtdispatch/1.11/1fefb873b3046944dd8af2fb2be6dab4ef76057/hawtdispatch-1.11.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/aopalliance/aopalliance/1.0/4a4b6d692e17846a9f3da036438a7ac491d3c814/aopalliance-1.0-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/aopalliance/aopalliance/1.0/235ba8b489512805ac13a8f9ea77a1ca5ebe3e8/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/com/mchange/mchange-commons-java/0.2.11/mchange-commons-java-0.2.11.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.wink/wink-common/1.4/29c06957a6160ab8438a810d7226e641146ea3/wink-common-1.4-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/org.apache.wink/wink-common/1.4/30e49800bbf56cad6e1a36c70a26f1405f496d7b/wink-common-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/com/sun/xml/bind/jaxb-impl/2.2.1.1/jaxb-impl-2.2.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/geronimo/specs/geronimo-jaxrs_1.1_spec/1.0/geronimo-jaxrs_1.1_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/geronimo/specs/geronimo-annotation_1.1_spec/1.0/geronimo-annotation_1.1_spec-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.xml.bind/jaxb-api/2.2.1/7dae41b30faef17282ca94776ffd04702f04cc9f/jaxb-api-2.2.1-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.xml.bind/jaxb-api/2.2.1/6614cdfc36dbbe9cc1aa94ed606682993b80a0cd/jaxb-api-2.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar"/>
 </classpath>

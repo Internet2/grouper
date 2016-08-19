@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>GROUPER_MASTER_ALL</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-	</buildSpec>
-	<natures>
-	</natures>
+	<name>grouper</name>
+	<comment>Internet2 Grouper Project $version</comment>
+	<projects/>
+	<natures/>
+	<buildSpec/>
+	<linkedResources/>
 </projectDescription>

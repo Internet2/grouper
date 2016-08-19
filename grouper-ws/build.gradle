@@ -6,6 +6,7 @@ dependencies {
     compile libraries.thoughtworks
     compile libraries.rampart
     compile libraries.wss
+    compile libraries.log4j
 }
 
 sourceSets {

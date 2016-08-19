@@ -4,23 +4,37 @@
 	<classpathentry kind="src" path="src/resources"/>
 	<classpathentry kind="src" path="src/ext"/>
 	<classpathentry kind="src" path="src/test"/>
-	<classpathentry kind="lib" path="lib/nonwebapp/servlet.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging/log4j.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/cglib.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/dom4j.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/jakarta-oro.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/jdom-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/jettison-1.0-RC2.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/jmock-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/joda-time-1.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/junit-3.8.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/stax-1.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/stax-api-1.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/wstx-asl-3.2.3.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/xml-writer-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/xom-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/jsonpath/json-path-2.2.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
+	<classpathentry kind="output" path="bin"/>
+	<classpathentry including="**/*.properties" kind="src" path="clients"/>
+	<classpathentry including="**/*.properties" kind="src" path="misc"/>
+	<classpathentry including="**/*.properties" kind="src" path="src/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/net.sf.json-lib/json-lib/2.3/f35340c0a0380141f62c72b76c8fb4bfa638d8c1/json-lib-2.3-jdk15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-io/commons-io/2.4/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-lang/commons-lang/2.6/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-math/commons-math/1.1/commons-math-1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-net/commons-net/3.3/ccfa0721eae567b3c47cfaf3cca20e2491362bf6/commons-net-3.3-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-net/commons-net/3.3/cd0d5510908225f76c5fe5a3f1df4fa44866f81e/commons-net-3.3.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-fileupload/commons-fileupload/1.2/c7859b375ae5bc1b4a4f2b91ce6d1d387e676e61/commons-fileupload-1.2-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-fileupload/commons-fileupload/1.2/a10c06183fe21f3bb3dda3b5946b93db6e2ad5cc/commons-fileupload-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-httpclient/commons-httpclient/3.0/commons-httpclient-3.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/apache/commons/commons-jexl/2.1.1/commons-jexl-2.1.1.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.10/11fb3d88ae7e3b757d70237064210ceb954a5a04/commons-codec-1.10-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.10/4b95f4897fa13f2cd904aee711aeafc0c5295cd8/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-beanutils/commons-beanutils/1.9.2/commons-beanutils-1.9.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-betwixt/commons-betwixt/0.8/commons-betwixt-0.8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-collections/commons-collections/3.2.2/78c50ebda5784937ca1615fc0e1d0cb35857d572/commons-collections-3.2.2-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-collections/commons-collections/3.2.2/8ad72fe39fa8c91eaaf12aadb21e0c3661fe26d5/commons-collections-3.2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-digester/commons-digester/1.7/commons-digester-1.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-discovery/commons-discovery/0.4/commons-discovery-0.4.jar"/>
+	<classpathentry sourcepath="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-validator/commons-validator/1.1.4/bf1ab9a45a7a17aea2ec9adaf0575808fab78996/commons-validator-1.1.4-sources.jar" kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/commons-validator/commons-validator/1.1.4/1033bc3f5e304f447d7987f0f5db8c6133d9695b/commons-validator-1.1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-pool/commons-pool/1.6/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.servlet/jsp-api/2.0/e6def06602b51b1d9be51f6c3fcdf163ecd01644/jsp-api-2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.gradle/caches/modules-2/files-2.1/javax.servlet/jstl/1.1.1/40e9d538628d96661dc5ed4b0dc5f3e90e51d4c3/jstl-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/junit/junit/4.11/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/net/sf/ezmorph/ezmorph/1.0.6/ezmorph-1.0.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/commons-beanutils/commons-beanutils-core/1.7.0/commons-beanutils-core-1.7.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/mchyzer/.m2/repository/junit/junit/3.8.1/junit-3.8.1.jar"/>
 </classpath>
