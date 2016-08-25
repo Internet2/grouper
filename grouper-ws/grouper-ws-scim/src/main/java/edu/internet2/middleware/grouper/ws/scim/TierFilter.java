@@ -19,8 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -35,8 +33,6 @@ import edu.internet2.middleware.subject.Subject;
  */
 @WebFilter(filterName = "TierFilter", urlPatterns = {"/v2/*"})
 public class TierFilter implements Filter {
-  
-  private static final Log LOG = LogFactory.getLog(TierFilter.class);
   
   /**
    * thread local to store request start time in miilis
@@ -65,22 +61,14 @@ public class TierFilter implements Filter {
       
       
       Principal principal = httpServletRequest.getUserPrincipal();
-      LOG.info("principal is "+principal);
-      System.out.println("principal is "+principal);
       String principalName = null;
       if (principal == null) {
         principalName = httpServletRequest.getRemoteUser();
-        LOG.info("principalName from httpServletRequest.getRemoteUser() is "+principalName);
-        System.out.println("principalName from httpServletRequest.getRemoteUser() is "+principalName);
         if (StringUtils.isBlank(principalName)) {
           principalName = (String)httpServletRequest.getAttribute("REMOTE_USER");
-          LOG.info("principalName from httpServletRequest.getAttribute(REMOTE_USER) is "+principalName);
-          System.out.println("principalName from httpServletRequest.getAttribute(REMOTE_USER) is "+principalName);
         }
       } else {
         principalName = principal.getName();
-        LOG.info("principalName from principal.getName() is "+principalName);
-        System.out.println("principalName from principal.getName() is "+principalName);
       }
       
       if (principalName == null) {
@@ -100,8 +88,6 @@ public class TierFilter implements Filter {
         }
       });
       
-      LOG.info("subject is "+subject);
-      System.out.println("subject is "+subject);
       if (subject == null) {
        return null;
       }

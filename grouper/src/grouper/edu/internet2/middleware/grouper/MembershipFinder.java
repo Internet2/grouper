@@ -2477,12 +2477,15 @@ public class MembershipFinder {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(grouperSession);
     Membership membership = GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid, exceptionIfNotFound, enabledOnly);
+    if (membership == null) {
+      if(exceptionIfNotFound) {
+        throw new MembershipNotFoundException("Not allowed to view membership: " + uuid);
+      }
+      return null;
+    }
     if ( PrivilegeHelper.canViewMembership( grouperSession.internal_getRootSession(), membership ) ) {
       return membership;
-    }
-    if (exceptionIfNotFound) {
-      throw new MembershipNotFoundException("Not allowed to view membership: " + uuid);
-    }
+    }   
     return null;
   }
 

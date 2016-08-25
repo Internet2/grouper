@@ -9,11 +9,17 @@ import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
+import edu.internet2.middleware.grouper.ws.scim.membership.MembershipResource;
+import edu.internet2.middleware.grouper.ws.scim.membership.MembershipService;
 import edu.internet2.middleware.grouper.ws.scim.user.TierUserService;
 import edu.psu.swe.scim.server.provider.ProviderRegistry;
 import edu.psu.swe.scim.spec.resources.ScimGroup;
 import edu.psu.swe.scim.spec.resources.ScimUser;
+import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 
 @WebListener
 public class ScimConfigurator implements ServletContextListener {
@@ -28,12 +34,18 @@ public class ScimConfigurator implements ServletContextListener {
   
   @Inject
   private Instance<TierUserService> userProviderInstance;
+  
+  @Inject
+  private Instance<MembershipService> membershipProviderInstance;
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     try {
+      Json.mapper().registerModule(new JaxbAnnotationModule());
+      Yaml.mapper().registerModule(new JaxbAnnotationModule());
       providerRegistry.registerProvider(ScimGroup.class, groupProviderInstance);
       providerRegistry.registerProvider(ScimUser.class, userProviderInstance);
+      providerRegistry.registerProvider(MembershipResource.class, membershipProviderInstance);
     } catch (Exception e) {
       e.printStackTrace();
     }
