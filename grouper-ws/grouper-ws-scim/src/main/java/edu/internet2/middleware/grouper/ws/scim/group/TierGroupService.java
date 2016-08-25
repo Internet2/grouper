@@ -98,7 +98,7 @@ public class TierGroupService implements Provider<ScimGroup> {
 
       Group savedGroup = groupSave.save();
       
-      scimGroupOutput = convertGrouperGroupToScimGroup(savedGroup);
+      scimGroupOutput = convertGrouperGroupToScimGroup(savedGroup, false);
       
       TierMetaExtension tierMetaExtension = new TierMetaExtension();
       tierMetaExtension.setResultCode("SUCCESS_CREATED");
@@ -165,7 +165,7 @@ public class TierGroupService implements Provider<ScimGroup> {
       }
       
       Group savedGroup = groupSave.save();
-      scimGroupOutput = convertGrouperGroupToScimGroup(savedGroup);
+      scimGroupOutput = convertGrouperGroupToScimGroup(savedGroup, false);
       
       TierMetaExtension tierMetaExtension = new TierMetaExtension();
       tierMetaExtension.setResultCode("SUCCESS_UPDATED");
@@ -211,11 +211,13 @@ public class TierGroupService implements Provider<ScimGroup> {
         group = GroupFinder.findByUuid(grouperSession, id, false);
       }
       
+      //TODO when user doesn't have privilege to see the group, we get null instead of Insufficient Privilege Exception. 
+      // and we send back 404 instead of 403 (Forbidden)
       if (group == null) {
         throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "group " + id + " not found.");
       }
       
-      ScimGroup scimGroupOutput = convertGrouperGroupToScimGroup(group);
+      ScimGroup scimGroupOutput = convertGrouperGroupToScimGroup(group, true);
       
       List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
       for (Membership membership: group.getMemberships()) {
@@ -311,7 +313,7 @@ public class TierGroupService implements Provider<ScimGroup> {
       if (filter == null) {
         Set<Group> groups = new GroupFinder().findGroups();
         scimGroupList = groups.stream()
-            .map(group -> convertGrouperGroupToScimGroup(group))
+            .map(group -> convertGrouperGroupToScimGroup(group, true))
             .collect(Collectors.toList());
       } else {
         FilterExpression filterExpression = filter.getExpression();
@@ -323,13 +325,13 @@ public class TierGroupService implements Provider<ScimGroup> {
           if (operation == CompareOperator.EQ) {
             scimGroupList = findExactGroups(grouperSession, attributeName, ace.getCompareValue().toString())
                 .stream()
-                .map(group -> convertGrouperGroupToScimGroup(group))
+                .map(group -> convertGrouperGroupToScimGroup(group, true))
                 .collect(Collectors.toList());
           } else if (operation == CompareOperator.CO) {
             
             scimGroupList = findApproximateGroups(grouperSession, attributeName, ace.getCompareValue().toString())
                 .stream()
-                .map(group -> convertGrouperGroupToScimGroup(group))
+                .map(group -> convertGrouperGroupToScimGroup(group, true))
                 .collect(Collectors.toList());
                         
           } else {
@@ -393,7 +395,7 @@ public class TierGroupService implements Provider<ScimGroup> {
     return Arrays.asList(TierGroupExtension.class, TierMetaExtension.class);
   }
   
-  private ScimGroup convertGrouperGroupToScimGroup(Group group) {
+  private ScimGroup convertGrouperGroupToScimGroup(Group group, boolean includeMemebers) {
     ScimGroup scimGroupOutput = null;
     try {
       scimGroupOutput = new ScimGroup();
@@ -404,6 +406,20 @@ public class TierGroupService implements Provider<ScimGroup> {
       groupExtension.setIdIndex(group.getIdIndex());
       groupExtension.setSystemName(group.getName());
       scimGroupOutput.addExtension(groupExtension);
+      
+      if (includeMemebers) {
+        List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
+        for (Membership membership: group.getMemberships()) {
+          Member member = membership.getMember();
+          ResourceReference resourceReference = new ResourceReference();
+          resourceReference.setValue(member.getId());
+          resourceReference.setType(membership.getTypeEnum() == IMMEDIATE ? DIRECT : INDIRECT);
+          resourceReference.setRef("../Users/"+member.getSubjectId());
+          resourceReferences.add(resourceReference);
+        }
+        scimGroupOutput.setMembers(resourceReferences);
+      }
+      
       return scimGroupOutput;
     } catch(InvalidExtensionException e) {
       throw new RuntimeException("Invalid Extension");

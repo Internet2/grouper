@@ -19,6 +19,7 @@ public class SwaggerJaxrsConfig implements ServletContextListener {
 
   public void contextInitialized(ServletContextEvent event) {
     LOGGER.debug("Initializing swagger...");
+    System.out.println("Initializing Swagger");
 
     try {
       Json.mapper().registerModule(new JaxbAnnotationModule());
