@@ -151,6 +151,22 @@ public enum DiagnosticType {
 
         }
       }
+      
+      {
+        //expand these out
+        Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
+            GrouperCheckConfig.grouperLoaderOtherJobPattern);
+        
+        for (String consumerKey : consumerMap.keySet()) {
+
+          //get the name
+          Matcher matcher = GrouperCheckConfig.grouperLoaderOtherJobPattern.matcher(consumerKey);
+          matcher.matches();
+          String jobName = matcher.group(1);
+
+          diagnosticsTasks.add(new DiagnosticLoaderJobTest("OTHER_JOB_" + jobName, GrouperLoaderType.MAINTENANCE));
+        }
+      }
 
       {
         GroupType groupType = GroupTypeFinder.find("grouperLoader", false);
