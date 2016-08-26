@@ -100,14 +100,19 @@ class ShellCommandReader implements CommandReader {
         }
       }
     } else {
+        this.prompt = GrouperShell.NAME + " ";
       if (inputStreamParam != null) {
         this.in = new BufferedReader(new InputStreamReader(inputStreamParam));
+         this.i = new Interpreter(this.in, System.out, System.err, false);
       } else {
-        this.in     = new BufferedReader( new InputStreamReader(System.in) );
-        this.prompt = GrouperShell.NAME + " ";
+            final JlineInterpreter jlineInterpreter = new JlineInterpreter(prompt, System.in,  System.out);
+
+         this.i = jlineInterpreter.getInterpreter();
+         this.in =new BufferedReader(jlineInterpreter.getReader());
       }
     }
-    this.i = new Interpreter(this.in, System.out, System.err, false);
+    
+   
     
   } // protected ShellCommandReader(args)
 
