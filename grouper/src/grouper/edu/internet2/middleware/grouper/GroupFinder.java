@@ -294,7 +294,74 @@ public class GroupFinder {
     }
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } 
+  
+  public static Set<Group> findByApproximateDescriptionSecure(String description, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByApproximateDescriptionSecure(description, 
+        queryOptions, typeOfGroups);
+  }
+  
+  public static Set<Group> findByDescriptionSecure(String description, QueryOptions queryOptions,
+      Set<TypeOfGroup> typeOfGroups) {
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByDescriptionSecure(description, 
+        queryOptions, typeOfGroups);
+  }
+  
+  public static Set<Group> findByDisplayNameSecure(String displayName, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByDisplayNameSecure(displayName, 
+        queryOptions, typeOfGroups);
+  }
+  
+  public static Set<Group> findByApproximateDisplayNameSecure(String displayName, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByApproximateDisplayNameSecure(displayName, 
+        queryOptions, typeOfGroups);
+  }
 
+  public static Set<Group> findByExtensionSecure(String extension, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByExtensionSecure(extension, 
+        queryOptions, typeOfGroups);
+    
+  }
+  
+  public static Set<Group> findByApproximateExtensionSecure(String extension, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByApproximateExtensionSecure(extension, 
+        queryOptions, typeOfGroups);
+    
+  }
+  
+  public static Set<Group> findByDisplayExtensionSecure(String displayExtension, QueryOptions queryOptions, 
+      Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByDisplayExtensionSecure(displayExtension, 
+        queryOptions, typeOfGroups);
+    
+  }
+  
+  public static Set<Group> findByApproximateDisplayExtensionSecure(String extension, 
+      QueryOptions queryOptions, Set<TypeOfGroup> typeOfGroups) {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    return GrouperDAOFactory.getFactory().getGroup().findByApproximateDisplayExtensionSecure(extension, 
+        queryOptions, typeOfGroups);
+    
+  }
+  
   /**
    * Find a group within the registry by its current name.
    * <pre class="eg">

@@ -91,7 +91,7 @@
         <commons.cli.version>1.2</commons.cli.version>
         <commons.betwixt.version>0.8</commons.betwixt.version>
         <commons.collections.version>3.2.1</commons.collections.version>
-        <commons.digester.version>1.7</commons.digester.version>
+        <commons.digester.version>3.2</commons.digester.version>
         <commons.discovery.version>0.4</commons.discovery.version>
         <commons.httpclient.version>3.0</commons.httpclient.version>
         <commons.io.version>2.4</commons.io.version>
@@ -277,11 +277,13 @@
                 <artifactId>commons-collections</artifactId>
                 <version>${commons.collections.version}</version>
             </dependency>
+            
             <dependency>
-                <groupId>commons-digester</groupId>
-                <artifactId>commons-digester</artifactId>
-                <version>${commons.digester.version}</version>
-            </dependency>
+			    <groupId>org.apache.commons</groupId>
+			    <artifactId>commons-digester3</artifactId>
+			    <version>${commons.digester.version}</version>
+			</dependency>
+            
             <dependency>
                 <groupId>commons-discovery</groupId>
                 <artifactId>commons-discovery</artifactId>
