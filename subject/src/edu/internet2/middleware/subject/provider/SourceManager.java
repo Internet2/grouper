@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 
 import javax.imageio.stream.FileImageInputStream;
 
-import org.apache.commons.digester.Digester;
+import org.apache.commons.digester3.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
