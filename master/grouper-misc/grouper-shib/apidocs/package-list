@@ -1,0 +1,9 @@
+edu.internet2.middleware.grouper.shibboleth.attributeDefinition
+edu.internet2.middleware.grouper.shibboleth.attributeDefinition.config
+edu.internet2.middleware.grouper.shibboleth.config
+edu.internet2.middleware.grouper.shibboleth.dataConnector
+edu.internet2.middleware.grouper.shibboleth.dataConnector.config
+edu.internet2.middleware.grouper.shibboleth.dataConnector.field
+edu.internet2.middleware.grouper.shibboleth.filter
+edu.internet2.middleware.grouper.shibboleth.filter.provider
+edu.internet2.middleware.grouper.shibboleth.util
