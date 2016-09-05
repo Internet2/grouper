@@ -41,6 +41,7 @@ import edu.psu.swe.scim.spec.protocol.filter.CompareOperator;
 import edu.psu.swe.scim.spec.protocol.filter.FilterExpression;
 import edu.psu.swe.scim.spec.protocol.filter.FilterResponse;
 import edu.psu.swe.scim.spec.protocol.filter.LogicalExpression;
+import edu.psu.swe.scim.spec.protocol.filter.LogicalOperator;
 import edu.psu.swe.scim.spec.protocol.search.Filter;
 import edu.psu.swe.scim.spec.protocol.search.PageRequest;
 import edu.psu.swe.scim.spec.protocol.search.SortRequest;
@@ -82,12 +83,18 @@ public class MembershipService implements Provider<MembershipResource> {
           throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Group with systemName "+ownerGroup.getSystemName()+" doesn't exist.");
         }
       }
+      if (membershipGroup == null && ownerGroup.getIdIndex() != null) {
+        membershipGroup = GroupFinder.findByIdIndexSecure(ownerGroup.getIdIndex(), false, new QueryOptions());
+        if (membershipGroup == null) {
+          throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Group with idIndex "+ownerGroup.getIdIndex()+" doesn't exist.");
+        }
+      }
       if (membershipGroup == null) {
         throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Please provide uuid value or system name for the group.");
       }
       
-      String groupOrSubjectId = resource.getMember().getValue();
-      Subject membershipSubject = SubjectFinder.findById(groupOrSubjectId, false);
+      Subject membershipSubject = SubjectFinder.findByIdOrIdentifier(resource.getMember().getValue(), false);
+      
       if (membershipSubject != null) {
         boolean didNotExistAlready = membershipGroup.addMember(membershipSubject, false);
         if (!didNotExistAlready) {
@@ -185,6 +192,10 @@ public class MembershipService implements Provider<MembershipResource> {
       membershipResource.setEnabled(membership.isEnabled());
       membershipResource.setDisabledTime(membership.getDisabledTime() != null ? membership.getDisabledTime().toLocalDateTime(): null);
       membershipResource.setEnabledTime(membership.getEnabledTime() != null? membership.getEnabledTime().toLocalDateTime(): null);
+    } else {
+      membershipResource.setEnabled(null);
+      membershipResource.setDisabledTime(null);
+      membershipResource.setEnabledTime(null);
     }
     membershipResource.setMembershipType(membership.isImmediate() ? "immediate":"effective");
     
@@ -291,6 +302,7 @@ public class MembershipService implements Provider<MembershipResource> {
           LogicalExpression le = (LogicalExpression) filterExpression;
           FilterExpression leftExpression = le.getLeft();
           FilterExpression rightExpression = le.getRight();
+          LogicalOperator logicalOperator = le.getOperator();
           if (!(leftExpression instanceof AttributeComparisonExpression) || !(rightExpression instanceof AttributeComparisonExpression)) {
             throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "Only one level deep logical expression is allowed.");
           }
@@ -314,8 +326,13 @@ public class MembershipService implements Provider<MembershipResource> {
           if (operationLeft != CompareOperator.EQ || operationRight != CompareOperator.EQ) {
             throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "Only eq operator is allowed.");
           }
-          buildMembershipFinder(attributeNameLeft, valueLeft, finder, grouperSession);
-          buildMembershipFinder(attributeNameRight, valueRight, finder, grouperSession);
+          if (logicalOperator == LogicalOperator.AND) {
+            buildMembershipFinder(attributeNameLeft, valueLeft, finder, grouperSession);
+            buildMembershipFinder(attributeNameRight, valueRight, finder, grouperSession);
+          } else {
+            throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "Only AND logical operator is allowed.");
+          }
+          
         } else {
           throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "only attribute comparison and logical expressions are allowed.");
         }

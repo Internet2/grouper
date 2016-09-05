@@ -29,7 +29,7 @@ public class Member extends KeyedResource implements Serializable{
   
   private static final long serialVersionUID = 8164207035185112067L;
 
-  @ScimAttribute(required=true, description="Member or Group Id")
+  @ScimAttribute(required=true, description="any subject identifier")
   @ScimResourceIdReference
   @XmlElement
   String value;
