@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.ws.scim;
 
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
 import java.io.IOException;
@@ -102,7 +103,13 @@ public class TierFilter implements Filter {
       throws IOException, ServletException {
     
     try {
-      
+      if (((HttpServletRequest) request).getMethod().equals("OPTIONS")) {
+        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS");
+        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Origin", "*");
+        ((HttpServletResponse) response).addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        ((HttpServletResponse) response).setStatus(SC_OK);
+        return;
+      }
       threadLocalRequestStartMillis.set(System.currentTimeMillis());
       threadLocalRequest.set((HttpServletRequest)request);
       
