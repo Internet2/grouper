@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
@@ -20,6 +21,7 @@ import javax.ws.rs.core.Response.Status;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -32,6 +34,7 @@ import edu.internet2.middleware.grouper.ws.scim.group.TierGroupExtension;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
 import edu.internet2.middleware.subject.Subject;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
+import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
 import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
 import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
@@ -285,6 +288,45 @@ public class TierGroupServiceTest {
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
       assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
     }
+  }
+  
+  
+  @Test
+  public void deleteGroup() throws UnableToDeleteResourceException {
+
+    //given
+    mockStatic(GroupFinder.class);
+    when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
+    
+    //when 
+    service.delete("uuid");
+    
+    //then
+    verifyStatic();
+    GroupFinder.findByUuid(mockGrouperSession, "uuid", false);
+    verify(mockGroup, Mockito.times(1)).delete();
+    
+  }
+  
+  
+  @Test
+  public void deleteGroupThrowsExceptionWhenGroupNotFound() {
+    
+    //given
+    mockStatic(GroupFinder.class);
+    when(GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false)).thenReturn(null);
+    
+    try {
+      //when
+      service.delete("non existent uuid");
+      fail("UnableToDeleteResourceException should have been thrown");
+    } catch (UnableToDeleteResourceException e) {
+      //then
+      verifyStatic();
+      GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
+      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+    }
+    
   }
   
   
