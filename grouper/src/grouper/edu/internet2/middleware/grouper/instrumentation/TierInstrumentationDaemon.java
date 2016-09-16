@@ -243,7 +243,7 @@ public class TierInstrumentationDaemon implements Job {
     String dataJson = GrouperUtil.jsonConvertTo(data, false);
     
     HttpClient httpClient = new HttpClient();
-    String discoveryUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob.tierInstrumentationDaemon.discoveryUrl", "https://id.internet2.edu/ti/jrd/collector.json");
+    String discoveryUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("otherJob.tierInstrumentationDaemon.discoveryUrl", "https://id.internet2.edu/ti/jrd/collector");
     GetMethod discoveryMethod = new GetMethod(discoveryUrl);
     int discoveryReturnCode = httpClient.executeMethod(discoveryMethod);
     String discoveryBody = IOUtils.toString(discoveryMethod.getResponseBodyAsStream());
@@ -263,7 +263,7 @@ public class TierInstrumentationDaemon implements Job {
     for (Map<String, String> endpoint : tierDiscovery.getEndpoints()) {
       String uri = endpoint.get("uri");
       if (!StringUtils.isBlank(uri)) {
-        uris.add(uri + "/dailyReport");
+        uris.add(uri);
       }
     }
     
