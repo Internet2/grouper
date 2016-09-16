@@ -32,6 +32,7 @@ edu.internet2.middleware.grouper.hooks
 edu.internet2.middleware.grouper.hooks.beans
 edu.internet2.middleware.grouper.hooks.examples
 edu.internet2.middleware.grouper.hooks.logic
+edu.internet2.middleware.grouper.instrumentation
 edu.internet2.middleware.grouper.internal.dao
 edu.internet2.middleware.grouper.internal.dao.hib3
 edu.internet2.middleware.grouper.internal.util
