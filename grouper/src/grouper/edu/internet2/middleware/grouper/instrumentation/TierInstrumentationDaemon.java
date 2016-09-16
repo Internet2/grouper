@@ -95,7 +95,10 @@ public class TierInstrumentationDaemon implements Job {
       data.put("component", "grouper");
       data.put("institution", getInstitution());
       data.put("environment", GrouperConfig.retrieveConfig().getProperty("grouper.env.name", ""));
-      data.put("version", GrouperVersion.GROUPER_VERSION);
+      
+      // 2.3.0 has an issue because the constant is already set to 2.4.0.  When creating the patch, since it's using a 
+      // version of GrouperVersion that already has 2.4.0, the value is stored here at compile time..
+      data.put("version", "2.3.0");
       data.put("platformWindows", SystemUtils.IS_OS_WINDOWS);
       data.put("platformLinux", SystemUtils.IS_OS_LINUX);
       data.put("platformMac", SystemUtils.IS_OS_MAC);
@@ -226,7 +229,7 @@ public class TierInstrumentationDaemon implements Job {
     
     Properties props = GrouperUtil.propertiesFromFile(patchIndexFile, false);
     
-    Pattern patchStatePattern = Pattern.compile("^grouper_v" + GrouperVersion.GROUPER_VERSION.replace(".", "_") + "_api_patch_(.*)\\.state$");
+    Pattern patchStatePattern = Pattern.compile("^grouper_v" + "2.3.0".replace(".", "_") + "_api_patch_(.*)\\.state$");
     for (String key : (Set<String>)(Object)props.keySet()) {
       Matcher matcher = patchStatePattern.matcher(key);
 
