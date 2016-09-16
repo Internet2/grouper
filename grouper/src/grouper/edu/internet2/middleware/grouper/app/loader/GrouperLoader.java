@@ -791,6 +791,14 @@ public class GrouperLoader {
       String cronString = otherJobMap.get(cronKey);
       int priority = GrouperUtil.intValue(otherJobMap.get(priorityKey), 5);
       
+      if (StringUtils.isBlank(cronString)) {
+        LOG.warn("grouper-loader.properties key: " + cronKey + " is blank so disabling job " + otherJobName + ".");
+        otherJobMap.remove(classKey);
+        otherJobMap.remove(cronKey);
+        otherJobMap.remove(priorityKey);
+        continue;
+      }
+      
       String jobName = GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX + otherJobName;
       otherJobNames.add(jobName);
 
