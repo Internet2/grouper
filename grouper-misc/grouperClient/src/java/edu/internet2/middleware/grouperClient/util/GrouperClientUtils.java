@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -756,6 +757,24 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     
     return httpCallResponse;
   }
+
+  /**
+   * pop first url string, retrieve, and remove, or null if not there
+   * @param urlStrings
+   * @return the string or null if not there
+   */
+  public static String popUrlString(List<String> urlStrings) {
+    
+    int urlStringsLength = length(urlStrings);
   
+    if (urlStringsLength > 0) {
+      String firstResource = urlStrings.get(0);
+      //pop off
+      urlStrings.remove(0);
+      //return
+      return firstResource;
+    }
+    return null;
+  }
 
 }
