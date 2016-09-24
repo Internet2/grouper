@@ -40,7 +40,7 @@ public class TierInstrumentationCollectorRestLogicTest extends TestCase {
   public static void runClient() {
     try {
       HttpClient httpClient = new HttpClient();
-      PostMethod postMethod = new PostMethod("http://localhost:8080/tierInstrumentationCollector/tierInstrumentationCollector/v1/upload");
+      PostMethod postMethod = new PostMethod("http://localhost:8088/tierInstrumentationCollector/tierInstrumentationCollector/v1/upload");
       String json = "{reportFormat: 1, component: \"grouper\", institution: \"Penn\", version: \"2.3.0\", "
           + "patchesInstalled: \"api1, api2, api4, ws2\", wsServerCount: 3, platformLinux: true, uiServerCount: 1, "
           + "pspngCount: 1, provisionToLdap: true, registrySize: 12345678, transactionCountMemberships: 1234567, "
