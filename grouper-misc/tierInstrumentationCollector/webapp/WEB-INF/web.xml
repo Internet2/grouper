@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!DOCTYPE web-app PUBLIC 
+          "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+          "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  <filter>
+    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
+    <filter-name>TIER instrumentation collector filter</filter-name>
+    <filter-class>edu.internet2.middleware.tierInstrumentationCollector.j2ee.TierInstrumentationCollectorFilterJ2ee</filter-class>
+  </filter>
+
+  <!-- Map the filter to a Servlet or URL -->
+  <filter-mapping>
+    <filter-name>TIER instrumentation collector filter</filter-name>
+    <url-pattern>/tierInstrumentationCollector/*</url-pattern>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>TierInstrumentationCollectorServlet</servlet-name>
+    <display-name>TIER instrumentation collector REST Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.tierInstrumentationCollector.j2ee.TierInstrumentationCollectorRestServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TierInstrumentationCollectorServlet</servlet-name>
+    <url-pattern>/tierInstrumentationCollector/*</url-pattern>
+  </servlet-mapping>
+
+  <session-config>
+    <session-timeout>1</session-timeout> 
+  </session-config>
+</web-app>

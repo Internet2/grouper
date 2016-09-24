@@ -1,0 +1,9 @@
+src/resources/tierApiAuthz.server.properties
+dist
+src/resources/clients
+webapp/WEB-INF/lib
+src/resources/grouper.client.properties
+build.properties
+**/.DS_Store
+src/resources/log4j.properties
+src/resources/tierInstrumentationCollector.properties
