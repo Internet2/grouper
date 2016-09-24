@@ -148,23 +148,45 @@
   </target>
 
   <target name="distBinary" description="build tar gz on internet2 box" depends="init,clean,compile,jarPrepare,jar">
-    <property name="binName" value="${main.appName}.serverBinary-${version}" />
+    <property name="binName" value="${main.appName}.binary-${version}" />
+    
     <mkdir dir="dist/binary/${binName}"/>
+    <mkdir dir="dist/binary/${binName}/webapp"/>
+    <mkdir dir="dist/binary/${binName}/webapp/WEB-INF"/>
+    <mkdir dir="dist/binary/${binName}/webapp/WEB-INF/classes"/>
+    <mkdir dir="dist/binary/${binName}/webapp/WEB-INF/lib"/>
+
     <copy todir="dist/binary/${binName}">    
-      <fileset dir="${main.confDir}">
-        <include name="tierInstrumentationCollector*.properties"/>
+      <fileset dir="misc">
+        <include name="database.sql"/>
       </fileset>
-      <fileset dir="dist">
-        <include name="${main.appName}.jar"/>
+    </copy>
+    <copy todir="dist/binary/${binName}/webapp/WEB-INF/classes">    
+      <fileset dir="${main.confDir}">
+        <include name="*.base.properties"/>
+        <include name="*.example.properties"/>
+      </fileset>
+    </copy>
+    <copy todir="dist/binary/${binName}/webapp/WEB-INF">    
+      <fileset dir="webapp/WEB-INF">
+        <include name="web.xml"/>
       </fileset>
       <fileset dir="misc">
         <include name="BINARY-README.txt"/>
+      </fileset>
+    </copy>
+    <copy todir="dist/binary/${binName}/webapp/WEB-INF/lib">    
+      <fileset dir="dist">
+        <include name="${main.appName}.jar"/>
+      </fileset>
+      <fileset dir="lib/collector">
+        <include name="*.jar"/>
       </fileset>
       <fileset dir="${grouper.client.folder}/dist">
         <include name="grouperClient.jar"/>
       </fileset>
     </copy>
-    <tar destfile="${basedir}/../${binName}.tar.gz" compression="gzip">
+    <tar destfile="dist/${binName}.tar.gz" compression="gzip">
       <tarfileset dir="dist/binary" >
         <include name="${binName}/**"/>
       </tarfileset>
@@ -177,9 +199,9 @@
     <delete dir="javadoc/api" />
     <mkdir dir="javadoc/api" />
     <!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
-    <javadoc destdir="javadoc/api" access="public"
+    <javadoc destdir="javadoc/api" access="public" classpath="${main.theClasspath}"
       additionalparam="-notimestamp" >
-      <packageset dir="src/java" defaultexcludes="yes">
+      <packageset dir="src/main" defaultexcludes="yes">
         <include name="edu/internet2/middleware/tierInstrumentationCollector/**" />
 
       </packageset>
@@ -189,56 +211,6 @@
       <link href="http://java.sun.com/j2se/1.4.2/docs/api" />
 
     </javadoc>
-  </target>
-  <target name="javadocInternal" description="generate public api docs for cvs to doc/api" depends="init">
-    <!-- Let's be sure we clear out old cruft first... -->
-    <mkdir dir="doc/api" />
-    <delete dir="doc/api" />
-    <mkdir dir="doc/api" />
-    <!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
-    <javadoc destdir="doc/api" access="public"
-      additionalparam="-notimestamp" >
-      <packageset dir="src/java" defaultexcludes="yes">
-        <include name="edu/internet2/middleware/tierInstrumentationCollector/**" />
-
-      </packageset>
-
-      <link href="http://struts.apache.org/1.2.x/api/" />
-      <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api" />
-      <link href="http://java.sun.com/j2se/1.4.2/docs/api" />
-
-    </javadoc>
-
-    <!-- replace .html?edu/internet2/middleware/authzStandardApi/webservices/AuthzStandardApiService.html" with 
-    .html" -->
-    <!-- take out existing params, these are used by javascript to go to frames gracefully, trash them -->
-    <replaceregexp flags="g">
-      <regexp pattern="\.html\?[^&quot; ]*&quot;" />
-      <substitution expression="\.html&quot;" />
-      <fileset dir="doc/api" includes="**/*.html" />
-    </replaceregexp>
-    <!-- replace relative links, e.g. method links -->
-    <replaceregexp flags="g">
-      <regexp pattern="\.html#([^&quot;>]*)&quot;" />
-      <substitution expression="\.html?view=co#\1&quot;" />
-      <fileset dir="doc/api" includes="**/*.html" />
-    </replaceregexp>
-    <!-- replace onLoad="top.loadFrames()" with onLoad="", this javascript messes things up with viewvc params -->
-    <replace file="doc/api/index.html">
-      <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
-      <replacevalue><![CDATA[onLoad=""]]></replacevalue>
-    </replace>
-    <!-- replace for cvs web: .html" with .html?view=co"   -->
-    <replace dir="doc/api" value=".html?view=co&quot;">
-      <include name="**/*.html" />
-      <replacetoken><![CDATA[.html"]]></replacetoken>
-    </replace>
-    <replace dir="doc/api" value=".css?view=co&quot;">
-      <include name="**/*.html" />
-      <replacetoken><![CDATA[.css"]]></replacetoken>
-    </replace>
-
-
   </target>
 
   <target name="dev" description="copy libs to webapp dir so the app can be run in dev, 

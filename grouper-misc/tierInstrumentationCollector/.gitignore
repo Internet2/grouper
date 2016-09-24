@@ -7,3 +7,4 @@ build.properties
 **/.DS_Store
 src/resources/log4j.properties
 src/resources/tierInstrumentationCollector.properties
+javadoc

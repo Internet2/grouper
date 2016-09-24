@@ -39,6 +39,6 @@ CREATE INDEX tic_entry_attr_type_idx ON tic_entry_attr (attribute_type);
 CREATE INDEX tic_entry_attr_float_idx ON tic_entry_attr (attribute_value_floating);
 CREATE INDEX tic_entry_attr_int_idx ON tic_entry_attr (attribute_value_integer);
 CREATE INDEX tic_entry_attr_tstamp_idx ON tic_entry_attr (attribute_value_timestamp);
-CREATE INDEX tic_entry_attr_string_idx ON tic_entry_attr (attribute_value_string);
+CREATE INDEX tic_entry_attr_string_idx ON tic_entry_attr (attribute_value_string(200));
 
 

@@ -30,6 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
+import edu.internet2.middleware.grouperClient.jdbc.GcTransactionEnd;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.tierInstrumentationCollector.config.TierInstrumentationCollectorConfig;
 import edu.internet2.middleware.tierInstrumentationCollector.corebeans.TicResponseBeanBase;
@@ -57,7 +59,7 @@ public class TierInstrumentationCollectorRestLogic {
       throw new RuntimeException("uploadJsonObject is null");
     }
     
-    TierInstrumentationCollectorEntry entry = new TierInstrumentationCollectorEntry();
+    final TierInstrumentationCollectorEntry entry = new TierInstrumentationCollectorEntry();
     
     entry.setUuid(GrouperClientUtils.uuid());
     entry.setTheTimestamp(new Timestamp(System.currentTimeMillis()));
@@ -72,7 +74,7 @@ public class TierInstrumentationCollectorRestLogic {
     entry.setEnvironment(entryFieldValue(uploadJsonObject, "environment", false, attributesToSkip));
     entry.setInstitution(entryFieldValue(uploadJsonObject, "institution", false, attributesToSkip));
     
-    List<TierInstrumentationCollectorEntryAttribute> attributes = new ArrayList<TierInstrumentationCollectorEntryAttribute>();
+    final List<TierInstrumentationCollectorEntryAttribute> attributes = new ArrayList<TierInstrumentationCollectorEntryAttribute>();
     
     for (Object keyObject : uploadJsonObject.keySet()) {
       String key = (String)keyObject;
@@ -115,12 +117,23 @@ public class TierInstrumentationCollectorRestLogic {
       }
       
     }
+    new GcDbAccess().callbackTransaction(new GcTransactionCallback() {
 
-    new GcDbAccess().storeToDatabase(entry);
-    for (TierInstrumentationCollectorEntryAttribute attribute : attributes) {
-      attribute.setEntryUuid(entry.getUuid());
-    }
-    new GcDbAccess().storeListToDatabase(attributes);
+      /**
+       * 
+       * @see edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback#callback(edu.internet2.middleware.grouperClient.jdbc.GcDbAccess)
+       */
+      @Override
+      public Object callback(GcDbAccess dbAccess) {
+        new GcDbAccess().storeToDatabase(entry);
+        for (TierInstrumentationCollectorEntryAttribute attribute : attributes) {
+          attribute.setEntryUuid(entry.getUuid());
+        }
+        new GcDbAccess().storeListToDatabase(attributes);
+
+        return null;
+      }
+    });
     return new TicResponseBeanBase() {
     };
   }
