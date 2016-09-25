@@ -107,6 +107,10 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
     private int ldapGroupCacheSize;
     protected int ldapGroupCacheSize_defaultValue = 10000;
     
+    // Should comparisons of the memberAttributeName be case sensitive?
+    private boolean memberAttributeIsCaseSensitive;
+    protected boolean memberAttributeIsCaseSensitive_defaultValue = false;
+
     public LdapGroupProvisionerConfiguration(String provisionerName) {
       super(provisionerName);
       
@@ -125,6 +129,7 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
         memberAttributeName_defaultValue = "member";
         groupAttributeName_defaultValue = "memberof";
         allGroupsSearchFilter_defaultValue = "objectclass=group";
+        memberAttributeIsCaseSensitive_defaultValue = false;
       }
       
       memberAttributeName =
@@ -176,7 +181,11 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
       ldapGroupCacheSize =
               GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "ldapGroupCacheSize", ldapGroupCacheSize_defaultValue);
       LOG.debug("Ldap Group Provisioner {} - Setting ldapGroupCacheSize to {}", provisionerName, ldapGroupCacheSize);
-    }
+
+      memberAttributeIsCaseSensitive =
+          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "memberAttributeIsCaseSensitive", memberAttributeIsCaseSensitive_defaultValue);
+      LOG.debug("Ldap Group Provisioner {} - Setting memberAttributeIsCaseSensitive to {}", provisionerName, memberAttributeIsCaseSensitive);
+}
 
     
     public String getMemberAttributeName() {
@@ -238,6 +247,10 @@ public class LdapGroupProvisionerConfiguration extends LdapProvisionerConfigurat
     
     public int getLdapGroupCacheSize() {
       return ldapGroupCacheSize;
+    }
+    
+    public boolean isMemberAttributeCaseSensitive() {
+      return memberAttributeIsCaseSensitive;
     }
     
     public void populateElMap(Map<String, Object> variableMap) {
