@@ -117,6 +117,31 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
   }
   
+  /**
+   * Get a string set that is case-insensitive or case-sensitive
+   * depending on the provisioner's configuration.isMemberAttributeCaseSensitive
+   */
+  protected Set<String> getStringSet() {
+    if ( config.isMemberAttributeCaseSensitive() )
+      return new HashSet<String>();
+    else
+      return new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+  }
+  
+  /**
+   * Get a string set that is case-insensitive or case-sensitive,
+   * depending on the provisioner's configuration.isMemberAttributeCaseSensitive.
+   * 
+   * The returned set will contain the values provided
+   */
+  protected Set<String> getStringSet(Collection<String> values ) {
+    Set<String> result = getStringSet();
+    if ( values != null ) {
+      result.addAll(values);
+    }
+    
+    return result;
+  }
   
   @Override
   protected void doFullSync(
@@ -125,20 +150,18 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     if ( ldapGroup  == null )
       ldapGroup  = createGroup(grouperGroupInfo);
     
-    Set<String> correctMembershipValues = new HashSet<String>();
+    Set<String> correctMembershipValues = getStringSet();
     
     for ( Subject correctSubject: correctSubjects ) {
       String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), correctSubject, grouperGroupInfo);
       correctMembershipValues.add(membershipAttributeValue);
     }
     
-    
-    Collection<String> currentMembershipValues
-      = ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName());
+    Collection<String> currentMembershipValues = getStringSet(ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
     
     // EXTRA = CURRENT - CORRECT
     {
-      Collection<String> extraValues = new HashSet<String>(currentMembershipValues);
+      Collection<String> extraValues = getStringSet(currentMembershipValues);
       extraValues.removeAll(correctMembershipValues);
       
       LOG.info("{}: Group {} has {} extra values", 
@@ -149,7 +172,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     
     // MISSING = CORRECT - CURRENT
     {
-      Collection<String> missingValues = new HashSet<String>(correctMembershipValues);
+      Collection<String> missingValues = getStringSet(correctMembershipValues);
       missingValues.removeAll(currentMembershipValues);
       
       LOG.info("{}: Group {} has {} missing values", 
