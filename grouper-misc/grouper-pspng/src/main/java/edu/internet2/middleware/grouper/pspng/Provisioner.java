@@ -419,7 +419,7 @@ public abstract class Provisioner
       }
       else {
         // Not going to process this item, so mark it as a success and don't add it to result
-        workItem.markAsSuccess("Ignoring work item {} because group {} is not provisioned", 
+        workItem.markAsSuccess("Ignoring work item %s because group %s is not provisioned", 
             workItem, g.name);
       }
     }
@@ -501,9 +501,21 @@ public abstract class Provisioner
     // Give our config a chance to add information
     config.populateElMap(variableMap);
     
-    String result = GrouperUtil.substituteExpressionLanguage(expression, variableMap, true, false, false);
-
-    return result;
+    try {
+      String result = GrouperUtil.substituteExpressionLanguage(expression, variableMap, true, false, false);
+  
+      return result;
+    }
+    catch (Exception e) {
+      LOG.error("Jexl Expression {} could not be evaluated for subject '{}/{}' and group '{}/{}' which used variableMap '{}'",
+          new Object[] {expression, 
+              subject, 
+              subject==null ? null : tsUserCache_shortTerm.get(subject), 
+              grouperGroupInfo, 
+              grouperGroupInfo==null ? null : tsGroupCache_shortTerm.get(grouperGroupInfo),
+              variableMap});
+      throw e;
+    }
   }
 
   

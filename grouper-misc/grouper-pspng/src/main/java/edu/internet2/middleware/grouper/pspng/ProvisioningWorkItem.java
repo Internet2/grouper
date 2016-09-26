@@ -99,7 +99,7 @@ public class ProvisioningWorkItem {
     this.statusMessage = String.format(statusMessageFormat, statusMessageArgs);
     
     if ( success )
-      LOG.info("Work item was successful: {}", this);
+      LOG.info("Work item done: {}", this);
     else
       LOG.error("Work item failed: {}", this);
   }

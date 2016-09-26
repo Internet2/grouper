@@ -258,10 +258,9 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       
       PoolConfig ldapPoolConfig = new PoolConfig();
       PoolConfigPropertySource pcPropertySource = new PoolConfigPropertySource(ldapPoolConfig, ldaptiveProperties);
-
       DefaultConnectionFactory factory = new DefaultConnectionFactory(connConfig);
       factory.setProvider(new UnboundIDProvider());
-      result = new BlockingConnectionPool(factory);
+      result = new BlockingConnectionPool(ldapPoolConfig, factory);
       
       result.initialize();
       return result;
