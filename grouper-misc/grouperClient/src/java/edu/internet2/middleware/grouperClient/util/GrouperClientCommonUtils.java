@@ -992,6 +992,25 @@ public class GrouperClientCommonUtils  {
   /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util trim() for more details)
+   *
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
+   *
+   * @return the set of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static Set<String> splitTrimToSet(String input, String separator) {
+    if (isBlank(input)) {
+      return null;
+    }
+    String[] array =  splitTrim(input, separator);
+    return toSet(array);
+  }
+
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util trim() for more details)
    * 
    * @param input
    *          is the delimited input to split and trim
