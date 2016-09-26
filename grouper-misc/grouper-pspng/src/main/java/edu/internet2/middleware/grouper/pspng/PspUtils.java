@@ -162,7 +162,6 @@ public class PspUtils {
   }
 
   public static Map<String, Object> getGroupAttributes(PITGroup pitGroup) {
-    // TODO Auto-generated method stub
-    return null;
+    return Collections.EMPTY_MAP;
   }
 }
