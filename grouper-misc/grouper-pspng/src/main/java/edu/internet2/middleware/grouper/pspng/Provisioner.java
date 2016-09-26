@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -447,7 +448,8 @@ public abstract class Provisioner
     	  // Nothing to do before batch is processed
     	  continue;
       GrouperGroupInfo grouperGroupInfo = getGroupInfo(groupName);
-      grouperGroupInfos.add(grouperGroupInfo);
+      if ( grouperGroupInfo != null )
+        grouperGroupInfos.add(grouperGroupInfo);
     
       Subject s = workItem.getSubject(this);
       if ( s != null )
@@ -837,7 +839,7 @@ public abstract class Provisioner
   }
   
   /**
-   * Dispatches an event to the right provisionItem_* method, with generally
+   * Dispatches an event to the right method, with generally
    * useful parameters. 
    * 
    * There is no need to override this method when implementing basic provisioning 
@@ -927,7 +929,7 @@ public abstract class Provisioner
 	    
 	    for ( Group group : allGroups ) {
 	      GrouperGroupInfo grouperGroupInfo = getGroupInfo(group.getName());
-	      if ( shouldGroupBeProvisioned(grouperGroupInfo) )
+	      if ( grouperGroupInfo != null && shouldGroupBeProvisioned(grouperGroupInfo) )
 	    	  groupsForThisProvisioner.add(grouperGroupInfo);
 	    }
 	    
@@ -1033,29 +1035,35 @@ public abstract class Provisioner
   }
 
   protected GrouperGroupInfo getGroupInfo(String groupName) {
-    GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
-    
-    // Look for a group
-    if ( grouperGroupInfo == null ) {
-	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
-	    
-	    if ( group != null ) {
-	    	grouperGroupInfo = new GrouperGroupInfo(group);
-	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
-	    }
+    try {
+      GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
+      
+      // Look for a group
+      if ( grouperGroupInfo == null ) {
+  	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
+  	    
+  	    if ( group != null ) {
+  	    	grouperGroupInfo = new GrouperGroupInfo(group);
+  	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
+  	    }
+      }
+      
+      // If it is still null, look for a PITGroup
+      if ( grouperGroupInfo == null ) {
+          PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
+  	    
+  	    if ( pitGroup != null ) {
+  	    	grouperGroupInfo = new GrouperGroupInfo(pitGroup);
+  	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
+  	    }
+      }
+  
+      return grouperGroupInfo;
     }
-    
-    // If it is still null, look for a PITGroup
-    if ( grouperGroupInfo == null ) {
-        PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
-	    
-	    if ( pitGroup != null ) {
-	    	grouperGroupInfo = new GrouperGroupInfo(pitGroup);
-	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
-	    }
+    catch (GroupNotFoundException e) {
+      LOG.error("Unable to find group '{}'", groupName, e);
+      return null;
     }
-
-    return grouperGroupInfo;
   }
   
   public ConfigurationClass getConfig() {
