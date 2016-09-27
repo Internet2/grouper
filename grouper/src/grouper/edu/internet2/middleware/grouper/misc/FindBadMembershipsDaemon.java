@@ -71,6 +71,7 @@ public class FindBadMembershipsDaemon implements Job {
       while (true) {
         runs++;
         LOG.info("Checking for bad or missing memberships.");
+        FindBadMemberships.clearResults();
         long count = FindBadMemberships.checkAll();
         LOG.info("Found " + count + " bad or missing memberships. ");
         hib3GrouploaderLog.appendJobMessage("Found " + count + " bad or missing memberships. ");
@@ -98,7 +99,6 @@ public class FindBadMembershipsDaemon implements Job {
           psErr = new PrintStream(baosErr);
           
           new Interpreter(new StringReader(gsh), psOut, psErr, false).run();
-          FindBadMemberships.clearResults();
           LOG.warn("Done running script to fix " + count + " memberships:  Standard out=" + new String(baosOut.toByteArray(), "UTF-8") + ", Standard err=" + new String(baosErr.toByteArray(), "UTF-8"));
         } finally {
           if (psOut != null) {
@@ -133,6 +133,7 @@ public class FindBadMembershipsDaemon implements Job {
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      FindBadMemberships.clearResults();
       GrouperSession.stopQuietly(grouperSession);
     }
   }

@@ -44,5 +44,9 @@ public class OwnerGroup extends KeyedResource implements Serializable {
   @XmlElement
   @ScimAttribute(description="system name of the group")
   private String systemName;
+  
+  @XmlElement
+  @ScimAttribute(description="id index of the group")
+  private Long idIndex;
 
 }

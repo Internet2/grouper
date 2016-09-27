@@ -1,0 +1,3 @@
+#The TIER Instrumentation Collector requires an instance of the Grouper Client.
+#Note, if it needs to be built, build the grouper client first
+grouper.client.folder=../grouperClient

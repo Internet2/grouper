@@ -1519,17 +1519,19 @@ public class GcDbAccess {
         switch (transactionEnd) {
           case commit:
             connectionBean.connection.commit();
+            connectionBean.setInTransaction(false);
             break;
   
           case rollback:
             connectionBean.connection.rollback();
+            connectionBean.setInTransaction(false);
             
             break;
           default:
             throw new RuntimeException("Not expecting: " + transactionEnd);
         }
       } catch (SQLException sqle) {
-        throw new RuntimeException("Error: " + transactionEnd + ", " + endOnlyIfStarted);
+        throw new RuntimeException("Error: " + transactionEnd + ", " + endOnlyIfStarted, sqle);
       }
 
       if (endTransaction) {
