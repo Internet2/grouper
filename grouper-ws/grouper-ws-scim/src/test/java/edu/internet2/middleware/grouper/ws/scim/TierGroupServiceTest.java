@@ -50,7 +50,7 @@ import edu.psu.swe.scim.spec.resources.ScimGroup;
 @PrepareForTest({TierFilter.class, GroupFinder.class, GrouperSession.class, PrivilegeHelper.class})
 public class TierGroupServiceTest {
   
-  TierGroupService service;
+  TierGroupService groupService;
   
   GrouperSession mockGrouperSession;
   
@@ -61,7 +61,7 @@ public class TierGroupServiceTest {
   @Before
   public void setup() {
     
-    service = new TierGroupService();
+    groupService = new TierGroupService();
     
     subject = mock(Subject.class);
     mockStatic(TierFilter.class);
@@ -109,7 +109,7 @@ public class TierGroupServiceTest {
     when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
     
     //when
-    ScimGroup scimGroup = service.get("uuid");
+    ScimGroup scimGroup = groupService.get("uuid");
     
     //then
     verifyStatic();
@@ -136,7 +136,7 @@ public class TierGroupServiceTest {
     
     try {
       //when
-      service.get("uuid");
+      groupService.get("uuid");
       fail("expected UnableToRetrieveResourceException");
     } catch(UnableToRetrieveResourceException e) {
       //then
@@ -162,7 +162,7 @@ public class TierGroupServiceTest {
     when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
     
     //when
-    ScimGroup scimGroup = service.get("systemName:name");
+    ScimGroup scimGroup = groupService.get("systemName:name");
     
     //then
     verifyStatic();
@@ -182,7 +182,7 @@ public class TierGroupServiceTest {
 
     try {
       //when
-      service.get("idIndex:nonNumeric");
+      groupService.get("idIndex:nonNumeric");
       fail("expected UnableToRetrieveResourceException");
     } catch(UnableToRetrieveResourceException e) {
       //then
@@ -202,7 +202,7 @@ public class TierGroupServiceTest {
     when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
     
     //when
-    ScimGroup scimGroup = service.get("idIndex:102");
+    ScimGroup scimGroup = groupService.get("idIndex:102");
     
     //then
     verifyStatic();
@@ -251,7 +251,7 @@ public class TierGroupServiceTest {
     
     try {
     //when
-      service.create(scimGroup);
+      groupService.create(scimGroup);
       fail("UnableToCreateResourceException should have been thrown");
     } catch (UnableToCreateResourceException e) {
       //then
@@ -311,7 +311,7 @@ public class TierGroupServiceTest {
     
     try {
       //when
-      service.update("non existent uuid", scimGroup);
+      groupService.update("non existent uuid", scimGroup);
       fail("UnableToUpdateResourceException should have been thrown");
     } catch (UnableToUpdateResourceException e) {
       //then
@@ -336,7 +336,7 @@ public class TierGroupServiceTest {
     when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
     
     //when 
-    service.delete("uuid");
+    groupService.delete("uuid");
     
     //then
     verifyStatic();
@@ -358,7 +358,7 @@ public class TierGroupServiceTest {
     
     try {
       //when
-      service.delete("non existent uuid");
+      groupService.delete("non existent uuid");
       fail("UnableToDeleteResourceException should have been thrown");
     } catch (UnableToDeleteResourceException e) {
       //then
