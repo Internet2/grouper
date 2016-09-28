@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.pspng;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -109,9 +110,17 @@ public class GrouperGroupInfo {
       result.put("pitGroup", pitGroup);
       result.put("name", pitGroup.getName());
       
+      // TODO: populate idIndex, but pitGroup does not have getIdIndex()
+      //result.put("idIndex", pitGroup.getIdIndex());
+      
       Map<String, Object> groupAttributes = PspUtils.getGroupAttributes(pitGroup);
       if ( groupAttributes != null )
         result.put("groupAttributes", groupAttributes);
+      else
+        result.put("groupAttributes", Collections.EMPTY_MAP);
+      
+      // Old stem attributes probably don't matter since group has been deleted
+      result.put("stemAttributes", Collections.EMPTY_MAP);
       
     }
     return result;

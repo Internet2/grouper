@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="GROUPER_V2_3_CLIENT_SOURCE"/>
+	<classpathentry kind="src" path="src/resources"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="lib" path="lib/nonwebapp/servlet.jar"/>
+	<classpathentry kind="lib" path="lib/collector/commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/collector/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/collector/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/collector/json-lib.jar"/>
+	<classpathentry kind="lib" path="lib/collector/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/collector/morphString.jar"/>
+	<classpathentry kind="lib" path="lib/collector/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/collector/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/collector/commons-beanutils.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouperClient"/>
+	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
+</classpath>

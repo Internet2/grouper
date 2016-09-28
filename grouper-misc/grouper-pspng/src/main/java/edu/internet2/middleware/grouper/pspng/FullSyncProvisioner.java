@@ -225,7 +225,7 @@ public class FullSyncProvisioner  {
           return queueItem;
         }
         else {
-          LOG.debug("No groups ready for FullSync. Waiting....");
+          LOG.debug("{}: No groups ready for FullSync. Waiting....", provisioner.getName());
           notEmptyCondition.awaitUninterruptibly();
         }
       }
@@ -310,7 +310,7 @@ public class FullSyncProvisioner  {
     ProvisioningWorkItem workItem = new ProvisioningWorkItem("FullSync", grouperGroupInfo);
     try {
       MDC.put("step", "start/");
-      LOG.debug("{}: Starting Full-Sync: {}", provisioner.getName(), grouperGroupInfo);
+      LOG.info("{}: Starting Full-Sync: {}", provisioner.getName(), grouperGroupInfo);
       provisioner.startProvisioningBatch(Arrays.asList(workItem));
       
       MDC.put("step",  "doit/");
@@ -340,7 +340,7 @@ public class FullSyncProvisioner  {
   
   protected void processGroupCleanup() {
     try {
-      LOG.debug("{}: Starting Group Cleanup", provisioner.getName());
+      LOG.info("{}: Starting Group Cleanup", provisioner.getName());
       ProvisioningWorkItem workItem = new ProvisioningWorkItem("RemoveExtraGroups", null);
       MDC.put("step", "start/");
       provisioner.startProvisioningBatch(Arrays.asList(workItem));

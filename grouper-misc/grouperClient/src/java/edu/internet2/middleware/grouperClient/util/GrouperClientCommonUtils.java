@@ -72,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -986,6 +987,25 @@ public class GrouperClientCommonUtils  {
     }
     String[] array =  splitTrim(input, separator);
     return toList(array);
+  }
+
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util trim() for more details)
+   *
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
+   *
+   * @return the set of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static Set<String> splitTrimToSet(String input, String separator) {
+    if (isBlank(input)) {
+      return null;
+    }
+    String[] array =  splitTrim(input, separator);
+    return toSet(array);
   }
 
   /**
@@ -7908,6 +7928,29 @@ public class GrouperClientCommonUtils  {
   }
 
   /**
+   * generate a uuid
+   * @return uuid
+   */
+  public static String uuid() {
+    String uuid = UUID.randomUUID().toString();
+    
+    char[] result = new char[32];
+    int resultIndex = 0;
+    for (int i=0;i<uuid.length();i++) {
+      char theChar = uuid.charAt(i);
+      if (theChar != '-') {
+        if (resultIndex >= result.length) {
+          throw new RuntimeException("Why is resultIndex greater than result.length ???? " 
+              + resultIndex + " , " + result.length + ", " + uuid);
+        }
+        result[resultIndex++] = theChar;
+      }
+    }
+    return new String(result);
+
+  }
+
+  /**
    * make sure a value is boolean in properties
    * @param resourceName
    * @param properties 
@@ -9522,7 +9565,22 @@ public class GrouperClientCommonUtils  {
     }
     
   }
-  
 
+  /**
+   * Get the contents of a <code>Reader</code> as a String.
+   * <p>
+   * This method buffers the input internally, so there is no need to use a
+   * <code>BufferedReader</code>.
+   * 
+   * @param input  the <code>Reader</code> to read from
+   * @return the requested String
+   * @throws NullPointerException if the input is null
+   * @throws IOException if an I/O error occurs
+   */
+  public static String toString(Reader input) throws IOException {
+      StringWriter sw = new StringWriter();
+      copy(input, sw);
+      return sw.toString();
+  }
 
 }
