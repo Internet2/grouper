@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupExtension;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
 import edu.internet2.middleware.subject.Subject;
@@ -45,7 +47,7 @@ import edu.psu.swe.scim.spec.resources.ScimGroup;
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({TierFilter.class, GroupFinder.class, GrouperSession.class})
+@PrepareForTest({TierFilter.class, GroupFinder.class, GrouperSession.class, PrivilegeHelper.class})
 public class TierGroupServiceTest {
   
   TierGroupService service;
@@ -54,12 +56,14 @@ public class TierGroupServiceTest {
   
   Group mockGroup;
   
+  Subject subject;
+  
   @Before
   public void setup() {
     
     service = new TierGroupService();
     
-    Subject subject = mock(Subject.class);
+    subject = mock(Subject.class);
     mockStatic(TierFilter.class);
     when(TierFilter.retrieveSubjectFromRemoteUser()).thenReturn(subject);
     
@@ -98,6 +102,12 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
     //when
     ScimGroup scimGroup = service.get("uuid");
     
@@ -121,6 +131,9 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(null);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     try {
       //when
       service.get("uuid");
@@ -129,7 +142,7 @@ public class TierGroupServiceTest {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
     }
     
   }
@@ -141,6 +154,12 @@ public class TierGroupServiceTest {
     //given
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByName(mockGrouperSession, "name", false)).thenReturn(mockGroup);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
     
     //when
     ScimGroup scimGroup = service.get("systemName:name");
@@ -178,6 +197,9 @@ public class TierGroupServiceTest {
     //given
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByIdIndexSecure(102L, false, null)).thenReturn(mockGroup);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
     
     //when
     ScimGroup scimGroup = service.get("idIndex:102");
@@ -248,6 +270,12 @@ public class TierGroupServiceTest {
     
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
 
     class TierGroupServiceToBeTested extends TierGroupService {
       @Override
@@ -278,6 +306,9 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false)).thenReturn(null);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     try {
       //when
       service.update("non existent uuid", scimGroup);
@@ -286,7 +317,7 @@ public class TierGroupServiceTest {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
     }
   }
   
@@ -297,6 +328,12 @@ public class TierGroupServiceTest {
     //given
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
     
     //when 
     service.delete("uuid");
@@ -316,6 +353,9 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false)).thenReturn(null);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     try {
       //when
       service.delete("non existent uuid");
@@ -324,7 +364,7 @@ public class TierGroupServiceTest {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
     }
     
   }

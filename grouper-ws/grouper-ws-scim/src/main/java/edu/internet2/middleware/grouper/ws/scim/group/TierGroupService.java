@@ -31,6 +31,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,7 +84,7 @@ public class TierGroupService implements Provider<ScimGroup> {
     try {
       groupName = retrieveGroupName(scimGroup);
       if (groupName == null || !groupName.contains(":")) {
-        throw new UnableToCreateResourceException(Status.BAD_REQUEST, "name must contain atleast one colon (:)"); 
+        throw new IllegalArgumentException("name must contain atleast one colon (:)"); 
       }
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
@@ -96,7 +97,8 @@ public class TierGroupService implements Provider<ScimGroup> {
       scimGroupOutput.addExtension(tierMetaExtension);
       
     } catch(IllegalArgumentException e) {
-      throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Please check the request payload and try again.");
+      throw new UnableToCreateResourceException(Status.BAD_REQUEST, StringUtils.isNotBlank(e.getMessage()) ?
+          e.getMessage() : "Please check the request payload and try again.");
     } catch(InsufficientPrivilegeException e) {
       throw new UnableToCreateResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
     } catch(GroupAddAlreadyExistsException e) {
@@ -114,14 +116,15 @@ public class TierGroupService implements Provider<ScimGroup> {
   public ScimGroup update(String id, ScimGroup scimGroup) throws UnableToUpdateResourceException {
     
     GrouperSession grouperSession = null;
+    GrouperSession rootSession = null;
     ScimGroup scimGroupOutput = null;
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
-      
-      Optional<Group> optionalGroup = findGroup(id, grouperSession);
+      rootSession = GrouperSession.startRootSession();
+      Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
       if (!optionalGroup.isPresent()) {
-        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "group " + id + " not found.");
+        throw new IllegalArgumentException("group " + id + " not found.");
       }
       
       Group savedGroup = updateGroup(grouperSession, scimGroup, optionalGroup.get().getUuid());
@@ -132,15 +135,17 @@ public class TierGroupService implements Provider<ScimGroup> {
       scimGroupOutput.addExtension(tierMetaExtension);
       
     } catch(IllegalArgumentException e) {
-      throw new UnableToUpdateResourceException(Status.BAD_REQUEST, "Please check the request payload and try again.");
+      throw new UnableToUpdateResourceException(Status.BAD_REQUEST, StringUtils.isNotBlank(e.getMessage()) ?
+          e.getMessage() : "Please check the request payload and try again.");
     } catch(InsufficientPrivilegeException e) {
       throw new UnableToUpdateResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
     } catch(Exception ie) {
-      LOG.error("Unable to create group with id "+scimGroup.getId(), ie);
+      LOG.error("Unable to update group with id "+id, ie);
       throw new UnableToUpdateResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } 
     finally {
       GrouperSession.stopQuietly(grouperSession);
+      GrouperSession.stopQuietly(rootSession);
     }
     return scimGroupOutput;
     
@@ -150,13 +155,15 @@ public class TierGroupService implements Provider<ScimGroup> {
   public void delete(String id) throws UnableToDeleteResourceException {
   
     GrouperSession grouperSession = null;
+    GrouperSession rootSession = null;
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
-      Optional<Group> optionalGroup = findGroup(id, grouperSession);
+      rootSession = GrouperSession.startRootSession();
+      Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
       
       if (!optionalGroup.isPresent()) {
-        throw new UnableToDeleteResourceException(Status.NOT_FOUND, "group " + id + " not found.");
+        throw new IllegalArgumentException("group " + id + " not found.");
       }
       optionalGroup.get().delete();
     } catch(InsufficientPrivilegeException e) {
@@ -167,6 +174,7 @@ public class TierGroupService implements Provider<ScimGroup> {
       throw new UnableToDeleteResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+      GrouperSession.stopQuietly(rootSession);
     }
   }
 
@@ -174,13 +182,15 @@ public class TierGroupService implements Provider<ScimGroup> {
   public ScimGroup get(String id) throws UnableToRetrieveResourceException {
     
     GrouperSession grouperSession = null;
+    GrouperSession rootSession = null;
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
-      Optional<Group> optionalGroup = findGroup(id, grouperSession);
+      rootSession = GrouperSession.startRootSession();
+      Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
       
       if (!optionalGroup.isPresent()) {
-        throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "group " + id + " not found.");
+        throw new IllegalArgumentException("group " + id + " not found.");
       }
       
       ScimGroup scimGroupOutput = convertGrouperGroupToScimGroup(optionalGroup.get(), true);
@@ -204,11 +214,12 @@ public class TierGroupService implements Provider<ScimGroup> {
       throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, e.getMessage());
     } catch(InsufficientPrivilegeException e) {
       throw new UnableToRetrieveResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
-    } catch(InvalidExtensionException ie) {
-      LOG.error("Unable to get a group "+ id, ie);
+    } catch (Exception e) {
+      LOG.error("Unable to get a group "+ id, e);
       throw new UnableToRetrieveResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
+      GrouperSession.stopQuietly(rootSession);
     }
     
   }
@@ -395,35 +406,29 @@ public class TierGroupService implements Provider<ScimGroup> {
     }
   }
   
-  private Optional<Group> findGroup(String id, GrouperSession grouperSession) throws IllegalArgumentException, InsufficientPrivilegeException {
+  private Optional<Group> findGroup(String id, Subject subject, GrouperSession rootSession) throws IllegalArgumentException, InsufficientPrivilegeException {
     
-    GrouperSession rootSession = GrouperSession.startRootSession();
     Optional<Group> optionalGroup = Optional.empty();
-    try {
-      if (id.startsWith("systemName:")) {
-        optionalGroup = Optional.ofNullable(GroupFinder.findByName(grouperSession, id.substring(11), false));
-      }
-      
-      if (id.startsWith("idIndex:")) {
-        if (NumberUtils.isNumber(id.substring(8))) {
-          optionalGroup = Optional.ofNullable(GroupFinder.findByIdIndexSecure(Long.valueOf(id.substring(8)), false, null));
-        } else {
-          throw new IllegalArgumentException("idIndex can only be  numeric");
-        }
-      }
-      
-      if (!id.startsWith("systemName:") && !id.startsWith("idIndex:")) {
-        optionalGroup = Optional.ofNullable(GroupFinder.findByUuid(grouperSession, id, false));
-      }
-      
-      if (optionalGroup.isPresent() && !PrivilegeHelper.canView(rootSession, optionalGroup.get(), grouperSession.getSubject())) {
-        throw new InsufficientPrivilegeException(grouperSession.getSubject().getName()+" doesn't have privileges to view this group.");
-      }
-      
-    } finally {
-      GrouperSession.stopQuietly(rootSession);
+    if (id.startsWith("systemName:")) {
+      optionalGroup = Optional.ofNullable(GroupFinder.findByName(rootSession, id.substring(11), false));
     }
     
+    if (id.startsWith("idIndex:")) {
+      if (NumberUtils.isNumber(id.substring(8))) {
+        optionalGroup = Optional.ofNullable(GroupFinder.findByIdIndexSecure(Long.valueOf(id.substring(8)), false, null));
+      } else {
+        throw new IllegalArgumentException("idIndex can only be  numeric");
+      }
+    }
+    
+    if (!id.startsWith("systemName:") && !id.startsWith("idIndex:")) {
+      optionalGroup = Optional.ofNullable(GroupFinder.findByUuid(rootSession, id, false));
+    }
+    
+    if (optionalGroup.isPresent() && !PrivilegeHelper.canView(rootSession, optionalGroup.get(), subject)) {
+      throw new InsufficientPrivilegeException(subject.getName()+" doesn't have privileges to view this group.");
+    }
+      
     return optionalGroup;
   }
   
