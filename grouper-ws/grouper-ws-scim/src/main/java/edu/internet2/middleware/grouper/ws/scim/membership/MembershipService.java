@@ -90,7 +90,7 @@ public class MembershipService implements Provider<MembershipResource> {
         }
       }
       if (membershipGroup == null) {
-        throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Please provide uuid value or system name for the group.");
+        throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Please provide correct uuid value or system name or idIndex for the group.");
       }
       
       Subject membershipSubject = SubjectFinder.findByIdOrIdentifier(resource.getMember().getValue(), false);
