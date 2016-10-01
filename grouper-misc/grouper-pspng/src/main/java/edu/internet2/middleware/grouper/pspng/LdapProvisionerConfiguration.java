@@ -17,27 +17,27 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.ldaptive.BindConnectionInitializer;
-import org.ldaptive.ConnectionConfig;
-import org.ldaptive.DefaultConnectionFactory;
+import org.ldaptive.LdapException;
+import org.ldaptive.SearchRequest;
 import org.ldaptive.pool.BlockingConnectionPool;
-import org.ldaptive.pool.PoolConfig;
-import org.ldaptive.props.BindConnectionInitializerPropertySource;
-import org.ldaptive.props.ConnectionConfigPropertySource;
-import org.ldaptive.props.PoolConfigPropertySource;
-import org.ldaptive.provider.unboundid.UnboundIDProvider;
-import org.ldaptive.sasl.GssApiConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Collects all the various properties and makes them available to the provisioner.
@@ -88,9 +88,6 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
      */
     private String userSearchAttributes[];
     protected String userSearchAttributes_defaultValue = "cn,uid,uidNumber,mail,samAccountName,objectclass";
-    
-    protected boolean searchResultPagingEnabled_defaultValue = true;
-    protected int searchResultPagingSize_default_value = 100;
     
     private int ldapUserCacheTime_secs;
     protected int ldapUserCacheTime_secs_defaultValue = 600;
@@ -168,105 +165,6 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       LOG.debug("Ldap Provisioner {} - Setting ldapUserCacheSize to {}", provisionerName, ldapUserCacheSize);
     }
 
-    public BlockingConnectionPool getLdapPool() {
-      if ( ldapPool != null )
-        return ldapPool;
-      
-      // We don't have a pool setup yet. Synchronize so we're sure we only make one pool.
-      synchronized(this) {
-        // Check if another thread has created our pool while we were waiting for the semaphore
-        if ( ldapPool != null )
-          return ldapPool;
-        
-       ldapPool = buildLdapConnectionPool();
-      }
-
-      return ldapPool;
-    }
-
-
-    private BlockingConnectionPool buildLdapConnectionPool() {
-      BlockingConnectionPool result;
-
-      String ldapPropertyPrefix = "ldap." + ldapPoolName.toLowerCase() + ".";
-      
-      for (String propName : GrouperLoaderConfig.retrieveConfig().propertyNames()) {
-        if ( propName.toLowerCase().startsWith(ldapPropertyPrefix) ) {
-          String propValue = GrouperLoaderConfig.getPropertyString(propName);
-          
-          // Get the part of the property after ldapPropertyPrefix 'ldap.person.'
-          String propNameTail = propName.substring(ldapPropertyPrefix.length());
-          ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
-          
-          // Some compatibility between old vtldap properties and ldaptive versions
-          // url (vtldap) ==> ldapUrl
-          if ( propNameTail.equalsIgnoreCase("url") )
-            ldaptiveProperties.put("org.ldaptive.ldapUrl", propValue);
-          // tls (vtldap) ==> useStartTls
-          if ( propNameTail.equalsIgnoreCase("tls") )
-            ldaptiveProperties.put("org.ldaptive.useStartTLS", propValue);
-          // user (vtldap) ==> bindDn
-          if ( propNameTail.equalsIgnoreCase("user") )
-            ldaptiveProperties.put("org.ldaptive.bindDn", propValue);
-          // pass (vtldap) ==> bindCredential
-          if ( propNameTail.equalsIgnoreCase("pass") )
-            ldaptiveProperties.put("org.ldaptive.bindCredential", propValue);
-        }
-      }
-      
-      // Setup ldaptive ConnectionConfig
-      ConnectionConfig connConfig = new ConnectionConfig();
-      ConnectionConfigPropertySource ccpSource = new ConnectionConfigPropertySource(connConfig, ldaptiveProperties);
-      ccpSource.initialize();
-
-      //GrouperLoaderLdapServer grouperLoaderLdapProperties 
-      //  = GrouperLoaderConfig.retrieveLdapProfile(ldapPoolName);
-      
-      /////////////
-      // Binding
-      BindConnectionInitializer binder = new BindConnectionInitializer();
-
-      BindConnectionInitializerPropertySource bcip = new BindConnectionInitializerPropertySource(binder, ldaptiveProperties);
-      bcip.initialize();
-
-      // I'm not sure if SaslRealm and/or SaslAuthorizationId can be used independently
-      // Therefore, we'll initialize gssApiConfig when either one of them is used.
-      // And, then, we'll attach the gssApiConfig to the binder if there is a gssApiConfig
-      GssApiConfig gssApiConfig = null;
-      String val = (String) ldaptiveProperties.get("org.ldaptive.saslRealm");
-      if (!StringUtils.isBlank(val)) {
-        if ( gssApiConfig == null )
-          gssApiConfig = new GssApiConfig();
-        gssApiConfig.setRealm(val);
-        
-      }
-      
-      val = (String) ldaptiveProperties.get("org.ldaptive.saslAuthorizationId");
-      if (!StringUtils.isBlank(val)) {
-        if ( gssApiConfig == null )
-          gssApiConfig = new GssApiConfig();
-        gssApiConfig.setAuthorizationId(val);
-      }
-
-      // If there was a sasl/gssapi attribute, then save the gssApiConfig
-      if ( gssApiConfig != null )
-        binder.setBindSaslConfig(gssApiConfig);
-      
-      
-      /////////////
-      // PoolConfig
-      
-      PoolConfig ldapPoolConfig = new PoolConfig();
-      PoolConfigPropertySource pcPropertySource = new PoolConfigPropertySource(ldapPoolConfig, ldaptiveProperties);
-      DefaultConnectionFactory factory = new DefaultConnectionFactory(connConfig);
-      factory.setProvider(new UnboundIDProvider());
-      result = new BlockingConnectionPool(ldapPoolConfig, factory);
-      
-      result.initialize();
-      return result;
-    }
-
-
     public int getMaxValuesToChangePerOperation() {
       return maxValuesToChangePerOperation;
     }
@@ -299,33 +197,12 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       return userSearchAttributes;
     }
 
-    public Properties getLdaptiveProperties() {
-      return ldaptiveProperties;
-    }
-    
     public int getLdapUserCacheTime_secs() {
       return ldapUserCacheTime_secs;
     }
 
     public int getLdapUserCacheSize() {
       return ldapUserCacheSize;
-    }
-
-
-    public boolean isSearchResultPagingEnabled() {
-      Object searchResultPagingEnabled = ldaptiveProperties.get("org.ldaptive.searchResultPagingEnabled");
-      
-      return GrouperUtil.booleanValue(searchResultPagingEnabled, searchResultPagingEnabled_defaultValue);
-    }
-        
-    public int getSearchResultPagingSize() {
-      Object searchResultPagingSize = ldaptiveProperties.get("org.ldaptive.searchResultPagingSize");
-      
-      return GrouperUtil.intValue(searchResultPagingSize, searchResultPagingSize_default_value);
-    }
-
-    public boolean isActiveDirectory() {
-      return isActiveDirectory;
     }
 
 
@@ -338,17 +215,17 @@ public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
       return userCreationLdifTemplate;
     }
 
+    public boolean isActiveDirectory() {
+      return isActiveDirectory;
+    }
    
     public void populateElMap(Map<String, Object> variableMap) {
       super.populateElMap(variableMap);
       variableMap.put("userSearchBaseDn", getUserSearchBaseDn());
-      variableMap.put("isActiveDirectory", isActiveDirectory());
     }
 
     
     public String getOuCreationLdifTemplate_defaultValue() {
       return ouCreationLdifTemplate_defaultValue;
     }
-
-
 }

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,30 +32,19 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.MDC;
-import org.ldaptive.AddRequest;
 import org.ldaptive.AttributeModification;
 import org.ldaptive.AttributeModificationType;
 import org.ldaptive.Connection;
-import org.ldaptive.DeleteRequest;
 import org.ldaptive.DnParser;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
 import org.ldaptive.ModifyRequest;
-import org.ldaptive.Response;
 import org.ldaptive.ResultCode;
-import org.ldaptive.SearchExecutor;
 import org.ldaptive.SearchFilter;
-import org.ldaptive.SearchOperation;
 import org.ldaptive.SearchRequest;
 import org.ldaptive.SearchResult;
-import org.ldaptive.SearchScope;
-import org.ldaptive.ad.handler.RangeEntryHandler;
-import org.ldaptive.control.util.PagedResultsClient;
 import org.ldaptive.io.LdifReader;
-import org.ldaptive.pool.BlockingConnectionPool;
-import org.ldaptive.pool.PoolException;
-import org.ldaptive.props.SearchRequestPropertySource;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -83,6 +71,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   final GrouperCache<Subject, LdapObject> userCache_subject2User;
 
   private Set<String> existingOUs = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+  protected LdapSystem ldapSystem;
   
   public LdapProvisioner(String provisionerName, ConfigurationClass config) 
   {
@@ -136,7 +125,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     List<LdapObject> searchResult;
     
     try {
-      searchResult = performLdapSearchRequest(
+      searchResult = getLdapSystem().performLdapSearchRequest(
         new SearchRequest(config.getUserSearchBaseDn(), 
               combinedLdapFilter.toString(), 
               config.getUserSearchAttributes()));
@@ -213,7 +202,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression(ldif, personSubject, null);
     
-    Connection conn = getLdapConnection();
+    Connection conn = getLdapSystem().getLdapConnection();
     try {
       Reader reader = new StringReader(ldif);
       LdifReader ldifReader = new LdifReader(reader);
@@ -241,165 +230,6 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
-  protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
-    LOG.info("{}: Creating LDAP object: {}", getName(), entryToAdd.getDn());
-
-    ensureLdapOusExist(entryToAdd.getDn(), false);
-    
-    Connection conn = getLdapConnection();
-    try {
-      // Actually ADD the account
-      conn.open();
-      conn.getProviderConnection().add(new AddRequest(entryToAdd.getDn(), entryToAdd.getAttributes()));
-    } catch (LdapException e) {
-      LOG.error("Problem while creating new object: {}", entryToAdd, e);
-      throw new PspException("LDAP problem creating object: %s", e.getMessage());
-    }
-    finally {
-      conn.close();
-    }
-  
-  }
-
-  protected void performLdapDelete(String dnToDelete) throws PspException {
-    LOG.info("{}: Deleting LDAP object: {}", getName(), dnToDelete);
-    
-    Connection conn = getLdapConnection();
-    try {
-      // Actually ADD the account
-      conn.open();
-      conn.getProviderConnection().delete(new DeleteRequest(dnToDelete));
-    } catch (LdapException e) {
-      LOG.error("Problem while deleting object: {}", dnToDelete, e);
-      throw new PspException("LDAP problem deleting object: %s", e.getMessage());
-    }
-    finally {
-      conn.close();
-    }
-  
-  }
-  
-  protected List<LdapObject> performLdapSearchRequest(String searchBaseDn, SearchScope scope, Collection<String> attributesToReturn, String filterTemplate, Object... filterParams) 
-  throws PspException {
-    SearchFilter filter = new SearchFilter(filterTemplate);
-    for (int i=0; i<filterParams.length; i++)
-      filter.setParameter(i, filterParams[i]);
-    
-    SearchRequest request = new SearchRequest(searchBaseDn, filter, attributesToReturn.toArray(new String[0]));
-    request.setSearchScope(scope);
-    return performLdapSearchRequest(request);
-  }
-
-  /**
-   * 
-   * @param request
-   * @param requestedAttributes A case-insensitive TreeSet. This is a copy of request.getReturnAttributes
-   * but is it broken out as a separate parameter so the exact same Set can be used across 1000s of 
-   * LdapObjects.
-   * 
-   * @return
-   * @throws LdapException
-   */
-  protected List<LdapObject> performLdapSearchRequest(SearchRequest request) throws PspException {
-    // Make sure a baseDn mentioned in our configuration exists.
-    ensureLdapOusExist(request.getBaseDn(), true);
-    
-    LOG.debug("Doing ldap search: {} / {} / {}", 
-        new Object[] {request.getSearchFilter(), request.getBaseDn(), Arrays.toString(request.getReturnAttributes())});
-    List<LdapObject> result = new ArrayList<LdapObject>();
-    
-    Connection conn = getLdapConnection();
-    try {
-      conn.open();
-      
-      // Turn on attribute-value paging if this is an active directory target
-      if ( config.isActiveDirectory() ) {
-        LOG.debug("Using attribute-value paging");
-        request.setSearchEntryHandlers(new RangeEntryHandler());
-      }
-      
-      Response<SearchResult> response;
-      
-      // Perform search. This is slightly different if paging is enabled or not. 
-      if ( config.isSearchResultPagingEnabled() ) {
-        PagedResultsClient client = new PagedResultsClient(conn, config.getSearchResultPagingSize());
-        LOG.debug("Using ldap search-result paging");
-        response = client.executeToCompletion(request);
-      }
-      else {
-        LOG.debug("Not using ldap search-result paging");
-        SearchOperation searchOp = new SearchOperation(conn);
-        response = searchOp.execute(request);
-      }
-      
-      SearchResult searchResult = response.getResult();
-      for (LdapEntry entry : searchResult.getEntries()) {
-        result.add(new LdapObject(entry, request.getReturnAttributes()));
-      }
-      
-      return result;
-    }
-    catch (LdapException e) {
-      LOG.error("Problem during ldap search {}", request, e);
-      throw new PspException("LDAP problem while searching: " + e.getMessage());
-    }
-    finally {
-      if ( conn != null )
-        conn.close();
-    }
-  }
-
-  protected LdapObject performLdapRead(String dn, String... attributes) throws PspException {
-    LOG.debug("Doing ldap read: {}", dn);
-    
-    Connection conn = getLdapConnection();
-    try {
-      conn.open();
-
-      SearchRequest read = new SearchRequest(dn, "objectclass=*");
-      read.setSearchScope(SearchScope.OBJECT);
-      read.setReturnAttributes(attributes);
-      
-      // Turn on attribute-value paging if this is an active directory target
-      if ( config.isActiveDirectory() )
-        read.setSearchEntryHandlers(new RangeEntryHandler());
-
-      SearchOperation searchOp = new SearchOperation(conn);
-      
-      Response<SearchResult> response = searchOp.execute(read);
-      SearchResult searchResult = response.getResult();
-      
-      LdapEntry result = searchResult.getEntry();
-      
-      if ( result == null )
-        return null;
-      return new LdapObject(result, attributes);
-    }
-    catch (LdapException e) {
-      if ( e.getResultCode() == ResultCode.NO_SUCH_OBJECT ) {
-        LOG.warn("{}: Ldap object does not exist: {}", getName(), dn);
-        return null;
-      }
-      
-      LOG.error("Problem during ldap read {}", dn, e);
-      throw new PspException("Problem during LDAP read: %s", e.getMessage());
-    }
-    finally {
-      if ( conn != null )
-        conn.close();
-    }
-  }
-
-  protected Connection getLdapConnection() throws PspException {
-    BlockingConnectionPool pool = config.getLdapPool();
-    try {
-      Connection conn = pool.getConnection();
-      return conn;
-    } catch (PoolException e) {
-      throw new PspException("Problem connecting to ldap server " + pool);
-    }
-  }
-  
   @Override
   protected void populateJexlMap(Map<String, Object> variableMap, Subject subject,
       LdapUser ldapUser, GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup) {
@@ -608,7 +438,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         }
       }
       
-      Connection conn = getLdapConnection();
+      Connection conn = getLdapSystem().getLdapConnection();
       try {
         for ( List<AttributeModification> operation : coalescedOperations ) {
           ModifyRequest mod = new ModifyRequest(dn, GrouperUtil.toArray(operation, AttributeModification.class));
@@ -647,7 +477,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     
     LOG.debug("Implementing changes for work item {}", workItem);
     for ( ModifyRequest mod : mods ) {
-      Connection conn = getLdapConnection();
+      Connection conn = getLdapSystem().getLdapConnection();
       try {
         conn.open();
         conn.getProviderConnection().modify(mod);
@@ -680,6 +510,21 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
+  protected LdapSystem getLdapSystem() throws PspException {
+    if ( ldapSystem != null )
+      return ldapSystem;
+    
+    // Make sure we only build a single LdapSystem
+    synchronized (this) {
+      // See if another thread build the LdapSystem while we were waiting
+      // for the mutex
+      if ( ldapSystem != null )
+        return ldapSystem;
+      
+      ldapSystem = new LdapSystem(config.getLdapPoolName(), config.isActiveDirectory());
+      return ldapSystem;
+    }
+  }
 
   private String getLoggingSummary(ModifyRequest modForDn) {
     if ( modForDn == null )
@@ -709,23 +554,11 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   }
 
 
-  /**
-   * Returns ldaptive search executor configured according to properties
-   * @return
-   */
-  public SearchExecutor getSearchExecutor() {
-    SearchExecutor searchExecutor = new SearchExecutor();
-    SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchExecutor, config.getLdaptiveProperties());
-    srSource.initialize();
-    
-    return searchExecutor;
-  }
-  
   public void ensureLdapOusExist(String dn, boolean wholeDnIsTheOu) throws PspException {
-    List<LdapAttribute> dnParts = DnParser.convertDnToAttributes(dn);
-    
     if ( existingOUs.contains(dn) )
       return;
+    
+    List<LdapAttribute> dnParts = DnParser.convertDnToAttributes(dn);
     
     int start;
     
@@ -748,7 +581,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       
       LOG.debug("{}: Checking to see if ou exists: {}", getName(), ou);
       try {
-        if ( performLdapRead(ou) == null ) 
+        if ( getLdapSystem().performLdapRead(ou) == null ) 
           partThatExists++;
         else {
           existingOUs.add(ou);
@@ -790,4 +623,10 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     }
   }
 
+  protected void performLdapAdd(LdapEntry entryToAdd) throws PspException {
+    LOG.info("{}: Creating LDAP object: {}", getName(), entryToAdd.getDn());
+  
+    ensureLdapOusExist(entryToAdd.getDn(), false);
+    ldapSystem.performLdapAdd(entryToAdd);
+  }
 }
