@@ -7,6 +7,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupExtension;
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
 import edu.internet2.middleware.subject.Subject;
@@ -45,21 +47,23 @@ import edu.psu.swe.scim.spec.resources.ScimGroup;
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({TierFilter.class, GroupFinder.class, GrouperSession.class})
+@PrepareForTest({TierFilter.class, GroupFinder.class, GrouperSession.class, PrivilegeHelper.class})
 public class TierGroupServiceTest {
   
-  TierGroupService service;
+  TierGroupService groupService;
   
   GrouperSession mockGrouperSession;
   
   Group mockGroup;
   
+  Subject subject;
+  
   @Before
   public void setup() {
     
-    service = new TierGroupService();
+    groupService = new TierGroupService();
     
-    Subject subject = mock(Subject.class);
+    subject = mock(Subject.class);
     mockStatic(TierFilter.class);
     when(TierFilter.retrieveSubjectFromRemoteUser()).thenReturn(subject);
     
@@ -98,8 +102,14 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
     //when
-    ScimGroup scimGroup = service.get("uuid");
+    ScimGroup scimGroup = groupService.get("uuid");
     
     //then
     verifyStatic();
@@ -121,15 +131,18 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(null);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     try {
       //when
-      service.get("uuid");
+      groupService.get("uuid");
       fail("expected UnableToRetrieveResourceException");
     } catch(UnableToRetrieveResourceException e) {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
     }
     
   }
@@ -142,8 +155,14 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByName(mockGrouperSession, "name", false)).thenReturn(mockGroup);
     
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     //when
-    ScimGroup scimGroup = service.get("systemName:name");
+    ScimGroup scimGroup = groupService.get("systemName:name");
     
     //then
     verifyStatic();
@@ -163,7 +182,7 @@ public class TierGroupServiceTest {
 
     try {
       //when
-      service.get("idIndex:nonNumeric");
+      groupService.get("idIndex:nonNumeric");
       fail("expected UnableToRetrieveResourceException");
     } catch(UnableToRetrieveResourceException e) {
       //then
@@ -179,8 +198,11 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByIdIndexSecure(102L, false, null)).thenReturn(mockGroup);
     
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
     //when
-    ScimGroup scimGroup = service.get("idIndex:102");
+    ScimGroup scimGroup = groupService.get("idIndex:102");
     
     //then
     verifyStatic();
@@ -229,7 +251,7 @@ public class TierGroupServiceTest {
     
     try {
     //when
-      service.create(scimGroup);
+      groupService.create(scimGroup);
       fail("UnableToCreateResourceException should have been thrown");
     } catch (UnableToCreateResourceException e) {
       //then
@@ -248,6 +270,12 @@ public class TierGroupServiceTest {
     
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
+    
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
 
     class TierGroupServiceToBeTested extends TierGroupService {
       @Override
@@ -278,15 +306,18 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false)).thenReturn(null);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     try {
       //when
-      service.update("non existent uuid", scimGroup);
+      groupService.update("non existent uuid", scimGroup);
       fail("UnableToUpdateResourceException should have been thrown");
     } catch (UnableToUpdateResourceException e) {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
     }
   }
   
@@ -298,8 +329,14 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "uuid", false)).thenReturn(mockGroup);
     
+    mockStatic(PrivilegeHelper.class);
+    when(PrivilegeHelper.canView(any(), any(), any())).thenReturn(true);
+    
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     //when 
-    service.delete("uuid");
+    groupService.delete("uuid");
     
     //then
     verifyStatic();
@@ -316,15 +353,18 @@ public class TierGroupServiceTest {
     mockStatic(GroupFinder.class);
     when(GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false)).thenReturn(null);
     
+    mock(GrouperSession.class);
+    when(GrouperSession.startRootSession()).thenReturn(mockGrouperSession);
+    
     try {
       //when
-      service.delete("non existent uuid");
+      groupService.delete("non existent uuid");
       fail("UnableToDeleteResourceException should have been thrown");
     } catch (UnableToDeleteResourceException e) {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
     }
     
   }
