@@ -113,7 +113,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
-    List<LdapObject> currentMatches_ldapObjects = performLdapSearchRequest(
+    List<LdapObject> currentMatches_ldapObjects = getLdapSystem().performLdapSearchRequest(
         config.getUserCreationBaseDn(), SearchScope.SUBTREE, 
         Arrays.asList(config.getUserSearchAttributes()), attributeName + "={0}",
         attributeValue);
@@ -162,7 +162,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       LOG.debug("{}: Looking for all grouper-sourced values of {}.", getName(), attribute);
       
       List<LdapObject> usersWithGrouperValues 
-        = performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
+        = getLdapSystem().performLdapSearchRequest(config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
             Arrays.asList(attribute), attribute+"="+allValuesPrefix+"*");
       
       // We're going to go through all the values of all the ldap objects. 
@@ -225,7 +225,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     SearchFilter filter = new SearchFilter(attributeName + "={0}");
     filter.setParameter(0, valueToPurge);
     
-    List<LdapObject> objectsWithAttribute = performLdapSearchRequest(
+    List<LdapObject> objectsWithAttribute = getLdapSystem().performLdapSearchRequest(
         new SearchRequest(config.getUserSearchBaseDn(), filter));
     
     LOG.info("{}: There are {} ldap objects with attribute value={}", 

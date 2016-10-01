@@ -207,7 +207,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     }
       
     // Get all the LDAP Groups that match the filter
-    List<LdapObject> searchResult = performLdapSearchRequest(new SearchRequest(baseDn, filterString, config.getGroupSearchAttributes()));
+    List<LdapObject> searchResult = getLdapSystem().performLdapSearchRequest(new SearchRequest(baseDn, filterString, config.getGroupSearchAttributes()));
     
     Set<String> existingGroupDns = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
     for ( LdapObject existingGroup : searchResult )
@@ -222,7 +222,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     LOG.info("{}: There are {} groups that we should delete", getName(), extraGroupDns.size());
     
     for ( String dnToRemove : extraGroupDns )
-      performLdapDelete(dnToRemove);
+      getLdapSystem().performLdapDelete(dnToRemove);
   }
   
   
@@ -233,7 +233,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     ldif = ldif.replaceAll("\\|\\|", "\n");
     ldif = evaluateJexlExpression(ldif, null, grouperGroup);
     
-    Connection conn = getLdapConnection();
+    Connection conn = getLdapSystem().getLdapConnection();
     try {
       Reader reader = new StringReader(ldif);
       LdifReader ldifReader = new LdifReader(reader);
@@ -301,7 +301,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
         new Object[]{getName(), grouperGroupsToFetch.size(), combinedLdapFilter});
     
     try {
-      searchResult = performLdapSearchRequest(
+      searchResult = getLdapSystem().performLdapSearchRequest(
         new SearchRequest(config.getGroupSearchBaseDn(), 
               combinedLdapFilter.toString(), 
               returnAttributes));
@@ -376,6 +376,6 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     
     LOG.info("Deleting group {} by deleting DN {}", grouperGroupInfo, dn);
     
-    performLdapDelete(dn);;
+    getLdapSystem().performLdapDelete(dn);;
   }
 }
