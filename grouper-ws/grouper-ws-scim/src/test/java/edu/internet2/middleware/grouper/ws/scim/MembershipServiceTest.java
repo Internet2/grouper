@@ -12,6 +12,9 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import javax.ws.rs.core.Response.Status;
 
 import org.junit.Before;
@@ -36,6 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
 import edu.psu.swe.scim.server.exception.UnableToDeleteResourceException;
 import edu.psu.swe.scim.server.exception.UnableToRetrieveResourceException;
+import edu.psu.swe.scim.server.exception.UnableToUpdateResourceException;
 import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
 
 /**
@@ -249,6 +253,55 @@ public class MembershipServiceTest {
       membershipService.delete("non existent uuid");
       fail("UnableToDeleteResourceException should have been thrown");
     } catch (UnableToDeleteResourceException e) {
+      //then
+      verifyStatic();
+      MembershipFinder.findByUuid(mockGrouperSession, "non existent uuid", false, false);
+      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
+    }
+    
+  }
+  
+  @Test
+  public void updateMembershipSuccessfully() throws UnableToUpdateResourceException {
+    
+    //given
+    LocalDateTime disabledTime = LocalDateTime.now().plusDays(10);
+    LocalDateTime enabledTime = LocalDateTime.now();
+    when(mockMembership.isImmediate()).thenReturn(true);
+    when(mockMembership.getEnabledTime()).thenReturn(Timestamp.valueOf(enabledTime));
+    when(mockMembership.getDisabledTime()).thenReturn(Timestamp.valueOf(disabledTime));
+    
+    mockStatic(MembershipFinder.class);
+    when(MembershipFinder.findByUuid(mockGrouperSession, "uuid", false, false)).thenReturn(mockMembership);
+    
+    MembershipResource resource = new MembershipResource();
+    resource.setDisabledTime(disabledTime);
+    resource.setEnabledTime(enabledTime);
+    
+    //when
+    MembershipResource membershipResourceOutput = membershipService.update("uuid", resource);
+    
+    //then
+    verify(mockMembership, Mockito.times(1)).update();
+    assertThat(membershipResourceOutput.getMember().getValue(), equalTo(mockMembership.getMember().getSubject().getId()));
+    assertThat(membershipResourceOutput.getId(), equalTo(mockMembership.getUuid()));
+    assertThat(membershipResourceOutput.getOwner().getValue(), equalTo(mockOwnerGroup.getUuid()));
+    assertThat(membershipResourceOutput.getEnabledTime(), equalTo(enabledTime));
+    assertThat(membershipResourceOutput.getDisabledTime(), equalTo(disabledTime));
+  }
+  
+  @Test
+  public void updateMembershipFailsWhenMembershipNotFound() {
+    
+    //given
+    mockStatic(MembershipFinder.class);
+    when(MembershipFinder.findByUuid(mockGrouperSession, "non existent uuid", false, false)).thenReturn(null);
+    
+    try {
+      //when
+      membershipService.update("non existent uuid", new MembershipResource());
+      fail("UnableToDeleteResourceException should have been thrown");
+    } catch (UnableToUpdateResourceException e) {
       //then
       verifyStatic();
       MembershipFinder.findByUuid(mockGrouperSession, "non existent uuid", false, false);
