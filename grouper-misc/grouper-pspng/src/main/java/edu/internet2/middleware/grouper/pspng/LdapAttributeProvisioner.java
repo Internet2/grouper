@@ -86,7 +86,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
       Subject subject, LdapUser ldapUser) throws PspException {
 
     if ( ldapUser == null )
-      throw new PspException("%s: LdapUser does not exist for subject %s", getName(), subject.getId());
+      LOG.warn("{}: Skipping addMembership: LdapUser does not exist for subject {}", getName(), subject.getId());
     
     String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, grouperGroupInfo);
     
