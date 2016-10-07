@@ -1194,7 +1194,8 @@ public class GrouperLoaderResultset {
       }
 
     }
-
+    
+    /*
     // we've got it, we done!
     if (this.hasColumnName("SUBJECT_ID")) {
       return;
@@ -1246,7 +1247,7 @@ public class GrouperLoaderResultset {
     this.columnNames.set(subjectIdColIndex, "SUBJECT_ID");
     //i assume it is varchar already, if not, it should be
     this.columnTypes.set(subjectIdColIndex, Types.VARCHAR);
-
+*/
   }
 
   /** column names (toUpper) */
@@ -1557,24 +1558,37 @@ public class GrouperLoaderResultset {
    * find a row and return
    * @param subjectId
    * @param subjectSourceId
+   * @param subjectIdentifier0
    * @return row if found, else null
    */
-  public Row find(String subjectId, String subjectSourceId) {
-    int subjectIndex = this.columnIndex(SUBJECT_ID_COL);
+  public Row find(String subjectId, String subjectSourceId, String subjectIdentifier0) {
+
+    //might not have subject id or identifier
+    boolean hasSubjectIdOrIdentifierCol = this.hasColumnName(SUBJECT_ID_OR_IDENTIFIER_COL);
+    int subjectIdOrIdentifierIndex = hasSubjectIdOrIdentifierCol ? this.columnIndex(SUBJECT_ID_OR_IDENTIFIER_COL) : -1;
+    
+    //might not have subject identifier
+    boolean hasSubjectIdentifierCol = this.hasColumnName(SUBJECT_IDENTIFIER_COL);
+    int subjectIdentifierIndex = hasSubjectIdentifierCol ? this.columnIndex(SUBJECT_IDENTIFIER_COL) : -1;
+    
+    //might not have subject id
+    boolean hasSubjectIdCol = this.hasColumnName(SUBJECT_ID_COL);
+    int subjectIdIndex = hasSubjectIdCol ? this.columnIndex(SUBJECT_ID_COL) : -1;
 
     //might not have subject source id
     boolean hasSubjectSourceIdCol = this.hasColumnName(SUBJECT_SOURCE_ID_COL);
-    int subjectSourceIdIndex = hasSubjectSourceIdCol ? this
-        .columnIndex(SUBJECT_SOURCE_ID_COL) : -1;
+    int subjectSourceIdIndex = hasSubjectSourceIdCol ? this.columnIndex(SUBJECT_SOURCE_ID_COL) : -1;
 
     Iterator<Row> iterator = this.data.iterator();
     while (iterator.hasNext()) {
       Row row = iterator.next();
       Object[] rowData = row.getRowData();
-      if (StringUtils.equals((String) rowData[subjectIndex], subjectId)) {
+      if ((hasSubjectIdCol && StringUtils.equals((String) rowData[subjectIdIndex], subjectId)) || 
+          (hasSubjectIdentifierCol && StringUtils.equals((String) rowData[subjectIdentifierIndex], subjectIdentifier0)) ||
+          (hasSubjectIdOrIdentifierCol && (StringUtils.equals((String) rowData[subjectIdOrIdentifierIndex], subjectId) 
+              || StringUtils.equals((String) rowData[subjectIdOrIdentifierIndex], subjectIdentifier0)))) {
         if (hasSubjectSourceIdCol) {
-          if (!StringUtils
-              .equals((String) rowData[subjectSourceIdIndex], subjectSourceId)) {
+          if (!StringUtils.equals((String) rowData[subjectSourceIdIndex], subjectSourceId)) {
             continue;
           }
         }
@@ -1583,6 +1597,7 @@ public class GrouperLoaderResultset {
         //dont break, since could have multiple
       }
     }
+    
     return null;
   }
 
