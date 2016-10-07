@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
@@ -883,7 +884,20 @@ public abstract class Provisioner
         }
         TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         Subject subject = workItem.getSubject(this);
+        
+        if ( subject.getTypeName().equalsIgnoreCase("group") ) {
+          LOG.info("{}: Skipping nested-group membership. Individual subjects will be processed ({})", getName(), subject.getName());
+          workItem.markAsSuccess("Nested-group membership skipped");
+          return;
+        }
+
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
+        
+        if ( config.needsTargetSystemUsers() && tsUser==null ) {
+          LOG.info("{}: Skipping membership for subject that doesn't already exist in target system: {}", getName(), subject.getName());
+          workItem.markAsSuccess("Skipping membership of subject '%s' that doesn't exist in target system", subject.getName());
+          return;
+        }
         
         addMembership(grouperGroupInfo, tsGroup, subject, tsUser);
       }
@@ -1035,35 +1049,41 @@ public abstract class Provisioner
   }
 
   protected GrouperGroupInfo getGroupInfo(String groupName) {
+    GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
+    
+    // Return group if it was cached
+    if ( grouperGroupInfo != null )
+      return grouperGroupInfo;
+    
     try {
-      GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
-      
-      // Look for a group
-      if ( grouperGroupInfo == null ) {
-  	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
-  	    
-  	    if ( group != null ) {
-  	    	grouperGroupInfo = new GrouperGroupInfo(group);
-  	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
-  	    }
-      }
-      
-      // If it is still null, look for a PITGroup
-      if ( grouperGroupInfo == null ) {
-          PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
+      // Look for an existing grouper group
+	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
+	    
+	    if ( group != null ) {
+	    	grouperGroupInfo = new GrouperGroupInfo(group);
+	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
+	    	return grouperGroupInfo;
+	    }
+    }
+    catch (GroupNotFoundException e) {
+      LOG.error("Unable to find existing group '{}'", groupName);
+    }
+    
+    try {
+      // If an existing grouper group wasn't found, look for a PITGroup
+        PITGroup pitGroup = PITGroupFinder.findMostRecentByName(groupName, false);
   	    
   	    if ( pitGroup != null ) {
   	    	grouperGroupInfo = new GrouperGroupInfo(pitGroup);
   	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
+  	    	return grouperGroupInfo;
   	    }
-      }
-  
-      return grouperGroupInfo;
     }
     catch (GroupNotFoundException e) {
-      LOG.error("Unable to find group '{}'", groupName, e);
-      return null;
+      LOG.error("Unable to find PIT group '{}'", groupName);
     }
+    
+    return null;
   }
   
   public ConfigurationClass getConfig() {
