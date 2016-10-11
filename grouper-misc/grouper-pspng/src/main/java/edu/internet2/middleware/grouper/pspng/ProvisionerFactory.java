@@ -77,6 +77,7 @@ public class ProvisionerFactory {
   public static Provisioner createProvisionerWithName(String name) throws PspException {
     final String qualifiedParameterNamespace = ProvisionerConfiguration.PARAMETER_NAMESPACE + name + ".";
   
+    LOG.info("Constructing provisioner: {}", name);
     String typeName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(qualifiedParameterNamespace + PROVISIONER_TYPE_PROPERTY_NAME);
     
     // TODO: Someday allow types that are not java classes, either via code-based shortcuts

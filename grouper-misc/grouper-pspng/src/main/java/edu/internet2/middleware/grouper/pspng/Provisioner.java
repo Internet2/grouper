@@ -483,7 +483,7 @@ public abstract class Provisioner
   protected final String evaluateJexlExpression(String expression, Subject subject, GrouperGroupInfo grouperGroupInfo,
       Object... keysAndValues) {
     
-    LOG.debug("Evaluating Jexl expression: {}", expression);
+    LOG.trace("Evaluating Jexl expression: {}", expression);
     
     Map<String, Object> variableMap = new HashMap<String, Object>();
 
@@ -506,7 +506,8 @@ public abstract class Provisioner
     
     try {
       String result = GrouperUtil.substituteExpressionLanguage(expression, variableMap, true, false, false);
-  
+      LOG.debug("Evaluated Jexl expression: {} FROM {} WITH variables {}", new Object[] {result, expression, variableMap});
+
       return result;
     }
     catch (Exception e) {
@@ -574,6 +575,10 @@ public abstract class Provisioner
     Collection<Subject> subjectsToFetch = new ArrayList<Subject>();
     
     for (Subject s : subjects) {
+      // Skip group subjects (source=g:gsa)
+      if ( s.getSourceId().equals("g:gsa") )
+        continue;
+      
       // See if the subject is already cached.
       TSUserClass cachedTSU = targetSystemUserCache.get(s);
       if ( cachedTSU != null )
@@ -693,12 +698,15 @@ public abstract class Provisioner
     
     for ( GrouperGroupInfo grouperGroupInfo : groupsToFetch )
       if ( ! tsGroupCache_shortTerm.containsKey(grouperGroupInfo) )
-        if ( config.areEmptyGroupsSupported() ) {
-          TSGroupClass tsGroup = createGroup(grouperGroupInfo);
-          cacheGroup(grouperGroupInfo, tsGroup);
+        // Group does not already exist. Create it if we need to.
+        if ( shouldGroupBeProvisioned(grouperGroupInfo) ) {
+          if ( config.areEmptyGroupsSupported() ) {
+            TSGroupClass tsGroup = createGroup(grouperGroupInfo);
+            cacheGroup(grouperGroupInfo, tsGroup);
+          }
+          else
+            LOG.warn("{}: Group was not found in target system: {}", getName(), grouperGroupInfo);
         }
-        else
-          LOG.warn("{}: Group was not found in target system: {}", getName(), grouperGroupInfo);
   }
 
   
@@ -1150,6 +1158,20 @@ public abstract class Provisioner
 		return;
 	}
 	
+	// Let's see if there is a reason to flush our group cache. In particular, 
+	// we flush group information when groups and their attributes are edited
+	// because we don't know what attributes of groups could be used in various
+	// JEXL expressions
+	MDC.put("step", "cache_eval");
+	try {
+	  flushCachesIfNecessary(allWorkItems);
+	}
+    catch (PspException e) {
+      LOG.error("Unable to evaluate our caches", e);
+      MDC.remove("step");
+      throw new RuntimeException("No entries provisioned. Cache evaluation failed: " + e.getMessage(), e);
+    }
+	
 	// Let the provisioner filter out any unnecessary work items.
 	// This particularly filters out groups that we're not supposed to provision
 	List<ProvisioningWorkItem> filteredWorkItems;
@@ -1211,7 +1233,42 @@ public abstract class Provisioner
   }
 
 
-  
+  /**
+   * Look at the batch of workItems and flush caches necessary to process the entries
+   * properly. For instance, if we're being notified that an ATTRIBUTE-ASSIGNMENT has
+   * occurred, we can flush our cache to get the best information possible.
+   * 
+   * @param allWorkItems
+   * @throws PspException
+   */
+  protected boolean flushCachesIfNecessary(List<ProvisioningWorkItem> allWorkItems)  throws PspException{
+    for (ProvisioningWorkItem workItem : allWorkItems ) {
+      if ( workItemMightAffectCachedData(workItem) ) {
+        LOG.info("{}: Flushing group cache because of possible side effects of {}", getName(), workItem);
+        grouperGroupInfoCache.clear();
+        return true;
+      }
+    }
+    LOG.info("{}: Keeping caches in tact for provisioning batch", getName());
+    return false;
+  }
+
+
+  /**
+   * Evaluate whether a workItem might change cached information and, therefore, be
+   * a reason to flush our group cache before processing this batch of events.
+   * 
+   * @param workItem
+   * @return
+   */
+  protected boolean workItemMightAffectCachedData(ProvisioningWorkItem workItem) {
+    if ( workItem.isChangingGroupOrStemInformation() )
+      return true;
+    else
+      return false;
+  }
+
+
   public boolean isFullSyncMode() {
     return fullSyncMode;
   }

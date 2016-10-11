@@ -79,7 +79,7 @@ public class LdapSystem {
   private BlockingConnectionPool buildLdapConnectionPool() throws PspException {
     BlockingConnectionPool result;
   
-    System.err.println(String.format("%s: Creating LDAP Pool", ldapSystemName));
+    LOG.info("{}: Creating LDAP Pool", ldapSystemName);
     Properties ldaptiveProperties = getLdaptiveProperties();
     
     LOG.info("Setting up LDAP Connection with properties: {}", ldaptiveProperties);
@@ -144,7 +144,7 @@ public class LdapSystem {
     if ( !ldapPoolConfig.isValidateOnCheckIn() &&
          !ldapPoolConfig.isValidateOnCheckOut() &&
          !ldapPoolConfig.isValidatePeriodically() ) {
-      LOG.debug("{}: Using default onCheckOut ldap-connection validation");
+      LOG.debug("{}: Using default onCheckOut ldap-connection validation", ldapSystemName);
       ldapPoolConfig.setValidateOnCheckOut(true);
     }
       
@@ -168,7 +168,7 @@ public class LdapSystem {
 
 
   protected void performTestLdapRead(Connection conn) throws PspException {
-    System.err.println("Performing test read of directory root");
+    LOG.info("Performing test read of directory root");
     SearchExecutor searchExecutor = new SearchExecutor();
     SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchExecutor, getLdaptiveProperties());
     srSource.initialize();
@@ -188,10 +188,10 @@ public class LdapSystem {
       SearchResult searchResult = response.getResult();
     
       LdapEntry searchResultEntry = searchResult.getEntry();
-      System.err.println("Search success: " + searchResultEntry.getAttributes());
+      LOG.info("Search success: " + searchResultEntry.getAttributes());
     }
     catch (LdapException e) {
-      System.err.println("Ldap problem: " + e.getMessage());
+      LOG.error("Ldap problem: " + e.getMessage());
       throw new PspException("Problem testing ldap connection", e);
     }
     finally {
@@ -471,23 +471,23 @@ public class LdapSystem {
   public boolean test() {
     String ldapUrlString = (String) getLdaptiveProperties().get("org.ldaptive.ldapUrl");
     if ( ldapUrlString == null ) {
-      System.err.println("Could not find LDAP URL");
+      LOG.error("Could not find LDAP URL");
       return false;
     }
     
-    System.err.println("LDAP Url: " + ldapUrlString);
+    LOG.info("LDAP Url: " + ldapUrlString);
     
     if ( !ldapUrlString.startsWith("ldaps") ) {
-      System.err.println("Not an SSL ldap url");
+      LOG.warn("Not an SSL ldap url");
     }
     else {        
-      System.err.println("Testing SSL before the LDAP test");
+      LOG.info("Testing SSL before the LDAP test");
       try {
         // ldaps://host[:port]...
         Pattern urlPattern = Pattern.compile("ldaps://([^:]*)(:[0-9]+)?.*");
         Matcher m = urlPattern.matcher(ldapUrlString);
         if ( !m.matches() ) {
-          System.err.println("Unable to parse ldap url: " + ldapUrlString);
+          LOG.error("Unable to parse ldap url: " + ldapUrlString);
           return false;
         }
         
@@ -501,7 +501,7 @@ public class LdapSystem {
           port=Integer.parseInt(portString.substring(1));
         }
         
-        System.err.println(String.format("  Making SSL connection to %s:%d", host, port));
+        LOG.info("  Making SSL connection to {}:{}", host, port);
         
         SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(host, port);
@@ -515,7 +515,7 @@ public class LdapSystem {
         while (in.available() > 0) {
             System.out.print(in.read());
         }
-        System.out.println("Successfully connected");
+        LOG.info("Successfully connected");
 
       } catch (Exception exception) {
           exception.printStackTrace();
@@ -524,29 +524,29 @@ public class LdapSystem {
     
     try {
       BlockingConnectionPool pool = buildLdapConnectionPool();
-      System.err.println("Success: Ldap pool built");
+      LOG.info("Success: Ldap pool built");
 
       performTestLdapRead(pool.getConnection());
-      System.err.println("Success: Test ldap read");
+      LOG.info("Success: Test ldap read");
       return true;
     }
     catch (LdapException e) {
-      System.err.println("LDAP Failure: " + e.getMessage());
+      LOG.error("LDAP Failure: " + e.getMessage());
       return false;
     }
     catch (PspException e) {
-      System.err.println("LDAP Failure: " + e.getMessage());
+      LOG.error("LDAP Failure: " + e.getMessage());
       return false;
     }
   }
   
   public static void main(String[] args) {
     if ( args.length != 1 ) {
-      System.err.println("USAGE: <ldap-pool-name from grouper-loader.properties>");
+      LOG.error("USAGE: <ldap-pool-name from grouper-loader.properties>");
       System.exit(1);
     }
    
-    System.err.println("Starting LDAP-connection test");
+    LOG.info("Starting LDAP-connection test");
     LdapSystem system = new LdapSystem(args[0], false);
     system.test();
   }
