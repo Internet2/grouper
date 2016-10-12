@@ -142,7 +142,7 @@ public class TierGroupServiceTest {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
+      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
     }
     
   }
@@ -317,7 +317,7 @@ public class TierGroupServiceTest {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
+      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
     }
   }
   
@@ -364,7 +364,7 @@ public class TierGroupServiceTest {
       //then
       verifyStatic();
       GroupFinder.findByUuid(mockGrouperSession, "non existent uuid", false);
-      assertThat(e.getStatus(), equalTo(Status.BAD_REQUEST));
+      assertThat(e.getStatus(), equalTo(Status.NOT_FOUND));
     }
     
   }

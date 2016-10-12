@@ -53,9 +53,9 @@ import edu.psu.swe.scim.spec.resources.ScimExtension;
  */
 @Named
 @ApplicationScoped
-public class MembershipService implements Provider<MembershipResource> {
+public class TierMembershipService implements Provider<MembershipResource> {
   
-  private static final Log LOG = LogFactory.getLog(MembershipService.class);
+  private static final Log LOG = LogFactory.getLog(TierMembershipService.class);
 
   @Override
   public MembershipResource create(MembershipResource resource) throws UnableToCreateResourceException {
