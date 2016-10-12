@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ws.scim.membership.MembershipResource;
-import edu.internet2.middleware.grouper.ws.scim.membership.MembershipService;
+import edu.internet2.middleware.grouper.ws.scim.membership.TierMembershipService;
 import edu.internet2.middleware.grouper.ws.scim.membership.OwnerGroup;
 import edu.internet2.middleware.subject.Subject;
 import edu.psu.swe.scim.server.exception.UnableToCreateResourceException;
@@ -48,9 +48,9 @@ import edu.psu.swe.scim.spec.exception.InvalidExtensionException;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({TierFilter.class, MembershipFinder.class, GroupFinder.class, Group.class, SubjectFinder.class, GrouperSession.class, PrivilegeHelper.class})
-public class MembershipServiceTest {
+public class TierMembershipServiceTest {
   
-  MembershipService membershipService;
+  TierMembershipService membershipService;
   
   GrouperSession mockGrouperSession;
   
@@ -64,7 +64,7 @@ public class MembershipServiceTest {
   @Before
   public void setup() {
     
-    membershipService = new MembershipService();
+    membershipService = new TierMembershipService();
     
     subject = mock(Subject.class);
     mockStatic(TierFilter.class);

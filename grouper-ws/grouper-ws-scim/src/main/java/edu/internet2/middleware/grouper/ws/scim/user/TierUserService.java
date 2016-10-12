@@ -55,7 +55,7 @@ public class TierUserService implements Provider<ScimUser> {
       grouperSession = GrouperSession.start(authenticatedSubject);
       Subject subject = SubjectFinder.findByIdOrIdentifier(id, false);
       if (subject == null) {
-        throw new UnableToRetrieveResourceException(BAD_REQUEST, "User with id "+id+" does not exist.");
+        throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "User with id "+id+" does not exist.");
       }
       scimUser = new ScimUser();
       scimUser.setDisplayName(subject.getName());
@@ -64,7 +64,9 @@ public class TierUserService implements Provider<ScimUser> {
       tierMetaExtension.setResultCode("SUCCESS");
       scimUser.addExtension(tierMetaExtension);
     } catch(InvalidExtensionException ie) {
-      LOG.error("Unable to get a group "+ id, ie);
+      throw new UnableToRetrieveResourceException(Status.INTERNAL_SERVER_ERROR, "Invalid extension");
+    } catch(RuntimeException e) {
+      LOG.error("Unable to get a subject "+ id, e);
       throw new UnableToRetrieveResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -121,6 +123,9 @@ public class TierUserService implements Provider<ScimUser> {
       }
     } catch(IllegalArgumentException e) {
       throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, e.getMessage());
+    } catch(RuntimeException e) {
+      LOG.error("Unable to find subjects ", e);
+      throw new UnableToRetrieveResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
