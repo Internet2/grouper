@@ -49,6 +49,7 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       String consumerName = changeLogProcessorMetadata.getConsumerName();
       MDC.put("why", "CLog/");
       MDC.put("who", consumerName+"/");
+      LOG.info("{}: +processChangeLogEntries({})", consumerName, changeLogEntryList.size());
       
       Provisioner provisioner;
       try {
@@ -61,8 +62,6 @@ public class PspChangelogConsumerShim extends ChangeLogConsumerBase {
       }
       
       List<ProvisioningWorkItem> workItems = new ArrayList<ProvisioningWorkItem>();
-      
-      LOG.warn("Processing changelog entries: " + changeLogEntryList.size() );
       
       for ( ChangeLogEntry entry : changeLogEntryList ) {
         workItems.add(new ProvisioningWorkItem(entry));

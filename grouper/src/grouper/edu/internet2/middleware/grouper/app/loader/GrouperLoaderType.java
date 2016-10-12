@@ -167,7 +167,7 @@ public enum GrouperLoaderType {
       syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
           loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
           grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), 
-          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes(), null, null);
+          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes(), null);
       
     }
   }, 
@@ -879,7 +879,7 @@ public enum GrouperLoaderType {
         
         syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
-            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, null);
+            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null);
         
       }
     }, 
@@ -1449,10 +1449,10 @@ public enum GrouperLoaderType {
       
       
       //set of immediate memberships in the regsitry, key is group name, multikey by subjectId, and optionally sourceId
-      final Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
+      //final Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
       
       if (getMembershipsAtOnce) {
-        
+        /*
         String queryPrefix = "select distinct a.value, gm.subjectIdDb, gm.subjectSourceIdDb "
           + "from Attribute a, Field f, Membership gms, Member gm, Field mf "
           + "where f.name = 'name' and a.fieldId = f.uuid "
@@ -1509,7 +1509,7 @@ public enum GrouperLoaderType {
           
         }
   
-        
+        */
       }
       
       Set<String> groupNamesToSync = new LinkedHashSet<String>();
@@ -1542,7 +1542,7 @@ public enum GrouperLoaderType {
             syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
                 GrouperSession.staticGrouperSession(), andGroups, groupTypes, hib3GrouploaderLogOverall,
                 statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
-                groupStartedMillis, membershipsInRegistry, groupName);
+                groupStartedMillis, groupName);
             return null;
           }
         };
@@ -1598,7 +1598,7 @@ public enum GrouperLoaderType {
       GrouperLoaderStatus[] statusOverall, Map<String, String> groupNameToDisplayName,
       Map<String, String> groupNameToDescription,
       Map<String, Map<Privilege, List<Subject>>> privsToAdd, long groupStartedMillis,
-      Map<String, Set<MultiKey>> membershipsInRegistry, String groupName) {
+      String groupName) {
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     try {
       GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
@@ -1623,7 +1623,7 @@ public enum GrouperLoaderType {
       //based on type, run query from the db and sync members
       syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
           groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
-          grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), membershipsInRegistry.get(groupName));
+          grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName));
       
       long endTime = System.currentTimeMillis();
       hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
@@ -2199,7 +2199,6 @@ public enum GrouperLoaderType {
    * @param andGroups 
    * @param groupTypes comma separated group types
    * @param groupPrivsToAdd priv
-   * @param groupMembers if a grouplist, this is a pre-fetched list of group members, else this is null, 
    * meaning get all members here
    */
   @SuppressWarnings("unchecked")
@@ -2208,7 +2207,7 @@ public enum GrouperLoaderType {
       Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime,
       final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
       final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes,
-      Map<Privilege,List<Subject>> groupPrivsToAdd, Set<MultiKey> groupMembers) {
+      Map<Privilege,List<Subject>> groupPrivsToAdd) {
     
     //keep this separate so we can prepend stuff inside...
     final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
@@ -2387,40 +2386,22 @@ public enum GrouperLoaderType {
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
 
       Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
+
+      //TODO put this in the DAO
+      StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb, m.subjectIdentifier0 "
+      		+ " from Member m, MembershipEntry ms "
+      		+ " where ms.ownerGroupId = :ownerGroupId and ms.memberUuid = m.uuid "
+          + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
+          + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'");
+
+      Set<Object[]> results = HibernateSession.byHqlStatic().createQuery(sql.toString())
+        .setString("ownerGroupId", group[0].getId()).listSet(Object[].class);
       
-      if (groupMembers != null) {
-        for (MultiKey multiKey : groupMembers) {
-          currentMembers.add(new LoaderMemberWrapper((String)multiKey.getKey(0), (String)multiKey.getKey(1)));
-        }
-      } else {
-        
-        if (GrouperLoaderConfig.getPropertyBoolean("loader.useMemberObjectsInInitalQuery", false)) {
-
-          Set<Member> members = group[0].getImmediateMembers();
-          for (Member member : GrouperUtil.nonNull(members)) {
-            currentMembers.add(new LoaderMemberWrapper(member));
-          }
-          
-        } else {
-
-          //TODO put this in the DAO
-          StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb "
-          		+ " from Member m, MembershipEntry ms "
-          		+ " where ms.ownerGroupId = :ownerGroupId and ms.memberUuid = m.uuid "
-              + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
-              + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'");
-
-          Set<Object[]> results = HibernateSession.byHqlStatic().createQuery(sql.toString())
-            .setString("ownerGroupId", group[0].getId()).listSet(Object[].class);
-          
-          for (Object[] row : GrouperUtil.nonNull(results)) {
-            String subjectId = (String)row[0];
-            String sourceId = (String)row[1];
-            currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId));
-          }
-          
-        }
-        
+      for (Object[] row : GrouperUtil.nonNull(results)) {
+        String subjectId = (String)row[0];
+        String sourceId = (String)row[1];
+        String subjectIdentifier0 = (String)row[2];
+        currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId, subjectIdentifier0));
       }
 
       int originalGroupSize = currentMembers.size();
@@ -2434,7 +2415,7 @@ public enum GrouperLoaderType {
         
         LoaderMemberWrapper member = iterator.next();
         //see if it is in the current list
-        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId());
+        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId(), member.getSubjectIdentifier0());
         
         //this means the member exists in query, and in membership, so maybe do nothing
         if (row != null) {
@@ -2544,7 +2525,7 @@ public enum GrouperLoaderType {
         if (subjectToAdd != null) {
           subjectsToAdd.remove(subjectToAdd);
           currentMembersIter.remove();
-          LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.");
+          LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.  Or loading based on subject identifier and identifier is not cached in Grouper's grouper_members table.");
         }
       }
             

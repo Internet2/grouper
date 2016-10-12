@@ -43,6 +43,11 @@ public class LoaderMemberWrapper {
   /**
    * 
    */
+  private String subjectIdentifier0;
+  
+  /**
+   * 
+   */
   private Member member;
 
 
@@ -148,10 +153,12 @@ public class LoaderMemberWrapper {
   /**
    * @param subjectId
    * @param sourceId
+   * @param subjectIdentifier0
    */
-  public LoaderMemberWrapper(String subjectId, String sourceId) {
+  public LoaderMemberWrapper(String subjectId, String sourceId, String subjectIdentifier0) {
     this.subjectId = subjectId;
     this.sourceId = sourceId;
+    this.subjectIdentifier0 = subjectIdentifier0;
   }
 
   /**
@@ -161,8 +168,23 @@ public class LoaderMemberWrapper {
     this.member = member;
     this.subjectId = member.getSubjectIdDb();
     this.sourceId = member.getSubjectSourceIdDb();
+    this.subjectIdentifier0 = member.getSubjectIdentifier0();
   }
+
   
+  /**
+   * @return the subjectIdentifier0
+   */
+  public String getSubjectIdentifier0() {
+    return subjectIdentifier0;
+  }
+
   
+  /**
+   * @param subjectIdentifier0 the subjectIdentifier0 to set
+   */
+  public void setSubjectIdentifier0(String subjectIdentifier0) {
+    this.subjectIdentifier0 = subjectIdentifier0;
+  }
   
 }

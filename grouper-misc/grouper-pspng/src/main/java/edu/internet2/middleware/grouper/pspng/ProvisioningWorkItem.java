@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabel;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.subject.Subject;
 
@@ -65,6 +66,25 @@ public class ProvisioningWorkItem {
    */
   protected Map<String, Object> provisioningData = new HashMap<String,Object>();
   
+  protected final static List<ChangeLogTypeBuiltin> groupOrStemChangingActions = new ArrayList<ChangeLogTypeBuiltin>();
+  
+  static {
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_UPDATE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_FIELD_ADD);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_FIELD_DELETE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.GROUP_UPDATE);
+    groupOrStemChangingActions.add(ChangeLogTypeBuiltin.STEM_UPDATE);
+  }
+
   
   /**
    * Create a work item that just holds the groupName without the overhead of  
@@ -75,8 +95,8 @@ public class ProvisioningWorkItem {
    * @param subject
    */
   public ProvisioningWorkItem(String action, GrouperGroupInfo group) {
+    this(null);
     this.action = action;
-    this.work = null;
     if ( group != null )
       this.groupName=group.getName();
     else
@@ -86,8 +106,11 @@ public class ProvisioningWorkItem {
   
   public ProvisioningWorkItem(ChangeLogEntry work) {
     this.work=work;
-    this.action = work.getChangeLogType().toString();
+    
+    if ( work != null ) 
+      this.action = work.getChangeLogType().toString();
   }
+
   
   public ChangeLogEntry getChangelogEntry() {
     return work;
@@ -142,7 +165,7 @@ public class ProvisioningWorkItem {
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE) )
       groupNameKey = ChangeLogLabels.MEMBERSHIP_DELETE.groupName;
     else {
-      LOG.debug("Not a supported change for finding group (not GROUP_ADD, GROUP_DELETE, MEMBERSHIP_ADD, nor MEMBERSHIP_DELETE): {}",  this);
+      LOG.debug("Not a supported change for finding group (not GROUP_ADD, GROUP_DELETE, MEMBERSHIP_ADD, nor MEMBERSHIP_DELETE): {}",  this.getChangelogEntry().getChangeLogType());
       return null;
     }
 
@@ -175,7 +198,7 @@ public class ProvisioningWorkItem {
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
       subjectIdKey = ChangeLogLabels.MEMBER_DELETE.subjectId;
     else {
-      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this);
+      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this.getChangelogEntry().getChangeLogType());
       return null;
     }
     
@@ -199,7 +222,7 @@ public class ProvisioningWorkItem {
     else if (  getChangelogEntry().equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBER_DELETE) )
       subjectSourceIdKey = ChangeLogLabels.MEMBER_DELETE.subjectSourceId;
     else {
-      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this);
+      LOG.info("Not a supported change for finding subject (not MEMBERSHIP_ADD nor MEMBERSHIP_DELETE): {}",  this.getChangelogEntry().getChangeLogType());
       return null;
     }
     
@@ -276,9 +299,13 @@ public class ProvisioningWorkItem {
     
     if ( work == null )
       tsb.append("action", action);
-    else
+    else {
       tsb.append("clog", String.format("clog #%d / %s", work.getSequenceNumber(), work.getChangeLogType()));
-    
+      if ( getGroupName() != null )
+        tsb.append("group", getGroupName());
+      if ( getSubjectId() != null )
+        tsb.append("subject", String.format("%s@%s", getSubjectId(), getSubjectSourceId()));
+    }
     return tsb.toString();
   }
 
@@ -288,5 +315,18 @@ public class ProvisioningWorkItem {
       return String.format("%d/", work.getSequenceNumber());
     else
       return String.format("%s/", action);
+  }
+
+
+  public boolean isChangingGroupOrStemInformation() {
+    if ( work == null )
+      return false;
+    
+    for ( ChangeLogTypeBuiltin changelogType: groupOrStemChangingActions ) {
+      if ( work.equalsCategoryAndAction(changelogType) )
+        return true;
+    }
+    
+    return false;
   }
 }
