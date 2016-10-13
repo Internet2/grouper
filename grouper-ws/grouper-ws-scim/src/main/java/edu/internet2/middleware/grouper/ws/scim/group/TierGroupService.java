@@ -21,10 +21,14 @@ import static edu.psu.swe.scim.spec.schema.ResourceReference.ReferenceType.INDIR
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,7 +45,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -75,6 +78,86 @@ public class TierGroupService implements Provider<ScimGroup> {
   
   private static final Log LOG = LogFactory.getLog(TierGroupService.class);
   
+  private static Set<TypeOfGroup> typeOfGroups = new HashSet<>();
+  private static Map<String, BiFunction<GrouperSession, String, Set<Group>>> exactMatchMap = new HashMap<>();
+  private static Map<String, Function<String, Set<Group>>> approximateMatchMap = new HashMap<>();
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactName = (session, name) -> {
+    Set<Group> groups = new HashSet<>();
+    Group group = GroupFinder.findByName(session, name, false);
+    if (group!= null && group.getTypeOfGroup() == TypeOfGroup.group) {
+      groups.add(group);
+    }
+    return groups;
+  };
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactDisplayName = (session, displayName) -> {
+    return GroupFinder.findByDisplayNameSecure(displayName, new QueryOptions(), typeOfGroups);
+  };
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactExtension = (session, extension) -> {
+    return GroupFinder.findByExtensionSecure(extension, new QueryOptions(), typeOfGroups);
+  };
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactDisplayExtension = (session, displayExtension) -> {
+    return GroupFinder.findByDisplayExtensionSecure(displayExtension, new QueryOptions(), typeOfGroups);
+  };
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactUuid = (session, uuid) -> {
+    Set<Group> groups = new HashSet<>();
+    Group group = GroupFinder.findByUuid(session, uuid, false);
+    if (group!= null && group.getTypeOfGroup() == TypeOfGroup.group) {
+      groups.add(group);
+    }
+    return groups;
+  };
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactIdIndex = (session, idIndex) -> {
+    Set<Group> groups = new HashSet<>();
+    if (NumberUtils.isNumber(idIndex)) {
+      Group group = GroupFinder.findByIdIndexSecure(Long.valueOf(idIndex), false, new QueryOptions());
+      if (group != null && group.getTypeOfGroup() == TypeOfGroup.group) {
+        groups.add(group);
+      }
+    } else {
+      throw new IllegalArgumentException("idIndex can only be a numeric value.");
+    }
+    return groups;
+  };
+  
+  private static BiFunction<GrouperSession, String, Set<Group>> findByExactDescription = (session, description) -> {
+    return GroupFinder.findByDescriptionSecure(description, new QueryOptions(), typeOfGroups);
+  };
+  
+  private static Function<String, Set<Group>> findByApproximateDisplayName =  displayName -> 
+    GroupFinder.findByApproximateDisplayNameSecure(displayName, new QueryOptions(), typeOfGroups);
+  
+  
+  private static Function<String, Set<Group>> findByApproximateDisplayExtension = displayExtension -> 
+    GroupFinder.findByApproximateDisplayExtensionSecure(displayExtension, new QueryOptions(), typeOfGroups);
+  
+  private static Function<String, Set<Group>> findByApproximateExtension = extension -> 
+    GroupFinder.findByApproximateExtensionSecure(extension, new QueryOptions(), typeOfGroups);
+  
+  private static Function<String, Set<Group>> findByApproximateDescription = description ->
+    GroupFinder.findByApproximateDescriptionSecure(description, new QueryOptions(), typeOfGroups);
+  
+  static {
+    typeOfGroups.add(TypeOfGroup.group);
+    exactMatchMap.put("name", findByExactName);
+    exactMatchMap.put("displayName", findByExactDisplayName);
+    exactMatchMap.put("extension", findByExactExtension);
+    exactMatchMap.put("displayExtension", findByExactDisplayExtension);
+    exactMatchMap.put("uuid", findByExactUuid);
+    exactMatchMap.put("idIndex", findByExactIdIndex);
+    exactMatchMap.put("description", findByExactDescription);
+    
+    approximateMatchMap.put("displayName", findByApproximateDisplayName);
+    approximateMatchMap.put("extension", findByApproximateExtension);
+    approximateMatchMap.put("displayExtension", findByApproximateDisplayExtension);
+    approximateMatchMap.put("description", findByApproximateDescription);
+  }
+  
   @Override
   public ScimGroup create(ScimGroup scimGroup) throws UnableToCreateResourceException {
   
@@ -103,8 +186,8 @@ public class TierGroupService implements Provider<ScimGroup> {
       throw new UnableToCreateResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
     } catch(GroupAddAlreadyExistsException e) {
       throw new UnableToCreateResourceException(Status.BAD_REQUEST, "Group with name "+groupName+" already exists.");
-    } catch(Exception ie) {
-      LOG.error("Unable to create group with name "+groupName, ie);
+    } catch(Exception e) {
+      LOG.error("Unable to create group with name "+groupName, e);
       throw new UnableToCreateResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -123,8 +206,9 @@ public class TierGroupService implements Provider<ScimGroup> {
       grouperSession = GrouperSession.start(subject);
       rootSession = GrouperSession.startRootSession();
       Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
+      
       if (!optionalGroup.isPresent()) {
-        throw new IllegalArgumentException("group " + id + " not found.");
+        throw new UnableToUpdateResourceException(Status.NOT_FOUND, "group " + id + " not found.");
       }
       
       Group savedGroup = updateGroup(grouperSession, scimGroup, optionalGroup.get().getUuid());
@@ -139,11 +223,12 @@ public class TierGroupService implements Provider<ScimGroup> {
           e.getMessage() : "Please check the request payload and try again.");
     } catch(InsufficientPrivilegeException e) {
       throw new UnableToUpdateResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
-    } catch(Exception ie) {
+    } catch(InvalidExtensionException e) {
+      throw new UnableToUpdateResourceException(Status.INTERNAL_SERVER_ERROR, "Invalid extension");
+    } catch(RuntimeException ie) {
       LOG.error("Unable to update group with id "+id, ie);
       throw new UnableToUpdateResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
-    } 
-    finally {
+    } finally {
       GrouperSession.stopQuietly(grouperSession);
       GrouperSession.stopQuietly(rootSession);
     }
@@ -161,16 +246,15 @@ public class TierGroupService implements Provider<ScimGroup> {
       grouperSession = GrouperSession.start(subject);
       rootSession = GrouperSession.startRootSession();
       Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
-      
       if (!optionalGroup.isPresent()) {
-        throw new IllegalArgumentException("group " + id + " not found.");
+        throw new UnableToDeleteResourceException(Status.NOT_FOUND, "group " + id + " not found.");
       }
       optionalGroup.get().delete();
     } catch(InsufficientPrivilegeException e) {
       throw new UnableToDeleteResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
     } catch(IllegalArgumentException e) {
       throw new UnableToDeleteResourceException(Status.BAD_REQUEST, e.getMessage());
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       throw new UnableToDeleteResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -190,31 +274,21 @@ public class TierGroupService implements Provider<ScimGroup> {
       Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
       
       if (!optionalGroup.isPresent()) {
-        throw new IllegalArgumentException("group " + id + " not found.");
+        throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "group " + id + " not found.");
       }
       
       ScimGroup scimGroupOutput = convertGrouperGroupToScimGroup(optionalGroup.get(), true);
-      
-      List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
-      for (Membership membership: optionalGroup.get().getMemberships()) {
-        Member member = membership.getMember();
-        ResourceReference resourceReference = new ResourceReference();
-        resourceReference.setValue(member.getId());
-        resourceReference.setType(membership.getTypeEnum() == IMMEDIATE ? DIRECT : INDIRECT);
-        resourceReference.setRef("../Users/"+member.getSubjectId());
-        resourceReferences.add(resourceReference);
-      }
-      scimGroupOutput.setMembers(resourceReferences);
-      
       TierMetaExtension tierMetaExtension = new TierMetaExtension();
       tierMetaExtension.setResultCode("SUCCESS");
-      scimGroupOutput.addExtension(tierMetaExtension);    
+      scimGroupOutput.addExtension(tierMetaExtension);
       return scimGroupOutput;
     } catch(IllegalArgumentException e) {
       throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, e.getMessage());
     } catch(InsufficientPrivilegeException e) {
       throw new UnableToRetrieveResourceException(Status.FORBIDDEN, "User doesn't have sufficient priviliges");
-    } catch (Exception e) {
+    } catch (InvalidExtensionException e) {
+      throw new UnableToRetrieveResourceException(Status.INTERNAL_SERVER_ERROR, "Invalid extension");
+    } catch (RuntimeException e) {
       LOG.error("Unable to get a group "+ id, e);
       throw new UnableToRetrieveResourceException(Status.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.");
     } finally {
@@ -229,7 +303,7 @@ public class TierGroupService implements Provider<ScimGroup> {
     
     GrouperSession grouperSession = null;
     FilterResponse<ScimGroup> response = new FilterResponse<>();
-    List<ScimGroup> scimGroupList = null;
+    List<ScimGroup> scimGroupList = new ArrayList<>();
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
@@ -252,7 +326,7 @@ public class TierGroupService implements Provider<ScimGroup> {
                 .collect(Collectors.toList());
           } else if (operation == CompareOperator.CO) {
             
-            scimGroupList = findApproximateGroups(grouperSession, attributeName, ace.getCompareValue().toString())
+            scimGroupList = findApproximateGroups(attributeName, ace.getCompareValue().toString())
                 .stream()
                 .map(group -> convertGrouperGroupToScimGroup(group, true))
                 .collect(Collectors.toList());
@@ -318,62 +392,17 @@ public class TierGroupService implements Provider<ScimGroup> {
     return tierGroupExtension != null && tierGroupExtension.getSystemName() != null ? tierGroupExtension.getSystemName() : scimGroup.getDisplayName();
   }
   
-  private Set<Group> findApproximateGroups(GrouperSession session, String attributeName, String attributeValue) {
-    Set<Group> groups = new HashSet<>();
-    Set<TypeOfGroup> typeOfGroups = new HashSet<>();
-    typeOfGroups.add(TypeOfGroup.group);
-    if (attributeName.equalsIgnoreCase("displayName")) {
-      groups = GroupFinder.findByApproximateDisplayNameSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else if (attributeName.equalsIgnoreCase("extension")) {
-      groups = GroupFinder.findByApproximateExtensionSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else if (attributeName.equalsIgnoreCase("displayExtension")) {
-      groups = GroupFinder.findByApproximateDisplayExtensionSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else if (attributeName.equalsIgnoreCase("description")) {
-      groups = GroupFinder.findByApproximateDescriptionSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else {
-      throw new IllegalArgumentException("Invalid attribute name. Only displayName, extension, displayExtension and description are allowed.");
-    }
-    return groups;
-  }
-  
-  
-  private Set<Group> findExactGroups(GrouperSession session, String attributeName, String attributeValue) {
-    Set<Group> groups = new HashSet<>();
-    Set<TypeOfGroup> typeOfGroups = new HashSet<>();
-    typeOfGroups.add(TypeOfGroup.group);
-    if (attributeName.equalsIgnoreCase("name")) {
-      Group group = GroupFinder.findByName(session, attributeValue, false);
-      if (group!= null && group.getTypeOfGroup() == TypeOfGroup.group) {
-        groups.add(group);
-      }
-    } else if (attributeName.equalsIgnoreCase("displayName")) {
-      groups = GroupFinder.findByDisplayNameSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else if (attributeName.equalsIgnoreCase("extension")) {
-      groups = GroupFinder.findByExtensionSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else if (attributeName.equalsIgnoreCase("displayExtension")) {
-      groups = GroupFinder.findByDisplayExtensionSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else if (attributeName.equalsIgnoreCase("uuid")) {
-      Group group = GroupFinder.findByUuid(session, attributeValue, false);
-      if (group!= null && group.getTypeOfGroup() == TypeOfGroup.group) {
-        groups.add(group);
-      }
-    } else if (attributeName.equalsIgnoreCase("idIndex")) {
-      
-      if (NumberUtils.isNumber(attributeValue)) {
-        Group group = GroupFinder.findByIdIndexSecure(Long.valueOf(attributeValue), false, new QueryOptions());
-        if (group != null && group.getTypeOfGroup() == TypeOfGroup.group) {
-          groups.add(group);
-        }
-      } else {
-        throw new IllegalArgumentException("idIndex can only be a numeric value.");
-      }
-      
-    } else if (attributeName.equalsIgnoreCase("description")) {
-      groups = GroupFinder.findByDescriptionSecure(attributeValue, new QueryOptions(), typeOfGroups);
-    } else {
+  private Set<Group> findApproximateGroups(String attributeName, String attributeValue) throws IllegalArgumentException {
+    return approximateMatchMap.getOrDefault(attributeName, (x) -> {
       throw new IllegalArgumentException("Invalid attribute name. Only name, displayName, extension, displayExtension, uuid, idIndex and description are allowed.");
-    }
-    return groups;
+    }).apply(attributeValue);
+  }
+    
+  private Set<Group> findExactGroups(GrouperSession session, String attributeName, String attributeValue) throws IllegalArgumentException {
+    return exactMatchMap.getOrDefault(attributeName, (x, y) -> {
+      throw new IllegalArgumentException("Invalid attribute name. Only name, displayName, extension, displayExtension, uuid, idIndex and description are allowed.");
+    }).apply(session, attributeValue);
+    
   }
 
   private ScimGroup convertGrouperGroupToScimGroup(Group group, boolean includeMemebers) {
@@ -388,15 +417,19 @@ public class TierGroupService implements Provider<ScimGroup> {
       scimGroupOutput.addExtension(groupExtension);
       
       if (includeMemebers) {
-        List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
-        for (Membership membership: group.getMemberships()) {
-          Member member = membership.getMember();
-          ResourceReference resourceReference = new ResourceReference();
-          resourceReference.setValue(member.getId());
-          resourceReference.setType(membership.getTypeEnum() == IMMEDIATE ? DIRECT : INDIRECT);
-          resourceReference.setRef("../Users/"+member.getSubjectId());
-          resourceReferences.add(resourceReference);
-        }
+        
+        List<ResourceReference> resourceReferences = group.getMemberships()
+            .stream()
+            .map( membership -> {
+                    Member member = membership.getMember();
+                    ResourceReference resourceReference = new ResourceReference();
+                    resourceReference.setValue(member.getId());
+                    resourceReference.setType(membership.getTypeEnum() == IMMEDIATE ? DIRECT : INDIRECT);
+                    resourceReference.setRef("../Users/"+member.getSubjectId()); 
+                    return resourceReference;
+              })
+            .collect(Collectors.toList());
+        
         scimGroupOutput.setMembers(resourceReferences);
       }
       

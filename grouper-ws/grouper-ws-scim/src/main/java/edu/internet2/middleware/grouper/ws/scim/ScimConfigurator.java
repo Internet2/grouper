@@ -13,7 +13,7 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 
 import edu.internet2.middleware.grouper.ws.scim.group.TierGroupService;
 import edu.internet2.middleware.grouper.ws.scim.membership.MembershipResource;
-import edu.internet2.middleware.grouper.ws.scim.membership.MembershipService;
+import edu.internet2.middleware.grouper.ws.scim.membership.TierMembershipService;
 import edu.internet2.middleware.grouper.ws.scim.user.TierUserService;
 import edu.psu.swe.scim.server.provider.ProviderRegistry;
 import edu.psu.swe.scim.spec.resources.ScimGroup;
@@ -36,7 +36,7 @@ public class ScimConfigurator implements ServletContextListener {
   private Instance<TierUserService> userProviderInstance;
   
   @Inject
-  private Instance<MembershipService> membershipProviderInstance;
+  private Instance<TierMembershipService> membershipProviderInstance;
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
