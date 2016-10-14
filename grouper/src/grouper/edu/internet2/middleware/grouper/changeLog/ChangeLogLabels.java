@@ -43,7 +43,10 @@ public class ChangeLogLabels {
     displayName,
     
     /** description */
-    description;
+    description,
+    
+    /** idIndex */
+    idIndex;
   };
   
   /** labels for a group update */
@@ -95,7 +98,10 @@ public class ChangeLogLabels {
     displayName, 
     
     /** description */
-    description;
+    description,
+    
+    /** idIndex */
+    idIndex;
   };
   
   /**
