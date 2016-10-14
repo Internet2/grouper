@@ -181,7 +181,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   GROUP_ADD(new ChangeLogType("group", "addGroup", 
       ChangeLogLabels.GROUP_ADD.id, ChangeLogLabels.GROUP_ADD.name, ChangeLogLabels.GROUP_ADD.parentStemId,
-      ChangeLogLabels.GROUP_ADD.displayName, ChangeLogLabels.GROUP_ADD.description)),
+      ChangeLogLabels.GROUP_ADD.displayName, ChangeLogLabels.GROUP_ADD.description, ChangeLogLabels.GROUP_ADD.idIndex)),
   
   /**
    * update group
@@ -197,7 +197,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   GROUP_DELETE(new ChangeLogType("group", "deleteGroup", 
       ChangeLogLabels.GROUP_DELETE.id, ChangeLogLabels.GROUP_DELETE.name, ChangeLogLabels.GROUP_DELETE.parentStemId,
-      ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description)),
+      ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description, ChangeLogLabels.GROUP_DELETE.idIndex)),
   
   /**
    * add entity
