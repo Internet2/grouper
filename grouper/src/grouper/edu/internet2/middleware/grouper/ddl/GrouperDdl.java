@@ -2297,8 +2297,36 @@ public enum GrouperDdl implements DdlVersionable {
       addQuartzTables(ddlVersionBean, database);
       addQuartzIndexes(ddlVersionBean, database);
     }
-  };
+  },
 
+  /**
+   * <pre>
+   * Grouper 2.4.0
+   * </pre>
+   */
+  V31 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
+          "member_subjidentifier0_idx", false, "subject_identifier0");
+      
+      Table pitMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, PITMember.TABLE_GROUPER_PIT_MEMBERS, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, pitMembersTable.getName(), 
+          "pit_member_subjidentifier0_idx", false, "subject_identifier0");
+    }
+  };
+  
+  
   /**
    * context id column name
    */
