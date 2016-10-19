@@ -34,6 +34,27 @@ import edu.internet2.middleware.subject.Subject;
 public class EsbEvent {
 
   /**
+   * microseconds since 1970 that this event was created.  divide by 1000 for millis
+   */
+  private Long createdOnMicros = null;
+  
+  /**
+   * microseconds since 1970 that this event was created.  divide by 1000 for millis
+   * @return the createdOnMicros
+   */
+  public Long getCreatedOnMicros() {
+    return this.createdOnMicros;
+  }
+  
+  /**
+   * microseconds since 1970 that this event was created.  divide by 1000 for millis
+   * @param createdOnMicros1 the createdOnMicros to set
+   */
+  public void setCreatedOnMicros(Long createdOnMicros1) {
+    this.createdOnMicros = createdOnMicros1;
+  }
+
+  /**
    * type of event
    * @author mchyzer
    *

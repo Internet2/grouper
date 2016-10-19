@@ -66,6 +66,9 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
 
+    boolean sendCreatedOnMicros = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + consumerName
+        + ".publisher.sendCreatedOnMicros", true);
+
     //try catch so we can track that we made some progress
     try {
       for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
@@ -76,6 +79,11 @@ public class EsbConsumer extends ChangeLogConsumerBase {
         }
         EsbEvent event = new EsbEvent();
         event.setSequenceNumber(Long.toString(currentId));
+        
+        if (sendCreatedOnMicros) {
+          event.setCreatedOnMicros(changeLogEntry.getCreatedOnDb());
+        }
+        
         //if this is a group type add action and category
         if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
           event.setEventType(EsbEvent.EsbEventType.GROUP_ADD.name());
@@ -244,7 +252,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
               ChangeLogLabels.MEMBERSHIP_ADD.groupId));
           event.setGroupName(this.getLabelValue(changeLogEntry,
               ChangeLogLabels.MEMBERSHIP_ADD.groupName));
-
         } else if (changeLogEntry
             .equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE)) {
           event.setEventType(EsbEvent.EsbEventType.MEMBERSHIP_DELETE.name());
