@@ -1,4 +1,4 @@
-172.17.0.89	testing-worker-linux-docker-384968c0-3473-linux-2.prod.travis-ci.org testing-worker-linux-docker-384968c0-3473-linux-2
+172.17.5.150	testing-worker-linux-docker-132a09eb-3430-linux-8.prod.travis-ci.org testing-worker-linux-docker-132a09eb-3430-linux-8
 ::1	localhost ip6-localhost ip6-loopback
 fe00::0	ip6-localnet
 ff00::0	ip6-mcastprefix
