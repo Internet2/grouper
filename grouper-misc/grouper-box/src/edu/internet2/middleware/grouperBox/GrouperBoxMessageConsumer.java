@@ -4,11 +4,118 @@
  */
 package edu.internet2.middleware.grouperBox;
 
+import edu.internet2.middleware.grouperClient.api.GcMessageReceive;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMessage;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMessageResults;
+
 /**
  *
  */
 public class GrouperBoxMessageConsumer {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    System.out.println(System.currentTimeMillis());
+    //incrementalSync();
+  }
+  
+  /**
+   * if incremental refresh is in progress
+   */
+  private static boolean incrementalRefreshInProgress = false;
+  
+  
+  /**
+   * if incremental refresh is in progress
+   * @return the fullRefreshInProgress
+   */
+  public static boolean isIncrementalRefreshInProgress() {
+    return incrementalRefreshInProgress;
+  }
+
+  /**
+   * wait for full refresh to end
+   */
+  public static void waitForIncrementalRefreshToEnd() {
+    while (isIncrementalRefreshInProgress()) {
+      GrouperClientUtils.sleep(100);
+    }
+  }
+
+  /**
+   * do an incrementalsync
+   */
+  public static void incrementalSync() {
+    
+    incrementalRefreshInProgress = true;
+    try {
+      GrouperBoxFullRefresh.waitForFullRefreshToEnd();
+      String messageSystemName = GrouperClientConfig.retrieveConfig()
+          .propertyValueString("grouperBox.messagingSystemName");
+      String messageQueueName = GrouperClientConfig.retrieveConfig()
+          .propertyValueString("box_queue");
+      WsMessageResults wsMessageResults = new GcMessageReceive()
+        .assignMessageSystemName(messageSystemName).assignQueueOrTopicName(messageQueueName).execute();
+      
+      boolean fullSyncOnMessage = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
+          "grouperBox.fullSyncOnMessage", false);
+      
+      int fullSyncOnMessageWaitSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
+          "grouperBox.fullSyncOnMessageWaitSeconds", 30);
+
+      boolean foundMessages = false;
+
+      //give a tiny bit of buffer
+      Long beforeThisMillisIgnoreMessages = null;
+
+      for (int i=0;i<100;i++) {
+        
+        //short circuit to let full go
+        if (GrouperBoxFullRefresh.isFullRefreshInProgress()) {
+          return;
+        }
+
+        foundMessages = GrouperClientUtils.length(wsMessageResults.getMessages()) > 0;
+        
+        if (!foundMessages) {
+          break;
+        }
+        
+        //process messages
+        for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessageResults.getMessages(), WsMessage.class)) {
+  
+          if (beforeThisMillisIgnoreMessages != null) { // TODO && beforeThisMillisIgnoreMessages > wsMessage.)
+
+          }
+          if (fullSyncOnMessage) {
+            if (fullSyncOnMessageWaitSeconds < 5) {
+              fullSyncOnMessageWaitSeconds = 5;
+            }
+            GrouperClientUtils.sleep(fullSyncOnMessageWaitSeconds * 1000L);
+            
+            //give a tiny bit of buffer
+            beforeThisMillisIgnoreMessages = System.currentTimeMillis() - 500;
+            
+            try {
+              incrementalRefreshInProgress = false;
+              GrouperBoxFullRefresh.fullRefreshLogic();
+            } finally {
+              incrementalRefreshInProgress = true;
+            }
+          }
+        }
+      }
+    } finally {
+      incrementalRefreshInProgress = false;
+    }
+  }
+  
+  
 //  /**
 //   * 
 //   */
