@@ -2271,3 +2271,20 @@ function syncNameAndId(nameElementId, idElementId, nameDifferentThanIdElementId,
   }
   
 }
+
+/**
+ * show/hide the add member block on click of Add Members button
+ * Also add attributes for accessibility
+ * */
+function showHideMemberAddBlock() {
+	
+  $('#add-block-container').toggle('slow');
+  if ($("#add-member-control-group").attr("aria-expanded") === 'true') {
+	  $("#add-member-control-group").attr("aria-expanded","false");
+	  $("#add-member-control-group").removeAttr("role");
+  } else {
+	  $("#add-member-control-group").attr("aria-expanded","true");
+	  $("#add-member-control-group").attr("role", "alert");
+	  $("#groupAddMemberComboId").focus();
+  }	
+}
