@@ -6157,7 +6157,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(), 
           this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
           ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
-          ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription()).save();
+          ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription(),
+          ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex()).save();
       
     }
     
@@ -6326,7 +6327,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this.getUuid(), ChangeLogLabels.GROUP_DELETE.name.name(), 
           this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
           ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
-          ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription()).save();
+          ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription(),
+          ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
 
     }
 

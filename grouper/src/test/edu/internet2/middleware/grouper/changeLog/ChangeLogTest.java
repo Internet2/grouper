@@ -4150,6 +4150,7 @@ public class ChangeLogTest extends GrouperTest {
   
     assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.name));
     assertEquals(group.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id));
+    assertEquals(group.getIdIndex().toString(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.idIndex));
   
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -4289,6 +4290,7 @@ public class ChangeLogTest extends GrouperTest {
         
     assertEquals(group.getName(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.name));
     assertEquals(group.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.id));
+    assertEquals(group.getIdIndex().toString(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.idIndex));
       
     // check PIT table
     allFields = FieldFinder.findAll().iterator();

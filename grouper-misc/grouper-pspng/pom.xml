@@ -51,6 +51,11 @@
     <dependency>
         <groupId>${project.groupId}</groupId>
         <version>${project.version}</version>
+        <artifactId>grouperClient</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>${project.groupId}</groupId>
+        <version>${project.version}</version>
         <artifactId>subject</artifactId>
     </dependency>
     <dependency>
@@ -61,6 +66,10 @@
     	<groupId>org.ldaptive</groupId>
     	<artifactId>ldaptive-unboundid</artifactId>
     </dependency>
+	<dependency>
+	    <groupId>commons-lang</groupId>
+	    <artifactId>commons-lang</artifactId>
+	</dependency>
     <dependency>
     	<groupId>commons-collections</groupId>
     	<artifactId>commons-collections</artifactId>
