@@ -17,7 +17,7 @@
             <div class="pull-right">
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" class="navbar-search">
                 <input type="text" name="searchQuery" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});"><i class="fa fa-search"></i></a>
+                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" aria-label="Search"><i class="fa fa-search"></i></a>
               </form>
             </div>
             <div class="navbar-text pull-right">${textContainer.text['indexLoggedInAs'] } 
