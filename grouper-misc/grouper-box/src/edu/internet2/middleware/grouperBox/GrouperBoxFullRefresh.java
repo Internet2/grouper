@@ -72,9 +72,36 @@ public class GrouperBoxFullRefresh implements Job {
   }
 
   /**
+   * if full refresh is in progress
+   */
+  private static boolean fullRefreshInProgress = false;
+  
+  
+  /**
+   * if full refresh is in progress
+   * @return the fullRefreshInProgress
+   */
+  public static boolean isFullRefreshInProgress() {
+    return fullRefreshInProgress;
+  }
+
+  /**
+   * wait for full refresh to end
+   */
+  public static void waitForFullRefreshToEnd() {
+    while (isFullRefreshInProgress()) {
+      GrouperClientUtils.sleep(100);
+    }
+  }
+  
+  /**
    * full refresh logic
    */
   public static void fullRefreshLogic() {
+    
+    fullRefreshInProgress = true;
+    
+    GrouperBoxMessageConsumer.waitForIncrementalRefreshToEnd();
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -279,6 +306,7 @@ public class GrouperBoxFullRefresh implements Job {
     
     } finally {
       GrouperBoxLog.boxLog(debugMap, startTimeNanos);
+      fullRefreshInProgress = false;
     }
   }
 
