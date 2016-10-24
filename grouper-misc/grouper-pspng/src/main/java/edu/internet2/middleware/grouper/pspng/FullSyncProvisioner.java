@@ -241,12 +241,10 @@ public class FullSyncProvisioner  {
    * ShouldBeProvisioned filter.
    */
   protected void queueAllGroupsForFullSync() {
-    Collection<Group> allGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
-    
+    Collection<Group> allGroups = provisioner.getAllGroupsForProvisioner();
     for ( Group group : allGroups ) {
       GrouperGroupInfo grouperGroupInfo = new GrouperGroupInfo(group);
-      if ( provisioner.shouldGroupBeProvisioned(grouperGroupInfo) )
-        scheduleGroupForSync(grouperGroupInfo, false);
+      scheduleGroupForSync(grouperGroupInfo, false);
     }
     
     if ( provisioner.config.isGrouperAuthoritative())

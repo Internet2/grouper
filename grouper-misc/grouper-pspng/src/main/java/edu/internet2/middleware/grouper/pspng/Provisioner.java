@@ -1094,6 +1094,58 @@ public abstract class Provisioner
     return null;
   }
   
+  /**
+   * This method looks for groups that are marked for provisioning as determined by 
+   * the GroupSelectionExpression. 
+   * 
+   * Because it can take a very long time to look through a large group registry, this
+   * method pre-filters groups and folders before evaluating them with the GroupSelectionExpression:
+   * This method looks for Groups and Folders that reference the attributes in 
+   * attributesUsedInGroupSelectionExpression
+   * 
+   * @return A collection of groups that are to be provisioned by this provisioner
+   */
+  public Set<Group> getAllGroupsForProvisioner() {
+    Set<Group> result = new HashSet<Group>();
+    
+    Set<Group> interestingGroups = new HashSet<Group>();
+    for ( String attribute : getConfig().getAttributesUsedInGroupSelectionExpression() ) {
+      Set<Stem> foldersReferencingAttribute;
+      Set<Group> groupsReferencingAttribute;
+      
+      if ( getConfig().isAttributesUsedInGroupSelectionExpressionAreComparedToProvisionerName() ) {
+        foldersReferencingAttribute = new StemFinder().assignNameOfAttributeDefName(attribute).assignAttributeValue(getName()).findStems();
+        groupsReferencingAttribute = new GroupFinder().assignNameOfAttributeDefName(attribute).assignAttributeValue(getName()).findGroups();
+      }
+      else {
+        foldersReferencingAttribute = new StemFinder().assignNameOfAttributeDefName(attribute).findStems();
+        groupsReferencingAttribute = new GroupFinder().assignNameOfAttributeDefName(attribute).findGroups();
+      }
+    
+      LOG.info("{}: There are {} folders that match {} attribute", new Object[]{getName(), foldersReferencingAttribute.size(), attribute});
+      LOG.info("{}: There are {} groups that match {} attribute", new Object[]{getName(), groupsReferencingAttribute.size(), attribute});
+      
+      interestingGroups.addAll(groupsReferencingAttribute);
+      for ( Stem folder : foldersReferencingAttribute ) {
+        Set<Group> groupsUnderFolder;
+        
+        groupsUnderFolder = new GroupFinder().assignParentStemId(folder.getName()).findGroups();
+        
+        LOG.info("{}: There are {} groups underneath folder {}", new Object[]{getName(), groupsUnderFolder.size(), folder.getName()});
+        interestingGroups.addAll(groupsUnderFolder);
+      }
+    }
+    
+    for ( Group group : interestingGroups ) {
+      GrouperGroupInfo grouperGroupInfo = new GrouperGroupInfo(group);
+      if ( shouldGroupBeProvisioned(grouperGroupInfo) )
+        result.add(group);
+    }
+
+    return result;
+  }
+  
+  
   public ConfigurationClass getConfig() {
     return config;
   }
@@ -1128,6 +1180,10 @@ public abstract class Provisioner
    * @return
    */
   protected boolean shouldGroupBeProvisioned(GrouperGroupInfo grouperGroupInfo) {
+    if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+      return false;
+    }
+    
     String resultString = evaluateJexlExpression(config.getGroupSelectionExpression(), null, grouperGroupInfo);
     
     boolean result = BooleanUtils.toBoolean(resultString);
