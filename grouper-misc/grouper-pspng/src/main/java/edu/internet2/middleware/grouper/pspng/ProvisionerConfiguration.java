@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.pspng;
  * limitations under the License.
  ******************************************************************************/
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -59,10 +61,9 @@ public class ProvisionerConfiguration {
     private int grouperGroupCacheSize, grouperSubjectCacheSize;
     protected int grouperGroupCacheSize_defaultValue = 10000;
     protected int grouperSubjectCacheSize_defaultValue = 10000;
-
-    protected String groupSelectionExpression;
     
 
+    protected String groupSelectionExpression;
 
     /**
      * This expression says that the provisionerName has to be in a group or stem provision_to attribute
@@ -80,7 +81,19 @@ public class ProvisionerConfiguration {
           + ":pspng:do_not_provision_to'], groupAttributes['" + rootStem + ":pspng:do_not_provision_to'])}";
       
     }
+    protected Collection<String> attributesUsedInGroupSelectionExpression;
+    protected String attributesUsedInGroupSelectionExpression_defaultValue = "provision_to,do_not_provision_to";
 
+    // attributesUsedInGroupSelectionExpression are referenced within groupSelectionExpression
+    // However, what are they compared to? By default, they are compared to the name of the provisioner
+    // and we can use database filtering to find matching groups faster. However, if a different
+    // selection expression is used, then we can't use database filtering.
+    //
+    // This configuration item enables database filtering when looking for possible matching groups.
+    // The groups are still run through the groupSelectionExpression, but this allows fewer
+    // groups to be checked against that expression.
+    protected boolean attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName;
+    protected boolean attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName_defaultValue = true;
     
     // Does the provisioning process need User information from the target system or
     // can all the changes be implemented with Subject attributes from Grouper?
@@ -161,15 +174,38 @@ public class ProvisionerConfiguration {
 
         groupSelectionExpression =
             GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "groupSelectionExpression", groupSelectionExpression_defaultValue());
-        LOG.debug("Ldap Provisioner {} - Setting groupSelectionExpression to {}", provisionerName, groupSelectionExpression);
+        LOG.debug("Provisioner {} - Setting groupSelectionExpression to {}", provisionerName, groupSelectionExpression);
+
+        // List of attributes used in GroupSelection expression
+        String attributesUsedInGroupSelectionExpression_string =
+            GrouperLoaderConfig.retrieveConfig().propertyValueString(qualifiedParameterNamespace + "attributesUsedInGroupSelectionExpression", attributesUsedInGroupSelectionExpression_defaultValue);
+
+        String attributesUsed[] = attributesUsedInGroupSelectionExpression_string.split(" *, *");
+        
+        attributesUsedInGroupSelectionExpression = new ArrayList<String>();
+        String rootStem = GrouperConfig.retrieveConfig().propertyValueString(
+            "grouper.rootStemForBuiltinObjects", "etc");
+        for ( String attribute: attributesUsed ) {
+          if ( attribute.contains(":") ) {
+            attributesUsedInGroupSelectionExpression.add(attribute);
+          }
+          else {
+            attributesUsedInGroupSelectionExpression.add(String.format("%s:pspng:%s", rootStem, attribute));
+          }
+        }
+        LOG.debug("Provisioner {} - Setting attributesUsedInGroupSelectionExpression to {}", provisionerName, attributesUsedInGroupSelectionExpression);
+        
+        attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName =
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(qualifiedParameterNamespace + "attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName", attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName_defaultValue);
+        LOG.debug("Provisioner {} - Setting attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName to {}", provisionerName, attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName);
 
         userSearch_batchSize =
             GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "userSearch_batchSize", userSearch_batchSize_defaultValue);
-        LOG.debug("Ldap Provisioner {} - Setting userSearch_batchSize to {}", provisionerName, userSearch_batchSize);
+        LOG.debug("Provisioner {} - Setting userSearch_batchSize to {}", provisionerName, userSearch_batchSize);
 
         groupSearch_batchSize =
             GrouperLoaderConfig.retrieveConfig().propertyValueInt(qualifiedParameterNamespace + "groupSearch_batchSize", groupSearch_batchSize_defaultValue);
-        LOG.debug("Ldap Provisioner {} - Setting groupSearch_batchSize to {}", provisionerName, groupSearch_batchSize);
+        LOG.debug("Provisioner {} - Setting groupSearch_batchSize to {}", provisionerName, groupSearch_batchSize);
     }
 
 
@@ -187,6 +223,18 @@ public class ProvisionerConfiguration {
 
     public int getGrouperSubjectCacheSize() {
       return grouperSubjectCacheSize;
+    }
+    
+    /**
+     * The groupSelectionExpression is an arbitrary jexl expression. As such, it's hard
+     * to know exactly what it is doing with Group and Folder attributes. This method
+     * enables (fast) database filtering to occur when those Group and Folder attributes
+     * are being compared to the name of the provisioner.
+     * 
+     * @return True if the Group-Selection expression compares the attributes to the provisioner name
+     */
+    public boolean isAttributesUsedInGroupSelectionExpressionAreComparedToProvisionerName() {
+      return attributesUsedInGroupSelectionExpressionAreComparedToProvisionerName;
     }
     
     public boolean isCreatingMissingUsersEnabled() {
@@ -215,6 +263,10 @@ public class ProvisionerConfiguration {
     
     public String getGroupSelectionExpression() {
       return groupSelectionExpression;
+    }
+    
+    public Collection<String> getAttributesUsedInGroupSelectionExpression() {
+      return attributesUsedInGroupSelectionExpression;
     }
 
     public void populateElMap(Map<String, Object> variableMap) {
