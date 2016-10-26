@@ -4,16 +4,40 @@
  */
 package edu.internet2.middleware.grouperBox;
 
-import edu.internet2.middleware.grouperClient.api.GcMessageReceive;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.PersistJobDataAfterExecution;
+
+import com.box.sdk.BoxGroupMembership.Info;
+
+import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsMessage;
-import edu.internet2.middleware.grouperClient.ws.beans.WsMessageResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvent;
+import edu.internet2.middleware.grouperClientExt.xmpp.EsbEvents;
+import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
 
 /**
  *
  */
-public class GrouperBoxMessageConsumer {
+@PersistJobDataAfterExecution
+@DisallowConcurrentExecution
+public class GrouperBoxMessageConsumer implements Job {
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperBoxFullRefresh.class);
 
   /**
    * 
@@ -27,7 +51,7 @@ public class GrouperBoxMessageConsumer {
   /**
    * if incremental refresh is in progress
    */
-  private static boolean incrementalRefreshInProgress = false;
+  static boolean incrementalRefreshInProgress = false;
   
   
   /**
@@ -46,60 +70,99 @@ public class GrouperBoxMessageConsumer {
       GrouperClientUtils.sleep(100);
     }
   }
-
+  
   /**
    * do an incrementalsync
    */
   public static void incrementalSync() {
     
     incrementalRefreshInProgress = true;
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    long startTimeNanos = System.nanoTime();
+
+    debugMap.put("method", "incrementalSync");
+
+    boolean logDebugMap = true;
+
+    Set<String> successMessageIds = new HashSet<String>();
+    Set<String> waitMessageIds = new HashSet<String>();
+
     try {
       GrouperBoxFullRefresh.waitForFullRefreshToEnd();
-      String messageSystemName = GrouperClientConfig.retrieveConfig()
-          .propertyValueString("grouperBox.messagingSystemName");
-      String messageQueueName = GrouperClientConfig.retrieveConfig()
-          .propertyValueString("box_queue");
-      WsMessageResults wsMessageResults = new GcMessageReceive()
-        .assignMessageSystemName(messageSystemName).assignQueueOrTopicName(messageQueueName).execute();
+
+      WsMessage[] wsMessages = GrouperWsCommandsForBox.grouperReceiveMessages();
+
+      if (GrouperClientUtils.length(wsMessages) == 0) {
+        boolean logIfNoMessages = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperBox.logIfNoMessages", false);
+        if (!logIfNoMessages) {
+          logDebugMap = false;
+        }
+        return;
+      }
       
       boolean fullSyncOnMessage = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
           "grouperBox.fullSyncOnMessage", false);
+
+      if (fullSyncOnMessage) {
+        debugMap.put("fullSyncOnMessage", true);
+      }
       
       int fullSyncOnMessageWaitSeconds = GrouperClientConfig.retrieveConfig().propertyValueInt(
           "grouperBox.fullSyncOnMessageWaitSeconds", 30);
 
-      boolean foundMessages = false;
+      //short circuit to let full go
+      if (GrouperBoxFullRefresh.isFullRefreshInProgress()) {
+        return;
+      }
 
-      //give a tiny bit of buffer
-      Long beforeThisMillisIgnoreMessages = null;
+      //wait message ids
+      for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessages, WsMessage.class)) {
+        waitMessageIds.add(wsMessage.getId());
+      }
 
-      for (int i=0;i<100;i++) {
+      //process messages
+      for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessages, WsMessage.class)) {
+
+        String jsonString = wsMessage.getMessageBody();  
         
-        //short circuit to let full go
-        if (GrouperBoxFullRefresh.isFullRefreshInProgress()) {
-          return;
-        }
+        EsbEvents esbEvents = GcDecodeEsbEvents.decodeEsbEvents(jsonString);
+        esbEvents = GcDecodeEsbEvents.unencryptEsbEvents(esbEvents);
 
-        foundMessages = GrouperClientUtils.length(wsMessageResults.getMessages()) > 0;
+        //  {  
+        //  "encrypted":false,
+        //  "esbEvent":[  
+        //     {  
+        //        "changeOccurred":false,
+        //        "createdOnMicros":1476889916578000,
+        //        "eventType":"MEMBERSHIP_DELETE",
+        //        "fieldName":"members",
+        //        "groupId":"89dd656be8c743e79b2ef24fde6dab36",
+        //        "groupName":"box:groups:someGroup",
+        //        "id":"c2641b287f964bb28b2f0ddcd05f9fd3",
+        //        "membershipType":"flattened",
+        //        "sequenceNumber":"618",
+        //        "sourceId":"g:isa",
+        //        "subjectId":"GrouperSystem"
+        //     }
+        //  ]
+        //}
         
-        if (!foundMessages) {
-          break;
-        }
-        
-        //process messages
-        for (WsMessage wsMessage : GrouperClientUtils.nonNull(wsMessageResults.getMessages(), WsMessage.class)) {
-  
-          if (beforeThisMillisIgnoreMessages != null) { // TODO && beforeThisMillisIgnoreMessages > wsMessage.)
+        //not sure why there would be no events in there
+        for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
 
+          if (GrouperBoxFullRefresh.getLastFullRefreshStart() > (esbEvent.getCreatedOnMicros() / 1000L)) {
+            
+            continue;
+            
           }
+
           if (fullSyncOnMessage) {
             if (fullSyncOnMessageWaitSeconds < 5) {
               fullSyncOnMessageWaitSeconds = 5;
             }
             GrouperClientUtils.sleep(fullSyncOnMessageWaitSeconds * 1000L);
-            
-            //give a tiny bit of buffer
-            beforeThisMillisIgnoreMessages = System.currentTimeMillis() - 500;
             
             try {
               incrementalRefreshInProgress = false;
@@ -107,172 +170,266 @@ public class GrouperBoxMessageConsumer {
             } finally {
               incrementalRefreshInProgress = true;
             }
+          } else {
+            processMessage(esbEvent);
+          }
+
+        }
+        
+        //mark message as processed
+        successMessageIds.add(wsMessage.getId());
+        waitMessageIds.remove(wsMessage.getId());
+        
+      }
+
+    } finally {
+      debugMap.put("successMessageCount", GrouperClientUtils.length(successMessageIds));
+      debugMap.put("waitMessageCount", GrouperClientUtils.length(waitMessageIds));
+      
+      try {
+        //mark messages as processed
+        if (GrouperClientUtils.length(successMessageIds) > 0) {
+          GrouperWsCommandsForBox.grouperAcknowledgeMessages(successMessageIds, "mark_as_processed");
+        }
+      } catch (Exception e) {
+        debugMap.put("successAcknowledgeException", GrouperClientUtils.getFullStackTrace(e));
+      }
+
+      try {
+        //mark messages as return to queue
+        if (GrouperClientUtils.length(waitMessageIds) > 0) {
+          GrouperWsCommandsForBox.grouperAcknowledgeMessages(waitMessageIds, "return_to_queue");
+        }
+      } catch (Exception e) {
+        debugMap.put("waitAcknowledgeException", GrouperClientUtils.getFullStackTrace(e));
+      }
+
+      incrementalRefreshInProgress = false;
+
+      if (logDebugMap) {
+        GrouperBoxLog.boxLog(debugMap, startTimeNanos);
+      }
+    }
+
+    //if there were errors, wait a minute
+    if (GrouperClientUtils.length(waitMessageIds) > 0) {
+      GrouperClientUtils.sleep(60000);
+    }
+
+    //if there were messages successfully processed, then try again, might be more on queue
+    if (GrouperClientUtils.length(successMessageIds) > 0) {
+      incrementalSync();
+    }
+    
+  }
+
+  /**
+   * process message
+   * @param esbEvent
+   */
+  public static void processMessage(EsbEvent esbEvent) {
+    String subjectAttributeForBoxUsername = GrouperBoxUtils.configSubjectAttributeForBoxUsername();
+    String subjectAttributeValue = null;
+    if (!GrouperClientUtils.equals("id", subjectAttributeForBoxUsername)) {
+      // note make sure the loader is configured to send this attribute
+      subjectAttributeValue = esbEvent.subjectAttribute(subjectAttributeForBoxUsername);
+    }
+    processMessage(esbEvent.getEventType(), GrouperClientUtils.defaultIfBlank(esbEvent.getName(),esbEvent.getGroupName()), esbEvent.getSourceId(), esbEvent.getSubjectId(), subjectAttributeValue);
+  }
+  
+  /**
+   * process message
+   * @param eventType 
+   * @param groupName 
+   * @param sourceId 
+   * @param subjectId 
+   * @param subjectAttributeValue 
+   */
+  public static void processMessage(String eventType, String groupName, String sourceId, String subjectId, String subjectAttributeValue) {
+    
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    long startTimeNanos = System.nanoTime();
+
+    debugMap.put("method", "processMessage");
+
+    try {
+
+      //  {  
+      //  "encrypted":false,
+      //  "esbEvent":[  
+      //     {  
+      //        "changeOccurred":false,
+      //        "createdOnMicros":1476889916578000,
+      //        "eventType":"MEMBERSHIP_DELETE",
+      //        "fieldName":"members",
+      //        "groupId":"89dd656be8c743e79b2ef24fde6dab36",
+      //        "groupName":"box:groups:someGroup",
+      //        "id":"c2641b287f964bb28b2f0ddcd05f9fd3",
+      //        "membershipType":"flattened",
+      //        "sequenceNumber":"618",
+      //        "sourceId":"g:isa",
+      //        "subjectId":"GrouperSystem"
+      //     }
+      //  ]
+      //}
+
+      debugMap.put("eventType", eventType);
+      debugMap.put("groupName", groupName);
+      
+      boolean boxGroupWhichHasAllowedUsers = GrouperClientUtils.equals(groupName, GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.requireGroup"));
+      
+      if (!boxGroupWhichHasAllowedUsers && !GrouperBoxUtils.validBoxGroupName(groupName)) {
+        debugMap.put("invalidGroupName", true);
+        return;
+      }
+      String groupExtension = GrouperClientUtils.extensionFromName(groupName);
+
+      boolean isMembershipAdd = GrouperClientUtils.equals(eventType, "MEMBERSHIP_ADD");
+      boolean isMembershipUpdate = GrouperClientUtils.equals(eventType, "MEMBERSHIP_UPDATE");
+      boolean isMembershipDelete = GrouperClientUtils.equals(eventType, "MEMBERSHIP_DELETE");
+
+      //get groups from box
+      Map<String, GrouperBoxGroup> boxGroupNameToGroupMap = GrouperBoxCommands.retrieveBoxGroups();
+
+      GrouperBoxGroup groupInBox = boxGroupNameToGroupMap.get(groupExtension);
+
+      if (GrouperClientUtils.equals(eventType, "GROUP_ADD")) {
+        if (!boxGroupWhichHasAllowedUsers) {
+          //create box group
+          GrouperBoxCommands.createBoxGroup(groupExtension, true);
+        }
+
+      } else if (GrouperClientUtils.equals(eventType, "GROUP_DELETE")) {
+        
+        if (!boxGroupWhichHasAllowedUsers) {
+          //create box group
+          GrouperBoxCommands.deleteBoxGroup(groupInBox, true);
+        }
+      } else if (GrouperClientUtils.equals(eventType, "GROUP_UPDATE")) {
+        
+        if (!boxGroupWhichHasAllowedUsers) {
+          if (groupInBox == null) {
+            //hmmm, rename, do a full refresh?  need to delete old, create new, and add/remove memberships
+            GrouperBoxFullRefresh.fullRefreshLogic();
+          }
+        }        
+        
+      } else if (isMembershipAdd || isMembershipDelete || isMembershipUpdate) {
+
+        debugMap.put("sourceId", sourceId);
+
+        boolean inCorrectSubjectSource = GrouperBoxUtils.configSourcesForSubjects().contains(sourceId);
+
+        String username = null;
+
+        if (inCorrectSubjectSource) {
+
+          String subjectAttributeForBoxUsername = GrouperBoxUtils.configSubjectAttributeForBoxUsername();
+          debugMap.put("subjectAttributeBoxUsername", subjectAttributeForBoxUsername);
+         
+          
+          if (GrouperClientUtils.equals("id", subjectAttributeForBoxUsername)) {
+            username = subjectId;
+          } else {
+            // note make sure the loader is configured to send this attribute
+            username = subjectAttributeValue;
+          }
+          debugMap.put("username", username);
+        } else {
+          debugMap.put("invalidSource", true);
+          
+        }
+
+        if (GrouperClientUtils.isBlank(username)) {
+          //this isnt good
+          return;
+        }
+
+        String usernamePrefix = username;
+        
+        username += GrouperClientUtils.defaultIfBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.subjectIdSuffix"), "");
+        
+        debugMap.put("boxUsername", username);
+        
+        //lets get the user from box
+        GrouperBoxUser grouperBoxUser = GrouperBoxUser.retrieveUsers().get(username);
+
+        debugMap.put("boxUserExists", grouperBoxUser != null);
+
+        if (grouperBoxUser == null) {
+          //doesnt currently create users
+          return;
+        }
+
+        //translate update to add or remove
+        if (isMembershipUpdate) {
+          //see if add or remove
+          WsHasMemberResults wsHasMemberResults = new GcHasMember().assignGroupName(groupName)
+            .addSubjectLookup(new WsSubjectLookup(subjectId, sourceId, null)).execute();
+
+          if (GrouperClientUtils.equals("IS_MEMBER", wsHasMemberResults.getResults()[0]
+              .getResultMetadata().getResultCode())) {
+            isMembershipAdd = true;
+          } else {
+            isMembershipDelete = true;
           }
         }
+
+        if (isMembershipAdd) {
+          if (boxGroupWhichHasAllowedUsers) {
+            GrouperWsCommandsForBox.retrieveGrouperUsers().put(username, new String[]{subjectId, sourceId, usernamePrefix});
+            GrouperBoxCommands.deprovisionOrUndeprovision(grouperBoxUser, debugMap);
+          } else {
+            GrouperBoxCommands.assignUserToBoxGroup(grouperBoxUser, groupInBox, true);
+          }
+        }
+        
+        if (isMembershipDelete) {
+          if (boxGroupWhichHasAllowedUsers) {
+            //remove memberships in box
+            for (Info info : grouperBoxUser.getBoxUser().getMemberships()) {
+              //check role?
+              GrouperBoxGroup grouperBoxGroup = boxGroupNameToGroupMap.get(info.getGroup().getName());
+              GrouperBoxCommands.removeUserFromBoxGroup(grouperBoxUser, grouperBoxGroup, true);
+            }
+            GrouperWsCommandsForBox.retrieveGrouperUsers().remove(username);
+            GrouperBoxCommands.deprovisionOrUndeprovision(grouperBoxUser, debugMap);
+          } else {
+            GrouperBoxCommands.removeUserFromBoxGroup(grouperBoxUser, groupInBox, false);
+          }
+        }
+        
+
+      } else {
+        debugMap.put("invalidEventType", true);
       }
+      
+      
+      
     } finally {
+            
       incrementalRefreshInProgress = false;
+
+      GrouperBoxLog.boxLog(debugMap, startTimeNanos);
     }
+
   }
   
   
-//  /**
-//   * 
-//   */
-//  public GrouperBoxMessageConsumer() {
-//    //schedule with job in grouper-loader.properties
-//    //otherJob.duo.class = edu.internet2.middleware.grouperDuo.GrouperDuoFullRefresh
-//    //otherJob.duo.quartzCron = 0 0 5 * * ?
-//    //GrouperDuoDaemon.scheduleJobsOnce();
-//  }
-//
-//  /**
-//   * @see edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase#processChangeLogEntries(java.util.List, edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata)
-//   */
-//  @Override
-//  public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
-//      ChangeLogProcessorMetadata changeLogProcessorMetadata) {
-//    
-//    long currentId = -1;
-//
-//    boolean startedGrouperSession = false;
-//    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-//    if (grouperSession == null) {
-//      grouperSession = GrouperSession.startRootSession();
-//      startedGrouperSession = true;
-//    } else {
-//      grouperSession = grouperSession.internal_getRootSession();
-//    }
-//    
-//    //try catch so we can track that we made some progress
-//    try {
-//      for (ChangeLogEntry changeLogEntry : changeLogEntryList) {
-//        currentId = changeLogEntry.getSequenceNumber();
-// 
-//        //if this is a group add action and category
-//        if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_ADD)) {
-// 
-//          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.name);
-//          if (GrouperBoxUtils.validBoxGroupName(groupName)) {
-//            String groupExtension = GrouperUtil.extensionFromName(groupName);
-//            //get the group in grouper
-//            String groupDescription = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.description);
-//            //shouldnt be the case but check anyways
-//            if (!GrouperDuoCommands.retrieveGroups().containsKey(groupExtension)) {
-//              GrouperDuoCommands.createDuoGroup(groupExtension, groupDescription, true);
-//            }
-//          }
-//        } else if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE)) {
-//          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.name);
-//          if (GrouperBoxUtils.validBoxGroupName(groupName)) {
-//            String groupExtension = GrouperUtil.extensionFromName(groupName);
-//            //shouldnt be the case but check anyways
-//            GrouperBoxGroup grouperDuoGroup = GrouperDuoCommands.retrieveGroups().get(groupExtension);
-//            if (grouperDuoGroup != null) {
-//              GrouperDuoCommands.deleteDuoGroup(grouperDuoGroup.getId(), true);
-//            }
-//          }
-// 
-//        } if (changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_UPDATE)) {
-//          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.name);
-//          if (GrouperBoxUtils.validBoxGroupName(groupName)) {
-//            String groupExtension = GrouperUtil.extensionFromName(groupName);
-//            //get the group in grouper
-//            
-//            Group group = GroupFinder.findByName(grouperSession, groupName, false);
-//
-//            if (group != null) {
-//              
-//              //shouldnt be the case but check anyways
-//              Map<String, GrouperBoxGroup> groupNameToDuoGroupMap = GrouperDuoCommands.retrieveGroups();
-//              GrouperBoxGroup grouperDuoGroup = groupNameToDuoGroupMap.get(groupExtension);
-//              if (grouperDuoGroup != null) {
-//                GrouperDuoCommands.updateDuoGroup(grouperDuoGroup.getId(), group.getDescription(), true);
-//              }
-//            }
-//          }
-//        } 
-//        
-//        boolean isMembershipAdd = changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_ADD);
-//        boolean isMembershipDelete = changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE);
-//        boolean isMembershipUpdate = changeLogEntry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE);
-//        if (isMembershipAdd || isMembershipDelete || isMembershipUpdate) {
-//          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
-//
-//          if (GrouperBoxUtils.validBoxGroupName(groupName)) {
-//            String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
-//
-//            boolean inCorrectSubjectSource = GrouperBoxUtils.configSourcesForSubjects().contains(sourceId);
-//            
-//            if (inCorrectSubjectSource) {
-//              String groupExtension = GrouperUtil.extensionFromName(groupName);
-//              Group group = GroupFinder.findByName(grouperSession, groupName, false);
-//              Map<String, GrouperBoxGroup> groupNameToDuoGroupMap = GrouperDuoCommands.retrieveGroups();
-//              GrouperBoxGroup grouperDuoGroup = groupNameToDuoGroupMap.get(groupExtension);
-//              String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
-//              
-//              String subjectAttributeForDuoUsername = GrouperBoxUtils.configSubjectAttributeForDuoUsername();
-//                
-//              String username = null;
-//              Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
-//              
-//              if (StringUtils.equals("id", subjectAttributeForDuoUsername)) {
-//                username = subjectId;
-//              } else {
-//                
-//                if (subject != null) {
-//                  String attributeValue = subject.getAttributeValue(subjectAttributeForDuoUsername);
-//                  if (!StringUtils.isBlank(attributeValue)) {
-//                    username = attributeValue;
-//                  }                    
-//                }
-//              }
-//              
-//              String duoGroupId = grouperDuoGroup != null ? grouperDuoGroup.getId() : null;
-//              String duoUserId = !StringUtils.isBlank(username) ? GrouperDuoCommands.retrieveUserIdFromUsername(username) : null;
-//              
-//              //cant do anything if missing these things
-//              if (!StringUtils.isBlank(duoGroupId) && !StringUtils.isBlank(duoUserId)) {
-//
-//                boolean userInDuoGroup = GrouperDuoCommands.userInGroup(duoUserId, duoGroupId, true);
-//                
-//                boolean addUserToGroup = isMembershipAdd;
-//                
-//                //if update it could have unexpired
-//                if (isMembershipUpdate && group != null && subject != null && group.hasMember(subject)) {
-//                  addUserToGroup = true;
-//                }
-//                
-//                //see if any update is needed
-//                if (addUserToGroup != userInDuoGroup) {
-//                  if (addUserToGroup) {
-//                    GrouperDuoCommands.assignUserToGroup(duoUserId, duoGroupId, true);
-//                  } else {
-//                    GrouperDuoCommands.removeUserFromGroup(duoUserId, duoGroupId, true);
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
-// 
-//        //we successfully processed this record
-//      }
-//    } catch (Exception e) {
-//      changeLogProcessorMetadata.registerProblem(e, "Error processing record", currentId);
-//      //we made it to this -1
-//      return currentId-1;
-//    } finally {
-//      if (startedGrouperSession) {
-//        GrouperSession.stopQuietly(grouperSession);
-//      }
-//    }
-//    if (currentId == -1) {
-//      throw new RuntimeException("Couldnt process any records");
-//    }
-// 
-//    return currentId;
-//
-//  }
+  /**
+   * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
+   */
+  public void execute(JobExecutionContext arg0) throws JobExecutionException {
+    incrementalSync();
+  }
+
+  /**
+   * 
+   */
+  public GrouperBoxMessageConsumer() {
+  }
+
 
 }

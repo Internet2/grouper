@@ -74,7 +74,7 @@ public class GrouperBoxGroup {
    */
   public Collection<BoxGroupMembership.Info> getMemberships() {
     if (this.memberships == null) {
-      this.memberships = GrouperClientUtils.nonNull(GrouperBoxCommands.retrieveMembershipsForGroup(this));
+      this.memberships = GrouperClientUtils.nonNull(GrouperBoxCommands.retrieveMembershipsForBoxGroup(this));
     }
     return this.memberships;
   }
@@ -85,7 +85,7 @@ public class GrouperBoxGroup {
    */
   public BoxGroupMembership.Info assignUserToGroup(GrouperBoxUser grouperBoxUser, boolean isIncremental) {
     this.memberships = null;
-    return GrouperBoxCommands.assignUserToGroup(grouperBoxUser, this, isIncremental);
+    return GrouperBoxCommands.assignUserToBoxGroup(grouperBoxUser, this, isIncremental);
   }
 
   /**
@@ -94,12 +94,12 @@ public class GrouperBoxGroup {
    */
   public BoxGroupMembership.Info removeUserFromGroup(GrouperBoxUser grouperBoxUser, boolean isIncremental) {
     this.memberships = null;
-    return GrouperBoxCommands.removeUserFromGroup(grouperBoxUser, this, isIncremental);
+    return GrouperBoxCommands.removeUserFromBoxGroup(grouperBoxUser, this, isIncremental);
   }
 
   /**
    * 
-   * @return the map of loginids to user objects
+   * @return the map of loginids to user objects never return null
    */
   public Map<String, GrouperBoxUser> getMemberUsers() {
     
