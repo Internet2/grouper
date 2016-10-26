@@ -57,6 +57,7 @@ public class GrouperBoxUtils {
     String sourcesForSubjectsString = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperBox.sourcesForSubjects");
     
     return GrouperClientUtils.splitTrimToSet(sourcesForSubjectsString, ",");
+
   }
 
   /**
@@ -68,7 +69,7 @@ public class GrouperBoxUtils {
     
     String boxFolderName = configFolderForBoxGroups();
   
-    if (!groupName.startsWith(boxFolderName)) {
+    if (groupName == null || !groupName.startsWith(boxFolderName)) {
       return false;
     }
     
@@ -78,7 +79,7 @@ public class GrouperBoxUtils {
     if (groupName.contains(":")) {
       return false;
     }
-  
+
     //cant be include/exclude and not overall
     List<String> groupNameSuffixesToIgnore = GrouperClientUtils.splitTrimToList(GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.ignoreGroupSuffixes"), ",");
     for (String suffixToIgnore : GrouperClientUtils.nonNull(groupNameSuffixesToIgnore)) {
@@ -86,8 +87,9 @@ public class GrouperBoxUtils {
         return false;
       }
     }
-  
+
     return true;
   }
 
+  
 }

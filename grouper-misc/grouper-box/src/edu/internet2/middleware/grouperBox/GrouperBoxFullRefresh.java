@@ -4,14 +4,12 @@
  */
 package edu.internet2.middleware.grouperBox;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
@@ -20,24 +18,29 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.PersistJobDataAfterExecution;
 
-import edu.internet2.middleware.grouperClient.api.GcFindGroups;
-import edu.internet2.middleware.grouperClient.api.GcGetMembers;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
-import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
-import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 
 
 /**
  *
  */
+@PersistJobDataAfterExecution
 @DisallowConcurrentExecution
 public class GrouperBoxFullRefresh implements Job {
+
+  /** when was last full refresh started */
+  private static long lastFullRefreshStart = -1L;
+  
+  /**
+   * when was last full refresh started
+   * @return the lastFullRefreshStart
+   */
+  public static long getLastFullRefreshStart() {
+    return lastFullRefreshStart;
+  }
 
   /**
    * 
@@ -103,6 +106,9 @@ public class GrouperBoxFullRefresh implements Job {
     
     GrouperBoxMessageConsumer.waitForIncrementalRefreshToEnd();
     
+    //give a tiny bit of buffer
+    lastFullRefreshStart = System.currentTimeMillis() - 500;
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     long startTimeNanos = System.nanoTime();
@@ -113,20 +119,9 @@ public class GrouperBoxFullRefresh implements Job {
     long startedMillis = System.currentTimeMillis();
     
     try {
-      
-      //# put groups in here which go to box, the name in box will be the extension here
-      String grouperBoxFolderName = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperBox.folder.name.withBoxGroups");
-      
-      WsQueryFilter wsQueryFilter = new WsQueryFilter();
-      wsQueryFilter.setStemName(grouperBoxFolderName);
-      wsQueryFilter.setStemNameScope("ONE_LEVEL");
-      
-      WsFindGroupsResults wsFindGroupsResults = new GcFindGroups().assignQueryFilter(wsQueryFilter).execute();
 
-      WsGroup[] wsGroupsArray = wsFindGroupsResults.getGroupResults();
-      
       @SuppressWarnings("unchecked")
-      List<WsGroup> grouperGroups = wsGroupsArray == null ? new ArrayList<WsGroup>() : (List<WsGroup>)GrouperClientUtils.toArray(wsGroupsArray);
+      List<WsGroup> grouperGroups = GrouperWsCommandsForBox.retrieveGrouperGroups();
       
       //take out include/exclude etc
       Iterator<WsGroup> iterator = grouperGroups.iterator();
@@ -149,14 +144,14 @@ public class GrouperBoxFullRefresh implements Job {
       }
       
       //make a map from group extension
-      Map<String, WsGroup> grouperGroupExtensionToGroupMap = new HashMap<String, WsGroup>();
+      Map<String, WsGroup> grouperGroupExtensionToGroupMap = new TreeMap<String, WsGroup>();
       
       for (WsGroup group : grouperGroups) {
         grouperGroupExtensionToGroupMap.put(group.getExtension(), group);
       }
       
       //get groups from box
-      Map<String, GrouperBoxGroup> boxGroupNameToGroupMap = GrouperBoxCommands.retrieveGroups();
+      Map<String, GrouperBoxGroup> boxGroupNameToGroupMap = GrouperBoxCommands.retrieveBoxGroups();
 
       debugMap.put("boxGroupCount", boxGroupNameToGroupMap.size());
 
@@ -170,23 +165,19 @@ public class GrouperBoxFullRefresh implements Job {
       int unresolvableCount = 0;
       int totalCount = 0;
       
-      //# is grouper the true system of record, delete box groups which dont exist in grouper
-      if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperBox.deleteGroupsInBoxWhichArentInGrouper", true)) {
+      //which groups are in box and not in grouper?
+      Set<String> groupExtensionsInBoxNotInGrouper = new TreeSet<String>(boxGroupNameToGroupMap.keySet());
+      groupExtensionsInBoxNotInGrouper.removeAll(grouperGroupExtensionToGroupMap.keySet());
+      
+      for (String groupExtensionToRemove : groupExtensionsInBoxNotInGrouper) {
+        GrouperBoxGroup grouperBoxGroup = boxGroupNameToGroupMap.get(groupExtensionToRemove);
+        if (GrouperBoxCommands.deleteBoxGroup(grouperBoxGroup, false)) {
         
-        //which groups are in box and not in grouper?
-        Set<String> groupExtensionsInBoxNotInGrouper = new TreeSet<String>(boxGroupNameToGroupMap.keySet());
-        groupExtensionsInBoxNotInGrouper.removeAll(grouperGroupExtensionToGroupMap.keySet());
-        
-        for (String groupExtensionToRemove : groupExtensionsInBoxNotInGrouper) {
-          GrouperBoxGroup grouperBoxGroup = boxGroupNameToGroupMap.get(groupExtensionToRemove);
-          GrouperBoxCommands.deleteBoxGroup(grouperBoxGroup, false);
-          
           deleteCount++;
           debugMap.put("deleteBoxGroup_" + groupExtensionToRemove, true);
           
           needsGroupRefresh = true;
         }
-        
       }
 
       //loop through groups in grouper
@@ -205,16 +196,8 @@ public class GrouperBoxFullRefresh implements Job {
 
       if (needsGroupRefresh) {
         //lets get them again if some were created
-        boxGroupNameToGroupMap = GrouperBoxCommands.retrieveGroups();
+        boxGroupNameToGroupMap = GrouperBoxCommands.retrieveBoxGroups();
       }
-      
-      //# put the comma separated list of sources to send to box
-      //grouperBox.sourcesForSubjects = pennperson
-      Set<String> sourcesForSubjects = GrouperBoxUtils.configSourcesForSubjects();
-      
-      //# either have id for subject id or an attribute for the box username (e.g. netId)
-      //grouperBox.subjectAttributeForBoxUsername = pennname
-      String subjectAttributeForBoxUsername = GrouperBoxUtils.configSubjectAttributeForBoxUsername();
       
       //loop through groups in grouper
       for (String groupExtensionInGrouper : grouperGroupExtensionToGroupMap.keySet()) {
@@ -225,35 +208,7 @@ public class GrouperBoxFullRefresh implements Job {
         
         Map<String, GrouperBoxUser> boxMemberUsernameToUser = grouperBoxGroup.getMemberUsers();
                     
-        Set<String> grouperUsernamesInGroup = new HashSet<String>();
-
-        WsGetMembersResults wsGetMembersResults = new GcGetMembers().addGroupName(grouperGroup.getName()).execute();
-
-        WsGetMembersResult wsGetMembersResult = wsGetMembersResults.getResults()[0];
-        
-        WsSubject[] wsSubjects = wsGetMembersResult.getWsSubjects();
-        String[] attributeNames = wsGetMembersResults.getSubjectAttributeNames();
-        
-        //get usernames from grouper
-        for (WsSubject wsSubject : wsSubjects) {
-          
-          if (sourcesForSubjects.contains(wsSubject.getSourceId())) {
-            if (GrouperClientUtils.equals("id", subjectAttributeForBoxUsername)) {
-              grouperUsernamesInGroup.add(wsSubject.getId() 
-                  + GrouperClientUtils.defaultIfBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.subjectIdSuffix"), ""));
-            } else {
-              String attributeValue = GrouperClientUtils.subjectAttributeValue(wsSubject, attributeNames, subjectAttributeForBoxUsername);
-              if (GrouperClientUtils.isBlank(attributeValue)) {
-                //i guess this is ok
-                LOG.info("Subject has a blank: " + subjectAttributeForBoxUsername + ", " + wsSubject.getSourceId() + ", " + wsSubject.getId());
-                unresolvableCount++;
-              } else {
-                grouperUsernamesInGroup.add(attributeValue
-                    + GrouperClientUtils.defaultIfBlank(GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.subjectIdSuffix"), ""));
-              }
-            }
-          }
-        }
+        Set<String> grouperUsernamesInGroup = GrouperWsCommandsForBox.retrieveGrouperMembershipsForGroup(grouperGroup.getName());
 
         debugMap.put("grouperSubjectCount_" + grouperGroup.getExtension(), grouperUsernamesInGroup.size());
         totalCount += grouperUsernamesInGroup.size();
@@ -264,18 +219,22 @@ public class GrouperBoxFullRefresh implements Job {
 
         debugMap.put("additions_" + grouperGroup.getExtension(), grouperUsernamesNotInBox.size());
 
+        int userCountNotInBox = 0;
+        
         //add to box
         for (String grouperUsername : grouperUsernamesNotInBox) {
           
           GrouperBoxUser grouperBoxUser = GrouperBoxUser.retrieveUsers().get(grouperUsername);
           
           if (grouperBoxUser == null) {
-            LOG.info("User is not in box: " + grouperUsername);
+            userCountNotInBox++;
           } else {
             insertCount++;
             grouperBoxGroup.assignUserToGroup(grouperBoxUser, false);
           }
         }
+
+        debugMap.put("userCountDoesntExistInBox_" + grouperGroup.getExtension(), userCountNotInBox);
 
         //see which users are not in box
         Set<String> boxUsernamesNotInGrouper = new TreeSet<String>(boxMemberUsernameToUser.keySet());
@@ -286,11 +245,24 @@ public class GrouperBoxFullRefresh implements Job {
         //remove from box
         for (String boxUsername : boxUsernamesNotInGrouper) {
           GrouperBoxUser grouperBoxUser = boxMemberUsernameToUser.get(boxUsername);
-          GrouperBoxCommands.removeUserFromGroup(grouperBoxUser, grouperBoxGroup, false);
+          GrouperBoxCommands.removeUserFromBoxGroup(grouperBoxUser, grouperBoxGroup, false);
           deleteCount++;
         }
         
       }
+      
+      //lets reconcile which users are in box but not supposed to be
+      Map<String, String[]> usersAllowedToBeInBox = GrouperWsCommandsForBox.retrieveGrouperUsers();
+      if (usersAllowedToBeInBox != null) {
+        
+        Map<String, GrouperBoxUser> grouperBoxUsers = GrouperBoxUser.retrieveUsers();
+
+        for (GrouperBoxUser grouperBoxUser : grouperBoxUsers.values()) {
+          GrouperBoxCommands.deprovisionOrUndeprovision(grouperBoxUser, debugMap);
+        }
+        
+      }
+      
       debugMap.put("millisLoadData", System.currentTimeMillis() - startedUpdateData);
       debugMap.put("millis", System.currentTimeMillis() - startedMillis);
       
