@@ -173,22 +173,35 @@
       <fileset dir="${basedir}">
         <include name="lib/*.jar"/>
       </fileset>
-      <fileset dir="${basedir}/${main.outputDir}">
-        <include name="${main.appName}.jar"/>
-      </fileset>
       <fileset dir="${basedir}/conf">
         <include name="grouper-loader.box.2.2.andEarlier.example.properties"/>
         <include name="grouper-loader.box.example.properties"/>
+        <include name="${grouperClient.folder}/conf/grouper.client.base.properties"/>
         <include name="grouper.client.box.example.properties"/>
         <include name="log4j.grouperBox.example.properties"/>
         <include name="morphString.example.properties"/>
       </fileset>
     </copy>
 
+    <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}/lib">
+      <fileset dir="${basedir}/${main.outputDir}">
+        <include name="${main.appName}.jar"/>
+      </fileset>
+      <fileset file="${grouperClient.jar.name}">
+      </fileset>
+    </copy>
+    
     <mkdir dir="${basedir}/${main.outputDir}/grouper.box-${version}/${main.source}" />
     <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}">
       <fileset dir="${basedir}">
         <include name="src/**"/>
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.box-${version}/changeLogConsumerSource" />
+    <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}">
+      <fileset dir="${basedir}">
+        <include name="changeLogConsumerSource/**"/>
       </fileset>
     </copy>
     

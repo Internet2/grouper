@@ -17,6 +17,9 @@
 	<classpathentry kind="lib" path="lib/quartz.jar"/>
 	<classpathentry kind="lib" path="lib/json-lib.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
