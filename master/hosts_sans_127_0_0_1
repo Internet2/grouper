@@ -1,6 +1,6 @@
-172.17.6.151	testing-worker-linux-docker-9684a86e-3453-linux-7.prod.travis-ci.org testing-worker-linux-docker-9684a86e-3453-linux-7
-ff02::2	ip6-allrouters
+172.17.1.84	testing-worker-linux-docker-13230ceb-3488-linux-7.prod.travis-ci.org testing-worker-linux-docker-13230ceb-3488-linux-7
 ::1	localhost ip6-localhost ip6-loopback
 fe00::0	ip6-localnet
 ff00::0	ip6-mcastprefix
 ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
