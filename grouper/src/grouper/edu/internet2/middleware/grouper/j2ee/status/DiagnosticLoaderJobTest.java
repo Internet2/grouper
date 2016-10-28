@@ -26,7 +26,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -138,8 +140,29 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
       
       lastSuccess = timestamp == null ? null : timestamp.getTime();
       
+      boolean isSuccess = lastSuccess != null && (System.currentTimeMillis() - lastSuccess) / (1000 * 60) < minutesSinceLastSuccess;
+      if (!isSuccess) {
+        if (this.jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX) && 
+            GrouperConfig.retrieveConfig().propertyValueBoolean("ws.diagnostic.successIfChangeLogConsumerProgress", true)) {
+          // check if status is started first - probably not too reliable since a previous one could have been stuck on started.
+          
+          Long count = HibernateSession.byHqlStatic().createQuery("select count(*) from Hib3GrouperLoaderLog theLoaderLog " +
+            "where theLoaderLog.jobName = :theJobName and theLoaderLog.status = 'STARTED'").setString("theJobName", this.jobName).uniqueResult(Long.class);
       
-      if (lastSuccess != null && (System.currentTimeMillis() - lastSuccess) / (1000 * 60) < minutesSinceLastSuccess ) {
+          if (count > 0) {
+            // now the real check.  check for progress on the consumer
+            String consumerName = this.jobName.substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
+            
+            ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
+            if (changeLogConsumer != null && changeLogConsumer.getLastUpdated() != null && (System.currentTimeMillis() - changeLogConsumer.getLastUpdated().getTime()) / (1000 * 60) < minutesSinceLastSuccess) {
+              isSuccess = true;
+              lastSuccess = changeLogConsumer.getLastUpdated().getTime();
+            }
+          }
+        }
+      }
+      
+      if (isSuccess) {
         
         this.appendSuccessTextLine("Found the most recent success: " + GrouperUtil.dateStringValue(lastSuccess) 
             + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
