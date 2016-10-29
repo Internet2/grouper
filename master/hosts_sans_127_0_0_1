@@ -1,4 +1,4 @@
-172.17.2.162	testing-worker-linux-docker-6aa9fff3-3473-linux-8.prod.travis-ci.org testing-worker-linux-docker-6aa9fff3-3473-linux-8
+172.17.1.154	testing-worker-linux-docker-9d1f3765-3493-linux-8.prod.travis-ci.org testing-worker-linux-docker-9d1f3765-3493-linux-8
 ff02::1	ip6-allnodes
 ff02::2	ip6-allrouters
 ::1	localhost ip6-localhost ip6-loopback
