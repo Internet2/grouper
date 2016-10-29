@@ -12,9 +12,11 @@
                     </c:if>
                     <div class="btn-group btn-block">
                     
-                      <a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
+                      <a data-toggle="dropdown" href="#" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                      	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#group-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#group-more-options li').first().focus();return true;});">
+                      		${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
   
-                      <ul class="dropdown-menu dropdown-menu-right">
+                      <ul class="dropdown-menu dropdown-menu-right" id="group-more-options">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>
                           <c:when test="${grouperRequestContainer.groupContainer.favorite}">
