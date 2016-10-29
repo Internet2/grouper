@@ -8,14 +8,15 @@
             <div class="row-fluid">
               <div class="span12">
                 <div id="messages"></div>
-
-                <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
-                  <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
-                  </c:if>
-                  <%@ include file="groupMoreTab.jsp" %>
-                </ul>
+				<div class="tab-interface">
+                  <ul class="nav nav-tabs">
+                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
+                    <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
+                      <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+                    </c:if>
+                    <%@ include file="groupMoreTab.jsp" %>
+                  </ul>
+				</div>
 
                 <p class="lead">${textContainer.text['thisGroupsMembershipsDescription'] }</p>
 
@@ -59,4 +60,5 @@
                 </div>                
               </div>
             </div>
+            <script>setupAccessibilityTabs();</script>
             <!-- end group/thisGroupsMemberships.jsp -->

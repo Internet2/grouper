@@ -8,7 +8,7 @@
             <%@ include file="groupHeader.jsp" %>
 
             <div class="row-fluid">
-              <div class="span12">
+              <div class="span12 tab-interface">
                 <ul class="nav nav-tabs">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
@@ -69,4 +69,4 @@
                 </c:choose>
               </div>
             </div>
-            
+            <script>setupAccessibilityTabs();</script>
