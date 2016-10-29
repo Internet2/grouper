@@ -20,7 +20,7 @@
                         </th>
                         <th class="sorted">${textContainer.text['groupViewDetailsHeaderEntityName']}</th>
                         <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
-                        <th style="width:100px;"></th>
+                        <th style="width:100px;">${textContainer.text['groupViewDetailsHeaderChooseAction']}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -34,7 +34,7 @@
                               <label class="checkbox checkbox-no-padding">
                                 <c:choose>
                                   <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                    <input type="checkbox" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
+                                    <input type="checkbox" aria-label="${textContainer.text['groupViewDetailsMembershipCheckboxAriaLabel']}" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
                                   </c:when>
                                   <c:otherwise>
                                     <input type="checkbox" disabled="disabled"/>
