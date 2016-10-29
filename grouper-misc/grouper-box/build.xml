@@ -1,5 +1,5 @@
 
-<project name="grouper-duo" default="build" basedir=".">
+<project name="grouper-box" default="build" basedir="." >
   
   <!-- declare the ant-contrib tasks -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -31,10 +31,21 @@
     <property name="main.outputDir" value="dist" />
     <property name="main.bin" value="${main.outputDir}/bin" />
 
-    <property name="main.appName" value="grouper-duo" />
+    <property name="main.appName" value="grouper-box" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
 
-    <path id="main.classpath">
+    <path id="main.classpath.client">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+    
+      <fileset dir="${grouperClient.folder}/${main.outputDir}">
+        <!-- Last, but not least, make Grouper API available -->
+        <include name="grouperClient.jar"/>
+      </fileset>
+    </path>
+
+    <path id="main.classpath.grouper">
       <fileset dir="${main.lib}">
         <include name="**/*.jar" />
       </fileset>
@@ -61,6 +72,17 @@
       </not>      
       <then>
         <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
+      </then>
+    </if>
+  
+    <available file="${grouperClient.jar.name}" property="grouperClient.file.exists" value="true" />
+  
+    <if>
+      <not>
+        <isset property="grouperClient.file.exists" />
+      </not>      
+      <then>
+        <fail message="Cant find grouperClient.jar from build.properties entry grouperClient.jar.name: ${grouperClient.jar.name}!" /> 
       </then>
     </if>
   
@@ -98,9 +120,14 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.bin}" />
 
-    <javac  target="1.6"  source="1.6" 
+    <javac target="1.7" source="1.7" 
       srcdir="${main.source}" destdir="${main.bin}" debug="true" >
-      <classpath refid="main.classpath" />    
+      <classpath refid="main.classpath.client" />    
+    </javac>
+  
+    <javac  target="1.7"  source="1.7" 
+      srcdir="changeLogConsumerSource" destdir="${main.bin}" debug="true" >
+      <classpath refid="main.classpath.grouper" />    
     </javac>
   
   </target>
@@ -110,6 +137,9 @@
 
     <copy todir="${main.bin}">
       <fileset dir="${main.source}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+      <fileset dir="changeLogConsumerSource">
         <include name="**/*.java"/>      <!-- source -->
       </fileset>
     </copy>
@@ -135,33 +165,49 @@
   
   <target name="distPackage" description="build tar gz on internet2 box">
     
-    <mkdir dir="${basedir}/${main.outputDir}/grouper.duo-${version}" />
-    <delete dir="${basedir}/${main.outputDir}/grouper.duo-${version}" />
-    <mkdir dir="${basedir}/${main.outputDir}/grouper.duo-${version}" />
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.box-${version}" />
+    <delete dir="${basedir}/${main.outputDir}/grouper.box-${version}" />
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.box-${version}" />
 
-    <copy todir="${basedir}/${main.outputDir}/grouper.duo-${version}">
+    <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}">
       <fileset dir="${basedir}">
         <include name="lib/*.jar"/>
       </fileset>
-      <fileset dir="${basedir}/${main.outputDir}">
-        <include name="${main.appName}.jar"/>
-      </fileset>
       <fileset dir="${basedir}/conf">
-        <include name="grouper-loader.duo.example.properties"/>
-        <include name="log4j.grouperDuo.example.properties"/>
+        <include name="grouper-loader.box.2.2.andEarlier.example.properties"/>
+        <include name="grouper-loader.box.example.properties"/>
+        <include name="${grouperClient.folder}/conf/grouper.client.base.properties"/>
+        <include name="grouper.client.box.example.properties"/>
+        <include name="log4j.grouperBox.example.properties"/>
+        <include name="morphString.example.properties"/>
       </fileset>
     </copy>
 
-    <mkdir dir="${basedir}/${main.outputDir}/grouper.duo-${version}/${main.source}" />
-    <copy todir="${basedir}/${main.outputDir}/grouper.duo-${version}">
+    <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}/lib">
+      <fileset dir="${basedir}/${main.outputDir}">
+        <include name="${main.appName}.jar"/>
+      </fileset>
+      <fileset file="${grouperClient.jar.name}">
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.box-${version}/${main.source}" />
+    <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}">
       <fileset dir="${basedir}">
         <include name="src/**"/>
       </fileset>
     </copy>
     
-    <tar destfile="${basedir}/${main.outputDir}/grouper.duo-${version}.tar.gz" compression="gzip" longfile="gnu" >
+    <mkdir dir="${basedir}/${main.outputDir}/grouper.box-${version}/changeLogConsumerSource" />
+    <copy todir="${basedir}/${main.outputDir}/grouper.box-${version}">
+      <fileset dir="${basedir}">
+        <include name="changeLogConsumerSource/**"/>
+      </fileset>
+    </copy>
+    
+    <tar destfile="${basedir}/${main.outputDir}/grouper.box-${version}.tar.gz" compression="gzip" longfile="gnu" >
       <tarfileset dir="${basedir}/${main.outputDir}" >
-        <include name="grouper.duo-${version}/**"/>
+        <include name="grouper.box-${version}/**"/>
       </tarfileset>
     </tar>            
   </target>

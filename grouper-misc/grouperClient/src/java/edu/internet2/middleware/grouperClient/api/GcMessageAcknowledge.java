@@ -49,8 +49,9 @@ public class GcMessageAcknowledge {
   private String anotherQueueOrTopic;
   
   /**
-   * @param theAcknowledgeType
-   * @return
+   * 
+   * @param theAcknowledgeType mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue
+   * @return the acknolwedge response
    */
   public GcMessageAcknowledge assignAcknowledgeType(String theAcknowledgeType) {
     this.acknowledgeType = theAcknowledgeType;

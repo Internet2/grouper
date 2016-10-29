@@ -280,8 +280,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         workItem.markAsSuccess("Modification complete");
       
     } catch (PspException e1) {
-      LOG.error("Optimized ldap provisioning failed: {}", e1.getMessage());
-      LOG.warn("Performing much slower unoptimized ldap provisioning after optimized provisioning failed");
+      LOG.warn("Optimized, coalesced ldap provisioning failed:  {}", e1.getMessage());
+      LOG.warn("RETRYING: Performing much slower, unoptimized ldap provisioning after optimized provisioning failed");
       
         for ( ProvisioningWorkItem workItem : workItems ) {
           try {
@@ -289,7 +289,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             makeIndividualLdapChanges(workItem);
             workItem.markAsSuccess("Modification complete");
           } catch (PspException e2) {
-            LOG.error("Simple ldap provisioning failed for {}: {}", workItem, e2.getMessage());
+            LOG.error("Simple ldap provisioning failed for {}: {}", workItem, e2);
             workItem.markAsFailure("Modification failed: %s", e2.getMessage());
           }
       }
@@ -448,9 +448,9 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             LOG.info("Performing LDAP modification: {}", getLoggingSummary(mod) );
             conn.getProviderConnection().modify(mod);
           } catch (LdapException e) {
-            LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}: {}",
-                new Object[]{dn, mod, e.getMessage()});
-            throw new PspException("Coalesced LDAP Modification failed");
+            LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}",
+                new Object[]{dn, mod, e});
+            throw new PspException("Coalesced LDAP Modification failed",e);
           } 
         }
       } finally {

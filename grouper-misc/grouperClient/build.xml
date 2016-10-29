@@ -81,7 +81,7 @@
 
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <mkdir dir="${main.binDir}" />
     <delete dir="${main.binDir}" />
     <mkdir dir="${main.binDir}" />
