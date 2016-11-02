@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -525,7 +526,7 @@ public abstract class Provisioner
 
       return result;
     }
-    catch (Exception e) {
+    catch (RuntimeException e) {
       LOG.error("Jexl Expression {} could not be evaluated for subject '{}/{}' and group '{}/{}' which used variableMap '{}'",
           new Object[] {expression, 
               subject, tsUser,
@@ -1228,7 +1229,7 @@ public abstract class Provisioner
       for ( Stem folder : foldersReferencingAttribute ) {
         Set<Group> groupsUnderFolder;
         
-        groupsUnderFolder = new GroupFinder().assignParentStemId(folder.getName()).findGroups();
+        groupsUnderFolder = new GroupFinder().assignParentStemId(folder.getId()).assignStemScope(Scope.SUB).findGroups();
         
         LOG.debug("{}: There are {} groups underneath folder {}", new Object[]{getName(), groupsUnderFolder.size(), folder.getName()});
         interestingGroups.addAll(groupsUnderFolder);
