@@ -19,10 +19,12 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
@@ -31,6 +33,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -217,16 +220,16 @@ public class ChangeLogHelper {
         debugMap.put("last sequence processed", changeLogConsumer.getLastSequenceProcessed());
       }
       
-      //lets only do 100k records at a time
+      int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogConsumerBatchSize", 1000);
+
       for (int i=0;i<1000;i++) {
         
         ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
         changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
         changeLogProcessorMetadata.setConsumerName(consumerName);
-        
-        //lets get 100 records
+                
         List<ChangeLogEntry> changeLogEntryList = GrouperDAOFactory.getFactory().getChangeLogEntry()
-          .retrieveBatch(changeLogConsumer.getLastSequenceProcessed(), 100);
+          .retrieveBatch(changeLogConsumer.getLastSequenceProcessed(), batchSize);
 
         if (LOG.isDebugEnabled()) {
           debugMap.put(i + ": number of records found to process", changeLogEntryList.size());
@@ -254,7 +257,7 @@ public class ChangeLogHelper {
               + ExceptionUtils.getFullStackTrace(e));
           error = true;
         }
-        if (lastProcessed != -1) {
+        if (lastProcessed != -1 && (changeLogConsumer.getLastSequenceProcessed() == null || changeLogConsumer.getLastSequenceProcessed() != lastProcessed)) {
           changeLogConsumer.setLastSequenceProcessed(lastProcessed);
           GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
         }
@@ -292,8 +295,8 @@ public class ChangeLogHelper {
         }
         
         hib3GrouploaderLog.addTotalCount(changeLogEntryList.size());
-  
-        if (changeLogEntryList.size() < 100) {
+        
+        if (changeLogEntryList.size() < batchSize) {
           break;
         }
         hib3GrouploaderLog.store();

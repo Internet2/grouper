@@ -84,6 +84,8 @@ public class ChangeLogTempToEntity {
     final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedMemberships", false);
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
     
+    ChangeLogEntry.clearNextSequenceNumberCache();
+    
     int count = 0;
     
     //first select the temp records

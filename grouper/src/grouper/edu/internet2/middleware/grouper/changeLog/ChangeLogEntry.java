@@ -870,6 +870,13 @@ public class ChangeLogEntry extends GrouperAPI {
     //we can cache this in memory since we are the only process that is inserting into the table
     return ++nextSequenceNumber;
   }
+  
+  /**
+   * clear the sequence number so the next call to nextSequenceNumber() will requery the max.
+   */
+  public static void clearNextSequenceNumberCache() {
+    nextSequenceNumber = null;
+  }
 
   /**
    * max sequence number in DB
