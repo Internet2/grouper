@@ -215,10 +215,10 @@
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>     <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>       StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> 
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>       File sourcesXmlFile = SubjectUtils.fileFromResourceName(<span class="jxr_string">"sources.xml"</span>);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>       String sourcesXmlFileLocation = sourcesXmlFile == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">" [cant find sources.xml]"</span>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>           : SubjectUtils.fileCanonicalPath(sourcesXmlFile);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a> 
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>       String sourcesXmlFileLocation = SubjectUtils.getLocationFromResourceName(<span class="jxr_string">"sources.xml"</span>);
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>       <strong class="jxr_keyword">if</strong> (sourcesXmlFileLocation == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         sourcesXmlFileLocation = <span class="jxr_string">" [cant find sources.xml]"</span>;
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>       }
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>       result.append(<span class="jxr_string">"sources.xml read from:        "</span> + sourcesXmlFileLocation + <span class="jxr_string">"\n"</span>);
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> 
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>       <em class="jxr_comment">//at this point, we have a sources.xml...  now check it out</em>

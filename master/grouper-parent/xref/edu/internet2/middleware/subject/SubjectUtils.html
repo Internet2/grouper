@@ -1924,372 +1924,372 @@
 <a class="jxr_linenumber" name="L1916" href="#L1916">1916</a> <em class="jxr_javadoccomment">   * </em>
 <a class="jxr_linenumber" name="L1917" href="#L1917">1917</a> <em class="jxr_javadoccomment">   * @return the file path on the system</em>
 <a class="jxr_linenumber" name="L1918" href="#L1918">1918</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1919" href="#L1919">1919</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> File fileFromResourceName(String resourceName) {
-<a class="jxr_linenumber" name="L1920" href="#L1920">1920</a>     
-<a class="jxr_linenumber" name="L1921" href="#L1921">1921</a>     URL url = computeUrl(resourceName, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L1922" href="#L1922">1922</a>   
-<a class="jxr_linenumber" name="L1923" href="#L1923">1923</a>     <strong class="jxr_keyword">if</strong> (url == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1924" href="#L1924">1924</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L1925" href="#L1925">1925</a>     }
-<a class="jxr_linenumber" name="L1926" href="#L1926">1926</a>   
-<a class="jxr_linenumber" name="L1927" href="#L1927">1927</a>     File configFile = <strong class="jxr_keyword">new</strong> File(url.getFile());
-<a class="jxr_linenumber" name="L1928" href="#L1928">1928</a>   
-<a class="jxr_linenumber" name="L1929" href="#L1929">1929</a>     <strong class="jxr_keyword">return</strong> configFile;
-<a class="jxr_linenumber" name="L1930" href="#L1930">1930</a>   }
-<a class="jxr_linenumber" name="L1931" href="#L1931">1931</a> 
-<a class="jxr_linenumber" name="L1932" href="#L1932">1932</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1933" href="#L1933">1933</a> <em class="jxr_javadoccomment">   * get canonical path of file</em>
-<a class="jxr_linenumber" name="L1934" href="#L1934">1934</a> <em class="jxr_javadoccomment">   * @param file</em>
-<a class="jxr_linenumber" name="L1935" href="#L1935">1935</a> <em class="jxr_javadoccomment">   * @return the path</em>
-<a class="jxr_linenumber" name="L1936" href="#L1936">1936</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1937" href="#L1937">1937</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String fileCanonicalPath(File file) {
-<a class="jxr_linenumber" name="L1938" href="#L1938">1938</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L1939" href="#L1939">1939</a>       <strong class="jxr_keyword">return</strong> file.getCanonicalPath();
-<a class="jxr_linenumber" name="L1940" href="#L1940">1940</a>     } <strong class="jxr_keyword">catch</strong> (IOException ioe) {
-<a class="jxr_linenumber" name="L1941" href="#L1941">1941</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(ioe);
-<a class="jxr_linenumber" name="L1942" href="#L1942">1942</a>     }
-<a class="jxr_linenumber" name="L1943" href="#L1943">1943</a>   }
+<a class="jxr_linenumber" name="L1919" href="#L1919">1919</a>   @Deprecated
+<a class="jxr_linenumber" name="L1920" href="#L1920">1920</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> File fileFromResourceName(String resourceName) {
+<a class="jxr_linenumber" name="L1921" href="#L1921">1921</a>     
+<a class="jxr_linenumber" name="L1922" href="#L1922">1922</a>     URL url = computeUrl(resourceName, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L1923" href="#L1923">1923</a>   
+<a class="jxr_linenumber" name="L1924" href="#L1924">1924</a>     <strong class="jxr_keyword">if</strong> (url == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1925" href="#L1925">1925</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1926" href="#L1926">1926</a>     }
+<a class="jxr_linenumber" name="L1927" href="#L1927">1927</a>   
+<a class="jxr_linenumber" name="L1928" href="#L1928">1928</a>     File configFile = <strong class="jxr_keyword">new</strong> File(url.getFile());
+<a class="jxr_linenumber" name="L1929" href="#L1929">1929</a>   
+<a class="jxr_linenumber" name="L1930" href="#L1930">1930</a>     <strong class="jxr_keyword">return</strong> configFile;
+<a class="jxr_linenumber" name="L1931" href="#L1931">1931</a>   }
+<a class="jxr_linenumber" name="L1932" href="#L1932">1932</a> 
+<a class="jxr_linenumber" name="L1933" href="#L1933">1933</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1934" href="#L1934">1934</a> <em class="jxr_javadoccomment">   * get a file name from a resource name</em>
+<a class="jxr_linenumber" name="L1935" href="#L1935">1935</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L1936" href="#L1936">1936</a> <em class="jxr_javadoccomment">   * @param resourceName</em>
+<a class="jxr_linenumber" name="L1937" href="#L1937">1937</a> <em class="jxr_javadoccomment">   *          is the classpath location</em>
+<a class="jxr_linenumber" name="L1938" href="#L1938">1938</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L1939" href="#L1939">1939</a> <em class="jxr_javadoccomment">   * @return Full path to the resource. For files, the file path on the system; otherwise, the resource URL</em>
+<a class="jxr_linenumber" name="L1940" href="#L1940">1940</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1941" href="#L1941">1941</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String getLocationFromResourceName(String resourceName) {
+<a class="jxr_linenumber" name="L1942" href="#L1942">1942</a> 
+<a class="jxr_linenumber" name="L1943" href="#L1943">1943</a>     URL url = computeUrl(resourceName, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L1944" href="#L1944">1944</a> 
-<a class="jxr_linenumber" name="L1945" href="#L1945">1945</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1946" href="#L1946">1946</a> <em class="jxr_javadoccomment">   * substitute an EL for objects</em>
-<a class="jxr_linenumber" name="L1947" href="#L1947">1947</a> <em class="jxr_javadoccomment">   * @param stringToParse</em>
-<a class="jxr_linenumber" name="L1948" href="#L1948">1948</a> <em class="jxr_javadoccomment">   * @param variableMap</em>
-<a class="jxr_linenumber" name="L1949" href="#L1949">1949</a> <em class="jxr_javadoccomment">   * @return the string</em>
-<a class="jxr_linenumber" name="L1950" href="#L1950">1950</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1951" href="#L1951">1951</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L1952" href="#L1952">1952</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String substituteExpressionLanguage(String stringToParse, Map&lt;String, Object&gt; variableMap) {
-<a class="jxr_linenumber" name="L1953" href="#L1953">1953</a>     <strong class="jxr_keyword">return</strong> substituteExpressionLanguage(stringToParse, variableMap, false);
-<a class="jxr_linenumber" name="L1954" href="#L1954">1954</a>   }
-<a class="jxr_linenumber" name="L1955" href="#L1955">1955</a> 
-<a class="jxr_linenumber" name="L1956" href="#L1956">1956</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1957" href="#L1957">1957</a> <em class="jxr_javadoccomment">   * substitute an EL for objects</em>
-<a class="jxr_linenumber" name="L1958" href="#L1958">1958</a> <em class="jxr_javadoccomment">   * @param stringToParse</em>
-<a class="jxr_linenumber" name="L1959" href="#L1959">1959</a> <em class="jxr_javadoccomment">   * @param variableMap</em>
-<a class="jxr_linenumber" name="L1960" href="#L1960">1960</a> <em class="jxr_javadoccomment">   * @param lenient</em>
-<a class="jxr_linenumber" name="L1961" href="#L1961">1961</a> <em class="jxr_javadoccomment">   * @return the string</em>
-<a class="jxr_linenumber" name="L1962" href="#L1962">1962</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1963" href="#L1963">1963</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L1964" href="#L1964">1964</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String substituteExpressionLanguage(String stringToParse, Map&lt;String, Object&gt; variableMap, <strong class="jxr_keyword">boolean</strong> lenient) {
-<a class="jxr_linenumber" name="L1965" href="#L1965">1965</a>     <strong class="jxr_keyword">if</strong> (isBlank(stringToParse)) {
-<a class="jxr_linenumber" name="L1966" href="#L1966">1966</a>       <strong class="jxr_keyword">return</strong> stringToParse;
-<a class="jxr_linenumber" name="L1967" href="#L1967">1967</a>     }
-<a class="jxr_linenumber" name="L1968" href="#L1968">1968</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L1969" href="#L1969">1969</a>       JexlContext jc = <strong class="jxr_keyword">new</strong> MapContext();
-<a class="jxr_linenumber" name="L1970" href="#L1970">1970</a> 
-<a class="jxr_linenumber" name="L1971" href="#L1971">1971</a>       <strong class="jxr_keyword">int</strong> index = 0;
-<a class="jxr_linenumber" name="L1972" href="#L1972">1972</a>       
-<a class="jxr_linenumber" name="L1973" href="#L1973">1973</a>       <strong class="jxr_keyword">for</strong> (String key: variableMap.keySet()) {
-<a class="jxr_linenumber" name="L1974" href="#L1974">1974</a>         jc.set(key, variableMap.get(key));
-<a class="jxr_linenumber" name="L1975" href="#L1975">1975</a>       }
-<a class="jxr_linenumber" name="L1976" href="#L1976">1976</a>       
-<a class="jxr_linenumber" name="L1977" href="#L1977">1977</a>       <em class="jxr_comment">//allow utility methods</em>
-<a class="jxr_linenumber" name="L1978" href="#L1978">1978</a>       jc.set(<span class="jxr_string">"subjectUtils"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../edu/internet2/middleware/subject/SubjectUtils.html">SubjectUtils</a>());
-<a class="jxr_linenumber" name="L1979" href="#L1979">1979</a>       
-<a class="jxr_linenumber" name="L1980" href="#L1980">1980</a>       <em class="jxr_comment">// matching ${ exp }   (non-greedy)</em>
-<a class="jxr_linenumber" name="L1981" href="#L1981">1981</a>       Pattern pattern = Pattern.compile(<span class="jxr_string">"&#92;&#92;$&#92;&#92;{(.*?)&#92;&#92;}"</span>);
-<a class="jxr_linenumber" name="L1982" href="#L1982">1982</a>       Matcher matcher = pattern.matcher(stringToParse);
-<a class="jxr_linenumber" name="L1983" href="#L1983">1983</a>       
-<a class="jxr_linenumber" name="L1984" href="#L1984">1984</a>       StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L1985" href="#L1985">1985</a>   
-<a class="jxr_linenumber" name="L1986" href="#L1986">1986</a>       
-<a class="jxr_linenumber" name="L1987" href="#L1987">1987</a>       <em class="jxr_comment">//loop through and find each script</em>
-<a class="jxr_linenumber" name="L1988" href="#L1988">1988</a>       <strong class="jxr_keyword">while</strong>(matcher.find()) {
-<a class="jxr_linenumber" name="L1989" href="#L1989">1989</a>         result.append(stringToParse.substring(index, matcher.start()));
-<a class="jxr_linenumber" name="L1990" href="#L1990">1990</a>         
-<a class="jxr_linenumber" name="L1991" href="#L1991">1991</a>         <em class="jxr_comment">//here is the script inside the curlies</em>
-<a class="jxr_linenumber" name="L1992" href="#L1992">1992</a>         String script = matcher.group(1);
-<a class="jxr_linenumber" name="L1993" href="#L1993">1993</a>         
-<a class="jxr_linenumber" name="L1994" href="#L1994">1994</a>         Expression e = jexlEngine.createExpression(script);
-<a class="jxr_linenumber" name="L1995" href="#L1995">1995</a>   
-<a class="jxr_linenumber" name="L1996" href="#L1996">1996</a>         <em class="jxr_comment">//this is the result of the evaluation</em>
-<a class="jxr_linenumber" name="L1997" href="#L1997">1997</a>         Object o = e.evaluate(jc);
-<a class="jxr_linenumber" name="L1998" href="#L1998">1998</a>   
-<a class="jxr_linenumber" name="L1999" href="#L1999">1999</a>         <em class="jxr_comment">//we dont want "null" in the result I think...</em>
-<a class="jxr_linenumber" name="L2000" href="#L2000">2000</a>         <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong> &amp;&amp; lenient) {
-<a class="jxr_linenumber" name="L2001" href="#L2001">2001</a>           o = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L2002" href="#L2002">2002</a>         }
-<a class="jxr_linenumber" name="L2003" href="#L2003">2003</a> 
-<a class="jxr_linenumber" name="L2004" href="#L2004">2004</a>         <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2005" href="#L2005">2005</a>           log.warn(<span class="jxr_string">"expression returned null: "</span> + script + <span class="jxr_string">", in pattern: '"</span> + stringToParse + <span class="jxr_string">"', available variables are: "</span>
-<a class="jxr_linenumber" name="L2006" href="#L2006">2006</a>               + toStringForLog(variableMap.keySet()));
-<a class="jxr_linenumber" name="L2007" href="#L2007">2007</a>         }
-<a class="jxr_linenumber" name="L2008" href="#L2008">2008</a>         
-<a class="jxr_linenumber" name="L2009" href="#L2009">2009</a>         result.append(o);
+<a class="jxr_linenumber" name="L1945" href="#L1945">1945</a>     <strong class="jxr_keyword">if</strong> (url == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1946" href="#L1946">1946</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L1947" href="#L1947">1947</a>     }
+<a class="jxr_linenumber" name="L1948" href="#L1948">1948</a> 
+<a class="jxr_linenumber" name="L1949" href="#L1949">1949</a>     <strong class="jxr_keyword">return</strong> (url.getProtocol() == <span class="jxr_string">"file"</span>) ? fileCanonicalPath(<strong class="jxr_keyword">new</strong> File(url.getFile())) : url.toString();
+<a class="jxr_linenumber" name="L1950" href="#L1950">1950</a>   }
+<a class="jxr_linenumber" name="L1951" href="#L1951">1951</a> 
+<a class="jxr_linenumber" name="L1952" href="#L1952">1952</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1953" href="#L1953">1953</a> <em class="jxr_javadoccomment">   * get canonical path of file</em>
+<a class="jxr_linenumber" name="L1954" href="#L1954">1954</a> <em class="jxr_javadoccomment">   * @param file</em>
+<a class="jxr_linenumber" name="L1955" href="#L1955">1955</a> <em class="jxr_javadoccomment">   * @return the path</em>
+<a class="jxr_linenumber" name="L1956" href="#L1956">1956</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1957" href="#L1957">1957</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String fileCanonicalPath(File file) {
+<a class="jxr_linenumber" name="L1958" href="#L1958">1958</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L1959" href="#L1959">1959</a>       <strong class="jxr_keyword">return</strong> file.getCanonicalPath();
+<a class="jxr_linenumber" name="L1960" href="#L1960">1960</a>     } <strong class="jxr_keyword">catch</strong> (IOException ioe) {
+<a class="jxr_linenumber" name="L1961" href="#L1961">1961</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(ioe);
+<a class="jxr_linenumber" name="L1962" href="#L1962">1962</a>     }
+<a class="jxr_linenumber" name="L1963" href="#L1963">1963</a>   }
+<a class="jxr_linenumber" name="L1964" href="#L1964">1964</a> 
+<a class="jxr_linenumber" name="L1965" href="#L1965">1965</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1966" href="#L1966">1966</a> <em class="jxr_javadoccomment">   * substitute an EL for objects</em>
+<a class="jxr_linenumber" name="L1967" href="#L1967">1967</a> <em class="jxr_javadoccomment">   * @param stringToParse</em>
+<a class="jxr_linenumber" name="L1968" href="#L1968">1968</a> <em class="jxr_javadoccomment">   * @param variableMap</em>
+<a class="jxr_linenumber" name="L1969" href="#L1969">1969</a> <em class="jxr_javadoccomment">   * @return the string</em>
+<a class="jxr_linenumber" name="L1970" href="#L1970">1970</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1971" href="#L1971">1971</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L1972" href="#L1972">1972</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String substituteExpressionLanguage(String stringToParse, Map&lt;String, Object&gt; variableMap) {
+<a class="jxr_linenumber" name="L1973" href="#L1973">1973</a>     <strong class="jxr_keyword">return</strong> substituteExpressionLanguage(stringToParse, variableMap, false);
+<a class="jxr_linenumber" name="L1974" href="#L1974">1974</a>   }
+<a class="jxr_linenumber" name="L1975" href="#L1975">1975</a> 
+<a class="jxr_linenumber" name="L1976" href="#L1976">1976</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1977" href="#L1977">1977</a> <em class="jxr_javadoccomment">   * substitute an EL for objects</em>
+<a class="jxr_linenumber" name="L1978" href="#L1978">1978</a> <em class="jxr_javadoccomment">   * @param stringToParse</em>
+<a class="jxr_linenumber" name="L1979" href="#L1979">1979</a> <em class="jxr_javadoccomment">   * @param variableMap</em>
+<a class="jxr_linenumber" name="L1980" href="#L1980">1980</a> <em class="jxr_javadoccomment">   * @param lenient</em>
+<a class="jxr_linenumber" name="L1981" href="#L1981">1981</a> <em class="jxr_javadoccomment">   * @return the string</em>
+<a class="jxr_linenumber" name="L1982" href="#L1982">1982</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L1983" href="#L1983">1983</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L1984" href="#L1984">1984</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String substituteExpressionLanguage(String stringToParse, Map&lt;String, Object&gt; variableMap, <strong class="jxr_keyword">boolean</strong> lenient) {
+<a class="jxr_linenumber" name="L1985" href="#L1985">1985</a>     <strong class="jxr_keyword">if</strong> (isBlank(stringToParse)) {
+<a class="jxr_linenumber" name="L1986" href="#L1986">1986</a>       <strong class="jxr_keyword">return</strong> stringToParse;
+<a class="jxr_linenumber" name="L1987" href="#L1987">1987</a>     }
+<a class="jxr_linenumber" name="L1988" href="#L1988">1988</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L1989" href="#L1989">1989</a>       JexlContext jc = <strong class="jxr_keyword">new</strong> MapContext();
+<a class="jxr_linenumber" name="L1990" href="#L1990">1990</a> 
+<a class="jxr_linenumber" name="L1991" href="#L1991">1991</a>       <strong class="jxr_keyword">int</strong> index = 0;
+<a class="jxr_linenumber" name="L1992" href="#L1992">1992</a>       
+<a class="jxr_linenumber" name="L1993" href="#L1993">1993</a>       <strong class="jxr_keyword">for</strong> (String key: variableMap.keySet()) {
+<a class="jxr_linenumber" name="L1994" href="#L1994">1994</a>         jc.set(key, variableMap.get(key));
+<a class="jxr_linenumber" name="L1995" href="#L1995">1995</a>       }
+<a class="jxr_linenumber" name="L1996" href="#L1996">1996</a>       
+<a class="jxr_linenumber" name="L1997" href="#L1997">1997</a>       <em class="jxr_comment">//allow utility methods</em>
+<a class="jxr_linenumber" name="L1998" href="#L1998">1998</a>       jc.set(<span class="jxr_string">"subjectUtils"</span>, <strong class="jxr_keyword">new</strong> <a href="../../../../edu/internet2/middleware/subject/SubjectUtils.html">SubjectUtils</a>());
+<a class="jxr_linenumber" name="L1999" href="#L1999">1999</a>       
+<a class="jxr_linenumber" name="L2000" href="#L2000">2000</a>       <em class="jxr_comment">// matching ${ exp }   (non-greedy)</em>
+<a class="jxr_linenumber" name="L2001" href="#L2001">2001</a>       Pattern pattern = Pattern.compile(<span class="jxr_string">"&#92;&#92;$&#92;&#92;{(.*?)&#92;&#92;}"</span>);
+<a class="jxr_linenumber" name="L2002" href="#L2002">2002</a>       Matcher matcher = pattern.matcher(stringToParse);
+<a class="jxr_linenumber" name="L2003" href="#L2003">2003</a>       
+<a class="jxr_linenumber" name="L2004" href="#L2004">2004</a>       StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L2005" href="#L2005">2005</a>   
+<a class="jxr_linenumber" name="L2006" href="#L2006">2006</a>       
+<a class="jxr_linenumber" name="L2007" href="#L2007">2007</a>       <em class="jxr_comment">//loop through and find each script</em>
+<a class="jxr_linenumber" name="L2008" href="#L2008">2008</a>       <strong class="jxr_keyword">while</strong>(matcher.find()) {
+<a class="jxr_linenumber" name="L2009" href="#L2009">2009</a>         result.append(stringToParse.substring(index, matcher.start()));
 <a class="jxr_linenumber" name="L2010" href="#L2010">2010</a>         
-<a class="jxr_linenumber" name="L2011" href="#L2011">2011</a>         index = matcher.end();
-<a class="jxr_linenumber" name="L2012" href="#L2012">2012</a>       }
-<a class="jxr_linenumber" name="L2013" href="#L2013">2013</a>       
-<a class="jxr_linenumber" name="L2014" href="#L2014">2014</a>       result.append(stringToParse.substring(index, stringToParse.length()));
-<a class="jxr_linenumber" name="L2015" href="#L2015">2015</a>       <strong class="jxr_keyword">return</strong> result.toString();
-<a class="jxr_linenumber" name="L2016" href="#L2016">2016</a>       
-<a class="jxr_linenumber" name="L2017" href="#L2017">2017</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L2018" href="#L2018">2018</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Error substituting string: '"</span> + stringToParse + <span class="jxr_string">"'"</span>, e);
-<a class="jxr_linenumber" name="L2019" href="#L2019">2019</a>     }
-<a class="jxr_linenumber" name="L2020" href="#L2020">2020</a>   }
-<a class="jxr_linenumber" name="L2021" href="#L2021">2021</a> 
-<a class="jxr_linenumber" name="L2022" href="#L2022">2022</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2023" href="#L2023">2023</a> <em class="jxr_javadoccomment">   * If false, throw an assertException, and give a reason</em>
-<a class="jxr_linenumber" name="L2024" href="#L2024">2024</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L2025" href="#L2025">2025</a> <em class="jxr_javadoccomment">   * @param isTrue</em>
-<a class="jxr_linenumber" name="L2026" href="#L2026">2026</a> <em class="jxr_javadoccomment">   * @param reason</em>
-<a class="jxr_linenumber" name="L2027" href="#L2027">2027</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2028" href="#L2028">2028</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertion(<strong class="jxr_keyword">boolean</strong> isTrue, String reason) {
-<a class="jxr_linenumber" name="L2029" href="#L2029">2029</a>     <strong class="jxr_keyword">if</strong> (!isTrue) {
-<a class="jxr_linenumber" name="L2030" href="#L2030">2030</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(reason);
-<a class="jxr_linenumber" name="L2031" href="#L2031">2031</a>     }
-<a class="jxr_linenumber" name="L2032" href="#L2032">2032</a> 
-<a class="jxr_linenumber" name="L2033" href="#L2033">2033</a>   }
-<a class="jxr_linenumber" name="L2034" href="#L2034">2034</a> 
-<a class="jxr_linenumber" name="L2035" href="#L2035">2035</a>   <em class="jxr_comment">// Splitting</em>
-<a class="jxr_linenumber" name="L2036" href="#L2036">2036</a>   <em class="jxr_comment">//-----------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L2037" href="#L2037">2037</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2038" href="#L2038">2038</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array, using whitespace as the</em>
-<a class="jxr_linenumber" name="L2039" href="#L2039">2039</a> <em class="jxr_javadoccomment">   * separator.</em>
-<a class="jxr_linenumber" name="L2040" href="#L2040">2040</a> <em class="jxr_javadoccomment">   * Whitespace is defined by {@link Character#isWhitespace(char)}.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2041" href="#L2041">2041</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2042" href="#L2042">2042</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
-<a class="jxr_linenumber" name="L2043" href="#L2043">2043</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.</em>
-<a class="jxr_linenumber" name="L2044" href="#L2044">2044</a> <em class="jxr_javadoccomment">   * For more control over the split use the StrTokenizer class.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2045" href="#L2045">2045</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2046" href="#L2046">2046</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2047" href="#L2047">2047</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2048" href="#L2048">2048</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
-<a class="jxr_linenumber" name="L2049" href="#L2049">2049</a> <em class="jxr_javadoccomment">   * StringUtils.split(null)       = null</em>
-<a class="jxr_linenumber" name="L2050" href="#L2050">2050</a> <em class="jxr_javadoccomment">   * StringUtils.split("")         = []</em>
-<a class="jxr_linenumber" name="L2051" href="#L2051">2051</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc def")  = ["abc", "def"]</em>
-<a class="jxr_linenumber" name="L2052" href="#L2052">2052</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc  def") = ["abc", "def"]</em>
-<a class="jxr_linenumber" name="L2053" href="#L2053">2053</a> <em class="jxr_javadoccomment">   * StringUtils.split(" abc ")    = ["abc"]</em>
-<a class="jxr_linenumber" name="L2054" href="#L2054">2054</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
-<a class="jxr_linenumber" name="L2055" href="#L2055">2055</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2056" href="#L2056">2056</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
-<a class="jxr_linenumber" name="L2057" href="#L2057">2057</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
-<a class="jxr_linenumber" name="L2058" href="#L2058">2058</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2059" href="#L2059">2059</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str) {
-<a class="jxr_linenumber" name="L2060" href="#L2060">2060</a>     <strong class="jxr_keyword">return</strong> split(str, <strong class="jxr_keyword">null</strong>, -1);
-<a class="jxr_linenumber" name="L2061" href="#L2061">2061</a>   }
-<a class="jxr_linenumber" name="L2062" href="#L2062">2062</a> 
-<a class="jxr_linenumber" name="L2063" href="#L2063">2063</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2064" href="#L2064">2064</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array, separator specified.</em>
-<a class="jxr_linenumber" name="L2065" href="#L2065">2065</a> <em class="jxr_javadoccomment">   * This is an alternative to using StringTokenizer.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2066" href="#L2066">2066</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2067" href="#L2067">2067</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
-<a class="jxr_linenumber" name="L2068" href="#L2068">2068</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.</em>
-<a class="jxr_linenumber" name="L2069" href="#L2069">2069</a> <em class="jxr_javadoccomment">   * For more control over the split use the StrTokenizer class.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2070" href="#L2070">2070</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2071" href="#L2071">2071</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2072" href="#L2072">2072</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2073" href="#L2073">2073</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
-<a class="jxr_linenumber" name="L2074" href="#L2074">2074</a> <em class="jxr_javadoccomment">   * StringUtils.split(null, *)         = null</em>
-<a class="jxr_linenumber" name="L2075" href="#L2075">2075</a> <em class="jxr_javadoccomment">   * StringUtils.split("", *)           = []</em>
-<a class="jxr_linenumber" name="L2076" href="#L2076">2076</a> <em class="jxr_javadoccomment">   * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]</em>
-<a class="jxr_linenumber" name="L2077" href="#L2077">2077</a> <em class="jxr_javadoccomment">   * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]</em>
-<a class="jxr_linenumber" name="L2078" href="#L2078">2078</a> <em class="jxr_javadoccomment">   * StringUtils.split("a:b:c", '.')    = ["a:b:c"]</em>
-<a class="jxr_linenumber" name="L2079" href="#L2079">2079</a> <em class="jxr_javadoccomment">   * StringUtils.split("a\tb\nc", null) = ["a", "b", "c"]</em>
-<a class="jxr_linenumber" name="L2080" href="#L2080">2080</a> <em class="jxr_javadoccomment">   * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]</em>
-<a class="jxr_linenumber" name="L2081" href="#L2081">2081</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
-<a class="jxr_linenumber" name="L2082" href="#L2082">2082</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2083" href="#L2083">2083</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
-<a class="jxr_linenumber" name="L2084" href="#L2084">2084</a> <em class="jxr_javadoccomment">   * @param separatorChar  the character used as the delimiter,</em>
-<a class="jxr_linenumber" name="L2085" href="#L2085">2085</a> <em class="jxr_javadoccomment">   *  &lt;code&gt;null&lt;/code&gt; splits on whitespace</em>
-<a class="jxr_linenumber" name="L2086" href="#L2086">2086</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
-<a class="jxr_linenumber" name="L2087" href="#L2087">2087</a> <em class="jxr_javadoccomment">   * @since 2.0</em>
-<a class="jxr_linenumber" name="L2088" href="#L2088">2088</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2089" href="#L2089">2089</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str, <strong class="jxr_keyword">char</strong> separatorChar) {
-<a class="jxr_linenumber" name="L2090" href="#L2090">2090</a>     <strong class="jxr_keyword">return</strong> splitWorker(str, separatorChar, false);
-<a class="jxr_linenumber" name="L2091" href="#L2091">2091</a>   }
-<a class="jxr_linenumber" name="L2092" href="#L2092">2092</a> 
-<a class="jxr_linenumber" name="L2093" href="#L2093">2093</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2094" href="#L2094">2094</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array, separators specified.</em>
-<a class="jxr_linenumber" name="L2095" href="#L2095">2095</a> <em class="jxr_javadoccomment">   * This is an alternative to using StringTokenizer.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2096" href="#L2096">2096</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2097" href="#L2097">2097</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
-<a class="jxr_linenumber" name="L2098" href="#L2098">2098</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.</em>
-<a class="jxr_linenumber" name="L2099" href="#L2099">2099</a> <em class="jxr_javadoccomment">   * For more control over the split use the StrTokenizer class.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2100" href="#L2100">2100</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2101" href="#L2101">2101</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.</em>
-<a class="jxr_linenumber" name="L2102" href="#L2102">2102</a> <em class="jxr_javadoccomment">   * A &lt;code&gt;null&lt;/code&gt; separatorChars splits on whitespace.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2103" href="#L2103">2103</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2104" href="#L2104">2104</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
-<a class="jxr_linenumber" name="L2105" href="#L2105">2105</a> <em class="jxr_javadoccomment">   * StringUtils.split(null, *)         = null</em>
-<a class="jxr_linenumber" name="L2106" href="#L2106">2106</a> <em class="jxr_javadoccomment">   * StringUtils.split("", *)           = []</em>
-<a class="jxr_linenumber" name="L2107" href="#L2107">2107</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc def", null) = ["abc", "def"]</em>
-<a class="jxr_linenumber" name="L2108" href="#L2108">2108</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc def", " ")  = ["abc", "def"]</em>
-<a class="jxr_linenumber" name="L2109" href="#L2109">2109</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc  def", " ") = ["abc", "def"]</em>
-<a class="jxr_linenumber" name="L2110" href="#L2110">2110</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab:cd:ef", ":") = ["ab", "cd", "ef"]</em>
-<a class="jxr_linenumber" name="L2111" href="#L2111">2111</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
-<a class="jxr_linenumber" name="L2112" href="#L2112">2112</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2113" href="#L2113">2113</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
-<a class="jxr_linenumber" name="L2114" href="#L2114">2114</a> <em class="jxr_javadoccomment">   * @param separatorChars  the characters used as the delimiters,</em>
-<a class="jxr_linenumber" name="L2115" href="#L2115">2115</a> <em class="jxr_javadoccomment">   *  &lt;code&gt;null&lt;/code&gt; splits on whitespace</em>
-<a class="jxr_linenumber" name="L2116" href="#L2116">2116</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
-<a class="jxr_linenumber" name="L2117" href="#L2117">2117</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2118" href="#L2118">2118</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str, String separatorChars) {
-<a class="jxr_linenumber" name="L2119" href="#L2119">2119</a>     <strong class="jxr_keyword">return</strong> splitWorker(str, separatorChars, -1, false);
-<a class="jxr_linenumber" name="L2120" href="#L2120">2120</a>   }
-<a class="jxr_linenumber" name="L2121" href="#L2121">2121</a> 
-<a class="jxr_linenumber" name="L2122" href="#L2122">2122</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2123" href="#L2123">2123</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array with a maximum length,</em>
-<a class="jxr_linenumber" name="L2124" href="#L2124">2124</a> <em class="jxr_javadoccomment">   * separators specified.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2125" href="#L2125">2125</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2126" href="#L2126">2126</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
-<a class="jxr_linenumber" name="L2127" href="#L2127">2127</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2128" href="#L2128">2128</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2129" href="#L2129">2129</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.</em>
-<a class="jxr_linenumber" name="L2130" href="#L2130">2130</a> <em class="jxr_javadoccomment">   * A &lt;code&gt;null&lt;/code&gt; separatorChars splits on whitespace.&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2131" href="#L2131">2131</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2132" href="#L2132">2132</a> <em class="jxr_javadoccomment">   * &lt;p&gt;If more than &lt;code&gt;max&lt;/code&gt; delimited substrings are found, the last</em>
-<a class="jxr_linenumber" name="L2133" href="#L2133">2133</a> <em class="jxr_javadoccomment">   * returned string includes all characters after the first &lt;code&gt;max - 1&lt;/code&gt;</em>
-<a class="jxr_linenumber" name="L2134" href="#L2134">2134</a> <em class="jxr_javadoccomment">   * returned strings (including separator characters).&lt;/p&gt;</em>
-<a class="jxr_linenumber" name="L2135" href="#L2135">2135</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2136" href="#L2136">2136</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
-<a class="jxr_linenumber" name="L2137" href="#L2137">2137</a> <em class="jxr_javadoccomment">   * StringUtils.split(null, *, *)            = null</em>
-<a class="jxr_linenumber" name="L2138" href="#L2138">2138</a> <em class="jxr_javadoccomment">   * StringUtils.split("", *, *)              = []</em>
-<a class="jxr_linenumber" name="L2139" href="#L2139">2139</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab de fg", null, 0)   = ["ab", "cd", "ef"]</em>
-<a class="jxr_linenumber" name="L2140" href="#L2140">2140</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab   de fg", null, 0) = ["ab", "cd", "ef"]</em>
-<a class="jxr_linenumber" name="L2141" href="#L2141">2141</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab:cd:ef", ":", 0)    = ["ab", "cd", "ef"]</em>
-<a class="jxr_linenumber" name="L2142" href="#L2142">2142</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]</em>
-<a class="jxr_linenumber" name="L2143" href="#L2143">2143</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
-<a class="jxr_linenumber" name="L2144" href="#L2144">2144</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2145" href="#L2145">2145</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
-<a class="jxr_linenumber" name="L2146" href="#L2146">2146</a> <em class="jxr_javadoccomment">   * @param separatorChars  the characters used as the delimiters,</em>
-<a class="jxr_linenumber" name="L2147" href="#L2147">2147</a> <em class="jxr_javadoccomment">   *  &lt;code&gt;null&lt;/code&gt; splits on whitespace</em>
-<a class="jxr_linenumber" name="L2148" href="#L2148">2148</a> <em class="jxr_javadoccomment">   * @param max  the maximum number of elements to include in the</em>
-<a class="jxr_linenumber" name="L2149" href="#L2149">2149</a> <em class="jxr_javadoccomment">   *  array. A zero or negative value implies no limit</em>
-<a class="jxr_linenumber" name="L2150" href="#L2150">2150</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
-<a class="jxr_linenumber" name="L2151" href="#L2151">2151</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2152" href="#L2152">2152</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str, String separatorChars, <strong class="jxr_keyword">int</strong> max) {
-<a class="jxr_linenumber" name="L2153" href="#L2153">2153</a>     <strong class="jxr_keyword">return</strong> splitWorker(str, separatorChars, max, false);
-<a class="jxr_linenumber" name="L2154" href="#L2154">2154</a>   }
-<a class="jxr_linenumber" name="L2155" href="#L2155">2155</a> 
-<a class="jxr_linenumber" name="L2156" href="#L2156">2156</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2157" href="#L2157">2157</a> <em class="jxr_javadoccomment">   * An empty immutable &lt;code&gt;String&lt;/code&gt; array.</em>
-<a class="jxr_linenumber" name="L2158" href="#L2158">2158</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2159" href="#L2159">2159</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] EMPTY_STRING_ARRAY = <strong class="jxr_keyword">new</strong> String[0];
-<a class="jxr_linenumber" name="L2160" href="#L2160">2160</a> 
-<a class="jxr_linenumber" name="L2161" href="#L2161">2161</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2162" href="#L2162">2162</a> <em class="jxr_javadoccomment">   * Performs the logic for the &lt;code&gt;split&lt;/code&gt; and </em>
-<a class="jxr_linenumber" name="L2163" href="#L2163">2163</a> <em class="jxr_javadoccomment">   * &lt;code&gt;splitPreserveAllTokens&lt;/code&gt; methods that do not return a</em>
-<a class="jxr_linenumber" name="L2164" href="#L2164">2164</a> <em class="jxr_javadoccomment">   * maximum array length.</em>
-<a class="jxr_linenumber" name="L2165" href="#L2165">2165</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2166" href="#L2166">2166</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be &lt;code&gt;null&lt;/code&gt;</em>
-<a class="jxr_linenumber" name="L2167" href="#L2167">2167</a> <em class="jxr_javadoccomment">   * @param separatorChar the separate character</em>
-<a class="jxr_linenumber" name="L2168" href="#L2168">2168</a> <em class="jxr_javadoccomment">   * @param preserveAllTokens if &lt;code&gt;true&lt;/code&gt;, adjacent separators are</em>
-<a class="jxr_linenumber" name="L2169" href="#L2169">2169</a> <em class="jxr_javadoccomment">   * treated as empty token separators; if &lt;code&gt;false&lt;/code&gt;, adjacent</em>
-<a class="jxr_linenumber" name="L2170" href="#L2170">2170</a> <em class="jxr_javadoccomment">   * separators are treated as one separator.</em>
-<a class="jxr_linenumber" name="L2171" href="#L2171">2171</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
-<a class="jxr_linenumber" name="L2172" href="#L2172">2172</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2173" href="#L2173">2173</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String[] splitWorker(String str, <strong class="jxr_keyword">char</strong> separatorChar,
-<a class="jxr_linenumber" name="L2174" href="#L2174">2174</a>       <strong class="jxr_keyword">boolean</strong> preserveAllTokens) {
-<a class="jxr_linenumber" name="L2175" href="#L2175">2175</a>     <em class="jxr_comment">// Performance tuned for 2.0 (JDK1.4)</em>
-<a class="jxr_linenumber" name="L2176" href="#L2176">2176</a>   
-<a class="jxr_linenumber" name="L2177" href="#L2177">2177</a>     <strong class="jxr_keyword">if</strong> (str == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2178" href="#L2178">2178</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2179" href="#L2179">2179</a>     }
-<a class="jxr_linenumber" name="L2180" href="#L2180">2180</a>     <strong class="jxr_keyword">int</strong> len = str.length();
-<a class="jxr_linenumber" name="L2181" href="#L2181">2181</a>     <strong class="jxr_keyword">if</strong> (len == 0) {
-<a class="jxr_linenumber" name="L2182" href="#L2182">2182</a>       <strong class="jxr_keyword">return</strong> EMPTY_STRING_ARRAY;
-<a class="jxr_linenumber" name="L2183" href="#L2183">2183</a>     }
-<a class="jxr_linenumber" name="L2184" href="#L2184">2184</a>     List list = <strong class="jxr_keyword">new</strong> ArrayList();
-<a class="jxr_linenumber" name="L2185" href="#L2185">2185</a>     <strong class="jxr_keyword">int</strong> i = 0, start = 0;
-<a class="jxr_linenumber" name="L2186" href="#L2186">2186</a>     <strong class="jxr_keyword">boolean</strong> match = false;
-<a class="jxr_linenumber" name="L2187" href="#L2187">2187</a>     <strong class="jxr_keyword">boolean</strong> lastMatch = false;
-<a class="jxr_linenumber" name="L2188" href="#L2188">2188</a>     <strong class="jxr_keyword">while</strong> (i &lt; len) {
-<a class="jxr_linenumber" name="L2189" href="#L2189">2189</a>       <strong class="jxr_keyword">if</strong> (str.charAt(i) == separatorChar) {
-<a class="jxr_linenumber" name="L2190" href="#L2190">2190</a>         <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
-<a class="jxr_linenumber" name="L2191" href="#L2191">2191</a>           list.add(str.substring(start, i));
-<a class="jxr_linenumber" name="L2192" href="#L2192">2192</a>           match = false;
-<a class="jxr_linenumber" name="L2193" href="#L2193">2193</a>           lastMatch = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2194" href="#L2194">2194</a>         }
-<a class="jxr_linenumber" name="L2195" href="#L2195">2195</a>         start = ++i;
-<a class="jxr_linenumber" name="L2196" href="#L2196">2196</a>         <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L2197" href="#L2197">2197</a>       }
-<a class="jxr_linenumber" name="L2198" href="#L2198">2198</a>       lastMatch = false;
-<a class="jxr_linenumber" name="L2199" href="#L2199">2199</a>       match = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2200" href="#L2200">2200</a>       i++;
-<a class="jxr_linenumber" name="L2201" href="#L2201">2201</a>     }
-<a class="jxr_linenumber" name="L2202" href="#L2202">2202</a>     <strong class="jxr_keyword">if</strong> (match || (preserveAllTokens &amp;&amp; lastMatch)) {
-<a class="jxr_linenumber" name="L2203" href="#L2203">2203</a>       list.add(str.substring(start, i));
-<a class="jxr_linenumber" name="L2204" href="#L2204">2204</a>     }
-<a class="jxr_linenumber" name="L2205" href="#L2205">2205</a>     <strong class="jxr_keyword">return</strong> (String[]) list.toArray(<strong class="jxr_keyword">new</strong> String[list.size()]);
-<a class="jxr_linenumber" name="L2206" href="#L2206">2206</a>   }
-<a class="jxr_linenumber" name="L2207" href="#L2207">2207</a> 
-<a class="jxr_linenumber" name="L2208" href="#L2208">2208</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2209" href="#L2209">2209</a> <em class="jxr_javadoccomment">   * Performs the logic for the &lt;code&gt;split&lt;/code&gt; and </em>
-<a class="jxr_linenumber" name="L2210" href="#L2210">2210</a> <em class="jxr_javadoccomment">   * &lt;code&gt;splitPreserveAllTokens&lt;/code&gt; methods that return a maximum array </em>
-<a class="jxr_linenumber" name="L2211" href="#L2211">2211</a> <em class="jxr_javadoccomment">   * length.</em>
-<a class="jxr_linenumber" name="L2212" href="#L2212">2212</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L2213" href="#L2213">2213</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be &lt;code&gt;null&lt;/code&gt;</em>
-<a class="jxr_linenumber" name="L2214" href="#L2214">2214</a> <em class="jxr_javadoccomment">   * @param separatorChars the separate character</em>
-<a class="jxr_linenumber" name="L2215" href="#L2215">2215</a> <em class="jxr_javadoccomment">   * @param max  the maximum number of elements to include in the</em>
-<a class="jxr_linenumber" name="L2216" href="#L2216">2216</a> <em class="jxr_javadoccomment">   *  array. A zero or negative value implies no limit.</em>
-<a class="jxr_linenumber" name="L2217" href="#L2217">2217</a> <em class="jxr_javadoccomment">   * @param preserveAllTokens if &lt;code&gt;true&lt;/code&gt;, adjacent separators are</em>
-<a class="jxr_linenumber" name="L2218" href="#L2218">2218</a> <em class="jxr_javadoccomment">   * treated as empty token separators; if &lt;code&gt;false&lt;/code&gt;, adjacent</em>
-<a class="jxr_linenumber" name="L2219" href="#L2219">2219</a> <em class="jxr_javadoccomment">   * separators are treated as one separator.</em>
-<a class="jxr_linenumber" name="L2220" href="#L2220">2220</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
-<a class="jxr_linenumber" name="L2221" href="#L2221">2221</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2222" href="#L2222">2222</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String[] splitWorker(String str, String separatorChars, <strong class="jxr_keyword">int</strong> max,
-<a class="jxr_linenumber" name="L2223" href="#L2223">2223</a>       <strong class="jxr_keyword">boolean</strong> preserveAllTokens) {
-<a class="jxr_linenumber" name="L2224" href="#L2224">2224</a>     <em class="jxr_comment">// Performance tuned for 2.0 (JDK1.4)</em>
-<a class="jxr_linenumber" name="L2225" href="#L2225">2225</a>     <em class="jxr_comment">// Direct code is quicker than StringTokenizer.</em>
-<a class="jxr_linenumber" name="L2226" href="#L2226">2226</a>     <em class="jxr_comment">// Also, StringTokenizer uses isSpace() not isWhitespace()</em>
-<a class="jxr_linenumber" name="L2227" href="#L2227">2227</a>   
-<a class="jxr_linenumber" name="L2228" href="#L2228">2228</a>     <strong class="jxr_keyword">if</strong> (str == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2229" href="#L2229">2229</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2230" href="#L2230">2230</a>     }
-<a class="jxr_linenumber" name="L2231" href="#L2231">2231</a>     <strong class="jxr_keyword">int</strong> len = str.length();
-<a class="jxr_linenumber" name="L2232" href="#L2232">2232</a>     <strong class="jxr_keyword">if</strong> (len == 0) {
-<a class="jxr_linenumber" name="L2233" href="#L2233">2233</a>       <strong class="jxr_keyword">return</strong> EMPTY_STRING_ARRAY;
-<a class="jxr_linenumber" name="L2234" href="#L2234">2234</a>     }
-<a class="jxr_linenumber" name="L2235" href="#L2235">2235</a>     List list = <strong class="jxr_keyword">new</strong> ArrayList();
-<a class="jxr_linenumber" name="L2236" href="#L2236">2236</a>     <strong class="jxr_keyword">int</strong> sizePlus1 = 1;
-<a class="jxr_linenumber" name="L2237" href="#L2237">2237</a>     <strong class="jxr_keyword">int</strong> i = 0, start = 0;
-<a class="jxr_linenumber" name="L2238" href="#L2238">2238</a>     <strong class="jxr_keyword">boolean</strong> match = false;
-<a class="jxr_linenumber" name="L2239" href="#L2239">2239</a>     <strong class="jxr_keyword">boolean</strong> lastMatch = false;
-<a class="jxr_linenumber" name="L2240" href="#L2240">2240</a>     <strong class="jxr_keyword">if</strong> (separatorChars == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2241" href="#L2241">2241</a>       <em class="jxr_comment">// Null separator means use whitespace</em>
-<a class="jxr_linenumber" name="L2242" href="#L2242">2242</a>       <strong class="jxr_keyword">while</strong> (i &lt; len) {
-<a class="jxr_linenumber" name="L2243" href="#L2243">2243</a>         <strong class="jxr_keyword">if</strong> (Character.isWhitespace(str.charAt(i))) {
-<a class="jxr_linenumber" name="L2244" href="#L2244">2244</a>           <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
-<a class="jxr_linenumber" name="L2245" href="#L2245">2245</a>             lastMatch = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2246" href="#L2246">2246</a>             <strong class="jxr_keyword">if</strong> (sizePlus1++ == max) {
-<a class="jxr_linenumber" name="L2247" href="#L2247">2247</a>               i = len;
-<a class="jxr_linenumber" name="L2248" href="#L2248">2248</a>               lastMatch = false;
-<a class="jxr_linenumber" name="L2249" href="#L2249">2249</a>             }
-<a class="jxr_linenumber" name="L2250" href="#L2250">2250</a>             list.add(str.substring(start, i));
-<a class="jxr_linenumber" name="L2251" href="#L2251">2251</a>             match = false;
-<a class="jxr_linenumber" name="L2252" href="#L2252">2252</a>           }
-<a class="jxr_linenumber" name="L2253" href="#L2253">2253</a>           start = ++i;
-<a class="jxr_linenumber" name="L2254" href="#L2254">2254</a>           <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L2255" href="#L2255">2255</a>         }
-<a class="jxr_linenumber" name="L2256" href="#L2256">2256</a>         lastMatch = false;
-<a class="jxr_linenumber" name="L2257" href="#L2257">2257</a>         match = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2258" href="#L2258">2258</a>         i++;
-<a class="jxr_linenumber" name="L2259" href="#L2259">2259</a>       }
-<a class="jxr_linenumber" name="L2260" href="#L2260">2260</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (separatorChars.length() == 1) {
-<a class="jxr_linenumber" name="L2261" href="#L2261">2261</a>       <em class="jxr_comment">// Optimise 1 character case</em>
-<a class="jxr_linenumber" name="L2262" href="#L2262">2262</a>       <strong class="jxr_keyword">char</strong> sep = separatorChars.charAt(0);
-<a class="jxr_linenumber" name="L2263" href="#L2263">2263</a>       <strong class="jxr_keyword">while</strong> (i &lt; len) {
-<a class="jxr_linenumber" name="L2264" href="#L2264">2264</a>         <strong class="jxr_keyword">if</strong> (str.charAt(i) == sep) {
-<a class="jxr_linenumber" name="L2265" href="#L2265">2265</a>           <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
-<a class="jxr_linenumber" name="L2266" href="#L2266">2266</a>             lastMatch = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2267" href="#L2267">2267</a>             <strong class="jxr_keyword">if</strong> (sizePlus1++ == max) {
-<a class="jxr_linenumber" name="L2268" href="#L2268">2268</a>               i = len;
-<a class="jxr_linenumber" name="L2269" href="#L2269">2269</a>               lastMatch = false;
-<a class="jxr_linenumber" name="L2270" href="#L2270">2270</a>             }
-<a class="jxr_linenumber" name="L2271" href="#L2271">2271</a>             list.add(str.substring(start, i));
-<a class="jxr_linenumber" name="L2272" href="#L2272">2272</a>             match = false;
-<a class="jxr_linenumber" name="L2273" href="#L2273">2273</a>           }
-<a class="jxr_linenumber" name="L2274" href="#L2274">2274</a>           start = ++i;
-<a class="jxr_linenumber" name="L2275" href="#L2275">2275</a>           <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L2276" href="#L2276">2276</a>         }
-<a class="jxr_linenumber" name="L2277" href="#L2277">2277</a>         lastMatch = false;
-<a class="jxr_linenumber" name="L2278" href="#L2278">2278</a>         match = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2279" href="#L2279">2279</a>         i++;
-<a class="jxr_linenumber" name="L2280" href="#L2280">2280</a>       }
-<a class="jxr_linenumber" name="L2281" href="#L2281">2281</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L2282" href="#L2282">2282</a>       <em class="jxr_comment">// standard case</em>
+<a class="jxr_linenumber" name="L2011" href="#L2011">2011</a>         <em class="jxr_comment">//here is the script inside the curlies</em>
+<a class="jxr_linenumber" name="L2012" href="#L2012">2012</a>         String script = matcher.group(1);
+<a class="jxr_linenumber" name="L2013" href="#L2013">2013</a>         
+<a class="jxr_linenumber" name="L2014" href="#L2014">2014</a>         Expression e = jexlEngine.createExpression(script);
+<a class="jxr_linenumber" name="L2015" href="#L2015">2015</a>   
+<a class="jxr_linenumber" name="L2016" href="#L2016">2016</a>         <em class="jxr_comment">//this is the result of the evaluation</em>
+<a class="jxr_linenumber" name="L2017" href="#L2017">2017</a>         Object o = e.evaluate(jc);
+<a class="jxr_linenumber" name="L2018" href="#L2018">2018</a>   
+<a class="jxr_linenumber" name="L2019" href="#L2019">2019</a>         <em class="jxr_comment">//we dont want "null" in the result I think...</em>
+<a class="jxr_linenumber" name="L2020" href="#L2020">2020</a>         <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong> &amp;&amp; lenient) {
+<a class="jxr_linenumber" name="L2021" href="#L2021">2021</a>           o = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L2022" href="#L2022">2022</a>         }
+<a class="jxr_linenumber" name="L2023" href="#L2023">2023</a> 
+<a class="jxr_linenumber" name="L2024" href="#L2024">2024</a>         <strong class="jxr_keyword">if</strong> (o == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2025" href="#L2025">2025</a>           log.warn(<span class="jxr_string">"expression returned null: "</span> + script + <span class="jxr_string">", in pattern: '"</span> + stringToParse + <span class="jxr_string">"', available variables are: "</span>
+<a class="jxr_linenumber" name="L2026" href="#L2026">2026</a>               + toStringForLog(variableMap.keySet()));
+<a class="jxr_linenumber" name="L2027" href="#L2027">2027</a>         }
+<a class="jxr_linenumber" name="L2028" href="#L2028">2028</a>         
+<a class="jxr_linenumber" name="L2029" href="#L2029">2029</a>         result.append(o);
+<a class="jxr_linenumber" name="L2030" href="#L2030">2030</a>         
+<a class="jxr_linenumber" name="L2031" href="#L2031">2031</a>         index = matcher.end();
+<a class="jxr_linenumber" name="L2032" href="#L2032">2032</a>       }
+<a class="jxr_linenumber" name="L2033" href="#L2033">2033</a>       
+<a class="jxr_linenumber" name="L2034" href="#L2034">2034</a>       result.append(stringToParse.substring(index, stringToParse.length()));
+<a class="jxr_linenumber" name="L2035" href="#L2035">2035</a>       <strong class="jxr_keyword">return</strong> result.toString();
+<a class="jxr_linenumber" name="L2036" href="#L2036">2036</a>       
+<a class="jxr_linenumber" name="L2037" href="#L2037">2037</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L2038" href="#L2038">2038</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Error substituting string: '"</span> + stringToParse + <span class="jxr_string">"'"</span>, e);
+<a class="jxr_linenumber" name="L2039" href="#L2039">2039</a>     }
+<a class="jxr_linenumber" name="L2040" href="#L2040">2040</a>   }
+<a class="jxr_linenumber" name="L2041" href="#L2041">2041</a> 
+<a class="jxr_linenumber" name="L2042" href="#L2042">2042</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2043" href="#L2043">2043</a> <em class="jxr_javadoccomment">   * If false, throw an assertException, and give a reason</em>
+<a class="jxr_linenumber" name="L2044" href="#L2044">2044</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L2045" href="#L2045">2045</a> <em class="jxr_javadoccomment">   * @param isTrue</em>
+<a class="jxr_linenumber" name="L2046" href="#L2046">2046</a> <em class="jxr_javadoccomment">   * @param reason</em>
+<a class="jxr_linenumber" name="L2047" href="#L2047">2047</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2048" href="#L2048">2048</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertion(<strong class="jxr_keyword">boolean</strong> isTrue, String reason) {
+<a class="jxr_linenumber" name="L2049" href="#L2049">2049</a>     <strong class="jxr_keyword">if</strong> (!isTrue) {
+<a class="jxr_linenumber" name="L2050" href="#L2050">2050</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(reason);
+<a class="jxr_linenumber" name="L2051" href="#L2051">2051</a>     }
+<a class="jxr_linenumber" name="L2052" href="#L2052">2052</a> 
+<a class="jxr_linenumber" name="L2053" href="#L2053">2053</a>   }
+<a class="jxr_linenumber" name="L2054" href="#L2054">2054</a> 
+<a class="jxr_linenumber" name="L2055" href="#L2055">2055</a>   <em class="jxr_comment">// Splitting</em>
+<a class="jxr_linenumber" name="L2056" href="#L2056">2056</a>   <em class="jxr_comment">//-----------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L2057" href="#L2057">2057</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2058" href="#L2058">2058</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array, using whitespace as the</em>
+<a class="jxr_linenumber" name="L2059" href="#L2059">2059</a> <em class="jxr_javadoccomment">   * separator.</em>
+<a class="jxr_linenumber" name="L2060" href="#L2060">2060</a> <em class="jxr_javadoccomment">   * Whitespace is defined by {@link Character#isWhitespace(char)}.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2061" href="#L2061">2061</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2062" href="#L2062">2062</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
+<a class="jxr_linenumber" name="L2063" href="#L2063">2063</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.</em>
+<a class="jxr_linenumber" name="L2064" href="#L2064">2064</a> <em class="jxr_javadoccomment">   * For more control over the split use the StrTokenizer class.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2065" href="#L2065">2065</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2066" href="#L2066">2066</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2067" href="#L2067">2067</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2068" href="#L2068">2068</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L2069" href="#L2069">2069</a> <em class="jxr_javadoccomment">   * StringUtils.split(null)       = null</em>
+<a class="jxr_linenumber" name="L2070" href="#L2070">2070</a> <em class="jxr_javadoccomment">   * StringUtils.split("")         = []</em>
+<a class="jxr_linenumber" name="L2071" href="#L2071">2071</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc def")  = ["abc", "def"]</em>
+<a class="jxr_linenumber" name="L2072" href="#L2072">2072</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc  def") = ["abc", "def"]</em>
+<a class="jxr_linenumber" name="L2073" href="#L2073">2073</a> <em class="jxr_javadoccomment">   * StringUtils.split(" abc ")    = ["abc"]</em>
+<a class="jxr_linenumber" name="L2074" href="#L2074">2074</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L2075" href="#L2075">2075</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2076" href="#L2076">2076</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
+<a class="jxr_linenumber" name="L2077" href="#L2077">2077</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
+<a class="jxr_linenumber" name="L2078" href="#L2078">2078</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2079" href="#L2079">2079</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str) {
+<a class="jxr_linenumber" name="L2080" href="#L2080">2080</a>     <strong class="jxr_keyword">return</strong> split(str, <strong class="jxr_keyword">null</strong>, -1);
+<a class="jxr_linenumber" name="L2081" href="#L2081">2081</a>   }
+<a class="jxr_linenumber" name="L2082" href="#L2082">2082</a> 
+<a class="jxr_linenumber" name="L2083" href="#L2083">2083</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2084" href="#L2084">2084</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array, separator specified.</em>
+<a class="jxr_linenumber" name="L2085" href="#L2085">2085</a> <em class="jxr_javadoccomment">   * This is an alternative to using StringTokenizer.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2086" href="#L2086">2086</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2087" href="#L2087">2087</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
+<a class="jxr_linenumber" name="L2088" href="#L2088">2088</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.</em>
+<a class="jxr_linenumber" name="L2089" href="#L2089">2089</a> <em class="jxr_javadoccomment">   * For more control over the split use the StrTokenizer class.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2090" href="#L2090">2090</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2091" href="#L2091">2091</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2092" href="#L2092">2092</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2093" href="#L2093">2093</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L2094" href="#L2094">2094</a> <em class="jxr_javadoccomment">   * StringUtils.split(null, *)         = null</em>
+<a class="jxr_linenumber" name="L2095" href="#L2095">2095</a> <em class="jxr_javadoccomment">   * StringUtils.split("", *)           = []</em>
+<a class="jxr_linenumber" name="L2096" href="#L2096">2096</a> <em class="jxr_javadoccomment">   * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]</em>
+<a class="jxr_linenumber" name="L2097" href="#L2097">2097</a> <em class="jxr_javadoccomment">   * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]</em>
+<a class="jxr_linenumber" name="L2098" href="#L2098">2098</a> <em class="jxr_javadoccomment">   * StringUtils.split("a:b:c", '.')    = ["a:b:c"]</em>
+<a class="jxr_linenumber" name="L2099" href="#L2099">2099</a> <em class="jxr_javadoccomment">   * StringUtils.split("a\tb\nc", null) = ["a", "b", "c"]</em>
+<a class="jxr_linenumber" name="L2100" href="#L2100">2100</a> <em class="jxr_javadoccomment">   * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]</em>
+<a class="jxr_linenumber" name="L2101" href="#L2101">2101</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L2102" href="#L2102">2102</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2103" href="#L2103">2103</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
+<a class="jxr_linenumber" name="L2104" href="#L2104">2104</a> <em class="jxr_javadoccomment">   * @param separatorChar  the character used as the delimiter,</em>
+<a class="jxr_linenumber" name="L2105" href="#L2105">2105</a> <em class="jxr_javadoccomment">   *  &lt;code&gt;null&lt;/code&gt; splits on whitespace</em>
+<a class="jxr_linenumber" name="L2106" href="#L2106">2106</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
+<a class="jxr_linenumber" name="L2107" href="#L2107">2107</a> <em class="jxr_javadoccomment">   * @since 2.0</em>
+<a class="jxr_linenumber" name="L2108" href="#L2108">2108</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2109" href="#L2109">2109</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str, <strong class="jxr_keyword">char</strong> separatorChar) {
+<a class="jxr_linenumber" name="L2110" href="#L2110">2110</a>     <strong class="jxr_keyword">return</strong> splitWorker(str, separatorChar, false);
+<a class="jxr_linenumber" name="L2111" href="#L2111">2111</a>   }
+<a class="jxr_linenumber" name="L2112" href="#L2112">2112</a> 
+<a class="jxr_linenumber" name="L2113" href="#L2113">2113</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2114" href="#L2114">2114</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array, separators specified.</em>
+<a class="jxr_linenumber" name="L2115" href="#L2115">2115</a> <em class="jxr_javadoccomment">   * This is an alternative to using StringTokenizer.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2116" href="#L2116">2116</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2117" href="#L2117">2117</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
+<a class="jxr_linenumber" name="L2118" href="#L2118">2118</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.</em>
+<a class="jxr_linenumber" name="L2119" href="#L2119">2119</a> <em class="jxr_javadoccomment">   * For more control over the split use the StrTokenizer class.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2120" href="#L2120">2120</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2121" href="#L2121">2121</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L2122" href="#L2122">2122</a> <em class="jxr_javadoccomment">   * A &lt;code&gt;null&lt;/code&gt; separatorChars splits on whitespace.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2123" href="#L2123">2123</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2124" href="#L2124">2124</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L2125" href="#L2125">2125</a> <em class="jxr_javadoccomment">   * StringUtils.split(null, *)         = null</em>
+<a class="jxr_linenumber" name="L2126" href="#L2126">2126</a> <em class="jxr_javadoccomment">   * StringUtils.split("", *)           = []</em>
+<a class="jxr_linenumber" name="L2127" href="#L2127">2127</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc def", null) = ["abc", "def"]</em>
+<a class="jxr_linenumber" name="L2128" href="#L2128">2128</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc def", " ")  = ["abc", "def"]</em>
+<a class="jxr_linenumber" name="L2129" href="#L2129">2129</a> <em class="jxr_javadoccomment">   * StringUtils.split("abc  def", " ") = ["abc", "def"]</em>
+<a class="jxr_linenumber" name="L2130" href="#L2130">2130</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab:cd:ef", ":") = ["ab", "cd", "ef"]</em>
+<a class="jxr_linenumber" name="L2131" href="#L2131">2131</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L2132" href="#L2132">2132</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2133" href="#L2133">2133</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
+<a class="jxr_linenumber" name="L2134" href="#L2134">2134</a> <em class="jxr_javadoccomment">   * @param separatorChars  the characters used as the delimiters,</em>
+<a class="jxr_linenumber" name="L2135" href="#L2135">2135</a> <em class="jxr_javadoccomment">   *  &lt;code&gt;null&lt;/code&gt; splits on whitespace</em>
+<a class="jxr_linenumber" name="L2136" href="#L2136">2136</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
+<a class="jxr_linenumber" name="L2137" href="#L2137">2137</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2138" href="#L2138">2138</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str, String separatorChars) {
+<a class="jxr_linenumber" name="L2139" href="#L2139">2139</a>     <strong class="jxr_keyword">return</strong> splitWorker(str, separatorChars, -1, false);
+<a class="jxr_linenumber" name="L2140" href="#L2140">2140</a>   }
+<a class="jxr_linenumber" name="L2141" href="#L2141">2141</a> 
+<a class="jxr_linenumber" name="L2142" href="#L2142">2142</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2143" href="#L2143">2143</a> <em class="jxr_javadoccomment">   * &lt;p&gt;Splits the provided text into an array with a maximum length,</em>
+<a class="jxr_linenumber" name="L2144" href="#L2144">2144</a> <em class="jxr_javadoccomment">   * separators specified.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2145" href="#L2145">2145</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2146" href="#L2146">2146</a> <em class="jxr_javadoccomment">   * &lt;p&gt;The separator is not included in the returned String array.</em>
+<a class="jxr_linenumber" name="L2147" href="#L2147">2147</a> <em class="jxr_javadoccomment">   * Adjacent separators are treated as one separator.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2148" href="#L2148">2148</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2149" href="#L2149">2149</a> <em class="jxr_javadoccomment">   * &lt;p&gt;A &lt;code&gt;null&lt;/code&gt; input String returns &lt;code&gt;null&lt;/code&gt;.</em>
+<a class="jxr_linenumber" name="L2150" href="#L2150">2150</a> <em class="jxr_javadoccomment">   * A &lt;code&gt;null&lt;/code&gt; separatorChars splits on whitespace.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2151" href="#L2151">2151</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2152" href="#L2152">2152</a> <em class="jxr_javadoccomment">   * &lt;p&gt;If more than &lt;code&gt;max&lt;/code&gt; delimited substrings are found, the last</em>
+<a class="jxr_linenumber" name="L2153" href="#L2153">2153</a> <em class="jxr_javadoccomment">   * returned string includes all characters after the first &lt;code&gt;max - 1&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L2154" href="#L2154">2154</a> <em class="jxr_javadoccomment">   * returned strings (including separator characters).&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L2155" href="#L2155">2155</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2156" href="#L2156">2156</a> <em class="jxr_javadoccomment">   * &lt;pre&gt;</em>
+<a class="jxr_linenumber" name="L2157" href="#L2157">2157</a> <em class="jxr_javadoccomment">   * StringUtils.split(null, *, *)            = null</em>
+<a class="jxr_linenumber" name="L2158" href="#L2158">2158</a> <em class="jxr_javadoccomment">   * StringUtils.split("", *, *)              = []</em>
+<a class="jxr_linenumber" name="L2159" href="#L2159">2159</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab de fg", null, 0)   = ["ab", "cd", "ef"]</em>
+<a class="jxr_linenumber" name="L2160" href="#L2160">2160</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab   de fg", null, 0) = ["ab", "cd", "ef"]</em>
+<a class="jxr_linenumber" name="L2161" href="#L2161">2161</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab:cd:ef", ":", 0)    = ["ab", "cd", "ef"]</em>
+<a class="jxr_linenumber" name="L2162" href="#L2162">2162</a> <em class="jxr_javadoccomment">   * StringUtils.split("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]</em>
+<a class="jxr_linenumber" name="L2163" href="#L2163">2163</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L2164" href="#L2164">2164</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2165" href="#L2165">2165</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be null</em>
+<a class="jxr_linenumber" name="L2166" href="#L2166">2166</a> <em class="jxr_javadoccomment">   * @param separatorChars  the characters used as the delimiters,</em>
+<a class="jxr_linenumber" name="L2167" href="#L2167">2167</a> <em class="jxr_javadoccomment">   *  &lt;code&gt;null&lt;/code&gt; splits on whitespace</em>
+<a class="jxr_linenumber" name="L2168" href="#L2168">2168</a> <em class="jxr_javadoccomment">   * @param max  the maximum number of elements to include in the</em>
+<a class="jxr_linenumber" name="L2169" href="#L2169">2169</a> <em class="jxr_javadoccomment">   *  array. A zero or negative value implies no limit</em>
+<a class="jxr_linenumber" name="L2170" href="#L2170">2170</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
+<a class="jxr_linenumber" name="L2171" href="#L2171">2171</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2172" href="#L2172">2172</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] split(String str, String separatorChars, <strong class="jxr_keyword">int</strong> max) {
+<a class="jxr_linenumber" name="L2173" href="#L2173">2173</a>     <strong class="jxr_keyword">return</strong> splitWorker(str, separatorChars, max, false);
+<a class="jxr_linenumber" name="L2174" href="#L2174">2174</a>   }
+<a class="jxr_linenumber" name="L2175" href="#L2175">2175</a> 
+<a class="jxr_linenumber" name="L2176" href="#L2176">2176</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2177" href="#L2177">2177</a> <em class="jxr_javadoccomment">   * An empty immutable &lt;code&gt;String&lt;/code&gt; array.</em>
+<a class="jxr_linenumber" name="L2178" href="#L2178">2178</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2179" href="#L2179">2179</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] EMPTY_STRING_ARRAY = <strong class="jxr_keyword">new</strong> String[0];
+<a class="jxr_linenumber" name="L2180" href="#L2180">2180</a> 
+<a class="jxr_linenumber" name="L2181" href="#L2181">2181</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2182" href="#L2182">2182</a> <em class="jxr_javadoccomment">   * Performs the logic for the &lt;code&gt;split&lt;/code&gt; and </em>
+<a class="jxr_linenumber" name="L2183" href="#L2183">2183</a> <em class="jxr_javadoccomment">   * &lt;code&gt;splitPreserveAllTokens&lt;/code&gt; methods that do not return a</em>
+<a class="jxr_linenumber" name="L2184" href="#L2184">2184</a> <em class="jxr_javadoccomment">   * maximum array length.</em>
+<a class="jxr_linenumber" name="L2185" href="#L2185">2185</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2186" href="#L2186">2186</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be &lt;code&gt;null&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L2187" href="#L2187">2187</a> <em class="jxr_javadoccomment">   * @param separatorChar the separate character</em>
+<a class="jxr_linenumber" name="L2188" href="#L2188">2188</a> <em class="jxr_javadoccomment">   * @param preserveAllTokens if &lt;code&gt;true&lt;/code&gt;, adjacent separators are</em>
+<a class="jxr_linenumber" name="L2189" href="#L2189">2189</a> <em class="jxr_javadoccomment">   * treated as empty token separators; if &lt;code&gt;false&lt;/code&gt;, adjacent</em>
+<a class="jxr_linenumber" name="L2190" href="#L2190">2190</a> <em class="jxr_javadoccomment">   * separators are treated as one separator.</em>
+<a class="jxr_linenumber" name="L2191" href="#L2191">2191</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
+<a class="jxr_linenumber" name="L2192" href="#L2192">2192</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2193" href="#L2193">2193</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String[] splitWorker(String str, <strong class="jxr_keyword">char</strong> separatorChar,
+<a class="jxr_linenumber" name="L2194" href="#L2194">2194</a>       <strong class="jxr_keyword">boolean</strong> preserveAllTokens) {
+<a class="jxr_linenumber" name="L2195" href="#L2195">2195</a>     <em class="jxr_comment">// Performance tuned for 2.0 (JDK1.4)</em>
+<a class="jxr_linenumber" name="L2196" href="#L2196">2196</a>   
+<a class="jxr_linenumber" name="L2197" href="#L2197">2197</a>     <strong class="jxr_keyword">if</strong> (str == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2198" href="#L2198">2198</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2199" href="#L2199">2199</a>     }
+<a class="jxr_linenumber" name="L2200" href="#L2200">2200</a>     <strong class="jxr_keyword">int</strong> len = str.length();
+<a class="jxr_linenumber" name="L2201" href="#L2201">2201</a>     <strong class="jxr_keyword">if</strong> (len == 0) {
+<a class="jxr_linenumber" name="L2202" href="#L2202">2202</a>       <strong class="jxr_keyword">return</strong> EMPTY_STRING_ARRAY;
+<a class="jxr_linenumber" name="L2203" href="#L2203">2203</a>     }
+<a class="jxr_linenumber" name="L2204" href="#L2204">2204</a>     List list = <strong class="jxr_keyword">new</strong> ArrayList();
+<a class="jxr_linenumber" name="L2205" href="#L2205">2205</a>     <strong class="jxr_keyword">int</strong> i = 0, start = 0;
+<a class="jxr_linenumber" name="L2206" href="#L2206">2206</a>     <strong class="jxr_keyword">boolean</strong> match = false;
+<a class="jxr_linenumber" name="L2207" href="#L2207">2207</a>     <strong class="jxr_keyword">boolean</strong> lastMatch = false;
+<a class="jxr_linenumber" name="L2208" href="#L2208">2208</a>     <strong class="jxr_keyword">while</strong> (i &lt; len) {
+<a class="jxr_linenumber" name="L2209" href="#L2209">2209</a>       <strong class="jxr_keyword">if</strong> (str.charAt(i) == separatorChar) {
+<a class="jxr_linenumber" name="L2210" href="#L2210">2210</a>         <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
+<a class="jxr_linenumber" name="L2211" href="#L2211">2211</a>           list.add(str.substring(start, i));
+<a class="jxr_linenumber" name="L2212" href="#L2212">2212</a>           match = false;
+<a class="jxr_linenumber" name="L2213" href="#L2213">2213</a>           lastMatch = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2214" href="#L2214">2214</a>         }
+<a class="jxr_linenumber" name="L2215" href="#L2215">2215</a>         start = ++i;
+<a class="jxr_linenumber" name="L2216" href="#L2216">2216</a>         <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L2217" href="#L2217">2217</a>       }
+<a class="jxr_linenumber" name="L2218" href="#L2218">2218</a>       lastMatch = false;
+<a class="jxr_linenumber" name="L2219" href="#L2219">2219</a>       match = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2220" href="#L2220">2220</a>       i++;
+<a class="jxr_linenumber" name="L2221" href="#L2221">2221</a>     }
+<a class="jxr_linenumber" name="L2222" href="#L2222">2222</a>     <strong class="jxr_keyword">if</strong> (match || (preserveAllTokens &amp;&amp; lastMatch)) {
+<a class="jxr_linenumber" name="L2223" href="#L2223">2223</a>       list.add(str.substring(start, i));
+<a class="jxr_linenumber" name="L2224" href="#L2224">2224</a>     }
+<a class="jxr_linenumber" name="L2225" href="#L2225">2225</a>     <strong class="jxr_keyword">return</strong> (String[]) list.toArray(<strong class="jxr_keyword">new</strong> String[list.size()]);
+<a class="jxr_linenumber" name="L2226" href="#L2226">2226</a>   }
+<a class="jxr_linenumber" name="L2227" href="#L2227">2227</a> 
+<a class="jxr_linenumber" name="L2228" href="#L2228">2228</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2229" href="#L2229">2229</a> <em class="jxr_javadoccomment">   * Performs the logic for the &lt;code&gt;split&lt;/code&gt; and </em>
+<a class="jxr_linenumber" name="L2230" href="#L2230">2230</a> <em class="jxr_javadoccomment">   * &lt;code&gt;splitPreserveAllTokens&lt;/code&gt; methods that return a maximum array </em>
+<a class="jxr_linenumber" name="L2231" href="#L2231">2231</a> <em class="jxr_javadoccomment">   * length.</em>
+<a class="jxr_linenumber" name="L2232" href="#L2232">2232</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L2233" href="#L2233">2233</a> <em class="jxr_javadoccomment">   * @param str  the String to parse, may be &lt;code&gt;null&lt;/code&gt;</em>
+<a class="jxr_linenumber" name="L2234" href="#L2234">2234</a> <em class="jxr_javadoccomment">   * @param separatorChars the separate character</em>
+<a class="jxr_linenumber" name="L2235" href="#L2235">2235</a> <em class="jxr_javadoccomment">   * @param max  the maximum number of elements to include in the</em>
+<a class="jxr_linenumber" name="L2236" href="#L2236">2236</a> <em class="jxr_javadoccomment">   *  array. A zero or negative value implies no limit.</em>
+<a class="jxr_linenumber" name="L2237" href="#L2237">2237</a> <em class="jxr_javadoccomment">   * @param preserveAllTokens if &lt;code&gt;true&lt;/code&gt;, adjacent separators are</em>
+<a class="jxr_linenumber" name="L2238" href="#L2238">2238</a> <em class="jxr_javadoccomment">   * treated as empty token separators; if &lt;code&gt;false&lt;/code&gt;, adjacent</em>
+<a class="jxr_linenumber" name="L2239" href="#L2239">2239</a> <em class="jxr_javadoccomment">   * separators are treated as one separator.</em>
+<a class="jxr_linenumber" name="L2240" href="#L2240">2240</a> <em class="jxr_javadoccomment">   * @return an array of parsed Strings, &lt;code&gt;null&lt;/code&gt; if null String input</em>
+<a class="jxr_linenumber" name="L2241" href="#L2241">2241</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2242" href="#L2242">2242</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String[] splitWorker(String str, String separatorChars, <strong class="jxr_keyword">int</strong> max,
+<a class="jxr_linenumber" name="L2243" href="#L2243">2243</a>       <strong class="jxr_keyword">boolean</strong> preserveAllTokens) {
+<a class="jxr_linenumber" name="L2244" href="#L2244">2244</a>     <em class="jxr_comment">// Performance tuned for 2.0 (JDK1.4)</em>
+<a class="jxr_linenumber" name="L2245" href="#L2245">2245</a>     <em class="jxr_comment">// Direct code is quicker than StringTokenizer.</em>
+<a class="jxr_linenumber" name="L2246" href="#L2246">2246</a>     <em class="jxr_comment">// Also, StringTokenizer uses isSpace() not isWhitespace()</em>
+<a class="jxr_linenumber" name="L2247" href="#L2247">2247</a>   
+<a class="jxr_linenumber" name="L2248" href="#L2248">2248</a>     <strong class="jxr_keyword">if</strong> (str == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2249" href="#L2249">2249</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2250" href="#L2250">2250</a>     }
+<a class="jxr_linenumber" name="L2251" href="#L2251">2251</a>     <strong class="jxr_keyword">int</strong> len = str.length();
+<a class="jxr_linenumber" name="L2252" href="#L2252">2252</a>     <strong class="jxr_keyword">if</strong> (len == 0) {
+<a class="jxr_linenumber" name="L2253" href="#L2253">2253</a>       <strong class="jxr_keyword">return</strong> EMPTY_STRING_ARRAY;
+<a class="jxr_linenumber" name="L2254" href="#L2254">2254</a>     }
+<a class="jxr_linenumber" name="L2255" href="#L2255">2255</a>     List list = <strong class="jxr_keyword">new</strong> ArrayList();
+<a class="jxr_linenumber" name="L2256" href="#L2256">2256</a>     <strong class="jxr_keyword">int</strong> sizePlus1 = 1;
+<a class="jxr_linenumber" name="L2257" href="#L2257">2257</a>     <strong class="jxr_keyword">int</strong> i = 0, start = 0;
+<a class="jxr_linenumber" name="L2258" href="#L2258">2258</a>     <strong class="jxr_keyword">boolean</strong> match = false;
+<a class="jxr_linenumber" name="L2259" href="#L2259">2259</a>     <strong class="jxr_keyword">boolean</strong> lastMatch = false;
+<a class="jxr_linenumber" name="L2260" href="#L2260">2260</a>     <strong class="jxr_keyword">if</strong> (separatorChars == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2261" href="#L2261">2261</a>       <em class="jxr_comment">// Null separator means use whitespace</em>
+<a class="jxr_linenumber" name="L2262" href="#L2262">2262</a>       <strong class="jxr_keyword">while</strong> (i &lt; len) {
+<a class="jxr_linenumber" name="L2263" href="#L2263">2263</a>         <strong class="jxr_keyword">if</strong> (Character.isWhitespace(str.charAt(i))) {
+<a class="jxr_linenumber" name="L2264" href="#L2264">2264</a>           <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
+<a class="jxr_linenumber" name="L2265" href="#L2265">2265</a>             lastMatch = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2266" href="#L2266">2266</a>             <strong class="jxr_keyword">if</strong> (sizePlus1++ == max) {
+<a class="jxr_linenumber" name="L2267" href="#L2267">2267</a>               i = len;
+<a class="jxr_linenumber" name="L2268" href="#L2268">2268</a>               lastMatch = false;
+<a class="jxr_linenumber" name="L2269" href="#L2269">2269</a>             }
+<a class="jxr_linenumber" name="L2270" href="#L2270">2270</a>             list.add(str.substring(start, i));
+<a class="jxr_linenumber" name="L2271" href="#L2271">2271</a>             match = false;
+<a class="jxr_linenumber" name="L2272" href="#L2272">2272</a>           }
+<a class="jxr_linenumber" name="L2273" href="#L2273">2273</a>           start = ++i;
+<a class="jxr_linenumber" name="L2274" href="#L2274">2274</a>           <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L2275" href="#L2275">2275</a>         }
+<a class="jxr_linenumber" name="L2276" href="#L2276">2276</a>         lastMatch = false;
+<a class="jxr_linenumber" name="L2277" href="#L2277">2277</a>         match = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2278" href="#L2278">2278</a>         i++;
+<a class="jxr_linenumber" name="L2279" href="#L2279">2279</a>       }
+<a class="jxr_linenumber" name="L2280" href="#L2280">2280</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (separatorChars.length() == 1) {
+<a class="jxr_linenumber" name="L2281" href="#L2281">2281</a>       <em class="jxr_comment">// Optimise 1 character case</em>
+<a class="jxr_linenumber" name="L2282" href="#L2282">2282</a>       <strong class="jxr_keyword">char</strong> sep = separatorChars.charAt(0);
 <a class="jxr_linenumber" name="L2283" href="#L2283">2283</a>       <strong class="jxr_keyword">while</strong> (i &lt; len) {
-<a class="jxr_linenumber" name="L2284" href="#L2284">2284</a>         <strong class="jxr_keyword">if</strong> (separatorChars.indexOf(str.charAt(i)) &gt;= 0) {
+<a class="jxr_linenumber" name="L2284" href="#L2284">2284</a>         <strong class="jxr_keyword">if</strong> (str.charAt(i) == sep) {
 <a class="jxr_linenumber" name="L2285" href="#L2285">2285</a>           <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
 <a class="jxr_linenumber" name="L2286" href="#L2286">2286</a>             lastMatch = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L2287" href="#L2287">2287</a>             <strong class="jxr_keyword">if</strong> (sizePlus1++ == max) {
@@ -2306,336 +2306,356 @@
 <a class="jxr_linenumber" name="L2298" href="#L2298">2298</a>         match = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L2299" href="#L2299">2299</a>         i++;
 <a class="jxr_linenumber" name="L2300" href="#L2300">2300</a>       }
-<a class="jxr_linenumber" name="L2301" href="#L2301">2301</a>     }
-<a class="jxr_linenumber" name="L2302" href="#L2302">2302</a>     <strong class="jxr_keyword">if</strong> (match || (preserveAllTokens &amp;&amp; lastMatch)) {
-<a class="jxr_linenumber" name="L2303" href="#L2303">2303</a>       list.add(str.substring(start, i));
-<a class="jxr_linenumber" name="L2304" href="#L2304">2304</a>     }
-<a class="jxr_linenumber" name="L2305" href="#L2305">2305</a>     <strong class="jxr_keyword">return</strong> (String[]) list.toArray(<strong class="jxr_keyword">new</strong> String[list.size()]);
-<a class="jxr_linenumber" name="L2306" href="#L2306">2306</a>   }
-<a class="jxr_linenumber" name="L2307" href="#L2307">2307</a> 
-<a class="jxr_linenumber" name="L2308" href="#L2308">2308</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2309" href="#L2309">2309</a> <em class="jxr_javadoccomment">   * trim whitespace from string</em>
-<a class="jxr_linenumber" name="L2310" href="#L2310">2310</a> <em class="jxr_javadoccomment">   * @param str</em>
-<a class="jxr_linenumber" name="L2311" href="#L2311">2311</a> <em class="jxr_javadoccomment">   * @return trimmed string</em>
-<a class="jxr_linenumber" name="L2312" href="#L2312">2312</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2313" href="#L2313">2313</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String trim(String str) {
-<a class="jxr_linenumber" name="L2314" href="#L2314">2314</a>     <strong class="jxr_keyword">return</strong> str == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : str.trim();
-<a class="jxr_linenumber" name="L2315" href="#L2315">2315</a>   }
-<a class="jxr_linenumber" name="L2316" href="#L2316">2316</a> 
-<a class="jxr_linenumber" name="L2317" href="#L2317">2317</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2318" href="#L2318">2318</a> <em class="jxr_javadoccomment">   * convert an element to a set</em>
-<a class="jxr_linenumber" name="L2319" href="#L2319">2319</a> <em class="jxr_javadoccomment">   * @param &lt;M&gt;</em>
-<a class="jxr_linenumber" name="L2320" href="#L2320">2320</a> <em class="jxr_javadoccomment">   * @param m</em>
-<a class="jxr_linenumber" name="L2321" href="#L2321">2321</a> <em class="jxr_javadoccomment">   * @return</em>
-<a class="jxr_linenumber" name="L2322" href="#L2322">2322</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2323" href="#L2323">2323</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;M&gt; Set&lt;M&gt; toSet(M... inputs) {
-<a class="jxr_linenumber" name="L2324" href="#L2324">2324</a>     <strong class="jxr_keyword">if</strong> (inputs == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2325" href="#L2325">2325</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2326" href="#L2326">2326</a>     }
-<a class="jxr_linenumber" name="L2327" href="#L2327">2327</a>     Set&lt;M&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;M&gt;();
-<a class="jxr_linenumber" name="L2328" href="#L2328">2328</a>     <strong class="jxr_keyword">for</strong> (M m : inputs) {
-<a class="jxr_linenumber" name="L2329" href="#L2329">2329</a>       result.add(m);
-<a class="jxr_linenumber" name="L2330" href="#L2330">2330</a>     }
-<a class="jxr_linenumber" name="L2331" href="#L2331">2331</a>     <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L2332" href="#L2332">2332</a>   }
-<a class="jxr_linenumber" name="L2333" href="#L2333">2333</a> 
-<a class="jxr_linenumber" name="L2334" href="#L2334">2334</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2335" href="#L2335">2335</a> <em class="jxr_javadoccomment">   * If batching this is the number of batches</em>
-<a class="jxr_linenumber" name="L2336" href="#L2336">2336</a> <em class="jxr_javadoccomment">   * @param collection</em>
-<a class="jxr_linenumber" name="L2337" href="#L2337">2337</a> <em class="jxr_javadoccomment">   * @param batchSize</em>
-<a class="jxr_linenumber" name="L2338" href="#L2338">2338</a> <em class="jxr_javadoccomment">   * @return the number of batches</em>
-<a class="jxr_linenumber" name="L2339" href="#L2339">2339</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2340" href="#L2340">2340</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> batchNumberOfBatches(Collection&lt;?&gt; collection, <strong class="jxr_keyword">int</strong> batchSize) {
-<a class="jxr_linenumber" name="L2341" href="#L2341">2341</a>     <strong class="jxr_keyword">int</strong> arrraySize = length(collection);
-<a class="jxr_linenumber" name="L2342" href="#L2342">2342</a>     <strong class="jxr_keyword">return</strong> batchNumberOfBatches(arrraySize, batchSize);
-<a class="jxr_linenumber" name="L2343" href="#L2343">2343</a>   
-<a class="jxr_linenumber" name="L2344" href="#L2344">2344</a>   }
-<a class="jxr_linenumber" name="L2345" href="#L2345">2345</a> 
-<a class="jxr_linenumber" name="L2346" href="#L2346">2346</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2347" href="#L2347">2347</a> <em class="jxr_javadoccomment">   * If batching this is the number of batches</em>
-<a class="jxr_linenumber" name="L2348" href="#L2348">2348</a> <em class="jxr_javadoccomment">   * @param count is size of set</em>
-<a class="jxr_linenumber" name="L2349" href="#L2349">2349</a> <em class="jxr_javadoccomment">   * @param batchSize</em>
-<a class="jxr_linenumber" name="L2350" href="#L2350">2350</a> <em class="jxr_javadoccomment">   * @return the number of batches</em>
-<a class="jxr_linenumber" name="L2351" href="#L2351">2351</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2352" href="#L2352">2352</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> batchNumberOfBatches(<strong class="jxr_keyword">int</strong> count, <strong class="jxr_keyword">int</strong> batchSize) {
-<a class="jxr_linenumber" name="L2353" href="#L2353">2353</a>     <em class="jxr_comment">//not sure why this would be 0...</em>
-<a class="jxr_linenumber" name="L2354" href="#L2354">2354</a>     <strong class="jxr_keyword">if</strong> (batchSize == 0) {
-<a class="jxr_linenumber" name="L2355" href="#L2355">2355</a>       <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L2356" href="#L2356">2356</a>     }
-<a class="jxr_linenumber" name="L2357" href="#L2357">2357</a>     <strong class="jxr_keyword">int</strong> batches = 1 + ((count - 1) / batchSize);
-<a class="jxr_linenumber" name="L2358" href="#L2358">2358</a>     <strong class="jxr_keyword">return</strong> batches;
-<a class="jxr_linenumber" name="L2359" href="#L2359">2359</a>   
-<a class="jxr_linenumber" name="L2360" href="#L2360">2360</a>   }
-<a class="jxr_linenumber" name="L2361" href="#L2361">2361</a> 
-<a class="jxr_linenumber" name="L2362" href="#L2362">2362</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2363" href="#L2363">2363</a> <em class="jxr_javadoccomment">   * retrieve a batch by 0 index. Will return an array of size batchSize or</em>
-<a class="jxr_linenumber" name="L2364" href="#L2364">2364</a> <em class="jxr_javadoccomment">   * the remainder. the array will be full of elements. Note, this requires an</em>
-<a class="jxr_linenumber" name="L2365" href="#L2365">2365</a> <em class="jxr_javadoccomment">   * ordered input (so use linkedhashset not hashset if doing sets)</em>
-<a class="jxr_linenumber" name="L2366" href="#L2366">2366</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt; template type</em>
-<a class="jxr_linenumber" name="L2367" href="#L2367">2367</a> <em class="jxr_javadoccomment">   * @param collection</em>
-<a class="jxr_linenumber" name="L2368" href="#L2368">2368</a> <em class="jxr_javadoccomment">   * @param batchSize</em>
-<a class="jxr_linenumber" name="L2369" href="#L2369">2369</a> <em class="jxr_javadoccomment">   * @param batchIndex</em>
-<a class="jxr_linenumber" name="L2370" href="#L2370">2370</a> <em class="jxr_javadoccomment">   * @return the list</em>
-<a class="jxr_linenumber" name="L2371" href="#L2371">2371</a> <em class="jxr_javadoccomment">   *         This never returns null, only empty list</em>
-<a class="jxr_linenumber" name="L2372" href="#L2372">2372</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2373" href="#L2373">2373</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L2374" href="#L2374">2374</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; batchList(List&lt;T&gt; collection, <strong class="jxr_keyword">int</strong> batchSize,
-<a class="jxr_linenumber" name="L2375" href="#L2375">2375</a>       <strong class="jxr_keyword">int</strong> batchIndex) {
-<a class="jxr_linenumber" name="L2376" href="#L2376">2376</a> 
-<a class="jxr_linenumber" name="L2377" href="#L2377">2377</a>     <strong class="jxr_keyword">int</strong> numberOfBatches = batchNumberOfBatches(collection, batchSize);
-<a class="jxr_linenumber" name="L2378" href="#L2378">2378</a>     <strong class="jxr_keyword">int</strong> arraySize = length(collection);
-<a class="jxr_linenumber" name="L2379" href="#L2379">2379</a> 
-<a class="jxr_linenumber" name="L2380" href="#L2380">2380</a>     <em class="jxr_comment">// short circuit</em>
-<a class="jxr_linenumber" name="L2381" href="#L2381">2381</a>     <strong class="jxr_keyword">if</strong> (arraySize == 0) {
-<a class="jxr_linenumber" name="L2382" href="#L2382">2382</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
-<a class="jxr_linenumber" name="L2383" href="#L2383">2383</a>     }
-<a class="jxr_linenumber" name="L2384" href="#L2384">2384</a> 
-<a class="jxr_linenumber" name="L2385" href="#L2385">2385</a>     List&lt;T&gt; theBatchObjects = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
-<a class="jxr_linenumber" name="L2386" href="#L2386">2386</a> 
-<a class="jxr_linenumber" name="L2387" href="#L2387">2387</a>     <em class="jxr_comment">// lets get the type of the first element if possible</em>
-<a class="jxr_linenumber" name="L2388" href="#L2388">2388</a>     <em class="jxr_comment">//    Object first = get(arrayOrCollection, 0);</em>
-<a class="jxr_linenumber" name="L2389" href="#L2389">2389</a>     <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L2390" href="#L2390">2390</a>     <em class="jxr_comment">//    Class theType = first == null ? Object.class : first.getClass();</em>
-<a class="jxr_linenumber" name="L2391" href="#L2391">2391</a>   
-<a class="jxr_linenumber" name="L2392" href="#L2392">2392</a>     <em class="jxr_comment">// if last batch</em>
-<a class="jxr_linenumber" name="L2393" href="#L2393">2393</a>     <strong class="jxr_keyword">if</strong> (batchIndex == numberOfBatches - 1) {
-<a class="jxr_linenumber" name="L2394" href="#L2394">2394</a> 
-<a class="jxr_linenumber" name="L2395" href="#L2395">2395</a>       <em class="jxr_comment">// needs to work to 1-n</em>
-<a class="jxr_linenumber" name="L2396" href="#L2396">2396</a>       <em class="jxr_comment">//int thisBatchSize = 1 + ((arraySize - 1) % batchSize);</em>
-<a class="jxr_linenumber" name="L2397" href="#L2397">2397</a> 
-<a class="jxr_linenumber" name="L2398" href="#L2398">2398</a>       <strong class="jxr_keyword">int</strong> collectionIndex = 0;
-<a class="jxr_linenumber" name="L2399" href="#L2399">2399</a>       <strong class="jxr_keyword">for</strong> (T t : collection) {
-<a class="jxr_linenumber" name="L2400" href="#L2400">2400</a>         <strong class="jxr_keyword">if</strong> (collectionIndex++ &lt; batchIndex * batchSize) {
-<a class="jxr_linenumber" name="L2401" href="#L2401">2401</a>           <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L2402" href="#L2402">2402</a>         }
-<a class="jxr_linenumber" name="L2403" href="#L2403">2403</a>         <em class="jxr_comment">//just copy the rest</em>
-<a class="jxr_linenumber" name="L2404" href="#L2404">2404</a>         <em class="jxr_comment">//if (collectionIndex &gt;= (batchIndex * batchSize) + arraySize) {</em>
-<a class="jxr_linenumber" name="L2405" href="#L2405">2405</a>         <em class="jxr_comment">//  break;</em>
-<a class="jxr_linenumber" name="L2406" href="#L2406">2406</a>         <em class="jxr_comment">//}</em>
-<a class="jxr_linenumber" name="L2407" href="#L2407">2407</a>         <em class="jxr_comment">//we are in the copy mode</em>
-<a class="jxr_linenumber" name="L2408" href="#L2408">2408</a>         theBatchObjects.add(t);
-<a class="jxr_linenumber" name="L2409" href="#L2409">2409</a>       }
-<a class="jxr_linenumber" name="L2410" href="#L2410">2410</a> 
-<a class="jxr_linenumber" name="L2411" href="#L2411">2411</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L2412" href="#L2412">2412</a>       <em class="jxr_comment">// if non-last batch</em>
-<a class="jxr_linenumber" name="L2413" href="#L2413">2413</a>       <em class="jxr_comment">//int newIndex = 0;</em>
-<a class="jxr_linenumber" name="L2414" href="#L2414">2414</a>       <strong class="jxr_keyword">int</strong> collectionIndex = 0;
-<a class="jxr_linenumber" name="L2415" href="#L2415">2415</a>       <strong class="jxr_keyword">for</strong> (T t : collection) {
-<a class="jxr_linenumber" name="L2416" href="#L2416">2416</a>         <strong class="jxr_keyword">if</strong> (collectionIndex &lt; batchIndex * batchSize) {
-<a class="jxr_linenumber" name="L2417" href="#L2417">2417</a>           collectionIndex++;
-<a class="jxr_linenumber" name="L2418" href="#L2418">2418</a>           <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L2419" href="#L2419">2419</a>         }
-<a class="jxr_linenumber" name="L2420" href="#L2420">2420</a>         <em class="jxr_comment">//done with batch</em>
-<a class="jxr_linenumber" name="L2421" href="#L2421">2421</a>         <strong class="jxr_keyword">if</strong> (collectionIndex &gt;= (batchIndex + 1) * batchSize) {
-<a class="jxr_linenumber" name="L2422" href="#L2422">2422</a>           <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L2423" href="#L2423">2423</a>         }
-<a class="jxr_linenumber" name="L2424" href="#L2424">2424</a>         theBatchObjects.add(t);
-<a class="jxr_linenumber" name="L2425" href="#L2425">2425</a>         collectionIndex++;
-<a class="jxr_linenumber" name="L2426" href="#L2426">2426</a>       }
-<a class="jxr_linenumber" name="L2427" href="#L2427">2427</a>     }
-<a class="jxr_linenumber" name="L2428" href="#L2428">2428</a>     <strong class="jxr_keyword">return</strong> theBatchObjects;
-<a class="jxr_linenumber" name="L2429" href="#L2429">2429</a>   }
+<a class="jxr_linenumber" name="L2301" href="#L2301">2301</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L2302" href="#L2302">2302</a>       <em class="jxr_comment">// standard case</em>
+<a class="jxr_linenumber" name="L2303" href="#L2303">2303</a>       <strong class="jxr_keyword">while</strong> (i &lt; len) {
+<a class="jxr_linenumber" name="L2304" href="#L2304">2304</a>         <strong class="jxr_keyword">if</strong> (separatorChars.indexOf(str.charAt(i)) &gt;= 0) {
+<a class="jxr_linenumber" name="L2305" href="#L2305">2305</a>           <strong class="jxr_keyword">if</strong> (match || preserveAllTokens) {
+<a class="jxr_linenumber" name="L2306" href="#L2306">2306</a>             lastMatch = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2307" href="#L2307">2307</a>             <strong class="jxr_keyword">if</strong> (sizePlus1++ == max) {
+<a class="jxr_linenumber" name="L2308" href="#L2308">2308</a>               i = len;
+<a class="jxr_linenumber" name="L2309" href="#L2309">2309</a>               lastMatch = false;
+<a class="jxr_linenumber" name="L2310" href="#L2310">2310</a>             }
+<a class="jxr_linenumber" name="L2311" href="#L2311">2311</a>             list.add(str.substring(start, i));
+<a class="jxr_linenumber" name="L2312" href="#L2312">2312</a>             match = false;
+<a class="jxr_linenumber" name="L2313" href="#L2313">2313</a>           }
+<a class="jxr_linenumber" name="L2314" href="#L2314">2314</a>           start = ++i;
+<a class="jxr_linenumber" name="L2315" href="#L2315">2315</a>           <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L2316" href="#L2316">2316</a>         }
+<a class="jxr_linenumber" name="L2317" href="#L2317">2317</a>         lastMatch = false;
+<a class="jxr_linenumber" name="L2318" href="#L2318">2318</a>         match = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2319" href="#L2319">2319</a>         i++;
+<a class="jxr_linenumber" name="L2320" href="#L2320">2320</a>       }
+<a class="jxr_linenumber" name="L2321" href="#L2321">2321</a>     }
+<a class="jxr_linenumber" name="L2322" href="#L2322">2322</a>     <strong class="jxr_keyword">if</strong> (match || (preserveAllTokens &amp;&amp; lastMatch)) {
+<a class="jxr_linenumber" name="L2323" href="#L2323">2323</a>       list.add(str.substring(start, i));
+<a class="jxr_linenumber" name="L2324" href="#L2324">2324</a>     }
+<a class="jxr_linenumber" name="L2325" href="#L2325">2325</a>     <strong class="jxr_keyword">return</strong> (String[]) list.toArray(<strong class="jxr_keyword">new</strong> String[list.size()]);
+<a class="jxr_linenumber" name="L2326" href="#L2326">2326</a>   }
+<a class="jxr_linenumber" name="L2327" href="#L2327">2327</a> 
+<a class="jxr_linenumber" name="L2328" href="#L2328">2328</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2329" href="#L2329">2329</a> <em class="jxr_javadoccomment">   * trim whitespace from string</em>
+<a class="jxr_linenumber" name="L2330" href="#L2330">2330</a> <em class="jxr_javadoccomment">   * @param str</em>
+<a class="jxr_linenumber" name="L2331" href="#L2331">2331</a> <em class="jxr_javadoccomment">   * @return trimmed string</em>
+<a class="jxr_linenumber" name="L2332" href="#L2332">2332</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2333" href="#L2333">2333</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String trim(String str) {
+<a class="jxr_linenumber" name="L2334" href="#L2334">2334</a>     <strong class="jxr_keyword">return</strong> str == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : str.trim();
+<a class="jxr_linenumber" name="L2335" href="#L2335">2335</a>   }
+<a class="jxr_linenumber" name="L2336" href="#L2336">2336</a> 
+<a class="jxr_linenumber" name="L2337" href="#L2337">2337</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2338" href="#L2338">2338</a> <em class="jxr_javadoccomment">   * convert an element to a set</em>
+<a class="jxr_linenumber" name="L2339" href="#L2339">2339</a> <em class="jxr_javadoccomment">   * @param &lt;M&gt;</em>
+<a class="jxr_linenumber" name="L2340" href="#L2340">2340</a> <em class="jxr_javadoccomment">   * @param m</em>
+<a class="jxr_linenumber" name="L2341" href="#L2341">2341</a> <em class="jxr_javadoccomment">   * @return</em>
+<a class="jxr_linenumber" name="L2342" href="#L2342">2342</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2343" href="#L2343">2343</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;M&gt; Set&lt;M&gt; toSet(M... inputs) {
+<a class="jxr_linenumber" name="L2344" href="#L2344">2344</a>     <strong class="jxr_keyword">if</strong> (inputs == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2345" href="#L2345">2345</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2346" href="#L2346">2346</a>     }
+<a class="jxr_linenumber" name="L2347" href="#L2347">2347</a>     Set&lt;M&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;M&gt;();
+<a class="jxr_linenumber" name="L2348" href="#L2348">2348</a>     <strong class="jxr_keyword">for</strong> (M m : inputs) {
+<a class="jxr_linenumber" name="L2349" href="#L2349">2349</a>       result.add(m);
+<a class="jxr_linenumber" name="L2350" href="#L2350">2350</a>     }
+<a class="jxr_linenumber" name="L2351" href="#L2351">2351</a>     <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L2352" href="#L2352">2352</a>   }
+<a class="jxr_linenumber" name="L2353" href="#L2353">2353</a> 
+<a class="jxr_linenumber" name="L2354" href="#L2354">2354</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2355" href="#L2355">2355</a> <em class="jxr_javadoccomment">   * If batching this is the number of batches</em>
+<a class="jxr_linenumber" name="L2356" href="#L2356">2356</a> <em class="jxr_javadoccomment">   * @param collection</em>
+<a class="jxr_linenumber" name="L2357" href="#L2357">2357</a> <em class="jxr_javadoccomment">   * @param batchSize</em>
+<a class="jxr_linenumber" name="L2358" href="#L2358">2358</a> <em class="jxr_javadoccomment">   * @return the number of batches</em>
+<a class="jxr_linenumber" name="L2359" href="#L2359">2359</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2360" href="#L2360">2360</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> batchNumberOfBatches(Collection&lt;?&gt; collection, <strong class="jxr_keyword">int</strong> batchSize) {
+<a class="jxr_linenumber" name="L2361" href="#L2361">2361</a>     <strong class="jxr_keyword">int</strong> arrraySize = length(collection);
+<a class="jxr_linenumber" name="L2362" href="#L2362">2362</a>     <strong class="jxr_keyword">return</strong> batchNumberOfBatches(arrraySize, batchSize);
+<a class="jxr_linenumber" name="L2363" href="#L2363">2363</a>   
+<a class="jxr_linenumber" name="L2364" href="#L2364">2364</a>   }
+<a class="jxr_linenumber" name="L2365" href="#L2365">2365</a> 
+<a class="jxr_linenumber" name="L2366" href="#L2366">2366</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2367" href="#L2367">2367</a> <em class="jxr_javadoccomment">   * If batching this is the number of batches</em>
+<a class="jxr_linenumber" name="L2368" href="#L2368">2368</a> <em class="jxr_javadoccomment">   * @param count is size of set</em>
+<a class="jxr_linenumber" name="L2369" href="#L2369">2369</a> <em class="jxr_javadoccomment">   * @param batchSize</em>
+<a class="jxr_linenumber" name="L2370" href="#L2370">2370</a> <em class="jxr_javadoccomment">   * @return the number of batches</em>
+<a class="jxr_linenumber" name="L2371" href="#L2371">2371</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2372" href="#L2372">2372</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> batchNumberOfBatches(<strong class="jxr_keyword">int</strong> count, <strong class="jxr_keyword">int</strong> batchSize) {
+<a class="jxr_linenumber" name="L2373" href="#L2373">2373</a>     <em class="jxr_comment">//not sure why this would be 0...</em>
+<a class="jxr_linenumber" name="L2374" href="#L2374">2374</a>     <strong class="jxr_keyword">if</strong> (batchSize == 0) {
+<a class="jxr_linenumber" name="L2375" href="#L2375">2375</a>       <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L2376" href="#L2376">2376</a>     }
+<a class="jxr_linenumber" name="L2377" href="#L2377">2377</a>     <strong class="jxr_keyword">int</strong> batches = 1 + ((count - 1) / batchSize);
+<a class="jxr_linenumber" name="L2378" href="#L2378">2378</a>     <strong class="jxr_keyword">return</strong> batches;
+<a class="jxr_linenumber" name="L2379" href="#L2379">2379</a>   
+<a class="jxr_linenumber" name="L2380" href="#L2380">2380</a>   }
+<a class="jxr_linenumber" name="L2381" href="#L2381">2381</a> 
+<a class="jxr_linenumber" name="L2382" href="#L2382">2382</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2383" href="#L2383">2383</a> <em class="jxr_javadoccomment">   * retrieve a batch by 0 index. Will return an array of size batchSize or</em>
+<a class="jxr_linenumber" name="L2384" href="#L2384">2384</a> <em class="jxr_javadoccomment">   * the remainder. the array will be full of elements. Note, this requires an</em>
+<a class="jxr_linenumber" name="L2385" href="#L2385">2385</a> <em class="jxr_javadoccomment">   * ordered input (so use linkedhashset not hashset if doing sets)</em>
+<a class="jxr_linenumber" name="L2386" href="#L2386">2386</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt; template type</em>
+<a class="jxr_linenumber" name="L2387" href="#L2387">2387</a> <em class="jxr_javadoccomment">   * @param collection</em>
+<a class="jxr_linenumber" name="L2388" href="#L2388">2388</a> <em class="jxr_javadoccomment">   * @param batchSize</em>
+<a class="jxr_linenumber" name="L2389" href="#L2389">2389</a> <em class="jxr_javadoccomment">   * @param batchIndex</em>
+<a class="jxr_linenumber" name="L2390" href="#L2390">2390</a> <em class="jxr_javadoccomment">   * @return the list</em>
+<a class="jxr_linenumber" name="L2391" href="#L2391">2391</a> <em class="jxr_javadoccomment">   *         This never returns null, only empty list</em>
+<a class="jxr_linenumber" name="L2392" href="#L2392">2392</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2393" href="#L2393">2393</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L2394" href="#L2394">2394</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; batchList(List&lt;T&gt; collection, <strong class="jxr_keyword">int</strong> batchSize,
+<a class="jxr_linenumber" name="L2395" href="#L2395">2395</a>       <strong class="jxr_keyword">int</strong> batchIndex) {
+<a class="jxr_linenumber" name="L2396" href="#L2396">2396</a> 
+<a class="jxr_linenumber" name="L2397" href="#L2397">2397</a>     <strong class="jxr_keyword">int</strong> numberOfBatches = batchNumberOfBatches(collection, batchSize);
+<a class="jxr_linenumber" name="L2398" href="#L2398">2398</a>     <strong class="jxr_keyword">int</strong> arraySize = length(collection);
+<a class="jxr_linenumber" name="L2399" href="#L2399">2399</a> 
+<a class="jxr_linenumber" name="L2400" href="#L2400">2400</a>     <em class="jxr_comment">// short circuit</em>
+<a class="jxr_linenumber" name="L2401" href="#L2401">2401</a>     <strong class="jxr_keyword">if</strong> (arraySize == 0) {
+<a class="jxr_linenumber" name="L2402" href="#L2402">2402</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
+<a class="jxr_linenumber" name="L2403" href="#L2403">2403</a>     }
+<a class="jxr_linenumber" name="L2404" href="#L2404">2404</a> 
+<a class="jxr_linenumber" name="L2405" href="#L2405">2405</a>     List&lt;T&gt; theBatchObjects = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
+<a class="jxr_linenumber" name="L2406" href="#L2406">2406</a> 
+<a class="jxr_linenumber" name="L2407" href="#L2407">2407</a>     <em class="jxr_comment">// lets get the type of the first element if possible</em>
+<a class="jxr_linenumber" name="L2408" href="#L2408">2408</a>     <em class="jxr_comment">//    Object first = get(arrayOrCollection, 0);</em>
+<a class="jxr_linenumber" name="L2409" href="#L2409">2409</a>     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L2410" href="#L2410">2410</a>     <em class="jxr_comment">//    Class theType = first == null ? Object.class : first.getClass();</em>
+<a class="jxr_linenumber" name="L2411" href="#L2411">2411</a>   
+<a class="jxr_linenumber" name="L2412" href="#L2412">2412</a>     <em class="jxr_comment">// if last batch</em>
+<a class="jxr_linenumber" name="L2413" href="#L2413">2413</a>     <strong class="jxr_keyword">if</strong> (batchIndex == numberOfBatches - 1) {
+<a class="jxr_linenumber" name="L2414" href="#L2414">2414</a> 
+<a class="jxr_linenumber" name="L2415" href="#L2415">2415</a>       <em class="jxr_comment">// needs to work to 1-n</em>
+<a class="jxr_linenumber" name="L2416" href="#L2416">2416</a>       <em class="jxr_comment">//int thisBatchSize = 1 + ((arraySize - 1) % batchSize);</em>
+<a class="jxr_linenumber" name="L2417" href="#L2417">2417</a> 
+<a class="jxr_linenumber" name="L2418" href="#L2418">2418</a>       <strong class="jxr_keyword">int</strong> collectionIndex = 0;
+<a class="jxr_linenumber" name="L2419" href="#L2419">2419</a>       <strong class="jxr_keyword">for</strong> (T t : collection) {
+<a class="jxr_linenumber" name="L2420" href="#L2420">2420</a>         <strong class="jxr_keyword">if</strong> (collectionIndex++ &lt; batchIndex * batchSize) {
+<a class="jxr_linenumber" name="L2421" href="#L2421">2421</a>           <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L2422" href="#L2422">2422</a>         }
+<a class="jxr_linenumber" name="L2423" href="#L2423">2423</a>         <em class="jxr_comment">//just copy the rest</em>
+<a class="jxr_linenumber" name="L2424" href="#L2424">2424</a>         <em class="jxr_comment">//if (collectionIndex &gt;= (batchIndex * batchSize) + arraySize) {</em>
+<a class="jxr_linenumber" name="L2425" href="#L2425">2425</a>         <em class="jxr_comment">//  break;</em>
+<a class="jxr_linenumber" name="L2426" href="#L2426">2426</a>         <em class="jxr_comment">//}</em>
+<a class="jxr_linenumber" name="L2427" href="#L2427">2427</a>         <em class="jxr_comment">//we are in the copy mode</em>
+<a class="jxr_linenumber" name="L2428" href="#L2428">2428</a>         theBatchObjects.add(t);
+<a class="jxr_linenumber" name="L2429" href="#L2429">2429</a>       }
 <a class="jxr_linenumber" name="L2430" href="#L2430">2430</a> 
-<a class="jxr_linenumber" name="L2431" href="#L2431">2431</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2432" href="#L2432">2432</a> <em class="jxr_javadoccomment">   * convert a set to a string (comma separate)</em>
-<a class="jxr_linenumber" name="L2433" href="#L2433">2433</a> <em class="jxr_javadoccomment">   * @param map</em>
-<a class="jxr_linenumber" name="L2434" href="#L2434">2434</a> <em class="jxr_javadoccomment">   * @return the String</em>
-<a class="jxr_linenumber" name="L2435" href="#L2435">2435</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2436" href="#L2436">2436</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String mapToString(Map map) {
-<a class="jxr_linenumber" name="L2437" href="#L2437">2437</a>     <strong class="jxr_keyword">if</strong> (map == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2438" href="#L2438">2438</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"null"</span>;
-<a class="jxr_linenumber" name="L2439" href="#L2439">2439</a>     }
-<a class="jxr_linenumber" name="L2440" href="#L2440">2440</a>     <strong class="jxr_keyword">if</strong> (map.size() == 0) {
-<a class="jxr_linenumber" name="L2441" href="#L2441">2441</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"empty"</span>;
-<a class="jxr_linenumber" name="L2442" href="#L2442">2442</a>     }
-<a class="jxr_linenumber" name="L2443" href="#L2443">2443</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L2444" href="#L2444">2444</a>     <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2445" href="#L2445">2445</a>     <strong class="jxr_keyword">for</strong> (Object object : map.keySet()) {
-<a class="jxr_linenumber" name="L2446" href="#L2446">2446</a>       <strong class="jxr_keyword">if</strong> (!first) {
-<a class="jxr_linenumber" name="L2447" href="#L2447">2447</a>         result.append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L2448" href="#L2448">2448</a>       }
-<a class="jxr_linenumber" name="L2449" href="#L2449">2449</a>       first = false;
-<a class="jxr_linenumber" name="L2450" href="#L2450">2450</a>       result.append(object).append(<span class="jxr_string">": "</span>).append(map.get(object));
-<a class="jxr_linenumber" name="L2451" href="#L2451">2451</a>     }
-<a class="jxr_linenumber" name="L2452" href="#L2452">2452</a>     <strong class="jxr_keyword">return</strong> result.toString();
-<a class="jxr_linenumber" name="L2453" href="#L2453">2453</a>   }
-<a class="jxr_linenumber" name="L2454" href="#L2454">2454</a> 
-<a class="jxr_linenumber" name="L2455" href="#L2455">2455</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2456" href="#L2456">2456</a> <em class="jxr_javadoccomment">   * convert properties to a string (comma separate)</em>
-<a class="jxr_linenumber" name="L2457" href="#L2457">2457</a> <em class="jxr_javadoccomment">   * @param properties</em>
-<a class="jxr_linenumber" name="L2458" href="#L2458">2458</a> <em class="jxr_javadoccomment">   * @return the String</em>
-<a class="jxr_linenumber" name="L2459" href="#L2459">2459</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2460" href="#L2460">2460</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String propertiesToString(Properties properties) {
-<a class="jxr_linenumber" name="L2461" href="#L2461">2461</a>     <strong class="jxr_keyword">if</strong> (properties == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2462" href="#L2462">2462</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"null"</span>;
-<a class="jxr_linenumber" name="L2463" href="#L2463">2463</a>     }
-<a class="jxr_linenumber" name="L2464" href="#L2464">2464</a>     <strong class="jxr_keyword">if</strong> (properties.size() == 0) {
-<a class="jxr_linenumber" name="L2465" href="#L2465">2465</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"empty"</span>;
-<a class="jxr_linenumber" name="L2466" href="#L2466">2466</a>     }
-<a class="jxr_linenumber" name="L2467" href="#L2467">2467</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L2468" href="#L2468">2468</a>     <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L2469" href="#L2469">2469</a>     <strong class="jxr_keyword">for</strong> (Object object : properties.keySet()) {
-<a class="jxr_linenumber" name="L2470" href="#L2470">2470</a>       <strong class="jxr_keyword">if</strong> (!first) {
-<a class="jxr_linenumber" name="L2471" href="#L2471">2471</a>         result.append(<span class="jxr_string">", "</span>);
-<a class="jxr_linenumber" name="L2472" href="#L2472">2472</a>       }
-<a class="jxr_linenumber" name="L2473" href="#L2473">2473</a>       first = false;
-<a class="jxr_linenumber" name="L2474" href="#L2474">2474</a>       result.append(object).append(<span class="jxr_string">": "</span>).append(properties.get(object));
-<a class="jxr_linenumber" name="L2475" href="#L2475">2475</a>     }
-<a class="jxr_linenumber" name="L2476" href="#L2476">2476</a>     <strong class="jxr_keyword">return</strong> result.toString();
-<a class="jxr_linenumber" name="L2477" href="#L2477">2477</a>   }
-<a class="jxr_linenumber" name="L2478" href="#L2478">2478</a> 
-<a class="jxr_linenumber" name="L2479" href="#L2479">2479</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2480" href="#L2480">2480</a> <em class="jxr_javadoccomment">   * return a list of objects from varargs.  Though if there is one</em>
-<a class="jxr_linenumber" name="L2481" href="#L2481">2481</a> <em class="jxr_javadoccomment">   * object, and it is a list, return it.</em>
-<a class="jxr_linenumber" name="L2482" href="#L2482">2482</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L2483" href="#L2483">2483</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L2484" href="#L2484">2484</a> <em class="jxr_javadoccomment">   *            template type of the objects</em>
-<a class="jxr_linenumber" name="L2485" href="#L2485">2485</a> <em class="jxr_javadoccomment">   * @param objects</em>
-<a class="jxr_linenumber" name="L2486" href="#L2486">2486</a> <em class="jxr_javadoccomment">   * @return the list or null if objects is null</em>
-<a class="jxr_linenumber" name="L2487" href="#L2487">2487</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2488" href="#L2488">2488</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L2489" href="#L2489">2489</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; toList(T... objects) {
-<a class="jxr_linenumber" name="L2490" href="#L2490">2490</a>     <strong class="jxr_keyword">if</strong> (objects == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2491" href="#L2491">2491</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L2492" href="#L2492">2492</a>     }
-<a class="jxr_linenumber" name="L2493" href="#L2493">2493</a>     <strong class="jxr_keyword">if</strong> (objects.length == 1 &amp;&amp; objects[0] instanceof List) {
-<a class="jxr_linenumber" name="L2494" href="#L2494">2494</a>       <strong class="jxr_keyword">return</strong> (List&lt;T&gt;)objects[0];
+<a class="jxr_linenumber" name="L2431" href="#L2431">2431</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L2432" href="#L2432">2432</a>       <em class="jxr_comment">// if non-last batch</em>
+<a class="jxr_linenumber" name="L2433" href="#L2433">2433</a>       <em class="jxr_comment">//int newIndex = 0;</em>
+<a class="jxr_linenumber" name="L2434" href="#L2434">2434</a>       <strong class="jxr_keyword">int</strong> collectionIndex = 0;
+<a class="jxr_linenumber" name="L2435" href="#L2435">2435</a>       <strong class="jxr_keyword">for</strong> (T t : collection) {
+<a class="jxr_linenumber" name="L2436" href="#L2436">2436</a>         <strong class="jxr_keyword">if</strong> (collectionIndex &lt; batchIndex * batchSize) {
+<a class="jxr_linenumber" name="L2437" href="#L2437">2437</a>           collectionIndex++;
+<a class="jxr_linenumber" name="L2438" href="#L2438">2438</a>           <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L2439" href="#L2439">2439</a>         }
+<a class="jxr_linenumber" name="L2440" href="#L2440">2440</a>         <em class="jxr_comment">//done with batch</em>
+<a class="jxr_linenumber" name="L2441" href="#L2441">2441</a>         <strong class="jxr_keyword">if</strong> (collectionIndex &gt;= (batchIndex + 1) * batchSize) {
+<a class="jxr_linenumber" name="L2442" href="#L2442">2442</a>           <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L2443" href="#L2443">2443</a>         }
+<a class="jxr_linenumber" name="L2444" href="#L2444">2444</a>         theBatchObjects.add(t);
+<a class="jxr_linenumber" name="L2445" href="#L2445">2445</a>         collectionIndex++;
+<a class="jxr_linenumber" name="L2446" href="#L2446">2446</a>       }
+<a class="jxr_linenumber" name="L2447" href="#L2447">2447</a>     }
+<a class="jxr_linenumber" name="L2448" href="#L2448">2448</a>     <strong class="jxr_keyword">return</strong> theBatchObjects;
+<a class="jxr_linenumber" name="L2449" href="#L2449">2449</a>   }
+<a class="jxr_linenumber" name="L2450" href="#L2450">2450</a> 
+<a class="jxr_linenumber" name="L2451" href="#L2451">2451</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2452" href="#L2452">2452</a> <em class="jxr_javadoccomment">   * convert a set to a string (comma separate)</em>
+<a class="jxr_linenumber" name="L2453" href="#L2453">2453</a> <em class="jxr_javadoccomment">   * @param map</em>
+<a class="jxr_linenumber" name="L2454" href="#L2454">2454</a> <em class="jxr_javadoccomment">   * @return the String</em>
+<a class="jxr_linenumber" name="L2455" href="#L2455">2455</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2456" href="#L2456">2456</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String mapToString(Map map) {
+<a class="jxr_linenumber" name="L2457" href="#L2457">2457</a>     <strong class="jxr_keyword">if</strong> (map == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2458" href="#L2458">2458</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"null"</span>;
+<a class="jxr_linenumber" name="L2459" href="#L2459">2459</a>     }
+<a class="jxr_linenumber" name="L2460" href="#L2460">2460</a>     <strong class="jxr_keyword">if</strong> (map.size() == 0) {
+<a class="jxr_linenumber" name="L2461" href="#L2461">2461</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"empty"</span>;
+<a class="jxr_linenumber" name="L2462" href="#L2462">2462</a>     }
+<a class="jxr_linenumber" name="L2463" href="#L2463">2463</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L2464" href="#L2464">2464</a>     <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2465" href="#L2465">2465</a>     <strong class="jxr_keyword">for</strong> (Object object : map.keySet()) {
+<a class="jxr_linenumber" name="L2466" href="#L2466">2466</a>       <strong class="jxr_keyword">if</strong> (!first) {
+<a class="jxr_linenumber" name="L2467" href="#L2467">2467</a>         result.append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L2468" href="#L2468">2468</a>       }
+<a class="jxr_linenumber" name="L2469" href="#L2469">2469</a>       first = false;
+<a class="jxr_linenumber" name="L2470" href="#L2470">2470</a>       result.append(object).append(<span class="jxr_string">": "</span>).append(map.get(object));
+<a class="jxr_linenumber" name="L2471" href="#L2471">2471</a>     }
+<a class="jxr_linenumber" name="L2472" href="#L2472">2472</a>     <strong class="jxr_keyword">return</strong> result.toString();
+<a class="jxr_linenumber" name="L2473" href="#L2473">2473</a>   }
+<a class="jxr_linenumber" name="L2474" href="#L2474">2474</a> 
+<a class="jxr_linenumber" name="L2475" href="#L2475">2475</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2476" href="#L2476">2476</a> <em class="jxr_javadoccomment">   * convert properties to a string (comma separate)</em>
+<a class="jxr_linenumber" name="L2477" href="#L2477">2477</a> <em class="jxr_javadoccomment">   * @param properties</em>
+<a class="jxr_linenumber" name="L2478" href="#L2478">2478</a> <em class="jxr_javadoccomment">   * @return the String</em>
+<a class="jxr_linenumber" name="L2479" href="#L2479">2479</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2480" href="#L2480">2480</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String propertiesToString(Properties properties) {
+<a class="jxr_linenumber" name="L2481" href="#L2481">2481</a>     <strong class="jxr_keyword">if</strong> (properties == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2482" href="#L2482">2482</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"null"</span>;
+<a class="jxr_linenumber" name="L2483" href="#L2483">2483</a>     }
+<a class="jxr_linenumber" name="L2484" href="#L2484">2484</a>     <strong class="jxr_keyword">if</strong> (properties.size() == 0) {
+<a class="jxr_linenumber" name="L2485" href="#L2485">2485</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"empty"</span>;
+<a class="jxr_linenumber" name="L2486" href="#L2486">2486</a>     }
+<a class="jxr_linenumber" name="L2487" href="#L2487">2487</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L2488" href="#L2488">2488</a>     <strong class="jxr_keyword">boolean</strong> first = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L2489" href="#L2489">2489</a>     <strong class="jxr_keyword">for</strong> (Object object : properties.keySet()) {
+<a class="jxr_linenumber" name="L2490" href="#L2490">2490</a>       <strong class="jxr_keyword">if</strong> (!first) {
+<a class="jxr_linenumber" name="L2491" href="#L2491">2491</a>         result.append(<span class="jxr_string">", "</span>);
+<a class="jxr_linenumber" name="L2492" href="#L2492">2492</a>       }
+<a class="jxr_linenumber" name="L2493" href="#L2493">2493</a>       first = false;
+<a class="jxr_linenumber" name="L2494" href="#L2494">2494</a>       result.append(object).append(<span class="jxr_string">": "</span>).append(properties.get(object));
 <a class="jxr_linenumber" name="L2495" href="#L2495">2495</a>     }
-<a class="jxr_linenumber" name="L2496" href="#L2496">2496</a>     
-<a class="jxr_linenumber" name="L2497" href="#L2497">2497</a>     List&lt;T&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
-<a class="jxr_linenumber" name="L2498" href="#L2498">2498</a>     <strong class="jxr_keyword">for</strong> (T object : objects) {
-<a class="jxr_linenumber" name="L2499" href="#L2499">2499</a>       result.add(object);
-<a class="jxr_linenumber" name="L2500" href="#L2500">2500</a>     }
-<a class="jxr_linenumber" name="L2501" href="#L2501">2501</a>     <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L2502" href="#L2502">2502</a>   }
-<a class="jxr_linenumber" name="L2503" href="#L2503">2503</a>   
-<a class="jxr_linenumber" name="L2504" href="#L2504">2504</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2505" href="#L2505">2505</a> <em class="jxr_javadoccomment">   * convert a subject to string safely</em>
-<a class="jxr_linenumber" name="L2506" href="#L2506">2506</a> <em class="jxr_javadoccomment">   * @param subject</em>
-<a class="jxr_linenumber" name="L2507" href="#L2507">2507</a> <em class="jxr_javadoccomment">   * @return the string value of subject (might be null)</em>
-<a class="jxr_linenumber" name="L2508" href="#L2508">2508</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2509" href="#L2509">2509</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String subjectToString(<a href="../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject) {
-<a class="jxr_linenumber" name="L2510" href="#L2510">2510</a>     <strong class="jxr_keyword">if</strong> (subject == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2496" href="#L2496">2496</a>     <strong class="jxr_keyword">return</strong> result.toString();
+<a class="jxr_linenumber" name="L2497" href="#L2497">2497</a>   }
+<a class="jxr_linenumber" name="L2498" href="#L2498">2498</a> 
+<a class="jxr_linenumber" name="L2499" href="#L2499">2499</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2500" href="#L2500">2500</a> <em class="jxr_javadoccomment">   * return a list of objects from varargs.  Though if there is one</em>
+<a class="jxr_linenumber" name="L2501" href="#L2501">2501</a> <em class="jxr_javadoccomment">   * object, and it is a list, return it.</em>
+<a class="jxr_linenumber" name="L2502" href="#L2502">2502</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L2503" href="#L2503">2503</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L2504" href="#L2504">2504</a> <em class="jxr_javadoccomment">   *            template type of the objects</em>
+<a class="jxr_linenumber" name="L2505" href="#L2505">2505</a> <em class="jxr_javadoccomment">   * @param objects</em>
+<a class="jxr_linenumber" name="L2506" href="#L2506">2506</a> <em class="jxr_javadoccomment">   * @return the list or null if objects is null</em>
+<a class="jxr_linenumber" name="L2507" href="#L2507">2507</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2508" href="#L2508">2508</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L2509" href="#L2509">2509</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; toList(T... objects) {
+<a class="jxr_linenumber" name="L2510" href="#L2510">2510</a>     <strong class="jxr_keyword">if</strong> (objects == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L2511" href="#L2511">2511</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L2512" href="#L2512">2512</a>     }
-<a class="jxr_linenumber" name="L2513" href="#L2513">2513</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L2514" href="#L2514">2514</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Subject id: "</span> + subject.getId() + <span class="jxr_string">", sourceId: "</span> + subject.getSource().getId();
-<a class="jxr_linenumber" name="L2515" href="#L2515">2515</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L2516" href="#L2516">2516</a>       <em class="jxr_comment">//might be subject not found if lazy subject</em>
-<a class="jxr_linenumber" name="L2517" href="#L2517">2517</a>       <strong class="jxr_keyword">return</strong> subject.toString();
-<a class="jxr_linenumber" name="L2518" href="#L2518">2518</a>     }
-<a class="jxr_linenumber" name="L2519" href="#L2519">2519</a>   }
-<a class="jxr_linenumber" name="L2520" href="#L2520">2520</a> 
-<a class="jxr_linenumber" name="L2521" href="#L2521">2521</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2522" href="#L2522">2522</a> <em class="jxr_javadoccomment">   * null safe convert collection to list</em>
-<a class="jxr_linenumber" name="L2523" href="#L2523">2523</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L2524" href="#L2524">2524</a> <em class="jxr_javadoccomment">   * @param collection</em>
-<a class="jxr_linenumber" name="L2525" href="#L2525">2525</a> <em class="jxr_javadoccomment">   * @return the list</em>
-<a class="jxr_linenumber" name="L2526" href="#L2526">2526</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2527" href="#L2527">2527</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; listFromCollection(Collection&lt;T&gt; collection) {
-<a class="jxr_linenumber" name="L2528" href="#L2528">2528</a>     <strong class="jxr_keyword">return</strong> collection == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;(collection);
-<a class="jxr_linenumber" name="L2529" href="#L2529">2529</a>   }
-<a class="jxr_linenumber" name="L2530" href="#L2530">2530</a> 
-<a class="jxr_linenumber" name="L2531" href="#L2531">2531</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2532" href="#L2532">2532</a> <em class="jxr_javadoccomment">   * make sure a collection is non null.  If null, then return an empty list</em>
-<a class="jxr_linenumber" name="L2533" href="#L2533">2533</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L2534" href="#L2534">2534</a> <em class="jxr_javadoccomment">   * @param list</em>
-<a class="jxr_linenumber" name="L2535" href="#L2535">2535</a> <em class="jxr_javadoccomment">   * @return the list or empty list if null</em>
-<a class="jxr_linenumber" name="L2536" href="#L2536">2536</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2537" href="#L2537">2537</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; Collection&lt;T&gt; nonNull(Collection&lt;T&gt; list) {
-<a class="jxr_linenumber" name="L2538" href="#L2538">2538</a>     <strong class="jxr_keyword">return</strong> list == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;() : list;
+<a class="jxr_linenumber" name="L2513" href="#L2513">2513</a>     <strong class="jxr_keyword">if</strong> (objects.length == 1 &amp;&amp; objects[0] instanceof List) {
+<a class="jxr_linenumber" name="L2514" href="#L2514">2514</a>       <strong class="jxr_keyword">return</strong> (List&lt;T&gt;)objects[0];
+<a class="jxr_linenumber" name="L2515" href="#L2515">2515</a>     }
+<a class="jxr_linenumber" name="L2516" href="#L2516">2516</a>     
+<a class="jxr_linenumber" name="L2517" href="#L2517">2517</a>     List&lt;T&gt; result = <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;();
+<a class="jxr_linenumber" name="L2518" href="#L2518">2518</a>     <strong class="jxr_keyword">for</strong> (T object : objects) {
+<a class="jxr_linenumber" name="L2519" href="#L2519">2519</a>       result.add(object);
+<a class="jxr_linenumber" name="L2520" href="#L2520">2520</a>     }
+<a class="jxr_linenumber" name="L2521" href="#L2521">2521</a>     <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L2522" href="#L2522">2522</a>   }
+<a class="jxr_linenumber" name="L2523" href="#L2523">2523</a>   
+<a class="jxr_linenumber" name="L2524" href="#L2524">2524</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2525" href="#L2525">2525</a> <em class="jxr_javadoccomment">   * convert a subject to string safely</em>
+<a class="jxr_linenumber" name="L2526" href="#L2526">2526</a> <em class="jxr_javadoccomment">   * @param subject</em>
+<a class="jxr_linenumber" name="L2527" href="#L2527">2527</a> <em class="jxr_javadoccomment">   * @return the string value of subject (might be null)</em>
+<a class="jxr_linenumber" name="L2528" href="#L2528">2528</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2529" href="#L2529">2529</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String subjectToString(<a href="../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> subject) {
+<a class="jxr_linenumber" name="L2530" href="#L2530">2530</a>     <strong class="jxr_keyword">if</strong> (subject == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2531" href="#L2531">2531</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L2532" href="#L2532">2532</a>     }
+<a class="jxr_linenumber" name="L2533" href="#L2533">2533</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L2534" href="#L2534">2534</a>       <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Subject id: "</span> + subject.getId() + <span class="jxr_string">", sourceId: "</span> + subject.getSource().getId();
+<a class="jxr_linenumber" name="L2535" href="#L2535">2535</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L2536" href="#L2536">2536</a>       <em class="jxr_comment">//might be subject not found if lazy subject</em>
+<a class="jxr_linenumber" name="L2537" href="#L2537">2537</a>       <strong class="jxr_keyword">return</strong> subject.toString();
+<a class="jxr_linenumber" name="L2538" href="#L2538">2538</a>     }
 <a class="jxr_linenumber" name="L2539" href="#L2539">2539</a>   }
 <a class="jxr_linenumber" name="L2540" href="#L2540">2540</a> 
 <a class="jxr_linenumber" name="L2541" href="#L2541">2541</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2542" href="#L2542">2542</a> <em class="jxr_javadoccomment">   * make sure a list is non null.  If null, then return an empty list</em>
+<a class="jxr_linenumber" name="L2542" href="#L2542">2542</a> <em class="jxr_javadoccomment">   * null safe convert collection to list</em>
 <a class="jxr_linenumber" name="L2543" href="#L2543">2543</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L2544" href="#L2544">2544</a> <em class="jxr_javadoccomment">   * @param list</em>
-<a class="jxr_linenumber" name="L2545" href="#L2545">2545</a> <em class="jxr_javadoccomment">   * @return the list or empty list if null</em>
+<a class="jxr_linenumber" name="L2544" href="#L2544">2544</a> <em class="jxr_javadoccomment">   * @param collection</em>
+<a class="jxr_linenumber" name="L2545" href="#L2545">2545</a> <em class="jxr_javadoccomment">   * @return the list</em>
 <a class="jxr_linenumber" name="L2546" href="#L2546">2546</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2547" href="#L2547">2547</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; nonNull(List&lt;T&gt; list) {
-<a class="jxr_linenumber" name="L2548" href="#L2548">2548</a>     <strong class="jxr_keyword">return</strong> list == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;() : list;
+<a class="jxr_linenumber" name="L2547" href="#L2547">2547</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; listFromCollection(Collection&lt;T&gt; collection) {
+<a class="jxr_linenumber" name="L2548" href="#L2548">2548</a>     <strong class="jxr_keyword">return</strong> collection == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;(collection);
 <a class="jxr_linenumber" name="L2549" href="#L2549">2549</a>   }
 <a class="jxr_linenumber" name="L2550" href="#L2550">2550</a> 
 <a class="jxr_linenumber" name="L2551" href="#L2551">2551</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2552" href="#L2552">2552</a> <em class="jxr_javadoccomment">   * make sure it is non null, if null, then give new map</em>
-<a class="jxr_linenumber" name="L2553" href="#L2553">2553</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L2554" href="#L2554">2554</a> <em class="jxr_javadoccomment">   * @param &lt;K&gt; key of map</em>
-<a class="jxr_linenumber" name="L2555" href="#L2555">2555</a> <em class="jxr_javadoccomment">   * @param &lt;V&gt; value of map</em>
-<a class="jxr_linenumber" name="L2556" href="#L2556">2556</a> <em class="jxr_javadoccomment">   * @param map is map</em>
-<a class="jxr_linenumber" name="L2557" href="#L2557">2557</a> <em class="jxr_javadoccomment">   * @return set non null</em>
-<a class="jxr_linenumber" name="L2558" href="#L2558">2558</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2559" href="#L2559">2559</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;K,V&gt; Map&lt;K,V&gt; nonNull(Map&lt;K,V&gt; map) {
-<a class="jxr_linenumber" name="L2560" href="#L2560">2560</a>     <strong class="jxr_keyword">return</strong> map == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> HashMap&lt;K,V&gt;() : map;
-<a class="jxr_linenumber" name="L2561" href="#L2561">2561</a>   }
-<a class="jxr_linenumber" name="L2562" href="#L2562">2562</a> 
-<a class="jxr_linenumber" name="L2563" href="#L2563">2563</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2564" href="#L2564">2564</a> <em class="jxr_javadoccomment">   * make sure a list is non null.  If null, then return an empty set</em>
-<a class="jxr_linenumber" name="L2565" href="#L2565">2565</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L2566" href="#L2566">2566</a> <em class="jxr_javadoccomment">   * @param set</em>
-<a class="jxr_linenumber" name="L2567" href="#L2567">2567</a> <em class="jxr_javadoccomment">   * @return the set or empty set if null</em>
-<a class="jxr_linenumber" name="L2568" href="#L2568">2568</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2569" href="#L2569">2569</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; Set&lt;T&gt; nonNull(Set&lt;T&gt; set) {
-<a class="jxr_linenumber" name="L2570" href="#L2570">2570</a>     <strong class="jxr_keyword">return</strong> set == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> HashSet&lt;T&gt;() : set;
-<a class="jxr_linenumber" name="L2571" href="#L2571">2571</a>   }
-<a class="jxr_linenumber" name="L2572" href="#L2572">2572</a> 
-<a class="jxr_linenumber" name="L2573" href="#L2573">2573</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2574" href="#L2574">2574</a> <em class="jxr_javadoccomment">   * make sure a array is non null.  If null, then return an empty array.</em>
-<a class="jxr_linenumber" name="L2575" href="#L2575">2575</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
-<a class="jxr_linenumber" name="L2576" href="#L2576">2576</a> <em class="jxr_javadoccomment">   * @param array</em>
-<a class="jxr_linenumber" name="L2577" href="#L2577">2577</a> <em class="jxr_javadoccomment">   * @param theClass to make array from</em>
-<a class="jxr_linenumber" name="L2578" href="#L2578">2578</a> <em class="jxr_javadoccomment">   * @return the list or empty list if null</em>
-<a class="jxr_linenumber" name="L2579" href="#L2579">2579</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2580" href="#L2580">2580</a>   @SuppressWarnings({ <span class="jxr_string">"unchecked"</span>, <span class="jxr_string">"cast"</span> })
-<a class="jxr_linenumber" name="L2581" href="#L2581">2581</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; T[] nonNull(T[] array, Class&lt;?&gt; theClass) {
-<a class="jxr_linenumber" name="L2582" href="#L2582">2582</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2583" href="#L2583">2583</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[0];
-<a class="jxr_linenumber" name="L2584" href="#L2584">2584</a>     }
-<a class="jxr_linenumber" name="L2585" href="#L2585">2585</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">float</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2586" href="#L2586">2586</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">float</strong>[0];
-<a class="jxr_linenumber" name="L2587" href="#L2587">2587</a>     }
-<a class="jxr_linenumber" name="L2588" href="#L2588">2588</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">double</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2589" href="#L2589">2589</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[0];
-<a class="jxr_linenumber" name="L2590" href="#L2590">2590</a>     }
-<a class="jxr_linenumber" name="L2591" href="#L2591">2591</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">short</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2592" href="#L2592">2592</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">short</strong>[0];
-<a class="jxr_linenumber" name="L2593" href="#L2593">2593</a>     }
-<a class="jxr_linenumber" name="L2594" href="#L2594">2594</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2595" href="#L2595">2595</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[0];
-<a class="jxr_linenumber" name="L2596" href="#L2596">2596</a>     }
-<a class="jxr_linenumber" name="L2597" href="#L2597">2597</a>     <strong class="jxr_keyword">if</strong> (byte.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2598" href="#L2598">2598</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> byte[0];
-<a class="jxr_linenumber" name="L2599" href="#L2599">2599</a>     }
-<a class="jxr_linenumber" name="L2600" href="#L2600">2600</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">boolean</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2601" href="#L2601">2601</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">boolean</strong>[0];
-<a class="jxr_linenumber" name="L2602" href="#L2602">2602</a>     }
-<a class="jxr_linenumber" name="L2603" href="#L2603">2603</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">char</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
-<a class="jxr_linenumber" name="L2604" href="#L2604">2604</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[0];
-<a class="jxr_linenumber" name="L2605" href="#L2605">2605</a>     }
-<a class="jxr_linenumber" name="L2606" href="#L2606">2606</a>     <strong class="jxr_keyword">return</strong> array == <strong class="jxr_keyword">null</strong> ? ((T[])Array.newInstance(theClass, 0)) : array;
-<a class="jxr_linenumber" name="L2607" href="#L2607">2607</a>   }
-<a class="jxr_linenumber" name="L2608" href="#L2608">2608</a> 
-<a class="jxr_linenumber" name="L2609" href="#L2609">2609</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L2610" href="#L2610">2610</a> <em class="jxr_javadoccomment">   * compare null safe</em>
-<a class="jxr_linenumber" name="L2611" href="#L2611">2611</a> <em class="jxr_javadoccomment">   * @param first</em>
-<a class="jxr_linenumber" name="L2612" href="#L2612">2612</a> <em class="jxr_javadoccomment">   * @param second</em>
-<a class="jxr_linenumber" name="L2613" href="#L2613">2613</a> <em class="jxr_javadoccomment">   * @return 0 for equal, 1 for greater, -1 for less</em>
-<a class="jxr_linenumber" name="L2614" href="#L2614">2614</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L2615" href="#L2615">2615</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
-<a class="jxr_linenumber" name="L2616" href="#L2616">2616</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> compare(Comparable first, Comparable second) {
-<a class="jxr_linenumber" name="L2617" href="#L2617">2617</a>     <strong class="jxr_keyword">if</strong> (first == second) {
-<a class="jxr_linenumber" name="L2618" href="#L2618">2618</a>       <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L2552" href="#L2552">2552</a> <em class="jxr_javadoccomment">   * make sure a collection is non null.  If null, then return an empty list</em>
+<a class="jxr_linenumber" name="L2553" href="#L2553">2553</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L2554" href="#L2554">2554</a> <em class="jxr_javadoccomment">   * @param list</em>
+<a class="jxr_linenumber" name="L2555" href="#L2555">2555</a> <em class="jxr_javadoccomment">   * @return the list or empty list if null</em>
+<a class="jxr_linenumber" name="L2556" href="#L2556">2556</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2557" href="#L2557">2557</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; Collection&lt;T&gt; nonNull(Collection&lt;T&gt; list) {
+<a class="jxr_linenumber" name="L2558" href="#L2558">2558</a>     <strong class="jxr_keyword">return</strong> list == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;() : list;
+<a class="jxr_linenumber" name="L2559" href="#L2559">2559</a>   }
+<a class="jxr_linenumber" name="L2560" href="#L2560">2560</a> 
+<a class="jxr_linenumber" name="L2561" href="#L2561">2561</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2562" href="#L2562">2562</a> <em class="jxr_javadoccomment">   * make sure a list is non null.  If null, then return an empty list</em>
+<a class="jxr_linenumber" name="L2563" href="#L2563">2563</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L2564" href="#L2564">2564</a> <em class="jxr_javadoccomment">   * @param list</em>
+<a class="jxr_linenumber" name="L2565" href="#L2565">2565</a> <em class="jxr_javadoccomment">   * @return the list or empty list if null</em>
+<a class="jxr_linenumber" name="L2566" href="#L2566">2566</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2567" href="#L2567">2567</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; List&lt;T&gt; nonNull(List&lt;T&gt; list) {
+<a class="jxr_linenumber" name="L2568" href="#L2568">2568</a>     <strong class="jxr_keyword">return</strong> list == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> ArrayList&lt;T&gt;() : list;
+<a class="jxr_linenumber" name="L2569" href="#L2569">2569</a>   }
+<a class="jxr_linenumber" name="L2570" href="#L2570">2570</a> 
+<a class="jxr_linenumber" name="L2571" href="#L2571">2571</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2572" href="#L2572">2572</a> <em class="jxr_javadoccomment">   * make sure it is non null, if null, then give new map</em>
+<a class="jxr_linenumber" name="L2573" href="#L2573">2573</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L2574" href="#L2574">2574</a> <em class="jxr_javadoccomment">   * @param &lt;K&gt; key of map</em>
+<a class="jxr_linenumber" name="L2575" href="#L2575">2575</a> <em class="jxr_javadoccomment">   * @param &lt;V&gt; value of map</em>
+<a class="jxr_linenumber" name="L2576" href="#L2576">2576</a> <em class="jxr_javadoccomment">   * @param map is map</em>
+<a class="jxr_linenumber" name="L2577" href="#L2577">2577</a> <em class="jxr_javadoccomment">   * @return set non null</em>
+<a class="jxr_linenumber" name="L2578" href="#L2578">2578</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2579" href="#L2579">2579</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;K,V&gt; Map&lt;K,V&gt; nonNull(Map&lt;K,V&gt; map) {
+<a class="jxr_linenumber" name="L2580" href="#L2580">2580</a>     <strong class="jxr_keyword">return</strong> map == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> HashMap&lt;K,V&gt;() : map;
+<a class="jxr_linenumber" name="L2581" href="#L2581">2581</a>   }
+<a class="jxr_linenumber" name="L2582" href="#L2582">2582</a> 
+<a class="jxr_linenumber" name="L2583" href="#L2583">2583</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2584" href="#L2584">2584</a> <em class="jxr_javadoccomment">   * make sure a list is non null.  If null, then return an empty set</em>
+<a class="jxr_linenumber" name="L2585" href="#L2585">2585</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L2586" href="#L2586">2586</a> <em class="jxr_javadoccomment">   * @param set</em>
+<a class="jxr_linenumber" name="L2587" href="#L2587">2587</a> <em class="jxr_javadoccomment">   * @return the set or empty set if null</em>
+<a class="jxr_linenumber" name="L2588" href="#L2588">2588</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2589" href="#L2589">2589</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; Set&lt;T&gt; nonNull(Set&lt;T&gt; set) {
+<a class="jxr_linenumber" name="L2590" href="#L2590">2590</a>     <strong class="jxr_keyword">return</strong> set == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> HashSet&lt;T&gt;() : set;
+<a class="jxr_linenumber" name="L2591" href="#L2591">2591</a>   }
+<a class="jxr_linenumber" name="L2592" href="#L2592">2592</a> 
+<a class="jxr_linenumber" name="L2593" href="#L2593">2593</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2594" href="#L2594">2594</a> <em class="jxr_javadoccomment">   * make sure a array is non null.  If null, then return an empty array.</em>
+<a class="jxr_linenumber" name="L2595" href="#L2595">2595</a> <em class="jxr_javadoccomment">   * @param &lt;T&gt;</em>
+<a class="jxr_linenumber" name="L2596" href="#L2596">2596</a> <em class="jxr_javadoccomment">   * @param array</em>
+<a class="jxr_linenumber" name="L2597" href="#L2597">2597</a> <em class="jxr_javadoccomment">   * @param theClass to make array from</em>
+<a class="jxr_linenumber" name="L2598" href="#L2598">2598</a> <em class="jxr_javadoccomment">   * @return the list or empty list if null</em>
+<a class="jxr_linenumber" name="L2599" href="#L2599">2599</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2600" href="#L2600">2600</a>   @SuppressWarnings({ <span class="jxr_string">"unchecked"</span>, <span class="jxr_string">"cast"</span> })
+<a class="jxr_linenumber" name="L2601" href="#L2601">2601</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> &lt;T&gt; T[] nonNull(T[] array, Class&lt;?&gt; theClass) {
+<a class="jxr_linenumber" name="L2602" href="#L2602">2602</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">int</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2603" href="#L2603">2603</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[0];
+<a class="jxr_linenumber" name="L2604" href="#L2604">2604</a>     }
+<a class="jxr_linenumber" name="L2605" href="#L2605">2605</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">float</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2606" href="#L2606">2606</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">float</strong>[0];
+<a class="jxr_linenumber" name="L2607" href="#L2607">2607</a>     }
+<a class="jxr_linenumber" name="L2608" href="#L2608">2608</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">double</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2609" href="#L2609">2609</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[0];
+<a class="jxr_linenumber" name="L2610" href="#L2610">2610</a>     }
+<a class="jxr_linenumber" name="L2611" href="#L2611">2611</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">short</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2612" href="#L2612">2612</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">short</strong>[0];
+<a class="jxr_linenumber" name="L2613" href="#L2613">2613</a>     }
+<a class="jxr_linenumber" name="L2614" href="#L2614">2614</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">long</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2615" href="#L2615">2615</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[0];
+<a class="jxr_linenumber" name="L2616" href="#L2616">2616</a>     }
+<a class="jxr_linenumber" name="L2617" href="#L2617">2617</a>     <strong class="jxr_keyword">if</strong> (byte.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2618" href="#L2618">2618</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> byte[0];
 <a class="jxr_linenumber" name="L2619" href="#L2619">2619</a>     }
-<a class="jxr_linenumber" name="L2620" href="#L2620">2620</a>   
-<a class="jxr_linenumber" name="L2621" href="#L2621">2621</a>     <strong class="jxr_keyword">if</strong> (first == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2622" href="#L2622">2622</a>       <strong class="jxr_keyword">return</strong> -1;
-<a class="jxr_linenumber" name="L2623" href="#L2623">2623</a>     }
-<a class="jxr_linenumber" name="L2624" href="#L2624">2624</a>     
-<a class="jxr_linenumber" name="L2625" href="#L2625">2625</a>     <strong class="jxr_keyword">if</strong> (second == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L2626" href="#L2626">2626</a>       <strong class="jxr_keyword">return</strong> 1;
-<a class="jxr_linenumber" name="L2627" href="#L2627">2627</a>     }
-<a class="jxr_linenumber" name="L2628" href="#L2628">2628</a>     <strong class="jxr_keyword">return</strong> first.compareTo(second);
-<a class="jxr_linenumber" name="L2629" href="#L2629">2629</a>   }
-<a class="jxr_linenumber" name="L2630" href="#L2630">2630</a> }
+<a class="jxr_linenumber" name="L2620" href="#L2620">2620</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">boolean</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2621" href="#L2621">2621</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">boolean</strong>[0];
+<a class="jxr_linenumber" name="L2622" href="#L2622">2622</a>     }
+<a class="jxr_linenumber" name="L2623" href="#L2623">2623</a>     <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">char</strong>.<strong class="jxr_keyword">class</strong>.equals(theClass)) {
+<a class="jxr_linenumber" name="L2624" href="#L2624">2624</a>       <strong class="jxr_keyword">return</strong> (T[])(Object)<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[0];
+<a class="jxr_linenumber" name="L2625" href="#L2625">2625</a>     }
+<a class="jxr_linenumber" name="L2626" href="#L2626">2626</a>     <strong class="jxr_keyword">return</strong> array == <strong class="jxr_keyword">null</strong> ? ((T[])Array.newInstance(theClass, 0)) : array;
+<a class="jxr_linenumber" name="L2627" href="#L2627">2627</a>   }
+<a class="jxr_linenumber" name="L2628" href="#L2628">2628</a> 
+<a class="jxr_linenumber" name="L2629" href="#L2629">2629</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L2630" href="#L2630">2630</a> <em class="jxr_javadoccomment">   * compare null safe</em>
+<a class="jxr_linenumber" name="L2631" href="#L2631">2631</a> <em class="jxr_javadoccomment">   * @param first</em>
+<a class="jxr_linenumber" name="L2632" href="#L2632">2632</a> <em class="jxr_javadoccomment">   * @param second</em>
+<a class="jxr_linenumber" name="L2633" href="#L2633">2633</a> <em class="jxr_javadoccomment">   * @return 0 for equal, 1 for greater, -1 for less</em>
+<a class="jxr_linenumber" name="L2634" href="#L2634">2634</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L2635" href="#L2635">2635</a>   @SuppressWarnings(<span class="jxr_string">"unchecked"</span>)
+<a class="jxr_linenumber" name="L2636" href="#L2636">2636</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> compare(Comparable first, Comparable second) {
+<a class="jxr_linenumber" name="L2637" href="#L2637">2637</a>     <strong class="jxr_keyword">if</strong> (first == second) {
+<a class="jxr_linenumber" name="L2638" href="#L2638">2638</a>       <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L2639" href="#L2639">2639</a>     }
+<a class="jxr_linenumber" name="L2640" href="#L2640">2640</a>   
+<a class="jxr_linenumber" name="L2641" href="#L2641">2641</a>     <strong class="jxr_keyword">if</strong> (first == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2642" href="#L2642">2642</a>       <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L2643" href="#L2643">2643</a>     }
+<a class="jxr_linenumber" name="L2644" href="#L2644">2644</a>     
+<a class="jxr_linenumber" name="L2645" href="#L2645">2645</a>     <strong class="jxr_keyword">if</strong> (second == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L2646" href="#L2646">2646</a>       <strong class="jxr_keyword">return</strong> 1;
+<a class="jxr_linenumber" name="L2647" href="#L2647">2647</a>     }
+<a class="jxr_linenumber" name="L2648" href="#L2648">2648</a>     <strong class="jxr_keyword">return</strong> first.compareTo(second);
+<a class="jxr_linenumber" name="L2649" href="#L2649">2649</a>   }
+<a class="jxr_linenumber" name="L2650" href="#L2650">2650</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
