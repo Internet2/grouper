@@ -128,9 +128,10 @@ public class GrouperStartup {
 
     StringBuilder resultString = new StringBuilder();
     resultString.append(grouperStartup + "\n");
-    File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
-    String propertiesFileLocation = grouperPropertiesFile == null ? "not found" 
-        : GrouperUtil.fileCanonicalPath(grouperPropertiesFile); 
+    String propertiesFileLocation = GrouperUtil.getLocationFromResourceName("grouper.properties");
+    if (propertiesFileLocation == null) {
+      propertiesFileLocation = "not found";
+    }
     resultString.append("grouper.properties read from: " + propertiesFileLocation + "\n");
 
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.api.readonly", false)) {
@@ -139,15 +140,17 @@ public class GrouperStartup {
     
     resultString.append("Grouper current directory is: " + new File("").getAbsolutePath() + "\n");
     //get log4j file
-    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
-    String log4jFileLocation = log4jFile == null ? " [cant find log4j.properties]" :
-      GrouperUtil.fileCanonicalPath(log4jFile);
+    String log4jFileLocation = GrouperUtil.getLocationFromResourceName("log4j.properties");
+    if (log4jFileLocation == null) {
+      log4jFileLocation = " [cant find log4j.properties]";
+    }
     resultString.append("log4j.properties read from:   " + log4jFileLocation + "\n");
     
-    resultString.append(GrouperUtil.logDirPrint());    
-    File hibPropertiesFile = GrouperUtil.fileFromResourceName("grouper.hibernate.properties");
-    String hibPropertiesFileLocation = hibPropertiesFile == null ? " [cant find grouper.hibernate.properties]" :
-      GrouperUtil.fileCanonicalPath(hibPropertiesFile);
+    resultString.append(GrouperUtil.logDirPrint());
+    String hibPropertiesFileLocation = GrouperUtil.getLocationFromResourceName("grouper.hibernate.properties");
+    if (hibPropertiesFileLocation == null) {
+      hibPropertiesFileLocation = " [cant find grouper.hibernate.properties]";
+    }
     resultString.append("grouper.hibernate.properties: " + hibPropertiesFileLocation + "\n");
     
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");

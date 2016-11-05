@@ -1916,6 +1916,7 @@ public class SubjectUtils {
    * 
    * @return the file path on the system
    */
+  @Deprecated
   public static File fileFromResourceName(String resourceName) {
     
     URL url = computeUrl(resourceName, true);
@@ -1927,6 +1928,25 @@ public class SubjectUtils {
     File configFile = new File(url.getFile());
   
     return configFile;
+  }
+
+  /**
+   * get a file name from a resource name
+   *
+   * @param resourceName
+   *          is the classpath location
+   *
+   * @return Full path to the resource. For files, the file path on the system; otherwise, the resource URL
+   */
+  public static String getLocationFromResourceName(String resourceName) {
+
+    URL url = computeUrl(resourceName, true);
+
+    if (url == null) {
+      return null;
+    }
+
+    return (url.getProtocol() == "file") ? fileCanonicalPath(new File(url.getFile())) : url.toString();
   }
 
   /**

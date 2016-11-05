@@ -207,10 +207,10 @@ public class SourceManager {
     try {
       StringBuilder result = new StringBuilder();
 
-      File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
-      String sourcesXmlFileLocation = sourcesXmlFile == null ? " [cant find sources.xml]"
-          : SubjectUtils.fileCanonicalPath(sourcesXmlFile);
-
+      String sourcesXmlFileLocation = SubjectUtils.getLocationFromResourceName("sources.xml");
+      if (sourcesXmlFileLocation == null) {
+        sourcesXmlFileLocation = " [cant find sources.xml]";
+      }
       result.append("sources.xml read from:        " + sourcesXmlFileLocation + "\n");
 
       //at this point, we have a sources.xml...  now check it out

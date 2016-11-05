@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -189,30 +190,38 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
               log.debug("reading properties file " + propertiesFile);
             }
          
+            URL rsrcLocation;
             // Try opening the properties file from the file system
             File theFile = new File(propertiesFile);
-         
-            // If the file does not exist on the file system
-            if (!theFile.exists()) {
-        	 // Try opening the file from the classpath
-        	 theFile = SubjectUtils.fileFromResourceName(propertiesFile);
+
+            if (theFile.exists()) {
+              rsrcLocation = theFile.toURI().toURL();
+              if (log.isDebugEnabled()) {
+                log.debug("properties file " + propertiesFile + " was found on the filesystem, location " + rsrcLocation.getFile());
+              }
+            } else {
+              // otherwise, get it from the classpath
+              rsrcLocation = SubjectUtils.computeUrl(propertiesFile, true);
+              if (log.isDebugEnabled()) {
+                log.debug("properties file " + propertiesFile + " was found on the classpath, location uri " + rsrcLocation);
+              }
             }
-         
-            // If not successfull, throw runtime exception.
-            if (theFile == null) {
+
+            // If not successful, throw runtime exception.
+            if (rsrcLocation == null) {
         	 log.error("Unable to open properties file '" + propertiesFile + "'");
         	 throw new IllegalArgumentException("Unable to open properties file '" + propertiesFile + "'");
             }
 
             // Create the ldap configuration from the properties file
-            ldapConfig = LdapConfig.createFromProperties(new FileInputStream(theFile));
+            ldapConfig = LdapConfig.createFromProperties(rsrcLocation.openStream());
             if (log.isDebugEnabled()) {
                log.debug("from properties file " + propertiesFile + " got " + ldapConfig);
             }
             
             // Create a properties object from the properties file
             Properties properties = new Properties();
-            properties.load(new FileInputStream(theFile));            
+            properties.load(rsrcLocation.openStream());
             
             // Get the bindCredential property
             String bindCredential = properties.getProperty("edu.vt.middleware.ldap.bindCredential");                            

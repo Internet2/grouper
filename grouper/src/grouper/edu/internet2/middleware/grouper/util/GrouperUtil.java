@@ -1371,6 +1371,38 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * get a full path from a resource name
+   *
+   * @param resourceName
+   *          is the classpath location
+   *
+   * @return Full path to the resource. For files, the file path on the system; otherwise, the resource URL
+   */
+  public static String getLocationFromResourceName(String resourceName) {
+
+    URL url = computeUrl(resourceName, true);
+
+    if (url == null) {
+      return null;
+    }
+
+    if (url.getProtocol() == "file") {
+      try {
+        String urlFile = URLDecoder.decode(url.getFile(), "UTF-8");
+        return fileCanonicalPath(new File(urlFile));
+      } catch (UnsupportedEncodingException uee) {
+        throw new RuntimeException(uee);
+      }
+    }
+
+    try {
+      String urlPath = URLDecoder.decode(url.toString(), "UTF-8");
+      return urlPath;
+    } catch (UnsupportedEncodingException uee) {
+      throw new RuntimeException(uee);
+    }
+  }
 
   /**
    * compute a url of a resource
