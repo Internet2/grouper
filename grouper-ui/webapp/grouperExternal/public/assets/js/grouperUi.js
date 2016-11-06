@@ -231,7 +231,7 @@ function guiMessageHelper(messageType, message) {
     alert('messageType must be success, info, or error: ' + messageType);
   }
   
-  var finalMessage = '<div class="alert alert-' + messageType 
+  var finalMessage = '<div role="alert" class="alert alert-' + messageType 
     + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
     + message + '</div>';
   $('#messaging').hide().empty().append(finalMessage).slideDown('slow');
