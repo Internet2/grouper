@@ -49,7 +49,7 @@
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['stemFilterPrivilegeFormPlaceholder']}" class="span12"
-                       name="privilegeFilterText" id="table-filter">
+                       name="privilegeFilterText" id="table-filter" aria-label="Enter Entity Name">
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Stem.filterPrivileges?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId'}); return false;"> 

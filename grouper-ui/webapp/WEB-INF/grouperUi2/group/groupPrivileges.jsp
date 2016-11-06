@@ -60,7 +60,7 @@
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterPrivilegeFormPlaceholder']}" class="span12"
-                       name="privilegeFilterText" id="table-filter">
+                       name="privilegeFilterText" id="table-filter" aria-label="Enter Entity Name">
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Group.filterPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
