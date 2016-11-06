@@ -316,6 +316,7 @@ public abstract class GuiObjectBase {
    */
   public String getBreadcrumbs() {
     StringBuilder result = new StringBuilder();
+    result.append("<h1 style=\"display:none; \">breadcrumb</h1>");
     result.append("<ul class=\"breadcrumb\">");
     result.append(this.getBreadcrumbBullets());
     result.append("</ul>");
