@@ -1825,7 +1825,7 @@ public class GrouperInstaller {
       //    <tr>
       //      <td>
       //        <p>
-      //          <a href="http://software.internet2.edu/grouper/release/2.2.1/patches/grouper_v2_2_1_api_patch_1.tar.gz">grouper_v2_2_1_api_patch_1</a>
+      //          <a href="https://software.internet2.edu/grouper/release/2.2.1/patches/grouper_v2_2_1_api_patch_1.tar.gz">grouper_v2_2_1_api_patch_1</a>
       //        </p>
       //      </td>
       //      <td>
@@ -1842,7 +1842,7 @@ public class GrouperInstaller {
       String wikiMarkup = "    <tr>\n"
         + "      <td>\n"
         + "        <p>\n"
-        + "          <a href=\"http://software.internet2.edu/grouper/release/" + grouperVersion + "/patches/" + patchName + ".tar.gz\">" + patchName + "</a>\n"
+        + "          <a href=\"https://software.internet2.edu/grouper/release/" + grouperVersion + "/patches/" + patchName + ".tar.gz\">" + patchName + "</a>\n"
         + "        </p>\n"
         + "      </td>\n"
         + "      <td>\n"
