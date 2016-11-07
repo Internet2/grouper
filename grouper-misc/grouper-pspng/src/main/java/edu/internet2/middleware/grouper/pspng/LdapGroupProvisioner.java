@@ -368,7 +368,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   protected void deleteGroup(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup)
       throws PspException {
     if ( ldapGroup == null ) {
-      LOG.warn("Unable to delete group {} because the group wasn't found on target system", grouperGroupInfo);
+      LOG.warn("Nothing to do: Unable to delete group {} because the group wasn't found on target system", grouperGroupInfo);
       return;
     }
     
