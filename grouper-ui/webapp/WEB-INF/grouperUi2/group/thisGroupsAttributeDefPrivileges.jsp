@@ -8,14 +8,15 @@
             <div class="row-fluid">
               <div class="span12">
                 <div id="messages"></div>
-
-                <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
-                  <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
-                  </c:if>
-                  <%@ include file="groupMoreTab.jsp" %>
-                </ul>
+				<div class="tab-interface">
+                  <ul class="nav nav-tabs">
+                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
+                    <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
+                      <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+                    </c:if>
+                    <%@ include file="groupMoreTab.jsp" %>
+                  </ul>
+				</div>
 
                 <p class="lead">${textContainer.text['thisGroupsAttributeDefPrivilegesDescription'] }</p>
                 <form class="form-inline form-small form-filter" id="groupFilterPrivilegesFormId">
@@ -39,7 +40,7 @@
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['thisGroupsPrivilegesAttributeDefFilterFormPlaceholder']}" 
-                         name="privilegeFilterText" id="table-filter" class="span12"/>
+                         name="privilegeFilterText" id="table-filter" class="span12" aria-label="Enter Entity Name"/>
                     </div>
 
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
@@ -57,4 +58,5 @@
                 </div>                
               </div>
             </div>
+            <script>setupAccessibilityTabs();</script>
             <!-- end group/thisGroupsAttributeDefPrivileges.jsp -->

@@ -8,7 +8,7 @@
             <%@ include file="stemHeader.jsp" %>
 
             <div class="row-fluid">
-              <div class="span12">
+              <div class="span12 tab-interface">
                 <ul class="nav nav-tabs">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
                   <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
@@ -73,4 +73,5 @@
                 </c:choose>
               </div>
             </div>
+            <script>setupAccessibilityTabs();</script>
             

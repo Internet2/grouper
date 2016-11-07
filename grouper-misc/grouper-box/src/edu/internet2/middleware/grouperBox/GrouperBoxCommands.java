@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxAPIException;
@@ -12,6 +13,7 @@ import com.box.sdk.BoxGroup;
 import com.box.sdk.BoxGroupMembership;
 import com.box.sdk.BoxGroupMembership.Role;
 import com.box.sdk.BoxUser;
+import com.box.sdk.BoxUser.Status;
 import com.box.sdk.DeveloperEditionEntityType;
 import com.box.sdk.EncryptionAlgorithm;
 import com.box.sdk.IAccessTokenCache;
@@ -23,6 +25,9 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Morph;
 
+/**
+ * commands against the box api
+ */
 public class GrouperBoxCommands {
 
   /**
@@ -44,12 +49,12 @@ public class GrouperBoxCommands {
 //    GrouperBoxUser grouperBoxUser = retrieveUser("323009820");
 //    System.out.println(grouperBoxUser.getBoxUserInfo().getLogin());
 //
-//    Map<String, GrouperBoxUser> allUsersMap = retrieveUsers();
-//    for (String loginid : allUsersMap.keySet()) {
-//      System.out.println(loginid);
-//      GrouperBoxUser theGrouperBoxUser = allUsersMap.get(loginid);
-//      System.out.println(theGrouperBoxUser.getBoxUserInfo().getID());
-//    }
+    Map<String, GrouperBoxUser> allUsersMap = retrieveBoxUsers();
+    for (String loginid : allUsersMap.keySet()) {
+      System.out.println(loginid);
+      GrouperBoxUser theGrouperBoxUser = allUsersMap.get(loginid);
+      System.out.println(theGrouperBoxUser.getBoxUserInfo().getID());
+    }
 
 //    Map<String, GrouperBoxGroup> allGroupsMap = retrieveGroups();
 //    Map<String, GrouperBoxUser> allUsersMap = retrieveUsers();
@@ -62,15 +67,15 @@ public class GrouperBoxCommands {
 //    
 //    grouperBoxGroup.removeUserFromGroup(grouperBoxUser, false);
 //    grouperBoxGroup.removeUserFromGroup(grouperBoxUser, false);
-
-    createBoxGroup("testGroup3", false);
-    createBoxGroup("testGroup3", false);
-
-    Map<String, GrouperBoxGroup> allGroupsMap = retrieveGroups();
-    GrouperBoxGroup grouperBoxGroup = allGroupsMap.get("testGroup3");
-
-    deleteBoxGroup(grouperBoxGroup, false);
-    deleteBoxGroup(grouperBoxGroup, false);
+//
+//    createBoxGroup("testGroup3", false);
+//    createBoxGroup("testGroup3", false);
+//
+//    Map<String, GrouperBoxGroup> allGroupsMap = retrieveBoxGroups();
+//    GrouperBoxGroup grouperBoxGroup = allGroupsMap.get("testGroup3");
+//
+//    deleteBoxGroup(grouperBoxGroup, false);
+//    deleteBoxGroup(grouperBoxGroup, false);
 
   }
 
@@ -120,79 +125,14 @@ public class GrouperBoxCommands {
     return boxAPIConnection;
   }
   
-//  /**
-//   * @param userId
-//   * @param groupId
-//   * @param isIncremental
-//   * @return the json object
-//   */
-//  public static JSONObject assignUserToGroup(String userId, String groupId, boolean isIncremental) {
-//    
-//    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-//
-//    debugMap.put("method", "assignUserToGroup");
-//    debugMap.put("userId", userId);
-//    debugMap.put("groupId", groupId);
-//    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
-//    long startTime = System.nanoTime();
-//    try {
-//      
-//      if (GrouperClientUtils.isBlank(userId)) {
-//        throw new RuntimeException("Why is userId blank?");
-//      }
-//      
-//      if (GrouperClientUtils.isBlank(groupId)) {
-//        throw new RuntimeException("Why is groupId blank?");
-//      }
-//      
-//      //assign group to user
-//      BoxAPIConnection boxAPIConnection = retrieveBoxApiConnection();
-//
-//      //lets see if user exists
-//      
-//      
-//      // POST /admin/v1/users/[user_id]/groups
-//      String path = "/admin/v1/users/" + userId + "/groups";
-//      debugMap.put("POST", path);
-//      Http request = httpAdmin("POST", path);
-//      request.addParam("group_id", groupId);
-//
-//      signHttpAdmin(request);
-//
-//      String result = executeRequestRaw(request);
-//
-//      JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( result );     
-//
-//      if (!StringUtils.equals(jsonObject.getString("stat"), "OK")) {
-//
-//        //  {
-//        //    "stat": "OK",
-//        //    "response": ""
-//        //  }
-//        
-//        debugMap.put("error", true);
-//        debugMap.put("result", result);
-//        throw new RuntimeException("Bad response from Duo: " + result);
-//      }
-//
-//      return jsonObject;
-//    } catch (RuntimeException re) {
-//      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-//      throw re;
-//    } finally {
-//      GrouperBoxLog.boxLog(debugMap, startTime);
-//    }
-//
-//  }
-
   /**
    * @return the name of group mapped to group
    */
-  public static Map<String, GrouperBoxGroup> retrieveGroups() {
+  public static Map<String, GrouperBoxGroup> retrieveBoxGroups() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "retrieveGroups");
+    debugMap.put("method", "retrieveBoxGroups");
 
     long startTime = System.nanoTime();
     
@@ -222,13 +162,109 @@ public class GrouperBoxCommands {
   }
 
   /**
-   * @return login id to user
+   * deprovision or undeprovision user
+   * @param grouperBoxUser
+   * @param debugMap
    */
-  public static Map<String, GrouperBoxUser> retrieveUsers() {
+  public static void deprovisionOrUndeprovision(GrouperBoxUser grouperBoxUser, Map<String, Object> debugMap) {
+
+    String whitelistBoxIds = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.whitelistBoxIds");
+    if (!GrouperClientUtils.isBlank(whitelistBoxIds)) {
+      Set<String> whitelistBoxIdSet = GrouperClientUtils.splitTrimToSet(whitelistBoxIds, ",");
+      //ignore whitelist users
+      if (whitelistBoxIdSet.contains(grouperBoxUser.getBoxUserInfo().getLogin())) {
+        return;
+      }
+    }
+    
+    Map<String, String[]> usersAllowedToBeInBox = GrouperWsCommandsForBox.retrieveGrouperUsers();
+
+    if (usersAllowedToBeInBox == null) {
+      return;
+    }
+    
+    String boxUsername = grouperBoxUser.getBoxUserInfo().getLogin();
+    boolean allowedToBeInBox = usersAllowedToBeInBox.containsKey(boxUsername);
+
+    boolean updateUser = false;
+    
+    if (allowedToBeInBox) {
+
+      String newStatusUndeprovisionString = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.statusUndeprovisionedUsers");
+      Status newStatusUndeprovision = GrouperClientUtils.isBlank(newStatusUndeprovisionString) 
+          ? null : Status.valueOf(newStatusUndeprovisionString.toUpperCase());
+
+      //
+      //  # if a user is in the grouperBox.requireGroup group, then set the user's status to active
+      //  # if this is blank then dont worry about it
+      //  grouperBox.statusUndeprovisionedUsers = active
+      if (newStatusUndeprovision != null && newStatusUndeprovision != grouperBoxUser.getBoxUserInfo().getStatus()) {
+        
+        debugMap.put("changeUserStatus_" + boxUsername, newStatusUndeprovisionString);
+        grouperBoxUser.getBoxUserInfo().setStatus(newStatusUndeprovision);
+        updateUser = true;
+      }
+      
+      
+      //
+      //  # if a user is in the grouperBox.requireGroup group, then set is_sync_enabled to true
+      //  grouperBox.statusUndeprovisionEnableSync = true
+      boolean undeprovisionEnableSync = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperBox.undeprovisionEnableSync", false);
+
+      if (undeprovisionEnableSync && !grouperBoxUser.getBoxUserInfo().getIsSyncEnabled()) {
+
+        debugMap.put("changeUserEnableSync_" + boxUsername, true);
+        grouperBoxUser.getBoxUserInfo().setIsSyncEnabled(true);
+        updateUser = true;
+
+      }
+
+    } else {
+
+      String newStatusDeprovisionString = GrouperClientConfig.retrieveConfig().propertyValueString("grouperBox.statusDeprovisionedUsers");
+      Status newStatusDeprovision = GrouperClientUtils.isBlank(newStatusDeprovisionString) 
+          ? null : Status.valueOf(newStatusDeprovisionString.toUpperCase());
+
+      //  # if a user is not in the grouperBox.requireGroup group, then set the user's status to inactive, cannot_delete_edit, or cannot_delete_edit_upload
+      //  # if this is blank then dont worry about it
+      //  grouperBox.statusDeprovisionedUsers = inactive
+      //
+      if (newStatusDeprovision != null && newStatusDeprovision != grouperBoxUser.getBoxUserInfo().getStatus()) {
+        
+        debugMap.put("changeUserStatus_" + boxUsername, newStatusDeprovisionString);
+        grouperBoxUser.getBoxUserInfo().setStatus(newStatusDeprovision);
+        updateUser = true;
+      }
+      
+      
+      //  # if a user is not in the grouperBox.requireGroup group, then set is_sync_enabled to false
+      //  grouperBox.deprovisionDisableSync = true
+      //
+      boolean deprovisionDisableSync = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperBox.deprovisionDisableSync", false);
+
+      if (deprovisionDisableSync && grouperBoxUser.getBoxUserInfo().getIsSyncEnabled()) {
+
+        debugMap.put("changeUserEnableSync_" + boxUsername, false);
+        grouperBoxUser.getBoxUserInfo().setIsSyncEnabled(false);
+        updateUser = true;
+
+      }
+      
+    }
+    if (updateUser) {
+      GrouperBoxCommands.updateBoxUser(grouperBoxUser, false);
+    }
+
+  }
+
+  /**
+   * @return box login id to user never null
+   */
+  public static Map<String, GrouperBoxUser> retrieveBoxUsers() {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "retrieveUsers");
+    debugMap.put("method", "retrieveBoxUsers");
 
     long startTime = System.nanoTime();
     
@@ -258,32 +294,13 @@ public class GrouperBoxCommands {
   }
 
   /**
-   * @return the user based on userId
+   * @param loginid
+   * @return the user based on loginid
    */
-  public static GrouperBoxUser retrieveUser(String userId) {
+  public static GrouperBoxUser retrieveBoxUser(String loginid) {
     
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveUser");
-
-    long startTime = System.nanoTime();
-
-    try {
-  
-      BoxAPIConnection boxAPIConnection = retrieveBoxApiConnection();
-
-      BoxUser boxUser = new BoxUser(boxAPIConnection, userId);
-
-      GrouperBoxUser grouperBoxUser = new GrouperBoxUser(boxUser);
-      
-      return grouperBoxUser;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperBoxLog.boxLog(debugMap, startTime);
-    }
-  
+    return GrouperBoxUser.retrieveUsers().get(loginid);
+    
   }
 
   /**
@@ -314,14 +331,14 @@ public class GrouperBoxCommands {
   }
   
   /**
-   * @param response
+   * @param grouperBoxGroup
    * @return the map from username to grouper user object
    */
-  public static Collection<BoxGroupMembership.Info> retrieveMembershipsForGroup(GrouperBoxGroup grouperBoxGroup) {
+  public static Collection<BoxGroupMembership.Info> retrieveMembershipsForBoxGroup(GrouperBoxGroup grouperBoxGroup) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "groupGetMemberships");
+    debugMap.put("method", "retrieveMembershipsForBoxGroup");
     debugMap.put("group", grouperBoxGroup.getBoxGroupInfo().getName());
 
     long startTime = System.nanoTime();
@@ -348,11 +365,11 @@ public class GrouperBoxCommands {
    * @param isIncremental
    * @return the json object
    */
-  public static BoxGroupMembership.Info assignUserToGroup(GrouperBoxUser grouperBoxUser, GrouperBoxGroup grouperBoxGroup, boolean isIncremental) {
+  public static BoxGroupMembership.Info assignUserToBoxGroup(GrouperBoxUser grouperBoxUser, GrouperBoxGroup grouperBoxGroup, boolean isIncremental) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
-    debugMap.put("method", "assignUserToGroup");
+    debugMap.put("method", "assignUserToBoxGroup");
     debugMap.put("userLoginId", grouperBoxUser.getBoxUserInfo().getLogin());
     debugMap.put("groupName", grouperBoxGroup.getBoxGroupInfo().getName());
     debugMap.put("daemonType", isIncremental ? "incremental" : "full");
@@ -382,11 +399,15 @@ public class GrouperBoxCommands {
    * @param isIncremental
    * @return the json object
    */
-  public static BoxGroupMembership.Info removeUserFromGroup(GrouperBoxUser grouperBoxUser, GrouperBoxGroup grouperBoxGroup, boolean isIncremental) {
+  public static BoxGroupMembership.Info removeUserFromBoxGroup(GrouperBoxUser grouperBoxUser, GrouperBoxGroup grouperBoxGroup, boolean isIncremental) {
+    
+    if (grouperBoxGroup == null) {
+      return null;
+    }
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
-    debugMap.put("method", "removeUserFromGroup");
+    debugMap.put("method", "removeUserFromBoxGroup");
     debugMap.put("userLoginId", grouperBoxUser.getBoxUserInfo().getLogin());
     debugMap.put("groupName", grouperBoxGroup.getBoxGroupInfo().getName());
     debugMap.put("daemonType", isIncremental ? "incremental" : "full");
@@ -446,7 +467,7 @@ public class GrouperBoxCommands {
       if (boxAPIException.getResponseCode() == 409) {
         debugMap.put("alreadyExisted", true);
         //just get all again i guess
-        return retrieveGroups().get(groupName);
+        return retrieveBoxGroups().get(groupName);
       }
         
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(boxAPIException));
@@ -461,13 +482,50 @@ public class GrouperBoxCommands {
   }
 
   /**
-   * delete box group
-   * @param groupId
+   * update box user
+   * @param grouperBoxUser 
    * @param isIncremental incremental or full (for logging)
-   * @return the json object
    */
-  public static void deleteBoxGroup(GrouperBoxGroup grouperBoxGroup, boolean isIncremental) {
+  public static void updateBoxUser(GrouperBoxUser grouperBoxUser, boolean isIncremental) {
     
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("method", "updateBoxUser");
+    debugMap.put("login", grouperBoxUser.getBoxUserInfo().getLogin());
+    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
+    long startTime = System.nanoTime();
+    try {
+    
+      grouperBoxUser.getBoxUser().updateInfo(grouperBoxUser.getBoxUserInfo());
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperBoxLog.boxLog(debugMap, startTime);
+    }
+    
+  }
+
+  /**
+   * delete box group or just remove all members (if configured)
+   * @param grouperBoxGroup
+   * @param isIncremental incremental or full (for logging)
+   * @return true if did anything
+   */
+  public static boolean deleteBoxGroup(GrouperBoxGroup grouperBoxGroup, boolean isIncremental) {
+
+    if (grouperBoxGroup == null) {
+      return false;
+    }
+    
+    //# is grouper the true system of record, delete box groups which dont exist in grouper
+    boolean deleteGroupsInBoxWhichArentInGrouper = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperBox.deleteGroupsInBoxWhichArentInGrouper", true);
+
+    if (!deleteGroupsInBoxWhichArentInGrouper && GrouperClientUtils.length(grouperBoxGroup.getMemberUsers()) == 0) {
+      return false;
+    }
+
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "deleteDuoGroup");
@@ -475,17 +533,34 @@ public class GrouperBoxCommands {
     debugMap.put("daemonType", isIncremental ? "incremental" : "full");
     long startTime = System.nanoTime();
     try {
-    
-      grouperBoxGroup.getBoxGroup().delete();
-      
-    } catch (BoxAPIException boxAPIException) {
-      if (boxAPIException.getResponseCode() == 404) {
-        debugMap.put("didntExist", true);
-        return;
-      }
+      if (deleteGroupsInBoxWhichArentInGrouper) {
+  
+        debugMap.put("deleteGroup", true);
+        try {
         
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(boxAPIException));
-      throw boxAPIException;
+          grouperBoxGroup.getBoxGroup().delete();
+          
+        } catch (BoxAPIException boxAPIException) {
+          if (boxAPIException.getResponseCode() == 404) {
+            debugMap.put("didntExist", true);
+            return false;
+          }
+            
+          debugMap.put("exception", GrouperClientUtils.getFullStackTrace(boxAPIException));
+          throw boxAPIException;
+        }
+      } else {
+        debugMap.put("removeMembershipsInsteadOfDeleteGroup", true);
+        //remove all memberships
+        
+        Map<String, GrouperBoxUser> boxMemberUsernameToUser = grouperBoxGroup.getMemberUsers();
+
+        for (GrouperBoxUser grouperBoxUser : GrouperClientUtils.nonNull(boxMemberUsernameToUser).values()) {
+          removeUserFromBoxGroup(grouperBoxUser, grouperBoxGroup, isIncremental);
+        }
+      }
+      
+      return true;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;

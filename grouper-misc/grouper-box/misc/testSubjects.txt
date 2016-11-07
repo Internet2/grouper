@@ -1,0 +1,30 @@
+addSubject("johnjohnsonsmithYahoo", "person", "johnjohnsonsmithYahoo");
+addSubject("mchyzerGoogle", "person", "mchyzerGoogle");
+addSubject("kfb1", "person", "kfb1");
+
+insert into subjectattribute (subjectId, name, value, searchValue) values('johnjohnsonsmithYahoo','description','description.johnjohnsonsmithYahoo','description.johnjohnsonsmithyahoo');
+
+insert into subjectattribute (subjectId, name, value, searchValue) values('johnjohnsonsmithYahoo','email','johnjohnsonsmith@yahoo.com','johnjohnsonsmith@yahoo.com');
+
+insert into subjectattribute (subjectId, name, value, searchValue)values('johnjohnsonsmithYahoo','loginid','johnjohnsonsmithYahoo','johnjohnsonsmithyahoo');
+
+insert into subjectattribute (subjectId, name, value, searchValue)values('johnjohnsonsmithYahoo','name','johnjohnsonsmithYahoo','johnjohnsonsmithYahoo');
+
+insert into subjectattribute (subjectId, name, value, searchValue) values('mchyzerGoogle','description','description.mchyzerGoogle','description.mchyzergoogle');
+
+insert into subjectattribute (subjectId, name, value, searchValue) values('mchyzerGoogle','email','mchyzer@gmail.com','mchyzer@gmail.com');
+
+insert into subjectattribute (subjectId, name, value, searchValue)values('mchyzerGoogle','loginid','mchyzerGoogle','mchyzergoogle');
+
+insert into subjectattribute (subjectId, name, value, searchValue)values('mchyzerGoogle','name','mchyzerGoogle','mchyzergoogle');
+
+insert into subjectattribute (subjectId, name, value, searchValue) values('kfb1','description','kfb1','kfb1');
+
+insert into subjectattribute (subjectId, name, value, searchValue) values('kfb1','email','kfb1@hotmail.com','kfb1@hotmail.com');
+
+insert into subjectattribute (subjectId, name, value, searchValue)values('kfb1','loginid','kfb1','kfb1');
+
+insert into subjectattribute (subjectId, name, value, searchValue)values('kfb1','name','kfb1','kfb1');
+
+commit;
+

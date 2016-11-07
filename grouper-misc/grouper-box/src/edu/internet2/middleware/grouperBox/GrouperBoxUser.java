@@ -20,7 +20,7 @@ public class GrouperBoxUser {
   
   /**
    * 
-   * @return box api connection
+   * @return box api connection never null
    */
   public synchronized static Map<String, GrouperBoxUser> retrieveUsers() {
     
@@ -28,7 +28,7 @@ public class GrouperBoxUser {
     
     if (usersMap == null) {
       
-      usersMap = GrouperBoxCommands.retrieveUsers();
+      usersMap = GrouperBoxCommands.retrieveBoxUsers();
       
       retrieveUsersCache.put(Boolean.TRUE, usersMap);
     }

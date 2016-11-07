@@ -6,7 +6,7 @@
             <%@ include file="stemHeader.jsp" %>
 
             <div class="row-fluid">
-              <div class="span12">
+              <div class="span12 tab-interface">
                 <ul class="nav nav-tabs">
                   <li class="active"><a href="#" onclick="return false;" >${textContainer.text['stemContents'] }</a></li>
                   <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
@@ -38,3 +38,4 @@
             <c:if test="${grouperRequestContainer.indexContainer.menuRefreshOnView}">
               <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
             </c:if>
+            <script>setupAccessibilityTabs();</script>
