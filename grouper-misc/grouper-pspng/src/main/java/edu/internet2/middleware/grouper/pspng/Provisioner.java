@@ -902,8 +902,9 @@ public abstract class Provisioner
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
         
         if ( config.needsTargetSystemUsers() && tsUser==null ) {
-          LOG.info("{}: Skipping membership for subject that doesn't already exist in target system: {}", getName(), subject.getName());
-          workItem.markAsSuccess("Skipping membership of subject '%s' that doesn't exist in target system", subject.getName());
+          LOG.warn("{}: Skipping adding membership to {} for subject that doesn't exist in target system: {}", 
+              new Object[]{getName(), grouperGroupInfo.getName(), subject.getName()});
+          workItem.markAsSuccess("Skipped: subject '%s' doesn't exist in target system", subject.getName());
           return;
         }
         
@@ -920,6 +921,12 @@ public abstract class Provisioner
         Subject subject = workItem.getSubject(this);
         TSUserClass tsUser = tsUserCache_shortTerm.get(subject);
   
+        if ( config.needsTargetSystemUsers() && tsUser==null ) {
+          LOG.warn("{}: Skipping removing membership of subject from {}: Subject doesn't already exist in target system: {}",
+              new Object[]{getName(), grouperGroupInfo.getName(), subject.getName()});
+          workItem.markAsSuccess("Skipped: subject '%s' doesn't exist in target system", subject.getName());
+          return;
+        }
         deleteMembership(grouperGroupInfo, tsGroup, subject, tsUser);
       }
       else
