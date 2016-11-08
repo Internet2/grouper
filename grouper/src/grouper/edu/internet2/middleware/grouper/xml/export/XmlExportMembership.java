@@ -737,7 +737,7 @@ public class XmlExportMembership {
             + " ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theMembership.ownerGroupId ), "
             + " ( select theStem.nameDb from Stem theStem where theStem.uuid = theMembership.ownerStemId ), "
             + " ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theMembership.ownerAttrDefId ), "
-            + " theMembership.enabledTimeDb, theMembership.disabledTimeDb " + exportFromOnQuery(xmlExportMain, true));
+            + " theMembership.enabledTimeDb, theMembership.disabledTimeDb " + exportFromOnQuery(xmlExportMain, false));
 
         final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.GROUPER_VERSION);
 
