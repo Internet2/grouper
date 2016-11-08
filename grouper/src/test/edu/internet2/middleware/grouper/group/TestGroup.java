@@ -88,6 +88,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -117,7 +118,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testFindGroupsInStemWithoutPrivilege"));
+    TestRunner.run(new TestGroup("testGroupSave"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -496,6 +497,29 @@ public class TestGroup extends GrouperTest {
     super.tearDown();
   }
 
+  /**
+   * 
+   */
+  public void testGroupSave() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    
+    //we have an existing group
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("someNewStem:someGroup").save();
+    
+    //create a group with an assigned uuid
+    String uuid = GrouperUuid.getUuid();
+    
+    Group group1 = new GroupSave(grouperSession).assignName("someNewStem:someGroup1").assignUuid(uuid).save();
+
+    assertEquals(uuid, group1.getUuid());
+    
+    Group group2 = new GroupSave(grouperSession).assignName("someNewStem:someGroup2").assignUuid(group.getUuid()).save();
+    
+    assertEquals(group.getUuid(), group2.getUuid());
+    assertEquals("someNewStem:someGroup2", group2.getName());
+    
+  }
+  
   public void testCreateAssignTypesAttributes() {
     GrouperSession grouperSession = null;
     try {
