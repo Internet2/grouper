@@ -47,6 +47,8 @@ import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -138,6 +140,36 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public void delete(final Group _g)
     throws  GrouperDAOException {
 
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("group.checkForFactorWhenDeletingGroup", true)) {
+
+      Set<Composite> composites = CompositeFinder.findAsFactor(_g);
+      
+      if (GrouperUtil.length(composites) > 0) {
+        StringBuilder ownerList = new StringBuilder();
+        boolean firstLine = true;
+        for (Composite composite : composites) {
+          
+          try {
+            if (!firstLine) {
+              ownerList.append(", ");
+            }
+            
+            Group owner = composite.getOwnerGroup();
+  
+            ownerList.append(owner.getName());
+            
+          } catch (GroupNotFoundException gnfe) {
+            ownerList.append("not allowed to VIEW group");
+          }
+          
+          firstLine = false;
+          
+        }
+  
+        throw new RuntimeException("Cant delete group " + _g.getName() 
+            + ", since it is a factor of composite(s): " + ownerList);
+      }
+    }
     
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
