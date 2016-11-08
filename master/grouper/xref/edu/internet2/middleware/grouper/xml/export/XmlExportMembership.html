@@ -745,7 +745,7 @@
 <a class="jxr_linenumber" name="L737" href="#L737">737</a>             + <span class="jxr_string">" ( select theGroup.nameDb from Group theGroup where theGroup.uuid = theMembership.ownerGroupId ), "</span>
 <a class="jxr_linenumber" name="L738" href="#L738">738</a>             + <span class="jxr_string">" ( select theStem.nameDb from Stem theStem where theStem.uuid = theMembership.ownerStemId ), "</span>
 <a class="jxr_linenumber" name="L739" href="#L739">739</a>             + <span class="jxr_string">" ( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theMembership.ownerAttrDefId ), "</span>
-<a class="jxr_linenumber" name="L740" href="#L740">740</a>             + <span class="jxr_string">" theMembership.enabledTimeDb, theMembership.disabledTimeDb "</span> + exportFromOnQuery(xmlExportMain, <strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L740" href="#L740">740</a>             + <span class="jxr_string">" theMembership.enabledTimeDb, theMembership.disabledTimeDb "</span> + exportFromOnQuery(xmlExportMain, false));
 <a class="jxr_linenumber" name="L741" href="#L741">741</a> 
 <a class="jxr_linenumber" name="L742" href="#L742">742</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a> grouperVersion = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/misc/GrouperVersion.html">GrouperVersion</a>(GrouperVersion.GROUPER_VERSION);
 <a class="jxr_linenumber" name="L743" href="#L743">743</a> 
