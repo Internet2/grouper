@@ -462,8 +462,10 @@ public class AttributeDefSave {
     
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.attributeDefNameToEdit) && !StringUtils.isBlank(this.id)) {
-      AttributeDef attributeDef = AttributeDefFinder.findById(this.id, true);
-      this.attributeDefNameToEdit = attributeDef.getName();
+      AttributeDef attributeDef = AttributeDefFinder.findById(this.id, false);
+      if (attributeDef != null) {
+        this.attributeDefNameToEdit = attributeDef.getName();
+      }
     }
     
     

@@ -383,8 +383,10 @@ public class GroupSave {
 
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.groupNameToEdit) && !StringUtils.isBlank(this.uuid)) {
-      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, true);
-      this.groupNameToEdit = group.getName();
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), this.uuid, false);
+      if (group != null) {
+        this.groupNameToEdit = group.getName();
+      }
     }
     
     if (StringUtils.isBlank(this.groupNameToEdit)) {
