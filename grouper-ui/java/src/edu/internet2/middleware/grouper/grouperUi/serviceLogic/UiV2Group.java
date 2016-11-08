@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
@@ -61,6 +62,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.GrouperValidationException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -1503,8 +1505,41 @@ public class UiV2Group {
       if (group == null) {
         return;
       }
-  
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("uiV2.group.checkForFactorWhenDeletingGroup", true)) {
+        Set<Composite> composites = CompositeFinder.findAsFactor(group);
+        
+        if (GrouperUtil.length(composites) > 0) {
+          StringBuilder result = new StringBuilder();
+          result.append(TextContainer.retrieveFromRequest().getText()
+              .get("groupProblemDeleteWithCompositeFactor")).append(" ");
+          boolean firstLine = true;
+          for (Composite composite : composites) {
+            
+            try {
+              if (!firstLine) {
+                result.append(", ");
+              }
+              
+              Group theGroup = composite.getOwnerGroup();
+    
+              GuiGroup guiGroup = new GuiGroup(theGroup);
+              result.append(guiGroup.getShortLink());
+              
+            } catch (GroupNotFoundException gnfe) {
+              result.append(TextContainer.retrieveFromRequest().getText().get("groupLabelNotAllowedToViewOwner"));
+            }
+            
+            firstLine = false;
+            
+          }
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, result.toString()));
+          return;
+        }
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupDelete.jsp"));
@@ -4621,4 +4656,44 @@ public class UiV2Group {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+
+//  /**
+//   * this subjects privileges inherited from folders
+//   * @param request
+//   * @param response
+//   */
+//  public void provisioning(HttpServletRequest request, HttpServletResponse response) {
+//    
+//    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+//    
+//    GrouperSession grouperSession = null;
+//  
+//    Group group = null;
+//    
+//    try {
+//  
+//      grouperSession = GrouperSession.start(loggedInSubject);
+//  
+//      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+//      
+//      if (group == null) {
+//        return;
+//      }
+//  
+//      ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
+//      
+//      //if viewing a subject, and that subject is a group, just show the group screen
+//      GrouperSubject grouperSubject = new GrouperSubject(group);
+//
+//      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+//  
+//  
+//      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+//          "/WEB-INF/grouperUi2/group/groupProvisioning.jsp"));
+//  
+//    } finally {
+//      GrouperSession.stopQuietly(grouperSession);
+//    }
+//  }
+
 }
