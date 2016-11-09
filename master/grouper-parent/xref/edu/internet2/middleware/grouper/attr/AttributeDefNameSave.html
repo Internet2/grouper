@@ -229,231 +229,233 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>     
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>     <em class="jxr_comment">//get from uuid since could be a rename</em>
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>     <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit) &amp;&amp; !StringUtils.isBlank(<strong class="jxr_keyword">this</strong>.id)) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>       <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName = AttributeDefNameFinder.findById(<strong class="jxr_keyword">this</strong>.id, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>       <strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit = attributeDefName.getName();
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     }
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>     
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit)) {
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>       <strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit = <strong class="jxr_keyword">this</strong>.name;
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>     
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     <em class="jxr_comment">//validate</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <em class="jxr_comment">//get the attributeDefName name</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <strong class="jxr_keyword">if</strong> (!StringUtils.contains(<strong class="jxr_keyword">this</strong>.name, <span class="jxr_string">":"</span>)) {
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"AttributeDefName name must exist and must contain at least one stem name (separated by colons): '"</span> + name + <span class="jxr_string">"'"</span> );
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>     }
-<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     <em class="jxr_comment">//default to insert or update</em>
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html">SaveMode</a> SAVE_MODE = saveMode;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>       <em class="jxr_comment">//do this in a transaction</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>       <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName = (AttributeDefName)GrouperTransaction.callbackGrouperTransaction(<strong class="jxr_keyword">new</strong> GrouperTransactionHandler() {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>   
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html">GrouperTransaction</a> grouperTransaction)
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>           
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>           grouperTransaction.setCachingEnabled(false);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>       <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName = AttributeDefNameFinder.findById(<strong class="jxr_keyword">this</strong>.id, false);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>       <strong class="jxr_keyword">if</strong> (attributeDefName != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit = attributeDefName.getName();
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>       }
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>     
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>     <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit)) {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>       <strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit = <strong class="jxr_keyword">this</strong>.name;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>     }
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>     <em class="jxr_comment">//validate</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <em class="jxr_comment">//get the attributeDefName name</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">if</strong> (!StringUtils.contains(<strong class="jxr_keyword">this</strong>.name, <span class="jxr_string">":"</span>)) {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"AttributeDefName name must exist and must contain at least one stem name (separated by colons): '"</span> + name + <span class="jxr_string">"'"</span> );
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_comment">//default to insert or update</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../edu/internet2/middleware/grouper/misc/SaveMode.html">SaveMode</a> SAVE_MODE = saveMode;
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>       <em class="jxr_comment">//do this in a transaction</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>       <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> attributeDefName = (AttributeDefName)GrouperTransaction.callbackGrouperTransaction(<strong class="jxr_keyword">new</strong> GrouperTransactionHandler() {
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>   
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/hibernate/GrouperTransaction.html">GrouperTransaction</a> grouperTransaction)
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/GrouperDAOException.html">GrouperDAOException</a> {
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>           
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>           <strong class="jxr_keyword">return</strong> (AttributeDefName)GrouperSession.callbackGrouperSession(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.grouperSession, <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> 
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>               <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>                   <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                 String attributeDefNameNameForError = GrouperUtil.defaultIfBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>           grouperTransaction.setCachingEnabled(false);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>           
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>           <strong class="jxr_keyword">return</strong> (AttributeDefName)GrouperSession.callbackGrouperSession(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.grouperSession, <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>               <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>                   <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>                 
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 <strong class="jxr_keyword">int</strong> lastColonIndex = AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name.lastIndexOf(':');
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 <strong class="jxr_keyword">boolean</strong> topLevelAttributeDefName = lastColonIndex &lt; 0;
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 <em class="jxr_comment">//empty is root stem</em>
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>                 String parentStemNameNew = GrouperUtil.parentStemNameFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 <em class="jxr_comment">//note, this might be blank</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 String extensionNew = GrouperUtil.extensionFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName);
-<a class="jxr_linenumber" name="L269" href="#L269">269</a> 
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 <em class="jxr_comment">//figure out the display extension from the extension or the name (or both!)</em>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 String theDisplayExtension = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 <em class="jxr_comment">//if blank, and display name blank, then, use extension</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension) &amp;&amp; StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName)) {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>                   theDisplayExtension = extensionNew;
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension) &amp;&amp; !StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName)) {
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                   <em class="jxr_comment">//if neither blank</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(displayExtensionFromDisplayNameNew, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension)) {
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"The display extension '"</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension 
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                         + <span class="jxr_string">"' is not consistent with the last part of the attributeDefName name '"</span> 
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>                         + displayExtensionFromDisplayNameNew + <span class="jxr_string">"', display name: "</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName);
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                   }
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>                   theDisplayExtension = displayExtensionFromDisplayNameNew;
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension)) {
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>                   theDisplayExtension = AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension;
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName)) {
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                   theDisplayExtension = displayExtensionFromDisplayNameNew;
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>                   <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Shouldnt get here"</span>);
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 }
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                 <em class="jxr_comment">//lets find the stem</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>                 <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> parentStem = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>                 
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>                 <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>                   parentStem = topLevelAttributeDefName ? StemFinder.findRootStem(grouperSession) 
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>                       : StemFinder.findByName(grouperSession, parentStemNameNew, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>                 } <strong class="jxr_keyword">catch</strong> (StemNotFoundException snfe) {
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>                   
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>                   <em class="jxr_comment">//see if we should fix this problem</em>
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                   <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.createParentStemsIfNotExist) {
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                     
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                     <em class="jxr_comment">//at this point the stem should be there (and is equal to currentStem), </em>
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>                     <em class="jxr_comment">//just to be sure, query again</em>
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>                     parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>                   } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a>(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>(<span class="jxr_string">"Cant find stem: '"</span> + parentStemNameNew 
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                         + <span class="jxr_string">"' (from update on stem name: '"</span> + attributeDefNameNameForError + <span class="jxr_string">"')"</span>));
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>                   }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>                 }
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> theAttributeDefName = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 <em class="jxr_comment">//see if update</em>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 <strong class="jxr_keyword">boolean</strong> isUpdate = SAVE_MODE.isUpdate(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 <strong class="jxr_keyword">if</strong> (isUpdate) {
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>                   String parentStemNameLookup = GrouperUtil.parentStemNameFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit);
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a>(<strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Can't move an attributeDefName.  Existing parentStem: '"</span>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>                         + parentStemNameLookup + <span class="jxr_string">"', new stem: '"</span> + parentStemNameNew + <span class="jxr_string">"'"</span>));
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>                   }
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 }    
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>                 theAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit, false, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a>().secondLevelCache(false));
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 <strong class="jxr_keyword">if</strong> (theAttributeDefName != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L328" href="#L328">328</a> 
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                   <em class="jxr_comment">//while we are here, make sure id's match if passed in</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id) &amp;&amp; !StringUtils.equals(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id, theAttributeDefName.getId())) {
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"ID attributeDefName changes are not supported: new: "</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id + <span class="jxr_string">", old: "</span> 
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>                         + theAttributeDefName.getId() + <span class="jxr_string">", "</span> + attributeDefNameNameForError);
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>                   }
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>                   
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                   <strong class="jxr_keyword">if</strong> (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     isUpdate = false;
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                   } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant find attributeDefName: "</span> + attributeDefNameNameForError);
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>                   }
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                   
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>                 }
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 <em class="jxr_comment">//default</em>
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.NO_CHANGE;
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 <strong class="jxr_keyword">boolean</strong> needsSave = false;
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 <em class="jxr_comment">//if inserting</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 <strong class="jxr_keyword">if</strong> (!isUpdate) {
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>                   saveResultType = SaveResultType.INSERT;
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>                   theAttributeDefName = parentStem.internal_addChildAttributeDefName(grouperSession, 
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>                       AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDef, extensionNew, theDisplayExtension, 
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>                       AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.description);
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>                   <em class="jxr_comment">//check if different so it doesnt make unneeded queries</em>
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(theAttributeDefName.getExtension(), extensionNew)) {
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>                       
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>                     <em class="jxr_comment">//lets just confirm that one doesnt exist</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>                     <strong class="jxr_keyword">final</strong> String newName = GrouperUtil.parentStemNameFromName(theAttributeDefName.getName()) + <span class="jxr_string">":"</span> + extensionNew;
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> existingAttributeDefName = (AttributeDefName)GrouperSession.callbackGrouperSession(
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>                         grouperSession.internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> 
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>                       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>                           <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                         <strong class="jxr_keyword">return</strong> AttributeDefNameFinder.findByName(newName, false);
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                       }
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                       
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                     });
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     <strong class="jxr_keyword">if</strong> (existingAttributeDefName != <strong class="jxr_keyword">null</strong> &amp;&amp; !StringUtils.equals(theAttributeDefName.getId(), existingAttributeDefName.getId())) {
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>                       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"AttributeDefNameName already exists: "</span> + newName);
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>                     }
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>                     
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     theAttributeDefName.setExtension(extensionNew);
-<a class="jxr_linenumber" name="L375" href="#L375">375</a> 
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.UPDATE;
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                     needsSave = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>                   }
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(theAttributeDefName.getDisplayExtension(), theDisplayExtension)) {
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.UPDATE;
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                     theAttributeDefName.setDisplayExtensionDb(theDisplayExtension);
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>                     theAttributeDefName.setDisplayNameDb(GrouperUtil.parentStemNameFromName(theAttributeDefName.getDisplayName()) + <span class="jxr_string">":"</span> + theDisplayExtension);
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>                     needsSave = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>                   }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 }
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>                 
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.idIndex != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>                   <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType == SaveResultType.INSERT) {
-<a class="jxr_linenumber" name="L389" href="#L389">389</a> 
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>                     <strong class="jxr_keyword">if</strong> (theAttributeDefName.assignIdIndex(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.idIndex)) {
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>                       needsSave = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>                     }
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>                     
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>                   } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                     <em class="jxr_comment">//maybe they are equal...</em>
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cannot update idIndex for an already created AttributeDefName: "</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.idIndex + <span class="jxr_string">", "</span> + theAttributeDefName.getName());
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>                   }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>                 }
-<a class="jxr_linenumber" name="L399" href="#L399">399</a> 
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>                 <em class="jxr_comment">//now compare and put all attributes (then store if needed)</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 <em class="jxr_comment">//null throws exception? hmmm.  remove attribute if blank</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 <strong class="jxr_keyword">if</strong> (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theAttributeDefName.getDescription())), 
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.description)))) {
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>                   needsSave = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>                   <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType == SaveResultType.NO_CHANGE) {
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.UPDATE;
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>                   }
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>                   theAttributeDefName.setDescription(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.description);
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>                 }
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>                 <strong class="jxr_keyword">if</strong> (!StringUtils.equals(StringUtils.defaultString(theAttributeDefName.getAttributeDefId()), 
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDef.getId())))) {
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>                   <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cannot change attributeDefId of an attributeDefName! "</span> 
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>                       + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDef.getId() + <span class="jxr_string">", "</span> + theAttributeDefName.getAttributeDefId());
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>                 }
-<a class="jxr_linenumber" name="L416" href="#L416">416</a> 
-<a class="jxr_linenumber" name="L417" href="#L417">417</a> 
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>                 <em class="jxr_comment">//only store once</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>                 <strong class="jxr_keyword">if</strong> (needsSave) {
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>                   theAttributeDefName.store();
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 }
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>                 
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>                 <strong class="jxr_keyword">return</strong> theAttributeDefName;
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>               }
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>               
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             });
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>             
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>         }
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>       });
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>       <strong class="jxr_keyword">return</strong> attributeDefName;
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException re) {
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>       
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>       Throwable throwable = re.getCause();
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof StemNotFoundException) {
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>         <strong class="jxr_keyword">throw</strong> (StemNotFoundException)throwable;
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>       }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof InsufficientPrivilegeException) {
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">throw</strong> (InsufficientPrivilegeException)throwable;
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>       }
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof StemAddException) {
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <strong class="jxr_keyword">throw</strong> (StemAddException)throwable;
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>       }
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>       <em class="jxr_comment">//must just be runtime</em>
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>       <strong class="jxr_keyword">throw</strong> re;
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>   }
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> }
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 String attributeDefNameNameForError = GrouperUtil.defaultIfBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>                 <strong class="jxr_keyword">int</strong> lastColonIndex = AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name.lastIndexOf(':');
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 <strong class="jxr_keyword">boolean</strong> topLevelAttributeDefName = lastColonIndex &lt; 0;
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>                 <em class="jxr_comment">//empty is root stem</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 String parentStemNameNew = GrouperUtil.parentStemNameFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 <em class="jxr_comment">//note, this might be blank</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 String extensionNew = GrouperUtil.extensionFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName);
+<a class="jxr_linenumber" name="L271" href="#L271">271</a> 
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 <em class="jxr_comment">//figure out the display extension from the extension or the name (or both!)</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 String theDisplayExtension = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 <em class="jxr_comment">//if blank, and display name blank, then, use extension</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 <strong class="jxr_keyword">if</strong> (StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension) &amp;&amp; StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName)) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                   theDisplayExtension = extensionNew;
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension) &amp;&amp; !StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName)) {
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                   <em class="jxr_comment">//if neither blank</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(displayExtensionFromDisplayNameNew, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension)) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"The display extension '"</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension 
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                         + <span class="jxr_string">"' is not consistent with the last part of the attributeDefName name '"</span> 
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                         + displayExtensionFromDisplayNameNew + <span class="jxr_string">"', display name: "</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName);
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                   }
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                   theDisplayExtension = displayExtensionFromDisplayNameNew;
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension)) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                   theDisplayExtension = AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayExtension;
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.displayName)) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                   theDisplayExtension = displayExtensionFromDisplayNameNew;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                   <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Shouldnt get here"</span>);
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>                 
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                 <em class="jxr_comment">//lets find the stem</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>                 <a href="../../../../../edu/internet2/middleware/grouper/Stem.html">Stem</a> parentStem = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                 
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                   parentStem = topLevelAttributeDefName ? StemFinder.findRootStem(grouperSession) 
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                       : StemFinder.findByName(grouperSession, parentStemNameNew, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>                 } <strong class="jxr_keyword">catch</strong> (StemNotFoundException snfe) {
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                   
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>                   <em class="jxr_comment">//see if we should fix this problem</em>
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>                   <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.createParentStemsIfNotExist) {
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>                     
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                     <em class="jxr_comment">//at this point the stem should be there (and is equal to currentStem), </em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>                     <em class="jxr_comment">//just to be sure, query again</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>                     parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                   } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a>(<strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/StemNotFoundException.html">StemNotFoundException</a>(<span class="jxr_string">"Cant find stem: '"</span> + parentStemNameNew 
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                         + <span class="jxr_string">"' (from update on stem name: '"</span> + attributeDefNameNameForError + <span class="jxr_string">"')"</span>));
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                   }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> theAttributeDefName = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 <em class="jxr_comment">//see if update</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 <strong class="jxr_keyword">boolean</strong> isUpdate = SAVE_MODE.isUpdate(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.name);
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>                 <strong class="jxr_keyword">if</strong> (isUpdate) {
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                   String parentStemNameLookup = GrouperUtil.parentStemNameFromName(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit);
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a>(<strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Can't move an attributeDefName.  Existing parentStem: '"</span>
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>                         + parentStemNameLookup + <span class="jxr_string">"', new stem: '"</span> + parentStemNameNew + <span class="jxr_string">"'"</span>));
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>                   }
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 }    
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                 theAttributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDefNameNameToEdit, false, <strong class="jxr_keyword">new</strong> <a href="../../../../../edu/internet2/middleware/grouper/internal/dao/QueryOptions.html">QueryOptions</a>().secondLevelCache(false));
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 <strong class="jxr_keyword">if</strong> (theAttributeDefName != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                   <em class="jxr_comment">//while we are here, make sure id's match if passed in</em>
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id) &amp;&amp; !StringUtils.equals(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id, theAttributeDefName.getId())) {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"ID attributeDefName changes are not supported: new: "</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id + <span class="jxr_string">", old: "</span> 
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                         + theAttributeDefName.getId() + <span class="jxr_string">", "</span> + attributeDefNameNameForError);
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                   }
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                   
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                   <strong class="jxr_keyword">if</strong> (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                     isUpdate = false;
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                   } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cant find attributeDefName: "</span> + attributeDefNameNameForError);
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>                   }
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>                   
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 }
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 <em class="jxr_comment">//default</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.NO_CHANGE;
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 <strong class="jxr_keyword">boolean</strong> needsSave = false;
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 <em class="jxr_comment">//if inserting</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                 <strong class="jxr_keyword">if</strong> (!isUpdate) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                   saveResultType = SaveResultType.INSERT;
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>                   theAttributeDefName = parentStem.internal_addChildAttributeDefName(grouperSession, 
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                       AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDef, extensionNew, theDisplayExtension, 
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                       AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.id, AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.description);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                   <em class="jxr_comment">//check if different so it doesnt make unneeded queries</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(theAttributeDefName.getExtension(), extensionNew)) {
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                       
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                     <em class="jxr_comment">//lets just confirm that one doesnt exist</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                     <strong class="jxr_keyword">final</strong> String newName = GrouperUtil.parentStemNameFromName(theAttributeDefName.getName()) + <span class="jxr_string">":"</span> + extensionNew;
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                     
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                     <a href="../../../../../edu/internet2/middleware/grouper/attr/AttributeDefName.html">AttributeDefName</a> existingAttributeDefName = (AttributeDefName)GrouperSession.callbackGrouperSession(
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                         grouperSession.internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>                       <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession)
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                           <strong class="jxr_keyword">throws</strong> <a href="../../../../../edu/internet2/middleware/grouper/exception/GrouperSessionException.html">GrouperSessionException</a> {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>                         <strong class="jxr_keyword">return</strong> AttributeDefNameFinder.findByName(newName, false);
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                       }
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                       
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>                     });
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                     
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                     <strong class="jxr_keyword">if</strong> (existingAttributeDefName != <strong class="jxr_keyword">null</strong> &amp;&amp; !StringUtils.equals(theAttributeDefName.getId(), existingAttributeDefName.getId())) {
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>                       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"AttributeDefNameName already exists: "</span> + newName);
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                     }
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                     
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                     theAttributeDefName.setExtension(extensionNew);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.UPDATE;
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>                     needsSave = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>                   }
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>                   <strong class="jxr_keyword">if</strong> (!StringUtils.equals(theAttributeDefName.getDisplayExtension(), theDisplayExtension)) {
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.UPDATE;
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>                     theAttributeDefName.setDisplayExtensionDb(theDisplayExtension);
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                     theAttributeDefName.setDisplayNameDb(GrouperUtil.parentStemNameFromName(theAttributeDefName.getDisplayName()) + <span class="jxr_string">":"</span> + theDisplayExtension);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                     needsSave = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>                   }
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>                 }
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>                 
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>                 <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.idIndex != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                   <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType == SaveResultType.INSERT) {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a> 
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>                     <strong class="jxr_keyword">if</strong> (theAttributeDefName.assignIdIndex(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.idIndex)) {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                       needsSave = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>                     }
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>                     
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>                   } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>                     <em class="jxr_comment">//maybe they are equal...</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cannot update idIndex for an already created AttributeDefName: "</span> + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.idIndex + <span class="jxr_string">", "</span> + theAttributeDefName.getName());
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                   }
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> 
+<a class="jxr_linenumber" name="L402" href="#L402">402</a> 
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 <em class="jxr_comment">//now compare and put all attributes (then store if needed)</em>
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>                 <em class="jxr_comment">//null throws exception? hmmm.  remove attribute if blank</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                 <strong class="jxr_keyword">if</strong> (!StringUtils.equals(StringUtils.defaultString(StringUtils.trim(theAttributeDefName.getDescription())), 
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.description)))) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                   needsSave = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>                   <strong class="jxr_keyword">if</strong> (AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType == SaveResultType.NO_CHANGE) {
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                     AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.saveResultType = SaveResultType.UPDATE;
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>                   }
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>                   theAttributeDefName.setDescription(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.description);
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>                 }
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>                 <strong class="jxr_keyword">if</strong> (!StringUtils.equals(StringUtils.defaultString(theAttributeDefName.getAttributeDefId()), 
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>                     StringUtils.defaultString(StringUtils.trim(AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDef.getId())))) {
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>                   <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Cannot change attributeDefId of an attributeDefName! "</span> 
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>                       + AttributeDefNameSave.<strong class="jxr_keyword">this</strong>.attributeDef.getId() + <span class="jxr_string">", "</span> + theAttributeDefName.getAttributeDefId());
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>                 }
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> 
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>                 <em class="jxr_comment">//only store once</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 <strong class="jxr_keyword">if</strong> (needsSave) {
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>                   theAttributeDefName.store();
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>                 }
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>                 
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>                 <strong class="jxr_keyword">return</strong> theAttributeDefName;
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>               }
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>               
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>             });
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>             
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         }
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>       });
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>       <strong class="jxr_keyword">return</strong> attributeDefName;
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException re) {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>       
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>       Throwable throwable = re.getCause();
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof StemNotFoundException) {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <strong class="jxr_keyword">throw</strong> (StemNotFoundException)throwable;
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>       }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof InsufficientPrivilegeException) {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">throw</strong> (InsufficientPrivilegeException)throwable;
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>       }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>       <strong class="jxr_keyword">if</strong> (throwable instanceof StemAddException) {
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">throw</strong> (StemAddException)throwable;
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>       }
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>       <em class="jxr_comment">//must just be runtime</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>       <strong class="jxr_keyword">throw</strong> re;
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>   }
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
