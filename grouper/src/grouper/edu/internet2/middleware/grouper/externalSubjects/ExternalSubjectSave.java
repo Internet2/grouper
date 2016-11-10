@@ -229,7 +229,9 @@ public class ExternalSubjectSave {
     //get from uuid since could be a rename
     if (StringUtils.isBlank(this.identifierToEdit) && !StringUtils.isBlank(this.uuid)) {
       ExternalSubject externalSubject = HibernateSession.byObjectStatic().load(ExternalSubject.class, this.uuid);
-      this.identifierToEdit = externalSubject.getUuid();
+      if (externalSubject != null) {
+        this.identifierToEdit = externalSubject.getUuid();
+      }
     }
     
     if (StringUtils.isBlank(this.identifierToEdit)) {

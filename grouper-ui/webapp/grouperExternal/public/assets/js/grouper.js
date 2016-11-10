@@ -75,7 +75,7 @@ $(document).ready(function() {
   });
 
   // Activate tooltips
-  $('.main-content').tooltip({
+  $('.top-container').tooltip({
     selector: "a[rel=tooltip],span[rel=tooltip]"
   });
 
