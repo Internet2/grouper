@@ -955,12 +955,11 @@ public abstract class Provisioner
 		MDC.put("step", "setup/");
 		Set<GrouperGroupInfo> groupsForThisProvisioner = new HashSet<GrouperGroupInfo>();
 		
-	    Collection<Group> allGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+	    Collection<Group> allGroups = getAllGroupsForProvisioner();
 	    
 	    for ( Group group : allGroups ) {
-	      GrouperGroupInfo grouperGroupInfo = getGroupInfo(group.getName());
-	      if ( grouperGroupInfo != null && shouldGroupBeProvisioned(grouperGroupInfo) )
-	    	  groupsForThisProvisioner.add(grouperGroupInfo);
+	      GrouperGroupInfo grouperGroupInfo = getGroupInfo(group);
+	      groupsForThisProvisioner.add(grouperGroupInfo);
 	    }
 	    
         Map<GrouperGroupInfo, TSGroupClass> tsGroups;
@@ -1064,6 +1063,17 @@ public abstract class Provisioner
       return subject;
   }
 
+  protected GrouperGroupInfo getGroupInfo(Group group) {
+    String groupName = group.getName();
+    GrouperGroupInfo result = grouperGroupInfoCache.get(groupName);
+    if ( result == null ) {
+      result = new GrouperGroupInfo(group);
+      grouperGroupInfoCache.put(groupName, result);
+    }
+    return result;
+  }
+  
+  
   protected GrouperGroupInfo getGroupInfo(String groupName) {
     GrouperGroupInfo grouperGroupInfo = grouperGroupInfoCache.get(groupName);
     
@@ -1076,9 +1086,7 @@ public abstract class Provisioner
 	    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(false), groupName, false);
 	    
 	    if ( group != null ) {
-	    	grouperGroupInfo = new GrouperGroupInfo(group);
-	    	grouperGroupInfoCache.put(groupName, grouperGroupInfo);
-	    	return grouperGroupInfo;
+	      return getGroupInfo(group);
 	    }
     }
     catch (GroupNotFoundException e) {
