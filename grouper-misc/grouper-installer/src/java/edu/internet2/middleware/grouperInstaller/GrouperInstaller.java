@@ -391,6 +391,10 @@ public class GrouperInstaller {
         }
       }
       
+      if (!localFile.getParentFile().exists()) {
+        GrouperInstallerUtils.mkdirs(localFile.getParentFile());
+      }
+      
       FileOutputStream fileOutputStream = new FileOutputStream(localFile);
 
 
@@ -955,6 +959,9 @@ public class GrouperInstaller {
 
   /** main install dir, must end in file separator */
   private String grouperTarballDirectoryString;
+  
+  /** main install dir, must end in file separator */
+  private String grouperInstallDirectoryString;
   
   /** base bak dir for backing up files that are upgraded, ends in File separator */
   private String grouperBaseBakDir;
@@ -1529,7 +1536,7 @@ public class GrouperInstaller {
       }
     }
 
-    File patchDir = new File(this.grouperTarballDirectoryString + patchName);
+    File patchDir = new File(this.grouperTarballDirectoryString + "patches" + File.separator + patchName);
     
     if (patchDir.exists()) {
       if (patchDir.isFile()) {
@@ -1561,7 +1568,7 @@ public class GrouperInstaller {
       //lets find the patch dir
       String currentPatchName = GrouperInstallerUtils.substringBeforeLast(patchName, "_") + "_" + i;
       
-      File currentPatchDir = new File(this.grouperTarballDirectoryString + currentPatchName);
+      File currentPatchDir = new File(this.grouperTarballDirectoryString + "patches" + File.separator + currentPatchName);
 
       Iterator<GrouperInstallerIndexFile> iterator = grouperInstallerIndexFilesToAddToPatch.iterator();
       
@@ -5524,7 +5531,7 @@ public class GrouperInstaller {
       
       GrouperInstallerPatchStatus grouperInstallerPatchStatus = GrouperInstallerPatchStatus.valueOfIgnoreCase(existingState, false, true);
 
-      File patchUntarredDir = new File(this.grouperTarballDirectoryString + patchName);
+      File patchUntarredDir = new File(this.grouperTarballDirectoryString + "patches" + File.separator + patchName);
 
       //if no more patches
       if (patchUntarredDir == null) {
@@ -5716,7 +5723,7 @@ public class GrouperInstaller {
     
     urlToDownload +=  grouperVersion + "/patches/" + patchName + ".tar.gz";
 
-    File patchFile = new File(this.grouperTarballDirectoryString + patchName + ".tar.gz");
+    File patchFile = new File(this.grouperTarballDirectoryString + "patches" + File.separator + patchName + ".tar.gz");
     
     if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.default.downloadPatches", true, false)) {
 
@@ -5748,7 +5755,7 @@ public class GrouperInstaller {
     //unzip/untar the patch file
     
     File unzippedFile = unzip(patchFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPatchIfExists");
-    File untarredDir = untar(unzippedFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPatchIfExists");
+    File untarredDir = untar(unzippedFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPatchIfExists", null);
     return untarredDir;
   }
 
@@ -6404,7 +6411,10 @@ public class GrouperInstaller {
     
     //####################################
     //Find out what directory to install to.  This ends in a file separator
-    this.grouperTarballDirectoryString = grouperInstallDirectory();
+    this.grouperInstallDirectoryString = grouperInstallDirectory();
+
+    //Find out what directory to upgrade to.  This ends in a file separator
+    this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
 
     //####################################
     //get default ip address
@@ -6552,8 +6562,9 @@ public class GrouperInstaller {
     //look for or ask or download tomcat
     File tomcatDir = downloadTomcat();
     File unzippedTomcatFile = unzip(tomcatDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-    this.untarredTomcatDir = untar(unzippedTomcatFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-    
+    this.untarredTomcatDir = untar(unzippedTomcatFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
+
     //####################################
     //ask for tomcat port
     configureTomcat();
@@ -6742,7 +6753,9 @@ public class GrouperInstaller {
   private void downloadAndBuildPsp() {
     File pspDir = downloadPsp();
     File unzippedPspFile = unzip(pspDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspDownloadTarEtc");
-    this.untarredPspDir = untar(unzippedPspFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspDownloadTarEtc");
+    this.untarredPspDir = untar(unzippedPspFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
+
   }
   
   /**
@@ -6751,7 +6764,9 @@ public class GrouperInstaller {
   private void downloadAndBuildPspng() {
     File pspngDir = downloadPspng();
     File unzippedPspngFile = unzip(pspngDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc");
-    this.untarredPspngDir = untar(unzippedPspngFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc");
+    this.untarredPspngDir = untar(unzippedPspngFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
+
   }
   
   /** untarred psp dir file */
@@ -6766,7 +6781,7 @@ public class GrouperInstaller {
   public void downloadAndUnzipAnt() {
     File antDir = downloadAnt();
     File unzippedAntFile = unzip(antDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-    this.untarredAntDir = untar(unzippedAntFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    this.untarredAntDir = untar(unzippedAntFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
   }
 
   /**
@@ -6775,7 +6790,7 @@ public class GrouperInstaller {
   public void downloadAndUnzipMaven() {
     File mavenDir = downloadMaven();
     File unzippedMavenFile = unzip(mavenDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-    this.untarredMavenDir = untar(unzippedMavenFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    this.untarredMavenDir = untar(unzippedMavenFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
   }
 
   /**
@@ -6790,7 +6805,8 @@ public class GrouperInstaller {
     //####################################
     //unzip/untar the ws file
     File unzippedWsFile = unzip(wsDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalWsDownloadTarEtc");
-    this.untarredWsDir = untar(unzippedWsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalWsDownloadTarEtc");
+    this.untarredWsDir = untar(unzippedWsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalWsDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
 
     //####################################
     //configure where api is
@@ -6809,7 +6825,8 @@ public class GrouperInstaller {
     //####################################
     //unzip/untar the ui file
     File unzippedUiFile = unzip(uiDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalUiDownloadTarEtc");
-    this.untarredUiDir = untar(unzippedUiFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalUiDownloadTarEtc");
+    this.untarredUiDir = untar(unzippedUiFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalUiDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
 
     //####################################
     //configure UI
@@ -6826,8 +6843,9 @@ public class GrouperInstaller {
     //unzip/untar the api file
     
     File unzippedApiFile = unzip(apiFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalApiDownloadTarEtc");
-    File theUntarredApiDir = untar(unzippedApiFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalApiDownloadTarEtc");
-
+    File theUntarredApiDir = untar(unzippedApiFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalApiDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
+    
     File theGrouperJar = new File(GrouperInstallerUtils.fileAddLastSlashIfNotExists(theUntarredApiDir.getAbsolutePath())
         + "dist" + File.separator + "lib" + File.separator + "grouper.jar");
     
@@ -7107,7 +7125,9 @@ public class GrouperInstaller {
     //####################################
     //unzip/untar the client file
     File unzippedClientFile = unzip(clientDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalClientDownloadTarEtc");
-    this.untarredClientDir = untar(unzippedClientFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalClientDownloadTarEtc");
+    this.untarredClientDir = untar(unzippedClientFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalClientDownloadTarEtc", 
+        new File(this.grouperInstallDirectoryString));
+    
   }
 
   /**
@@ -8204,7 +8224,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
               true, true, null, GrouperInstaller.this.untarredApiDir, 
-              GrouperInstaller.this.grouperTarballDirectoryString + "grouperLoader", false);
+              GrouperInstaller.this.grouperInstallDirectoryString + "grouperLoader", false);
         }
       });
       thread.setDaemon(true);
@@ -8333,7 +8353,7 @@ public class GrouperInstaller {
         public void run() {
           GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(command, String.class),
               true, true, null, null, 
-              GrouperInstaller.this.grouperTarballDirectoryString + "hsqlDb", false, false);
+              GrouperInstaller.this.grouperInstallDirectoryString + "hsqlDb", false, false);
         }
       });
       thread.setDaemon(true);
@@ -9128,31 +9148,34 @@ public class GrouperInstaller {
    * 
    * @return upgrade directory
    */
-  private static String grouperUpgradeTempDirectory() {
-    String grouperInstallDirectoryString = null;
+  private String grouperUpgradeTempDirectory() {
+    String localGrouperInstallDirectoryString = null;
     {
       File grouperInstallDirectoryFile = new File("");
+      if (!GrouperInstallerUtils.isBlank(this.grouperInstallDirectoryString)) {
+        grouperInstallDirectoryFile = new File(this.grouperInstallDirectoryString + "tarballs");
+      }
       String defaultDirectory = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tarballDirectory", false);
       if (GrouperInstallerUtils.isBlank(defaultDirectory)) {
         defaultDirectory = grouperInstallDirectoryFile.getAbsolutePath();
       }
       System.out.print("Enter in a Grouper temp directory to download tarballs (note: better if no spaces or special chars) [" 
           + defaultDirectory + "]: ");
-      grouperInstallDirectoryString = readFromStdIn("grouperInstaller.autorun.tarballDirectory");
-      if (!GrouperInstallerUtils.isBlank(grouperInstallDirectoryString)) {
-        grouperInstallDirectoryFile = new File(grouperInstallDirectoryString);
+      localGrouperInstallDirectoryString = readFromStdIn("grouperInstaller.autorun.tarballDirectory");
+      if (!GrouperInstallerUtils.isBlank(localGrouperInstallDirectoryString)) {
+        grouperInstallDirectoryFile = new File(localGrouperInstallDirectoryString);
         if (!grouperInstallDirectoryFile.exists() || !grouperInstallDirectoryFile.isDirectory()) {
           System.out.println("Error: cant find directory: '" + grouperInstallDirectoryFile.getAbsolutePath() + "'");
           System.exit(1);
         }
       } else {
-        grouperInstallDirectoryString = defaultDirectory;
+        localGrouperInstallDirectoryString = defaultDirectory;
       }
-      if (!grouperInstallDirectoryString.endsWith(File.separator)) {
-        grouperInstallDirectoryString += File.separator;
+      if (!localGrouperInstallDirectoryString.endsWith(File.separator)) {
+        localGrouperInstallDirectoryString += File.separator;
       }
     }
-    return grouperInstallDirectoryString;
+    return localGrouperInstallDirectoryString;
   }
 
   /**
@@ -9521,9 +9544,11 @@ public class GrouperInstaller {
    * untar a file to a dir
    * @param fileName
    * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @param dirToUntarTo or null to keep in same dir as tarfile
    * @return the directory where the files are (assuming has a single dir the same name as the archive)
    */
-  private static File untar(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal) {
+  private static File untar(final String fileName, final String autorunPropertiesKeyIfFileExistsUseLocal,
+      File dirToUntarTo) {
 
     if (!fileName.endsWith(".tar")) {
       throw new RuntimeException("File doesnt end in .tar: " + fileName);
@@ -9534,8 +9559,14 @@ public class GrouperInstaller {
     if (untarredFileName.endsWith("-bin")) {
       untarredFileName = untarredFileName.substring(0, untarredFileName.length() - "-bin".length());
     }
+
+    if (dirToUntarTo == null) {
+      dirToUntarTo = new File(untarredFileName).getParentFile();
+    }
     
-    File untarredFile = new File(untarredFileName);
+    File untarredFile = new File(dirToUntarTo.getAbsoluteFile() + File.separator + new File(untarredFileName).getName());
+    untarredFileName = untarredFile.getAbsolutePath();
+    
     if (untarredFile.exists()) {
       
       System.out.print("Untarred dir exists: " + untarredFileName + ", use untarred dir (t|f)? [t]: ");
@@ -9548,20 +9579,16 @@ public class GrouperInstaller {
       GrouperInstallerUtils.deleteRecursiveDirectory(untarredFileName);
     }
     
-    System.out.println("Expanding: " + fileName);
+    System.out.println("Expanding: " + fileName + " to " + untarredFile.getAbsolutePath());
     
-    String unzippedParent = untarredFile.getParentFile().getAbsolutePath();
-    if (unzippedParent.endsWith(File.separator)) {
-      unzippedParent = unzippedParent.substring(0, unzippedParent.length()-1);
-    }
-    
-
     final File[] result = new File[1];
+    
+    final File DIR_TO_UNTAR_TO = dirToUntarTo;
     
     Runnable runnable = new Runnable() {
 
       public void run() {
-        result[0] = untarHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal);
+        result[0] = untarHelper(fileName, autorunPropertiesKeyIfFileExistsUseLocal, DIR_TO_UNTAR_TO);
       }
     };
 
@@ -9575,9 +9602,10 @@ public class GrouperInstaller {
    * untar a file to a dir
    * @param fileName
    * @param autorunPropertiesKeyIfFileExistsUseLocal key in properties file to automatically fill in a value
+   * @param dirToUntarTo or null to keep in same dir as tarfile
    * @return the directory where the files are (assuming has a single dir the same name as the archive)
    */
-  private static File untarHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal) {
+  private static File untarHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal, File dirToUntarTo) {
     TarArchiveInputStream tarArchiveInputStream = null;
     
     String untarredFileName = fileName.substring(0, fileName.length() - ".tar".length());
@@ -9586,12 +9614,12 @@ public class GrouperInstaller {
     if (untarredFileName.endsWith("-bin")) {
       untarredFileName = untarredFileName.substring(0, untarredFileName.length() - "-bin".length());
     }
-
-    File untarredFile = new File(untarredFileName);
-    String unzippedParent = untarredFile.getParentFile().getAbsolutePath();
-    if (unzippedParent.endsWith(File.separator)) {
-      unzippedParent = unzippedParent.substring(0, unzippedParent.length()-1);
+    
+    if (dirToUntarTo == null) {
+      dirToUntarTo = new File(untarredFileName).getParentFile();
     }
+
+    File untarredFile = new File(dirToUntarTo.getAbsoluteFile() + File.separator + new File(untarredFileName).getName());
 
     try {
 
@@ -9607,7 +9635,7 @@ public class GrouperInstaller {
         //System.out.println("Entry: " + tarArchiveEntry.getName()
         //    + ", isDirectory: " + tarArchiveEntry.isDirectory()
         //    + ", isFile: " + tarArchiveEntry.isFile());
-        String fileEntryName = unzippedParent + File.separator + tarArchiveEntry.getName();
+        String fileEntryName = dirToUntarTo.getAbsolutePath() + File.separator + tarArchiveEntry.getName();
         File tarEntryFile = new File(fileEntryName);
         
         if (tarArchiveEntry.isDirectory()) {
@@ -9642,7 +9670,7 @@ public class GrouperInstaller {
           GrouperInstallerUtils.copy(byteArrayInputStream, fileOutputStream);
           
         } catch (Exception e) {
-          throw new RuntimeException("Probem with entry: " + tarArchiveEntry.getName(), e);
+          throw new RuntimeException("Problem with entry: " + tarArchiveEntry.getName(), e);
         } finally {
           GrouperInstallerUtils.closeQuietly(byteArrayInputStream);
           GrouperInstallerUtils.closeQuietly(fileOutputStream);
