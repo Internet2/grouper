@@ -9151,7 +9151,7 @@ public class GrouperInstaller {
   private String grouperUpgradeTempDirectory() {
     String localGrouperInstallDirectoryString = null;
     {
-      File grouperInstallDirectoryFile = new File("");
+      File grouperInstallDirectoryFile = new File(new File("").getAbsolutePath() + File.separator + "tarballs");
       if (!GrouperInstallerUtils.isBlank(this.grouperInstallDirectoryString)) {
         grouperInstallDirectoryFile = new File(this.grouperInstallDirectoryString + "tarballs");
       }
