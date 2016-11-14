@@ -41,8 +41,12 @@
           <div class="span3 left-column">
             <div class="btn-group btn-group-create"><a href="#" 
               onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
-              class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a><a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle"><span class="caret"></span></a>
-              <ul class="dropdown-menu dropdown-menu-right">
+              class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
+              <a data-toggle="dropdown" class="btn btn-bigger btn-create dropdown-toggle" 
+              	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#main-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#main-more-options li').first().focus();return true;});">
+              	<span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-right" id="main-more-options">
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2AttributeDef.newAttributeDef', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['attributeDefNewCreateNewAttributeDefMenuButton'] }</a></li>
                 <li><a href="#" 

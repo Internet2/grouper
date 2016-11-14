@@ -13,8 +13,12 @@
                         </c:otherwise>
                       </c:choose>
                     </c:if>
-                    <div class="btn-group btn-block"><a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle">More actions <span class="caret"></span></a>
-                      <ul class="dropdown-menu dropdown-menu-right">
+                    <div class="btn-group btn-block">
+                    	<a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
+                    		role="menu" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
+                    		More actions <span class="caret"></span>
+                    	</a>
+                      <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options">
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:choose>
                           <c:when test="${grouperRequestContainer.attributeDefContainer.favorite}">
