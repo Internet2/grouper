@@ -1,5 +1,5 @@
 /**
- * Copyright 2014 Internet2
+ * Copyright 2016 Internet2
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,14 @@ import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase
  * @author  mchyzer
  * @since   ?
  */
-public class GrouperHibernateConfig extends ConfigPropertiesCascadeBase {
+public class GrouperCacheConfig extends ConfigPropertiesCascadeBase {
 
   /**
    * retrieve a config from the config file or from cache
    * @return the config object
    */
-  public static GrouperHibernateConfig retrieveConfig() {
-    return retrieveConfig(GrouperHibernateConfig.class);
+  public static GrouperCacheConfig retrieveConfig() {
+    return retrieveConfig(GrouperCacheConfig.class);
   }
 
   /**
@@ -63,7 +63,7 @@ public class GrouperHibernateConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getHierarchyConfigKey() {
-    return "grouper.hibernate.config.hierarchy";
+    return "grouper.cache.config.hierarchy";
   }
 
   /**
@@ -71,7 +71,7 @@ public class GrouperHibernateConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainConfigClasspath() {
-    return "grouper.hibernate.properties";
+    return "grouper.cache.properties";
   }
 
   /**
@@ -79,7 +79,7 @@ public class GrouperHibernateConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getMainExampleConfigClasspath() {
-    return "grouper.hibernate.base.properties";
+    return "grouper.cache.base.properties";
   }
 
   /**
@@ -87,7 +87,7 @@ public class GrouperHibernateConfig extends ConfigPropertiesCascadeBase {
    */
   @Override
   protected String getSecondsToCheckConfigKey() {
-    return "grouper.hibernate.config.secondsBetweenUpdateChecks";
+    return "grouper.cache.config.secondsBetweenUpdateChecks";
   }
   
 } 
