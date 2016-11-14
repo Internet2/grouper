@@ -1,7 +1,8 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-                <li class="dropdown"><a data-toggle="dropdown" href="#" class="dropdown-toggle">${textContainer.text['attributeDefMoreTab'] } <b class="caret"></b></a>
-                  <ul class="dropdown-menu">
+                <li class="dropdown"><a data-toggle="dropdown" href="#" class="dropdown-toggle"
+                	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#attribute-more-tab').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-tab li').first().focus();return true;});">${textContainer.text['attributeDefMoreTab'] } <b class="caret"></b></a>
+                  <ul class="dropdown-menu" id="attribute-more-tab">
                     <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">   
                       <li><a href="#" onclick="return guiV2link('operation=UiV2AttributeDef.thisAttributeDefsPrivilegesInheritedFromFolders&attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {dontScrollTop: true});">${textContainer.text['thisAttributeDefsPrivilegesFromFolders'] }</a></li>
                     </c:if>

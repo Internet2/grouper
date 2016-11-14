@@ -39,8 +39,11 @@
                         <td>${guiAttributeDefName.shortLinkWithIcon }</td>
                         <c:if test="${isAdmin}" >
                           <td>
-                            <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
-                              <ul class="dropdown-menu dropdown-menu-right">
+                            <div class="btn-group">
+                            	<a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
+                            		role="menu" onclick="$('#attribute-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options${i} li').first().focus();return true;});">
+                            		${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
+                              <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options${i}">
                                 <c:if test="${isAdmin}">
                                   <li><a href="#" onclick="ajax('../app/UiV2AttributeDef.deleteAttributeDefName?attributeDefNameId=${guiAttributeDefName.attributeDefName.id}', {formIds: 'attributeDefFilterFormId,attributeDefPagingFormId'}); return false;" class="actions-delete-attributeDef">${textContainer.text['attributeDefDeleteAttributeDefNameButton'] }</a></li>
                                 </c:if>

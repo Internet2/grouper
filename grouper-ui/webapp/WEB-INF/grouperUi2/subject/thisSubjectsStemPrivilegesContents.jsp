@@ -83,8 +83,13 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['thisSubjectsPrivilegesActionsButton']} <span class="caret"></span></a>
-                            <ul class="dropdown-menu dropdown-menu-right">
+                          <div class="btn-group">
+                          	<a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle"
+                          		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#subject-stem-priv-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#subject-stem-priv-more-options${i} li').first().focus();return true;});">
+                          		${textContainer.text['thisSubjectsPrivilegesActionsButton']} 
+                          			<span class="caret"></span>
+                          	</a>
+                            <ul class="dropdown-menu dropdown-menu-right" id="subject-stem-priv-more-options${i}">
                               
                               <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate}">
                                 <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceStemPrivileges&stemId=${guiMembershipSubjectContainer.guiStem.stem.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&backTo=subject'); return false;" class="actions-revoke-membership">${textContainer.text['thisSubjectsPrivilegesActionsMenuTracePrivileges'] }</a></li>
