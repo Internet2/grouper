@@ -64,8 +64,8 @@
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Group.filterPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
-                      <a class="btn" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
-                      <a class="btn groupPrivilegeAdvancedHide" onclick="$('.groupPrivilegeAdvancedShow').show('slow'); $('.groupPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['groupAdvancedButton'] }</a>
+                      <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
+                      <a role="button" class="btn groupPrivilegeAdvancedHide" onclick="$('.groupPrivilegeAdvancedShow').show('slow'); $('.groupPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['groupAdvancedButton'] }</a>
                     </div>
                   </div>
                 </form>
