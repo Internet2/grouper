@@ -88,7 +88,7 @@
                   <div class="control-group" style="margin-bottom: 5px">
                     <div class="controls"><a href="#" 
                       onclick="ajax('../app/UiV2GroupImport.groupImportAddGroup', {formIds: 'importGroupFormId'}); return false;"
-                      class="btn bulk-add-another-group">${textContainer.text['groupImportAddAnotherGroupButton']}</a></div>
+                      class="btn bulk-add-another-group" role="button">${textContainer.text['groupImportAddAnotherGroupButton']}</a></div>
                   </div>
 
                   <div class="controls">
@@ -139,7 +139,7 @@
                     <div class="controls">
                       <a href="#" 
                         onclick="ajax('../app/UiV2GroupImport.groupImportAddMember', {formIds: 'importGroupFormId'}); return false;"
-                        class="btn bulk-add-another">${textContainer.text['groupImportAddAnotherMemberButton']}</a></div>
+                        class="btn bulk-add-another" role="button">${textContainer.text['groupImportAddAnotherMemberButton']}</a></div>
                   </div>
                   <div class="controls">
                   
@@ -195,7 +195,7 @@
                     <br /><br />
                     <a href="#" 
                       onclick="ajax('../app/UiV2GroupImport.groupImportValidateList', {formIds: 'importGroupFormId'}); return false;"
-                      class="btn bulk-add-another">${textContainer.text['groupImportValidateButton']}</a>
+                      class="btn bulk-add-another" role="button">${textContainer.text['groupImportValidateButton']}</a>
                   </div>
                 </div>
                 <div class="control-group">
@@ -228,20 +228,20 @@
               <div class="form-actions">
                 <a href="#" 
                   onclick="return guiSubmitFileForm(event, '#importGroupFormId', '../app/UiV2GroupImport.groupImportSubmit')"
-                  class="btn btn-primary">${textContainer.text['groupImportAddMembersButton'] }</a> 
+                  class="btn btn-primary" role="button">${textContainer.text['groupImportAddMembersButton'] }</a> 
                 <%-- needs to go back to the calling page which is set in a param --%>
                 <c:choose>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromSubject}">
                     <a href="#" onclick="return guiV2link('operation=UiV2Subject.viewSubject&subjectId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.id)}&sourceId=${grouper:escapeUrl(grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId)}');"
-                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                       class="btn btn-cancel" role="button">${textContainer.text['groupImportCancelButton']}</a>
                   </c:when>
                   <c:when test="${grouperRequestContainer.groupImportContainer.importFromGroup}">
                     <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');"
-                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                       class="btn btn-cancel" role="button">${textContainer.text['groupImportCancelButton']}</a>
                   </c:when>
                   <c:otherwise>
                     <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"
-                       class="btn btn-cancel">${textContainer.text['groupImportCancelButton']}</a>
+                       class="btn btn-cancel" role="button">${textContainer.text['groupImportCancelButton']}</a>
                   </c:otherwise>
                 </c:choose>
               </div>

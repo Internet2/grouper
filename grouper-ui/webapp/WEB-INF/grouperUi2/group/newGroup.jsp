@@ -120,8 +120,8 @@
                       </div>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.newGroupSubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
-                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</a></div>
+                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Group.newGroupSubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
+                  <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['groupCreateCancelButton'] }</a></div>
                 </form>
               </div>
             </div>
