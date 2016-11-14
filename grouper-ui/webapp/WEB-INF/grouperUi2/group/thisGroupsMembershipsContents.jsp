@@ -9,7 +9,7 @@
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
-                      <td colspan="5" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,groupsToDeleteFormId'}); return false;" class="btn">${textContainer.text['thisGroupsMembershipsRemoveFromSelectedGroups'] }</a></td>
+                      <td colspan="5" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,groupsToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['thisGroupsMembershipsRemoveFromSelectedGroups'] }</a></td>
                     </tr>
                     <tr>
                       <th>

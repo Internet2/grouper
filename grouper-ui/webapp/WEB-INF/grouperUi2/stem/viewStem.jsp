@@ -27,7 +27,7 @@
                     </div>
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
                       onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId,stemPagingFormId'}); return false;"> 
-                    <a class="btn" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
+                    <a class="btn" role="button" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
                   </div>
                 </form>
                 <%-- this div will be filled with stemContents.jsp via ajax --%>

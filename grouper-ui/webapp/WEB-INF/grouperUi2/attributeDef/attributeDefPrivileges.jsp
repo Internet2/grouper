@@ -69,8 +69,8 @@
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2AttributeDef.filterPrivileges?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterPrivilegesFormId,attributeDefPagingPrivilegesFormId'}); return false;"> 
-                      <a class="btn" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['attributeDefResetButton'] }</a>
-                      <a class="btn attributeDefPrivilegeAdvancedHide" onclick="$('.attributeDefPrivilegeAdvancedShow').show('slow'); $('.attributeDefPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['attributeDefAdvancedButton'] }</a>
+                      <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['attributeDefResetButton'] }</a>
+                      <a class="btn attributeDefPrivilegeAdvancedHide" role="button" onclick="$('.attributeDefPrivilegeAdvancedShow').show('slow'); $('.attributeDefPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['attributeDefAdvancedButton'] }</a>
                     </div>
                   </div>
                 </form>

@@ -23,7 +23,7 @@
                         <td>${guiMembershipSubjectContainer.guiGroup.shortLinkWithIcon}</td>
                         <td>
                           <c:if test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate && guiMembershipSubjectContainer.membershipSubjectContainer.hasOptout }">
-                            <a href="#" onclick="ajax('../app/UiV2MyGroups.leaveGroup?groupId=${guiMembershipSubjectContainer.guiGroup.group.id}'); return false;" class="btn btn-mini">${textContainer.text['myGroupsMembershipsLeaveButton']}</a>
+                            <a href="#" onclick="ajax('../app/UiV2MyGroups.leaveGroup?groupId=${guiMembershipSubjectContainer.guiGroup.group.id}'); return false;" class="btn btn-mini" role="button">${textContainer.text['myGroupsMembershipsLeaveButton']}</a>
                           </c:if>
                         </td>
                       </tr>
