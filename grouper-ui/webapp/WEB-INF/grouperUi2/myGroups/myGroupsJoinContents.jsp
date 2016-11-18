@@ -19,7 +19,7 @@
                     <tr>
                       <td>${guiGroup.parentGuiStem.linkWithIcon}</td>
                       <td>${guiGroup.shortLinkWithIcon}</td>
-                      <td><a href="#" onclick="ajax('../app/UiV2MyGroups.joinGroup?groupId=${guiGroup.group.id}'); return false;" class="btn btn-mini">${textContainer.text['myGroupsJoinGroupButton']}</a></td>
+                      <td><a href="#" onclick="ajax('../app/UiV2MyGroups.joinGroup?groupId=${guiGroup.group.id}'); return false;" class="btn btn-mini" role="button">${textContainer.text['myGroupsJoinGroupButton']}</a></td>
                     </tr>
 
                     </c:forEach>

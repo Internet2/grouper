@@ -9,7 +9,7 @@
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
-                      <td colspan="5" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,groupsToDeleteFormId'}); return false;" class="btn">${textContainer.text['thisGroupsMembershipsRemoveFromSelectedGroups'] }</a></td>
+                      <td colspan="5" class="table-toolbar gradient-background"><a href="#" onclick="ajax('../app/UiV2Group.removeMembersForThisGroupsMemberships?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,groupsToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['thisGroupsMembershipsRemoveFromSelectedGroups'] }</a></td>
                     </tr>
                     <tr>
                       <th>
@@ -52,8 +52,13 @@
                                 || (guiMembershipContainer.membershipContainer.membershipAssignType.immediate 
                                     && guiMembershipContainer.guiGroupOwner.canUpdate)
                                 || guiMembershipSubjectContainer.guiSubject.group}">
-                              <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupViewActionsButton'] } <span class="caret"></span></a>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                              <div class="btn-group">
+                              	<a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle"
+                              		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
+                              	${textContainer.text['groupViewActionsButton'] } 
+                              		<span class="caret"></span>
+                              	</a>
+                                <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
 
                                   <c:if test="${guiMembershipContainer.guiGroupOwner.canUpdate}">
                                     <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${guiMembershipSubjectContainer.membershipSubjectContainer.groupOwner.id}&subjectId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>

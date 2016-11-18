@@ -100,8 +100,12 @@
                           </td>
                         </c:forEach>
                         <td>
-                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle">${textContainer.text['groupPrivilegesActions']} <span class="caret"></span></a>
-                            <ul class="dropdown-menu dropdown-menu-right">
+                          <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle" 
+                          	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#membership-more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#membership-more-options${i} li').first().focus();return true;});">
+                          	${textContainer.text['groupPrivilegesActions']} 
+                          		<span class="caret"></span>
+                          	</a>
+                            <ul class="dropdown-menu dropdown-menu-right" id="membership-more-options${i}">
                                                         
                               <li><a href="#" onclick="return guiV2link('operation=UiV2Membership.editMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiMembershipSubjectContainer.guiMember.member.uuid}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewEditMembershipsAndPrivilegesButton'] }</a></li>
                             

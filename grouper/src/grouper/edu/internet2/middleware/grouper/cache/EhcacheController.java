@@ -32,16 +32,23 @@
 
 package edu.internet2.middleware.grouper.cache;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Statistics;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperCacheConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Statistics;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
 
 
 
@@ -230,12 +237,10 @@ public class EhcacheController implements CacheController {
     if (this.mgr == null) {
       synchronized(EhcacheController.class) {
         if (this.mgr == null) {
-          URL url = this.getClass().getResource("/ehcache.xml");
-          if (url == null) {
-            throw new RuntimeException("Cant find resource /ehcache.xml, " +
-                "make sure it is on the classpath");
-          }
-          
+
+          URL grouperCachePropertiesUrl = this.getClass().getResource("/grouper.cache.properties");
+          URL ehcacheUrl = this.getClass().getResource("/ehcache.xml");
+
           //trying to avoid warning of using the same dir
           String tmpDir = GrouperUtil.tmpDir();
           try {
@@ -245,10 +250,95 @@ public class EhcacheController implements CacheController {
             }
             newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
             System.setProperty(GrouperUtil.JAVA_IO_TMPDIR, newTmpdir);
-            
+          
             synchronized(CacheManager.class) {
-              //now it should be using a unique directory
-              this.mgr = new CacheManager(url);
+
+              if (grouperCachePropertiesUrl != null && ehcacheUrl != null) {
+                throw new RuntimeException("You have a grouper.ehache.xml and grouper.cache.properties on the classpath, "
+                    + "you must only have one or the other.  "
+                    + "You should probably delete the grouper.ehcache.xml file.");
+              }
+
+              boolean configured = false;
+              
+              //if no grouper.cache.properties url, and an ehcache.xml, then use that
+              if (grouperCachePropertiesUrl == null && ehcacheUrl != null) {
+                LOG.debug("Configuring ehcache with ehcache.xml");
+                //now it should be using a unique directory
+                this.mgr = new CacheManager(ehcacheUrl);
+
+                configured = true;
+              }
+              
+              GrouperCacheConfig grouperCacheConfig = configured ? null : GrouperCacheConfig.retrieveConfig();
+              if (!configured) {
+
+                //use config file?
+                String ehcacheXmlFile = grouperCacheConfig.propertyValueString("grouper.cache.ehcache.xml.filename");
+                
+                if (!StringUtils.isBlank(ehcacheXmlFile)) {
+                  LOG.debug("Configuring ehcache with xml file configured in grouper.cache.properties: " + ehcacheXmlFile);
+                  try {
+                    ehcacheUrl = new File(ehcacheXmlFile).toURI().toURL();
+                  } catch (MalformedURLException mue) {
+                    throw new RuntimeException(mue);
+                  }
+                  this.mgr = new CacheManager(ehcacheUrl);
+                  configured = true;
+                }
+              }
+              if (!configured) {
+
+                //use config file?
+                String ehcacheXmlResource = grouperCacheConfig.propertyValueString("grouper.cache.ehcache.xml.resource");
+                
+                if (!StringUtils.isBlank(ehcacheXmlResource)) {
+                  LOG.debug("Configuring ehcache with xml resource configured in grouper.cache.properties: " + ehcacheXmlResource);
+                  ehcacheUrl = this.getClass().getResource(ehcacheXmlResource);
+                  this.mgr = new CacheManager(ehcacheUrl);
+                  configured = true;
+                }
+              }
+
+              if (!configured) {
+                LOG.debug("Configuring ehcache with grouper.cache.properties");
+                Configuration ehcacheConfiguration = new Configuration();
+                
+                //disk store
+                {
+                  DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration();
+                  diskStoreConfiguration.setPath(grouperCacheConfig.propertyValueStringRequired("grouper.cache.diskStorePath"));
+                  ehcacheConfiguration.addDiskStore(diskStoreConfiguration);
+                }
+
+                {
+                  //default cache
+                  CacheConfiguration defaultCache = new CacheConfiguration();
+                  assignCacheFromProperties(grouperCacheConfig, defaultCache, "cache.defaultCache");
+                  ehcacheConfiguration.addDefaultCache(defaultCache);
+                }
+                
+                //set all caches
+                Pattern ehcachePattern = Pattern.compile("^(cache\\.name\\.[^.]+)\\.name$");
+                Map<String, String> cacheNameMap = grouperCacheConfig.propertiesMap(ehcachePattern);
+                for (String propertyKey : cacheNameMap.keySet()) {
+                  Matcher matcher = ehcachePattern.matcher(propertyKey);
+                  matcher.matches();
+                  String configPrefix = matcher.group(1);
+                  CacheConfiguration cacheConfiguration = new CacheConfiguration();
+                  assignCacheFromProperties(grouperCacheConfig, cacheConfiguration, configPrefix);
+                  ehcacheConfiguration.addCache(cacheConfiguration);
+                }
+
+                this.mgr = new CacheManager(ehcacheConfiguration);
+
+                configured = true;
+
+              }
+              if (!configured) {
+                throw new RuntimeException("ehcache is not configured, do you have a "
+                    + "grouper.cache.properties and grouper.cache.base.properties on your classpath?");
+              }
             }
           } finally {
             
@@ -262,6 +352,42 @@ public class EhcacheController implements CacheController {
         }
       }
     }
+  }
+
+  /**
+   * assign cache from properties
+   * @param cacheConfiguration
+   * @param propertyPrefix
+   */
+  private static void assignCacheFromProperties(GrouperCacheConfig grouperCacheConfig, CacheConfiguration cacheConfiguration, String propertyPrefix) {
+    //  cache.defaultCache.maxElementsInMemory = 1000
+    //  cache.defaultCache.eternal = 1000
+    //  cache.defaultCache.timeToIdleSeconds = 1000
+    //  cache.defaultCache.timeToLiveSeconds = 1000
+    //  cache.defaultCache.overflowToDisk = false
+    //  cache.defaultCache.statistics = false
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".name")) {
+      cacheConfiguration.setName(grouperCacheConfig.propertyValueStringRequired(propertyPrefix + ".name"));
+    }
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".maxElementsInMemory")) {
+      cacheConfiguration.setMaxElementsInMemory(grouperCacheConfig.propertyValueInt(propertyPrefix + ".maxElementsInMemory"));
+    }
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".eternal")) {
+      cacheConfiguration.setEternal(grouperCacheConfig.propertyValueBooleanRequired(propertyPrefix + ".eternal"));
+    }
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".timeToIdleSeconds")) {
+      cacheConfiguration.setTimeToIdleSeconds(grouperCacheConfig.propertyValueInt(propertyPrefix + ".timeToIdleSeconds"));
+    }
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".timeToLiveSeconds")) {
+      cacheConfiguration.setTimeToLiveSeconds(grouperCacheConfig.propertyValueInt(propertyPrefix + ".timeToLiveSeconds"));
+    }
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".overflowToDisk")) {
+      cacheConfiguration.setOverflowToDisk(grouperCacheConfig.propertyValueBooleanRequired(propertyPrefix + ".overflowToDisk"));
+    }
+    if (grouperCacheConfig.containsKey(propertyPrefix + ".statistics")) {
+      cacheConfiguration.setStatistics(grouperCacheConfig.propertyValueBooleanRequired(propertyPrefix + ".statistics"));
+    }
+
   }
   
 }

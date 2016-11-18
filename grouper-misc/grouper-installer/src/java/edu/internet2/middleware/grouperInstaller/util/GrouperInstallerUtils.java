@@ -10519,11 +10519,57 @@ public class GrouperInstallerUtils  {
    * @return the nodelist
    */
   public static NodeList xpathEvaluate(File xmlFile, String xpathExpression) {
+    InputStream inputStream = null;
+    try {
+      inputStream = new FileInputStream(xmlFile);
+      return xpathEvaluate(inputStream, xpathExpression);
+    } catch (Exception e) {
+      String errorMessage = "Problem with file: " + xmlFile == null ? null : xmlFile.getAbsolutePath();
+      if (e instanceof RuntimeException) {
+        GrouperInstallerUtils.injectInException(e, errorMessage);
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(errorMessage, e);
+    } finally {
+      GrouperInstallerUtils.closeQuietly(inputStream);
+    }
+  }
+  
+  /**
+   * 
+   * @param xmlFile
+   * @param xpathExpression
+   * @return the nodelist
+   */
+  public static NodeList xpathEvaluate(URL url, String xpathExpression) {
+    InputStream inputStream = null;
+    try {
+      inputStream = url.openStream();
+      return xpathEvaluate(inputStream, xpathExpression);
+    } catch (Exception e) {
+      String errorMessage = "Problem with url: " + url == null ? null : url.toExternalForm();
+      if (e instanceof RuntimeException) {
+        GrouperInstallerUtils.injectInException(e, errorMessage);
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(errorMessage, e);
+    } finally {
+      GrouperInstallerUtils.closeQuietly(inputStream);
+    }
+  }
+  
+  /**
+   * 
+   * @param xmlFile
+   * @param xpathExpression
+   * @return the nodelist
+   */
+  public static NodeList xpathEvaluate(InputStream inputStream, String xpathExpression) {
     
     try {
       DocumentBuilderFactory domFactory = xmlDocumentBuilderFactory(); 
       DocumentBuilder builder = domFactory.newDocumentBuilder();
-      Document doc = builder.parse(xmlFile);
+      Document doc = builder.parse(inputStream);
       XPath xpath = XPathFactory.newInstance().newXPath();
        // XPath Query for showing all nodes value
       XPathExpression expr = xpath.compile(xpathExpression);
@@ -10532,7 +10578,7 @@ public class GrouperInstallerUtils  {
       NodeList nodes = (NodeList) result;
       return nodes;
     } catch (Exception e) {
-      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'", e);
+      throw new RuntimeException("Problem evaluating xpath: " + ", expression: '" + xpathExpression + "'", e);
     }
 
   }

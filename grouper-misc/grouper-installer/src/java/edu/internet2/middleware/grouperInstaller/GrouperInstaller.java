@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -410,12 +412,142 @@ public class GrouperInstaller {
   }
 
   /**
+   * 
+   * @param ehcacheBaseFile
+   */
+  public void convertEhcacheBaseToProperties(File ehcacheBaseFile) {
+    //File ehcacheBaseBakFile = this.bakFile(ehcacheBaseFile);
+    //GrouperInstallerUtils.copyFile(existingFile, bakFile, true);
+    //System.out.println("Backing up: " + existingFile.getAbsolutePath() + " to: " + bakFile.getAbsolutePath());
+    
+    NodeList nodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheBaseFile, "/ehcache/cache");
+    
+    Set<String> usedKeys = new HashSet<String>();
+    
+    for (int i=0;i<nodeList.getLength();i++) {
+      
+      Element element = (Element)nodeList.item(i);
+
+      //  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.FindBySubject"
+      //      maxElementsInMemory="5000"
+      //      eternal="false"
+      //      timeToIdleSeconds="5"
+      //      timeToLiveSeconds="10"
+      //      overflowToDisk="false"  
+      //      statistics="false"
+      //  />
+
+      
+      String name = element.getAttribute("name");
+      Integer maxElementsInMemory = GrouperInstallerUtils.intObjectValue(element.getAttribute("maxElementsInMemory"), true);
+      Boolean eternal = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("eternal"));
+      Integer timeToIdleSeconds = GrouperInstallerUtils.intObjectValue(element.getAttribute("timeToIdleSeconds"), true);
+      Integer timeToLiveSeconds = GrouperInstallerUtils.intObjectValue(element.getAttribute("timeToLiveSeconds"), true);
+      Boolean overflowToDisk = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("overflowToDisk"));
+      Boolean statistics = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("statistics"));
+
+      //any attributes we dont expect?
+      NamedNodeMap configuredNamedNodeMap = element.getAttributes();
+      //see which attributes are new or changed
+      for (int j=0;j<configuredNamedNodeMap.getLength();j++) {
+        Node configuredAttribute = configuredNamedNodeMap.item(j);
+        if (!configuredAttribute.getNodeName().equals("name")
+            && !configuredAttribute.getNodeName().equals("maxElementsInMemory")
+            && !configuredAttribute.getNodeName().equals("eternal")
+            && !configuredAttribute.getNodeName().equals("timeToIdleSeconds")
+            && !configuredAttribute.getNodeName().equals("timeToLiveSeconds")
+            && !configuredAttribute.getNodeName().equals("overflowToDisk")
+            && !configuredAttribute.getNodeName().equals("statistics")) {
+          throw new RuntimeException("Cant process attribute: '" + configuredAttribute.getNodeName() + "'");
+        }
+      }
+      
+      String key = convertEhcacheNameToPropertiesKey(name, usedKeys);
+      
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.name = edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.maxElementsInMemory = 500
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.eternal = false
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.timeToIdleSeconds = 1
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.timeToLiveSeconds = 1
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.overflowToDisk = false
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.statistics = false
+      
+      System.out.println("cache.name." + key + ".name = " + name);
+      if (maxElementsInMemory != null) {
+        System.out.println("cache.name." + key + ".maxElementsInMemory = " + maxElementsInMemory);
+      }
+      if (eternal != null) {
+        System.out.println("cache.name." + key + ".eternal = " + eternal);
+      }
+      if (timeToIdleSeconds != null) {
+        System.out.println("cache.name." + key + ".timeToIdleSeconds = " + timeToIdleSeconds);
+      }
+      if (timeToLiveSeconds != null) {
+        System.out.println("cache.name." + key + ".timeToLiveSeconds = " + timeToLiveSeconds);
+      }
+      if (overflowToDisk != null) {
+        System.out.println("cache.name." + key + ".overflowToDisk = " + overflowToDisk);
+      }
+      if (statistics != null) {
+        System.out.println("cache.name." + key + ".statistics = " + statistics);
+      }
+      System.out.println("");
+    }
+
+  }
+
+  /**
+   * convert a name like: edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO
+   * to: edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO
+   * @param usedKeys
+   * @return the key
+   */
+  private static String convertEhcacheNameToPropertiesKey(String ehcacheName, Set<String> usedKeys) {
+    
+    StringBuilder result = new StringBuilder();
+
+    //strip off this beginning to get the keys a little smaller
+    if (ehcacheName.startsWith("edu.internet2.middleware.grouper.")) {
+      ehcacheName = ehcacheName.substring("edu.internet2.middleware.grouper.".length());
+    }
+    
+    for (int i=0; i<ehcacheName.length(); i++) {
+      
+      char curChar = ehcacheName.charAt(i);
+      
+      if (Character.isAlphabetic(curChar) || Character.isDigit(curChar)) {
+        result.append(curChar);
+      } else {
+        result.append("_");
+      }
+      
+    }
+
+    String resultString = result.toString();
+    if (!usedKeys.contains(resultString)) {
+      return resultString;
+    }
+    
+    for (int i=2;i<100;i++) {
+      String newResult = resultString + "_" + i;
+      if (!usedKeys.contains(newResult)) {
+        return newResult;
+      }
+    }
+    
+    throw new RuntimeException("Cant find name for " + ehcacheName);
+  }
+  
+  /**
    * @param args
    */
   public static void main(String[] args) {
 
     GrouperInstaller grouperInstaller = new GrouperInstaller();
+
     grouperInstaller.mainLogic();
+
+    //new GrouperInstaller().convertEhcacheBaseToProperties(new File("/Users/mchyzer/git/grouper_v2_3/grouper/conf/ehcache.example.xml"));
 
 //    GrouperInstaller.downloadFile("https://github.com/Internet2/grouper/archive/GROUPER_2_2_BRANCH.zip",
 //        "C:\\app\\grouperInstallerTarballDir\\GROUPER_2_2_BRANCH.zip", false, null, 
@@ -1079,6 +1211,17 @@ public class GrouperInstaller {
    */
   public static enum GrouperInstallerMainFunction {
     
+    /** install grouper */
+    misc {
+
+      @Override
+      public void logic(GrouperInstaller grouperInstaller) {
+        
+        grouperInstaller.mainMiscLogic();
+
+      }
+    },
+
     /** install grouper */
     install {
 
@@ -2510,6 +2653,82 @@ public class GrouperInstaller {
     System.out.println("##################################\n");
     
   }
+
+  /**
+   * misc
+   */
+  private void mainMiscLogic() {
+    GrouperInstallerMiscAction grouperInstallerMiscAction = null;
+    
+    for (int i=0;i<10;i++) {
+      //what do we want to do, install, revert, or get status?
+      System.out.print("What misc action do you want to do (convert)? : ");
+      String miscAction = readFromStdIn("grouperInstaller.autorun.miscAction");
+      try {
+        grouperInstallerMiscAction = GrouperInstallerMiscAction.valueOfIgnoreCase(miscAction, false, true);
+        if (grouperInstallerMiscAction != null) {
+          break;
+        }
+      } catch (Exception e) {
+        //ignore, let user try again
+      }
+    }
+    
+    switch(grouperInstallerMiscAction) {
+      case convert:
+        mainConvertLogic();
+        break;
+    }
+        
+  }
+
+  /**
+   * misc
+   */
+  private void mainConvertLogic() {
+    GrouperInstallerConvertAction grouperInstallerConvertAction = null;
+
+    for (int i=0;i<10;i++) {
+      //what do we want to do, install, revert, or get status?
+      System.out.print("What conversion do you want to do (convertEhcacheXmlToProperties)? : ");
+      String convertAction = readFromStdIn("grouperInstaller.autorun.convertAction");
+      try {
+        grouperInstallerConvertAction = GrouperInstallerConvertAction.valueOfIgnoreCase(convertAction, false, true);
+        if (grouperInstallerConvertAction != null) {
+          break;
+        }
+      } catch (Exception e) {
+        //ignore, let user try again
+      }
+    }
+    switch(grouperInstallerConvertAction) {
+      case ehcacheXmlToProperties:
+
+        System.out.print("Enter the location of the ehcache.xml file: ");
+        String convertEhcacheXmlLocation = readFromStdIn("grouperInstaller.autorun.convertEhcacheXmlLocation");
+
+        System.out.print("Enter the location of the grouper.cache.base.properties file: ");
+        String convertEhcacheBasePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertEhcacheBasePropertiesLocation");
+
+        System.out.print("Enter the location of the grouper.cache.properties file: ");
+        String convertEhcachePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertEhcachePropertiesLocation");
+        
+        File ehcachePropertiesFile = new File(convertEhcachePropertiesLocation);
+        try {
+          convertEhcacheXmlToProperties(new File(convertEhcacheBasePropertiesLocation), ehcachePropertiesFile,
+              new File(convertEhcacheXmlLocation).toURI().toURL());
+        } catch (MalformedURLException mue) {
+          throw new RuntimeException("Malformed url on " + convertEhcacheXmlLocation);
+        }
+
+        System.out.print("File was written: " + ehcachePropertiesFile.getAbsolutePath());
+
+        break;
+    }
+        
+  }
+
+  
   
   /**
    * patch grouper
@@ -2612,6 +2831,70 @@ public class GrouperInstaller {
      */
     public static GrouperInstallerPatchAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
       return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerPatchAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public static enum GrouperInstallerMiscAction {
+
+    /** convert */
+    convert;
+    
+    /**
+     * 
+     * @param string
+     * @param exceptionIfInvalid
+     * @param exceptionIfBlank
+     * @return the action
+     */
+    public static GrouperInstallerMiscAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerMiscAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public static enum GrouperInstallerMiscConvertAction {
+
+    /** convert ehcache xml to properties */
+    convertEhcacheXmlToProperties
+    ;
+    
+    /**
+     * 
+     * @param string
+     * @param exceptionIfInvalid
+     * @param exceptionIfBlank
+     * @return the action
+     */
+    public static GrouperInstallerMiscConvertAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerMiscConvertAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public static enum GrouperInstallerConvertAction {
+
+    /** convert */
+    ehcacheXmlToProperties;
+    
+    /**
+     * 
+     * @param string
+     * @param exceptionIfInvalid
+     * @param exceptionIfBlank
+     * @return the action
+     */
+    public static GrouperInstallerConvertAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerConvertAction.class, string, exceptionIfBlank, exceptionIfInvalid);
     }
     
   }
@@ -4172,9 +4455,9 @@ public class GrouperInstaller {
         file = existingPropertiesFile;
       } else if (existingBasePropertiesFile != null) {
         file = new File(existingBasePropertiesFile.getAbsolutePath().replace(".base", ""));
-      } else {
-        String fileName =  existingPropertiesFile != null ? existingPropertiesFile.getAbsolutePath() : this.upgradeExistingClassesDirectoryString + newBasePropertiesFile.getName().replace(".base", "");
-        file = new File(fileName);
+//      } else {
+//        String fileName =  existingPropertiesFile != null ? existingPropertiesFile.getAbsolutePath() : this.upgradeExistingClassesDirectoryString + newBasePropertiesFile.getName().replace(".base", "");
+//        file = new File(fileName);
       }
       
       System.out.println("Created overlay config file: " + file.getAbsolutePath());
@@ -5519,7 +5802,7 @@ public class GrouperInstaller {
     boolean patchesOverallOk = true;
     
     //process patches from greatest to least
-    OUTER: for (int i=nextPatchIndex-1;i>=0;i--) {
+    for (int i=nextPatchIndex-1;i>=0;i--) {
       
       //grouper_v2_2_1_api_patch_0.state
       String patchName = "grouper_v" + grouperVersion + "_" + thisAppToUpgrade.name().toLowerCase() + "_patch_" + i;
@@ -5532,12 +5815,6 @@ public class GrouperInstaller {
       GrouperInstallerPatchStatus grouperInstallerPatchStatus = GrouperInstallerPatchStatus.valueOfIgnoreCase(existingState, false, true);
 
       File patchUntarredDir = new File(this.grouperTarballDirectoryString + "patches" + File.separator + patchName);
-
-      //if no more patches
-      if (patchUntarredDir == null) {
-        System.out.println("");
-        break OUTER;
-      }
 
       //keep track that we skipped this in the patch properties file
       //editPropertiesFile(patchExistingPropertiesFile, keyBase + ".date", 
@@ -9091,8 +9368,8 @@ public class GrouperInstaller {
     defaultAction = GrouperInstallerUtils.defaultIfBlank(defaultAction, "install");
     for (int i=0;i<10;i++) {
       System.out.print("Do you want to 'install' a new installation of grouper, 'upgrade' an existing installation,\n"
-          + "  'patch' an existing installation, or 'createPatch' for Grouper developers\n" 
-          + "  (enter: 'install', 'upgrade', 'patch', 'createPatch' or blank for the default) ["
+          + "  'patch' an existing installation, 'misc' utilities, or 'createPatch' for Grouper developers\n" 
+          + "  (enter: 'install', 'upgrade', 'patch', 'misc', 'createPatch' or blank for the default) ["
           + defaultAction + "]: ");
       input = readFromStdIn("grouperInstaller.autorun.actionEgInstallUpgradePatch");
       if (GrouperInstallerUtils.isBlank(input)) {
@@ -9102,9 +9379,9 @@ public class GrouperInstaller {
       if (theGrouperInstallerMainFunction != null) {
         return theGrouperInstallerMainFunction;
       }
-      System.out.println("Please enter 'install', 'upgrade', 'patch', or blank for default (which is " + defaultAction + ")");
+      System.out.println("Please enter 'install', 'upgrade', 'patch', 'misc', 'createPatch', or blank for default (which is " + defaultAction + ")");
     }
-    throw new RuntimeException("Expecting 'install', 'upgrade', or 'patch' but was: '" + input + "'");
+    throw new RuntimeException("Expecting 'install', 'upgrade', 'patch', 'misc', or 'createPatch' but was: '" + input + "'");
   }
 
 
@@ -9151,7 +9428,7 @@ public class GrouperInstaller {
   private String grouperUpgradeTempDirectory() {
     String localGrouperInstallDirectoryString = null;
     {
-      File grouperInstallDirectoryFile = new File("");
+      File grouperInstallDirectoryFile = new File(new File("").getAbsolutePath() + File.separator + "tarballs");
       if (!GrouperInstallerUtils.isBlank(this.grouperInstallDirectoryString)) {
         grouperInstallDirectoryFile = new File(this.grouperInstallDirectoryString + "tarballs");
       }
@@ -9605,6 +9882,7 @@ public class GrouperInstaller {
    * @param dirToUntarTo or null to keep in same dir as tarfile
    * @return the directory where the files are (assuming has a single dir the same name as the archive)
    */
+  @SuppressWarnings("resource")
   private static File untarHelper(String fileName, String autorunPropertiesKeyIfFileExistsUseLocal, File dirToUntarTo) {
     TarArchiveInputStream tarArchiveInputStream = null;
     
@@ -10149,6 +10427,243 @@ public class GrouperInstaller {
 
     System.out.println("\nEnd building PSPNG");
     System.out.println("##################################\n");
+    
+  }
+
+  /**
+   * 
+   * @param ehcachePropertiesFile
+   * @param ehcacheXmlUrl
+   */
+  public static void convertEhcacheXmlToProperties(File ehcacheBasePropertiesFile, File ehcachePropertiesFile, URL ehcacheXmlUrl) {
+
+    if (!ehcacheBasePropertiesFile.exists()) {
+      throw new RuntimeException(ehcacheBasePropertiesFile.getAbsolutePath() + " must exists and does not!");
+    }
+    
+    if (ehcachePropertiesFile.exists()) {
+      throw new RuntimeException(ehcachePropertiesFile.getAbsolutePath() + " exists and must not.  Delete the file and run this again!");
+    }
+
+    if (!ehcachePropertiesFile.getParentFile().exists() || !ehcachePropertiesFile.getParentFile().isDirectory()) {
+      throw new RuntimeException(ehcachePropertiesFile.getParentFile().getAbsolutePath() + " must exist and must be a directory");
+    }
+    
+    if (GrouperInstallerUtils.class.getResource("/grouper.cache.base.properties") == null) {
+      throw new RuntimeException("Cant find grouper.cache.base.properties on the classpath!");
+    }
+    
+    //look at base properties
+    Properties grouperEhcacheBaseProperties = GrouperInstallerUtils.propertiesFromFile(ehcacheBasePropertiesFile);
+    
+    StringBuilder grouperEhcachePropertiesContents = new StringBuilder();
+    
+    grouperEhcachePropertiesContents.append(
+              "# Copyright 2016 Internet2\n"
+            + "#\n"
+            + "# Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+            + "# you may not use this file except in compliance with the License.\n"
+            + "# You may obtain a copy of the License at\n"
+            + "#\n"
+            + "#   http://www.apache.org/licenses/LICENSE-2.0\n"
+            + "#\n"
+            + "# Unless required by applicable law or agreed to in writing, software\n"
+            + "# distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+            + "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
+            + "# See the License for the specific language governing permissions and\n"
+            + "# limitations under the License.\n"
+            + "\n"
+            + "#\n"
+            + "# Grouper Cache Configuration\n"
+            + "#\n"
+            + "\n"
+            + "# The grouper cache config uses Grouper Configuration Overlays (documented on wiki)\n"
+            + "# By default the configuration is read from grouper.cache.base.properties\n"
+            + "# (which should not be edited), and the grouper.cache.properties overlays\n"
+            + "# the base settings.  See the grouper.cache.base.properties for the possible\n"
+            + "# settings that can be applied to the grouper.cache.properties\n\n"
+        );
+
+    {
+      // <diskStore path="java.io.tmpdir"/>
+      NodeList diskStoreNodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheXmlUrl, "/ehcache/diskStore");
+      if (diskStoreNodeList.getLength() != 1) {
+        throw new RuntimeException("Expecting one diskStore element");
+      }
+  
+      Element element = (Element)diskStoreNodeList.item(0);
+
+      NamedNodeMap configuredNamedNodeMap = element.getAttributes();
+      if (configuredNamedNodeMap.getLength() != 1 || !"path".equals(configuredNamedNodeMap.item(0).getNodeName())) {
+        throw new RuntimeException("Expecting one diskStore attribute: path");
+      }
+      
+      String path = element.getAttribute("path");
+      
+      if (!"java.io.tmpdir".equals(path)) {
+        grouperEhcachePropertiesContents.append("  <diskStore path=\"" + path + "\"/>\n\n");
+      }
+      
+    }    
+
+    {
+      //  <defaultCache
+      //    maxElementsInMemory="1000"
+      //    eternal="false"
+      //    timeToIdleSeconds="10"
+      //    timeToLiveSeconds="10"
+      //    overflowToDisk="false"
+      //    statistics="false"
+      //  />
+      
+      NodeList diskStoreNodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheXmlUrl, "/ehcache/defaultCache");
+      if (diskStoreNodeList.getLength() != 1) {
+        throw new RuntimeException("Expecting one defaultCache element");
+      }
+  
+      Element element = (Element)diskStoreNodeList.item(0);
+
+      NamedNodeMap configuredNamedNodeMap = element.getAttributes();
+      
+      if (configuredNamedNodeMap.getLength() != 6) {
+        throw new RuntimeException("Expecting defaultCache with these attributes: maxElementsInMemory, "
+            + "eternal, timeToIdleSeconds, timeToLiveSeconds, overflowToDisk, statistics");
+      }
+
+      boolean madeChanges = false;
+      
+      for (int i=0;i<configuredNamedNodeMap.getLength(); i++) {
+        
+        String attributeName = configuredNamedNodeMap.item(i).getNodeName();
+        String value = element.getAttribute(attributeName);
+
+        if ("maxElementsInMemory".equals(attributeName)) {
+          if (!"1000".equals(value)) {
+            grouperEhcachePropertiesContents.append("cache.defaultCache.maxElementsInMemory = " + value + "\n");
+            madeChanges = true;
+          }
+        } else if ("eternal".equals(attributeName)) {
+          if (!"false".equals(value)) {
+            grouperEhcachePropertiesContents.append("cache.defaultCache.eternal = " + value + "\n");
+            madeChanges = true;
+          }
+        } else if ("timeToIdleSeconds".equals(attributeName)) {
+          if (!"10".equals(value)) {
+            grouperEhcachePropertiesContents.append("cache.defaultCache.timeToIdleSeconds = " + value + "\n");
+            madeChanges = true;
+          }
+          
+        } else if ("timeToLiveSeconds".equals(attributeName)) {
+          if (!"10".equals(value)) {
+            grouperEhcachePropertiesContents.append("cache.defaultCache.timeToLiveSeconds = " + value + "\n");
+            madeChanges = true;
+          }
+          
+        } else if ("overflowToDisk".equals(attributeName)) {
+          if (!"false".equals(value)) {
+            grouperEhcachePropertiesContents.append("cache.defaultCache.overflowToDisk = " + value + "\n");
+            madeChanges = true;
+          }
+          
+        } else if ("statistics".equals(attributeName)) {
+          if (!"false".equals(value)) {
+            grouperEhcachePropertiesContents.append("cache.defaultCache.statistics = " + value + "\n");
+            madeChanges = true;
+          }
+          
+        } else {
+          throw new RuntimeException("Not expecting attribuet defaultCache " + attributeName);
+        }
+      }
+
+      if (madeChanges) {
+        grouperEhcachePropertiesContents.append("\n");
+      }
+      
+    }
+    
+    NodeList nodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheXmlUrl, "/ehcache/cache");
+    
+    Set<String> usedKeys = new HashSet<String>();
+    
+    for (int i=0;i<nodeList.getLength();i++) {
+      
+      Element element = (Element)nodeList.item(i);
+
+      //  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.FindBySubject"
+      //      maxElementsInMemory="5000"
+      //      eternal="false"
+      //      timeToIdleSeconds="5"
+      //      timeToLiveSeconds="10"
+      //      overflowToDisk="false"  
+      //      statistics="false"
+      //  />
+      
+      String name = element.getAttribute("name");
+      Integer maxElementsInMemory = GrouperInstallerUtils.intObjectValue(element.getAttribute("maxElementsInMemory"), true);
+      Boolean eternal = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("eternal"));
+      Integer timeToIdleSeconds = GrouperInstallerUtils.intObjectValue(element.getAttribute("timeToIdleSeconds"), true);
+      Integer timeToLiveSeconds = GrouperInstallerUtils.intObjectValue(element.getAttribute("timeToLiveSeconds"), true);
+      Boolean overflowToDisk = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("overflowToDisk"));
+      Boolean statistics = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("statistics"));
+
+      //any attributes we dont expect?
+      NamedNodeMap configuredNamedNodeMap = element.getAttributes();
+      //see which attributes are new or changed
+      for (int j=0;j<configuredNamedNodeMap.getLength();j++) {
+        Node configuredAttribute = configuredNamedNodeMap.item(j);
+        if (!configuredAttribute.getNodeName().equals("name")
+            && !configuredAttribute.getNodeName().equals("maxElementsInMemory")
+            && !configuredAttribute.getNodeName().equals("eternal")
+            && !configuredAttribute.getNodeName().equals("timeToIdleSeconds")
+            && !configuredAttribute.getNodeName().equals("timeToLiveSeconds")
+            && !configuredAttribute.getNodeName().equals("overflowToDisk")
+            && !configuredAttribute.getNodeName().equals("statistics")) {
+          throw new RuntimeException("Cant process attribute: '" + configuredAttribute.getNodeName() + "'");
+        }
+      }
+      
+      String key = convertEhcacheNameToPropertiesKey(name, usedKeys);
+      
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.name = edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.maxElementsInMemory = 500
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.eternal = false
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.timeToIdleSeconds = 1
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.timeToLiveSeconds = 1
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.overflowToDisk = false
+      //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.statistics = false
+
+      boolean madeChanges = false;
+      
+      if (maxElementsInMemory != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".maxElementsInMemory").equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".maxElementsInMemory = " + maxElementsInMemory);
+        madeChanges = true;
+      }
+      if (eternal != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".eternal").equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".eternal = " + eternal);
+        madeChanges = true;
+      }
+      if (timeToIdleSeconds != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".timeToIdleSeconds").equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".timeToIdleSeconds = " + timeToIdleSeconds);
+        madeChanges = true;
+      }
+      if (timeToLiveSeconds != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".timeToLiveSeconds").equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".timeToLiveSeconds = " + timeToLiveSeconds);
+        madeChanges = true;
+      }
+      if (overflowToDisk != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".overflowToDisk").equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".overflowToDisk = " + overflowToDisk);
+        madeChanges = true;
+      }
+      if (statistics != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".statistics").equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".statistics = " + statistics);
+        madeChanges = true;
+      }
+      if (madeChanges) {
+        grouperEhcachePropertiesContents.append("\n");
+      }
+    }
+  
     
   }
 
