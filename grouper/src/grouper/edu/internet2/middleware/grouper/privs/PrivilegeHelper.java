@@ -623,6 +623,17 @@ public class PrivilegeHelper {
         if (canRead(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
           return true;
         }
+        
+        if (grouperSession.getSubject().equals(membership.getMember().getSubject())) {
+          if (canOptin(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
+            return true;
+          }
+          
+          if (canOptout(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
+            return true;
+          }
+        }
+        
         return false;
       } else {
         throw new RuntimeException("Invalid field type: " + membership.getList().getType());
