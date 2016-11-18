@@ -1,0 +1,1087 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>ZipArchiveInputStream xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../../../apidocs/edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveInputStream.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * or more contributor license agreements.  See the NOTICE file</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * distributed with this work for additional information</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * regarding copyright ownership.  The ASF licenses this file</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * to you under the Apache License, Version 2.0 (the</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * KIND, either express or implied.  See the License for the</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * specific language governing permissions and limitations</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * under the License.</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.io.ByteArrayInputStream;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.io.ByteArrayOutputStream;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.io.EOFException;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> java.io.InputStream;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> java.io.PushbackInputStream;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> java.nio.ByteBuffer;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> java.util.zip.CRC32;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> java.util.zip.DataFormatException;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> java.util.zip.Inflater;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <strong class="jxr_keyword">import</strong> java.util.zip.ZipEntry;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">import</strong> java.util.zip.ZipException;
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveEntry;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.ArchiveInputStream;
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <strong class="jxr_keyword">import</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.DWORD;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.SHORT;
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.WORD;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.zip.ZipConstants.ZIP64_MAGIC;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment"> * Implements an input stream that can read Zip archives.</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;Note that {@link ZipArchiveEntry#getSize()} may return -1 if the</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment"> * DEFLATE algorithm is used, as the size information is not available</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment"> * from the header.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;The {@link ZipFile} class is preferred when reading from files.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;As of Apache Commons Compress it transparently supports Zip64</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment"> * extensions and thus individual entries and archives larger than 4</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment"> * GB or with more than 65536 entries.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment"> *</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment"> * @see ZipFile</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveInputStream.html">ZipArchiveInputStream</a> <strong class="jxr_keyword">extends</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveInputStream.html">ArchiveInputStream</a> {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_javadoccomment">/** The zip encoding to use for filenames and the file comment. */</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> zipEncoding;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_javadoccomment">/** Whether to look for and use Unicode extra fields. */</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> useUnicodeExtraFields;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_javadoccomment">/** Wrapped stream, will always be a PushbackInputStream. */</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> InputStream in;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/** Inflater used for all deflated entries. */</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Inflater inf = <strong class="jxr_keyword">new</strong> Inflater(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_javadoccomment">/** Buffer used to read from the wrapped stream. */</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> ByteBuffer buf = ByteBuffer.allocate(ZipArchiveOutputStream.BUFFER_SIZE);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_javadoccomment">/** The entry that is currently being read. */</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveOutputStream.html">CurrentEntry</a> current = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/** Whether the stream has been closed. */</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> closed = false;
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_javadoccomment">/** Whether the stream has reached the central directory - and thus found all entries. */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> hitCentralDirectory = false;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * When reading a stored entry that uses the data descriptor this</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     * stream has to read the full entry and caches it.  This is the</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     * cache.</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> ByteArrayInputStream lastStoredEntry = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_javadoccomment">/** Whether the stream will try to read STORED entries that use a data descriptor. */</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> allowStoredEntriesWithDataDescriptor = false;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> LFH_LEN = 30;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_comment">      local file header signature     WORD</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_comment">      version needed to extract       SHORT</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_comment">      general purpose bit flag        SHORT</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_comment">      compression method              SHORT</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_comment">      last mod file time              SHORT</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_comment">      last mod file date              SHORT</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_comment">      crc-32                          WORD</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_comment">      compressed size                 WORD</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_comment">      uncompressed size               WORD</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_comment">      file name length                SHORT</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_comment">      extra field length              SHORT</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_comment">    */</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CFH_LEN = 46;
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_comment">        central file header signature   WORD</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_comment">        version made by                 SHORT</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_comment">        version needed to extract       SHORT</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_comment">        general purpose bit flag        SHORT</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_comment">        compression method              SHORT</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_comment">        last mod file time              SHORT</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_comment">        last mod file date              SHORT</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_comment">        crc-32                          WORD</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_comment">        compressed size                 WORD</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_comment">        uncompressed size               WORD</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_comment">        file name length                SHORT</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_comment">        extra field length              SHORT</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_comment">        file comment length             SHORT</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_comment">        disk number start               SHORT</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_comment">        internal file attributes        SHORT</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_comment">        external file attributes        WORD</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_comment">        relative offset of local header WORD</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_comment">    */</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> TWO_EXP_32 = ZIP64_MAGIC + 1;
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <em class="jxr_comment">// cached buffers - must only be used locally in the class (COMPRESS-172 - reduce garbage collection)</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] LFH_BUF = <strong class="jxr_keyword">new</strong> byte[LFH_LEN];
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] SKIP_BUF = <strong class="jxr_keyword">new</strong> byte[1024];
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] SHORT_BUF = <strong class="jxr_keyword">new</strong> byte[SHORT];
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] WORD_BUF = <strong class="jxr_keyword">new</strong> byte[WORD];
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] TWO_DWORD_BUF = <strong class="jxr_keyword">new</strong> byte[2 * DWORD];
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> 
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> entriesRead = 0;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveInputStream.html">ZipArchiveInputStream</a>(InputStream inputStream) {
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">this</strong>(inputStream, ZipEncodingHelper.UTF8);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
+<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * @param encoding the encoding to use for file names, use null</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * for the platform's default encoding</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * @since 1.5</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveInputStream.html">ZipArchiveInputStream</a>(InputStream inputStream, String encoding) {
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">this</strong>(inputStream, encoding, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     * @param encoding the encoding to use for file names, use null</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     * for the platform's default encoding</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     * @param useUnicodeExtraFields whether to use InfoZIP Unicode</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     * Extra Fields (if present) to set the file names.</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveInputStream.html">ZipArchiveInputStream</a>(InputStream inputStream, String encoding, <strong class="jxr_keyword">boolean</strong> useUnicodeExtraFields) {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">this</strong>(inputStream, encoding, useUnicodeExtraFields, false);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     * @param encoding the encoding to use for file names, use null</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a> <em class="jxr_javadoccomment">     * for the platform's default encoding</em>
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> <em class="jxr_javadoccomment">     * @param useUnicodeExtraFields whether to use InfoZIP Unicode</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     * Extra Fields (if present) to set the file names.</em>
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     * @param allowStoredEntriesWithDataDescriptor whether the stream</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * will try to read STORED entries that use a data descriptor</em>
+<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * @since 1.1</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveInputStream.html">ZipArchiveInputStream</a>(InputStream inputStream,
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>                                  String encoding,
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                                  <strong class="jxr_keyword">boolean</strong> useUnicodeExtraFields,
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>                                  <strong class="jxr_keyword">boolean</strong> allowStoredEntriesWithDataDescriptor) {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         zipEncoding = ZipEncodingHelper.getZipEncoding(encoding);
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">this</strong>.useUnicodeExtraFields = useUnicodeExtraFields;
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         in = <strong class="jxr_keyword">new</strong> PushbackInputStream(inputStream, buf.capacity());
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">this</strong>.allowStoredEntriesWithDataDescriptor =
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>             allowStoredEntriesWithDataDescriptor;
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <em class="jxr_comment">// haven't read anything so far</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         buf.limit(0);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.html">ZipArchiveEntry</a> getNextZipEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">boolean</strong> firstEntry = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">if</strong> (closed || hitCentralDirectory) {
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         }
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">if</strong> (current != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             closeEntry();
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             firstEntry = false;
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             <strong class="jxr_keyword">if</strong> (firstEntry) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>                 <em class="jxr_comment">// split archives have a special signature before the</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 <em class="jxr_comment">// first local file header - look for it and fail with</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>                 <em class="jxr_comment">// the appropriate error message if this is a split</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>                 <em class="jxr_comment">// archive.</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 readFirstLocalFileHeader(LFH_BUF);
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>                 readFully(LFH_BUF);
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             }
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         } <strong class="jxr_keyword">catch</strong> (EOFException e) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> 
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> sig = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(LFH_BUF);
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <strong class="jxr_keyword">if</strong> (sig.equals(ZipLong.CFH_SIG) || sig.equals(ZipLong.AED_SIG)) {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             hitCentralDirectory = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             skipRemainderOfArchive();
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         }
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">if</strong> (!sig.equals(ZipLong.LFH_SIG)) {
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         }
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">int</strong> off = WORD;
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         current = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveOutputStream.html">CurrentEntry</a>();
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">int</strong> versionMadeBy = ZipShort.getValue(LFH_BUF, off);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         off += SHORT;
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         current.entry.setPlatform((versionMadeBy &gt;&gt; ZipFile.BYTE_SHIFT) &amp; ZipFile.NIBLET_MASK);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/GeneralPurposeBit.html">GeneralPurposeBit</a> gpFlag = GeneralPurposeBit.parse(LFH_BUF, off);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> hasUTF8Flag = gpFlag.usesUTF8ForNames();
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipEncoding.html">ZipEncoding</a> entryEncoding = hasUTF8Flag ? ZipEncodingHelper.UTF8_ZIP_ENCODING : zipEncoding;
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         current.hasDataDescriptor = gpFlag.usesDataDescriptor();
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         current.entry.setGeneralPurposeBit(gpFlag);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         off += SHORT;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         current.entry.setMethod(ZipShort.getValue(LFH_BUF, off));
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         off += SHORT;
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         <strong class="jxr_keyword">long</strong> time = ZipUtil.dosToJavaTime(ZipLong.getValue(LFH_BUF, off));
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         current.entry.setTime(time);
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         off += WORD;
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> size = <strong class="jxr_keyword">null</strong>, cSize = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         <strong class="jxr_keyword">if</strong> (!current.hasDataDescriptor) {
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             current.entry.setCrc(ZipLong.getValue(LFH_BUF, off));
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             off += WORD;
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             cSize = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(LFH_BUF, off);
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             off += WORD;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> 
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             size = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(LFH_BUF, off);
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             off += WORD;
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             off += 3 * WORD;
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> 
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">int</strong> fileNameLen = ZipShort.getValue(LFH_BUF, off);
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> 
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         off += SHORT;
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">int</strong> extraLen = ZipShort.getValue(LFH_BUF, off);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         off += SHORT;
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> 
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         byte[] fileName = <strong class="jxr_keyword">new</strong> byte[fileNameLen];
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         readFully(fileName);
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         current.entry.setName(entryEncoding.decode(fileName), fileName);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a> 
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         byte[] extraData = <strong class="jxr_keyword">new</strong> byte[extraLen];
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         readFully(extraData);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         current.entry.setExtra(extraData);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">if</strong> (!hasUTF8Flag &amp;&amp; useUnicodeExtraFields) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>             ZipUtil.setNameAndCommentFromExtraFields(current.entry, fileName, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         }
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>         processZip64Extra(size, cSize);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a> 
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>         <strong class="jxr_keyword">if</strong> (current.entry.getCompressedSize() != -1) {
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             <strong class="jxr_keyword">if</strong> (current.entry.getMethod() == ZipMethod.UNSHRINKING.getCode()) {
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 current.in = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/UnshrinkingInputStream.html">UnshrinkingInputStream</a>(<strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/BoundedInputStream.html">BoundedInputStream</a>(in, current.entry.getCompressedSize()));
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (current.entry.getMethod() == ZipMethod.IMPLODING.getCode()) {
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                 current.in = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ExplodingInputStream.html">ExplodingInputStream</a>(
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                         current.entry.getGeneralPurposeBit().getSlidingDictionarySize(),
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                         current.entry.getGeneralPurposeBit().getNumberOfShannonFanoTrees(),
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                         <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/BoundedInputStream.html">BoundedInputStream</a>(in, current.entry.getCompressedSize()));
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>             }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>         }
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         entriesRead++;
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <strong class="jxr_keyword">return</strong> current.entry;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>     }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     * Fills the given array with the first local file header and</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * deals with splitting/spanning markers that may prefix the first</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * LFH.</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readFirstLocalFileHeader(byte[] lfh) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         readFully(lfh);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> sig = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(lfh);
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">if</strong> (sig.equals(ZipLong.DD_SIG)) {
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/UnsupportedZipFeatureException.html">UnsupportedZipFeatureException</a>(UnsupportedZipFeatureException.Feature.SPLITTING);
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         <strong class="jxr_keyword">if</strong> (sig.equals(ZipLong.SINGLE_SEGMENT_SPLIT_MARKER)) {
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>             <em class="jxr_comment">// The archive is not really split as only one segment was</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>             <em class="jxr_comment">// needed in the end.  Just skip over the marker.</em>
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>             byte[] missedLfhBytes = <strong class="jxr_keyword">new</strong> byte[4];
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>             readFully(missedLfhBytes);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>             System.arraycopy(lfh, 4, lfh, 0, LFH_LEN - 4);
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>             System.arraycopy(missedLfhBytes, 0, lfh, LFH_LEN - 4, 4);
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         }
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * Records whether a Zip64 extra is present and sets the size</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * information from it if sizes are 0xFFFFFFFF and the entry</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     * doesn't use a data descriptor.</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> processZip64Extra(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> size, <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> cSize) {
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html">Zip64ExtendedInformationExtraField</a> z64 =
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>             (<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/Zip64ExtendedInformationExtraField.html">Zip64ExtendedInformationExtraField</a>) 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>             current.entry.getExtraField(Zip64ExtendedInformationExtraField.HEADER_ID);
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         current.usesZip64 = z64 != <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">if</strong> (!current.hasDataDescriptor) {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>             <strong class="jxr_keyword">if</strong> (z64 != <strong class="jxr_keyword">null</strong> <em class="jxr_comment">// same as current.usesZip64 but avoids NPE warning</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>                     &amp;&amp; (cSize.equals(ZipLong.ZIP64_MAGIC) || size.equals(ZipLong.ZIP64_MAGIC)) ) {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 current.entry.setCompressedSize(z64.getCompressedSize().getLongValue());
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 current.entry.setSize(z64.getSize().getLongValue());
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>                 current.entry.setCompressedSize(cSize.getValue());
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 current.entry.setSize(size.getValue());
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             }
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>     }
+<a class="jxr_linenumber" name="L335" href="#L335">335</a> 
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>     @Override
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>     <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> getNextEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         <strong class="jxr_keyword">return</strong> getNextZipEntry();
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>     }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a> 
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> <em class="jxr_javadoccomment">     * Whether this class is able to read the given entry.</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">     * &lt;p&gt;May return false if it is set up to use encryption or a</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">     * compression method that hasn't been implemented yet.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">     * @since 1.1</em>
+<a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>     @Override
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> canReadEntryData(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/ArchiveEntry.html">ArchiveEntry</a> ae) {
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">if</strong> (ae instanceof ZipArchiveEntry) {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.html">ZipArchiveEntry</a> ze = (ZipArchiveEntry) ae;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>             <strong class="jxr_keyword">return</strong> ZipUtil.canHandleEntryData(ze)
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 &amp;&amp; supportsDataDescriptorFor(ze);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a> 
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         }
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>     }
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> 
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>     @Override
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> read(byte[] buffer, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>         <strong class="jxr_keyword">if</strong> (closed) {
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"The stream is closed"</span>);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         }
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> 
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">if</strong> (current == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>             <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         }
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <em class="jxr_comment">// avoid int overflow, check null buffer</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <strong class="jxr_keyword">if</strong> (offset &gt; buffer.length || length &lt; 0 || offset &lt; 0 || buffer.length - offset &lt; length) {
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ArrayIndexOutOfBoundsException();
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         }
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         ZipUtil.checkRequestedFeatures(current.entry);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <strong class="jxr_keyword">if</strong> (!supportsDataDescriptorFor(current.entry)) {
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/UnsupportedZipFeatureException.html">UnsupportedZipFeatureException</a>(UnsupportedZipFeatureException.Feature.DATA_DESCRIPTOR,
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>                     current.entry);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         }
+<a class="jxr_linenumber" name="L379" href="#L379">379</a> 
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <strong class="jxr_keyword">int</strong> read;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <strong class="jxr_keyword">if</strong> (current.entry.getMethod() == ZipArchiveOutputStream.STORED) {
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>             read = readStored(buffer, offset, length);
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (current.entry.getMethod() == ZipArchiveOutputStream.DEFLATED) {
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             read = readDeflated(buffer, offset, length);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (current.entry.getMethod() == ZipMethod.UNSHRINKING.getCode()
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>                 || current.entry.getMethod() == ZipMethod.IMPLODING.getCode()) {
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>             read = current.in.read(buffer, offset, length);
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/UnsupportedZipFeatureException.html">UnsupportedZipFeatureException</a>(ZipMethod.getMethodByCode(current.entry.getMethod()),
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>                     current.entry);
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         }
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>         <strong class="jxr_keyword">if</strong> (read &gt;= 0) {
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>             current.crc.update(buffer, offset, read);
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         }
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <strong class="jxr_keyword">return</strong> read;
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>     }
+<a class="jxr_linenumber" name="L399" href="#L399">399</a> 
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> <em class="jxr_javadoccomment">     * Implementation of read for STORED entries.</em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> readStored(byte[] buffer, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> 
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <strong class="jxr_keyword">if</strong> (current.hasDataDescriptor) {
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>             <strong class="jxr_keyword">if</strong> (lastStoredEntry == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 readStoredEntry();
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>             }
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>             <strong class="jxr_keyword">return</strong> lastStoredEntry.read(buffer, offset, length);
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         }
+<a class="jxr_linenumber" name="L411" href="#L411">411</a> 
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">long</strong> csize = current.entry.getSize();
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">if</strong> (current.bytesRead &gt;= csize) {
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>             <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         }
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> 
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">if</strong> (buf.position() &gt;= buf.limit()) {
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>             buf.position(0);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>             <strong class="jxr_keyword">int</strong> l = in.read(buf.array());
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>             <strong class="jxr_keyword">if</strong> (l == -1) {
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>                 <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>             }
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>             buf.limit(l);
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> 
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>             count(l);
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>             current.bytesReadFromStream += l;
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         }
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> 
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>         <strong class="jxr_keyword">int</strong> toRead = Math.min(buf.remaining(), length);
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">if</strong> ((csize - current.bytesRead) &lt; toRead) {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>             <em class="jxr_comment">// if it is smaller than toRead then it fits into an int</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>             toRead = (<strong class="jxr_keyword">int</strong>) (csize - current.bytesRead);
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         }
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         buf.get(buffer, offset, toRead);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>         current.bytesRead += toRead;
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <strong class="jxr_keyword">return</strong> toRead;
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     }
+<a class="jxr_linenumber" name="L438" href="#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">     * Implementation of read for DEFLATED entries.</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> readDeflated(byte[] buffer, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">int</strong> read = readFromInflater(buffer, offset, length);
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         <strong class="jxr_keyword">if</strong> (read &lt;= 0) {
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>             <strong class="jxr_keyword">if</strong> (inf.finished()) {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (inf.needsDictionary()) {
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> ZipException(<span class="jxr_string">"This archive needs a preset dictionary"</span>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>                                        + <span class="jxr_string">" which is not supported by Commons"</span>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>                                        + <span class="jxr_string">" Compress."</span>);
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (read == -1) {
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Truncated ZIP file"</span>);
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>             }
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         }
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <strong class="jxr_keyword">return</strong> read;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     }
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">     * Potentially reads more bytes to fill the inflater's buffer and</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">     * reads from it.</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> readFromInflater(byte[] buffer, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">int</strong> read = 0;
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         <strong class="jxr_keyword">do</strong> {
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             <strong class="jxr_keyword">if</strong> (inf.needsInput()) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>                 <strong class="jxr_keyword">int</strong> l = fill();
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>                 <strong class="jxr_keyword">if</strong> (l &gt; 0) {
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>                     current.bytesReadFromStream += buf.limit();
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (l == -1) {
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>                     <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>                 }
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>             }
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>                 read = inf.inflate(buffer, offset, length);
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             } <strong class="jxr_keyword">catch</strong> (DataFormatException e) {
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>                 <strong class="jxr_keyword">throw</strong> (IOException) <strong class="jxr_keyword">new</strong> ZipException(e.getMessage()).initCause(e);
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>             }
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         } <strong class="jxr_keyword">while</strong> (read == 0 &amp;&amp; inf.needsInput());
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">return</strong> read;
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>     }
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> 
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>     @Override
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> close() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">if</strong> (!closed) {
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>             closed = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>             in.close();
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>             inf.end();
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         }
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     }
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_javadoccomment">     * Skips over and discards value bytes of data from this input</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">     * stream.</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">     * &lt;p&gt;This implementation may end up skipping over some smaller</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">     * number of bytes, possibly 0, if and only if it reaches the end</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">     * of the underlying stream.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The actual number of bytes skipped is returned.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">     * @param value the number of bytes to be skipped.</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a> <em class="jxr_javadoccomment">     * @return the actual number of bytes skipped.</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a> <em class="jxr_javadoccomment">     * @throws IOException - if an I/O error occurs.</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a> <em class="jxr_javadoccomment">     * @throws IllegalArgumentException - if value is negative.</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     @Override
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> skip(<strong class="jxr_keyword">long</strong> value) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         <strong class="jxr_keyword">if</strong> (value &gt;= 0) {
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>             <strong class="jxr_keyword">long</strong> skipped = 0;
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <strong class="jxr_keyword">while</strong> (skipped &lt; value) {
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>                 <strong class="jxr_keyword">long</strong> rem = value - skipped;
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>                 <strong class="jxr_keyword">int</strong> x = read(SKIP_BUF, 0, (<strong class="jxr_keyword">int</strong>) (SKIP_BUF.length &gt; rem ? rem : SKIP_BUF.length));
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>                 <strong class="jxr_keyword">if</strong> (x == -1) {
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>                     <strong class="jxr_keyword">return</strong> skipped;
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>                 }
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>                 skipped += x;
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>             }
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>             <strong class="jxr_keyword">return</strong> skipped;
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>         }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException();
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>     }
+<a class="jxr_linenumber" name="L524" href="#L524">524</a> 
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">     * Checks if the signature matches what is expected for a zip file.</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">     * Does not currently handle self-extracting zips which may have arbitrary</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">     * leading content.</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     * @param signature the bytes to check</em>
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     * @param length    the number of bytes to check</em>
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">     * @return true, if this stream is a zip archive stream, false otherwise</em>
+<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> matches(byte[] signature, <strong class="jxr_keyword">int</strong> length) {
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>         <strong class="jxr_keyword">if</strong> (length &lt; ZipArchiveOutputStream.LFH_SIG.length) {
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> 
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <strong class="jxr_keyword">return</strong> checksig(signature, ZipArchiveOutputStream.LFH_SIG) <em class="jxr_comment">// normal file</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>             || checksig(signature, ZipArchiveOutputStream.EOCD_SIG) <em class="jxr_comment">// empty zip</em>
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             || checksig(signature, ZipArchiveOutputStream.DD_SIG) <em class="jxr_comment">// split zip</em>
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>             || checksig(signature, ZipLong.SINGLE_SEGMENT_SPLIT_MARKER.getBytes());
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>     }
+<a class="jxr_linenumber" name="L544" href="#L544">544</a> 
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> checksig(byte[] signature, byte[] expected) {
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; expected.length; i++) {
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>             <strong class="jxr_keyword">if</strong> (signature[i] != expected[i]) {
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>             }
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         }
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     }
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> 
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">     * Closes the current ZIP archive entry and positions the underlying</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">     * stream to the beginning of the next entry. All per-entry variables</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">     * and data structures are cleared.</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> <em class="jxr_javadoccomment">     * If the compressed size of this entry is included in the entry header,</em>
+<a class="jxr_linenumber" name="L560" href="#L560">560</a> <em class="jxr_javadoccomment">     * then any outstanding bytes are simply skipped from the underlying</em>
+<a class="jxr_linenumber" name="L561" href="#L561">561</a> <em class="jxr_javadoccomment">     * stream without uncompressing them. This allows an entry to be safely</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_javadoccomment">     * closed even if the compression method is unsupported.</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">     * In case we don't know the compressed size of this entry or have</em>
+<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     * already buffered too much data from the underlying stream to support</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * uncompression, then the uncompression process is completed and the</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     * end position of the stream is adjusted based on the result of that</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * process.</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     * @throws IOException if an error occurs</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> closeEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <strong class="jxr_keyword">if</strong> (closed) {
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"The stream is closed"</span>);
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         }
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         <strong class="jxr_keyword">if</strong> (current == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         }
+<a class="jxr_linenumber" name="L579" href="#L579">579</a> 
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>         <em class="jxr_comment">// Ensure all entry bytes are read</em>
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>         <strong class="jxr_keyword">if</strong> (current.bytesReadFromStream &lt;= current.entry.getCompressedSize()
+<a class="jxr_linenumber" name="L582" href="#L582">582</a>                 &amp;&amp; !current.hasDataDescriptor) {
+<a class="jxr_linenumber" name="L583" href="#L583">583</a>             drainCurrentEntryData();
+<a class="jxr_linenumber" name="L584" href="#L584">584</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>             skip(Long.MAX_VALUE);
+<a class="jxr_linenumber" name="L586" href="#L586">586</a> 
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>             <strong class="jxr_keyword">long</strong> inB = current.entry.getMethod() == ZipArchiveOutputStream.DEFLATED
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>                        ? getBytesInflated() : current.bytesRead;
+<a class="jxr_linenumber" name="L589" href="#L589">589</a> 
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>             <em class="jxr_comment">// this is at most a single read() operation and can't</em>
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>             <em class="jxr_comment">// exceed the range of int</em>
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>             <strong class="jxr_keyword">int</strong> diff = (<strong class="jxr_keyword">int</strong>) (current.bytesReadFromStream - inB);
+<a class="jxr_linenumber" name="L593" href="#L593">593</a> 
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>             <em class="jxr_comment">// Pushback any required bytes</em>
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>             <strong class="jxr_keyword">if</strong> (diff &gt; 0) {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>                 pushback(buf.array(), buf.limit() - diff, diff);
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>             }
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>         }
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> 
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <strong class="jxr_keyword">if</strong> (lastStoredEntry == <strong class="jxr_keyword">null</strong> &amp;&amp; current.hasDataDescriptor) {
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>             readDataDescriptor();
+<a class="jxr_linenumber" name="L602" href="#L602">602</a>         }
+<a class="jxr_linenumber" name="L603" href="#L603">603</a> 
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>         inf.reset();
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>         buf.clear().flip();
+<a class="jxr_linenumber" name="L606" href="#L606">606</a>         current = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>         lastStoredEntry = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>     }
+<a class="jxr_linenumber" name="L609" href="#L609">609</a> 
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L611" href="#L611">611</a> <em class="jxr_javadoccomment">     * Read all data of the current entry from the underlying stream</em>
+<a class="jxr_linenumber" name="L612" href="#L612">612</a> <em class="jxr_javadoccomment">     * that hasn't been read, yet.</em>
+<a class="jxr_linenumber" name="L613" href="#L613">613</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> drainCurrentEntryData() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>         <strong class="jxr_keyword">long</strong> remaining = current.entry.getCompressedSize() - current.bytesReadFromStream;
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>         <strong class="jxr_keyword">while</strong> (remaining &gt; 0) {
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>             <strong class="jxr_keyword">long</strong> n = in.read(buf.array(), 0, (<strong class="jxr_keyword">int</strong>) Math.min(buf.capacity(), remaining));
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>             <strong class="jxr_keyword">if</strong> (n &lt; 0) {
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> EOFException(<span class="jxr_string">"Truncated ZIP entry: "</span> + current.entry.getName());
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>                 count(n);
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>                 remaining -= n;
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>             }
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>         }
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>     }
+<a class="jxr_linenumber" name="L626" href="#L626">626</a> 
+<a class="jxr_linenumber" name="L627" href="#L627">627</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L628" href="#L628">628</a> <em class="jxr_javadoccomment">     * Get the number of bytes Inflater has actually processed.</em>
+<a class="jxr_linenumber" name="L629" href="#L629">629</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L630" href="#L630">630</a> <em class="jxr_javadoccomment">     * &lt;p&gt;for Java &amp;lt; Java7 the getBytes* methods in</em>
+<a class="jxr_linenumber" name="L631" href="#L631">631</a> <em class="jxr_javadoccomment">     * Inflater/Deflater seem to return unsigned ints rather than</em>
+<a class="jxr_linenumber" name="L632" href="#L632">632</a> <em class="jxr_javadoccomment">     * longs that start over with 0 at 2^32.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L633" href="#L633">633</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L634" href="#L634">634</a> <em class="jxr_javadoccomment">     * &lt;p&gt;The stream knows how many bytes it has read, but not how</em>
+<a class="jxr_linenumber" name="L635" href="#L635">635</a> <em class="jxr_javadoccomment">     * many the Inflater actually consumed - it should be between the</em>
+<a class="jxr_linenumber" name="L636" href="#L636">636</a> <em class="jxr_javadoccomment">     * total number of bytes read for the entry and the total number</em>
+<a class="jxr_linenumber" name="L637" href="#L637">637</a> <em class="jxr_javadoccomment">     * minus the last read operation.  Here we just try to make the</em>
+<a class="jxr_linenumber" name="L638" href="#L638">638</a> <em class="jxr_javadoccomment">     * value close enough to the bytes we've read by assuming the</em>
+<a class="jxr_linenumber" name="L639" href="#L639">639</a> <em class="jxr_javadoccomment">     * number of bytes consumed must be smaller than (or equal to) the</em>
+<a class="jxr_linenumber" name="L640" href="#L640">640</a> <em class="jxr_javadoccomment">     * number of bytes read but not smaller by more than 2^32.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L641" href="#L641">641</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> getBytesInflated() {
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>         <strong class="jxr_keyword">long</strong> inB = inf.getBytesRead();
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>         <strong class="jxr_keyword">if</strong> (current.bytesReadFromStream &gt;= TWO_EXP_32) {
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>             <strong class="jxr_keyword">while</strong> (inB + TWO_EXP_32 &lt;= current.bytesReadFromStream) {
+<a class="jxr_linenumber" name="L646" href="#L646">646</a>                 inB += TWO_EXP_32;
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>             }
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>         }
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>         <strong class="jxr_keyword">return</strong> inB;
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>     }
+<a class="jxr_linenumber" name="L651" href="#L651">651</a> 
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> fill() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>         <strong class="jxr_keyword">if</strong> (closed) {
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"The stream is closed"</span>);
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>         }
+<a class="jxr_linenumber" name="L656" href="#L656">656</a>         <strong class="jxr_keyword">int</strong> length = in.read(buf.array());
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>         <strong class="jxr_keyword">if</strong> (length &gt; 0) {
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>             buf.limit(length);
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>             count(buf.limit());
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>             inf.setInput(buf.array(), 0, buf.limit());
+<a class="jxr_linenumber" name="L661" href="#L661">661</a>         }
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>         <strong class="jxr_keyword">return</strong> length;
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>     }
+<a class="jxr_linenumber" name="L664" href="#L664">664</a> 
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readFully(byte[] b) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>         <strong class="jxr_keyword">int</strong> count = IOUtils.readFully(in, b);
+<a class="jxr_linenumber" name="L667" href="#L667">667</a>         count(count);
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>         <strong class="jxr_keyword">if</strong> (count &lt; b.length) {
+<a class="jxr_linenumber" name="L669" href="#L669">669</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> EOFException();
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>         }
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>     }
+<a class="jxr_linenumber" name="L672" href="#L672">672</a> 
+<a class="jxr_linenumber" name="L673" href="#L673">673</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readDataDescriptor() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L674" href="#L674">674</a>         readFully(WORD_BUF);
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> val = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(WORD_BUF);
+<a class="jxr_linenumber" name="L676" href="#L676">676</a>         <strong class="jxr_keyword">if</strong> (ZipLong.DD_SIG.equals(val)) {
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>             <em class="jxr_comment">// data descriptor with signature, skip sig</em>
+<a class="jxr_linenumber" name="L678" href="#L678">678</a>             readFully(WORD_BUF);
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>             val = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(WORD_BUF);
+<a class="jxr_linenumber" name="L680" href="#L680">680</a>         }
+<a class="jxr_linenumber" name="L681" href="#L681">681</a>         current.entry.setCrc(val.getValue());
+<a class="jxr_linenumber" name="L682" href="#L682">682</a> 
+<a class="jxr_linenumber" name="L683" href="#L683">683</a>         <em class="jxr_comment">// if there is a ZIP64 extra field, sizes are eight bytes</em>
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>         <em class="jxr_comment">// each, otherwise four bytes each.  Unfortunately some</em>
+<a class="jxr_linenumber" name="L685" href="#L685">685</a>         <em class="jxr_comment">// implementations - namely Java7 - use eight bytes without</em>
+<a class="jxr_linenumber" name="L686" href="#L686">686</a>         <em class="jxr_comment">// using a ZIP64 extra field -</em>
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>         <em class="jxr_comment">// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7073588</em>
+<a class="jxr_linenumber" name="L688" href="#L688">688</a> 
+<a class="jxr_linenumber" name="L689" href="#L689">689</a>         <em class="jxr_comment">// just read 16 bytes and check whether bytes nine to twelve</em>
+<a class="jxr_linenumber" name="L690" href="#L690">690</a>         <em class="jxr_comment">// look like one of the signatures of what could follow a data</em>
+<a class="jxr_linenumber" name="L691" href="#L691">691</a>         <em class="jxr_comment">// descriptor (ignoring archive decryption headers for now).</em>
+<a class="jxr_linenumber" name="L692" href="#L692">692</a>         <em class="jxr_comment">// If so, push back eight bytes and assume sizes are four</em>
+<a class="jxr_linenumber" name="L693" href="#L693">693</a>         <em class="jxr_comment">// bytes, otherwise sizes are eight bytes each.</em>
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>         readFully(TWO_DWORD_BUF);
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>         <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a> potentialSig = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipLong.html">ZipLong</a>(TWO_DWORD_BUF, DWORD);
+<a class="jxr_linenumber" name="L696" href="#L696">696</a>         <strong class="jxr_keyword">if</strong> (potentialSig.equals(ZipLong.CFH_SIG) || potentialSig.equals(ZipLong.LFH_SIG)) {
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>             pushback(TWO_DWORD_BUF, DWORD, DWORD);
+<a class="jxr_linenumber" name="L698" href="#L698">698</a>             current.entry.setCompressedSize(ZipLong.getValue(TWO_DWORD_BUF));
+<a class="jxr_linenumber" name="L699" href="#L699">699</a>             current.entry.setSize(ZipLong.getValue(TWO_DWORD_BUF, WORD));
+<a class="jxr_linenumber" name="L700" href="#L700">700</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L701" href="#L701">701</a>             current.entry.setCompressedSize(ZipEightByteInteger.getLongValue(TWO_DWORD_BUF));
+<a class="jxr_linenumber" name="L702" href="#L702">702</a>             current.entry.setSize(ZipEightByteInteger.getLongValue(TWO_DWORD_BUF, DWORD));
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>         }
+<a class="jxr_linenumber" name="L704" href="#L704">704</a>     }
+<a class="jxr_linenumber" name="L705" href="#L705">705</a> 
+<a class="jxr_linenumber" name="L706" href="#L706">706</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L707" href="#L707">707</a> <em class="jxr_javadoccomment">     * Whether this entry requires a data descriptor this library can work with.</em>
+<a class="jxr_linenumber" name="L708" href="#L708">708</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L709" href="#L709">709</a> <em class="jxr_javadoccomment">     * @return true if allowStoredEntriesWithDataDescriptor is true,</em>
+<a class="jxr_linenumber" name="L710" href="#L710">710</a> <em class="jxr_javadoccomment">     * the entry doesn't require any data descriptor or the method is</em>
+<a class="jxr_linenumber" name="L711" href="#L711">711</a> <em class="jxr_javadoccomment">     * DEFLATED.</em>
+<a class="jxr_linenumber" name="L712" href="#L712">712</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L713" href="#L713">713</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> supportsDataDescriptorFor(<a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.html">ZipArchiveEntry</a> entry) {
+<a class="jxr_linenumber" name="L714" href="#L714">714</a>         <strong class="jxr_keyword">return</strong> !entry.getGeneralPurposeBit().usesDataDescriptor()
+<a class="jxr_linenumber" name="L715" href="#L715">715</a> 
+<a class="jxr_linenumber" name="L716" href="#L716">716</a>                 || (allowStoredEntriesWithDataDescriptor &amp;&amp; entry.getMethod() == ZipEntry.STORED)
+<a class="jxr_linenumber" name="L717" href="#L717">717</a>                 || entry.getMethod() == ZipEntry.DEFLATED;
+<a class="jxr_linenumber" name="L718" href="#L718">718</a>     }
+<a class="jxr_linenumber" name="L719" href="#L719">719</a> 
+<a class="jxr_linenumber" name="L720" href="#L720">720</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L721" href="#L721">721</a> <em class="jxr_javadoccomment">     * Caches a stored entry that uses the data descriptor.</em>
+<a class="jxr_linenumber" name="L722" href="#L722">722</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L723" href="#L723">723</a> <em class="jxr_javadoccomment">     * &lt;ul&gt;</em>
+<a class="jxr_linenumber" name="L724" href="#L724">724</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;Reads a stored entry until the signature of a local file</em>
+<a class="jxr_linenumber" name="L725" href="#L725">725</a> <em class="jxr_javadoccomment">     *     header, central directory header or data descriptor has been</em>
+<a class="jxr_linenumber" name="L726" href="#L726">726</a> <em class="jxr_javadoccomment">     *     found.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L727" href="#L727">727</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;Stores all entry data in lastStoredEntry.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L728" href="#L728">728</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;Rewinds the stream to position at the data</em>
+<a class="jxr_linenumber" name="L729" href="#L729">729</a> <em class="jxr_javadoccomment">     *     descriptor.&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L730" href="#L730">730</a> <em class="jxr_javadoccomment">     *   &lt;li&gt;reads the data descriptor&lt;/li&gt;</em>
+<a class="jxr_linenumber" name="L731" href="#L731">731</a> <em class="jxr_javadoccomment">     * &lt;/ul&gt;</em>
+<a class="jxr_linenumber" name="L732" href="#L732">732</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L733" href="#L733">733</a> <em class="jxr_javadoccomment">     * &lt;p&gt;After calling this method the entry should know its size,</em>
+<a class="jxr_linenumber" name="L734" href="#L734">734</a> <em class="jxr_javadoccomment">     * the entry's data is cached and the stream is positioned at the</em>
+<a class="jxr_linenumber" name="L735" href="#L735">735</a> <em class="jxr_javadoccomment">     * next local file or central directory header.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L736" href="#L736">736</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L737" href="#L737">737</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> readStoredEntry() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L738" href="#L738">738</a>         ByteArrayOutputStream bos = <strong class="jxr_keyword">new</strong> ByteArrayOutputStream();
+<a class="jxr_linenumber" name="L739" href="#L739">739</a>         <strong class="jxr_keyword">int</strong> off = 0;
+<a class="jxr_linenumber" name="L740" href="#L740">740</a>         <strong class="jxr_keyword">boolean</strong> done = false;
+<a class="jxr_linenumber" name="L741" href="#L741">741</a> 
+<a class="jxr_linenumber" name="L742" href="#L742">742</a>         <em class="jxr_comment">// length of DD without signature</em>
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>         <strong class="jxr_keyword">int</strong> ddLen = current.usesZip64 ? WORD + 2 * DWORD : 3 * WORD;
+<a class="jxr_linenumber" name="L744" href="#L744">744</a> 
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>         <strong class="jxr_keyword">while</strong> (!done) {
+<a class="jxr_linenumber" name="L746" href="#L746">746</a>             <strong class="jxr_keyword">int</strong> r = in.read(buf.array(), off, ZipArchiveOutputStream.BUFFER_SIZE - off);
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>             <strong class="jxr_keyword">if</strong> (r &lt;= 0) {
+<a class="jxr_linenumber" name="L748" href="#L748">748</a>                 <em class="jxr_comment">// read the whole archive without ever finding a</em>
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>                 <em class="jxr_comment">// central directory</em>
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Truncated ZIP file"</span>);
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>             }
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>             <strong class="jxr_keyword">if</strong> (r + off &lt; 4) {
+<a class="jxr_linenumber" name="L753" href="#L753">753</a>                 <em class="jxr_comment">// buffer too small to check for a signature, loop</em>
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>                 off += r;
+<a class="jxr_linenumber" name="L755" href="#L755">755</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L756" href="#L756">756</a>             }
+<a class="jxr_linenumber" name="L757" href="#L757">757</a> 
+<a class="jxr_linenumber" name="L758" href="#L758">758</a>             done = bufferContainsSignature(bos, off, r, ddLen);
+<a class="jxr_linenumber" name="L759" href="#L759">759</a>             <strong class="jxr_keyword">if</strong> (!done) {
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>                 off = cacheBytesRead(bos, off, r, ddLen);
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>             }
+<a class="jxr_linenumber" name="L762" href="#L762">762</a>         }
+<a class="jxr_linenumber" name="L763" href="#L763">763</a> 
+<a class="jxr_linenumber" name="L764" href="#L764">764</a>         byte[] b = bos.toByteArray();
+<a class="jxr_linenumber" name="L765" href="#L765">765</a>         lastStoredEntry = <strong class="jxr_keyword">new</strong> ByteArrayInputStream(b);
+<a class="jxr_linenumber" name="L766" href="#L766">766</a>     }
+<a class="jxr_linenumber" name="L767" href="#L767">767</a> 
+<a class="jxr_linenumber" name="L768" href="#L768">768</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] LFH = ZipLong.LFH_SIG.getBytes();
+<a class="jxr_linenumber" name="L769" href="#L769">769</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] CFH = ZipLong.CFH_SIG.getBytes();
+<a class="jxr_linenumber" name="L770" href="#L770">770</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> byte[] DD = ZipLong.DD_SIG.getBytes();
+<a class="jxr_linenumber" name="L771" href="#L771">771</a> 
+<a class="jxr_linenumber" name="L772" href="#L772">772</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L773" href="#L773">773</a> <em class="jxr_javadoccomment">     * Checks whether the current buffer contains the signature of a</em>
+<a class="jxr_linenumber" name="L774" href="#L774">774</a> <em class="jxr_javadoccomment">     * &amp;quot;data descriptor&amp;quot;, &amp;quot;local file header&amp;quot; or</em>
+<a class="jxr_linenumber" name="L775" href="#L775">775</a> <em class="jxr_javadoccomment">     * &amp;quot;central directory entry&amp;quot;.</em>
+<a class="jxr_linenumber" name="L776" href="#L776">776</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L777" href="#L777">777</a> <em class="jxr_javadoccomment">     * &lt;p&gt;If it contains such a signature, reads the data descriptor</em>
+<a class="jxr_linenumber" name="L778" href="#L778">778</a> <em class="jxr_javadoccomment">     * and positions the stream right after the data descriptor.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L779" href="#L779">779</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L780" href="#L780">780</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> bufferContainsSignature(ByteArrayOutputStream bos, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> lastRead, <strong class="jxr_keyword">int</strong> expectedDDLen)
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>             <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L782" href="#L782">782</a> 
+<a class="jxr_linenumber" name="L783" href="#L783">783</a>         <strong class="jxr_keyword">boolean</strong> done = false;
+<a class="jxr_linenumber" name="L784" href="#L784">784</a>         <strong class="jxr_keyword">int</strong> readTooMuch = 0;
+<a class="jxr_linenumber" name="L785" href="#L785">785</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; !done &amp;&amp; i &lt; lastRead - 4; i++) {
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>             <strong class="jxr_keyword">if</strong> (buf.array()[i] == LFH[0] &amp;&amp; buf.array()[i + 1] == LFH[1]) {
+<a class="jxr_linenumber" name="L787" href="#L787">787</a>                 <strong class="jxr_keyword">if</strong> ((buf.array()[i + 2] == LFH[2] &amp;&amp; buf.array()[i + 3] == LFH[3])
+<a class="jxr_linenumber" name="L788" href="#L788">788</a>                     || (buf.array()[i] == CFH[2] &amp;&amp; buf.array()[i + 3] == CFH[3])) {
+<a class="jxr_linenumber" name="L789" href="#L789">789</a>                     <em class="jxr_comment">// found a LFH or CFH:</em>
+<a class="jxr_linenumber" name="L790" href="#L790">790</a>                     readTooMuch = offset + lastRead - i - expectedDDLen;
+<a class="jxr_linenumber" name="L791" href="#L791">791</a>                     done = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L792" href="#L792">792</a>                 }
+<a class="jxr_linenumber" name="L793" href="#L793">793</a>                 <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (buf.array()[i + 2] == DD[2] &amp;&amp; buf.array()[i + 3] == DD[3]) {
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>                     <em class="jxr_comment">// found DD:</em>
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>                     readTooMuch = offset + lastRead - i;
+<a class="jxr_linenumber" name="L796" href="#L796">796</a>                     done = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L797" href="#L797">797</a>                 }
+<a class="jxr_linenumber" name="L798" href="#L798">798</a>                 <strong class="jxr_keyword">if</strong> (done) {
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>                     <em class="jxr_comment">// * push back bytes read in excess as well as the data</em>
+<a class="jxr_linenumber" name="L800" href="#L800">800</a>                     <em class="jxr_comment">//   descriptor</em>
+<a class="jxr_linenumber" name="L801" href="#L801">801</a>                     <em class="jxr_comment">// * copy the remaining bytes to cache</em>
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>                     <em class="jxr_comment">// * read data descriptor</em>
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>                     pushback(buf.array(), offset + lastRead - readTooMuch, readTooMuch);
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>                     bos.write(buf.array(), 0, i);
+<a class="jxr_linenumber" name="L805" href="#L805">805</a>                     readDataDescriptor();
+<a class="jxr_linenumber" name="L806" href="#L806">806</a>                 }
+<a class="jxr_linenumber" name="L807" href="#L807">807</a>             }
+<a class="jxr_linenumber" name="L808" href="#L808">808</a>         }
+<a class="jxr_linenumber" name="L809" href="#L809">809</a>         <strong class="jxr_keyword">return</strong> done;
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>     }
+<a class="jxr_linenumber" name="L811" href="#L811">811</a> 
+<a class="jxr_linenumber" name="L812" href="#L812">812</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L813" href="#L813">813</a> <em class="jxr_javadoccomment">     * If the last read bytes could hold a data descriptor and an</em>
+<a class="jxr_linenumber" name="L814" href="#L814">814</a> <em class="jxr_javadoccomment">     * incomplete signature then save the last bytes to the front of</em>
+<a class="jxr_linenumber" name="L815" href="#L815">815</a> <em class="jxr_javadoccomment">     * the buffer and cache everything in front of the potential data</em>
+<a class="jxr_linenumber" name="L816" href="#L816">816</a> <em class="jxr_javadoccomment">     * descriptor into the given ByteArrayOutputStream.</em>
+<a class="jxr_linenumber" name="L817" href="#L817">817</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L818" href="#L818">818</a> <em class="jxr_javadoccomment">     * &lt;p&gt;Data descriptor plus incomplete signature (3 bytes in the</em>
+<a class="jxr_linenumber" name="L819" href="#L819">819</a> <em class="jxr_javadoccomment">     * worst case) can be 20 bytes max.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L820" href="#L820">820</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L821" href="#L821">821</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> cacheBytesRead(ByteArrayOutputStream bos, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> lastRead, <strong class="jxr_keyword">int</strong> expecteDDLen) {
+<a class="jxr_linenumber" name="L822" href="#L822">822</a>         <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> cacheable = offset + lastRead - expecteDDLen - 3;
+<a class="jxr_linenumber" name="L823" href="#L823">823</a>         <strong class="jxr_keyword">if</strong> (cacheable &gt; 0) {
+<a class="jxr_linenumber" name="L824" href="#L824">824</a>             bos.write(buf.array(), 0, cacheable);
+<a class="jxr_linenumber" name="L825" href="#L825">825</a>             System.arraycopy(buf.array(), cacheable, buf.array(), 0, expecteDDLen + 3);
+<a class="jxr_linenumber" name="L826" href="#L826">826</a>             offset = expecteDDLen + 3;
+<a class="jxr_linenumber" name="L827" href="#L827">827</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L828" href="#L828">828</a>             offset += lastRead;
+<a class="jxr_linenumber" name="L829" href="#L829">829</a>         }
+<a class="jxr_linenumber" name="L830" href="#L830">830</a>         <strong class="jxr_keyword">return</strong> offset;
+<a class="jxr_linenumber" name="L831" href="#L831">831</a>     }
+<a class="jxr_linenumber" name="L832" href="#L832">832</a> 
+<a class="jxr_linenumber" name="L833" href="#L833">833</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> pushback(byte[] buf, <strong class="jxr_keyword">int</strong> offset, <strong class="jxr_keyword">int</strong> length) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L834" href="#L834">834</a>         ((PushbackInputStream) in).unread(buf, offset, length);
+<a class="jxr_linenumber" name="L835" href="#L835">835</a>         pushedBackBytes(length);
+<a class="jxr_linenumber" name="L836" href="#L836">836</a>     }
+<a class="jxr_linenumber" name="L837" href="#L837">837</a> 
+<a class="jxr_linenumber" name="L838" href="#L838">838</a>     <em class="jxr_comment">// End of Central Directory Record</em>
+<a class="jxr_linenumber" name="L839" href="#L839">839</a>     <em class="jxr_comment">//   end of central dir signature    WORD</em>
+<a class="jxr_linenumber" name="L840" href="#L840">840</a>     <em class="jxr_comment">//   number of this disk             SHORT</em>
+<a class="jxr_linenumber" name="L841" href="#L841">841</a>     <em class="jxr_comment">//   number of the disk with the</em>
+<a class="jxr_linenumber" name="L842" href="#L842">842</a>     <em class="jxr_comment">//   start of the central directory  SHORT</em>
+<a class="jxr_linenumber" name="L843" href="#L843">843</a>     <em class="jxr_comment">//   total number of entries in the</em>
+<a class="jxr_linenumber" name="L844" href="#L844">844</a>     <em class="jxr_comment">//   central directory on this disk  SHORT</em>
+<a class="jxr_linenumber" name="L845" href="#L845">845</a>     <em class="jxr_comment">//   total number of entries in</em>
+<a class="jxr_linenumber" name="L846" href="#L846">846</a>     <em class="jxr_comment">//   the central directory           SHORT</em>
+<a class="jxr_linenumber" name="L847" href="#L847">847</a>     <em class="jxr_comment">//   size of the central directory   WORD</em>
+<a class="jxr_linenumber" name="L848" href="#L848">848</a>     <em class="jxr_comment">//   offset of start of central</em>
+<a class="jxr_linenumber" name="L849" href="#L849">849</a>     <em class="jxr_comment">//   directory with respect to</em>
+<a class="jxr_linenumber" name="L850" href="#L850">850</a>     <em class="jxr_comment">//   the starting disk number        WORD</em>
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>     <em class="jxr_comment">//   .ZIP file comment length        SHORT</em>
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>     <em class="jxr_comment">//   .ZIP file comment               up to 64KB</em>
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>     <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L854" href="#L854">854</a> 
+<a class="jxr_linenumber" name="L855" href="#L855">855</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L856" href="#L856">856</a> <em class="jxr_javadoccomment">     * Reads the stream until it find the "End of central directory</em>
+<a class="jxr_linenumber" name="L857" href="#L857">857</a> <em class="jxr_javadoccomment">     * record" and consumes it as well.</em>
+<a class="jxr_linenumber" name="L858" href="#L858">858</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L859" href="#L859">859</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> skipRemainderOfArchive() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L860" href="#L860">860</a>         <em class="jxr_comment">// skip over central directory. One LFH has been read too much</em>
+<a class="jxr_linenumber" name="L861" href="#L861">861</a>         <em class="jxr_comment">// already.  The calculation discounts file names and extra</em>
+<a class="jxr_linenumber" name="L862" href="#L862">862</a>         <em class="jxr_comment">// data so it will be too short.</em>
+<a class="jxr_linenumber" name="L863" href="#L863">863</a>         realSkip(entriesRead * CFH_LEN - LFH_LEN);
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>         findEocdRecord();
+<a class="jxr_linenumber" name="L865" href="#L865">865</a>         realSkip(ZipFile.MIN_EOCD_SIZE - WORD <em class="jxr_comment">/* signature */</em> - SHORT <em class="jxr_comment">/* comment len */</em>);
+<a class="jxr_linenumber" name="L866" href="#L866">866</a>         readFully(SHORT_BUF);
+<a class="jxr_linenumber" name="L867" href="#L867">867</a>         <em class="jxr_comment">// file comment</em>
+<a class="jxr_linenumber" name="L868" href="#L868">868</a>         realSkip(ZipShort.getValue(SHORT_BUF));
+<a class="jxr_linenumber" name="L869" href="#L869">869</a>     }
+<a class="jxr_linenumber" name="L870" href="#L870">870</a> 
+<a class="jxr_linenumber" name="L871" href="#L871">871</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L872" href="#L872">872</a> <em class="jxr_javadoccomment">     * Reads forward until the signature of the &amp;quot;End of central</em>
+<a class="jxr_linenumber" name="L873" href="#L873">873</a> <em class="jxr_javadoccomment">     * directory&amp;quot; record is found.</em>
+<a class="jxr_linenumber" name="L874" href="#L874">874</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L875" href="#L875">875</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> findEocdRecord() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L876" href="#L876">876</a>         <strong class="jxr_keyword">int</strong> currentByte = -1;
+<a class="jxr_linenumber" name="L877" href="#L877">877</a>         <strong class="jxr_keyword">boolean</strong> skipReadCall = false;
+<a class="jxr_linenumber" name="L878" href="#L878">878</a>         <strong class="jxr_keyword">while</strong> (skipReadCall || (currentByte = readOneByte()) &gt; -1) {
+<a class="jxr_linenumber" name="L879" href="#L879">879</a>             skipReadCall = false;
+<a class="jxr_linenumber" name="L880" href="#L880">880</a>             <strong class="jxr_keyword">if</strong> (!isFirstByteOfEocdSig(currentByte)) {
+<a class="jxr_linenumber" name="L881" href="#L881">881</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L882" href="#L882">882</a>             }
+<a class="jxr_linenumber" name="L883" href="#L883">883</a>             currentByte = readOneByte();
+<a class="jxr_linenumber" name="L884" href="#L884">884</a>             <strong class="jxr_keyword">if</strong> (currentByte != ZipArchiveOutputStream.EOCD_SIG[1]) {
+<a class="jxr_linenumber" name="L885" href="#L885">885</a>                 <strong class="jxr_keyword">if</strong> (currentByte == -1) {
+<a class="jxr_linenumber" name="L886" href="#L886">886</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L887" href="#L887">887</a>                 }
+<a class="jxr_linenumber" name="L888" href="#L888">888</a>                 skipReadCall = isFirstByteOfEocdSig(currentByte);
+<a class="jxr_linenumber" name="L889" href="#L889">889</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L890" href="#L890">890</a>             }
+<a class="jxr_linenumber" name="L891" href="#L891">891</a>             currentByte = readOneByte();
+<a class="jxr_linenumber" name="L892" href="#L892">892</a>             <strong class="jxr_keyword">if</strong> (currentByte != ZipArchiveOutputStream.EOCD_SIG[2]) {
+<a class="jxr_linenumber" name="L893" href="#L893">893</a>                 <strong class="jxr_keyword">if</strong> (currentByte == -1) {
+<a class="jxr_linenumber" name="L894" href="#L894">894</a>                     <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L895" href="#L895">895</a>                 }
+<a class="jxr_linenumber" name="L896" href="#L896">896</a>                 skipReadCall = isFirstByteOfEocdSig(currentByte);
+<a class="jxr_linenumber" name="L897" href="#L897">897</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L898" href="#L898">898</a>             }
+<a class="jxr_linenumber" name="L899" href="#L899">899</a>             currentByte = readOneByte();
+<a class="jxr_linenumber" name="L900" href="#L900">900</a>             <strong class="jxr_keyword">if</strong> (currentByte == -1
+<a class="jxr_linenumber" name="L901" href="#L901">901</a>                 || currentByte == ZipArchiveOutputStream.EOCD_SIG[3]) {
+<a class="jxr_linenumber" name="L902" href="#L902">902</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L903" href="#L903">903</a>             }
+<a class="jxr_linenumber" name="L904" href="#L904">904</a>             skipReadCall = isFirstByteOfEocdSig(currentByte);
+<a class="jxr_linenumber" name="L905" href="#L905">905</a>         }
+<a class="jxr_linenumber" name="L906" href="#L906">906</a>     }
+<a class="jxr_linenumber" name="L907" href="#L907">907</a> 
+<a class="jxr_linenumber" name="L908" href="#L908">908</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L909" href="#L909">909</a> <em class="jxr_javadoccomment">     * Skips bytes by reading from the underlying stream rather than</em>
+<a class="jxr_linenumber" name="L910" href="#L910">910</a> <em class="jxr_javadoccomment">     * the (potentially inflating) archive stream - which {@link</em>
+<a class="jxr_linenumber" name="L911" href="#L911">911</a> <em class="jxr_javadoccomment">     * #skip} would do.</em>
+<a class="jxr_linenumber" name="L912" href="#L912">912</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L913" href="#L913">913</a> <em class="jxr_javadoccomment">     * Also updates bytes-read counter.</em>
+<a class="jxr_linenumber" name="L914" href="#L914">914</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L915" href="#L915">915</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> realSkip(<strong class="jxr_keyword">long</strong> value) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L916" href="#L916">916</a>         <strong class="jxr_keyword">if</strong> (value &gt;= 0) {
+<a class="jxr_linenumber" name="L917" href="#L917">917</a>             <strong class="jxr_keyword">long</strong> skipped = 0;
+<a class="jxr_linenumber" name="L918" href="#L918">918</a>             <strong class="jxr_keyword">while</strong> (skipped &lt; value) {
+<a class="jxr_linenumber" name="L919" href="#L919">919</a>                 <strong class="jxr_keyword">long</strong> rem = value - skipped;
+<a class="jxr_linenumber" name="L920" href="#L920">920</a>                 <strong class="jxr_keyword">int</strong> x = in.read(SKIP_BUF, 0, (<strong class="jxr_keyword">int</strong>) (SKIP_BUF.length &gt; rem ? rem : SKIP_BUF.length));
+<a class="jxr_linenumber" name="L921" href="#L921">921</a>                 <strong class="jxr_keyword">if</strong> (x == -1) {
+<a class="jxr_linenumber" name="L922" href="#L922">922</a>                     <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L923" href="#L923">923</a>                 }
+<a class="jxr_linenumber" name="L924" href="#L924">924</a>                 count(x);
+<a class="jxr_linenumber" name="L925" href="#L925">925</a>                 skipped += x;
+<a class="jxr_linenumber" name="L926" href="#L926">926</a>             }
+<a class="jxr_linenumber" name="L927" href="#L927">927</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L928" href="#L928">928</a>         }
+<a class="jxr_linenumber" name="L929" href="#L929">929</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException();
+<a class="jxr_linenumber" name="L930" href="#L930">930</a>     }
+<a class="jxr_linenumber" name="L931" href="#L931">931</a> 
+<a class="jxr_linenumber" name="L932" href="#L932">932</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L933" href="#L933">933</a> <em class="jxr_javadoccomment">     * Reads bytes by reading from the underlying stream rather than</em>
+<a class="jxr_linenumber" name="L934" href="#L934">934</a> <em class="jxr_javadoccomment">     * the (potentially inflating) archive stream - which {@link #read} would do.</em>
+<a class="jxr_linenumber" name="L935" href="#L935">935</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L936" href="#L936">936</a> <em class="jxr_javadoccomment">     * Also updates bytes-read counter.</em>
+<a class="jxr_linenumber" name="L937" href="#L937">937</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L938" href="#L938">938</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> readOneByte() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L939" href="#L939">939</a>         <strong class="jxr_keyword">int</strong> b = in.read();
+<a class="jxr_linenumber" name="L940" href="#L940">940</a>         <strong class="jxr_keyword">if</strong> (b != -1) {
+<a class="jxr_linenumber" name="L941" href="#L941">941</a>             count(1);
+<a class="jxr_linenumber" name="L942" href="#L942">942</a>         }
+<a class="jxr_linenumber" name="L943" href="#L943">943</a>         <strong class="jxr_keyword">return</strong> b;
+<a class="jxr_linenumber" name="L944" href="#L944">944</a>     }
+<a class="jxr_linenumber" name="L945" href="#L945">945</a> 
+<a class="jxr_linenumber" name="L946" href="#L946">946</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isFirstByteOfEocdSig(<strong class="jxr_keyword">int</strong> b) {
+<a class="jxr_linenumber" name="L947" href="#L947">947</a>         <strong class="jxr_keyword">return</strong> b == ZipArchiveOutputStream.EOCD_SIG[0];
+<a class="jxr_linenumber" name="L948" href="#L948">948</a>     }
+<a class="jxr_linenumber" name="L949" href="#L949">949</a> 
+<a class="jxr_linenumber" name="L950" href="#L950">950</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L951" href="#L951">951</a> <em class="jxr_javadoccomment">     * Structure collecting information for the entry that is</em>
+<a class="jxr_linenumber" name="L952" href="#L952">952</a> <em class="jxr_javadoccomment">     * currently being read.</em>
+<a class="jxr_linenumber" name="L953" href="#L953">953</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L954" href="#L954">954</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveOutputStream.html">CurrentEntry</a> {
+<a class="jxr_linenumber" name="L955" href="#L955">955</a> 
+<a class="jxr_linenumber" name="L956" href="#L956">956</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L957" href="#L957">957</a> <em class="jxr_javadoccomment">         * Current ZIP entry.</em>
+<a class="jxr_linenumber" name="L958" href="#L958">958</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L959" href="#L959">959</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.html">ZipArchiveEntry</a> entry = <strong class="jxr_keyword">new</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/archivers/zip/ZipArchiveEntry.html">ZipArchiveEntry</a>();
+<a class="jxr_linenumber" name="L960" href="#L960">960</a> 
+<a class="jxr_linenumber" name="L961" href="#L961">961</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L962" href="#L962">962</a> <em class="jxr_javadoccomment">         * Does the entry use a data descriptor?</em>
+<a class="jxr_linenumber" name="L963" href="#L963">963</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L964" href="#L964">964</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> hasDataDescriptor;
+<a class="jxr_linenumber" name="L965" href="#L965">965</a> 
+<a class="jxr_linenumber" name="L966" href="#L966">966</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L967" href="#L967">967</a> <em class="jxr_javadoccomment">         * Does the entry have a ZIP64 extended information extra field.</em>
+<a class="jxr_linenumber" name="L968" href="#L968">968</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L969" href="#L969">969</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> usesZip64;
+<a class="jxr_linenumber" name="L970" href="#L970">970</a> 
+<a class="jxr_linenumber" name="L971" href="#L971">971</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L972" href="#L972">972</a> <em class="jxr_javadoccomment">         * Number of bytes of entry content read by the client if the</em>
+<a class="jxr_linenumber" name="L973" href="#L973">973</a> <em class="jxr_javadoccomment">         * entry is STORED.</em>
+<a class="jxr_linenumber" name="L974" href="#L974">974</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L975" href="#L975">975</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesRead;
+<a class="jxr_linenumber" name="L976" href="#L976">976</a> 
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L978" href="#L978">978</a> <em class="jxr_javadoccomment">         * Number of bytes of entry content read so from the stream.</em>
+<a class="jxr_linenumber" name="L979" href="#L979">979</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L980" href="#L980">980</a> <em class="jxr_javadoccomment">         * &lt;p&gt;This may be more than the actual entry's length as some</em>
+<a class="jxr_linenumber" name="L981" href="#L981">981</a> <em class="jxr_javadoccomment">         * stuff gets buffered up and needs to be pushed back when the</em>
+<a class="jxr_linenumber" name="L982" href="#L982">982</a> <em class="jxr_javadoccomment">         * end of the entry has been reached.&lt;/p&gt;</em>
+<a class="jxr_linenumber" name="L983" href="#L983">983</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L984" href="#L984">984</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> bytesReadFromStream;
+<a class="jxr_linenumber" name="L985" href="#L985">985</a> 
+<a class="jxr_linenumber" name="L986" href="#L986">986</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L987" href="#L987">987</a> <em class="jxr_javadoccomment">         * The checksum calculated as the current entry is read.</em>
+<a class="jxr_linenumber" name="L988" href="#L988">988</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L989" href="#L989">989</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> CRC32 crc = <strong class="jxr_keyword">new</strong> CRC32();
+<a class="jxr_linenumber" name="L990" href="#L990">990</a> 
+<a class="jxr_linenumber" name="L991" href="#L991">991</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L992" href="#L992">992</a> <em class="jxr_javadoccomment">         * The input stream decompressing the data for shrunk and imploded entries.</em>
+<a class="jxr_linenumber" name="L993" href="#L993">993</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L994" href="#L994">994</a>         <strong class="jxr_keyword">private</strong> InputStream in;
+<a class="jxr_linenumber" name="L995" href="#L995">995</a>     }
+<a class="jxr_linenumber" name="L996" href="#L996">996</a> 
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L998" href="#L998">998</a> <em class="jxr_javadoccomment">     * Bounded input stream adapted from commons-io</em>
+<a class="jxr_linenumber" name="L999" href="#L999">999</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/BoundedInputStream.html">BoundedInputStream</a> <strong class="jxr_keyword">extends</strong> InputStream {
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a> 
+<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>         <em class="jxr_javadoccomment">/** the wrapped input stream */</em>
+<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> InputStream in;
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a> 
+<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>         <em class="jxr_javadoccomment">/** the max length to provide */</em>
+<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> max;
+<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a> 
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>         <em class="jxr_javadoccomment">/** the number of bytes already returned */</em>
+<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">long</strong> pos = 0;
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>     
+<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a> <em class="jxr_javadoccomment">         * Creates a new &lt;code&gt;BoundedInputStream&lt;/code&gt; that wraps the given input</em>
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a> <em class="jxr_javadoccomment">         * stream and limits it to a certain size.</em>
+<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a> <em class="jxr_javadoccomment">         * @param in The wrapped input stream</em>
+<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a> <em class="jxr_javadoccomment">         * @param size The maximum number of bytes to return</em>
+<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>         <strong class="jxr_keyword">public</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/utils/BoundedInputStream.html">BoundedInputStream</a>(<strong class="jxr_keyword">final</strong> InputStream in, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> size) {
+<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>             <strong class="jxr_keyword">this</strong>.max = size;
+<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>             <strong class="jxr_keyword">this</strong>.in = in;
+<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>         }
+<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a> 
+<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>         @Override
+<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> read() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>             <strong class="jxr_keyword">if</strong> (max &gt;= 0 &amp;&amp; pos &gt;= max) {
+<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a>                 <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>             }
+<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> result = in.read();
+<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>             pos++;
+<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>             count(1);
+<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>             current.bytesReadFromStream++;
+<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>             <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>         }
+<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a> 
+<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>         @Override
+<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> read(<strong class="jxr_keyword">final</strong> byte[] b) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.read(b, 0, b.length);
+<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>         }
+<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a> 
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>         @Override
+<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> read(<strong class="jxr_keyword">final</strong> byte[] b, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> off, <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> len) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>             <strong class="jxr_keyword">if</strong> (max &gt;= 0 &amp;&amp; pos &gt;= max) {
+<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>                 <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>             }
+<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> maxRead = max &gt;= 0 ? Math.min(len, max - pos) : len;
+<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> bytesRead = in.read(b, off, (<strong class="jxr_keyword">int</strong>) maxRead);
+<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a> 
+<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>             <strong class="jxr_keyword">if</strong> (bytesRead == -1) {
+<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>                 <strong class="jxr_keyword">return</strong> -1;
+<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>             }
+<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a> 
+<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>             pos += bytesRead;
+<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>             count(bytesRead);
+<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>             current.bytesReadFromStream += bytesRead;
+<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>             <strong class="jxr_keyword">return</strong> bytesRead;
+<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a>         }
+<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a> 
+<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>         @Override
+<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> skip(<strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> n) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> toSkip = max &gt;= 0 ? Math.min(n, max - pos) : n;
+<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> skippedBytes = in.skip(toSkip);
+<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>             pos += skippedBytes;
+<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>             <strong class="jxr_keyword">return</strong> skippedBytes;
+<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>         }
+<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>     
+<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>         @Override
+<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> available() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>             <strong class="jxr_keyword">if</strong> (max &gt;= 0 &amp;&amp; pos &gt;= max) {
+<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a>                 <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>             }
+<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>             <strong class="jxr_keyword">return</strong> in.available();
+<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>         }
+<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>     }
+<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+</body>
+</html>

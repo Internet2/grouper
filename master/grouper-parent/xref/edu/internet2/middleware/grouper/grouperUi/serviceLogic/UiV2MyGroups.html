@@ -500,96 +500,88 @@
 <a class="jxr_linenumber" name="L492" href="#L492">492</a>       
 <a class="jxr_linenumber" name="L493" href="#L493">493</a>       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
 <a class="jxr_linenumber" name="L494" href="#L494">494</a> 
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>       <em class="jxr_comment">// run this as groupersystem so that we see more than just privs this user can read (e.g. optin/optout)</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>       Set&lt;MembershipSubjectContainer&gt; results =
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>           
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>           (Set&lt;MembershipSubjectContainer&gt;)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), <strong class="jxr_keyword">new</strong> GrouperSessionHandler() {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>             
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>             <strong class="jxr_keyword">public</strong> Object callback(<a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession) <strong class="jxr_keyword">throws</strong> GrouperSessionException {
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>               <a href="../../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a> membershipFinder = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a>()
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                 .assignSubjectHasMembershipForGroup(loggedInSubject)
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>                 .addSubject(loggedInSubject)
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 .assignCheckSecurity(<strong class="jxr_keyword">true</strong>)
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>                 .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>                 .assignEnabled(<strong class="jxr_keyword">true</strong>)
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>                 .assignQueryOptionsForGroup(queryOptions);
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>               <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(myGroupsFilter)) {
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>                 membershipFinder.assignSplitScopeForGroup(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>                 membershipFinder.assignScopeForGroup(myGroupsFilter);
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>               }
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>             
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>               <strong class="jxr_keyword">return</strong> membershipFinder
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>                   .findMembershipResult().getMembershipSubjectContainers();
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>             }
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>           });
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>       
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>       MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>       
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>       myGroupsContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>       
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.length(results) == 0) {
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>           TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"myGroupsNoResultsFound"</span>)));
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>       }
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>       
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>       guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>       
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(<span class="jxr_string">"#myGroupsResultsId"</span>, 
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>           <span class="jxr_string">"/WEB-INF/grouperUi2/myGroups/myGroupsMembershipsContents.jsp"</span>));
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>         
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>   }
-<a class="jxr_linenumber" name="L533" href="#L533">533</a> 
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">   * my groups memberships reset button</em>
-<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">   * @param request</em>
-<a class="jxr_linenumber" name="L537" href="#L537">537</a> <em class="jxr_javadoccomment">   * @param response</em>
-<a class="jxr_linenumber" name="L538" href="#L538">538</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> myGroupsMembershipsReset(HttpServletRequest request, HttpServletResponse response) {
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>       <a href="../../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a> membershipFinder = <strong class="jxr_keyword">new</strong> <a href="../../../../../../edu/internet2/middleware/grouper/MembershipFinder.html">MembershipFinder</a>()
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         .assignSubjectHasMembershipForGroup(loggedInSubject)
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         .addSubject(loggedInSubject)
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         .assignCheckSecurity(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>         .assignEnabled(<strong class="jxr_keyword">true</strong>)
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         .assignQueryOptionsForGroup(queryOptions);
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>       <strong class="jxr_keyword">if</strong> (!StringUtils.isBlank(myGroupsFilter)) {
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         membershipFinder.assignSplitScopeForGroup(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         membershipFinder.assignScopeForGroup(myGroupsFilter);
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>       }
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>             
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>       Set&lt;MembershipSubjectContainer&gt; results = membershipFinder
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                   .findMembershipResult().getMembershipSubjectContainers();
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>       
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>       MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>       
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>       myGroupsContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>       
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>       <strong class="jxr_keyword">if</strong> (GrouperUtil.length(results) == 0) {
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>           TextContainer.retrieveFromRequest().getText().get(<span class="jxr_string">"myGroupsNoResultsFound"</span>)));
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>       }
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>       
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>       guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>       
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp(<span class="jxr_string">"#myGroupsResultsId"</span>, 
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>           <span class="jxr_string">"/WEB-INF/grouperUi2/myGroups/myGroupsMembershipsContents.jsp"</span>));
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>   }
+<a class="jxr_linenumber" name="L525" href="#L525">525</a> 
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">   * my groups memberships reset button</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">   * @param request</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">   * @param response</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> myGroupsMembershipsReset(HttpServletRequest request, HttpServletResponse response) {
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>   
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>   
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>   
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>   
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L540" href="#L540">540</a>   
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 <a class="jxr_linenumber" name="L542" href="#L542">542</a>   
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>   
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>   
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>       grouperSession = GrouperSession.start(loggedInSubject);
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>   
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>       <a href="../../../../../../edu/internet2/middleware/grouper/grouperUi/beans/json/GuiResponseJs.html">GuiResponseJs</a> guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>   
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>       <em class="jxr_comment">//clear out form</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue(<span class="jxr_string">"myGroupsFilter"</span>, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>       
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>       <em class="jxr_comment">//get the unfiltered groups</em>
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>       myGroupsMembershipsHelper(request, response);
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>       
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>     } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>       GrouperSession.stopQuietly(grouperSession);
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>     }
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>   }
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> 
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">   * my groups membership</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">   * @param request</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">   * @param response</em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> myGroupsMembershipsSubmit(HttpServletRequest request, HttpServletResponse response) {
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>       <em class="jxr_comment">//clear out form</em>
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue(<span class="jxr_string">"myGroupsFilter"</span>, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>       
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>       <em class="jxr_comment">//get the unfiltered groups</em>
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>       myGroupsMembershipsHelper(request, response);
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>       
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>       GrouperSession.stopQuietly(grouperSession);
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>     }
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>   }
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> 
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">   * my groups membership</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">   * @param request</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> <em class="jxr_javadoccomment">   * @param response</em>
+<a class="jxr_linenumber" name="L558" href="#L558">558</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> myGroupsMembershipsSubmit(HttpServletRequest request, HttpServletResponse response) {
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>   
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>   
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>   
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>   
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>       grouperSession = GrouperSession.start(loggedInSubject);
 <a class="jxr_linenumber" name="L568" href="#L568">568</a>   
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>     <strong class="jxr_keyword">final</strong> <a href="../../../../../../edu/internet2/middleware/subject/Subject.html">Subject</a> loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>       myGroupsMembershipsHelper(request, response);
 <a class="jxr_linenumber" name="L570" href="#L570">570</a>   
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>     <a href="../../../../../../edu/internet2/middleware/grouper/GrouperSession.html">GrouperSession</a> grouperSession = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>   
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>   
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>       grouperSession = GrouperSession.start(loggedInSubject);
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>   
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>       myGroupsMembershipsHelper(request, response);
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>   
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>     } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L580" href="#L580">580</a>       GrouperSession.stopQuietly(grouperSession);
-<a class="jxr_linenumber" name="L581" href="#L581">581</a>     }
-<a class="jxr_linenumber" name="L582" href="#L582">582</a>   }
-<a class="jxr_linenumber" name="L583" href="#L583">583</a> 
-<a class="jxr_linenumber" name="L584" href="#L584">584</a> }
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>       GrouperSession.stopQuietly(grouperSession);
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>     }
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>   }
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> 
+<a class="jxr_linenumber" name="L576" href="#L576">576</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
