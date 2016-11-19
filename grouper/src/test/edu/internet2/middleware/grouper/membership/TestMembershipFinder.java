@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -887,6 +888,69 @@ public class TestMembershipFinder extends GrouperTest {
         .getAttributeDefOwner().getName());
   
     
+  }
+  
+  /**
+   * 
+   */
+  public void testPrivileges() {
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Group group = new GroupSave(grouperSession).assignName("theStem:theGroup").assignCreateParentStemsIfNotExist(true).save();
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subj1 = SubjectFinder.findById("test.subject.1", true);
+    Subject subj2 = SubjectFinder.findById("test.subject.2", true);
+    Subject subj3 = SubjectFinder.findById("test.subject.3", true);
+    
+    group.addMember(subj0);
+    group.addMember(subj1);
+    group.addMember(subj2);
+    group.addMember(subj3);
+    
+    group.grantPriv(subj0, AccessPrivilege.READ);
+    group.grantPriv(subj1, AccessPrivilege.OPTIN);
+    group.grantPriv(subj2, AccessPrivilege.OPTOUT);
+    group.grantPriv(subj3, AccessPrivilege.VIEW);
+    
+    GrouperSession grouperSession2 = GrouperSession.start(subj0);
+    
+    assertEquals(1, new MembershipFinder().assignSubjectHasMembershipForGroup(subj0).addSubject(subj0).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(1, new MembershipFinder().assignSubjectHasMembershipForGroup(subj1).addSubject(subj1).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(1, new MembershipFinder().assignSubjectHasMembershipForGroup(subj2).addSubject(subj2).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(1, new MembershipFinder().assignSubjectHasMembershipForGroup(subj3).addSubject(subj3).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+
+    GrouperSession.stopQuietly(grouperSession2);
+    
+    GrouperSession grouperSession3 = GrouperSession.start(subj1);
+    
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj0).addSubject(subj0).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(1, new MembershipFinder().assignSubjectHasMembershipForGroup(subj1).addSubject(subj1).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj2).addSubject(subj2).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj3).addSubject(subj3).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+
+    GrouperSession.stopQuietly(grouperSession3);
+
+    GrouperSession grouperSession4 = GrouperSession.start(subj2);
+    
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj0).addSubject(subj0).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj1).addSubject(subj1).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(1, new MembershipFinder().assignSubjectHasMembershipForGroup(subj2).addSubject(subj2).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj3).addSubject(subj3).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+
+    GrouperSession.stopQuietly(grouperSession4);
+    
+    GrouperSession grouperSession5 = GrouperSession.start(subj3);
+    
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj0).addSubject(subj0).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj1).addSubject(subj1).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj2).addSubject(subj2).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+    assertEquals(0, new MembershipFinder().assignSubjectHasMembershipForGroup(subj3).addSubject(subj3).assignCheckSecurity(true).assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES).assignEnabled(true).findMembershipResult().getMembershipSubjectContainers().size());
+
+    GrouperSession.stopQuietly(grouperSession5);
   }
 
 }
