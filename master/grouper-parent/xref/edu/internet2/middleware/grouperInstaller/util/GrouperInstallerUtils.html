@@ -10527,612 +10527,658 @@
 <a class="jxr_linenumber" name="L10519" href="#L10519">10519</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
 <a class="jxr_linenumber" name="L10520" href="#L10520">10520</a> <em class="jxr_javadoccomment">   */</em>
 <a class="jxr_linenumber" name="L10521" href="#L10521">10521</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> NodeList xpathEvaluate(File xmlFile, String xpathExpression) {
-<a class="jxr_linenumber" name="L10522" href="#L10522">10522</a>     
+<a class="jxr_linenumber" name="L10522" href="#L10522">10522</a>     InputStream inputStream = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L10523" href="#L10523">10523</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10524" href="#L10524">10524</a>       DocumentBuilderFactory domFactory = xmlDocumentBuilderFactory(); 
-<a class="jxr_linenumber" name="L10525" href="#L10525">10525</a>       DocumentBuilder builder = domFactory.newDocumentBuilder();
-<a class="jxr_linenumber" name="L10526" href="#L10526">10526</a>       Document doc = builder.parse(xmlFile);
-<a class="jxr_linenumber" name="L10527" href="#L10527">10527</a>       XPath xpath = XPathFactory.newInstance().newXPath();
-<a class="jxr_linenumber" name="L10528" href="#L10528">10528</a>        <em class="jxr_comment">// XPath Query for showing all nodes value</em>
-<a class="jxr_linenumber" name="L10529" href="#L10529">10529</a>       XPathExpression expr = xpath.compile(xpathExpression);
-<a class="jxr_linenumber" name="L10530" href="#L10530">10530</a>   
-<a class="jxr_linenumber" name="L10531" href="#L10531">10531</a>       Object result = expr.evaluate(doc, XPathConstants.NODESET);
-<a class="jxr_linenumber" name="L10532" href="#L10532">10532</a>       NodeList nodes = (NodeList) result;
-<a class="jxr_linenumber" name="L10533" href="#L10533">10533</a>       <strong class="jxr_keyword">return</strong> nodes;
-<a class="jxr_linenumber" name="L10534" href="#L10534">10534</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L10535" href="#L10535">10535</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem evaluating xpath on file: "</span> + xmlFile + <span class="jxr_string">", expression: '"</span> + xpathExpression + <span class="jxr_string">"'"</span>, e);
-<a class="jxr_linenumber" name="L10536" href="#L10536">10536</a>     }
-<a class="jxr_linenumber" name="L10537" href="#L10537">10537</a> 
-<a class="jxr_linenumber" name="L10538" href="#L10538">10538</a>   }
-<a class="jxr_linenumber" name="L10539" href="#L10539">10539</a> 
-<a class="jxr_linenumber" name="L10540" href="#L10540">10540</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10541" href="#L10541">10541</a> <em class="jxr_javadoccomment">   * xml builder factory that doesnt go to internet to get dtd</em>
-<a class="jxr_linenumber" name="L10542" href="#L10542">10542</a> <em class="jxr_javadoccomment">   * @return the factory</em>
+<a class="jxr_linenumber" name="L10524" href="#L10524">10524</a>       inputStream = <strong class="jxr_keyword">new</strong> FileInputStream(xmlFile);
+<a class="jxr_linenumber" name="L10525" href="#L10525">10525</a>       <strong class="jxr_keyword">return</strong> xpathEvaluate(inputStream, xpathExpression);
+<a class="jxr_linenumber" name="L10526" href="#L10526">10526</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L10527" href="#L10527">10527</a>       String errorMessage = <span class="jxr_string">"Problem with file: "</span> + xmlFile == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : xmlFile.getAbsolutePath();
+<a class="jxr_linenumber" name="L10528" href="#L10528">10528</a>       <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
+<a class="jxr_linenumber" name="L10529" href="#L10529">10529</a>         GrouperInstallerUtils.injectInException(e, errorMessage);
+<a class="jxr_linenumber" name="L10530" href="#L10530">10530</a>         <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
+<a class="jxr_linenumber" name="L10531" href="#L10531">10531</a>       }
+<a class="jxr_linenumber" name="L10532" href="#L10532">10532</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(errorMessage, e);
+<a class="jxr_linenumber" name="L10533" href="#L10533">10533</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L10534" href="#L10534">10534</a>       GrouperInstallerUtils.closeQuietly(inputStream);
+<a class="jxr_linenumber" name="L10535" href="#L10535">10535</a>     }
+<a class="jxr_linenumber" name="L10536" href="#L10536">10536</a>   }
+<a class="jxr_linenumber" name="L10537" href="#L10537">10537</a>   
+<a class="jxr_linenumber" name="L10538" href="#L10538">10538</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10539" href="#L10539">10539</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10540" href="#L10540">10540</a> <em class="jxr_javadoccomment">   * @param xmlFile</em>
+<a class="jxr_linenumber" name="L10541" href="#L10541">10541</a> <em class="jxr_javadoccomment">   * @param xpathExpression</em>
+<a class="jxr_linenumber" name="L10542" href="#L10542">10542</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
 <a class="jxr_linenumber" name="L10543" href="#L10543">10543</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10544" href="#L10544">10544</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> DocumentBuilderFactory xmlDocumentBuilderFactory() {
-<a class="jxr_linenumber" name="L10545" href="#L10545">10545</a>     DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-<a class="jxr_linenumber" name="L10546" href="#L10546">10546</a>     domFactory.setNamespaceAware(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L10547" href="#L10547">10547</a>     domFactory.setValidating(false);
-<a class="jxr_linenumber" name="L10548" href="#L10548">10548</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10549" href="#L10549">10549</a>       domFactory.setFeature(<span class="jxr_string">"http://apache.org/xml/features/nonvalidating/load-external-dtd"</span>, false);
-<a class="jxr_linenumber" name="L10550" href="#L10550">10550</a>     } <strong class="jxr_keyword">catch</strong> (ParserConfigurationException pce) {
-<a class="jxr_linenumber" name="L10551" href="#L10551">10551</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(pce);
-<a class="jxr_linenumber" name="L10552" href="#L10552">10552</a>     }
-<a class="jxr_linenumber" name="L10553" href="#L10553">10553</a>     <strong class="jxr_keyword">return</strong> domFactory;
-<a class="jxr_linenumber" name="L10554" href="#L10554">10554</a>   }
-<a class="jxr_linenumber" name="L10555" href="#L10555">10555</a>   
-<a class="jxr_linenumber" name="L10556" href="#L10556">10556</a>   <em class="jxr_javadoccomment">/** array for converting HTML to string */</em>
-<a class="jxr_linenumber" name="L10557" href="#L10557">10557</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] XML_SEARCH_NO_SINGLE = <strong class="jxr_keyword">new</strong> String[]{<span class="jxr_string">"&amp;"</span>,<span class="jxr_string">"&lt;"</span>,<span class="jxr_string">"&gt;"</span>,<span class="jxr_string">"\&quot;"</span>};
-<a class="jxr_linenumber" name="L10558" href="#L10558">10558</a> 
-<a class="jxr_linenumber" name="L10559" href="#L10559">10559</a>   <em class="jxr_javadoccomment">/** array for converting HTML to string */</em>
-<a class="jxr_linenumber" name="L10560" href="#L10560">10560</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] XML_REPLACE_NO_SINGLE = <strong class="jxr_keyword">new</strong> String[]{<span class="jxr_string">"&amp;amp;"</span>,<span class="jxr_string">"&amp;lt;"</span>,<span class="jxr_string">"&amp;gt;"</span>,<span class="jxr_string">"&amp;quot;"</span>};
-<a class="jxr_linenumber" name="L10561" href="#L10561">10561</a> 
-<a class="jxr_linenumber" name="L10562" href="#L10562">10562</a> 
-<a class="jxr_linenumber" name="L10563" href="#L10563">10563</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10564" href="#L10564">10564</a> <em class="jxr_javadoccomment">   * Convert an XML string to HTML to display on the screen</em>
-<a class="jxr_linenumber" name="L10565" href="#L10565">10565</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10566" href="#L10566">10566</a> <em class="jxr_javadoccomment">   * @param input</em>
-<a class="jxr_linenumber" name="L10567" href="#L10567">10567</a> <em class="jxr_javadoccomment">   *          is the XML to convert</em>
-<a class="jxr_linenumber" name="L10568" href="#L10568">10568</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10569" href="#L10569">10569</a> <em class="jxr_javadoccomment">   * @return the HTML converted string</em>
-<a class="jxr_linenumber" name="L10570" href="#L10570">10570</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10571" href="#L10571">10571</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlEscape(String input) {
-<a class="jxr_linenumber" name="L10572" href="#L10572">10572</a>     <strong class="jxr_keyword">return</strong> xmlEscape(input, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L10573" href="#L10573">10573</a>   }
-<a class="jxr_linenumber" name="L10574" href="#L10574">10574</a> 
-<a class="jxr_linenumber" name="L10575" href="#L10575">10575</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10576" href="#L10576">10576</a> <em class="jxr_javadoccomment">   * Convert an XML string to HTML to display on the screen</em>
-<a class="jxr_linenumber" name="L10577" href="#L10577">10577</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L10578" href="#L10578">10578</a> <em class="jxr_javadoccomment">   * @param input</em>
-<a class="jxr_linenumber" name="L10579" href="#L10579">10579</a> <em class="jxr_javadoccomment">   *          is the XML to convert</em>
-<a class="jxr_linenumber" name="L10580" href="#L10580">10580</a> <em class="jxr_javadoccomment">   * @param isEscape true to escape chars, false to unescape</em>
-<a class="jxr_linenumber" name="L10581" href="#L10581">10581</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L10582" href="#L10582">10582</a> <em class="jxr_javadoccomment">   * @return the HTML converted string</em>
-<a class="jxr_linenumber" name="L10583" href="#L10583">10583</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10584" href="#L10584">10584</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlEscape(String input, <strong class="jxr_keyword">boolean</strong> isEscape) {
-<a class="jxr_linenumber" name="L10585" href="#L10585">10585</a>     <strong class="jxr_keyword">if</strong> (isEscape) {
-<a class="jxr_linenumber" name="L10586" href="#L10586">10586</a>       <strong class="jxr_keyword">return</strong> replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
-<a class="jxr_linenumber" name="L10587" href="#L10587">10587</a>     }
-<a class="jxr_linenumber" name="L10588" href="#L10588">10588</a>     <strong class="jxr_keyword">return</strong> replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
-<a class="jxr_linenumber" name="L10589" href="#L10589">10589</a>   }
-<a class="jxr_linenumber" name="L10590" href="#L10590">10590</a> 
-<a class="jxr_linenumber" name="L10591" href="#L10591">10591</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10592" href="#L10592">10592</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10593" href="#L10593">10593</a> <em class="jxr_javadoccomment">   * @param xmlFile</em>
-<a class="jxr_linenumber" name="L10594" href="#L10594">10594</a> <em class="jxr_javadoccomment">   * @param xpathExpression</em>
-<a class="jxr_linenumber" name="L10595" href="#L10595">10595</a> <em class="jxr_javadoccomment">   * @param attributeName </em>
-<a class="jxr_linenumber" name="L10596" href="#L10596">10596</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
-<a class="jxr_linenumber" name="L10597" href="#L10597">10597</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10598" href="#L10598">10598</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xpathEvaluateAttribute(File xmlFile, String xpathExpression, String attributeName) {
-<a class="jxr_linenumber" name="L10599" href="#L10599">10599</a>     NodeList nodes = GrouperInstallerUtils.xpathEvaluate(xmlFile, xpathExpression);
-<a class="jxr_linenumber" name="L10600" href="#L10600">10600</a>     <strong class="jxr_keyword">if</strong> (nodes == <strong class="jxr_keyword">null</strong> || nodes.getLength() == 0) {
-<a class="jxr_linenumber" name="L10601" href="#L10601">10601</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10602" href="#L10602">10602</a>     }
-<a class="jxr_linenumber" name="L10603" href="#L10603">10603</a>     <strong class="jxr_keyword">if</strong> (nodes.getLength() != 1) {
-<a class="jxr_linenumber" name="L10604" href="#L10604">10604</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"There is more than 1 xpath expression: '"</span> + xpathExpression + <span class="jxr_string">"' element in server.xml: "</span> + xmlFile.getAbsolutePath());
-<a class="jxr_linenumber" name="L10605" href="#L10605">10605</a>     }
-<a class="jxr_linenumber" name="L10606" href="#L10606">10606</a>     
-<a class="jxr_linenumber" name="L10607" href="#L10607">10607</a>     
-<a class="jxr_linenumber" name="L10608" href="#L10608">10608</a>     NamedNodeMap attributes = nodes.item(0).getAttributes();
-<a class="jxr_linenumber" name="L10609" href="#L10609">10609</a>     <strong class="jxr_keyword">if</strong> (attributes == <strong class="jxr_keyword">null</strong> || attributes.getLength() == 0 ) {
-<a class="jxr_linenumber" name="L10610" href="#L10610">10610</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10611" href="#L10611">10611</a>     }
-<a class="jxr_linenumber" name="L10612" href="#L10612">10612</a>     Node attribute = attributes.getNamedItem(attributeName);
-<a class="jxr_linenumber" name="L10613" href="#L10613">10613</a>     <strong class="jxr_keyword">if</strong> (attribute == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L10614" href="#L10614">10614</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10615" href="#L10615">10615</a>     }
-<a class="jxr_linenumber" name="L10616" href="#L10616">10616</a>     
-<a class="jxr_linenumber" name="L10617" href="#L10617">10617</a>     String nodeValue = attribute.getNodeValue();
-<a class="jxr_linenumber" name="L10618" href="#L10618">10618</a>     <strong class="jxr_keyword">return</strong> nodeValue;
-<a class="jxr_linenumber" name="L10619" href="#L10619">10619</a>   }  
+<a class="jxr_linenumber" name="L10544" href="#L10544">10544</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> NodeList xpathEvaluate(URL url, String xpathExpression) {
+<a class="jxr_linenumber" name="L10545" href="#L10545">10545</a>     InputStream inputStream = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10546" href="#L10546">10546</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10547" href="#L10547">10547</a>       inputStream = url.openStream();
+<a class="jxr_linenumber" name="L10548" href="#L10548">10548</a>       <strong class="jxr_keyword">return</strong> xpathEvaluate(inputStream, xpathExpression);
+<a class="jxr_linenumber" name="L10549" href="#L10549">10549</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L10550" href="#L10550">10550</a>       String errorMessage = <span class="jxr_string">"Problem with url: "</span> + url == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : url.toExternalForm();
+<a class="jxr_linenumber" name="L10551" href="#L10551">10551</a>       <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
+<a class="jxr_linenumber" name="L10552" href="#L10552">10552</a>         GrouperInstallerUtils.injectInException(e, errorMessage);
+<a class="jxr_linenumber" name="L10553" href="#L10553">10553</a>         <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
+<a class="jxr_linenumber" name="L10554" href="#L10554">10554</a>       }
+<a class="jxr_linenumber" name="L10555" href="#L10555">10555</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(errorMessage, e);
+<a class="jxr_linenumber" name="L10556" href="#L10556">10556</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L10557" href="#L10557">10557</a>       GrouperInstallerUtils.closeQuietly(inputStream);
+<a class="jxr_linenumber" name="L10558" href="#L10558">10558</a>     }
+<a class="jxr_linenumber" name="L10559" href="#L10559">10559</a>   }
+<a class="jxr_linenumber" name="L10560" href="#L10560">10560</a>   
+<a class="jxr_linenumber" name="L10561" href="#L10561">10561</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10562" href="#L10562">10562</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10563" href="#L10563">10563</a> <em class="jxr_javadoccomment">   * @param xmlFile</em>
+<a class="jxr_linenumber" name="L10564" href="#L10564">10564</a> <em class="jxr_javadoccomment">   * @param xpathExpression</em>
+<a class="jxr_linenumber" name="L10565" href="#L10565">10565</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
+<a class="jxr_linenumber" name="L10566" href="#L10566">10566</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10567" href="#L10567">10567</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> NodeList xpathEvaluate(InputStream inputStream, String xpathExpression) {
+<a class="jxr_linenumber" name="L10568" href="#L10568">10568</a>     
+<a class="jxr_linenumber" name="L10569" href="#L10569">10569</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10570" href="#L10570">10570</a>       DocumentBuilderFactory domFactory = xmlDocumentBuilderFactory(); 
+<a class="jxr_linenumber" name="L10571" href="#L10571">10571</a>       DocumentBuilder builder = domFactory.newDocumentBuilder();
+<a class="jxr_linenumber" name="L10572" href="#L10572">10572</a>       Document doc = builder.parse(inputStream);
+<a class="jxr_linenumber" name="L10573" href="#L10573">10573</a>       XPath xpath = XPathFactory.newInstance().newXPath();
+<a class="jxr_linenumber" name="L10574" href="#L10574">10574</a>        <em class="jxr_comment">// XPath Query for showing all nodes value</em>
+<a class="jxr_linenumber" name="L10575" href="#L10575">10575</a>       XPathExpression expr = xpath.compile(xpathExpression);
+<a class="jxr_linenumber" name="L10576" href="#L10576">10576</a>   
+<a class="jxr_linenumber" name="L10577" href="#L10577">10577</a>       Object result = expr.evaluate(doc, XPathConstants.NODESET);
+<a class="jxr_linenumber" name="L10578" href="#L10578">10578</a>       NodeList nodes = (NodeList) result;
+<a class="jxr_linenumber" name="L10579" href="#L10579">10579</a>       <strong class="jxr_keyword">return</strong> nodes;
+<a class="jxr_linenumber" name="L10580" href="#L10580">10580</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L10581" href="#L10581">10581</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Problem evaluating xpath: "</span> + <span class="jxr_string">", expression: '"</span> + xpathExpression + <span class="jxr_string">"'"</span>, e);
+<a class="jxr_linenumber" name="L10582" href="#L10582">10582</a>     }
+<a class="jxr_linenumber" name="L10583" href="#L10583">10583</a> 
+<a class="jxr_linenumber" name="L10584" href="#L10584">10584</a>   }
+<a class="jxr_linenumber" name="L10585" href="#L10585">10585</a> 
+<a class="jxr_linenumber" name="L10586" href="#L10586">10586</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10587" href="#L10587">10587</a> <em class="jxr_javadoccomment">   * xml builder factory that doesnt go to internet to get dtd</em>
+<a class="jxr_linenumber" name="L10588" href="#L10588">10588</a> <em class="jxr_javadoccomment">   * @return the factory</em>
+<a class="jxr_linenumber" name="L10589" href="#L10589">10589</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10590" href="#L10590">10590</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> DocumentBuilderFactory xmlDocumentBuilderFactory() {
+<a class="jxr_linenumber" name="L10591" href="#L10591">10591</a>     DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+<a class="jxr_linenumber" name="L10592" href="#L10592">10592</a>     domFactory.setNamespaceAware(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L10593" href="#L10593">10593</a>     domFactory.setValidating(false);
+<a class="jxr_linenumber" name="L10594" href="#L10594">10594</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10595" href="#L10595">10595</a>       domFactory.setFeature(<span class="jxr_string">"http://apache.org/xml/features/nonvalidating/load-external-dtd"</span>, false);
+<a class="jxr_linenumber" name="L10596" href="#L10596">10596</a>     } <strong class="jxr_keyword">catch</strong> (ParserConfigurationException pce) {
+<a class="jxr_linenumber" name="L10597" href="#L10597">10597</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(pce);
+<a class="jxr_linenumber" name="L10598" href="#L10598">10598</a>     }
+<a class="jxr_linenumber" name="L10599" href="#L10599">10599</a>     <strong class="jxr_keyword">return</strong> domFactory;
+<a class="jxr_linenumber" name="L10600" href="#L10600">10600</a>   }
+<a class="jxr_linenumber" name="L10601" href="#L10601">10601</a>   
+<a class="jxr_linenumber" name="L10602" href="#L10602">10602</a>   <em class="jxr_javadoccomment">/** array for converting HTML to string */</em>
+<a class="jxr_linenumber" name="L10603" href="#L10603">10603</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] XML_SEARCH_NO_SINGLE = <strong class="jxr_keyword">new</strong> String[]{<span class="jxr_string">"&amp;"</span>,<span class="jxr_string">"&lt;"</span>,<span class="jxr_string">"&gt;"</span>,<span class="jxr_string">"\&quot;"</span>};
+<a class="jxr_linenumber" name="L10604" href="#L10604">10604</a> 
+<a class="jxr_linenumber" name="L10605" href="#L10605">10605</a>   <em class="jxr_javadoccomment">/** array for converting HTML to string */</em>
+<a class="jxr_linenumber" name="L10606" href="#L10606">10606</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String[] XML_REPLACE_NO_SINGLE = <strong class="jxr_keyword">new</strong> String[]{<span class="jxr_string">"&amp;amp;"</span>,<span class="jxr_string">"&amp;lt;"</span>,<span class="jxr_string">"&amp;gt;"</span>,<span class="jxr_string">"&amp;quot;"</span>};
+<a class="jxr_linenumber" name="L10607" href="#L10607">10607</a> 
+<a class="jxr_linenumber" name="L10608" href="#L10608">10608</a> 
+<a class="jxr_linenumber" name="L10609" href="#L10609">10609</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10610" href="#L10610">10610</a> <em class="jxr_javadoccomment">   * Convert an XML string to HTML to display on the screen</em>
+<a class="jxr_linenumber" name="L10611" href="#L10611">10611</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10612" href="#L10612">10612</a> <em class="jxr_javadoccomment">   * @param input</em>
+<a class="jxr_linenumber" name="L10613" href="#L10613">10613</a> <em class="jxr_javadoccomment">   *          is the XML to convert</em>
+<a class="jxr_linenumber" name="L10614" href="#L10614">10614</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10615" href="#L10615">10615</a> <em class="jxr_javadoccomment">   * @return the HTML converted string</em>
+<a class="jxr_linenumber" name="L10616" href="#L10616">10616</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10617" href="#L10617">10617</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlEscape(String input) {
+<a class="jxr_linenumber" name="L10618" href="#L10618">10618</a>     <strong class="jxr_keyword">return</strong> xmlEscape(input, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L10619" href="#L10619">10619</a>   }
 <a class="jxr_linenumber" name="L10620" href="#L10620">10620</a> 
 <a class="jxr_linenumber" name="L10621" href="#L10621">10621</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10622" href="#L10622">10622</a> <em class="jxr_javadoccomment">   * turn a map of attributes into an xml string</em>
-<a class="jxr_linenumber" name="L10623" href="#L10623">10623</a> <em class="jxr_javadoccomment">   * @param elementName</em>
-<a class="jxr_linenumber" name="L10624" href="#L10624">10624</a> <em class="jxr_javadoccomment">   * @param extraAttributes</em>
-<a class="jxr_linenumber" name="L10625" href="#L10625">10625</a> <em class="jxr_javadoccomment">   * @param attributes</em>
-<a class="jxr_linenumber" name="L10626" href="#L10626">10626</a> <em class="jxr_javadoccomment">   * @return the xml</em>
-<a class="jxr_linenumber" name="L10627" href="#L10627">10627</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10628" href="#L10628">10628</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlElementToXml(String elementName, 
-<a class="jxr_linenumber" name="L10629" href="#L10629">10629</a>       String extraAttributes, Map&lt;String, String&gt; attributes) {
-<a class="jxr_linenumber" name="L10630" href="#L10630">10630</a>     
-<a class="jxr_linenumber" name="L10631" href="#L10631">10631</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L10632" href="#L10632">10632</a>     
-<a class="jxr_linenumber" name="L10633" href="#L10633">10633</a>     result.append(<span class="jxr_string">"&lt;"</span>).append(elementName).append(<span class="jxr_string">" "</span>);
-<a class="jxr_linenumber" name="L10634" href="#L10634">10634</a>     
-<a class="jxr_linenumber" name="L10635" href="#L10635">10635</a>     <strong class="jxr_keyword">if</strong> (!isBlank(extraAttributes)) {
-<a class="jxr_linenumber" name="L10636" href="#L10636">10636</a>       result.append(extraAttributes);
-<a class="jxr_linenumber" name="L10637" href="#L10637">10637</a>     }
-<a class="jxr_linenumber" name="L10638" href="#L10638">10638</a> 
-<a class="jxr_linenumber" name="L10639" href="#L10639">10639</a>     <strong class="jxr_keyword">for</strong> (String attributeName : attributes.keySet()) {
-<a class="jxr_linenumber" name="L10640" href="#L10640">10640</a>       result.append(<span class="jxr_string">" "</span>).append(attributeName).append(<span class="jxr_string">"=\&quot;"</span>);
-<a class="jxr_linenumber" name="L10641" href="#L10641">10641</a>       String attributeValue = GrouperInstallerUtils.trimToEmpty(attributes.get(attributeName));
-<a class="jxr_linenumber" name="L10642" href="#L10642">10642</a>       result.append(GrouperInstallerUtils.xmlEscape(attributeValue)).append(<span class="jxr_string">"\&quot;"</span>);
-<a class="jxr_linenumber" name="L10643" href="#L10643">10643</a>     }
-<a class="jxr_linenumber" name="L10644" href="#L10644">10644</a>     
-<a class="jxr_linenumber" name="L10645" href="#L10645">10645</a>     result.append(<span class="jxr_string">" /&gt;"</span>);
-<a class="jxr_linenumber" name="L10646" href="#L10646">10646</a>     
-<a class="jxr_linenumber" name="L10647" href="#L10647">10647</a>     <strong class="jxr_keyword">return</strong> result.toString();
-<a class="jxr_linenumber" name="L10648" href="#L10648">10648</a>   }
-<a class="jxr_linenumber" name="L10649" href="#L10649">10649</a>   
-<a class="jxr_linenumber" name="L10650" href="#L10650">10650</a> 
-<a class="jxr_linenumber" name="L10651" href="#L10651">10651</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10652" href="#L10652">10652</a> <em class="jxr_javadoccomment">   * convert XML to string</em>
-<a class="jxr_linenumber" name="L10653" href="#L10653">10653</a> <em class="jxr_javadoccomment">   * @param document</em>
-<a class="jxr_linenumber" name="L10654" href="#L10654">10654</a> <em class="jxr_javadoccomment">   * @return the string of the XML</em>
-<a class="jxr_linenumber" name="L10655" href="#L10655">10655</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10656" href="#L10656">10656</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlToString(Node document) {
-<a class="jxr_linenumber" name="L10657" href="#L10657">10657</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10658" href="#L10658">10658</a>       DOMSource domSource = <strong class="jxr_keyword">new</strong> DOMSource(document);
-<a class="jxr_linenumber" name="L10659" href="#L10659">10659</a>       StringWriter writer = <strong class="jxr_keyword">new</strong> StringWriter();
-<a class="jxr_linenumber" name="L10660" href="#L10660">10660</a>       StreamResult result = <strong class="jxr_keyword">new</strong> StreamResult(writer);
-<a class="jxr_linenumber" name="L10661" href="#L10661">10661</a>       TransformerFactory tf = TransformerFactory.newInstance();
-<a class="jxr_linenumber" name="L10662" href="#L10662">10662</a>       Transformer transformer = tf.newTransformer();
-<a class="jxr_linenumber" name="L10663" href="#L10663">10663</a>       transformer.transform(domSource, result);
-<a class="jxr_linenumber" name="L10664" href="#L10664">10664</a>       <strong class="jxr_keyword">return</strong> writer.toString();
-<a class="jxr_linenumber" name="L10665" href="#L10665">10665</a>     } <strong class="jxr_keyword">catch</strong> (Exception exception) {
-<a class="jxr_linenumber" name="L10666" href="#L10666">10666</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(exception);
-<a class="jxr_linenumber" name="L10667" href="#L10667">10667</a>     }
-<a class="jxr_linenumber" name="L10668" href="#L10668">10668</a>   }
-<a class="jxr_linenumber" name="L10669" href="#L10669">10669</a>   
-<a class="jxr_linenumber" name="L10670" href="#L10670">10670</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10671" href="#L10671">10671</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10672" href="#L10672">10672</a> <em class="jxr_javadoccomment">   * @param xmlFile</em>
-<a class="jxr_linenumber" name="L10673" href="#L10673">10673</a> <em class="jxr_javadoccomment">   * @param xpathExpression</em>
-<a class="jxr_linenumber" name="L10674" href="#L10674">10674</a> <em class="jxr_javadoccomment">   * @param attributeName </em>
-<a class="jxr_linenumber" name="L10675" href="#L10675">10675</a> <em class="jxr_javadoccomment">   * @param defaultValue </em>
-<a class="jxr_linenumber" name="L10676" href="#L10676">10676</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
-<a class="jxr_linenumber" name="L10677" href="#L10677">10677</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10678" href="#L10678">10678</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Integer xpathEvaluateAttributeInt(File xmlFile, String xpathExpression, String attributeName, Integer defaultValue) {
-<a class="jxr_linenumber" name="L10679" href="#L10679">10679</a>     String nodeValue = xpathEvaluateAttribute(xmlFile, xpathExpression, attributeName);
-<a class="jxr_linenumber" name="L10680" href="#L10680">10680</a>     Integer intValue = GrouperInstallerUtils.intValue(nodeValue, defaultValue);
-<a class="jxr_linenumber" name="L10681" href="#L10681">10681</a>     <strong class="jxr_keyword">return</strong> intValue;
-<a class="jxr_linenumber" name="L10682" href="#L10682">10682</a>   }
-<a class="jxr_linenumber" name="L10683" href="#L10683">10683</a> 
-<a class="jxr_linenumber" name="L10684" href="#L10684">10684</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10685" href="#L10685">10685</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10686" href="#L10686">10686</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
-<a class="jxr_linenumber" name="L10687" href="#L10687">10687</a> <em class="jxr_javadoccomment">   * @return the version</em>
-<a class="jxr_linenumber" name="L10688" href="#L10688">10688</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10689" href="#L10689">10689</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion(File jarFile) {
-<a class="jxr_linenumber" name="L10690" href="#L10690">10690</a>     <strong class="jxr_keyword">return</strong> jarVersion(jarFile, false);
-<a class="jxr_linenumber" name="L10691" href="#L10691">10691</a>   }
-<a class="jxr_linenumber" name="L10692" href="#L10692">10692</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10693" href="#L10693">10693</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10694" href="#L10694">10694</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
-<a class="jxr_linenumber" name="L10695" href="#L10695">10695</a> <em class="jxr_javadoccomment">   * @param exceptionIfProblem true if should throw exception if problem, otherwise blank</em>
-<a class="jxr_linenumber" name="L10696" href="#L10696">10696</a> <em class="jxr_javadoccomment">   * @return the version</em>
-<a class="jxr_linenumber" name="L10697" href="#L10697">10697</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10698" href="#L10698">10698</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion(File jarFile, <strong class="jxr_keyword">boolean</strong> exceptionIfProblem) {
-<a class="jxr_linenumber" name="L10699" href="#L10699">10699</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10700" href="#L10700">10700</a>       String version = jarVersion1(jarFile);
-<a class="jxr_linenumber" name="L10701" href="#L10701">10701</a>       <strong class="jxr_keyword">if</strong> (isBlank(version)) {
-<a class="jxr_linenumber" name="L10702" href="#L10702">10702</a>   
-<a class="jxr_linenumber" name="L10703" href="#L10703">10703</a>         <em class="jxr_comment">//hopefully this is set</em>
-<a class="jxr_linenumber" name="L10704" href="#L10704">10704</a>         <strong class="jxr_keyword">if</strong> (tempFilePathForJars != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L10705" href="#L10705">10705</a>           
-<a class="jxr_linenumber" name="L10706" href="#L10706">10706</a>           String jarFilePath = jarFile.getAbsolutePath();
-<a class="jxr_linenumber" name="L10707" href="#L10707">10707</a>           jarFilePath = replace(jarFilePath, <span class="jxr_string">":"</span>, <span class="jxr_string">"_"</span>);
-<a class="jxr_linenumber" name="L10708" href="#L10708">10708</a>           <strong class="jxr_keyword">if</strong> (jarFilePath.startsWith(<span class="jxr_string">"/"</span>) || jarFilePath.startsWith(<span class="jxr_string">"&#92;&#92;"</span>)) {
-<a class="jxr_linenumber" name="L10709" href="#L10709">10709</a>             jarFilePath = jarFilePath.substring(1);
-<a class="jxr_linenumber" name="L10710" href="#L10710">10710</a>           }
-<a class="jxr_linenumber" name="L10711" href="#L10711">10711</a>           jarFilePath = tempFilePathForJars + jarFilePath;
-<a class="jxr_linenumber" name="L10712" href="#L10712">10712</a>           File bakJarFile = <strong class="jxr_keyword">new</strong> File(jarFilePath);
-<a class="jxr_linenumber" name="L10713" href="#L10713">10713</a>           mkdirs(bakJarFile.getParentFile());
-<a class="jxr_linenumber" name="L10714" href="#L10714">10714</a>           copyFile(jarFile, bakJarFile);
-<a class="jxr_linenumber" name="L10715" href="#L10715">10715</a>           version = jarVersion2(bakJarFile);
-<a class="jxr_linenumber" name="L10716" href="#L10716">10716</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L10717" href="#L10717">10717</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"You need to set tempFileForJars"</span>);
-<a class="jxr_linenumber" name="L10718" href="#L10718">10718</a>         }
-<a class="jxr_linenumber" name="L10719" href="#L10719">10719</a>         
-<a class="jxr_linenumber" name="L10720" href="#L10720">10720</a>       }
-<a class="jxr_linenumber" name="L10721" href="#L10721">10721</a>       <strong class="jxr_keyword">return</strong> version;
-<a class="jxr_linenumber" name="L10722" href="#L10722">10722</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L10723" href="#L10723">10723</a>       injectInException(e, <span class="jxr_string">"Problem with jar: "</span> + jarFile.getAbsolutePath());
-<a class="jxr_linenumber" name="L10724" href="#L10724">10724</a>       <strong class="jxr_keyword">if</strong> (exceptionIfProblem) {
-<a class="jxr_linenumber" name="L10725" href="#L10725">10725</a>         <strong class="jxr_keyword">throw</strong> e;
-<a class="jxr_linenumber" name="L10726" href="#L10726">10726</a>       }
-<a class="jxr_linenumber" name="L10727" href="#L10727">10727</a>       System.out.println(<span class="jxr_string">"Non-fatal issue with "</span> + jarFile.getAbsolutePath() + <span class="jxr_string">", "</span> + e.getMessage() + <span class="jxr_string">", assuming cant find version"</span>);
-<a class="jxr_linenumber" name="L10728" href="#L10728">10728</a>     }
-<a class="jxr_linenumber" name="L10729" href="#L10729">10729</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10730" href="#L10730">10730</a>   }
-<a class="jxr_linenumber" name="L10731" href="#L10731">10731</a>   
-<a class="jxr_linenumber" name="L10732" href="#L10732">10732</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10733" href="#L10733">10733</a> <em class="jxr_javadoccomment">   * get the property value from version in the manifest of a jar</em>
-<a class="jxr_linenumber" name="L10734" href="#L10734">10734</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
-<a class="jxr_linenumber" name="L10735" href="#L10735">10735</a> <em class="jxr_javadoccomment">   * @return the version</em>
-<a class="jxr_linenumber" name="L10736" href="#L10736">10736</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10737" href="#L10737">10737</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion1(File jarFile) {
-<a class="jxr_linenumber" name="L10738" href="#L10738">10738</a>     FileInputStream fileInputStream = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10739" href="#L10739">10739</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10740" href="#L10740">10740</a>       fileInputStream = <strong class="jxr_keyword">new</strong> FileInputStream(jarFile);
-<a class="jxr_linenumber" name="L10741" href="#L10741">10741</a>       JarInputStream jarInputStream = <strong class="jxr_keyword">new</strong> JarInputStream(fileInputStream);
-<a class="jxr_linenumber" name="L10742" href="#L10742">10742</a>       
-<a class="jxr_linenumber" name="L10743" href="#L10743">10743</a>       Manifest manifest = jarInputStream.getManifest();
-<a class="jxr_linenumber" name="L10744" href="#L10744">10744</a> 
-<a class="jxr_linenumber" name="L10745" href="#L10745">10745</a>       <strong class="jxr_keyword">return</strong> manifest == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : manifestVersion(jarFile, manifest);
-<a class="jxr_linenumber" name="L10746" href="#L10746">10746</a>       
-<a class="jxr_linenumber" name="L10747" href="#L10747">10747</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L10748" href="#L10748">10748</a>       <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
-<a class="jxr_linenumber" name="L10749" href="#L10749">10749</a>         <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
-<a class="jxr_linenumber" name="L10750" href="#L10750">10750</a>       }
-<a class="jxr_linenumber" name="L10751" href="#L10751">10751</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(e.getMessage(), e);
-<a class="jxr_linenumber" name="L10752" href="#L10752">10752</a>     } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L10753" href="#L10753">10753</a>       closeQuietly(fileInputStream);
-<a class="jxr_linenumber" name="L10754" href="#L10754">10754</a>     }
-<a class="jxr_linenumber" name="L10755" href="#L10755">10755</a> 
-<a class="jxr_linenumber" name="L10756" href="#L10756">10756</a>   }
-<a class="jxr_linenumber" name="L10757" href="#L10757">10757</a> 
-<a class="jxr_linenumber" name="L10758" href="#L10758">10758</a>   <em class="jxr_javadoccomment">/** set this to copy jars if the jarinputstream doesnt work, must end in File.separator, set this at the beginning of the</em>
-<a class="jxr_linenumber" name="L10759" href="#L10759">10759</a> <em class="jxr_javadoccomment">   * program. </em>
-<a class="jxr_linenumber" name="L10760" href="#L10760">10760</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10761" href="#L10761">10761</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String tempFilePathForJars = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10762" href="#L10762">10762</a>   
-<a class="jxr_linenumber" name="L10763" href="#L10763">10763</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10764" href="#L10764">10764</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L10765" href="#L10765">10765</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
-<a class="jxr_linenumber" name="L10766" href="#L10766">10766</a> <em class="jxr_javadoccomment">   * @return the version</em>
-<a class="jxr_linenumber" name="L10767" href="#L10767">10767</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10768" href="#L10768">10768</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion2(File jarFile) {
-<a class="jxr_linenumber" name="L10769" href="#L10769">10769</a>     
-<a class="jxr_linenumber" name="L10770" href="#L10770">10770</a>     InputStream manifestStream = <strong class="jxr_keyword">null</strong>;  
-<a class="jxr_linenumber" name="L10771" href="#L10771">10771</a>     <strong class="jxr_keyword">try</strong> {  
-<a class="jxr_linenumber" name="L10772" href="#L10772">10772</a>       URL manifestUrl = <strong class="jxr_keyword">new</strong> URL(<span class="jxr_string">"jar:file:"</span> + jarFile.getCanonicalPath() + <span class="jxr_string">"!/META-INF/MANIFEST.MF"</span>);  
-<a class="jxr_linenumber" name="L10773" href="#L10773">10773</a>       manifestStream = manifestUrl.openStream();  
-<a class="jxr_linenumber" name="L10774" href="#L10774">10774</a>       Manifest manifest = <strong class="jxr_keyword">new</strong> Manifest(manifestStream);  
-<a class="jxr_linenumber" name="L10775" href="#L10775">10775</a>       <strong class="jxr_keyword">return</strong> manifest == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : manifestVersion(jarFile, manifest);
-<a class="jxr_linenumber" name="L10776" href="#L10776">10776</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {  
-<a class="jxr_linenumber" name="L10777" href="#L10777">10777</a>       <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {  
-<a class="jxr_linenumber" name="L10778" href="#L10778">10778</a>         <strong class="jxr_keyword">throw</strong> (RuntimeException)e;  
-<a class="jxr_linenumber" name="L10779" href="#L10779">10779</a>       }  
-<a class="jxr_linenumber" name="L10780" href="#L10780">10780</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(jarFile.getAbsolutePath() + <span class="jxr_string">", "</span> + e.getMessage(), e);  
-<a class="jxr_linenumber" name="L10781" href="#L10781">10781</a>     } <strong class="jxr_keyword">finally</strong> {  
-<a class="jxr_linenumber" name="L10782" href="#L10782">10782</a>       closeQuietly(manifestStream);  
-<a class="jxr_linenumber" name="L10783" href="#L10783">10783</a>     }  
-<a class="jxr_linenumber" name="L10784" href="#L10784">10784</a>   }
-<a class="jxr_linenumber" name="L10785" href="#L10785">10785</a> 
-<a class="jxr_linenumber" name="L10786" href="#L10786">10786</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10787" href="#L10787">10787</a> <em class="jxr_javadoccomment">   * split a string (e.g. file contents) into lines</em>
-<a class="jxr_linenumber" name="L10788" href="#L10788">10788</a> <em class="jxr_javadoccomment">   * @param string</em>
-<a class="jxr_linenumber" name="L10789" href="#L10789">10789</a> <em class="jxr_javadoccomment">   * @return the lines</em>
-<a class="jxr_linenumber" name="L10790" href="#L10790">10790</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10791" href="#L10791">10791</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] splitLines(String string) {
-<a class="jxr_linenumber" name="L10792" href="#L10792">10792</a>     String newline = newlineFromFile(string);
-<a class="jxr_linenumber" name="L10793" href="#L10793">10793</a>     String[] lines = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10794" href="#L10794">10794</a>     <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"\n"</span>.equals(newline)) {
-<a class="jxr_linenumber" name="L10795" href="#L10795">10795</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;n]"</span>);
-<a class="jxr_linenumber" name="L10796" href="#L10796">10796</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"\r"</span>.equals(newline)) {
-<a class="jxr_linenumber" name="L10797" href="#L10797">10797</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;r]"</span>);
-<a class="jxr_linenumber" name="L10798" href="#L10798">10798</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"\r\n"</span>.equals(newline)) {
-<a class="jxr_linenumber" name="L10799" href="#L10799">10799</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;r&#92;&#92;n]"</span>);
-<a class="jxr_linenumber" name="L10800" href="#L10800">10800</a>     } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L10801" href="#L10801">10801</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;r&#92;&#92;n]+"</span>);
-<a class="jxr_linenumber" name="L10802" href="#L10802">10802</a>     }
-<a class="jxr_linenumber" name="L10803" href="#L10803">10803</a>     <strong class="jxr_keyword">return</strong> lines;
-<a class="jxr_linenumber" name="L10804" href="#L10804">10804</a>   }
-<a class="jxr_linenumber" name="L10805" href="#L10805">10805</a>   
-<a class="jxr_linenumber" name="L10806" href="#L10806">10806</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10807" href="#L10807">10807</a> <em class="jxr_javadoccomment">   * if printed cant find version, put the jar name here</em>
-<a class="jxr_linenumber" name="L10808" href="#L10808">10808</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10809" href="#L10809">10809</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; printedCantFindVersionJarName = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L10810" href="#L10810">10810</a>   
-<a class="jxr_linenumber" name="L10811" href="#L10811">10811</a>   <strong class="jxr_keyword">static</strong> {
-<a class="jxr_linenumber" name="L10812" href="#L10812">10812</a>     <em class="jxr_comment">//we know about this one, signed, cant change</em>
-<a class="jxr_linenumber" name="L10813" href="#L10813">10813</a>     <em class="jxr_comment">//sqljdbc4.jar, Manifest-Version: 1.0</em>
-<a class="jxr_linenumber" name="L10814" href="#L10814">10814</a>     <em class="jxr_comment">//sqljdbc4.jar, Created-By: 1.6.0_33 (Sun Microsystems Inc.)</em>
-<a class="jxr_linenumber" name="L10815" href="#L10815">10815</a>     printedCantFindVersionJarName.add(<span class="jxr_string">"sqljdbc4.jar"</span>);
-<a class="jxr_linenumber" name="L10816" href="#L10816">10816</a>   }
-<a class="jxr_linenumber" name="L10817" href="#L10817">10817</a>   
-<a class="jxr_linenumber" name="L10818" href="#L10818">10818</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10819" href="#L10819">10819</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
-<a class="jxr_linenumber" name="L10820" href="#L10820">10820</a> <em class="jxr_javadoccomment">   * @param manifest</em>
-<a class="jxr_linenumber" name="L10821" href="#L10821">10821</a> <em class="jxr_javadoccomment">   * @return manifest version</em>
-<a class="jxr_linenumber" name="L10822" href="#L10822">10822</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10823" href="#L10823">10823</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String manifestVersion(File jarFile, Manifest manifest) {
-<a class="jxr_linenumber" name="L10824" href="#L10824">10824</a>     
-<a class="jxr_linenumber" name="L10825" href="#L10825">10825</a>     <strong class="jxr_keyword">boolean</strong> printJarVersionProblemsV1 = propertiesValueBoolean(<span class="jxr_string">"grouperInstaller.printJarVersionIssuesV1"</span>, false, false);
-<a class="jxr_linenumber" name="L10826" href="#L10826">10826</a>     
-<a class="jxr_linenumber" name="L10827" href="#L10827">10827</a>     String[] propertyNames = <strong class="jxr_keyword">new</strong> String[]{
-<a class="jxr_linenumber" name="L10828" href="#L10828">10828</a>         <span class="jxr_string">"Implementation-Version"</span>,<span class="jxr_string">"Version"</span>};
-<a class="jxr_linenumber" name="L10829" href="#L10829">10829</a>     
-<a class="jxr_linenumber" name="L10830" href="#L10830">10830</a>     Map&lt;String, Attributes&gt; attributeMap = manifest.getEntries();
-<a class="jxr_linenumber" name="L10831" href="#L10831">10831</a>     String value = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10832" href="#L10832">10832</a>     <strong class="jxr_keyword">for</strong> (String propertyName : propertyNames) {
-<a class="jxr_linenumber" name="L10833" href="#L10833">10833</a>       value = manifest.getMainAttributes().getValue(propertyName);
-<a class="jxr_linenumber" name="L10834" href="#L10834">10834</a>       <strong class="jxr_keyword">if</strong> (!isBlank(value)) {
-<a class="jxr_linenumber" name="L10835" href="#L10835">10835</a>         <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L10836" href="#L10836">10836</a>       }
-<a class="jxr_linenumber" name="L10837" href="#L10837">10837</a>     }
-<a class="jxr_linenumber" name="L10838" href="#L10838">10838</a>     <strong class="jxr_keyword">if</strong> (value == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L10839" href="#L10839">10839</a>       OUTER:
-<a class="jxr_linenumber" name="L10840" href="#L10840">10840</a>       <strong class="jxr_keyword">for</strong> (Attributes attributes: attributeMap.values()) {
-<a class="jxr_linenumber" name="L10841" href="#L10841">10841</a>         <strong class="jxr_keyword">for</strong> (String propertyName : propertyNames) {
-<a class="jxr_linenumber" name="L10842" href="#L10842">10842</a>           value = attributes.getValue(propertyName);
-<a class="jxr_linenumber" name="L10843" href="#L10843">10843</a>           <strong class="jxr_keyword">if</strong> (!isBlank(value)) {
-<a class="jxr_linenumber" name="L10844" href="#L10844">10844</a>             <strong class="jxr_keyword">break</strong> OUTER;
-<a class="jxr_linenumber" name="L10845" href="#L10845">10845</a>           }
-<a class="jxr_linenumber" name="L10846" href="#L10846">10846</a>         }
-<a class="jxr_linenumber" name="L10847" href="#L10847">10847</a>       }
+<a class="jxr_linenumber" name="L10622" href="#L10622">10622</a> <em class="jxr_javadoccomment">   * Convert an XML string to HTML to display on the screen</em>
+<a class="jxr_linenumber" name="L10623" href="#L10623">10623</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L10624" href="#L10624">10624</a> <em class="jxr_javadoccomment">   * @param input</em>
+<a class="jxr_linenumber" name="L10625" href="#L10625">10625</a> <em class="jxr_javadoccomment">   *          is the XML to convert</em>
+<a class="jxr_linenumber" name="L10626" href="#L10626">10626</a> <em class="jxr_javadoccomment">   * @param isEscape true to escape chars, false to unescape</em>
+<a class="jxr_linenumber" name="L10627" href="#L10627">10627</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L10628" href="#L10628">10628</a> <em class="jxr_javadoccomment">   * @return the HTML converted string</em>
+<a class="jxr_linenumber" name="L10629" href="#L10629">10629</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10630" href="#L10630">10630</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlEscape(String input, <strong class="jxr_keyword">boolean</strong> isEscape) {
+<a class="jxr_linenumber" name="L10631" href="#L10631">10631</a>     <strong class="jxr_keyword">if</strong> (isEscape) {
+<a class="jxr_linenumber" name="L10632" href="#L10632">10632</a>       <strong class="jxr_keyword">return</strong> replace(input, XML_SEARCH_NO_SINGLE, XML_REPLACE_NO_SINGLE);
+<a class="jxr_linenumber" name="L10633" href="#L10633">10633</a>     }
+<a class="jxr_linenumber" name="L10634" href="#L10634">10634</a>     <strong class="jxr_keyword">return</strong> replace(input, XML_REPLACE_NO_SINGLE, XML_SEARCH_NO_SINGLE);
+<a class="jxr_linenumber" name="L10635" href="#L10635">10635</a>   }
+<a class="jxr_linenumber" name="L10636" href="#L10636">10636</a> 
+<a class="jxr_linenumber" name="L10637" href="#L10637">10637</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10638" href="#L10638">10638</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10639" href="#L10639">10639</a> <em class="jxr_javadoccomment">   * @param xmlFile</em>
+<a class="jxr_linenumber" name="L10640" href="#L10640">10640</a> <em class="jxr_javadoccomment">   * @param xpathExpression</em>
+<a class="jxr_linenumber" name="L10641" href="#L10641">10641</a> <em class="jxr_javadoccomment">   * @param attributeName </em>
+<a class="jxr_linenumber" name="L10642" href="#L10642">10642</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
+<a class="jxr_linenumber" name="L10643" href="#L10643">10643</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10644" href="#L10644">10644</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xpathEvaluateAttribute(File xmlFile, String xpathExpression, String attributeName) {
+<a class="jxr_linenumber" name="L10645" href="#L10645">10645</a>     NodeList nodes = GrouperInstallerUtils.xpathEvaluate(xmlFile, xpathExpression);
+<a class="jxr_linenumber" name="L10646" href="#L10646">10646</a>     <strong class="jxr_keyword">if</strong> (nodes == <strong class="jxr_keyword">null</strong> || nodes.getLength() == 0) {
+<a class="jxr_linenumber" name="L10647" href="#L10647">10647</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10648" href="#L10648">10648</a>     }
+<a class="jxr_linenumber" name="L10649" href="#L10649">10649</a>     <strong class="jxr_keyword">if</strong> (nodes.getLength() != 1) {
+<a class="jxr_linenumber" name="L10650" href="#L10650">10650</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"There is more than 1 xpath expression: '"</span> + xpathExpression + <span class="jxr_string">"' element in server.xml: "</span> + xmlFile.getAbsolutePath());
+<a class="jxr_linenumber" name="L10651" href="#L10651">10651</a>     }
+<a class="jxr_linenumber" name="L10652" href="#L10652">10652</a>     
+<a class="jxr_linenumber" name="L10653" href="#L10653">10653</a>     
+<a class="jxr_linenumber" name="L10654" href="#L10654">10654</a>     NamedNodeMap attributes = nodes.item(0).getAttributes();
+<a class="jxr_linenumber" name="L10655" href="#L10655">10655</a>     <strong class="jxr_keyword">if</strong> (attributes == <strong class="jxr_keyword">null</strong> || attributes.getLength() == 0 ) {
+<a class="jxr_linenumber" name="L10656" href="#L10656">10656</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10657" href="#L10657">10657</a>     }
+<a class="jxr_linenumber" name="L10658" href="#L10658">10658</a>     Node attribute = attributes.getNamedItem(attributeName);
+<a class="jxr_linenumber" name="L10659" href="#L10659">10659</a>     <strong class="jxr_keyword">if</strong> (attribute == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L10660" href="#L10660">10660</a>       <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10661" href="#L10661">10661</a>     }
+<a class="jxr_linenumber" name="L10662" href="#L10662">10662</a>     
+<a class="jxr_linenumber" name="L10663" href="#L10663">10663</a>     String nodeValue = attribute.getNodeValue();
+<a class="jxr_linenumber" name="L10664" href="#L10664">10664</a>     <strong class="jxr_keyword">return</strong> nodeValue;
+<a class="jxr_linenumber" name="L10665" href="#L10665">10665</a>   }  
+<a class="jxr_linenumber" name="L10666" href="#L10666">10666</a> 
+<a class="jxr_linenumber" name="L10667" href="#L10667">10667</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10668" href="#L10668">10668</a> <em class="jxr_javadoccomment">   * turn a map of attributes into an xml string</em>
+<a class="jxr_linenumber" name="L10669" href="#L10669">10669</a> <em class="jxr_javadoccomment">   * @param elementName</em>
+<a class="jxr_linenumber" name="L10670" href="#L10670">10670</a> <em class="jxr_javadoccomment">   * @param extraAttributes</em>
+<a class="jxr_linenumber" name="L10671" href="#L10671">10671</a> <em class="jxr_javadoccomment">   * @param attributes</em>
+<a class="jxr_linenumber" name="L10672" href="#L10672">10672</a> <em class="jxr_javadoccomment">   * @return the xml</em>
+<a class="jxr_linenumber" name="L10673" href="#L10673">10673</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10674" href="#L10674">10674</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlElementToXml(String elementName, 
+<a class="jxr_linenumber" name="L10675" href="#L10675">10675</a>       String extraAttributes, Map&lt;String, String&gt; attributes) {
+<a class="jxr_linenumber" name="L10676" href="#L10676">10676</a>     
+<a class="jxr_linenumber" name="L10677" href="#L10677">10677</a>     StringBuilder result = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L10678" href="#L10678">10678</a>     
+<a class="jxr_linenumber" name="L10679" href="#L10679">10679</a>     result.append(<span class="jxr_string">"&lt;"</span>).append(elementName).append(<span class="jxr_string">" "</span>);
+<a class="jxr_linenumber" name="L10680" href="#L10680">10680</a>     
+<a class="jxr_linenumber" name="L10681" href="#L10681">10681</a>     <strong class="jxr_keyword">if</strong> (!isBlank(extraAttributes)) {
+<a class="jxr_linenumber" name="L10682" href="#L10682">10682</a>       result.append(extraAttributes);
+<a class="jxr_linenumber" name="L10683" href="#L10683">10683</a>     }
+<a class="jxr_linenumber" name="L10684" href="#L10684">10684</a> 
+<a class="jxr_linenumber" name="L10685" href="#L10685">10685</a>     <strong class="jxr_keyword">for</strong> (String attributeName : attributes.keySet()) {
+<a class="jxr_linenumber" name="L10686" href="#L10686">10686</a>       result.append(<span class="jxr_string">" "</span>).append(attributeName).append(<span class="jxr_string">"=\&quot;"</span>);
+<a class="jxr_linenumber" name="L10687" href="#L10687">10687</a>       String attributeValue = GrouperInstallerUtils.trimToEmpty(attributes.get(attributeName));
+<a class="jxr_linenumber" name="L10688" href="#L10688">10688</a>       result.append(GrouperInstallerUtils.xmlEscape(attributeValue)).append(<span class="jxr_string">"\&quot;"</span>);
+<a class="jxr_linenumber" name="L10689" href="#L10689">10689</a>     }
+<a class="jxr_linenumber" name="L10690" href="#L10690">10690</a>     
+<a class="jxr_linenumber" name="L10691" href="#L10691">10691</a>     result.append(<span class="jxr_string">" /&gt;"</span>);
+<a class="jxr_linenumber" name="L10692" href="#L10692">10692</a>     
+<a class="jxr_linenumber" name="L10693" href="#L10693">10693</a>     <strong class="jxr_keyword">return</strong> result.toString();
+<a class="jxr_linenumber" name="L10694" href="#L10694">10694</a>   }
+<a class="jxr_linenumber" name="L10695" href="#L10695">10695</a>   
+<a class="jxr_linenumber" name="L10696" href="#L10696">10696</a> 
+<a class="jxr_linenumber" name="L10697" href="#L10697">10697</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10698" href="#L10698">10698</a> <em class="jxr_javadoccomment">   * convert XML to string</em>
+<a class="jxr_linenumber" name="L10699" href="#L10699">10699</a> <em class="jxr_javadoccomment">   * @param document</em>
+<a class="jxr_linenumber" name="L10700" href="#L10700">10700</a> <em class="jxr_javadoccomment">   * @return the string of the XML</em>
+<a class="jxr_linenumber" name="L10701" href="#L10701">10701</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10702" href="#L10702">10702</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String xmlToString(Node document) {
+<a class="jxr_linenumber" name="L10703" href="#L10703">10703</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10704" href="#L10704">10704</a>       DOMSource domSource = <strong class="jxr_keyword">new</strong> DOMSource(document);
+<a class="jxr_linenumber" name="L10705" href="#L10705">10705</a>       StringWriter writer = <strong class="jxr_keyword">new</strong> StringWriter();
+<a class="jxr_linenumber" name="L10706" href="#L10706">10706</a>       StreamResult result = <strong class="jxr_keyword">new</strong> StreamResult(writer);
+<a class="jxr_linenumber" name="L10707" href="#L10707">10707</a>       TransformerFactory tf = TransformerFactory.newInstance();
+<a class="jxr_linenumber" name="L10708" href="#L10708">10708</a>       Transformer transformer = tf.newTransformer();
+<a class="jxr_linenumber" name="L10709" href="#L10709">10709</a>       transformer.transform(domSource, result);
+<a class="jxr_linenumber" name="L10710" href="#L10710">10710</a>       <strong class="jxr_keyword">return</strong> writer.toString();
+<a class="jxr_linenumber" name="L10711" href="#L10711">10711</a>     } <strong class="jxr_keyword">catch</strong> (Exception exception) {
+<a class="jxr_linenumber" name="L10712" href="#L10712">10712</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(exception);
+<a class="jxr_linenumber" name="L10713" href="#L10713">10713</a>     }
+<a class="jxr_linenumber" name="L10714" href="#L10714">10714</a>   }
+<a class="jxr_linenumber" name="L10715" href="#L10715">10715</a>   
+<a class="jxr_linenumber" name="L10716" href="#L10716">10716</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10717" href="#L10717">10717</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10718" href="#L10718">10718</a> <em class="jxr_javadoccomment">   * @param xmlFile</em>
+<a class="jxr_linenumber" name="L10719" href="#L10719">10719</a> <em class="jxr_javadoccomment">   * @param xpathExpression</em>
+<a class="jxr_linenumber" name="L10720" href="#L10720">10720</a> <em class="jxr_javadoccomment">   * @param attributeName </em>
+<a class="jxr_linenumber" name="L10721" href="#L10721">10721</a> <em class="jxr_javadoccomment">   * @param defaultValue </em>
+<a class="jxr_linenumber" name="L10722" href="#L10722">10722</a> <em class="jxr_javadoccomment">   * @return the nodelist</em>
+<a class="jxr_linenumber" name="L10723" href="#L10723">10723</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10724" href="#L10724">10724</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Integer xpathEvaluateAttributeInt(File xmlFile, String xpathExpression, String attributeName, Integer defaultValue) {
+<a class="jxr_linenumber" name="L10725" href="#L10725">10725</a>     String nodeValue = xpathEvaluateAttribute(xmlFile, xpathExpression, attributeName);
+<a class="jxr_linenumber" name="L10726" href="#L10726">10726</a>     Integer intValue = GrouperInstallerUtils.intValue(nodeValue, defaultValue);
+<a class="jxr_linenumber" name="L10727" href="#L10727">10727</a>     <strong class="jxr_keyword">return</strong> intValue;
+<a class="jxr_linenumber" name="L10728" href="#L10728">10728</a>   }
+<a class="jxr_linenumber" name="L10729" href="#L10729">10729</a> 
+<a class="jxr_linenumber" name="L10730" href="#L10730">10730</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10731" href="#L10731">10731</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10732" href="#L10732">10732</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
+<a class="jxr_linenumber" name="L10733" href="#L10733">10733</a> <em class="jxr_javadoccomment">   * @return the version</em>
+<a class="jxr_linenumber" name="L10734" href="#L10734">10734</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10735" href="#L10735">10735</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion(File jarFile) {
+<a class="jxr_linenumber" name="L10736" href="#L10736">10736</a>     <strong class="jxr_keyword">return</strong> jarVersion(jarFile, false);
+<a class="jxr_linenumber" name="L10737" href="#L10737">10737</a>   }
+<a class="jxr_linenumber" name="L10738" href="#L10738">10738</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10739" href="#L10739">10739</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10740" href="#L10740">10740</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
+<a class="jxr_linenumber" name="L10741" href="#L10741">10741</a> <em class="jxr_javadoccomment">   * @param exceptionIfProblem true if should throw exception if problem, otherwise blank</em>
+<a class="jxr_linenumber" name="L10742" href="#L10742">10742</a> <em class="jxr_javadoccomment">   * @return the version</em>
+<a class="jxr_linenumber" name="L10743" href="#L10743">10743</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10744" href="#L10744">10744</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion(File jarFile, <strong class="jxr_keyword">boolean</strong> exceptionIfProblem) {
+<a class="jxr_linenumber" name="L10745" href="#L10745">10745</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10746" href="#L10746">10746</a>       String version = jarVersion1(jarFile);
+<a class="jxr_linenumber" name="L10747" href="#L10747">10747</a>       <strong class="jxr_keyword">if</strong> (isBlank(version)) {
+<a class="jxr_linenumber" name="L10748" href="#L10748">10748</a>   
+<a class="jxr_linenumber" name="L10749" href="#L10749">10749</a>         <em class="jxr_comment">//hopefully this is set</em>
+<a class="jxr_linenumber" name="L10750" href="#L10750">10750</a>         <strong class="jxr_keyword">if</strong> (tempFilePathForJars != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L10751" href="#L10751">10751</a>           
+<a class="jxr_linenumber" name="L10752" href="#L10752">10752</a>           String jarFilePath = jarFile.getAbsolutePath();
+<a class="jxr_linenumber" name="L10753" href="#L10753">10753</a>           jarFilePath = replace(jarFilePath, <span class="jxr_string">":"</span>, <span class="jxr_string">"_"</span>);
+<a class="jxr_linenumber" name="L10754" href="#L10754">10754</a>           <strong class="jxr_keyword">if</strong> (jarFilePath.startsWith(<span class="jxr_string">"/"</span>) || jarFilePath.startsWith(<span class="jxr_string">"&#92;&#92;"</span>)) {
+<a class="jxr_linenumber" name="L10755" href="#L10755">10755</a>             jarFilePath = jarFilePath.substring(1);
+<a class="jxr_linenumber" name="L10756" href="#L10756">10756</a>           }
+<a class="jxr_linenumber" name="L10757" href="#L10757">10757</a>           jarFilePath = tempFilePathForJars + jarFilePath;
+<a class="jxr_linenumber" name="L10758" href="#L10758">10758</a>           File bakJarFile = <strong class="jxr_keyword">new</strong> File(jarFilePath);
+<a class="jxr_linenumber" name="L10759" href="#L10759">10759</a>           mkdirs(bakJarFile.getParentFile());
+<a class="jxr_linenumber" name="L10760" href="#L10760">10760</a>           copyFile(jarFile, bakJarFile);
+<a class="jxr_linenumber" name="L10761" href="#L10761">10761</a>           version = jarVersion2(bakJarFile);
+<a class="jxr_linenumber" name="L10762" href="#L10762">10762</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L10763" href="#L10763">10763</a>           <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"You need to set tempFileForJars"</span>);
+<a class="jxr_linenumber" name="L10764" href="#L10764">10764</a>         }
+<a class="jxr_linenumber" name="L10765" href="#L10765">10765</a>         
+<a class="jxr_linenumber" name="L10766" href="#L10766">10766</a>       }
+<a class="jxr_linenumber" name="L10767" href="#L10767">10767</a>       <strong class="jxr_keyword">return</strong> version;
+<a class="jxr_linenumber" name="L10768" href="#L10768">10768</a>     } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L10769" href="#L10769">10769</a>       injectInException(e, <span class="jxr_string">"Problem with jar: "</span> + jarFile.getAbsolutePath());
+<a class="jxr_linenumber" name="L10770" href="#L10770">10770</a>       <strong class="jxr_keyword">if</strong> (exceptionIfProblem) {
+<a class="jxr_linenumber" name="L10771" href="#L10771">10771</a>         <strong class="jxr_keyword">throw</strong> e;
+<a class="jxr_linenumber" name="L10772" href="#L10772">10772</a>       }
+<a class="jxr_linenumber" name="L10773" href="#L10773">10773</a>       System.out.println(<span class="jxr_string">"Non-fatal issue with "</span> + jarFile.getAbsolutePath() + <span class="jxr_string">", "</span> + e.getMessage() + <span class="jxr_string">", assuming cant find version"</span>);
+<a class="jxr_linenumber" name="L10774" href="#L10774">10774</a>     }
+<a class="jxr_linenumber" name="L10775" href="#L10775">10775</a>     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10776" href="#L10776">10776</a>   }
+<a class="jxr_linenumber" name="L10777" href="#L10777">10777</a>   
+<a class="jxr_linenumber" name="L10778" href="#L10778">10778</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10779" href="#L10779">10779</a> <em class="jxr_javadoccomment">   * get the property value from version in the manifest of a jar</em>
+<a class="jxr_linenumber" name="L10780" href="#L10780">10780</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
+<a class="jxr_linenumber" name="L10781" href="#L10781">10781</a> <em class="jxr_javadoccomment">   * @return the version</em>
+<a class="jxr_linenumber" name="L10782" href="#L10782">10782</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10783" href="#L10783">10783</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion1(File jarFile) {
+<a class="jxr_linenumber" name="L10784" href="#L10784">10784</a>     FileInputStream fileInputStream = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10785" href="#L10785">10785</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10786" href="#L10786">10786</a>       fileInputStream = <strong class="jxr_keyword">new</strong> FileInputStream(jarFile);
+<a class="jxr_linenumber" name="L10787" href="#L10787">10787</a>       JarInputStream jarInputStream = <strong class="jxr_keyword">new</strong> JarInputStream(fileInputStream);
+<a class="jxr_linenumber" name="L10788" href="#L10788">10788</a>       
+<a class="jxr_linenumber" name="L10789" href="#L10789">10789</a>       Manifest manifest = jarInputStream.getManifest();
+<a class="jxr_linenumber" name="L10790" href="#L10790">10790</a> 
+<a class="jxr_linenumber" name="L10791" href="#L10791">10791</a>       <strong class="jxr_keyword">return</strong> manifest == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : manifestVersion(jarFile, manifest);
+<a class="jxr_linenumber" name="L10792" href="#L10792">10792</a>       
+<a class="jxr_linenumber" name="L10793" href="#L10793">10793</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {
+<a class="jxr_linenumber" name="L10794" href="#L10794">10794</a>       <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {
+<a class="jxr_linenumber" name="L10795" href="#L10795">10795</a>         <strong class="jxr_keyword">throw</strong> (RuntimeException)e;
+<a class="jxr_linenumber" name="L10796" href="#L10796">10796</a>       }
+<a class="jxr_linenumber" name="L10797" href="#L10797">10797</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(e.getMessage(), e);
+<a class="jxr_linenumber" name="L10798" href="#L10798">10798</a>     } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L10799" href="#L10799">10799</a>       closeQuietly(fileInputStream);
+<a class="jxr_linenumber" name="L10800" href="#L10800">10800</a>     }
+<a class="jxr_linenumber" name="L10801" href="#L10801">10801</a> 
+<a class="jxr_linenumber" name="L10802" href="#L10802">10802</a>   }
+<a class="jxr_linenumber" name="L10803" href="#L10803">10803</a> 
+<a class="jxr_linenumber" name="L10804" href="#L10804">10804</a>   <em class="jxr_javadoccomment">/** set this to copy jars if the jarinputstream doesnt work, must end in File.separator, set this at the beginning of the</em>
+<a class="jxr_linenumber" name="L10805" href="#L10805">10805</a> <em class="jxr_javadoccomment">   * program. </em>
+<a class="jxr_linenumber" name="L10806" href="#L10806">10806</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10807" href="#L10807">10807</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String tempFilePathForJars = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10808" href="#L10808">10808</a>   
+<a class="jxr_linenumber" name="L10809" href="#L10809">10809</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10810" href="#L10810">10810</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L10811" href="#L10811">10811</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
+<a class="jxr_linenumber" name="L10812" href="#L10812">10812</a> <em class="jxr_javadoccomment">   * @return the version</em>
+<a class="jxr_linenumber" name="L10813" href="#L10813">10813</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10814" href="#L10814">10814</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String jarVersion2(File jarFile) {
+<a class="jxr_linenumber" name="L10815" href="#L10815">10815</a>     
+<a class="jxr_linenumber" name="L10816" href="#L10816">10816</a>     InputStream manifestStream = <strong class="jxr_keyword">null</strong>;  
+<a class="jxr_linenumber" name="L10817" href="#L10817">10817</a>     <strong class="jxr_keyword">try</strong> {  
+<a class="jxr_linenumber" name="L10818" href="#L10818">10818</a>       URL manifestUrl = <strong class="jxr_keyword">new</strong> URL(<span class="jxr_string">"jar:file:"</span> + jarFile.getCanonicalPath() + <span class="jxr_string">"!/META-INF/MANIFEST.MF"</span>);  
+<a class="jxr_linenumber" name="L10819" href="#L10819">10819</a>       manifestStream = manifestUrl.openStream();  
+<a class="jxr_linenumber" name="L10820" href="#L10820">10820</a>       Manifest manifest = <strong class="jxr_keyword">new</strong> Manifest(manifestStream);  
+<a class="jxr_linenumber" name="L10821" href="#L10821">10821</a>       <strong class="jxr_keyword">return</strong> manifest == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">null</strong> : manifestVersion(jarFile, manifest);
+<a class="jxr_linenumber" name="L10822" href="#L10822">10822</a>     } <strong class="jxr_keyword">catch</strong> (Exception e) {  
+<a class="jxr_linenumber" name="L10823" href="#L10823">10823</a>       <strong class="jxr_keyword">if</strong> (e instanceof RuntimeException) {  
+<a class="jxr_linenumber" name="L10824" href="#L10824">10824</a>         <strong class="jxr_keyword">throw</strong> (RuntimeException)e;  
+<a class="jxr_linenumber" name="L10825" href="#L10825">10825</a>       }  
+<a class="jxr_linenumber" name="L10826" href="#L10826">10826</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(jarFile.getAbsolutePath() + <span class="jxr_string">", "</span> + e.getMessage(), e);  
+<a class="jxr_linenumber" name="L10827" href="#L10827">10827</a>     } <strong class="jxr_keyword">finally</strong> {  
+<a class="jxr_linenumber" name="L10828" href="#L10828">10828</a>       closeQuietly(manifestStream);  
+<a class="jxr_linenumber" name="L10829" href="#L10829">10829</a>     }  
+<a class="jxr_linenumber" name="L10830" href="#L10830">10830</a>   }
+<a class="jxr_linenumber" name="L10831" href="#L10831">10831</a> 
+<a class="jxr_linenumber" name="L10832" href="#L10832">10832</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10833" href="#L10833">10833</a> <em class="jxr_javadoccomment">   * split a string (e.g. file contents) into lines</em>
+<a class="jxr_linenumber" name="L10834" href="#L10834">10834</a> <em class="jxr_javadoccomment">   * @param string</em>
+<a class="jxr_linenumber" name="L10835" href="#L10835">10835</a> <em class="jxr_javadoccomment">   * @return the lines</em>
+<a class="jxr_linenumber" name="L10836" href="#L10836">10836</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10837" href="#L10837">10837</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String[] splitLines(String string) {
+<a class="jxr_linenumber" name="L10838" href="#L10838">10838</a>     String newline = newlineFromFile(string);
+<a class="jxr_linenumber" name="L10839" href="#L10839">10839</a>     String[] lines = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10840" href="#L10840">10840</a>     <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"\n"</span>.equals(newline)) {
+<a class="jxr_linenumber" name="L10841" href="#L10841">10841</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;n]"</span>);
+<a class="jxr_linenumber" name="L10842" href="#L10842">10842</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"\r"</span>.equals(newline)) {
+<a class="jxr_linenumber" name="L10843" href="#L10843">10843</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;r]"</span>);
+<a class="jxr_linenumber" name="L10844" href="#L10844">10844</a>     } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"\r\n"</span>.equals(newline)) {
+<a class="jxr_linenumber" name="L10845" href="#L10845">10845</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;r&#92;&#92;n]"</span>);
+<a class="jxr_linenumber" name="L10846" href="#L10846">10846</a>     } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L10847" href="#L10847">10847</a>       lines = string.split(<span class="jxr_string">"[&#92;&#92;r&#92;&#92;n]+"</span>);
 <a class="jxr_linenumber" name="L10848" href="#L10848">10848</a>     }
-<a class="jxr_linenumber" name="L10849" href="#L10849">10849</a>     <strong class="jxr_keyword">if</strong> (value == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L10850" href="#L10850">10850</a>       <strong class="jxr_keyword">if</strong> (!printedCantFindVersionJarName.contains(jarFile.getName())) {
-<a class="jxr_linenumber" name="L10851" href="#L10851">10851</a>         printedCantFindVersionJarName.add(jarFile.getName());
-<a class="jxr_linenumber" name="L10852" href="#L10852">10852</a>         <strong class="jxr_keyword">if</strong> (printJarVersionProblemsV1) {
-<a class="jxr_linenumber" name="L10853" href="#L10853">10853</a>           System.out.println(<span class="jxr_string">"Error: cant find version for jar: "</span> + jarFile.getName());
-<a class="jxr_linenumber" name="L10854" href="#L10854">10854</a>         }
-<a class="jxr_linenumber" name="L10855" href="#L10855">10855</a>         <strong class="jxr_keyword">if</strong> (printJarVersionProblemsV1) {
-<a class="jxr_linenumber" name="L10856" href="#L10856">10856</a>           <strong class="jxr_keyword">for</strong> (Attributes attributes: attributeMap.values()) {
-<a class="jxr_linenumber" name="L10857" href="#L10857">10857</a>             <strong class="jxr_keyword">for</strong> (Object key : attributes.keySet()) {
-<a class="jxr_linenumber" name="L10858" href="#L10858">10858</a>               System.out.println(jarFile.getName() + <span class="jxr_string">", "</span> + key + <span class="jxr_string">": "</span> + attributes.getValue((Name)key));
-<a class="jxr_linenumber" name="L10859" href="#L10859">10859</a>             }
-<a class="jxr_linenumber" name="L10860" href="#L10860">10860</a>           }
-<a class="jxr_linenumber" name="L10861" href="#L10861">10861</a>           Attributes attributes = manifest.getMainAttributes();
-<a class="jxr_linenumber" name="L10862" href="#L10862">10862</a>           <strong class="jxr_keyword">for</strong> (Object key : attributes.keySet()) {
-<a class="jxr_linenumber" name="L10863" href="#L10863">10863</a>             System.out.println(jarFile.getName() + <span class="jxr_string">", main "</span> + key + <span class="jxr_string">": "</span> + attributes.getValue((Name)key));
-<a class="jxr_linenumber" name="L10864" href="#L10864">10864</a>           }
-<a class="jxr_linenumber" name="L10865" href="#L10865">10865</a>         }
-<a class="jxr_linenumber" name="L10866" href="#L10866">10866</a>       }
-<a class="jxr_linenumber" name="L10867" href="#L10867">10867</a>     }
-<a class="jxr_linenumber" name="L10868" href="#L10868">10868</a>     <strong class="jxr_keyword">return</strong> value;
-<a class="jxr_linenumber" name="L10869" href="#L10869">10869</a>   }
-<a class="jxr_linenumber" name="L10870" href="#L10870">10870</a> 
-<a class="jxr_linenumber" name="L10871" href="#L10871">10871</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10872" href="#L10872">10872</a> <em class="jxr_javadoccomment">   * based on file contents see what the newline type is</em>
-<a class="jxr_linenumber" name="L10873" href="#L10873">10873</a> <em class="jxr_javadoccomment">   * @param fileContents</em>
-<a class="jxr_linenumber" name="L10874" href="#L10874">10874</a> <em class="jxr_javadoccomment">   * @return the newline</em>
-<a class="jxr_linenumber" name="L10875" href="#L10875">10875</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10876" href="#L10876">10876</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String newlineFromFile(String fileContents) {
-<a class="jxr_linenumber" name="L10877" href="#L10877">10877</a>     String newline = <span class="jxr_string">"\n"</span>;
-<a class="jxr_linenumber" name="L10878" href="#L10878">10878</a>     <strong class="jxr_keyword">if</strong> (fileContents.contains(<span class="jxr_string">"&#92;&#92;r&#92;&#92;n"</span>)) {
-<a class="jxr_linenumber" name="L10879" href="#L10879">10879</a>       newline = <span class="jxr_string">"&#92;&#92;r&#92;&#92;n"</span>;
-<a class="jxr_linenumber" name="L10880" href="#L10880">10880</a>     }
-<a class="jxr_linenumber" name="L10881" href="#L10881">10881</a>     <strong class="jxr_keyword">if</strong> (fileContents.contains(<span class="jxr_string">"&#92;&#92;n&#92;&#92;r"</span>)) {
-<a class="jxr_linenumber" name="L10882" href="#L10882">10882</a>       newline = <span class="jxr_string">"&#92;&#92;n&#92;&#92;r"</span>;
+<a class="jxr_linenumber" name="L10849" href="#L10849">10849</a>     <strong class="jxr_keyword">return</strong> lines;
+<a class="jxr_linenumber" name="L10850" href="#L10850">10850</a>   }
+<a class="jxr_linenumber" name="L10851" href="#L10851">10851</a>   
+<a class="jxr_linenumber" name="L10852" href="#L10852">10852</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10853" href="#L10853">10853</a> <em class="jxr_javadoccomment">   * if printed cant find version, put the jar name here</em>
+<a class="jxr_linenumber" name="L10854" href="#L10854">10854</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10855" href="#L10855">10855</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; printedCantFindVersionJarName = <strong class="jxr_keyword">new</strong> HashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L10856" href="#L10856">10856</a>   
+<a class="jxr_linenumber" name="L10857" href="#L10857">10857</a>   <strong class="jxr_keyword">static</strong> {
+<a class="jxr_linenumber" name="L10858" href="#L10858">10858</a>     <em class="jxr_comment">//we know about this one, signed, cant change</em>
+<a class="jxr_linenumber" name="L10859" href="#L10859">10859</a>     <em class="jxr_comment">//sqljdbc4.jar, Manifest-Version: 1.0</em>
+<a class="jxr_linenumber" name="L10860" href="#L10860">10860</a>     <em class="jxr_comment">//sqljdbc4.jar, Created-By: 1.6.0_33 (Sun Microsystems Inc.)</em>
+<a class="jxr_linenumber" name="L10861" href="#L10861">10861</a>     printedCantFindVersionJarName.add(<span class="jxr_string">"sqljdbc4.jar"</span>);
+<a class="jxr_linenumber" name="L10862" href="#L10862">10862</a>   }
+<a class="jxr_linenumber" name="L10863" href="#L10863">10863</a>   
+<a class="jxr_linenumber" name="L10864" href="#L10864">10864</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10865" href="#L10865">10865</a> <em class="jxr_javadoccomment">   * @param jarFile</em>
+<a class="jxr_linenumber" name="L10866" href="#L10866">10866</a> <em class="jxr_javadoccomment">   * @param manifest</em>
+<a class="jxr_linenumber" name="L10867" href="#L10867">10867</a> <em class="jxr_javadoccomment">   * @return manifest version</em>
+<a class="jxr_linenumber" name="L10868" href="#L10868">10868</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10869" href="#L10869">10869</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String manifestVersion(File jarFile, Manifest manifest) {
+<a class="jxr_linenumber" name="L10870" href="#L10870">10870</a>     
+<a class="jxr_linenumber" name="L10871" href="#L10871">10871</a>     <strong class="jxr_keyword">boolean</strong> printJarVersionProblemsV1 = propertiesValueBoolean(<span class="jxr_string">"grouperInstaller.printJarVersionIssuesV1"</span>, false, false);
+<a class="jxr_linenumber" name="L10872" href="#L10872">10872</a>     
+<a class="jxr_linenumber" name="L10873" href="#L10873">10873</a>     String[] propertyNames = <strong class="jxr_keyword">new</strong> String[]{
+<a class="jxr_linenumber" name="L10874" href="#L10874">10874</a>         <span class="jxr_string">"Implementation-Version"</span>,<span class="jxr_string">"Version"</span>};
+<a class="jxr_linenumber" name="L10875" href="#L10875">10875</a>     
+<a class="jxr_linenumber" name="L10876" href="#L10876">10876</a>     Map&lt;String, Attributes&gt; attributeMap = manifest.getEntries();
+<a class="jxr_linenumber" name="L10877" href="#L10877">10877</a>     String value = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L10878" href="#L10878">10878</a>     <strong class="jxr_keyword">for</strong> (String propertyName : propertyNames) {
+<a class="jxr_linenumber" name="L10879" href="#L10879">10879</a>       value = manifest.getMainAttributes().getValue(propertyName);
+<a class="jxr_linenumber" name="L10880" href="#L10880">10880</a>       <strong class="jxr_keyword">if</strong> (!isBlank(value)) {
+<a class="jxr_linenumber" name="L10881" href="#L10881">10881</a>         <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L10882" href="#L10882">10882</a>       }
 <a class="jxr_linenumber" name="L10883" href="#L10883">10883</a>     }
-<a class="jxr_linenumber" name="L10884" href="#L10884">10884</a>     <strong class="jxr_keyword">if</strong> (fileContents.contains(<span class="jxr_string">"&#92;&#92;r"</span>)) {
-<a class="jxr_linenumber" name="L10885" href="#L10885">10885</a>       newline = <span class="jxr_string">"&#92;&#92;r"</span>;
-<a class="jxr_linenumber" name="L10886" href="#L10886">10886</a>     }
-<a class="jxr_linenumber" name="L10887" href="#L10887">10887</a>     <strong class="jxr_keyword">return</strong> newline;
-<a class="jxr_linenumber" name="L10888" href="#L10888">10888</a>   }
-<a class="jxr_linenumber" name="L10889" href="#L10889">10889</a> 
-<a class="jxr_linenumber" name="L10890" href="#L10890">10890</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10891" href="#L10891">10891</a> <em class="jxr_javadoccomment">   * list files recursively from parent, dont include </em>
-<a class="jxr_linenumber" name="L10892" href="#L10892">10892</a> <em class="jxr_javadoccomment">   * @param parent</em>
-<a class="jxr_linenumber" name="L10893" href="#L10893">10893</a> <em class="jxr_javadoccomment">   * @return set of files wont return null</em>
-<a class="jxr_linenumber" name="L10894" href="#L10894">10894</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10895" href="#L10895">10895</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;File&gt; fileListRecursive(File parent) {
-<a class="jxr_linenumber" name="L10896" href="#L10896">10896</a>     List&lt;File&gt; results = <strong class="jxr_keyword">new</strong> ArrayList&lt;File&gt;();
-<a class="jxr_linenumber" name="L10897" href="#L10897">10897</a>     fileListRecursiveHelper(parent, results);
-<a class="jxr_linenumber" name="L10898" href="#L10898">10898</a>     <strong class="jxr_keyword">return</strong> results;
-<a class="jxr_linenumber" name="L10899" href="#L10899">10899</a>   }
-<a class="jxr_linenumber" name="L10900" href="#L10900">10900</a> 
-<a class="jxr_linenumber" name="L10901" href="#L10901">10901</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10902" href="#L10902">10902</a> <em class="jxr_javadoccomment">   * helper to add child files to a parent (</em>
-<a class="jxr_linenumber" name="L10903" href="#L10903">10903</a> <em class="jxr_javadoccomment">   * @param parent</em>
-<a class="jxr_linenumber" name="L10904" href="#L10904">10904</a> <em class="jxr_javadoccomment">   * @param fileList</em>
-<a class="jxr_linenumber" name="L10905" href="#L10905">10905</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10906" href="#L10906">10906</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fileListRecursiveHelper(File parent, List&lt;File&gt; fileList) {
-<a class="jxr_linenumber" name="L10907" href="#L10907">10907</a>     <strong class="jxr_keyword">if</strong> (parent == <strong class="jxr_keyword">null</strong> || !parent.exists() || !parent.isDirectory()) {
-<a class="jxr_linenumber" name="L10908" href="#L10908">10908</a>       <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L10909" href="#L10909">10909</a>     }
-<a class="jxr_linenumber" name="L10910" href="#L10910">10910</a>     List&lt;File&gt; subFiles = nonNull(toList(parent.listFiles()));
-<a class="jxr_linenumber" name="L10911" href="#L10911">10911</a>     <strong class="jxr_keyword">for</strong> (File subFile : subFiles) {
-<a class="jxr_linenumber" name="L10912" href="#L10912">10912</a>       <strong class="jxr_keyword">if</strong> (subFile.isFile()) {
-<a class="jxr_linenumber" name="L10913" href="#L10913">10913</a>         fileList.add(subFile);
-<a class="jxr_linenumber" name="L10914" href="#L10914">10914</a>       }
-<a class="jxr_linenumber" name="L10915" href="#L10915">10915</a>       <strong class="jxr_keyword">if</strong> (subFile.isDirectory()) {
-<a class="jxr_linenumber" name="L10916" href="#L10916">10916</a>         fileListRecursiveHelper(subFile, fileList);
-<a class="jxr_linenumber" name="L10917" href="#L10917">10917</a>       }
-<a class="jxr_linenumber" name="L10918" href="#L10918">10918</a>     }
-<a class="jxr_linenumber" name="L10919" href="#L10919">10919</a>   }
-<a class="jxr_linenumber" name="L10920" href="#L10920">10920</a> 
-<a class="jxr_linenumber" name="L10921" href="#L10921">10921</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10922" href="#L10922">10922</a> <em class="jxr_javadoccomment">   * @param path</em>
-<a class="jxr_linenumber" name="L10923" href="#L10923">10923</a> <em class="jxr_javadoccomment">   * @return the new path</em>
-<a class="jxr_linenumber" name="L10924" href="#L10924">10924</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10925" href="#L10925">10925</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String fileMassagePathsNoLeadingOrTrailing(String path) {
-<a class="jxr_linenumber" name="L10926" href="#L10926">10926</a>     path = path.replace(File.separatorChar == '/' ? '&#92;&#92;' : '/', File.separatorChar);
-<a class="jxr_linenumber" name="L10927" href="#L10927">10927</a>     <strong class="jxr_keyword">if</strong> (path.startsWith(File.separator)) {
-<a class="jxr_linenumber" name="L10928" href="#L10928">10928</a>       path = path.substring(1);
+<a class="jxr_linenumber" name="L10884" href="#L10884">10884</a>     <strong class="jxr_keyword">if</strong> (value == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L10885" href="#L10885">10885</a>       OUTER:
+<a class="jxr_linenumber" name="L10886" href="#L10886">10886</a>       <strong class="jxr_keyword">for</strong> (Attributes attributes: attributeMap.values()) {
+<a class="jxr_linenumber" name="L10887" href="#L10887">10887</a>         <strong class="jxr_keyword">for</strong> (String propertyName : propertyNames) {
+<a class="jxr_linenumber" name="L10888" href="#L10888">10888</a>           value = attributes.getValue(propertyName);
+<a class="jxr_linenumber" name="L10889" href="#L10889">10889</a>           <strong class="jxr_keyword">if</strong> (!isBlank(value)) {
+<a class="jxr_linenumber" name="L10890" href="#L10890">10890</a>             <strong class="jxr_keyword">break</strong> OUTER;
+<a class="jxr_linenumber" name="L10891" href="#L10891">10891</a>           }
+<a class="jxr_linenumber" name="L10892" href="#L10892">10892</a>         }
+<a class="jxr_linenumber" name="L10893" href="#L10893">10893</a>       }
+<a class="jxr_linenumber" name="L10894" href="#L10894">10894</a>     }
+<a class="jxr_linenumber" name="L10895" href="#L10895">10895</a>     <strong class="jxr_keyword">if</strong> (value == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L10896" href="#L10896">10896</a>       <strong class="jxr_keyword">if</strong> (!printedCantFindVersionJarName.contains(jarFile.getName())) {
+<a class="jxr_linenumber" name="L10897" href="#L10897">10897</a>         printedCantFindVersionJarName.add(jarFile.getName());
+<a class="jxr_linenumber" name="L10898" href="#L10898">10898</a>         <strong class="jxr_keyword">if</strong> (printJarVersionProblemsV1) {
+<a class="jxr_linenumber" name="L10899" href="#L10899">10899</a>           System.out.println(<span class="jxr_string">"Error: cant find version for jar: "</span> + jarFile.getName());
+<a class="jxr_linenumber" name="L10900" href="#L10900">10900</a>         }
+<a class="jxr_linenumber" name="L10901" href="#L10901">10901</a>         <strong class="jxr_keyword">if</strong> (printJarVersionProblemsV1) {
+<a class="jxr_linenumber" name="L10902" href="#L10902">10902</a>           <strong class="jxr_keyword">for</strong> (Attributes attributes: attributeMap.values()) {
+<a class="jxr_linenumber" name="L10903" href="#L10903">10903</a>             <strong class="jxr_keyword">for</strong> (Object key : attributes.keySet()) {
+<a class="jxr_linenumber" name="L10904" href="#L10904">10904</a>               System.out.println(jarFile.getName() + <span class="jxr_string">", "</span> + key + <span class="jxr_string">": "</span> + attributes.getValue((Name)key));
+<a class="jxr_linenumber" name="L10905" href="#L10905">10905</a>             }
+<a class="jxr_linenumber" name="L10906" href="#L10906">10906</a>           }
+<a class="jxr_linenumber" name="L10907" href="#L10907">10907</a>           Attributes attributes = manifest.getMainAttributes();
+<a class="jxr_linenumber" name="L10908" href="#L10908">10908</a>           <strong class="jxr_keyword">for</strong> (Object key : attributes.keySet()) {
+<a class="jxr_linenumber" name="L10909" href="#L10909">10909</a>             System.out.println(jarFile.getName() + <span class="jxr_string">", main "</span> + key + <span class="jxr_string">": "</span> + attributes.getValue((Name)key));
+<a class="jxr_linenumber" name="L10910" href="#L10910">10910</a>           }
+<a class="jxr_linenumber" name="L10911" href="#L10911">10911</a>         }
+<a class="jxr_linenumber" name="L10912" href="#L10912">10912</a>       }
+<a class="jxr_linenumber" name="L10913" href="#L10913">10913</a>     }
+<a class="jxr_linenumber" name="L10914" href="#L10914">10914</a>     <strong class="jxr_keyword">return</strong> value;
+<a class="jxr_linenumber" name="L10915" href="#L10915">10915</a>   }
+<a class="jxr_linenumber" name="L10916" href="#L10916">10916</a> 
+<a class="jxr_linenumber" name="L10917" href="#L10917">10917</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10918" href="#L10918">10918</a> <em class="jxr_javadoccomment">   * based on file contents see what the newline type is</em>
+<a class="jxr_linenumber" name="L10919" href="#L10919">10919</a> <em class="jxr_javadoccomment">   * @param fileContents</em>
+<a class="jxr_linenumber" name="L10920" href="#L10920">10920</a> <em class="jxr_javadoccomment">   * @return the newline</em>
+<a class="jxr_linenumber" name="L10921" href="#L10921">10921</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10922" href="#L10922">10922</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String newlineFromFile(String fileContents) {
+<a class="jxr_linenumber" name="L10923" href="#L10923">10923</a>     String newline = <span class="jxr_string">"\n"</span>;
+<a class="jxr_linenumber" name="L10924" href="#L10924">10924</a>     <strong class="jxr_keyword">if</strong> (fileContents.contains(<span class="jxr_string">"&#92;&#92;r&#92;&#92;n"</span>)) {
+<a class="jxr_linenumber" name="L10925" href="#L10925">10925</a>       newline = <span class="jxr_string">"&#92;&#92;r&#92;&#92;n"</span>;
+<a class="jxr_linenumber" name="L10926" href="#L10926">10926</a>     }
+<a class="jxr_linenumber" name="L10927" href="#L10927">10927</a>     <strong class="jxr_keyword">if</strong> (fileContents.contains(<span class="jxr_string">"&#92;&#92;n&#92;&#92;r"</span>)) {
+<a class="jxr_linenumber" name="L10928" href="#L10928">10928</a>       newline = <span class="jxr_string">"&#92;&#92;n&#92;&#92;r"</span>;
 <a class="jxr_linenumber" name="L10929" href="#L10929">10929</a>     }
-<a class="jxr_linenumber" name="L10930" href="#L10930">10930</a>     <strong class="jxr_keyword">if</strong> (path.endsWith(File.separator)) {
-<a class="jxr_linenumber" name="L10931" href="#L10931">10931</a>       path = path.substring(0, path.length()-1);
+<a class="jxr_linenumber" name="L10930" href="#L10930">10930</a>     <strong class="jxr_keyword">if</strong> (fileContents.contains(<span class="jxr_string">"&#92;&#92;r"</span>)) {
+<a class="jxr_linenumber" name="L10931" href="#L10931">10931</a>       newline = <span class="jxr_string">"&#92;&#92;r"</span>;
 <a class="jxr_linenumber" name="L10932" href="#L10932">10932</a>     }
-<a class="jxr_linenumber" name="L10933" href="#L10933">10933</a>     <strong class="jxr_keyword">return</strong> path;
+<a class="jxr_linenumber" name="L10933" href="#L10933">10933</a>     <strong class="jxr_keyword">return</strong> newline;
 <a class="jxr_linenumber" name="L10934" href="#L10934">10934</a>   }
-<a class="jxr_linenumber" name="L10935" href="#L10935">10935</a>   
+<a class="jxr_linenumber" name="L10935" href="#L10935">10935</a> 
 <a class="jxr_linenumber" name="L10936" href="#L10936">10936</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10937" href="#L10937">10937</a> <em class="jxr_javadoccomment">   * Compares the contents of two files to determine if they are equal or not.</em>
-<a class="jxr_linenumber" name="L10938" href="#L10938">10938</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L10939" href="#L10939">10939</a> <em class="jxr_javadoccomment">   * This method checks to see if the two files are different lengths</em>
-<a class="jxr_linenumber" name="L10940" href="#L10940">10940</a> <em class="jxr_javadoccomment">   * or if they point to the same file, before resorting to byte-by-byte</em>
-<a class="jxr_linenumber" name="L10941" href="#L10941">10941</a> <em class="jxr_javadoccomment">   * comparison of the contents.</em>
-<a class="jxr_linenumber" name="L10942" href="#L10942">10942</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L10943" href="#L10943">10943</a> <em class="jxr_javadoccomment">   * Code origin: Avalon</em>
-<a class="jxr_linenumber" name="L10944" href="#L10944">10944</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L10945" href="#L10945">10945</a> <em class="jxr_javadoccomment">   * @param file1  the first file</em>
-<a class="jxr_linenumber" name="L10946" href="#L10946">10946</a> <em class="jxr_javadoccomment">   * @param file2  the second file</em>
-<a class="jxr_linenumber" name="L10947" href="#L10947">10947</a> <em class="jxr_javadoccomment">   * @return true if the content of the files are equal or they both don't</em>
-<a class="jxr_linenumber" name="L10948" href="#L10948">10948</a> <em class="jxr_javadoccomment">   * exist, false otherwise</em>
-<a class="jxr_linenumber" name="L10949" href="#L10949">10949</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L10950" href="#L10950">10950</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> contentEquals(File file1, File file2) {
-<a class="jxr_linenumber" name="L10951" href="#L10951">10951</a>     <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10952" href="#L10952">10952</a>       <strong class="jxr_keyword">boolean</strong> file1Exists = file1.exists();
-<a class="jxr_linenumber" name="L10953" href="#L10953">10953</a>       <strong class="jxr_keyword">if</strong> (file1Exists != file2.exists()) {
-<a class="jxr_linenumber" name="L10954" href="#L10954">10954</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L10955" href="#L10955">10955</a>       }
-<a class="jxr_linenumber" name="L10956" href="#L10956">10956</a> 
-<a class="jxr_linenumber" name="L10957" href="#L10957">10957</a>       <strong class="jxr_keyword">if</strong> (!file1Exists) {
-<a class="jxr_linenumber" name="L10958" href="#L10958">10958</a>         <em class="jxr_comment">// two not existing files are equal</em>
-<a class="jxr_linenumber" name="L10959" href="#L10959">10959</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L10937" href="#L10937">10937</a> <em class="jxr_javadoccomment">   * list files recursively from parent, dont include </em>
+<a class="jxr_linenumber" name="L10938" href="#L10938">10938</a> <em class="jxr_javadoccomment">   * @param parent</em>
+<a class="jxr_linenumber" name="L10939" href="#L10939">10939</a> <em class="jxr_javadoccomment">   * @return set of files wont return null</em>
+<a class="jxr_linenumber" name="L10940" href="#L10940">10940</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10941" href="#L10941">10941</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;File&gt; fileListRecursive(File parent) {
+<a class="jxr_linenumber" name="L10942" href="#L10942">10942</a>     List&lt;File&gt; results = <strong class="jxr_keyword">new</strong> ArrayList&lt;File&gt;();
+<a class="jxr_linenumber" name="L10943" href="#L10943">10943</a>     fileListRecursiveHelper(parent, results);
+<a class="jxr_linenumber" name="L10944" href="#L10944">10944</a>     <strong class="jxr_keyword">return</strong> results;
+<a class="jxr_linenumber" name="L10945" href="#L10945">10945</a>   }
+<a class="jxr_linenumber" name="L10946" href="#L10946">10946</a> 
+<a class="jxr_linenumber" name="L10947" href="#L10947">10947</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10948" href="#L10948">10948</a> <em class="jxr_javadoccomment">   * helper to add child files to a parent (</em>
+<a class="jxr_linenumber" name="L10949" href="#L10949">10949</a> <em class="jxr_javadoccomment">   * @param parent</em>
+<a class="jxr_linenumber" name="L10950" href="#L10950">10950</a> <em class="jxr_javadoccomment">   * @param fileList</em>
+<a class="jxr_linenumber" name="L10951" href="#L10951">10951</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10952" href="#L10952">10952</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fileListRecursiveHelper(File parent, List&lt;File&gt; fileList) {
+<a class="jxr_linenumber" name="L10953" href="#L10953">10953</a>     <strong class="jxr_keyword">if</strong> (parent == <strong class="jxr_keyword">null</strong> || !parent.exists() || !parent.isDirectory()) {
+<a class="jxr_linenumber" name="L10954" href="#L10954">10954</a>       <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L10955" href="#L10955">10955</a>     }
+<a class="jxr_linenumber" name="L10956" href="#L10956">10956</a>     List&lt;File&gt; subFiles = nonNull(toList(parent.listFiles()));
+<a class="jxr_linenumber" name="L10957" href="#L10957">10957</a>     <strong class="jxr_keyword">for</strong> (File subFile : subFiles) {
+<a class="jxr_linenumber" name="L10958" href="#L10958">10958</a>       <strong class="jxr_keyword">if</strong> (subFile.isFile()) {
+<a class="jxr_linenumber" name="L10959" href="#L10959">10959</a>         fileList.add(subFile);
 <a class="jxr_linenumber" name="L10960" href="#L10960">10960</a>       }
-<a class="jxr_linenumber" name="L10961" href="#L10961">10961</a> 
-<a class="jxr_linenumber" name="L10962" href="#L10962">10962</a>       <strong class="jxr_keyword">if</strong> (file1.isDirectory() || file2.isDirectory()) {
-<a class="jxr_linenumber" name="L10963" href="#L10963">10963</a>         <em class="jxr_comment">// don't want to compare directory contents</em>
-<a class="jxr_linenumber" name="L10964" href="#L10964">10964</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Can't compare directories, only files: "</span> + file1.getAbsolutePath() + <span class="jxr_string">", "</span> + file2.getAbsolutePath());
-<a class="jxr_linenumber" name="L10965" href="#L10965">10965</a>       }
+<a class="jxr_linenumber" name="L10961" href="#L10961">10961</a>       <strong class="jxr_keyword">if</strong> (subFile.isDirectory()) {
+<a class="jxr_linenumber" name="L10962" href="#L10962">10962</a>         fileListRecursiveHelper(subFile, fileList);
+<a class="jxr_linenumber" name="L10963" href="#L10963">10963</a>       }
+<a class="jxr_linenumber" name="L10964" href="#L10964">10964</a>     }
+<a class="jxr_linenumber" name="L10965" href="#L10965">10965</a>   }
 <a class="jxr_linenumber" name="L10966" href="#L10966">10966</a> 
-<a class="jxr_linenumber" name="L10967" href="#L10967">10967</a>       <strong class="jxr_keyword">if</strong> (file1.length() != file2.length()) {
-<a class="jxr_linenumber" name="L10968" href="#L10968">10968</a>         <em class="jxr_comment">// lengths differ, cannot be equal</em>
-<a class="jxr_linenumber" name="L10969" href="#L10969">10969</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L10970" href="#L10970">10970</a>       }
-<a class="jxr_linenumber" name="L10971" href="#L10971">10971</a>   
-<a class="jxr_linenumber" name="L10972" href="#L10972">10972</a>       <strong class="jxr_keyword">if</strong> (file1.getCanonicalFile().equals(file2.getCanonicalFile())) {
-<a class="jxr_linenumber" name="L10973" href="#L10973">10973</a>         <em class="jxr_comment">// same file</em>
-<a class="jxr_linenumber" name="L10974" href="#L10974">10974</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L10975" href="#L10975">10975</a>       }
-<a class="jxr_linenumber" name="L10976" href="#L10976">10976</a>   
-<a class="jxr_linenumber" name="L10977" href="#L10977">10977</a>       InputStream input1 = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10978" href="#L10978">10978</a>       InputStream input2 = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L10979" href="#L10979">10979</a>       <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L10980" href="#L10980">10980</a>         input1 = <strong class="jxr_keyword">new</strong> FileInputStream(file1);
-<a class="jxr_linenumber" name="L10981" href="#L10981">10981</a>         input2 = <strong class="jxr_keyword">new</strong> FileInputStream(file2);
-<a class="jxr_linenumber" name="L10982" href="#L10982">10982</a>         <strong class="jxr_keyword">return</strong> contentEquals(input1, input2);
-<a class="jxr_linenumber" name="L10983" href="#L10983">10983</a>   
-<a class="jxr_linenumber" name="L10984" href="#L10984">10984</a>       } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L10985" href="#L10985">10985</a>         closeQuietly(input1);
-<a class="jxr_linenumber" name="L10986" href="#L10986">10986</a>         closeQuietly(input2);
-<a class="jxr_linenumber" name="L10987" href="#L10987">10987</a>       }
-<a class="jxr_linenumber" name="L10988" href="#L10988">10988</a>     } <strong class="jxr_keyword">catch</strong> (IOException ioe) {
-<a class="jxr_linenumber" name="L10989" href="#L10989">10989</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(ioe);
-<a class="jxr_linenumber" name="L10990" href="#L10990">10990</a>     }
-<a class="jxr_linenumber" name="L10991" href="#L10991">10991</a>   }
-<a class="jxr_linenumber" name="L10992" href="#L10992">10992</a> 
-<a class="jxr_linenumber" name="L10993" href="#L10993">10993</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L10994" href="#L10994">10994</a> <em class="jxr_javadoccomment">   * Compare the contents of two Streams to determine if they are equal or</em>
-<a class="jxr_linenumber" name="L10995" href="#L10995">10995</a> <em class="jxr_javadoccomment">   * not.</em>
-<a class="jxr_linenumber" name="L10996" href="#L10996">10996</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L10997" href="#L10997">10997</a> <em class="jxr_javadoccomment">   * This method buffers the input internally using</em>
-<a class="jxr_linenumber" name="L10998" href="#L10998">10998</a> <em class="jxr_javadoccomment">   * &lt;code&gt;BufferedInputStream&lt;/code&gt; if they are not already buffered.</em>
-<a class="jxr_linenumber" name="L10999" href="#L10999">10999</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L11000" href="#L11000">11000</a> <em class="jxr_javadoccomment">   * @param input1  the first stream</em>
-<a class="jxr_linenumber" name="L11001" href="#L11001">11001</a> <em class="jxr_javadoccomment">   * @param input2  the second stream</em>
-<a class="jxr_linenumber" name="L11002" href="#L11002">11002</a> <em class="jxr_javadoccomment">   * @return true if the content of the streams are equal or they both don't</em>
-<a class="jxr_linenumber" name="L11003" href="#L11003">11003</a> <em class="jxr_javadoccomment">   * exist, false otherwise</em>
-<a class="jxr_linenumber" name="L11004" href="#L11004">11004</a> <em class="jxr_javadoccomment">   * @throws NullPointerException if either input is null</em>
-<a class="jxr_linenumber" name="L11005" href="#L11005">11005</a> <em class="jxr_javadoccomment">   * @throws IOException if an I/O error occurs</em>
-<a class="jxr_linenumber" name="L11006" href="#L11006">11006</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L11007" href="#L11007">11007</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> contentEquals(InputStream input1, InputStream input2)
-<a class="jxr_linenumber" name="L11008" href="#L11008">11008</a>       <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L11009" href="#L11009">11009</a>     <strong class="jxr_keyword">if</strong> (!(input1 instanceof BufferedInputStream)) {
-<a class="jxr_linenumber" name="L11010" href="#L11010">11010</a>       input1 = <strong class="jxr_keyword">new</strong> BufferedInputStream(input1);
-<a class="jxr_linenumber" name="L11011" href="#L11011">11011</a>     }
-<a class="jxr_linenumber" name="L11012" href="#L11012">11012</a>     <strong class="jxr_keyword">if</strong> (!(input2 instanceof BufferedInputStream)) {
-<a class="jxr_linenumber" name="L11013" href="#L11013">11013</a>       input2 = <strong class="jxr_keyword">new</strong> BufferedInputStream(input2);
-<a class="jxr_linenumber" name="L11014" href="#L11014">11014</a>     }
-<a class="jxr_linenumber" name="L11015" href="#L11015">11015</a> 
-<a class="jxr_linenumber" name="L11016" href="#L11016">11016</a>     <strong class="jxr_keyword">int</strong> ch = input1.read();
-<a class="jxr_linenumber" name="L11017" href="#L11017">11017</a>     <strong class="jxr_keyword">while</strong> (-1 != ch) {
-<a class="jxr_linenumber" name="L11018" href="#L11018">11018</a>       <strong class="jxr_keyword">int</strong> ch2 = input2.read();
-<a class="jxr_linenumber" name="L11019" href="#L11019">11019</a>       <strong class="jxr_keyword">if</strong> (ch != ch2) {
-<a class="jxr_linenumber" name="L11020" href="#L11020">11020</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L10967" href="#L10967">10967</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10968" href="#L10968">10968</a> <em class="jxr_javadoccomment">   * @param path</em>
+<a class="jxr_linenumber" name="L10969" href="#L10969">10969</a> <em class="jxr_javadoccomment">   * @return the new path</em>
+<a class="jxr_linenumber" name="L10970" href="#L10970">10970</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10971" href="#L10971">10971</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String fileMassagePathsNoLeadingOrTrailing(String path) {
+<a class="jxr_linenumber" name="L10972" href="#L10972">10972</a>     path = path.replace(File.separatorChar == '/' ? '&#92;&#92;' : '/', File.separatorChar);
+<a class="jxr_linenumber" name="L10973" href="#L10973">10973</a>     <strong class="jxr_keyword">if</strong> (path.startsWith(File.separator)) {
+<a class="jxr_linenumber" name="L10974" href="#L10974">10974</a>       path = path.substring(1);
+<a class="jxr_linenumber" name="L10975" href="#L10975">10975</a>     }
+<a class="jxr_linenumber" name="L10976" href="#L10976">10976</a>     <strong class="jxr_keyword">if</strong> (path.endsWith(File.separator)) {
+<a class="jxr_linenumber" name="L10977" href="#L10977">10977</a>       path = path.substring(0, path.length()-1);
+<a class="jxr_linenumber" name="L10978" href="#L10978">10978</a>     }
+<a class="jxr_linenumber" name="L10979" href="#L10979">10979</a>     <strong class="jxr_keyword">return</strong> path;
+<a class="jxr_linenumber" name="L10980" href="#L10980">10980</a>   }
+<a class="jxr_linenumber" name="L10981" href="#L10981">10981</a>   
+<a class="jxr_linenumber" name="L10982" href="#L10982">10982</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L10983" href="#L10983">10983</a> <em class="jxr_javadoccomment">   * Compares the contents of two files to determine if they are equal or not.</em>
+<a class="jxr_linenumber" name="L10984" href="#L10984">10984</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L10985" href="#L10985">10985</a> <em class="jxr_javadoccomment">   * This method checks to see if the two files are different lengths</em>
+<a class="jxr_linenumber" name="L10986" href="#L10986">10986</a> <em class="jxr_javadoccomment">   * or if they point to the same file, before resorting to byte-by-byte</em>
+<a class="jxr_linenumber" name="L10987" href="#L10987">10987</a> <em class="jxr_javadoccomment">   * comparison of the contents.</em>
+<a class="jxr_linenumber" name="L10988" href="#L10988">10988</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L10989" href="#L10989">10989</a> <em class="jxr_javadoccomment">   * Code origin: Avalon</em>
+<a class="jxr_linenumber" name="L10990" href="#L10990">10990</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L10991" href="#L10991">10991</a> <em class="jxr_javadoccomment">   * @param file1  the first file</em>
+<a class="jxr_linenumber" name="L10992" href="#L10992">10992</a> <em class="jxr_javadoccomment">   * @param file2  the second file</em>
+<a class="jxr_linenumber" name="L10993" href="#L10993">10993</a> <em class="jxr_javadoccomment">   * @return true if the content of the files are equal or they both don't</em>
+<a class="jxr_linenumber" name="L10994" href="#L10994">10994</a> <em class="jxr_javadoccomment">   * exist, false otherwise</em>
+<a class="jxr_linenumber" name="L10995" href="#L10995">10995</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L10996" href="#L10996">10996</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> contentEquals(File file1, File file2) {
+<a class="jxr_linenumber" name="L10997" href="#L10997">10997</a>     <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L10998" href="#L10998">10998</a>       <strong class="jxr_keyword">boolean</strong> file1Exists = file1.exists();
+<a class="jxr_linenumber" name="L10999" href="#L10999">10999</a>       <strong class="jxr_keyword">if</strong> (file1Exists != file2.exists()) {
+<a class="jxr_linenumber" name="L11000" href="#L11000">11000</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L11001" href="#L11001">11001</a>       }
+<a class="jxr_linenumber" name="L11002" href="#L11002">11002</a> 
+<a class="jxr_linenumber" name="L11003" href="#L11003">11003</a>       <strong class="jxr_keyword">if</strong> (!file1Exists) {
+<a class="jxr_linenumber" name="L11004" href="#L11004">11004</a>         <em class="jxr_comment">// two not existing files are equal</em>
+<a class="jxr_linenumber" name="L11005" href="#L11005">11005</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L11006" href="#L11006">11006</a>       }
+<a class="jxr_linenumber" name="L11007" href="#L11007">11007</a> 
+<a class="jxr_linenumber" name="L11008" href="#L11008">11008</a>       <strong class="jxr_keyword">if</strong> (file1.isDirectory() || file2.isDirectory()) {
+<a class="jxr_linenumber" name="L11009" href="#L11009">11009</a>         <em class="jxr_comment">// don't want to compare directory contents</em>
+<a class="jxr_linenumber" name="L11010" href="#L11010">11010</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Can't compare directories, only files: "</span> + file1.getAbsolutePath() + <span class="jxr_string">", "</span> + file2.getAbsolutePath());
+<a class="jxr_linenumber" name="L11011" href="#L11011">11011</a>       }
+<a class="jxr_linenumber" name="L11012" href="#L11012">11012</a> 
+<a class="jxr_linenumber" name="L11013" href="#L11013">11013</a>       <strong class="jxr_keyword">if</strong> (file1.length() != file2.length()) {
+<a class="jxr_linenumber" name="L11014" href="#L11014">11014</a>         <em class="jxr_comment">// lengths differ, cannot be equal</em>
+<a class="jxr_linenumber" name="L11015" href="#L11015">11015</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L11016" href="#L11016">11016</a>       }
+<a class="jxr_linenumber" name="L11017" href="#L11017">11017</a>   
+<a class="jxr_linenumber" name="L11018" href="#L11018">11018</a>       <strong class="jxr_keyword">if</strong> (file1.getCanonicalFile().equals(file2.getCanonicalFile())) {
+<a class="jxr_linenumber" name="L11019" href="#L11019">11019</a>         <em class="jxr_comment">// same file</em>
+<a class="jxr_linenumber" name="L11020" href="#L11020">11020</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L11021" href="#L11021">11021</a>       }
-<a class="jxr_linenumber" name="L11022" href="#L11022">11022</a>       ch = input1.read();
-<a class="jxr_linenumber" name="L11023" href="#L11023">11023</a>     }
-<a class="jxr_linenumber" name="L11024" href="#L11024">11024</a> 
-<a class="jxr_linenumber" name="L11025" href="#L11025">11025</a>     <strong class="jxr_keyword">int</strong> ch2 = input2.read();
-<a class="jxr_linenumber" name="L11026" href="#L11026">11026</a>     <strong class="jxr_keyword">return</strong> (ch2 == -1);
-<a class="jxr_linenumber" name="L11027" href="#L11027">11027</a>   }
-<a class="jxr_linenumber" name="L11028" href="#L11028">11028</a> 
-<a class="jxr_linenumber" name="L11029" href="#L11029">11029</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L11030" href="#L11030">11030</a> <em class="jxr_javadoccomment">   * Compare the contents of two Readers to determine if they are equal or</em>
-<a class="jxr_linenumber" name="L11031" href="#L11031">11031</a> <em class="jxr_javadoccomment">   * not.</em>
-<a class="jxr_linenumber" name="L11032" href="#L11032">11032</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L11033" href="#L11033">11033</a> <em class="jxr_javadoccomment">   * This method buffers the input internally using</em>
-<a class="jxr_linenumber" name="L11034" href="#L11034">11034</a> <em class="jxr_javadoccomment">   * &lt;code&gt;BufferedReader&lt;/code&gt; if they are not already buffered.</em>
-<a class="jxr_linenumber" name="L11035" href="#L11035">11035</a> <em class="jxr_javadoccomment">   *</em>
-<a class="jxr_linenumber" name="L11036" href="#L11036">11036</a> <em class="jxr_javadoccomment">   * @param input1  the first reader</em>
-<a class="jxr_linenumber" name="L11037" href="#L11037">11037</a> <em class="jxr_javadoccomment">   * @param input2  the second reader</em>
-<a class="jxr_linenumber" name="L11038" href="#L11038">11038</a> <em class="jxr_javadoccomment">   * @return true if the content of the readers are equal or they both don't</em>
-<a class="jxr_linenumber" name="L11039" href="#L11039">11039</a> <em class="jxr_javadoccomment">   * exist, false otherwise</em>
-<a class="jxr_linenumber" name="L11040" href="#L11040">11040</a> <em class="jxr_javadoccomment">   * @throws NullPointerException if either input is null</em>
-<a class="jxr_linenumber" name="L11041" href="#L11041">11041</a> <em class="jxr_javadoccomment">   * @throws IOException if an I/O error occurs</em>
-<a class="jxr_linenumber" name="L11042" href="#L11042">11042</a> <em class="jxr_javadoccomment">   * @since Commons IO 1.1</em>
-<a class="jxr_linenumber" name="L11043" href="#L11043">11043</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L11044" href="#L11044">11044</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> contentEquals(Reader input1, Reader input2)
-<a class="jxr_linenumber" name="L11045" href="#L11045">11045</a>       <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L11046" href="#L11046">11046</a>     <strong class="jxr_keyword">if</strong> (!(input1 instanceof BufferedReader)) {
-<a class="jxr_linenumber" name="L11047" href="#L11047">11047</a>       input1 = <strong class="jxr_keyword">new</strong> BufferedReader(input1);
-<a class="jxr_linenumber" name="L11048" href="#L11048">11048</a>     }
-<a class="jxr_linenumber" name="L11049" href="#L11049">11049</a>     <strong class="jxr_keyword">if</strong> (!(input2 instanceof BufferedReader)) {
-<a class="jxr_linenumber" name="L11050" href="#L11050">11050</a>       input2 = <strong class="jxr_keyword">new</strong> BufferedReader(input2);
-<a class="jxr_linenumber" name="L11051" href="#L11051">11051</a>     }
-<a class="jxr_linenumber" name="L11052" href="#L11052">11052</a> 
-<a class="jxr_linenumber" name="L11053" href="#L11053">11053</a>     <strong class="jxr_keyword">int</strong> ch = input1.read();
-<a class="jxr_linenumber" name="L11054" href="#L11054">11054</a>     <strong class="jxr_keyword">while</strong> (-1 != ch) {
-<a class="jxr_linenumber" name="L11055" href="#L11055">11055</a>       <strong class="jxr_keyword">int</strong> ch2 = input2.read();
-<a class="jxr_linenumber" name="L11056" href="#L11056">11056</a>       <strong class="jxr_keyword">if</strong> (ch != ch2) {
-<a class="jxr_linenumber" name="L11057" href="#L11057">11057</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L11058" href="#L11058">11058</a>       }
-<a class="jxr_linenumber" name="L11059" href="#L11059">11059</a>       ch = input1.read();
+<a class="jxr_linenumber" name="L11022" href="#L11022">11022</a>   
+<a class="jxr_linenumber" name="L11023" href="#L11023">11023</a>       InputStream input1 = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L11024" href="#L11024">11024</a>       InputStream input2 = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L11025" href="#L11025">11025</a>       <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L11026" href="#L11026">11026</a>         input1 = <strong class="jxr_keyword">new</strong> FileInputStream(file1);
+<a class="jxr_linenumber" name="L11027" href="#L11027">11027</a>         input2 = <strong class="jxr_keyword">new</strong> FileInputStream(file2);
+<a class="jxr_linenumber" name="L11028" href="#L11028">11028</a>         <strong class="jxr_keyword">return</strong> contentEquals(input1, input2);
+<a class="jxr_linenumber" name="L11029" href="#L11029">11029</a>   
+<a class="jxr_linenumber" name="L11030" href="#L11030">11030</a>       } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L11031" href="#L11031">11031</a>         closeQuietly(input1);
+<a class="jxr_linenumber" name="L11032" href="#L11032">11032</a>         closeQuietly(input2);
+<a class="jxr_linenumber" name="L11033" href="#L11033">11033</a>       }
+<a class="jxr_linenumber" name="L11034" href="#L11034">11034</a>     } <strong class="jxr_keyword">catch</strong> (IOException ioe) {
+<a class="jxr_linenumber" name="L11035" href="#L11035">11035</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(ioe);
+<a class="jxr_linenumber" name="L11036" href="#L11036">11036</a>     }
+<a class="jxr_linenumber" name="L11037" href="#L11037">11037</a>   }
+<a class="jxr_linenumber" name="L11038" href="#L11038">11038</a> 
+<a class="jxr_linenumber" name="L11039" href="#L11039">11039</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L11040" href="#L11040">11040</a> <em class="jxr_javadoccomment">   * Compare the contents of two Streams to determine if they are equal or</em>
+<a class="jxr_linenumber" name="L11041" href="#L11041">11041</a> <em class="jxr_javadoccomment">   * not.</em>
+<a class="jxr_linenumber" name="L11042" href="#L11042">11042</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L11043" href="#L11043">11043</a> <em class="jxr_javadoccomment">   * This method buffers the input internally using</em>
+<a class="jxr_linenumber" name="L11044" href="#L11044">11044</a> <em class="jxr_javadoccomment">   * &lt;code&gt;BufferedInputStream&lt;/code&gt; if they are not already buffered.</em>
+<a class="jxr_linenumber" name="L11045" href="#L11045">11045</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L11046" href="#L11046">11046</a> <em class="jxr_javadoccomment">   * @param input1  the first stream</em>
+<a class="jxr_linenumber" name="L11047" href="#L11047">11047</a> <em class="jxr_javadoccomment">   * @param input2  the second stream</em>
+<a class="jxr_linenumber" name="L11048" href="#L11048">11048</a> <em class="jxr_javadoccomment">   * @return true if the content of the streams are equal or they both don't</em>
+<a class="jxr_linenumber" name="L11049" href="#L11049">11049</a> <em class="jxr_javadoccomment">   * exist, false otherwise</em>
+<a class="jxr_linenumber" name="L11050" href="#L11050">11050</a> <em class="jxr_javadoccomment">   * @throws NullPointerException if either input is null</em>
+<a class="jxr_linenumber" name="L11051" href="#L11051">11051</a> <em class="jxr_javadoccomment">   * @throws IOException if an I/O error occurs</em>
+<a class="jxr_linenumber" name="L11052" href="#L11052">11052</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L11053" href="#L11053">11053</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> contentEquals(InputStream input1, InputStream input2)
+<a class="jxr_linenumber" name="L11054" href="#L11054">11054</a>       <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L11055" href="#L11055">11055</a>     <strong class="jxr_keyword">if</strong> (!(input1 instanceof BufferedInputStream)) {
+<a class="jxr_linenumber" name="L11056" href="#L11056">11056</a>       input1 = <strong class="jxr_keyword">new</strong> BufferedInputStream(input1);
+<a class="jxr_linenumber" name="L11057" href="#L11057">11057</a>     }
+<a class="jxr_linenumber" name="L11058" href="#L11058">11058</a>     <strong class="jxr_keyword">if</strong> (!(input2 instanceof BufferedInputStream)) {
+<a class="jxr_linenumber" name="L11059" href="#L11059">11059</a>       input2 = <strong class="jxr_keyword">new</strong> BufferedInputStream(input2);
 <a class="jxr_linenumber" name="L11060" href="#L11060">11060</a>     }
 <a class="jxr_linenumber" name="L11061" href="#L11061">11061</a> 
-<a class="jxr_linenumber" name="L11062" href="#L11062">11062</a>     <strong class="jxr_keyword">int</strong> ch2 = input2.read();
-<a class="jxr_linenumber" name="L11063" href="#L11063">11063</a>     <strong class="jxr_keyword">return</strong> (ch2 == -1);
-<a class="jxr_linenumber" name="L11064" href="#L11064">11064</a>   }
-<a class="jxr_linenumber" name="L11065" href="#L11065">11065</a> 
-<a class="jxr_linenumber" name="L11066" href="#L11066">11066</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L11067" href="#L11067">11067</a> <em class="jxr_javadoccomment">   * get the relative paths of descendant files</em>
-<a class="jxr_linenumber" name="L11068" href="#L11068">11068</a> <em class="jxr_javadoccomment">   * @param parentDir</em>
-<a class="jxr_linenumber" name="L11069" href="#L11069">11069</a> <em class="jxr_javadoccomment">   * @return the relative paths of files underneath, dont start with slash</em>
-<a class="jxr_linenumber" name="L11070" href="#L11070">11070</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L11071" href="#L11071">11071</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; fileDescendantRelativePaths(File parentDir) {
-<a class="jxr_linenumber" name="L11072" href="#L11072">11072</a>     Set&lt;String&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
-<a class="jxr_linenumber" name="L11073" href="#L11073">11073</a>     List&lt;File&gt; descendants = fileListRecursive(parentDir);
-<a class="jxr_linenumber" name="L11074" href="#L11074">11074</a>     <strong class="jxr_keyword">for</strong> (File file : GrouperInstallerUtils.nonNull(descendants)) {
-<a class="jxr_linenumber" name="L11075" href="#L11075">11075</a>       String descendantPath = file.getAbsolutePath();
-<a class="jxr_linenumber" name="L11076" href="#L11076">11076</a>       String parentPath = parentDir.getAbsolutePath();
-<a class="jxr_linenumber" name="L11077" href="#L11077">11077</a>       <strong class="jxr_keyword">if</strong> (!descendantPath.startsWith(parentPath)) {
-<a class="jxr_linenumber" name="L11078" href="#L11078">11078</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why doesnt descendantPath '"</span> + descendantPath + <span class="jxr_string">"' start with parent path '"</span> + parentPath + <span class="jxr_string">"'?"</span>);
-<a class="jxr_linenumber" name="L11079" href="#L11079">11079</a>       }
-<a class="jxr_linenumber" name="L11080" href="#L11080">11080</a>       descendantPath = descendantPath.substring(parentPath.length());
-<a class="jxr_linenumber" name="L11081" href="#L11081">11081</a>       <strong class="jxr_keyword">if</strong> (descendantPath.startsWith(<span class="jxr_string">"/"</span>) || descendantPath.startsWith(<span class="jxr_string">"&#92;&#92;"</span>)) {
-<a class="jxr_linenumber" name="L11082" href="#L11082">11082</a>         descendantPath = descendantPath.substring(1);
-<a class="jxr_linenumber" name="L11083" href="#L11083">11083</a>       }
-<a class="jxr_linenumber" name="L11084" href="#L11084">11084</a>       result.add(descendantPath);
-<a class="jxr_linenumber" name="L11085" href="#L11085">11085</a>     }
-<a class="jxr_linenumber" name="L11086" href="#L11086">11086</a>     <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L11087" href="#L11087">11087</a>   }
-<a class="jxr_linenumber" name="L11088" href="#L11088">11088</a> 
-<a class="jxr_linenumber" name="L11089" href="#L11089">11089</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L11090" href="#L11090">11090</a> <em class="jxr_javadoccomment">   * get the relative path of descendant file</em>
-<a class="jxr_linenumber" name="L11091" href="#L11091">11091</a> <em class="jxr_javadoccomment">   * @param parentDir</em>
-<a class="jxr_linenumber" name="L11092" href="#L11092">11092</a> <em class="jxr_javadoccomment">   * @param file</em>
-<a class="jxr_linenumber" name="L11093" href="#L11093">11093</a> <em class="jxr_javadoccomment">   * @return the relative path of file underneath, dont start with slash</em>
-<a class="jxr_linenumber" name="L11094" href="#L11094">11094</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L11095" href="#L11095">11095</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String fileRelativePath(File parentDir, File file) {
-<a class="jxr_linenumber" name="L11096" href="#L11096">11096</a>     
-<a class="jxr_linenumber" name="L11097" href="#L11097">11097</a>     String descendantPath = file.getAbsolutePath();
-<a class="jxr_linenumber" name="L11098" href="#L11098">11098</a>     String parentPath = parentDir.getAbsolutePath();
-<a class="jxr_linenumber" name="L11099" href="#L11099">11099</a>     <strong class="jxr_keyword">if</strong> (!descendantPath.startsWith(parentPath)) {
-<a class="jxr_linenumber" name="L11100" href="#L11100">11100</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why doesnt descendantPath '"</span> + descendantPath + <span class="jxr_string">"' start with parent path '"</span> + parentPath + <span class="jxr_string">"'?"</span>);
-<a class="jxr_linenumber" name="L11101" href="#L11101">11101</a>     }
-<a class="jxr_linenumber" name="L11102" href="#L11102">11102</a>     descendantPath = descendantPath.substring(parentPath.length());
-<a class="jxr_linenumber" name="L11103" href="#L11103">11103</a>     <strong class="jxr_keyword">if</strong> (descendantPath.startsWith(<span class="jxr_string">"/"</span>) || descendantPath.startsWith(<span class="jxr_string">"&#92;&#92;"</span>)) {
-<a class="jxr_linenumber" name="L11104" href="#L11104">11104</a>       descendantPath = descendantPath.substring(1);
-<a class="jxr_linenumber" name="L11105" href="#L11105">11105</a>     }
-<a class="jxr_linenumber" name="L11106" href="#L11106">11106</a>     <strong class="jxr_keyword">return</strong> descendantPath;
-<a class="jxr_linenumber" name="L11107" href="#L11107">11107</a>   }
-<a class="jxr_linenumber" name="L11108" href="#L11108">11108</a> 
-<a class="jxr_linenumber" name="L11109" href="#L11109">11109</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L11110" href="#L11110">11110</a> <em class="jxr_javadoccomment">   * </em>
-<a class="jxr_linenumber" name="L11111" href="#L11111">11111</a> <em class="jxr_javadoccomment">   * @param bigPath</em>
-<a class="jxr_linenumber" name="L11112" href="#L11112">11112</a> <em class="jxr_javadoccomment">   * @param prefixPath</em>
-<a class="jxr_linenumber" name="L11113" href="#L11113">11113</a> <em class="jxr_javadoccomment">   * @return true if starts with</em>
-<a class="jxr_linenumber" name="L11114" href="#L11114">11114</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L11115" href="#L11115">11115</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> filePathStartsWith(String bigPath, String prefixPath) {
-<a class="jxr_linenumber" name="L11116" href="#L11116">11116</a>   
-<a class="jxr_linenumber" name="L11117" href="#L11117">11117</a>     bigPath = replace(bigPath, <span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;"</span>);
-<a class="jxr_linenumber" name="L11118" href="#L11118">11118</a>     bigPath = replace(bigPath, <span class="jxr_string">"&#92;&#92;"</span>, <span class="jxr_string">"/"</span>);
-<a class="jxr_linenumber" name="L11119" href="#L11119">11119</a>   
-<a class="jxr_linenumber" name="L11120" href="#L11120">11120</a>     prefixPath = replace(prefixPath, <span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;"</span>);
-<a class="jxr_linenumber" name="L11121" href="#L11121">11121</a>     prefixPath = replace(prefixPath, <span class="jxr_string">"&#92;&#92;"</span>, <span class="jxr_string">"/"</span>);
-<a class="jxr_linenumber" name="L11122" href="#L11122">11122</a>   
-<a class="jxr_linenumber" name="L11123" href="#L11123">11123</a>     <strong class="jxr_keyword">return</strong> bigPath.startsWith(prefixPath);
-<a class="jxr_linenumber" name="L11124" href="#L11124">11124</a>   
-<a class="jxr_linenumber" name="L11125" href="#L11125">11125</a>   }
-<a class="jxr_linenumber" name="L11126" href="#L11126">11126</a> 
-<a class="jxr_linenumber" name="L11127" href="#L11127">11127</a> }
+<a class="jxr_linenumber" name="L11062" href="#L11062">11062</a>     <strong class="jxr_keyword">int</strong> ch = input1.read();
+<a class="jxr_linenumber" name="L11063" href="#L11063">11063</a>     <strong class="jxr_keyword">while</strong> (-1 != ch) {
+<a class="jxr_linenumber" name="L11064" href="#L11064">11064</a>       <strong class="jxr_keyword">int</strong> ch2 = input2.read();
+<a class="jxr_linenumber" name="L11065" href="#L11065">11065</a>       <strong class="jxr_keyword">if</strong> (ch != ch2) {
+<a class="jxr_linenumber" name="L11066" href="#L11066">11066</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L11067" href="#L11067">11067</a>       }
+<a class="jxr_linenumber" name="L11068" href="#L11068">11068</a>       ch = input1.read();
+<a class="jxr_linenumber" name="L11069" href="#L11069">11069</a>     }
+<a class="jxr_linenumber" name="L11070" href="#L11070">11070</a> 
+<a class="jxr_linenumber" name="L11071" href="#L11071">11071</a>     <strong class="jxr_keyword">int</strong> ch2 = input2.read();
+<a class="jxr_linenumber" name="L11072" href="#L11072">11072</a>     <strong class="jxr_keyword">return</strong> (ch2 == -1);
+<a class="jxr_linenumber" name="L11073" href="#L11073">11073</a>   }
+<a class="jxr_linenumber" name="L11074" href="#L11074">11074</a> 
+<a class="jxr_linenumber" name="L11075" href="#L11075">11075</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L11076" href="#L11076">11076</a> <em class="jxr_javadoccomment">   * Compare the contents of two Readers to determine if they are equal or</em>
+<a class="jxr_linenumber" name="L11077" href="#L11077">11077</a> <em class="jxr_javadoccomment">   * not.</em>
+<a class="jxr_linenumber" name="L11078" href="#L11078">11078</a> <em class="jxr_javadoccomment">   * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L11079" href="#L11079">11079</a> <em class="jxr_javadoccomment">   * This method buffers the input internally using</em>
+<a class="jxr_linenumber" name="L11080" href="#L11080">11080</a> <em class="jxr_javadoccomment">   * &lt;code&gt;BufferedReader&lt;/code&gt; if they are not already buffered.</em>
+<a class="jxr_linenumber" name="L11081" href="#L11081">11081</a> <em class="jxr_javadoccomment">   *</em>
+<a class="jxr_linenumber" name="L11082" href="#L11082">11082</a> <em class="jxr_javadoccomment">   * @param input1  the first reader</em>
+<a class="jxr_linenumber" name="L11083" href="#L11083">11083</a> <em class="jxr_javadoccomment">   * @param input2  the second reader</em>
+<a class="jxr_linenumber" name="L11084" href="#L11084">11084</a> <em class="jxr_javadoccomment">   * @return true if the content of the readers are equal or they both don't</em>
+<a class="jxr_linenumber" name="L11085" href="#L11085">11085</a> <em class="jxr_javadoccomment">   * exist, false otherwise</em>
+<a class="jxr_linenumber" name="L11086" href="#L11086">11086</a> <em class="jxr_javadoccomment">   * @throws NullPointerException if either input is null</em>
+<a class="jxr_linenumber" name="L11087" href="#L11087">11087</a> <em class="jxr_javadoccomment">   * @throws IOException if an I/O error occurs</em>
+<a class="jxr_linenumber" name="L11088" href="#L11088">11088</a> <em class="jxr_javadoccomment">   * @since Commons IO 1.1</em>
+<a class="jxr_linenumber" name="L11089" href="#L11089">11089</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L11090" href="#L11090">11090</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> contentEquals(Reader input1, Reader input2)
+<a class="jxr_linenumber" name="L11091" href="#L11091">11091</a>       <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L11092" href="#L11092">11092</a>     <strong class="jxr_keyword">if</strong> (!(input1 instanceof BufferedReader)) {
+<a class="jxr_linenumber" name="L11093" href="#L11093">11093</a>       input1 = <strong class="jxr_keyword">new</strong> BufferedReader(input1);
+<a class="jxr_linenumber" name="L11094" href="#L11094">11094</a>     }
+<a class="jxr_linenumber" name="L11095" href="#L11095">11095</a>     <strong class="jxr_keyword">if</strong> (!(input2 instanceof BufferedReader)) {
+<a class="jxr_linenumber" name="L11096" href="#L11096">11096</a>       input2 = <strong class="jxr_keyword">new</strong> BufferedReader(input2);
+<a class="jxr_linenumber" name="L11097" href="#L11097">11097</a>     }
+<a class="jxr_linenumber" name="L11098" href="#L11098">11098</a> 
+<a class="jxr_linenumber" name="L11099" href="#L11099">11099</a>     <strong class="jxr_keyword">int</strong> ch = input1.read();
+<a class="jxr_linenumber" name="L11100" href="#L11100">11100</a>     <strong class="jxr_keyword">while</strong> (-1 != ch) {
+<a class="jxr_linenumber" name="L11101" href="#L11101">11101</a>       <strong class="jxr_keyword">int</strong> ch2 = input2.read();
+<a class="jxr_linenumber" name="L11102" href="#L11102">11102</a>       <strong class="jxr_keyword">if</strong> (ch != ch2) {
+<a class="jxr_linenumber" name="L11103" href="#L11103">11103</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L11104" href="#L11104">11104</a>       }
+<a class="jxr_linenumber" name="L11105" href="#L11105">11105</a>       ch = input1.read();
+<a class="jxr_linenumber" name="L11106" href="#L11106">11106</a>     }
+<a class="jxr_linenumber" name="L11107" href="#L11107">11107</a> 
+<a class="jxr_linenumber" name="L11108" href="#L11108">11108</a>     <strong class="jxr_keyword">int</strong> ch2 = input2.read();
+<a class="jxr_linenumber" name="L11109" href="#L11109">11109</a>     <strong class="jxr_keyword">return</strong> (ch2 == -1);
+<a class="jxr_linenumber" name="L11110" href="#L11110">11110</a>   }
+<a class="jxr_linenumber" name="L11111" href="#L11111">11111</a> 
+<a class="jxr_linenumber" name="L11112" href="#L11112">11112</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L11113" href="#L11113">11113</a> <em class="jxr_javadoccomment">   * get the relative paths of descendant files</em>
+<a class="jxr_linenumber" name="L11114" href="#L11114">11114</a> <em class="jxr_javadoccomment">   * @param parentDir</em>
+<a class="jxr_linenumber" name="L11115" href="#L11115">11115</a> <em class="jxr_javadoccomment">   * @return the relative paths of files underneath, dont start with slash</em>
+<a class="jxr_linenumber" name="L11116" href="#L11116">11116</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L11117" href="#L11117">11117</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Set&lt;String&gt; fileDescendantRelativePaths(File parentDir) {
+<a class="jxr_linenumber" name="L11118" href="#L11118">11118</a>     Set&lt;String&gt; result = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;String&gt;();
+<a class="jxr_linenumber" name="L11119" href="#L11119">11119</a>     List&lt;File&gt; descendants = fileListRecursive(parentDir);
+<a class="jxr_linenumber" name="L11120" href="#L11120">11120</a>     <strong class="jxr_keyword">for</strong> (File file : GrouperInstallerUtils.nonNull(descendants)) {
+<a class="jxr_linenumber" name="L11121" href="#L11121">11121</a>       String descendantPath = file.getAbsolutePath();
+<a class="jxr_linenumber" name="L11122" href="#L11122">11122</a>       String parentPath = parentDir.getAbsolutePath();
+<a class="jxr_linenumber" name="L11123" href="#L11123">11123</a>       <strong class="jxr_keyword">if</strong> (!descendantPath.startsWith(parentPath)) {
+<a class="jxr_linenumber" name="L11124" href="#L11124">11124</a>         <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why doesnt descendantPath '"</span> + descendantPath + <span class="jxr_string">"' start with parent path '"</span> + parentPath + <span class="jxr_string">"'?"</span>);
+<a class="jxr_linenumber" name="L11125" href="#L11125">11125</a>       }
+<a class="jxr_linenumber" name="L11126" href="#L11126">11126</a>       descendantPath = descendantPath.substring(parentPath.length());
+<a class="jxr_linenumber" name="L11127" href="#L11127">11127</a>       <strong class="jxr_keyword">if</strong> (descendantPath.startsWith(<span class="jxr_string">"/"</span>) || descendantPath.startsWith(<span class="jxr_string">"&#92;&#92;"</span>)) {
+<a class="jxr_linenumber" name="L11128" href="#L11128">11128</a>         descendantPath = descendantPath.substring(1);
+<a class="jxr_linenumber" name="L11129" href="#L11129">11129</a>       }
+<a class="jxr_linenumber" name="L11130" href="#L11130">11130</a>       result.add(descendantPath);
+<a class="jxr_linenumber" name="L11131" href="#L11131">11131</a>     }
+<a class="jxr_linenumber" name="L11132" href="#L11132">11132</a>     <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L11133" href="#L11133">11133</a>   }
+<a class="jxr_linenumber" name="L11134" href="#L11134">11134</a> 
+<a class="jxr_linenumber" name="L11135" href="#L11135">11135</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L11136" href="#L11136">11136</a> <em class="jxr_javadoccomment">   * get the relative path of descendant file</em>
+<a class="jxr_linenumber" name="L11137" href="#L11137">11137</a> <em class="jxr_javadoccomment">   * @param parentDir</em>
+<a class="jxr_linenumber" name="L11138" href="#L11138">11138</a> <em class="jxr_javadoccomment">   * @param file</em>
+<a class="jxr_linenumber" name="L11139" href="#L11139">11139</a> <em class="jxr_javadoccomment">   * @return the relative path of file underneath, dont start with slash</em>
+<a class="jxr_linenumber" name="L11140" href="#L11140">11140</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L11141" href="#L11141">11141</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> String fileRelativePath(File parentDir, File file) {
+<a class="jxr_linenumber" name="L11142" href="#L11142">11142</a>     
+<a class="jxr_linenumber" name="L11143" href="#L11143">11143</a>     String descendantPath = file.getAbsolutePath();
+<a class="jxr_linenumber" name="L11144" href="#L11144">11144</a>     String parentPath = parentDir.getAbsolutePath();
+<a class="jxr_linenumber" name="L11145" href="#L11145">11145</a>     <strong class="jxr_keyword">if</strong> (!descendantPath.startsWith(parentPath)) {
+<a class="jxr_linenumber" name="L11146" href="#L11146">11146</a>       <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"Why doesnt descendantPath '"</span> + descendantPath + <span class="jxr_string">"' start with parent path '"</span> + parentPath + <span class="jxr_string">"'?"</span>);
+<a class="jxr_linenumber" name="L11147" href="#L11147">11147</a>     }
+<a class="jxr_linenumber" name="L11148" href="#L11148">11148</a>     descendantPath = descendantPath.substring(parentPath.length());
+<a class="jxr_linenumber" name="L11149" href="#L11149">11149</a>     <strong class="jxr_keyword">if</strong> (descendantPath.startsWith(<span class="jxr_string">"/"</span>) || descendantPath.startsWith(<span class="jxr_string">"&#92;&#92;"</span>)) {
+<a class="jxr_linenumber" name="L11150" href="#L11150">11150</a>       descendantPath = descendantPath.substring(1);
+<a class="jxr_linenumber" name="L11151" href="#L11151">11151</a>     }
+<a class="jxr_linenumber" name="L11152" href="#L11152">11152</a>     <strong class="jxr_keyword">return</strong> descendantPath;
+<a class="jxr_linenumber" name="L11153" href="#L11153">11153</a>   }
+<a class="jxr_linenumber" name="L11154" href="#L11154">11154</a> 
+<a class="jxr_linenumber" name="L11155" href="#L11155">11155</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L11156" href="#L11156">11156</a> <em class="jxr_javadoccomment">   * </em>
+<a class="jxr_linenumber" name="L11157" href="#L11157">11157</a> <em class="jxr_javadoccomment">   * @param bigPath</em>
+<a class="jxr_linenumber" name="L11158" href="#L11158">11158</a> <em class="jxr_javadoccomment">   * @param prefixPath</em>
+<a class="jxr_linenumber" name="L11159" href="#L11159">11159</a> <em class="jxr_javadoccomment">   * @return true if starts with</em>
+<a class="jxr_linenumber" name="L11160" href="#L11160">11160</a> <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="L11161" href="#L11161">11161</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> filePathStartsWith(String bigPath, String prefixPath) {
+<a class="jxr_linenumber" name="L11162" href="#L11162">11162</a>   
+<a class="jxr_linenumber" name="L11163" href="#L11163">11163</a>     bigPath = replace(bigPath, <span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;"</span>);
+<a class="jxr_linenumber" name="L11164" href="#L11164">11164</a>     bigPath = replace(bigPath, <span class="jxr_string">"&#92;&#92;"</span>, <span class="jxr_string">"/"</span>);
+<a class="jxr_linenumber" name="L11165" href="#L11165">11165</a>   
+<a class="jxr_linenumber" name="L11166" href="#L11166">11166</a>     prefixPath = replace(prefixPath, <span class="jxr_string">"&#92;&#92;&#92;&#92;"</span>, <span class="jxr_string">"&#92;&#92;"</span>);
+<a class="jxr_linenumber" name="L11167" href="#L11167">11167</a>     prefixPath = replace(prefixPath, <span class="jxr_string">"&#92;&#92;"</span>, <span class="jxr_string">"/"</span>);
+<a class="jxr_linenumber" name="L11168" href="#L11168">11168</a>   
+<a class="jxr_linenumber" name="L11169" href="#L11169">11169</a>     <strong class="jxr_keyword">return</strong> bigPath.startsWith(prefixPath);
+<a class="jxr_linenumber" name="L11170" href="#L11170">11170</a>   
+<a class="jxr_linenumber" name="L11171" href="#L11171">11171</a>   }
+<a class="jxr_linenumber" name="L11172" href="#L11172">11172</a> 
+<a class="jxr_linenumber" name="L11173" href="#L11173">11173</a> }
 </pre>
 <hr/>
 <div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>

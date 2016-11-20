@@ -3,4 +3,4 @@ fe00::0	ip6-localnet
 ff00::0	ip6-mcastprefix
 ff02::1	ip6-allnodes
 ff02::2	ip6-allrouters
-172.17.0.9	testing-docker-cb3624f6-d1f6-4187-8fd5-1ef398a0d14b
+172.17.0.3	testing-docker-e522704e-0065-444d-b30a-146bd7e8d08f
