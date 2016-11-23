@@ -504,6 +504,9 @@ public class GrouperUiUtils {
   /** map from source to subject screen EL */
   private static Map<String, String> subjectToScreenEl2 = null;
 
+  /** map from source to subject icon EL */
+  private static Map<String, String> subjectToIconEl2 = null;
+
   /** map from source to subject screen EL the long version */
   private static Map<String, String> subjectToScreenElLong = null;
 
@@ -1510,6 +1513,67 @@ public class GrouperUiUtils {
     variableMap.put("subject", subject);
     variableMap.put("grouperUiUtils", new GrouperUiUtils());
     String result = GrouperUtil.substituteExpressionLanguage(screenEl, variableMap, false, true, true);
+    return result;
+  }
+
+  /**
+   * get a v2 label from a subject based on grouper-ui.properties
+   * @param subject
+   * @return the subject html string
+   */
+  public static String convertSubjectToIconHtmlConfigured2(Subject subject) {
+    if (subject == null) {
+      return "";
+    }
+
+    if (subjectToIconEl2 == null) {
+      {
+        Map<String, String> theSubjectToIconEl = new HashMap<String, String>();
+
+        Properties propertiesSettings = GrouperUiConfig.retrieveConfig().properties();
+
+        String defaultIconEl = GrouperUtil.propertiesValue(propertiesSettings,
+                "grouperUi.screenSubjectIcon2.screenHtmlEl.default");
+
+        if (StringUtils.isBlank(defaultIconEl)) {
+          defaultIconEl = "${'<i class=\"fa fa-user\"></i> '}";  // fallback in case grouper-ui.base.properties wasn't upgraded
+        }
+
+        String defaultIconHtml = GrouperUtil.substituteExpressionLanguage(defaultIconEl, new HashMap<String, Object>(), false, true, true);
+        theSubjectToIconEl.put("", defaultIconHtml); // the default icon will be keyed under subject ID ""
+
+        int index = 0;
+        while (true) {
+
+          String sourceName = GrouperUtil.propertiesValue(propertiesSettings,
+                  "grouperUi.screenSubjectIcon2.sourceId." + index);
+          String screenEl = GrouperUtil.propertiesValue(propertiesSettings,
+                  "grouperUi.screenSubjectIcon2.screenHtmlEl." + index);
+
+          if (StringUtils.isBlank(sourceName)) {
+            break;
+          }
+          if (StringUtils.isBlank(screenEl)) {
+            theSubjectToIconEl.put(sourceName, defaultIconHtml);
+          } else {
+            theSubjectToIconEl.put(sourceName, screenEl);
+          }
+
+          index++;
+        }
+        subjectToIconEl2 = theSubjectToIconEl;
+      }
+    }
+    String iconEl = subjectToIconEl2.get(subject.getSource().getId());
+
+    if (StringUtils.isBlank(iconEl)) {
+      return subjectToIconEl2.get(""); //default icon
+    }
+    //run the screen EL
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", subject);
+    variableMap.put("grouperUiUtils", new GrouperUiUtils());
+    String result = GrouperUtil.substituteExpressionLanguage(iconEl, variableMap, false, true, true);
     return result;
   }
 
