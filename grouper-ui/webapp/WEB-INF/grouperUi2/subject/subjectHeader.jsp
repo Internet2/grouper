@@ -8,7 +8,9 @@
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
                   <div class="span9">
-                    <h1><i class="fa fa-user"></i> ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}</h1>
+                    <h1>
+                      ${grouperRequestContainer.subjectContainer.guiSubject.screenSubjectIcon2Html}
+                      ${grouperRequestContainer.subjectContainer.guiSubject.screenLabelShort2noLink}</h1>
                     <div id="group-search" tabindex="-1" role="dialog" aria-labelledby="group-search-label" aria-hidden="true" class="modal hide fade">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
                         <h3 id="group-search-label">${textContainer.text['subjectSearchForGroupButton']}</h3>
