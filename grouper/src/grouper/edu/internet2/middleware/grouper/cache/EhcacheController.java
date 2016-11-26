@@ -262,12 +262,13 @@ public class EhcacheController implements CacheController {
 
               if (grouperCachePropertiesUrl != null && ehcacheUrl != null) {
                 if (ehcacheXmlEligible) {
-                  throw new RuntimeException("You have an ehache.xml and grouper.cache.properties on the classpath, "
-                    + "you must only have one or the other.  "
+                  LOG.error("ERROR: You have an ehache.xml and grouper.cache.properties on the classpath, "
+                    + "you should only have one or the other.  "
                     + "You should probably delete the ehcache.xml file.");
+                } else {
+                  LOG.error("ERROR: You have an ehache.xml on the classpath, "
+                      + "you should the ehcache.xml file.");
                 }
-                throw new RuntimeException("You have an ehache.xml on the classpath, "
-                    + "You must delete the ehcache.xml file and restart.");
               }
 
               boolean configured = false;
