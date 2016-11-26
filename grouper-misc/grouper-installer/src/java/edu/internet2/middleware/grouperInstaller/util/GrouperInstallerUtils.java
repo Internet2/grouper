@@ -10995,8 +10995,9 @@ public class GrouperInstallerUtils  {
    */
   public static boolean contentEquals(File file1, File file2) {
     try {
-      boolean file1Exists = file1.exists();
-      if (file1Exists != file2.exists()) {
+      boolean file1Exists = file1 != null && file1.exists();
+      boolean file2Exists = file2 != null && file2.exists();
+      if (file1Exists != file2Exists) {
         return false;
       }
 
