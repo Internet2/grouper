@@ -1849,13 +1849,15 @@ public class GrouperInstaller {
           continue;
         }
         
+        GrouperInstallerIndexFile indexFileToAddFromBranch = indexOfFiles.get(indexFileToAdd.getRelativePath());
+        
         //note the old file will be in the patch's new directory
         File oldFile = new File(currentPatchDir.getAbsolutePath() + File.separator 
             + "new" + File.separator + indexFileToAdd.getPatchFileType().getDirName()
             + File.separator + GrouperInstallerUtils.replace(indexFileToAdd.getRelativePath(), "/", File.separator));
         if (oldFile.exists() && oldFile.isFile()) {
 
-          if (GrouperInstallerUtils.contentEquals(indexFileToAdd.getFile(), oldFile)) {
+          if (indexFileToAddFromBranch != null && GrouperInstallerUtils.contentEquals(indexFileToAdd.getFile(), oldFile)) {
             System.out.println("New file is same as old file: " + indexFileToAdd.getFile().getAbsolutePath() + ", " 
                 + oldFile.getAbsolutePath());
             System.out.println("This file will not be included in patch");
@@ -1926,6 +1928,8 @@ public class GrouperInstaller {
         continue;
       }
 
+      GrouperInstallerIndexFile currentIndexFileFromBranch = indexOfFiles.get(currentIndexFile.getRelativePath());
+      
       //look for the old file
       GrouperInstallerIndexFile currentIndexFileFromTag = indexOfTagFiles.get(currentIndexFile.getPath());
       if (currentIndexFileFromTag == null) {
@@ -1935,7 +1939,7 @@ public class GrouperInstaller {
         if (currentIndexFileFromTag.isHasMultipleFilesByPath()) {
           throw new RuntimeException("Why multiple paths???? " + currentIndexFile + ", " + currentIndexFile.getPath());
         }
-        if (GrouperInstallerUtils.contentEquals(currentIndexFileFromTag.getFile(), currentIndexFile.getFile())) {
+        if (currentIndexFileFromBranch != null && GrouperInstallerUtils.contentEquals(currentIndexFileFromTag.getFile(), currentIndexFile.getFile())) {
           System.out.println("New file is same as old file: " + currentIndexFile.getFile().getAbsolutePath() + ", " 
               + currentIndexFileFromTag.getFile().getAbsolutePath());
           System.out.println("This file will not be included in patch");
