@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperCacheConfig;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -239,7 +240,13 @@ public class EhcacheController implements CacheController {
         if (this.mgr == null) {
 
           URL grouperCachePropertiesUrl = this.getClass().getResource("/grouper.cache.properties");
-          URL ehcacheUrl = this.getClass().getResource("/ehcache.xml");
+          URL ehcacheUrl = null;
+          boolean ehcacheXmlEligible = !GrouperVersion.valueOfIgnoreCase("2.3.1").greaterOrEqualToArg(GrouperVersion.currentVersion());
+          if (!ehcacheXmlEligible) {
+            ehcacheUrl = null;
+          } else {
+            ehcacheUrl = this.getClass().getResource("/ehcache.xml");
+          }
 
           //trying to avoid warning of using the same dir
           String tmpDir = GrouperUtil.tmpDir();
@@ -254,15 +261,19 @@ public class EhcacheController implements CacheController {
             synchronized(CacheManager.class) {
 
               if (grouperCachePropertiesUrl != null && ehcacheUrl != null) {
-                throw new RuntimeException("You have a grouper.ehache.xml and grouper.cache.properties on the classpath, "
+                if (ehcacheXmlEligible) {
+                  throw new RuntimeException("You have an ehache.xml and grouper.cache.properties on the classpath, "
                     + "you must only have one or the other.  "
-                    + "You should probably delete the grouper.ehcache.xml file.");
+                    + "You should probably delete the ehcache.xml file.");
+                }
+                throw new RuntimeException("You have an ehache.xml on the classpath, "
+                    + "You must delete the ehcache.xml file and restart.");
               }
 
               boolean configured = false;
               
               //if no grouper.cache.properties url, and an ehcache.xml, then use that
-              if (grouperCachePropertiesUrl == null && ehcacheUrl != null) {
+              if (ehcacheXmlEligible && grouperCachePropertiesUrl == null && ehcacheUrl != null) {
                 LOG.debug("Configuring ehcache with ehcache.xml");
                 //now it should be using a unique directory
                 this.mgr = new CacheManager(ehcacheUrl);
@@ -356,6 +367,7 @@ public class EhcacheController implements CacheController {
 
   /**
    * assign cache from properties
+   * @param grouperCacheConfig 
    * @param cacheConfiguration
    * @param propertyPrefix
    */
