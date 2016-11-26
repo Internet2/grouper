@@ -56,6 +56,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.ConsoleAppender;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -499,6 +500,7 @@ public class GrouperInstaller {
   /**
    * convert a name like: edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO
    * to: edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO
+   * @param ehcacheName 
    * @param usedKeys
    * @return the key
    */
@@ -515,7 +517,7 @@ public class GrouperInstaller {
       
       char curChar = ehcacheName.charAt(i);
       
-      if (Character.isAlphabetic(curChar) || Character.isDigit(curChar)) {
+      if (Character.isLetter(curChar) || Character.isDigit(curChar)) {
         result.append(curChar);
       } else {
         result.append("_");
@@ -1212,12 +1214,12 @@ public class GrouperInstaller {
   public static enum GrouperInstallerMainFunction {
     
     /** install grouper */
-    misc {
+    admin {
 
       @Override
       public void logic(GrouperInstaller grouperInstaller) {
         
-        grouperInstaller.mainMiscLogic();
+        grouperInstaller.mainAdminLogic();
 
       }
     },
@@ -1286,8 +1288,128 @@ public class GrouperInstaller {
   /**
    * 
    */
-  private void mainLogic() {
+  private void verifyJava() {
+    //check that java7+
+    String versionString = System.getProperty("java.version");
+    // 1.7.03
+    int dotPos = versionString.indexOf('.');
+    if (dotPos <= 0) {
+      throw new RuntimeException("Expecting something like 1.7.03 but was: '" + versionString + "'");
+    }
+    //get the second dot
+    dotPos = versionString.indexOf('.', dotPos+1);
+    if (dotPos <= 0) {
+      throw new RuntimeException("Expecting something like 1.7.03 but was: '" + versionString + "'");
+    }
+    versionString = versionString.substring(0, dotPos);
+    double versionDouble = GrouperInstallerUtils.doubleValue(versionString);
+    if (versionDouble < 1.7) {
+      System.out.println("ERROR: grouperInstaller requires to be invoked with at least Java 1.7, but was: " + versionString);
+      System.exit(1);
+    }
+    
+    //we need a JAVA_HOME of at least java7 too...
+    String javaHome = System.getenv("JAVA_HOME");
+    
+    boolean javaHomeError = false;
+    
+    if (GrouperInstallerUtils.isBlank(javaHome)) {
+      System.out.println("Non-fatal ERROR: you should have the environment variable JAVA_HOME set to a 1.7+ JDK (currently not set)");
+      System.out.println("Press <enter> to continue...");
+      readFromStdIn("grouperInstaller.autorun.javaInvalid");
+      javaHomeError = true;
+    }
 
+    String command = null;
+    
+    if (!javaHomeError) {
+      command = javaHome + File.separator + "bin" + File.separator + "java";
+      javaHomeError = verifyJavaOutput(command, "the environment variable JAVA_HOME", false, false);
+    }
+    
+    if (!javaHomeError) {
+      command = javaHome + File.separator + "bin" + File.separator + "javac";
+      javaHomeError = verifyJavaOutput(command, "the environment variable JAVA_HOME", true, false);
+    }
+
+    javaHomeError = false;
+    command = "java";
+    verifyJavaOutput(command, "java command in the PATH", false, true);
+
+    if (!javaHomeError) {
+      command = "javac";
+      verifyJavaOutput(command, "javac command in the PATH", true, true);
+    }
+  }
+
+  /**
+   * take a java command (e.g. java, or javac, or %JAVA_HOME%/bin/java and make sure version is valid
+   * @param what
+   * @param command
+   * @param fatal
+   * @return if error
+   */
+  private boolean verifyJavaOutput(String command, String what, boolean jdkTest, boolean fatal) {
+    List<String> commands = new ArrayList<String>();
+    
+    if (GrouperInstallerUtils.isWindows()) {
+      commands.add(command);
+    } else {
+      commands.add(command);
+    }
+    
+    commands.add("-version");
+      
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, null, null, true);
+    
+    //note this is printed view stderr not stdout
+    String output = commandResult.getErrorText();
+    
+    Pattern javaVersionPattern = Pattern.compile(".*?[^\\d]+(\\d+\\.\\d+).*", Pattern.DOTALL);
+    Matcher javaVersionMatcher = javaVersionPattern.matcher(output);
+    if (!javaVersionMatcher.matches()) {
+      output = commandResult.getOutputText();
+      javaVersionMatcher = javaVersionPattern.matcher(output);
+      
+      if (!javaVersionMatcher.matches()) {
+        if (jdkTest) {
+          System.out.println((fatal ? "" : "Non-fatal ") + "Error: can't find 'javac' command in " + what + ", Java needs to be a JDK not a JRE!");
+        }
+        System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
+            + " set to Java JDK (not JRE) 1.7+\n"
+            + "" + commandResult.getErrorText() + "\n" + commandResult.getOutputText());
+        if (!fatal) {
+          System.out.println("Press <enter> to continue...");
+          readFromStdIn("grouperInstaller.autorun.javaInvalid");
+          return true;
+        }
+        System.exit(1);
+      }
+    }
+    
+    String versionString = javaVersionMatcher.group(1);
+    
+    double versionDouble = GrouperInstallerUtils.doubleValue(versionString);
+    if (versionDouble < 1.7) {
+      System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: " + what + " requires to be invoked with Java 1.7+ JDK (not JRE), but was: " + versionString);
+      if (!fatal) {
+        System.out.println("Press <enter> to continue...");
+        readFromStdIn("grouperInstaller.autorun.javaInvalid");
+        return true;
+      }
+      System.exit(1);
+    }
+    return false;
+  }
+  
+  /**
+   * 
+   */
+  private void mainLogic() {
+    
+    this.verifyJava();
+    
     this.grouperInstallerMainFunction = this.grouperInstallerMainFunction();
     
     this.grouperInstallerMainFunction.logic(this);
@@ -2655,17 +2777,20 @@ public class GrouperInstaller {
   }
 
   /**
-   * misc
+   * admin
    */
-  private void mainMiscLogic() {
-    GrouperInstallerMiscAction grouperInstallerMiscAction = null;
+  private void mainAdminLogic() {
+    
+    this.version = GrouperInstallerUtils.propertiesValue("grouper.version", true);
+    
+    GrouperInstallerAdminAction grouperInstallerMiscAction = null;
     
     for (int i=0;i<10;i++) {
       //what do we want to do, install, revert, or get status?
-      System.out.print("What misc action do you want to do (convert)? : ");
-      String miscAction = readFromStdIn("grouperInstaller.autorun.miscAction");
+      System.out.print("What admin action do you want to do (manage, upgradeTask)? : ");
+      String adminAction = readFromStdIn("grouperInstaller.autorun.adminAction");
       try {
-        grouperInstallerMiscAction = GrouperInstallerMiscAction.valueOfIgnoreCase(miscAction, false, true);
+        grouperInstallerMiscAction = GrouperInstallerAdminAction.valueOfIgnoreCase(adminAction, false, true);
         if (grouperInstallerMiscAction != null) {
           break;
         }
@@ -2675,23 +2800,261 @@ public class GrouperInstaller {
     }
     
     switch(grouperInstallerMiscAction) {
-      case convert:
-        mainConvertLogic();
+      case manage:
+        mainManageLogic();
+        break;
+
+      case upgradeTask:
+        mainUpgradeTaskLogic();
         break;
     }
         
   }
 
   /**
-   * misc
+   * admin manage
    */
-  private void mainConvertLogic() {
+  private void mainManageLogic() {
+    
+    //####################################
+    //Find out what directory to install to.  This ends in a file separator
+    this.grouperInstallDirectoryString = grouperInstallDirectory();
+
+    GrouperInstallerManageAction grouperInstallerManageAction = null;
+
+    while (true) {
+      for (int i=0;i<10;i++) {
+        System.out.print("What do you want to manage (logs, services, back, exit)? : ");
+        String manageAction = readFromStdIn("grouperInstaller.autorun.manageAction");
+        try {
+          grouperInstallerManageAction = GrouperInstallerManageAction.valueOfIgnoreCase(manageAction, false, true);
+          if (grouperInstallerManageAction != null) {
+            break;
+          }
+        } catch (Exception e) {
+          //ignore, let user try again
+        }
+      }
+      switch(grouperInstallerManageAction) {
+        case logs:
+      
+          //see what we are upgrading: api, ui, ws, client
+          this.appToUpgrade = grouperAppToUpgradeOrPatch("look at logs for");
+
+          System.out.println("Find where the application is running, then find the log4j.properties in the classpath.");
+          
+          switch (this.appToUpgrade) {
+            case PSP:
+            case PSPNG:
+              System.out.println("This runs in the API, so logging for the API will be examined.");
+              //pass through to API
+            case API:
+              System.out.println("The API (generally invoked via GSH) logs to where the log4.properties specifies.");
+              File log4jPropertiesFile = new File(this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator 
+                  + "conf" + File.separator + "log4j.properties");
+              File logFile = new File(this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator 
+                  + "logs" + File.separator + "grouper_error.log");
+              
+              System.out.println("By default the installer configures the log file to be: " + logFile.getAbsolutePath());
+              
+              String grouperHomeWithSlash = this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator;
+              
+              analyzeLogFile(log4jPropertiesFile, grouperHomeWithSlash, null, null);
+              break;
+            case CLIENT:
+              System.out.println("The client generally logs to STDOUT.  Check the grouper.client.properties or if there is a log4j.properties in the clients classpath.");
+              break;
+            case WS:
+            case UI:
+              File catalinaLogFile = new File(this.grouperInstallDirectoryString + File.separator 
+                  + "apache-tomcat-6.0.35" + File.separator + "logs");
+              System.out.println("Tomcat logs STDOUT and STDERR to the catalinaErr.log "
+                  + "and catalinaOut.log logfiles, which should be here: " + catalinaLogFile.getAbsolutePath());
+              if (!catalinaLogFile.exists()) {
+                System.out.println("Warning: that directory does not exist, so you will need to locate the logs directory for tomcat.");
+              }
+              System.out.println("Locate the " + grouperInstallerManageAction + " application files.");
+              System.out.println("By default the installer has the " + this.appToUpgrade + " running based on the tomcat server.xml, "
+                  + "but could also run in the webapps dir.");
+              
+              File serverXmlFile = new File(this.grouperInstallDirectoryString + File.separator 
+                  + "apache-tomcat-6.0.35" + File.separator + "conf" + File.separator + "server.xml");
+              
+              if (!serverXmlFile.exists()) {
+                System.out.println("server.xml not found: " + serverXmlFile.getAbsolutePath());
+              } else {
+                //<Context docBase="/Users/mchyzer/tmp/grouperInstaller/grouper.ws-2.3.0/grouper-ws/build/dist/grouper-ws" path="/grouper-ws" reloadable="false"/>
+                //<Context docBase="/Users/mchyzer/tmp/grouperInstaller/grouper.ui-2.3.0/dist/grouper" path="/grouper" reloadable="false"/>
+
+                System.out.println("The server.xml is located: " + serverXmlFile.getAbsolutePath());
+
+                String tomcatPath = this.appToUpgrade == AppToUpgrade.UI ? "grouper" : "grouper-ws";
+
+                System.out.print("What is the URL starting path? [" + tomcatPath + "]: ");
+                String newTomcatPath = readFromStdIn(this.appToUpgrade == AppToUpgrade.UI ? "grouperInstaller.autorun.urlPathForUi" : "grouperInstaller.autorun.urlPathForWs");
+                
+                if (!GrouperInstallerUtils.isBlank(newTomcatPath)) {
+                  tomcatPath = newTomcatPath;
+                }
+
+                if (tomcatPath.endsWith("/") || tomcatPath.endsWith("\\")) {
+                  tomcatPath = tomcatPath.substring(0, tomcatPath.length()-1);
+                }
+                if (tomcatPath.startsWith("/") || tomcatPath.startsWith("\\")) {
+                  tomcatPath = tomcatPath.substring(1, tomcatPath.length());
+                }                  
+                String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+                    "Server/Service/Engine/Host/Context[@path='/" + tomcatPath + "']", "docBase");
+
+                if (this.appToUpgrade == AppToUpgrade.UI) {
+                  //<Context docBase="/Users/mchyzer/tmp/grouperInstaller/grouper.ui-2.3.0/dist/grouper" path="/grouper" reloadable="false"/>
+                  System.out.println("Looking for an entry in the server.xml that looks like this:");
+                  System.out.println("  <Context docBase=\""
+                      + GrouperInstallerUtils.defaultIfBlank(currentDocBase, this.grouperInstallDirectoryString 
+                          + "grouper.ui-" + this.version + File.separator + "dist" + File.separator 
+                          + "grouper")
+                      + "\" path=\"/" + tomcatPath + "\" reloadable=\"false\"/>");
+
+                } else if (this.appToUpgrade == AppToUpgrade.WS) {
+                  //<Context docBase="/Users/mchyzer/tmp/grouperInstaller/grouper.ws-2.3.0/grouper-ws/build/dist/grouper-ws" path="/grouper-ws" reloadable="false"/>
+                  System.out.println("Looking for an entry in the server.xml that looks like this:");
+                  System.out.println("  <Context docBase=\""
+                      + GrouperInstallerUtils.defaultIfBlank(currentDocBase, this.grouperInstallDirectoryString 
+                          + "grouper.ws-" + this.version + File.separator + "grouper-ws" 
+                          + File.separator + "build" + File.separator + "dist" + File.separator 
+                          + "grouper-ws")
+                      + "\" path=\"/" + tomcatPath + "\" reloadable=\"false\"/>");
+                }
+                
+                if (!GrouperInstallerUtils.isBlank(currentDocBase)) {
+                  System.out.println("The docBase for the " + tomcatPath + " entry in the server.xml is: " + currentDocBase);
+                } else {
+                  //check webapps
+                  System.out.println("The docBase could not be found in the server.xml, check in the tomcat" 
+                      + File.separator + "webapps directory");
+                  currentDocBase = this.grouperInstallDirectoryString + File.separator 
+                      + "apache-tomcat-6.0.35" + File.separator + "webapps" + File.separator + tomcatPath;
+                  if (!new File(currentDocBase).exists()) {
+                    System.out.println("Cant find where grouper is linked from tomcat, looked in server.xml and the webapps directory");
+                    currentDocBase = null;
+                  }
+                }
+                if (currentDocBase != null) {
+                  log4jPropertiesFile = new File(currentDocBase + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "log4j.properties");
+                  
+                  catalinaLogFile = new File(this.grouperInstallDirectoryString + File.separator 
+                      + "apache-tomcat-6.0.35" + File.separator + "logs");
+                  
+                  analyzeLogFile(log4jPropertiesFile, "${grouper.home}" + File.separator, new File(catalinaLogFile + File.separator + "catalinaOut.log"),
+                      new File(catalinaLogFile + File.separator + "catalinaErr.log"));
+                }
+              }
+              
+              break;
+              
+            default: 
+              throw new RuntimeException("Not expecting appToUpgrade: " + this.appToUpgrade + "!");
+          }
+          
+          System.out.println("Press <enter> to continue.");
+          readFromStdIn("grouperInstaller.autorun.logsContinue");
+  
+          break;
+        case services:
+          
+          break;
+        case exit:
+          
+          System.exit(0);
+          
+          break;
+        case back:
+          
+          this.mainAdminLogic();
+  
+          break;
+      }
+    }
+  }
+
+  /**
+   * 
+   * @param log4jPropertiesFile
+   * @param grouperHomeWithSlash
+   * @param stdoutLocation
+   * @param stderrLocation
+   */
+  private void analyzeLogFile(File log4jPropertiesFile, String grouperHomeWithSlash, File stdoutLocation, File stderrLocation) {
+    System.out.println("The log4j.properties is located in: " 
+        + log4jPropertiesFile.getAbsolutePath());
+
+    if (!log4jPropertiesFile.exists()) {
+    
+      System.out.println("Error, the log4j.properties file could not be found.");
+
+    } else {
+      
+      System.out.println("Examine the log4j.properties to see where it is logging");
+      
+      Properties log4jProperties = GrouperInstallerUtils.propertiesFromFile(log4jPropertiesFile);
+      
+      //= ERROR, grouper_error")
+      String rootLoggerValue = log4jProperties.getProperty("log4j.rootLogger");              
+      
+      System.out.println("Generally the log4j.rootLogger property shows where logs go, it is set to: " + rootLoggerValue);
+      
+      Pattern pattern = Pattern.compile("\\s*[A-Z]+\\s*,\\s*(\\w+)\\s*");
+      Matcher matcher = pattern.matcher(rootLoggerValue);
+      if (!matcher.matches()) {
+        System.out.println("Examine the log4j.properties for more information");
+      } else {
+        String logger = matcher.group(1);
+        System.out.println("The log4j.rootLogger property in log4j.properties is set to: " + logger);
+        //log4j.appender.grouper_error = org.apache.log4j.DailyRollingFileAppender
+        //log4j.appender.grouper_error.File = ${grouper.home}logs/grouper_error.log
+        String logFileName = log4jProperties.getProperty("log4j.appender." + logger + ".File");
+        if (!GrouperInstallerUtils.isBlank(logFileName)) {
+          System.out.println("There is a property in log4j.properties: log4j.appender." + logger + ".File = " + logFileName);
+          if (logFileName.contains("${grouper.home}")) {
+            logFileName = GrouperInstallerUtils.replace(logFileName, "${grouper.home}", grouperHomeWithSlash);
+          }
+          System.out.println("Grouper log should be: " + logFileName);
+        } else {
+          //log4j.appender.grouper_stdout = org.apache.log4j.ConsoleAppender
+          String appender = log4jProperties.getProperty("log4j.appender." + logger);
+          //log4j.appender.grouper_stderr.Target                    = System.err
+          String target = log4jProperties.getProperty("log4j.appender." + logger + ".Target");
+          String targetFriendly = null;
+          if (GrouperInstallerUtils.equals(target, "System.err")) {
+            targetFriendly = "STDERR";
+          } else if (GrouperInstallerUtils.equals(target, "System.out")) {
+            targetFriendly = "STDOUT";
+          }
+          if (GrouperInstallerUtils.equals(appender, ConsoleAppender.class.getName()) && targetFriendly != null) {
+            System.out.println("Since log4j.properties log4j.appender." + logger + " = org.apache.log4j.ConsoleAppender you are logging to " + targetFriendly);
+            if (GrouperInstallerUtils.equals(target, "System.err") && stderrLocation != null) {
+              System.out.println("Grouper logs should be in " + stderrLocation.getAbsolutePath());
+            } else if (GrouperInstallerUtils.equals(target, "System.out") && stdoutLocation != null) {
+              System.out.println("Grouper logs should be in " + stdoutLocation.getAbsolutePath());
+            }
+          } else {
+            System.out.println("Examine the log4j.properties for more information");
+          }
+        }
+      }
+    }
+  }
+  
+  /**
+   * admin
+   */
+  private void mainUpgradeTaskLogic() {
     GrouperInstallerConvertAction grouperInstallerConvertAction = null;
 
     for (int i=0;i<10;i++) {
       //what do we want to do, install, revert, or get status?
-      System.out.print("What conversion do you want to do (convertEhcacheXmlToProperties)? : ");
-      String convertAction = readFromStdIn("grouperInstaller.autorun.convertAction");
+      System.out.print("What upgrade task do you want to do (convertEhcacheXmlToProperties)? : ");
+      String convertAction = readFromStdIn("grouperInstaller.autorun.upgradeTaskAction");
       try {
         grouperInstallerConvertAction = GrouperInstallerConvertAction.valueOfIgnoreCase(convertAction, false, true);
         if (grouperInstallerConvertAction != null) {
@@ -2702,33 +3065,54 @@ public class GrouperInstaller {
       }
     }
     switch(grouperInstallerConvertAction) {
-      case ehcacheXmlToProperties:
+      case convertEhcacheXmlToProperties:
 
+        System.out.println("Note, you need to convert the ehcache.xml file for each Grouper runtime, e.g. loader, WS, UI.");
+        System.out.println("Note, you need to be running Grouper 2.3.0 with API patch 35 installed.");
         System.out.print("Enter the location of the ehcache.xml file: ");
         String convertEhcacheXmlLocation = readFromStdIn("grouperInstaller.autorun.convertEhcacheXmlLocation");
 
-        System.out.print("Enter the location of the grouper.cache.base.properties file: ");
-        String convertEhcacheBasePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertEhcacheBasePropertiesLocation");
+        File ehcacheXmlFile = new File(convertEhcacheXmlLocation);
+        if (!ehcacheXmlFile.exists()) {
+          System.out.println("Cant find ehcache.xml: " + ehcacheXmlFile.getAbsolutePath());
+          System.exit(1);
+        }
 
-        System.out.print("Enter the location of the grouper.cache.properties file: ");
-        String convertEhcachePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertEhcachePropertiesLocation");
+        File grouperCacheBaseProperties = new File(ehcacheXmlFile.getParentFile().getAbsolutePath() + File.separator + "grouper.cache.base.properties");
+
+        {
+          System.out.print("Enter the location of the grouper.cache.base.properties file [" + grouperCacheBaseProperties.getAbsolutePath() + "]: ");
+          String grouperCacheBasePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertEhcacheBasePropertiesLocation");
+  
+          if (!GrouperInstallerUtils.isBlank(grouperCacheBasePropertiesLocation)) {
+            grouperCacheBaseProperties = new File(grouperCacheBasePropertiesLocation);
+          }
+        }
         
-        File ehcachePropertiesFile = new File(convertEhcachePropertiesLocation);
+        File grouperCacheProperties = new File(ehcacheXmlFile.getParentFile().getAbsolutePath() + File.separator + "grouper.cache.properties");
+
+        {
+          System.out.print("Enter the location of the grouper.cache.properties file (to be created)  [" + grouperCacheProperties.getAbsolutePath() + "]: ");
+          String grouperCachePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertEhcachePropertiesLocation");
+  
+          if (!GrouperInstallerUtils.isBlank(grouperCachePropertiesLocation)) {
+            grouperCacheProperties = new File(grouperCachePropertiesLocation);
+          }
+        }
+        
         try {
-          convertEhcacheXmlToProperties(new File(convertEhcacheBasePropertiesLocation), ehcachePropertiesFile,
-              new File(convertEhcacheXmlLocation).toURI().toURL());
+          convertEhcacheXmlToProperties(grouperCacheBaseProperties, grouperCacheProperties,
+              ehcacheXmlFile.toURI().toURL());
         } catch (MalformedURLException mue) {
           throw new RuntimeException("Malformed url on " + convertEhcacheXmlLocation);
         }
 
-        System.out.print("File was written: " + ehcachePropertiesFile.getAbsolutePath());
+        System.out.print("File was written: " + grouperCacheProperties.getAbsolutePath());
 
         break;
     }
-        
-  }
 
-  
+  }
   
   /**
    * patch grouper
@@ -2838,10 +3222,13 @@ public class GrouperInstaller {
   /**
    * 
    */
-  public static enum GrouperInstallerMiscAction {
+  public static enum GrouperInstallerAdminAction {
 
+    /** manage */
+    manage,
+    
     /** convert */
-    convert;
+    upgradeTask;
     
     /**
      * 
@@ -2850,8 +3237,8 @@ public class GrouperInstaller {
      * @param exceptionIfBlank
      * @return the action
      */
-    public static GrouperInstallerMiscAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
-      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerMiscAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    public static GrouperInstallerAdminAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerAdminAction.class, string, exceptionIfBlank, exceptionIfInvalid);
     }
     
   }
@@ -2884,7 +3271,7 @@ public class GrouperInstaller {
   public static enum GrouperInstallerConvertAction {
 
     /** convert */
-    ehcacheXmlToProperties;
+    convertEhcacheXmlToProperties;
     
     /**
      * 
@@ -2895,6 +3282,36 @@ public class GrouperInstaller {
      */
     public static GrouperInstallerConvertAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
       return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerConvertAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    }
+    
+  }
+  
+  /**
+   * 
+   */
+  public static enum GrouperInstallerManageAction {
+
+    /** logs */
+    logs,
+
+    /** back to admin */
+    back,
+
+    /** exit */
+    exit,
+
+    /** services */
+    services;
+    
+    /**
+     * 
+     * @param string
+     * @param exceptionIfInvalid
+     * @param exceptionIfBlank
+     * @return the action
+     */
+    public static GrouperInstallerManageAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerManageAction.class, string, exceptionIfBlank, exceptionIfInvalid);
     }
     
   }
@@ -6990,7 +7407,7 @@ public class GrouperInstaller {
       //install psp
       System.out.print("Do you want to install the provisioning service provider (t|f)? [t]: ");
       if (readFromStdInBoolean(true, "grouperInstaller.autorun.installPsp")) {
-      	downloadAndBuildPsp();              
+        downloadAndBuildPsp();              
         GrouperInstallerUtils.copyDirectory(this.untarredPspDir, this.untarredApiDir);
   
         //####################################
@@ -7014,8 +7431,13 @@ public class GrouperInstaller {
     //#####################################
     //success
     System.out.println("\nInstallation success!");
+
+
+    System.out.println("\nRun the installer's 'admin' function to get information and manage about your installation (db, tomcat, logs, etc)\n");
+    
     if (installUi) {
       System.out.println("\nGo here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
+      
     }
     if (installWs) {
       System.out.println("\nThis is the Grouper WS URL (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatWsPath + "/");
@@ -7031,7 +7453,7 @@ public class GrouperInstaller {
     File pspDir = downloadPsp();
     File unzippedPspFile = unzip(pspDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspDownloadTarEtc");
     this.untarredPspDir = untar(unzippedPspFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspDownloadTarEtc", 
-        new File(this.grouperInstallDirectoryString));
+        null);
 
   }
   
@@ -7042,7 +7464,7 @@ public class GrouperInstaller {
     File pspngDir = downloadPspng();
     File unzippedPspngFile = unzip(pspngDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc");
     this.untarredPspngDir = untar(unzippedPspngFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalPspngDownloadTarEtc", 
-        new File(this.grouperInstallDirectoryString));
+        null);
 
   }
   
@@ -9368,8 +9790,8 @@ public class GrouperInstaller {
     defaultAction = GrouperInstallerUtils.defaultIfBlank(defaultAction, "install");
     for (int i=0;i<10;i++) {
       System.out.print("Do you want to 'install' a new installation of grouper, 'upgrade' an existing installation,\n"
-          + "  'patch' an existing installation, 'misc' utilities, or 'createPatch' for Grouper developers\n" 
-          + "  (enter: 'install', 'upgrade', 'patch', 'misc', 'createPatch' or blank for the default) ["
+          + "  'patch' an existing installation, 'admin' utilities, or 'createPatch' for Grouper developers\n" 
+          + "  (enter: 'install', 'upgrade', 'patch', 'admin', 'createPatch' or blank for the default) ["
           + defaultAction + "]: ");
       input = readFromStdIn("grouperInstaller.autorun.actionEgInstallUpgradePatch");
       if (GrouperInstallerUtils.isBlank(input)) {
@@ -9379,9 +9801,9 @@ public class GrouperInstaller {
       if (theGrouperInstallerMainFunction != null) {
         return theGrouperInstallerMainFunction;
       }
-      System.out.println("Please enter 'install', 'upgrade', 'patch', 'misc', 'createPatch', or blank for default (which is " + defaultAction + ")");
+      System.out.println("Please enter 'install', 'upgrade', 'patch', 'admin', 'createPatch', or blank for default (which is " + defaultAction + ")");
     }
-    throw new RuntimeException("Expecting 'install', 'upgrade', 'patch', 'misc', or 'createPatch' but was: '" + input + "'");
+    throw new RuntimeException("Expecting 'install', 'upgrade', 'patch', 'admin', or 'createPatch' but was: '" + input + "'");
   }
 
 
@@ -10432,13 +10854,14 @@ public class GrouperInstaller {
 
   /**
    * 
+   * @param ehcacheBasePropertiesFile 
    * @param ehcachePropertiesFile
    * @param ehcacheXmlUrl
    */
   public static void convertEhcacheXmlToProperties(File ehcacheBasePropertiesFile, File ehcachePropertiesFile, URL ehcacheXmlUrl) {
 
     if (!ehcacheBasePropertiesFile.exists()) {
-      throw new RuntimeException(ehcacheBasePropertiesFile.getAbsolutePath() + " must exists and does not!");
+      throw new RuntimeException(ehcacheBasePropertiesFile.getAbsolutePath() + " must exist and does not!");
     }
     
     if (ehcachePropertiesFile.exists()) {
