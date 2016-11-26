@@ -56,7 +56,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.log4j.ConsoleAppender;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -1718,8 +1717,12 @@ public class GrouperInstaller {
         
         GrouperInstallerIndexFile grouperInstallerIndexFile = indexOfFiles.get(fileKey);
         if (grouperInstallerIndexFile == null) {
-          System.out.println("Cant find file: '" + fileKey + "'!!!  please re-enter the list");
-          continue OUTER;
+          grouperInstallerIndexFile = indexOfTagFiles.get(fileKey);
+          //see if we are deleting
+          if (grouperInstallerIndexFile == null) {
+            System.out.println("Cant find file: '" + fileKey + "'!!!  please re-enter the list");
+            continue OUTER;
+          }
         }
         
         if (grouperInstallerIndexFile.isHasMultipleFilesBySimpleName()
@@ -1760,9 +1763,9 @@ public class GrouperInstaller {
 
         GrouperInstallerIndexFile grouperInstallerIndexFileClassFile = indexOfFiles.get(relativePathClass);
         
-        //this shouldnt happen
+        //this will happen in a delete
         if (grouperInstallerIndexFileClassFile == null) {
-          throw new RuntimeException("Cant find class file! " + relativePathClass);
+          continue;
         }
         
         //this shouldnt happen
@@ -2078,6 +2081,11 @@ public class GrouperInstaller {
       GrouperInstallerUtils.mkdirs(new File(patchDir.getAbsolutePath() + File.separator + "new"));
       for (GrouperInstallerIndexFile currentIndexFile : grouperInstallerIndexFilesToAddToPatch) {
 
+        //is it a delete? then there is no new file
+        if (!indexOfFiles.containsKey(currentIndexFile.getRelativePath())) {
+          continue;
+        }
+        
         File newFile = new File(patchDir.getAbsolutePath() + File.separator + "new" + File.separator
             + currentIndexFile.getPatchFileType().getDirName() + File.separator
             + GrouperInstallerUtils.replace(currentIndexFile.getRelativePath(), "/", File.separator));
@@ -3030,7 +3038,7 @@ public class GrouperInstaller {
           } else if (GrouperInstallerUtils.equals(target, "System.out")) {
             targetFriendly = "STDOUT";
           }
-          if (GrouperInstallerUtils.equals(appender, ConsoleAppender.class.getName()) && targetFriendly != null) {
+          if (GrouperInstallerUtils.equals(appender, "org.apache.log4j.ConsoleAppender") && targetFriendly != null) {
             System.out.println("Since log4j.properties log4j.appender." + logger + " = org.apache.log4j.ConsoleAppender you are logging to " + targetFriendly);
             if (GrouperInstallerUtils.equals(target, "System.err") && stderrLocation != null) {
               System.out.println("Grouper logs should be in " + stderrLocation.getAbsolutePath());
@@ -10935,10 +10943,6 @@ public class GrouperInstaller {
 
     if (!ehcachePropertiesFile.getParentFile().exists() || !ehcachePropertiesFile.getParentFile().isDirectory()) {
       throw new RuntimeException(ehcachePropertiesFile.getParentFile().getAbsolutePath() + " must exist and must be a directory");
-    }
-    
-    if (GrouperInstallerUtils.class.getResource("/grouper.cache.base.properties") == null) {
-      throw new RuntimeException("Cant find grouper.cache.base.properties on the classpath!");
     }
     
     //look at base properties
