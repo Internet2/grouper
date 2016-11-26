@@ -4700,6 +4700,39 @@ public class GrouperInstaller {
 
   /**
    * 
+   * @param newFile
+   * @param existingFile
+   * @param printDetails
+   * @return the bakFile
+   */
+  public File backupAndDeleteFile(File file, boolean printDetails) {
+
+    if (file.exists()) {
+
+      File bakFile = null;
+
+      bakFile = bakFile(file);
+      GrouperInstallerUtils.copyFile(file, bakFile, true);
+      if (printDetails) {
+        System.out.println("Backing up: " + file.getAbsolutePath() + " to: " + bakFile.getAbsolutePath());
+      }
+      if (printDetails) {
+        System.out.println("Deleting file: " + file.getAbsolutePath());
+      }
+      GrouperInstallerUtils.fileDelete(file);
+      return bakFile;
+
+    }
+
+    if (printDetails) {
+      System.out.println(file + " did not exist so it was not deleted");
+    }
+
+    return null;
+  }
+
+  /**
+   * 
    * @param existingFile
    * @return the bak file
    */
@@ -6081,7 +6114,7 @@ public class GrouperInstaller {
                       //patch is already applied?  thats ok i guess
                       && !GrouperInstallerUtils.contentEquals(newFileInPatch, oldFileInGrouper))) {
                 
-                System.out.println("Problem applying patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
+                System.out.println("Problem applying patch since this patch old file:\n  " + oldFileInPatch.getAbsolutePath() 
                     + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath()
                     + "\n  Do you want to force install this patch (t|f)? [f]: ");
                 
@@ -6129,9 +6162,20 @@ public class GrouperInstaller {
 
               //then the file shouldnt exist
               if (oldFileInGrouper.exists()) {
-                System.out.println("Cannot apply patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
-                    + "\n  is supposed to be new, but it already exists:\n  " + oldFileInGrouper.getAbsolutePath());
-                patchHasProblem = true;
+
+                System.out.println("Problem applying patch since this file:\n  " + oldFileInGrouper.getAbsolutePath() 
+                  + "\n  should not exist yet\n  Do you want to force install this patch (t|f)? [f]: ");
+            
+                boolean forceInstallPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceInstallPatch");
+                
+                if (!forceInstallPatch) {
+                
+                
+                  System.out.println("Cannot apply patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                      + "\n  is supposed to be new, but it already exists:\n  " + oldFileInGrouper.getAbsolutePath());
+                  patchHasProblem = true;
+
+                }
               }
             }
           }
@@ -6168,6 +6212,27 @@ public class GrouperInstaller {
             }
             System.out.println("Applying file: " + oldFileInGrouper.getAbsolutePath());
             GrouperInstallerUtils.copyFile(newFileInPatch, oldFileInGrouper, false);
+          }
+        }
+        
+        File oldDirFiles = new File(oldDir.getAbsoluteFile() + File.separator + patchDir);
+        
+        if (oldDirFiles.exists() && oldDirFiles.isDirectory()) {
+        
+          // relative, e.g. WEB-INF/jsp/someFile.jsp
+          Set<String> oldFileRelativePaths = GrouperInstallerUtils.fileDescendantRelativePaths(oldDirFiles);
+          
+          for (String oldFilePath : GrouperInstallerUtils.nonNull(oldFileRelativePaths)) {
+            File oldFileInPatch = new File(oldDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+            File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+            File oldFileInGrouper = new File(applicationPath + oldFilePath);
+
+            if (oldFileInPatch.exists() && !newFileInPatch.exists() && oldFileInGrouper.exists() && oldFileInGrouper.isFile()) {
+
+              System.out.println("Deleting file: " + oldFileInGrouper.getAbsolutePath());
+              backupAndDeleteFile(oldFileInGrouper, false);
+              
+            }
           }
         }
       }
