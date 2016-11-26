@@ -1345,6 +1345,7 @@ public class GrouperInstaller {
    * take a java command (e.g. java, or javac, or %JAVA_HOME%/bin/java and make sure version is valid
    * @param what
    * @param command
+   * @param jdkTest 
    * @param fatal
    * @return if error
    */
@@ -3985,7 +3986,7 @@ public class GrouperInstaller {
         this.grouperLoaderExamplePropertiesFile, null,
         "grouperInstaller.autorun.removeRedundantPropetiesFromGrouperLoaderProperties"
       );
-
+    
     this.compareUpgradePropertiesFile(this.subjectBasePropertiesFile, 
         new File(this.untarredApiDir + File.separator + "conf" + File.separator + "subject.base.properties"),
         this.subjectPropertiesFile,
@@ -3994,6 +3995,7 @@ public class GrouperInstaller {
       );
 
     this.upgradeEhcacheXml();
+    this.upgradeEhcacheXmlToProperties();
 
     this.compareAndCopyFile(this.grouperUtf8File, 
         new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouperUtf8.txt"),
@@ -4619,6 +4621,11 @@ public class GrouperInstaller {
 
     //ehcache, prompt to see if do it (if difference than example, and if old example different than new example?
     File newEhcacheExample = new File(this.untarredApiDir + File.separator + "conf" + File.separator + "ehcache.xml");
+
+    //this file is done
+    if (!newEhcacheExample.exists()) {
+      return;
+    }
     
     //lets see if different
     String existingEhcacheContents = GrouperInstallerUtils.readFileIntoString(this.ehcacheFile);
@@ -4676,6 +4683,57 @@ public class GrouperInstaller {
 
   /**
    * 
+   */
+  private void upgradeEhcacheXmlToProperties() {
+
+    //dont do this is less than 2.3.1
+    if (new GiGrouperVersion(this.version).lessThanArg(new GiGrouperVersion("2.3.1"))) {
+      return;
+    }
+    
+    //this file is done
+    if (!this.ehcacheFile.exists()
+        && this.grouperCacheBasePropertiesFile.exists() && this.grouperCachePropertiesFile.exists()) {
+      return;
+    }
+    
+    System.out.print("Do you want to convert from ehcache.xml to grouper.cache.properties, note you need to do this to upgrade (t|f)? [t]: ");
+    boolean convert = readFromStdInBoolean(true, "grouperInstaller.autorun.convertEhcacheXmlToProperties");
+
+    if (!convert) {
+      System.out.println("Note: grouper will not run, but whatever you want to do!!!!");
+    }
+    
+    if (this.grouperCachePropertiesFile.exists()) {
+      //see if there is anything in it
+      Properties grouperCacheProperties = GrouperInstallerUtils.propertiesFromFile(this.grouperCachePropertiesFile);
+      if (grouperCacheProperties.size() > 0) {
+        this.backupAndDeleteFile(this.grouperCachePropertiesFile, true);
+      } else {
+        GrouperInstallerUtils.fileDelete(this.grouperCachePropertiesFile);
+      }
+    }
+
+    URL ehcacheXmlUrl = null;
+    
+    try {
+      ehcacheXmlUrl = this.ehcacheFile.toURI().toURL();
+    } catch (Exception e) {
+      throw new RuntimeException("Problem with ehcache.xml: " + (this.ehcacheFile == null ? null : this.ehcacheFile.getAbsoluteFile()), e);
+    }
+    
+    //convert
+    convertEhcacheXmlToProperties(this.grouperCacheBasePropertiesFile, this.grouperCachePropertiesFile, ehcacheXmlUrl);
+    
+    File bakFile = bakFile(this.grouperCachePropertiesFile);
+    GrouperInstallerUtils.copyFile(this.grouperCachePropertiesFile, bakFile, true);
+    this.backupAndDeleteFile(this.ehcacheFile, true);
+    this.backupAndDeleteFile(this.ehcacheExampleFile, true);
+    
+  }
+
+  /**
+   * 
    * @param newFile
    * @param existingFile
    * @param printDetails
@@ -4711,9 +4769,7 @@ public class GrouperInstaller {
   }
 
   /**
-   * 
-   * @param newFile
-   * @param existingFile
+   * @param file
    * @param printDetails
    * @return the bakFile
    */
@@ -5233,6 +5289,17 @@ public class GrouperInstaller {
           return false;
         }
         
+        grouperInstaller.grouperCachePropertiesFile = grouperInstaller.findClasspathFile("grouper.cache.properties", false);
+        grouperInstaller.grouperCacheBasePropertiesFile = grouperInstaller.findClasspathFile("grouper.cache.base.properties", false);
+
+//        //these must exist after 2.3.1+
+//        if (grouperInstaller.grouperCacheBasePropertiesFile == null 
+//            && grouperInstaller.grouperCachePropertiesFile == null 
+//            && new GiGrouperVersion(grouperInstaller.version).greaterOrEqualToArg(new GiGrouperVersion("2.3.1"))
+//            ) {
+//          return false;
+//        }
+
         //this must exist
         grouperInstaller.grouperJar = grouperInstaller.findLibraryFile("grouper.jar", false);
         if (grouperInstaller.grouperJar == null) {
@@ -7044,6 +7111,16 @@ public class GrouperInstaller {
    * grouper-loader.base.properties
    */
   private File grouperLoaderBasePropertiesFile;
+  
+  /**
+   * grouper.cache.properties
+   */
+  private File grouperCachePropertiesFile;
+  
+  /**
+   * grouper.cache.base.properties
+   */
+  private File grouperCacheBasePropertiesFile;
   
   /**
    * grouper-loader.example.properties
