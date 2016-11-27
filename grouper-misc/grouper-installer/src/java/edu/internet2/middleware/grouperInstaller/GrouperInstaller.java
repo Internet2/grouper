@@ -11089,26 +11089,30 @@ public class GrouperInstaller {
 
   /**
    * 
-   * @param ehcacheBasePropertiesFile 
-   * @param ehcachePropertiesFile
+   * @param grouperCacheBasePropertiesFile 
+   * @param grouperCachePropertiesFile
    * @param ehcacheXmlUrl
    */
-  public static void convertEhcacheXmlToProperties(File ehcacheBasePropertiesFile, File ehcachePropertiesFile, URL ehcacheXmlUrl) {
+  public static void convertEhcacheXmlToProperties(File grouperCacheBasePropertiesFile, File grouperCachePropertiesFile, URL ehcacheXmlUrl) {
 
-    if (!ehcacheBasePropertiesFile.exists()) {
-      throw new RuntimeException(ehcacheBasePropertiesFile.getAbsolutePath() + " must exist and does not!");
+    //look at base properties
+    Properties grouperCacheProperties = grouperCachePropertiesFile.exists() ? 
+        GrouperInstallerUtils.propertiesFromFile(grouperCachePropertiesFile) : new Properties();
+
+    if (!grouperCacheBasePropertiesFile.exists()) {
+      throw new RuntimeException(grouperCacheBasePropertiesFile.getAbsolutePath() + " must exist and does not!");
     }
     
-    if (ehcachePropertiesFile.exists()) {
-      throw new RuntimeException(ehcachePropertiesFile.getAbsolutePath() + " exists and must not.  Delete the file and run this again!");
+    if (grouperCacheProperties.size() > 0) {
+      throw new RuntimeException(grouperCachePropertiesFile.getAbsolutePath() + " exists and must not.  Delete the file and run this again!");
     }
 
-    if (!ehcachePropertiesFile.getParentFile().exists() || !ehcachePropertiesFile.getParentFile().isDirectory()) {
-      throw new RuntimeException(ehcachePropertiesFile.getParentFile().getAbsolutePath() + " must exist and must be a directory");
+    if (!grouperCachePropertiesFile.getParentFile().exists() || !grouperCachePropertiesFile.getParentFile().isDirectory()) {
+      throw new RuntimeException(grouperCachePropertiesFile.getParentFile().getAbsolutePath() + " must exist and must be a directory");
     }
     
     //look at base properties
-    Properties grouperEhcacheBaseProperties = GrouperInstallerUtils.propertiesFromFile(ehcacheBasePropertiesFile);
+    Properties grouperCacheBaseProperties = GrouperInstallerUtils.propertiesFromFile(grouperCacheBasePropertiesFile);
     
     StringBuilder grouperEhcachePropertiesContents = new StringBuilder();
     
@@ -11155,7 +11159,7 @@ public class GrouperInstaller {
       String path = element.getAttribute("path");
       
       if (!"java.io.tmpdir".equals(path)) {
-        grouperEhcachePropertiesContents.append("  <diskStore path=\"" + path + "\"/>\n\n");
+        grouperEhcachePropertiesContents.append("grouper.cache.diskStorePath = " + path + "\n\n");
       }
       
     }    
@@ -11289,28 +11293,28 @@ public class GrouperInstaller {
 
       boolean madeChanges = false;
       
-      if (maxElementsInMemory != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".maxElementsInMemory").equals(maxElementsInMemory.toString())) {
-        grouperEhcachePropertiesContents.append("cache.name." + key + ".maxElementsInMemory = " + maxElementsInMemory);
+      if (maxElementsInMemory != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".maxElementsInMemory")).equals(maxElementsInMemory.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".maxElementsInMemory = " + maxElementsInMemory + "\n");
         madeChanges = true;
       }
-      if (eternal != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".eternal").equals(maxElementsInMemory.toString())) {
-        grouperEhcachePropertiesContents.append("cache.name." + key + ".eternal = " + eternal);
+      if (eternal != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".eternal")).equals(eternal.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".eternal = " + eternal + "\n");
         madeChanges = true;
       }
-      if (timeToIdleSeconds != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".timeToIdleSeconds").equals(maxElementsInMemory.toString())) {
-        grouperEhcachePropertiesContents.append("cache.name." + key + ".timeToIdleSeconds = " + timeToIdleSeconds);
+      if (timeToIdleSeconds != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".timeToIdleSeconds")).equals(timeToIdleSeconds.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".timeToIdleSeconds = " + timeToIdleSeconds + "\n");
         madeChanges = true;
       }
-      if (timeToLiveSeconds != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".timeToLiveSeconds").equals(maxElementsInMemory.toString())) {
-        grouperEhcachePropertiesContents.append("cache.name." + key + ".timeToLiveSeconds = " + timeToLiveSeconds);
+      if (timeToLiveSeconds != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".timeToLiveSeconds")).equals(timeToLiveSeconds.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".timeToLiveSeconds = " + timeToLiveSeconds + "\n");
         madeChanges = true;
       }
-      if (overflowToDisk != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".overflowToDisk").equals(maxElementsInMemory.toString())) {
-        grouperEhcachePropertiesContents.append("cache.name." + key + ".overflowToDisk = " + overflowToDisk);
+      if (overflowToDisk != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".overflowToDisk")).equals(overflowToDisk.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".overflowToDisk = " + overflowToDisk + "\n");
         madeChanges = true;
       }
-      if (statistics != null && !grouperEhcacheBaseProperties.get("cache.name." + key + ".statistics").equals(maxElementsInMemory.toString())) {
-        grouperEhcachePropertiesContents.append("cache.name." + key + ".statistics = " + statistics);
+      if (statistics != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".statistics")).equals(statistics.toString())) {
+        grouperEhcachePropertiesContents.append("cache.name." + key + ".statistics = " + statistics + "\n");
         madeChanges = true;
       }
       if (madeChanges) {
@@ -11318,7 +11322,7 @@ public class GrouperInstaller {
       }
     }
   
-    GrouperInstallerUtils.saveStringIntoFile(ehcachePropertiesFile, grouperEhcachePropertiesContents.toString());
+    GrouperInstallerUtils.saveStringIntoFile(grouperCachePropertiesFile, grouperEhcachePropertiesContents.toString());
   }
 
   /**
