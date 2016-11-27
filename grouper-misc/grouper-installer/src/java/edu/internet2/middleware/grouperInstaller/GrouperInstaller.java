@@ -2865,12 +2865,44 @@ public class GrouperInstaller {
               System.out.println("The API (generally invoked via GSH) logs to where the log4.properties specifies.");
               File log4jPropertiesFile = new File(this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator 
                   + "conf" + File.separator + "log4j.properties");
-              File logFile = new File(this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator 
-                  + "logs" + File.separator + "grouper_error.log");
               
+              if (!log4jPropertiesFile.exists()) {
+                
+                List<File> allFiles = GrouperInstallerUtils.fileListRecursive(new File(this.grouperInstallDirectoryString));
+                log4jPropertiesFile = null;
+                boolean multipleFound = false;
+                for (File file : allFiles) {
+                  if ("log4j.properties".equals(file.getName())) {
+                    if (log4jPropertiesFile != null) {
+                      multipleFound = true;
+                      log4jPropertiesFile = null;
+                      break;
+                    }
+                    log4jPropertiesFile = file;
+                  }
+                }
+                if (multipleFound || log4jPropertiesFile == null) {
+                  System.out.print("What is the absolute path of the log4j.properties? : ");
+                  String log4jPropertiesLocation = readFromStdIn("grouperInstaller.autorun.log4jPropertiesLocation");
+                  log4jPropertiesFile = new File(log4jPropertiesLocation);
+                  if (!log4jPropertiesFile.exists()) {
+                    System.out.println("Bad location: " + log4jPropertiesFile.getAbsolutePath());
+                    System.exit(1);
+                  }
+                }
+              }
+              
+              File logFile = new File(this.grouperInstallDirectoryString  
+                  + "logs" + File.separator + "grouper_error.log");
+              String grouperHomeWithSlash = this.grouperInstallDirectoryString;
+
+              if (!logFile.exists()) {
+                logFile = new File(this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator 
+                    + "logs" + File.separator + "grouper_error.log");
+                grouperHomeWithSlash = this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator;
+              }              
               System.out.println("By default the installer configures the log file to be: " + logFile.getAbsolutePath());
               
-              String grouperHomeWithSlash = this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator;
               
               analyzeLogFile(log4jPropertiesFile, grouperHomeWithSlash, null, null);
               break;
@@ -2879,19 +2911,26 @@ public class GrouperInstaller {
               break;
             case WS:
             case UI:
-              File catalinaLogFile = new File(this.grouperInstallDirectoryString + File.separator 
-                  + "apache-tomcat-6.0.35" + File.separator + "logs");
+              File catalinaLogFile = new File(this.grouperInstallDirectoryString + "logs");
+              if (!catalinaLogFile.exists()) {
+                //if used the webapps dir
+                catalinaLogFile = new File(this.grouperInstallDirectoryString + ".." + File.separator + ".." + File.separator + "logs");
+              }
+              if (!catalinaLogFile.exists()) {
+                catalinaLogFile = new File(this.grouperInstallDirectoryString + File.separator 
+                    + "apache-tomcat-6.0.35" + File.separator + "logs");
+              }
+              
               System.out.println("Tomcat logs STDOUT and STDERR to the catalinaErr.log "
                   + "and catalinaOut.log logfiles, which should be here: " + catalinaLogFile.getAbsolutePath());
               if (!catalinaLogFile.exists()) {
                 System.out.println("Warning: that directory does not exist, so you will need to locate the logs directory for tomcat.");
               }
-              System.out.println("Locate the " + grouperInstallerManageAction + " application files.");
+              System.out.println("Locate the " + this.appToUpgrade + " application files.");
               System.out.println("By default the installer has the " + this.appToUpgrade + " running based on the tomcat server.xml, "
                   + "but could also run in the webapps dir.");
               
-              File serverXmlFile = new File(this.grouperInstallDirectoryString + File.separator 
-                  + "apache-tomcat-6.0.35" + File.separator + "conf" + File.separator + "server.xml");
+              File serverXmlFile = new File(catalinaLogFile.getParentFile().getAbsolutePath() + File.separator + "conf" + File.separator + "server.xml");
               
               if (!serverXmlFile.exists()) {
                 System.out.println("server.xml not found: " + serverXmlFile.getAbsolutePath());
