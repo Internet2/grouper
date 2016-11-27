@@ -5914,6 +5914,51 @@ public class GrouperInstaller {
                     + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath()
                     + "\n  Do you want to force revert this patch (t|f)? [f]: ");
                 
+                boolean forceRevertPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.forceRevertPatch");
+                
+                if (!forceRevertPatch) {
+                  System.out.println("\nCannot revert patch since this patch file:\n  " + newFileInPatch.getAbsolutePath() 
+                      + "\n  is not the same as what the patch expects:\n  " + newFileInGrouper.getAbsolutePath());
+                  patchHasProblem = true;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      {
+        //deletes
+        for (String patchDir : patchDirToApplicationPath.keySet()) {
+
+          String applicationPath = patchDirToApplicationPath.get(patchDir);
+
+          File newDirFiles = new File(newDir.getAbsoluteFile() + File.separator + patchDir);
+          File oldDirFiles = new File(oldDir.getAbsoluteFile() + File.separator + patchDir);
+          
+          if (oldDirFiles.exists() && oldDirFiles.isDirectory()) {
+
+            // relative, e.g. WEB-INF/jsp/someFile.jsp
+            Set<String> oldFileRelativePaths = GrouperInstallerUtils.fileDescendantRelativePaths(oldDirFiles);
+
+            for (String oldFilePath : GrouperInstallerUtils.nonNull(oldFileRelativePaths)) {
+              File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+              File oldFileInPatch = new File(oldDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+
+              //if there is a new file, then its not a delete
+              if (newFileInPatch.exists()) {
+                continue;
+              }
+              
+              File newFileInGrouper = new File(applicationPath + oldFilePath);
+
+              if (newFileInGrouper.exists() && newFileInGrouper.isFile() 
+                  && !GrouperInstallerUtils.contentEquals(oldFileInPatch, newFileInGrouper)) {
+                
+                System.out.print("Problem reverting patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
+                    + "\n  is not the same as what the patch expects (shouldnt exist):\n  " + newFileInGrouper.getAbsolutePath()
+                    + "\n  Do you want to force revert this patch (t|f)? [f]: ");
+                
                 boolean forceRevertPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceRevertPatch");
                 
                 if (!forceRevertPatch) {
@@ -5957,6 +6002,38 @@ public class GrouperInstaller {
             } else {
               System.out.println("Reverting (deleting) file: " + newFileInGrouper.getAbsolutePath());
               GrouperInstallerUtils.fileDelete(newFileInGrouper);
+            }
+          }
+        }
+      }
+      
+      //so far so good, revert the deletes
+      for (String patchDir : patchDirToApplicationPath.keySet()) {
+        
+        String applicationPath = patchDirToApplicationPath.get(patchDir);
+
+        File oldDirFiles = new File(oldDir.getAbsoluteFile() + File.separator + patchDir);
+        File newDirFiles = new File(newDir.getAbsoluteFile() + File.separator + patchDir);
+        
+        if (oldDirFiles.exists() && oldDirFiles.isDirectory()) {
+        
+          // relative, e.g. WEB-INF/jsp/someFile.jsp
+          Set<String> oldFileRelativePaths = GrouperInstallerUtils.fileDescendantRelativePaths(oldDirFiles);
+          
+          for (String oldFilePath : GrouperInstallerUtils.nonNull(oldFileRelativePaths)) {
+
+            File oldFileInPatch = new File(oldDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+            File newFileInPatch = new File(newDirFiles.getAbsolutePath() + File.separator + oldFilePath);
+
+            if (newFileInPatch.exists()) {
+              continue;
+            }
+            
+            File newFileInGrouper = new File(applicationPath + oldFilePath);
+            
+            if (oldFileInPatch.exists() && oldFileInPatch.isFile()) {
+              System.out.println("Reverting deleted file: " + newFileInGrouper.getAbsolutePath());
+              GrouperInstallerUtils.copyFile(oldFileInPatch, newFileInGrouper, false);
             }
           }
         }
@@ -6187,17 +6264,20 @@ public class GrouperInstaller {
               if (!oldFileInPatch.exists() || !oldFileInPatch.isFile()) {
                 throw new RuntimeException("Why does file not exist or not file??? " + oldFileInPatch.getAbsolutePath());
               }
-              
-              if (!oldFileInGrouper.exists() || !oldFileInGrouper.isFile() 
+              boolean deletedNewPatchFile = !newFileInPatch.exists();
+              boolean deletedGrouperFile = !oldFileInGrouper.exists();
+              //if both deleted thats ok
+              if ((!deletedGrouperFile || !deletedNewPatchFile) &&
+                 ( !oldFileInGrouper.exists() || !oldFileInGrouper.isFile() 
                   || (!GrouperInstallerUtils.contentEquals(oldFileInPatch, oldFileInGrouper)
                       //patch is already applied?  thats ok i guess
-                      && !GrouperInstallerUtils.contentEquals(newFileInPatch, oldFileInGrouper))) {
+                      && !GrouperInstallerUtils.contentEquals(newFileInPatch, oldFileInGrouper)))) {
                 
                 System.out.println("Problem applying patch since this patch old file:\n  " + oldFileInPatch.getAbsolutePath() 
                     + "\n  is not the same as what the patch expects:\n  " + oldFileInGrouper.getAbsolutePath()
                     + "\n  Do you want to force install this patch (t|f)? [f]: ");
                 
-                boolean forceInstallPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceInstallPatch");
+                boolean forceInstallPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.forceInstallPatch");
                 
                 if (!forceInstallPatch) {
                   System.out.println("Cannot apply patch since this patch file:\n  " + oldFileInPatch.getAbsolutePath() 
@@ -6208,7 +6288,6 @@ public class GrouperInstaller {
             }
           }
         }
-  
       }
 
       //lets make sure that files which are new which dont have an old version do not exist in the application
@@ -6245,7 +6324,7 @@ public class GrouperInstaller {
                 System.out.println("Problem applying patch since this file:\n  " + oldFileInGrouper.getAbsolutePath() 
                   + "\n  should not exist yet\n  Do you want to force install this patch (t|f)? [f]: ");
             
-                boolean forceInstallPatch = readFromStdInBoolean(true, "grouperInstaller.autorun.forceInstallPatch");
+                boolean forceInstallPatch = readFromStdInBoolean(false, "grouperInstaller.autorun.forceInstallPatch");
                 
                 if (!forceInstallPatch) {
                 
@@ -7584,10 +7663,12 @@ public class GrouperInstaller {
 
     //#####################################
     //success
+    System.out.println("\n##################################\n");
+
     System.out.println("\nInstallation success!");
 
 
-    System.out.println("\nRun the installer's 'admin' function to get information and manage about your installation (db, tomcat, logs, etc)\n");
+    System.out.println("\nRun the installer's 'admin' function to get information and manage about your installation (db, tomcat, logs, etc)");
     
     if (installUi) {
       System.out.println("\nGo here for the Grouper UI (change hostname if on different host): http://localhost:" + this.tomcatHttpPort + "/" + this.tomcatUiPath + "/");
