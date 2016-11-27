@@ -1,6 +1,7 @@
 build
 conf/ehcache.xml
 conf/grouper.client.properties
+conf/grouper.cache.properties
 conf/grouper.hibernate.properties
 conf/grouper.properties
 conf/grouper-loader.properties
