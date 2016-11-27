@@ -2984,8 +2984,7 @@ public class GrouperInstaller {
                   //check webapps
                   System.out.println("The docBase could not be found in the server.xml, check in the tomcat" 
                       + File.separator + "webapps directory");
-                  currentDocBase = this.grouperInstallDirectoryString + File.separator 
-                      + "apache-tomcat-6.0.35" + File.separator + "webapps" + File.separator + tomcatPath;
+                  currentDocBase = catalinaLogFile.getParentFile().getAbsolutePath() + File.separator + "webapps" + File.separator + tomcatPath;
                   if (!new File(currentDocBase).exists()) {
                     System.out.println("Cant find where grouper is linked from tomcat, looked in server.xml and the webapps directory");
                     currentDocBase = null;
@@ -2993,9 +2992,6 @@ public class GrouperInstaller {
                 }
                 if (currentDocBase != null) {
                   log4jPropertiesFile = new File(currentDocBase + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + "log4j.properties");
-                  
-                  catalinaLogFile = new File(this.grouperInstallDirectoryString + File.separator 
-                      + "apache-tomcat-6.0.35" + File.separator + "logs");
                   
                   analyzeLogFile(log4jPropertiesFile, "${grouper.home}" + File.separator, new File(catalinaLogFile + File.separator + "catalinaOut.log"),
                       new File(catalinaLogFile + File.separator + "catalinaErr.log"));
