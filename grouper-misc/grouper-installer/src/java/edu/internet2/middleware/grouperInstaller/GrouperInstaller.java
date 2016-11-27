@@ -3120,7 +3120,7 @@ public class GrouperInstaller {
           throw new RuntimeException("Malformed url on " + convertEhcacheXmlLocation);
         }
 
-        System.out.print("File was written: " + grouperCacheProperties.getAbsolutePath());
+        System.out.println("File was written: " + grouperCacheProperties.getAbsolutePath());
 
         break;
     }
@@ -11318,7 +11318,7 @@ public class GrouperInstaller {
       }
     }
   
-    
+    GrouperInstallerUtils.saveStringIntoFile(ehcachePropertiesFile, grouperEhcachePropertiesContents.toString());
   }
 
   /**
