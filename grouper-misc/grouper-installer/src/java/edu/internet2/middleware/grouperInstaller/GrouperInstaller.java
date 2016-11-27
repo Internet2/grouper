@@ -3804,7 +3804,7 @@ public class GrouperInstaller {
         } else {
           System.out.println(legacyPropertiesFileRelativePath + " has properties that can be removed since they are now managed in "
               + basePropertiesFileRelativePath);
-          System.out.println("Would you like to have the properties automatically removed from " 
+          System.out.print("Would you like to have the properties automatically removed from " 
               + legacyPropertiesFile.getName() + " (t|f)? [t]: ");
           boolean removeRedundantProperties = readFromStdInBoolean(true, autorunPropertiesKeyRemoveOldKeys);
           
@@ -6388,7 +6388,7 @@ public class GrouperInstaller {
             if (oldFileInPatch.exists() && !newFileInPatch.exists() && oldFileInGrouper.exists() && oldFileInGrouper.isFile()) {
 
               System.out.println("Deleting file: " + oldFileInGrouper.getAbsolutePath());
-              backupAndDeleteFile(oldFileInGrouper, false);
+              GrouperInstallerUtils.fileDelete(oldFileInGrouper);
               
             }
           }
