@@ -8264,6 +8264,16 @@ public class GrouperInstallerUtils  {
    * @param printProgress if print progress during thread
    */
   public static void threadRunWithStatusDots(final Runnable runnable, boolean printProgress) {
+    threadRunWithStatusDots(runnable, printProgress, true);    
+  }
+  
+  /**
+   * every 5 seconds print a status dot to system out, and newline at end.  After 20, newline
+   * @param runnable runnable to run
+   * @param printProgress if print progress during thread
+   * @param injectStackInException 
+   */
+  public static void threadRunWithStatusDots(final Runnable runnable, boolean printProgress, boolean injectStackInException) {
     
     if (!printProgress) {
       runnable.run();
@@ -8330,9 +8340,10 @@ public class GrouperInstallerUtils  {
       
       if (theException[0] != null) {
         
-        //append this stack
-        injectInException(theException[0], getFullStackTrace(new RuntimeException("caller stack")));
-        
+        if (injectStackInException) {
+          //append this stack
+          injectInException(theException[0], getFullStackTrace(new RuntimeException("caller stack")));
+        }        
         throw theException[0];
       }
   
@@ -10064,7 +10075,7 @@ public class GrouperInstallerUtils  {
       }
     };
 
-    GrouperInstallerUtils.threadRunWithStatusDots(runnable, printProgress);
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, printProgress, logError);
 
     return result[0];
 
