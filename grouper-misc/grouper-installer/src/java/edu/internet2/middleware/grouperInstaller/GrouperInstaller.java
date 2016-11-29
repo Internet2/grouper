@@ -1363,35 +1363,52 @@ public class GrouperInstaller {
    * @return if error
    */
   private static boolean validJavaOutput(String command, String what, boolean jdkTest, boolean fatal) {
-    List<String> commands = new ArrayList<String>();
     
-    if (GrouperInstallerUtils.isWindows()) {
-      commands.add(command);
-    } else {
-      commands.add(command);
-    }
+    try {
     
-    commands.add("-version");
+      List<String> commands = new ArrayList<String>();
       
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, null, null, true);
-    
-    //note this is printed view stderr not stdout
-    String output = commandResult.getErrorText();
-    
-    Pattern javaVersionPattern = Pattern.compile(".*?[^\\d]+(\\d+\\.\\d+).*", Pattern.DOTALL);
-    Matcher javaVersionMatcher = javaVersionPattern.matcher(output);
-    if (!javaVersionMatcher.matches()) {
-      output = commandResult.getOutputText();
-      javaVersionMatcher = javaVersionPattern.matcher(output);
+      if (GrouperInstallerUtils.isWindows()) {
+        commands.add(command);
+      } else {
+        commands.add(command);
+      }
       
+      commands.add("-version");
+        
+      CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+          true, true, null, null, null, true);
+      
+      //note this is printed view stderr not stdout
+      String output = commandResult.getErrorText();
+      
+      Pattern javaVersionPattern = Pattern.compile(".*?[^\\d]+(\\d+\\.\\d+).*", Pattern.DOTALL);
+      Matcher javaVersionMatcher = javaVersionPattern.matcher(output);
       if (!javaVersionMatcher.matches()) {
-        if (jdkTest) {
-          System.out.println((fatal ? "" : "Non-fatal ") + "Error: can't find 'javac' command in " + what + ", Java needs to be a JDK not a JRE!");
+        output = commandResult.getOutputText();
+        javaVersionMatcher = javaVersionPattern.matcher(output);
+        
+        if (!javaVersionMatcher.matches()) {
+          if (jdkTest) {
+            System.out.println((fatal ? "" : "Non-fatal ") + "Error: can't find 'javac' command in " + what + ", Java needs to be a JDK not a JRE!");
+          }
+          System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
+              + " set to Java JDK (not JRE) 1.7+\n"
+              + "" + commandResult.getErrorText() + "\n" + commandResult.getOutputText());
+          if (!fatal) {
+            return true;
+          }
+          System.out.println("Press <enter> to continue...");
+          readFromStdIn("grouperInstaller.autorun.javaInvalid");
+          System.exit(1);
         }
-        System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
-            + " set to Java JDK (not JRE) 1.7+\n"
-            + "" + commandResult.getErrorText() + "\n" + commandResult.getOutputText());
+      }
+      
+      String versionString = javaVersionMatcher.group(1);
+      
+      double versionDouble = GrouperInstallerUtils.doubleValue(versionString);
+      if (versionDouble < 1.7) {
+        System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: " + what + " requires to be invoked with Java 1.7+ JDK (not JRE), but was: " + versionString);
         if (!fatal) {
           return true;
         }
@@ -1399,21 +1416,12 @@ public class GrouperInstaller {
         readFromStdIn("grouperInstaller.autorun.javaInvalid");
         System.exit(1);
       }
+      return false;
+    } catch (RuntimeException re) {
+      System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
+          + " set to Java JDK (not JRE) 1.7+");
+      return true;
     }
-    
-    String versionString = javaVersionMatcher.group(1);
-    
-    double versionDouble = GrouperInstallerUtils.doubleValue(versionString);
-    if (versionDouble < 1.7) {
-      System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: " + what + " requires to be invoked with Java 1.7+ JDK (not JRE), but was: " + versionString);
-      if (!fatal) {
-        return true;
-      }
-      System.out.println("Press <enter> to continue...");
-      readFromStdIn("grouperInstaller.autorun.javaInvalid");
-      System.exit(1);
-    }
-    return false;
   }
   
   /**
@@ -1421,7 +1429,7 @@ public class GrouperInstaller {
    */
   private void mainLogic() {
     
-    this.validJava();
+    validJava();
     
     this.grouperInstallerMainFunction = this.grouperInstallerMainFunction();
     
@@ -2885,63 +2893,138 @@ public class GrouperInstaller {
       }
     }
   }
+
+  /**
+   * try 10 times to get enum
+   * @param prompt
+   * @param configKey
+   * @param theClass
+   * @return the object
+   */
+  public static Object promptForEnum(String prompt, String configKey, Class<?> theClass) {
+    for (int i=0;i<10;i++) {
+      System.out.print(prompt);
+      String input = readFromStdIn(configKey);
+      if (GrouperInstallerUtils.isBlank(input)) {
+        System.out.println("Input is required");
+        continue;
+      }
+
+      //call a static method via reflection
+      Object result = GrouperInstallerUtils.callMethod(theClass, null, "valueOfIgnoreCase",
+          new Object[]{String.class, boolean.class, boolean.class}, new Object[]{input, false, false});
+      if (result != null) {
+        return result;
+      }
+    }
+    throw new RuntimeException("Cant find valid answer!!!!");
+  }
   
   /**
    * 
    */
   private void adminManageServices() {
+    
     //see what we are upgrading: api, ui, ws, client
-    //sdf
-    
-    
-    switch (this.appToUpgrade) {
-      case PSP:
-      case PSPNG:
-        System.out.println("The " + this.appToUpgrade + " runs in the daemon.");
-        //pass through to API
-      case API:
-        System.out.println("The API (generally the daemon) needs to be killed and restarted.");
-        if (!GrouperInstallerUtils.isWindows()) {
-          System.out.println("In unix you should have a /etc/init.d script which manages the grouper daemon");
-        }
-        
+    GrouperInstallerAdminManageService grouperInstallerAdminManageService = 
+        (GrouperInstallerAdminManageService)promptForEnum(
+            "What service do you want to manage?  database, tomcat, grouperDaemon? : ",
+            "grouperInstaller.autorun.serviceToManage", GrouperInstallerAdminManageService.class);
+
+    GrouperInstallerAdminManageServiceAction grouperInstallerAdminManageServiceAction = 
+        (GrouperInstallerAdminManageServiceAction)promptForEnum(
+            "What " + grouperInstallerAdminManageService + " action do you want to perform?  stop, start, restart, status? : ",
+            "grouperInstaller.autorun.serviceToManageAction", GrouperInstallerAdminManageServiceAction.class);
+
+    switch (grouperInstallerAdminManageService) {
+      case daemon:
+      
+        System.out.println("In unix you should have a /etc/init.d script which manages the grouper daemon (see details on wiki).");
+
         //appadmin 14477     1  0 01:24 pts/0    00:00:00 /bin/sh /opt/tomcats/tomcat_d_gsh/webapps/grouper_v2_2/WEB-INF/bin/gsh -loader
         //appadmin 14478 14477 92 01:24 pts/0    00:00:03 /opt/java6/bin/java -Xms64m -Xmx750m -Dgrouper.home=/opt/tomcats/tomcat_d_gsh/webapps/grouper_v2_2/WEB-INF/bin/../ -classpath /opt/tomcats/tomcat_d_gsh/webapps/grouper_v2_2/WEB-INF/bin/../classes:/opt/tomcats/tomcat_d_gsh/webapps/grouper_v2_2/WEB-INF/bin/../lib/*: edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper -loader
         
-        
-        File log4jPropertiesFile = new File(this.grouperInstallDirectoryString + "grouper.apiBinary-" + this.version + File.separator 
-            + "conf" + File.separator + "log4j.properties");
-        
-        if (!log4jPropertiesFile.exists()) {
-          
-          List<File> allFiles = GrouperInstallerUtils.fileListRecursive(new File(this.grouperInstallDirectoryString));
-          log4jPropertiesFile = null;
-          boolean multipleFound = false;
-          for (File file : allFiles) {
-            if ("log4j.properties".equals(file.getName())) {
-              if (log4jPropertiesFile != null) {
-                multipleFound = true;
-                log4jPropertiesFile = null;
-                break;
-              }
-              log4jPropertiesFile = file;
-            }
-          }
-          if (multipleFound || log4jPropertiesFile == null) {
-            System.out.print("What is the absolute path of the log4j.properties? : ");
-            String log4jPropertiesLocation = readFromStdIn("grouperInstaller.autorun.log4jPropertiesLocation");
-            log4jPropertiesFile = new File(log4jPropertiesLocation);
-            if (!log4jPropertiesFile.exists()) {
-              System.out.println("Bad location: " + log4jPropertiesFile.getAbsolutePath());
-              System.exit(1);
-            }
-          }
+        break;
+      case database:
+
+        File localGrouperHibernatePropertiesFile = new File(this.untarredApiDir.getAbsoluteFile() + File.separator + "conf" 
+            + File.separator + "grouper.hibernate.properties");
+
+        Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(localGrouperHibernatePropertiesFile);
+
+        this.dbUrl = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.url"), "jdbc:hsqldb:hsql://localhost:9001/grouper");
+        this.dbUser = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+        this.dbPass = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.password"));
+
+        boolean useHsqldb = false;
+
+        if (this.dbUrl.contains(":hsqldb:")) {
+
+        }
+
+        this.giDbUtils = new GiDbUtils(this.dbUrl, this.dbUser, this.dbPass);
+
+
+
+        if (this.dbUrl.contains("hsqldb")) {
+          //C:\mchyzer\grouper\trunk\grouper-installer\grouper.apiBinary-2.1.0
+          startHsqlDb();
         }
         
-        File logFile = new File(this.grouperInstallDirectoryString  
-            + "logs" + File.separator + "grouper_error.log");
-        String grouperHomeWithSlash = this.grouperInstallDirectoryString;
+        //####################################
+        //check connection to database
+        checkDatabaseConnection();
+        break;
+      case tomcat:
+
+        //tomcat dir
+        File catalinaServerXmlFile = new File(this.grouperInstallDirectoryString + "conf" + File.separator + "server.xml");
+        if (!catalinaServerXmlFile.exists()) {
+          //if used the webapps dir
+          catalinaServerXmlFile = new File(this.grouperInstallDirectoryString + ".." + File.separator + ".." + File.separator + "conf" + File.separator + "server.xml");
+        }
+        //normal installer dir
+        if (!catalinaServerXmlFile.exists()) {
+          catalinaServerXmlFile = new File(this.grouperInstallDirectoryString + File.separator 
+              + "apache-tomcat-6.0.35" + File.separator + "conf" + File.separator + "server.xml");
+        }
+
+        this.untarredTomcatDir = catalinaServerXmlFile.getParentFile().getParentFile();       
+
+        //  /Server/Service/Connector <Connector port="8080" protocol="HTTP/1.1" 
+        this.tomcatHttpPort = GrouperInstallerUtils.xpathEvaluateAttributeInt(catalinaServerXmlFile, "/Server/Service/Connector[@protocol='HTTP/1.1']", "port", -1);
+
+        System.out.print("Enter the default IP address for checking ports (just hit enter to accept the default unless on a machine with no network, might want to change to 127.0.0.1): [0.0.0.0]: ");
+        this.defaultIpAddress = readFromStdIn("grouperInstaller.autorun.defaultIpAddressForPorts");
+        
+        if (GrouperInstallerUtils.isBlank(this.defaultIpAddress)) {
+          this.defaultIpAddress = "0.0.0.0";
+        }
+
+        switch (grouperInstallerAdminManageServiceAction) {
+          case stop:
+          case start:
+          case restart:
+            
+            tomcatBounce(grouperInstallerAdminManageServiceAction.name().toString());
+            break;
+          case status:
+            
+            if (GrouperInstallerUtils.portAvailable(this.tomcatHttpPort, this.defaultIpAddress)) {
+              System.out.println("Tomcat is running.  It is detected to be listening on port: " + this.tomcatHttpPort);
+            } else {
+              System.out.println("Tomcat is stopped.  It is not detected to be listening on port: " + this.tomcatHttpPort);
+            }
+            break;
+        }
+        
+
+        break;
+
     }
+    
+    System.out.println("Press <enter> to continue.");
+    readFromStdIn("grouperInstaller.autorun.logsContinue");
 
   }
 
@@ -11678,7 +11761,37 @@ public class GrouperInstaller {
     }
     
   }
+
+  /**
+   * 
+   */
+  public static enum GrouperInstallerAdminManageServiceAction {
   
+    /** start */
+    start,
+    
+    /** stop */
+    stop,
+    
+    /** restart */
+    restart,
+    
+    /** status */
+    status;
+    
+    /**
+     * 
+     * @param string
+     * @param exceptionIfInvalid
+     * @param exceptionIfBlank
+     * @return the action
+     */
+    public static GrouperInstallerAdminManageServiceAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerAdminManageServiceAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    }
+    
+  }
+
   /**
    * parse attributes
    * @param fileContents
