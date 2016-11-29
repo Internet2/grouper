@@ -1364,6 +1364,8 @@ public class GrouperInstaller {
    */
   private static boolean validJavaOutput(String command, String what, boolean jdkTest, boolean fatal) {
     
+    boolean printStackOnError = GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.printStackOnJavaVersionErrors", false, false);
+
     try {
     
       List<String> commands = new ArrayList<String>();
@@ -1377,7 +1379,7 @@ public class GrouperInstaller {
       commands.add("-version");
         
       CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-          true, true, null, null, null, false, true, false);
+          true, true, null, null, null, false, true, printStackOnError);
       
       //note this is printed view stderr not stdout
       String output = commandResult.getErrorText();
@@ -1390,9 +1392,9 @@ public class GrouperInstaller {
         
         if (!javaVersionMatcher.matches()) {
           if (jdkTest) {
-            System.out.println((fatal ? "" : "Non-fatal ") + "Error: can't find 'javac' command in " + what + ", Java needs to be a JDK not a JRE!");
+            System.out.println((fatal ? "" : "Non-fatal ") + "ERROR: can't find 'javac' command in " + what + ", Java needs to be a JDK not a JRE!");
           }
-          System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
+          System.out.println((fatal ? "" : "Non-fatal ") + "ERROR trying to check java output, make sure you have " + what 
               + " set to Java JDK (not JRE) 1.7+\n"
               + "" + commandResult.getErrorText() + "\n" + commandResult.getOutputText());
           if (!fatal) {
@@ -1419,11 +1421,11 @@ public class GrouperInstaller {
       return false;
     } catch (RuntimeException re) {
 
-      if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.printStackOnJavaVersionErrors", false, false)) {
+      if (printStackOnError) {
         re.printStackTrace();
       }
 
-      System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
+      System.out.println((fatal ? "" : "Non-fatal ") + "ERROR trying to check java output, make sure you have " + what 
           + " set to Java JDK (not JRE) 1.7+  " + re.getMessage());
       return true;
     }
