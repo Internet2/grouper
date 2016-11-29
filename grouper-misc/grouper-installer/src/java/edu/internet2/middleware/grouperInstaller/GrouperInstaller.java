@@ -1377,7 +1377,7 @@ public class GrouperInstaller {
       commands.add("-version");
         
       CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-          true, true, null, null, null, true);
+          true, true, null, null, null, false, true, false);
       
       //note this is printed view stderr not stdout
       String output = commandResult.getErrorText();
@@ -1418,12 +1418,17 @@ public class GrouperInstaller {
       }
       return false;
     } catch (RuntimeException re) {
+
+      if (GrouperInstallerUtils.propertiesValueBoolean("grouperInstaller.printStackOnJavaVersionErrors", false, false)) {
+        re.printStackTrace();
+      }
+
       System.out.println((fatal ? "" : "Non-fatal ") + "Error trying to check java output, make sure you have " + what 
-          + " set to Java JDK (not JRE) 1.7+");
+          + " set to Java JDK (not JRE) 1.7+  " + re.getMessage());
       return true;
     }
   }
-  
+
   /**
    * 
    */

@@ -10145,7 +10145,7 @@ public class GrouperInstallerUtils  {
       if (logError) {
         LOG.error("Error running command: " + command, e);
       }
-      throw new RuntimeException("Error running command: " + command, e);
+      throw new RuntimeException("Error running command: " + command + ", " + e.getMessage(), e);
     } finally {
       try {
         process.destroy();
@@ -10536,8 +10536,7 @@ public class GrouperInstallerUtils  {
   }
   
   /**
-   * 
-   * @param xmlFile
+   * @param url
    * @param xpathExpression
    * @return the nodelist
    */
@@ -10559,8 +10558,7 @@ public class GrouperInstallerUtils  {
   }
   
   /**
-   * 
-   * @param xmlFile
+   * @param inputStream
    * @param xpathExpression
    * @return the nodelist
    */
