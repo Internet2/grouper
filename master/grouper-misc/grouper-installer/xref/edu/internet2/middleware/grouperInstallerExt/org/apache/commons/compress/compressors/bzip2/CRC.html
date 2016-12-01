@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>CRC xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../../../../../apidocs/edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/bzip2/CRC.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Licensed to the Apache Software Foundation (ASF) under one</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * or more contributor license agreements.  See the NOTICE file</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> * distributed with this work for additional information</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <em class="jxr_comment"> * regarding copyright ownership.  The ASF licenses this file</em>
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   <em class="jxr_comment"> * to you under the Apache License, Version 2.0 (the</em>
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_comment"> * "License"); you may not use this file except in compliance</em>
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_comment"> * with the License.  You may obtain a copy of the License at</em>
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_comment"> * <a href="http://www.apache.org/licenses/LICENSE-2." target="alexandria_uri">http://www.apache.org/licenses/LICENSE-2.</a>0</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_comment"> *</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_comment"> * Unless required by applicable law or agreed to in writing,</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_comment"> * software distributed under the License is distributed on an</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_comment"> * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_comment"> * KIND, either express or implied.  See the License for the</em>
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_comment"> * specific language governing permissions and limitations</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_comment"> * under the License.</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">package</strong> edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.bzip2;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * A simple class the hold and calculate the CRC for sanity checking of the</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * data.</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * @NotThreadSafe</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">class</strong> <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/bzip2/CRC.html">CRC</a> {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> crc32Table[] = {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>              0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9,
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>              0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61,
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              0x4c11db70, 0x48d0c6c7, 0x4593e01e, 0x4152fda9,
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>              0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011,
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              0x791d4014, 0x7ddc5da3, 0x709f7b7a, 0x745e66cd,
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039,
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5,
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              0xbe2b5b58, 0xbaea46ef, 0xb7a96036, 0xb3687d81,
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>              0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              0xc7361b4c, 0xc3f706fb, 0xceb42022, 0xca753d95,
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>              0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>              0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              0x34867077, 0x30476dc0, 0x3d044b19, 0x39c556ae,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              0x018aeb13, 0x054bf6a4, 0x0808d07d, 0x0cc9cdca,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              0x5e9f46bf, 0x5a5e5b08, 0x571d7dd1, 0x53dc6066,
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              0xbfa1b04b, 0xbb60adfc, 0xb6238b25, 0xb2e29692,
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6,
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a,
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              0xe0b41de7, 0xe4750050, 0xe9362689, 0xedf73b3e,
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686,
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              0xd5b88683, 0xd1799b34, 0xdc3abded, 0xd8fba05a,
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637,
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              0x4f040d56, 0x4bc510e1, 0x46863638, 0x42472b8f,
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              0x251d3b9e, 0x21dc2629, 0x2c9f00f0, 0x285e1d47,
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              0x36194d42, 0x32d850f5, 0x3f9b762c, 0x3b5a6b9b,
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff,
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623,
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              0xf12f560e, 0xf5ee4bb9, 0xf8ad6d60, 0xfc6c70d7,
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f,
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              0xc423cd6a, 0xc0e2d0dd, 0xcda1f604, 0xc960ebb3,
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7,
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b,
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              0x9b3660c6, 0x9ff77d71, 0x92b45ba8, 0x9675461f,
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              0x4e8ee645, 0x4a4ffbf2, 0x470cdd2b, 0x43cdc09c,
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8,
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24,
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              0x119b4be9, 0x155a565e, 0x18197087, 0x1cd86d30,
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088,
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              0x2497d08d, 0x2056cd3a, 0x2d15ebe3, 0x29d4f654,
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0,
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c,
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18,
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0,
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668,
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          };
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <a href="../../../../../../../../../../edu/internet2/middleware/grouperInstallerExt/org/apache/commons/compress/compressors/bzip2/CRC.html">CRC</a>() {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              initialiseCRC();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">void</strong> initialiseCRC() {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              globalCrc = 0xffffffff;
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">int</strong> getFinalCRC() {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">return</strong> ~globalCrc;
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">int</strong> getGlobalCRC() {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             <strong class="jxr_keyword">return</strong> globalCrc;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">void</strong> setGlobalCRC(<strong class="jxr_keyword">int</strong> newCrc) {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>             globalCrc = newCrc;
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <strong class="jxr_keyword">void</strong> updateCRC(<strong class="jxr_keyword">int</strong> inCh) {
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             <strong class="jxr_keyword">int</strong> temp = (globalCrc &gt;&gt; 24) ^ inCh;
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">if</strong> (temp &lt; 0) {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 temp = 256 + temp;
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             globalCrc = (globalCrc &lt;&lt; 8) ^ CRC.crc32Table[temp];
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">void</strong> updateCRC(<strong class="jxr_keyword">int</strong> inCh, <strong class="jxr_keyword">int</strong> repeat) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">int</strong> globalCrcShadow = <strong class="jxr_keyword">this</strong>.globalCrc;
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>             <strong class="jxr_keyword">while</strong> (repeat-- &gt; 0) {
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 <strong class="jxr_keyword">int</strong> temp = (globalCrcShadow &gt;&gt; 24) ^ inCh;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 globalCrcShadow = (globalCrcShadow &lt;&lt; 8) ^ crc32Table[(temp &gt;= 0)
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>                                                           ? temp
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                                                           : (temp + 256)];
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>             }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             <strong class="jxr_keyword">this</strong>.globalCrc = globalCrcShadow;
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> globalCrc;
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> }
+</pre>
+<hr/>
+<div id="footer">Copyright &#169; 2016 <a href="http://www.internet2.edu/">Internet2</a>. All rights reserved.</div>
+</body>
+</html>
