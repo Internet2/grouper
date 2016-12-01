@@ -3609,6 +3609,10 @@ public class GrouperInstaller {
     //Find out what directory to upgrade to.  This ends in a file separator
     this.grouperTarballDirectoryString = grouperUpgradeTempDirectory();
     
+    //GRP-1429: grouperInstaller tarballs dir fails on upgrade
+    //set this here since on upgrade some things download to this dir...
+    this.grouperInstallDirectoryString = this.grouperTarballDirectoryString;
+    
     //see what we are upgrading: api, ui, ws, client
     this.appToUpgrade = grouperAppToUpgradeOrPatch("upgrade");
 
@@ -4857,7 +4861,7 @@ public class GrouperInstaller {
     File newEhcacheExample = new File(this.untarredApiDir + File.separator + "conf" + File.separator + "ehcache.xml");
 
     //this file is done
-    if (!newEhcacheExample.exists()) {
+    if (!newEhcacheExample.exists() || this.ehcacheFile == null || !this.ehcacheFile.exists()) {
       return;
     }
     
