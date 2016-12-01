@@ -194,7 +194,10 @@ public class LdapSession {
           }
           
           DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
+          factory.setLdapValidator(grouperLoaderLdapServer.getValidator());
+
           blockingLdapPool = new BlockingLdapPool(ldapPoolConfig, factory);
+          blockingLdapPool.initialize();
           poolMap.put(ldapServerId, blockingLdapPool);
         }
       }

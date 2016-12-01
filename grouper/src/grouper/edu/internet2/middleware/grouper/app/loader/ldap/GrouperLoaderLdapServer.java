@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
+import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.pool.LdapValidator;
 import org.apache.commons.lang.StringUtils;
 
 
@@ -115,6 +117,9 @@ public class GrouperLoaderLdapServer {
 
   /** if validating periodically, this is the period in millis */
   private int validateTimerPeriod = -1;
+
+  /** if validating, the validating function */
+  private LdapValidator<Ldap> validator = null;
 
   /** period for which prune timer will run, in millis */
   private int pruneTimerPeriod = -1;
@@ -379,6 +384,23 @@ public class GrouperLoaderLdapServer {
   public void setValidateTimerPeriod(int validateTimerPeriod1) {
     this.validateTimerPeriod = validateTimerPeriod1;
   }
+
+  /**
+   * if validating, the LDAPFactory validator
+   * @param validator
+   */
+  public void setValidator(LdapValidator<Ldap> validator) {
+    this.validator = validator;
+  }
+
+  /**
+   * if validating, the LDAPFactory validator
+   * @return the LDAPFactory validator
+   */
+  public LdapValidator<Ldap> getValidator() {
+    return this.validator;
+  }
+
 
   /**
    * period for which prune timer will run, in millis

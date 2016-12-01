@@ -21,3 +21,11 @@ edu.vt.middleware.ldap.bindCredential=admin_password
 # pooling options
 edu.vt.middleware.ldap.pool.minPoolSize = 2
 edu.vt.middleware.ldap.pool.maxPoolSize = 5
+#edu.vt.middleware.ldap.pool.pruneTimerPeriod = 300000
+#edu.vt.middleware.ldap.pool.expirationTime = 600000
+
+# pooling validation, if a validator was set up in sources.xml
+#edu.vt.middleware.ldap.pool.validateOnCheckIn = false
+#edu.vt.middleware.ldap.pool.validateOnCheckOut = false
+#edu.vt.middleware.ldap.pool.validatePeriodically = false
+#edu.vt.middleware.ldap.pool.validateTimerPeriod = 1800000
