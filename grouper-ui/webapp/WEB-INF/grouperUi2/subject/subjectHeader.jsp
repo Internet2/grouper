@@ -263,7 +263,7 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="subjectDetailsMoreId"><a href="#" onclick="$('#subjectDetailsId').show('slow'); $('#subjectDetailsMoreId').hide(); $('#subjectDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
+                    <p id="subjectDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreSubject']}" onclick="$('#subjectDetailsId').show('slow'); $('#subjectDetailsMoreId').hide(); $('#subjectDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
                     <p id="subjectDetailsLessId" style="display: none"><a href="#" onclick="$('#subjectDetailsId').hide('slow'); $('#subjectDetailsLessId').hide(); $('#subjectDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
                   </div>
                   <div class="span3" id="subjectMoreActionsButtonContentsDivId">
