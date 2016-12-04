@@ -20,7 +20,7 @@
                     --%>
                     <div class="btn-group btn-block">
                     	<a data-toggle="dropdown" href="#" class="btn btn-medium btn-block dropdown-toggle" 
-                    		aria-haspopup="true" aria-expanded="false" role="menu" 
+                    		aria-haspopup="true" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" aria-expanded="false" role="menu" 
                     		onclick="$('#stem-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#stem-more-options li').first().focus();return true;});">
                     		${textContainer.text['stemViewMoreActionsButton'] }<span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right" id="stem-more-options">

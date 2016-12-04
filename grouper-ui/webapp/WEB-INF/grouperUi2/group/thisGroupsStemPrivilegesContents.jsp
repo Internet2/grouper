@@ -89,7 +89,7 @@
                         </c:forEach>
                         <td>
                           <div class="btn-group">
-                          	<a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle"
+                          	<a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
                           		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                           		${textContainer.text['thisGroupsPrivilegesActionsButton']} 
                           			<span class="caret"></span>
