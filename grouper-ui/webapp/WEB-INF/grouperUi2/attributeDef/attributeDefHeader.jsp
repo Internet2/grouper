@@ -222,7 +222,7 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="attributeDefDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDef']}" id="moreButtonId" onclick="$('#attributeDefDetailsId').show('slow'); $('#attributeDefDetailsMoreId').hide(); $('#attributeDefDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
+                    <p id="attributeDefDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeDefDetails']}" id="moreButtonId" onclick="$('#attributeDefDetailsId').show('slow'); $('#attributeDefDetailsMoreId').hide(); $('#attributeDefDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
                     <p id="attributeDefDetailsLessId" style="display: none"><a href="#" onclick="$('#attributeDefDetailsId').hide('slow'); $('#attributeDefDetailsLessId').hide(); $('#attributeDefDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
                   </div>
                   <div class="span2" id="attributeDefMoreActionsButtonContentsDivId">

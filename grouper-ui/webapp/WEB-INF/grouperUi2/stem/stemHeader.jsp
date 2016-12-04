@@ -247,7 +247,7 @@
                         </tbody>
                       </table>
                     </div>
-                    <p id="stemDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreStem']}" onclick="$('#stemDetailsId').show('slow'); $('#stemDetailsMoreId').hide(); $('#stemDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
+                    <p id="stemDetailsMoreId"><a href="#" aria-label="${textContainer.text['ariaLabelGuiMoreStemDetails']}" onclick="$('#stemDetailsId').show('slow'); $('#stemDetailsMoreId').hide(); $('#stemDetailsLessId').show(); return false" >${textContainer.text['guiMore']} <i class="fa fa-angle-down"></i></a></p>
                     <p id="stemDetailsLessId" style="display: none"><a href="#" onclick="$('#stemDetailsId').hide('slow'); $('#stemDetailsLessId').hide(); $('#stemDetailsMoreId').show(); return false" >${textContainer.text['guiLess']} <i class="fa fa-angle-up"></i></a></p>
                      
                   </div>
