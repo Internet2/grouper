@@ -53,7 +53,7 @@
                                 || (guiMembershipContainer.membershipContainer.membershipAssignType.immediate && grouperRequestContainer.groupContainer.canUpdate)
                                 || guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate
                                 || guiMembershipSubjectContainer.guiSubject.group}">
-                              <div class="btn-group"><a data-toggle="dropdown" href="#" class="btn btn-mini dropdown-toggle"
+                              <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="btn btn-mini dropdown-toggle"
                               	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options li').first().focus();return true;});">
                               		${textContainer.text['groupViewActionsButton'] } 
                               		<span class="caret"></span>

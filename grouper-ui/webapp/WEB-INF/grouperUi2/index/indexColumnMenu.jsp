@@ -8,7 +8,7 @@
                       <ul class="nav">
                         <li class="dropdown">
                         	<a data-toggle="dropdown" href="#" class="dropdown-toggle"
-                        		aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#widget-more-options${col}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#widget-more-options${col} li').first().focus();return true;});">
+                        		aria-haspopup="true" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" aria-expanded="false" role="menu" onclick="$('#widget-more-options${col}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#widget-more-options${col} li').first().focus();return true;});">
                         	<i class="fa fa-cog edit-widget dropdown"></i></a>
                           <ul class="dropdown-menu dropdown-menu-right" id="widget-more-options${col}">
                           	<!-- HJ : 20150319 -->
