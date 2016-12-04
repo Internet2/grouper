@@ -66,14 +66,14 @@
                                 <label class="control-label">${textContainer.text['groupViewAssignThesePrivileges']}</label>
                                 <div class="controls" >
                                   <label class="radio inline" >
-                                    <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').hide('slow');"/>${textContainer.text['groupViewDefaultPrivileges'] }
+                                    <input type="radio" id="priv1" value="default" name="privilege-options" checked="checked" onclick="this.blur();" value="true" onchange="hideCustomPrivilege()"/>${textContainer.text['groupViewDefaultPrivileges'] }
                                   </label>
                                   <label class="radio inline">
-                                    <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="$('#add-members-privileges').show('slow');"/>${textContainer.text['groupViewCustomPrivileges'] }
+                                    <input type="radio" id="priv2" value="custom" name="privilege-options" onclick="this.blur();" value="true" onchange="showCustomPrivilege()"/>${textContainer.text['groupViewCustomPrivileges'] }
                                   </label>
                                 </div>
                               </div>
-                              <div id="add-members-privileges" class="control-group hide">
+                              <div id="add-members-privileges" class="control-group hide" aria-live="polite" aria-expanded="false">
                                 <label class="control-label" ${defaultMemberUnchecked ? '' : 'style="display:none"' } >${textContainer.text['groupViewAssignThesePrivileges']}</label>
                                 <div class="controls">
                                   <%-- dont show member if its a composite --%>
