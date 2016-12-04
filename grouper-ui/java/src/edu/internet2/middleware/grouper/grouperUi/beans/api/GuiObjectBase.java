@@ -315,11 +315,14 @@ public abstract class GuiObjectBase {
    * @return breancrumbs
    */
   public String getBreadcrumbs() {
+    
+    String ariaLabel = TextContainer.retrieveFromRequest().getText().get("guiBreadcrumbsAriaLabel");
     StringBuilder result = new StringBuilder();
-    result.append("<h1 style=\"display:none; \">breadcrumb</h1>");
+    result.append("<nav role=\"navigation\" aria-label=\""+ariaLabel+"\">");
     result.append("<ul class=\"breadcrumb\">");
     result.append(this.getBreadcrumbBullets());
     result.append("</ul>");
+    result.append("</nav>");
     return result.toString();
   }
   
