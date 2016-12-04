@@ -492,28 +492,20 @@ public class UiV2MyGroups {
       
       GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
 
-      // run this as groupersystem so that we see more than just privs this user can read (e.g. optin/optout)
-      Set<MembershipSubjectContainer> results =
-          
-          (Set<MembershipSubjectContainer>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      MembershipFinder membershipFinder = new MembershipFinder()
+        .assignSubjectHasMembershipForGroup(loggedInSubject)
+        .addSubject(loggedInSubject)
+        .assignCheckSecurity(true)
+        .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
+        .assignEnabled(true)
+        .assignQueryOptionsForGroup(queryOptions);
+      if (!StringUtils.isBlank(myGroupsFilter)) {
+        membershipFinder.assignSplitScopeForGroup(true);
+        membershipFinder.assignScopeForGroup(myGroupsFilter);
+      }
             
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              MembershipFinder membershipFinder = new MembershipFinder()
-                .assignSubjectHasMembershipForGroup(loggedInSubject)
-                .addSubject(loggedInSubject)
-                .assignCheckSecurity(true)
-                .assignPrivilegesTheUserHas(AccessPrivilege.OPT_OR_READ_PRIVILEGES)
-                .assignEnabled(true)
-                .assignQueryOptionsForGroup(queryOptions);
-              if (!StringUtils.isBlank(myGroupsFilter)) {
-                membershipFinder.assignSplitScopeForGroup(true);
-                membershipFinder.assignScopeForGroup(myGroupsFilter);
-              }
-            
-              return membershipFinder
+      Set<MembershipSubjectContainer> results = membershipFinder
                   .findMembershipResult().getMembershipSubjectContainers();
-            }
-          });
       
       MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
       

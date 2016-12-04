@@ -8264,6 +8264,16 @@ public class GrouperInstallerUtils  {
    * @param printProgress if print progress during thread
    */
   public static void threadRunWithStatusDots(final Runnable runnable, boolean printProgress) {
+    threadRunWithStatusDots(runnable, printProgress, true);    
+  }
+  
+  /**
+   * every 5 seconds print a status dot to system out, and newline at end.  After 20, newline
+   * @param runnable runnable to run
+   * @param printProgress if print progress during thread
+   * @param injectStackInException 
+   */
+  public static void threadRunWithStatusDots(final Runnable runnable, boolean printProgress, boolean injectStackInException) {
     
     if (!printProgress) {
       runnable.run();
@@ -8330,9 +8340,10 @@ public class GrouperInstallerUtils  {
       
       if (theException[0] != null) {
         
-        //append this stack
-        injectInException(theException[0], getFullStackTrace(new RuntimeException("caller stack")));
-        
+        if (injectStackInException) {
+          //append this stack
+          injectInException(theException[0], getFullStackTrace(new RuntimeException("caller stack")));
+        }        
         throw theException[0];
       }
   
@@ -10064,7 +10075,7 @@ public class GrouperInstallerUtils  {
       }
     };
 
-    GrouperInstallerUtils.threadRunWithStatusDots(runnable, printProgress);
+    GrouperInstallerUtils.threadRunWithStatusDots(runnable, printProgress, logError);
 
     return result[0];
 
@@ -10145,7 +10156,7 @@ public class GrouperInstallerUtils  {
       if (logError) {
         LOG.error("Error running command: " + command, e);
       }
-      throw new RuntimeException("Error running command: " + command, e);
+      throw new RuntimeException("Error running command: " + command + ", " + e.getMessage(), e);
     } finally {
       try {
         process.destroy();
@@ -10519,11 +10530,55 @@ public class GrouperInstallerUtils  {
    * @return the nodelist
    */
   public static NodeList xpathEvaluate(File xmlFile, String xpathExpression) {
+    InputStream inputStream = null;
+    try {
+      inputStream = new FileInputStream(xmlFile);
+      return xpathEvaluate(inputStream, xpathExpression);
+    } catch (Exception e) {
+      String errorMessage = "Problem with file: " + xmlFile == null ? null : xmlFile.getAbsolutePath();
+      if (e instanceof RuntimeException) {
+        GrouperInstallerUtils.injectInException(e, errorMessage);
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(errorMessage, e);
+    } finally {
+      GrouperInstallerUtils.closeQuietly(inputStream);
+    }
+  }
+  
+  /**
+   * @param url
+   * @param xpathExpression
+   * @return the nodelist
+   */
+  public static NodeList xpathEvaluate(URL url, String xpathExpression) {
+    InputStream inputStream = null;
+    try {
+      inputStream = url.openStream();
+      return xpathEvaluate(inputStream, xpathExpression);
+    } catch (Exception e) {
+      String errorMessage = "Problem with url: " + url == null ? null : url.toExternalForm();
+      if (e instanceof RuntimeException) {
+        GrouperInstallerUtils.injectInException(e, errorMessage);
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(errorMessage, e);
+    } finally {
+      GrouperInstallerUtils.closeQuietly(inputStream);
+    }
+  }
+  
+  /**
+   * @param inputStream
+   * @param xpathExpression
+   * @return the nodelist
+   */
+  public static NodeList xpathEvaluate(InputStream inputStream, String xpathExpression) {
     
     try {
       DocumentBuilderFactory domFactory = xmlDocumentBuilderFactory(); 
       DocumentBuilder builder = domFactory.newDocumentBuilder();
-      Document doc = builder.parse(xmlFile);
+      Document doc = builder.parse(inputStream);
       XPath xpath = XPathFactory.newInstance().newXPath();
        // XPath Query for showing all nodes value
       XPathExpression expr = xpath.compile(xpathExpression);
@@ -10532,7 +10587,7 @@ public class GrouperInstallerUtils  {
       NodeList nodes = (NodeList) result;
       return nodes;
     } catch (Exception e) {
-      throw new RuntimeException("Problem evaluating xpath on file: " + xmlFile + ", expression: '" + xpathExpression + "'", e);
+      throw new RuntimeException("Problem evaluating xpath: " + ", expression: '" + xpathExpression + "'", e);
     }
 
   }
@@ -10949,8 +11004,9 @@ public class GrouperInstallerUtils  {
    */
   public static boolean contentEquals(File file1, File file2) {
     try {
-      boolean file1Exists = file1.exists();
-      if (file1Exists != file2.exists()) {
+      boolean file1Exists = file1 != null && file1.exists();
+      boolean file2Exists = file2 != null && file2.exists();
+      if (file1Exists != file2Exists) {
         return false;
       }
 

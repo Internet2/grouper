@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -623,6 +625,21 @@ public class PrivilegeHelper {
         if (canRead(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
           return true;
         }
+        
+        Member member = MemberFinder.internal_findBySubject(grouperSession.getSubject(), null, false);
+        
+        if (member != null) {
+          if (member.getUuid().equals(membership.getMemberUuid())) {
+            if (canOptin(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
+              return true;
+            }
+            
+            if (canOptout(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
+              return true;
+            }
+          }
+        }
+        
         return false;
       } else {
         throw new RuntimeException("Invalid field type: " + membership.getList().getType());
