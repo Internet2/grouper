@@ -2289,6 +2289,32 @@ function showHideMemberAddBlock() {
   }	
 }
 
+/**
+ * show the privileges block on click of Custom Privileges radio button
+ * Also add attributes for accessibility
+ * */
+function showCustomPrivilege() {
+	
+  $("#add-members-privileges").show('slow');
+  $("#add-members-privileges").attr("aria-expanded","true");
+  $("#add-members-privileges").attr("role", "alert");
+  
+}
+
+/**
+ * Hide the privileges block on click of Default Privileges radio button
+ * Also add attributes for accessibility
+ * */
+function hideCustomPrivilege() {
+	
+  $("#add-members-privileges").hide('slow');
+  $("#add-members-privileges").attr("aria-expanded","false");
+  $("#add-members-privileges").removeAttr("role");
+  
+}
+
+
+
 function setupAccessibilityTabs() {
 
   // The class for the container div
