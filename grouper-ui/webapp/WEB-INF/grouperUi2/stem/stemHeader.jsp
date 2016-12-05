@@ -62,17 +62,17 @@
                               <div class="controls">
                                 <label class="checkbox inline" for="inherited_privilege_stem_id">
                                   <input type="checkbox" name="inherited_privilege_stem" value="true" id="inherited_privilege_stem_id"
-                                    onchange="if ($('#inherited_privilege_stem_id').prop('checked')) {$('#add-members-privileges-select').show('slow');} else {$('#add-members-privileges-select').hide('slow');}"
+                                    onchange="if ($('#inherited_privilege_stem_id').prop('checked')) { showCustomPrivilege('add-members-privileges-select');} else {hideCustomPrivilege('add-members-privileges-select');}"
                                    />${textContainer.text['rulesThenTypeFolder']}
                                 </label>
                                 <label class="checkbox inline" for="inherited_privilege_group_id">
                                   <input type="checkbox" name="inherited_privilege_group" value="true" id="inherited_privilege_group_id" 
-                                    onchange="if ($('#inherited_privilege_group_id').prop('checked')) {$('#add-members-privileges').show('slow');} else {$('#add-members-privileges').hide('slow');}"
+                                    onchange="if ($('#inherited_privilege_group_id').prop('checked')) {showCustomPrivilege('add-members-privileges');} else { hideCustomPrivilege('add-members-privileges');}"
                                   />${textContainer.text['rulesThenTypeGroup']}
                                 </label>
                                 <label class="checkbox inline" for="inherited_privilege_attributeDef_id" id="inheritedPrivilegeTypeErrorId">
                                   <input type="checkbox" name="inherited_privilege_attributeDef" value="true" id="inherited_privilege_attributeDef_id" 
-                                    onchange="if ($('#inherited_privilege_attributeDef_id').prop('checked')) {$('#add-members-privileges-attrDef').show('slow');} else {$('#add-members-privileges-attrDef').hide('slow');}"
+                                    onchange="if ($('#inherited_privilege_attributeDef_id').prop('checked')) {showCustomPrivilege('add-members-privileges-attrDef');} else { hideCustomPrivilege('add-members-privileges-attrDef');}"
                                   />${textContainer.text['rulesThenTypeAttribute']}
                                 </label>
                               </div>
