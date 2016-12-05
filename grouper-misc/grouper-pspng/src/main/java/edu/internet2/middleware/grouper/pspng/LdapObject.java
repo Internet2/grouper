@@ -259,7 +259,7 @@ public class LdapObject {
       return result;
     } catch (LDAPException e) {
       LOG.error("Problem checking ldap filter in memory: {}", filter, e);
-      throw new PspException("Problem checking ldap filter: %s", e.getMessage());
+      throw new PspException("Problem checking ldap filter {}: %s", filter, e.getMessage());
     }
     
   }

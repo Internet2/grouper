@@ -252,11 +252,11 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       LOG.debug("Reading group that was just added to ldap server: {}", grouperGroup);
       return fetchTargetSystemGroup(grouperGroup);
     } catch (PspException e) {
-      LOG.error("Problem while creating new group: {}: {}", ldif, e.getMessage());
+      LOG.error("Problem while creating new group: {}", ldif, e);
       throw e;
     } catch ( IOException e ) {
-      LOG.error("Problem while processing ldif to create new group: {}", ldif, e);
-      throw new PspException("LDIF problem creating group: %s", e.getMessage());
+      LOG.error("IO problem while creating group: {}", ldif, e);
+      throw new PspException("IO problem while creating group: %s", e.getMessage());
     }
     finally {
       conn.close();
@@ -307,7 +307,8 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
               returnAttributes));
     }
     catch (PspException e) {
-      LOG.error("Problem fetching groups with filter {}", combinedLdapFilter);
+      LOG.error("Problem fetching groups with filter '{}' on base '{}'", 
+          new Object[]{combinedLdapFilter, config.getGroupSearchBaseDn(), e});
       throw e;
     }
 

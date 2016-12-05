@@ -59,7 +59,7 @@ public class FullSyncStarter extends ChangeLogConsumerBase {
         fsProvisioner = FullSyncProvisionerFactory.getFullSyncer(name);
         fsProvisioner.queueAllGroupsForFullSync();
       } catch (PspException e) {
-        LOG.error("Problem setting up full sync provisioner {}: {}", name, e.getMessage());
+        LOG.error("Problem setting up full sync provisioner {}", name, e);
       }
     }
   }
@@ -75,16 +75,20 @@ public class FullSyncStarter extends ChangeLogConsumerBase {
     Map<String, String> loaderProperties = GrouperLoaderConfig.retrieveConfig().propertiesMap(Pattern.compile(".*.type$"));
     
     for ( String key : loaderProperties.keySet() ) {
+      String propertyValue=null;
       try {
-        String value = loaderProperties.get(key);
-        Class clazz = Class.forName(value);
+        propertyValue = loaderProperties.get(key);
+        Class clazz = Class.forName(propertyValue);
         if ( Provisioner.class.isAssignableFrom(clazz) ) {
           String keyPieces[] = key.split("\\.");
           String jobName = keyPieces[keyPieces.length-2];
           provisionerJobNames.add(jobName);
         }
+        else
+          LOG.info("Class is not a Provisioner subclass: {}", propertyValue);
       } catch (ClassNotFoundException e)
       { // Skip invalid class reference
+        LOG.warn("Could not find class {}. Assuming it is not a Provisioner subclass.", propertyValue);
         continue; 
       }
     }

@@ -317,8 +317,8 @@ public class FullSyncProvisioner  {
       MDC.put("step", "fin/");
       provisioner.finishProvisioningBatch(Arrays.asList(workItem));
     } catch (PspException e) {
-      LOG.error("{}: Problem doing full sync. Requeuing {}: {}",
-          new Object[]{ provisioner.getName(), grouperGroupInfo, e.getMessage()} );
+      LOG.error("{}: Problem doing full sync. Requeuing {}",
+          new Object[]{ provisioner.getName(), grouperGroupInfo, e} );
       
       // Put the group into the error queue
       queueGroupForSync(grouperGroupInfo, groupsToSyncRetry);
@@ -349,8 +349,8 @@ public class FullSyncProvisioner  {
       MDC.put("step",  "fin/");
       provisioner.finishProvisioningBatch(Arrays.asList(workItem));
     } catch (PspException e) {
-      LOG.error("{}: Problem doing group cleanup: {}",
-          provisioner.getName(), e.getMessage() );
+      LOG.error("{}: Problem doing group cleanup",
+          provisioner.getName(), e );
     }
     catch (Throwable e) {
       LOG.error("{}: Problem doing group cleanup",

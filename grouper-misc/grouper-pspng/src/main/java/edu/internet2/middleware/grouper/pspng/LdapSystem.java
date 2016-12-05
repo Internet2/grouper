@@ -159,7 +159,7 @@ public class LdapSystem {
       performTestLdapRead(conn);
     } catch (LdapException e) {
       LOG.error("Problem while testing ldap pool", e);
-      throw new PspException("Problem testing ldap pool", e);
+      throw new PspException("Problem testing ldap pool: %s", e.getMessage());
     }
     
     
@@ -191,8 +191,8 @@ public class LdapSystem {
       LOG.info("Search success: " + searchResultEntry.getAttributes());
     }
     catch (LdapException e) {
-      LOG.error("Ldap problem: " + e.getMessage());
-      throw new PspException("Problem testing ldap connection", e);
+      LOG.error("Ldap problem",e);
+      throw new PspException("Problem testing ldap connection: %s", e.getMessage());
     }
     finally {
       conn.close();
@@ -291,7 +291,8 @@ public class LdapSystem {
       Connection conn = pool.getConnection();
       return conn;
     } catch (PoolException e) {
-      throw new PspException("Problem connecting to ldap server " + pool);
+      LOG.error("LDAP Pool Exception", e);
+      throw new PspException("Problem connecting to ldap server %s: %s",pool, e.getMessage());
     }
   }
   
@@ -320,7 +321,7 @@ public class LdapSystem {
       conn.open();
       conn.getProviderConnection().add(new AddRequest(entryToAdd.getDn(), entryToAdd.getAttributes()));
     } catch (LdapException e) {
-      LOG.error("Problem while creating new object: {}", entryToAdd, e);
+      LOG.error("Problem while creating new ldap object: {}", entryToAdd, e);
       throw new PspException("LDAP problem creating object: %s", e.getMessage());
     }
     finally {
@@ -340,7 +341,7 @@ public class LdapSystem {
       conn.open();
       conn.getProviderConnection().delete(new DeleteRequest(dnToDelete));
     } catch (LdapException e) {
-      LOG.error("Problem while deleting object: {}", dnToDelete, e);
+      LOG.error("Problem while deleting ldap object: {}", dnToDelete, e);
       throw new PspException("LDAP problem deleting object: %s", e.getMessage());
     }
     finally {
@@ -379,7 +380,7 @@ public class LdapSystem {
     }
     catch (LdapException e) {
       if ( e.getResultCode() == ResultCode.NO_SUCH_OBJECT ) {
-        LOG.warn("{}: Ldap object does not exist: {}", ldapSystemName, dn);
+        LOG.warn("{}: Ldap object does not exist: '{}'", ldapSystemName, dn);
         return null;
       }
       
@@ -440,7 +441,7 @@ public class LdapSystem {
     }
     catch (LdapException e) {
       if ( e.getResultCode() == ResultCode.NO_SUCH_OBJECT ) {
-        LOG.warn("Search base does not exist: {}", request.getBaseDn());
+        LOG.warn("Search base does not exist: {} (No such object ldap error)", request.getBaseDn());
         return Collections.EMPTY_LIST;
       }
       
@@ -531,11 +532,11 @@ public class LdapSystem {
       return true;
     }
     catch (LdapException e) {
-      LOG.error("LDAP Failure: " + e.getMessage());
+      LOG.error("LDAP Failure",e);
       return false;
     }
     catch (PspException e) {
-      LOG.error("LDAP Failure: " + e.getMessage());
+      LOG.error("LDAP Failure",e);
       return false;
     }
   }

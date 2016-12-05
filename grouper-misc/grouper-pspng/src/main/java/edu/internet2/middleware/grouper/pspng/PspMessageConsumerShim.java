@@ -89,7 +89,7 @@ public class PspMessageConsumerShim extends ChangeLogConsumerBase {
           provisioner.provisionItem(workItem);
         }
         catch (PspException e) {
-          LOG.error( String.format("Problem provisioning %s: %s", workItem), e);
+          LOG.error( "Problem provisioning %s", workItem, e);
           workItem.markAsFailure(e.getMessage());
         }
       }

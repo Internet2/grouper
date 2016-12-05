@@ -133,7 +133,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       LOG.info("Read {} user objects from directory", searchResult.size());
     }
     catch (PspException e) {
-      LOG.error("Problem searching for subjects with filter {}", combinedLdapFilter);
+      LOG.error("Problem searching for subjects with filter {} on base {}", 
+          new Object[] {combinedLdapFilter, config.getUserSearchBaseDn(), e} );
       throw e;
     }
     
@@ -219,7 +220,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       LOG.debug("Reading account that was just added to ldap server: {}", personSubject);
       return fetchTargetSystemUser(personSubject);
     } catch (PspException e) {
-      LOG.error("Problem while creating new user: {}: {}", ldif, e.getMessage());
+      LOG.error("Problem while creating new user: {}: {}", ldif, e);
       throw e;
     } catch ( IOException e ) {
       LOG.error("Problem while processing ldif to create new user: {}", ldif, e);
@@ -280,7 +281,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         workItem.markAsSuccess("Modification complete");
       
     } catch (PspException e1) {
-      LOG.warn("Optimized, coalesced ldap provisioning failed:  {}", e1.getMessage());
+      LOG.warn("Optimized, coalesced ldap provisioning failed:  {}", e1);
       LOG.warn("RETRYING: Performing much slower, unoptimized ldap provisioning after optimized provisioning failed");
       
         for ( ProvisioningWorkItem workItem : workItems ) {
@@ -289,7 +290,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
             makeIndividualLdapChanges(workItem);
             workItem.markAsSuccess("Modification complete");
           } catch (PspException e2) {
-            LOG.error("Simple ldap provisioning failed for {}: {}", workItem, e2);
+            LOG.error("Simple ldap provisioning failed for {}", workItem, e2);
             workItem.markAsFailure("Modification failed: %s", e2.getMessage());
           }
       }
@@ -450,7 +451,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
           } catch (LdapException e) {
             LOG.warn("Problem doing coalesced ldap modification (THIS WILL BE RETRIED): {} / {}",
                 new Object[]{dn, mod, e});
-            throw new PspException("Coalesced LDAP Modification failed",e);
+            throw new PspException("Coalesced LDAP Modification failed: {}",e.getMessage());
           } 
         }
       } finally {
@@ -502,7 +503,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         
         else {
           LOG.error("Ldap provisioning failed for {} / {}", new Object[]{workItem, mod, e});
-          throw new PspException("LDAP Provisioning failed");
+          throw new PspException("LDAP Provisioning failed: %s", e.getMessage());
         }
       } finally {
         conn.close();
@@ -589,8 +590,8 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
         }
       }
       catch (PspException e) {
-        LOG.error("{}: Unable to find existing OU ({})", getName(), ou);
-        throw new PspException("Unable to find existing OU or create new one");
+        LOG.error("{}: Unable to find existing OU ({})", new Object[]{getName(), ou, e});
+        throw new PspException("Unable to find existing OU nor create new one (%s)", e.getMessage());
       }
     }
 
