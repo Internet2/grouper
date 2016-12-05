@@ -1723,12 +1723,12 @@
 <a class="jxr_linenumber" name="L1715" href="#L1715">1715</a> <em class="jxr_javadoccomment">   * \{\s*         open bracket and optional space</em>
 <a class="jxr_linenumber" name="L1716" href="#L1716">1716</a> <em class="jxr_javadoccomment">   * \&quot;([^"]+)\&quot;   quote, simple name of class, quote</em>
 <a class="jxr_linenumber" name="L1717" href="#L1717">1717</a> <em class="jxr_javadoccomment">   * \s*:\s*       optional space, colon, optional space</em>
-<a class="jxr_linenumber" name="L1718" href="#L1718">1718</a> <em class="jxr_javadoccomment">   * \{(.*)}$      open bracket, the class info, close bracket, end of string</em>
+<a class="jxr_linenumber" name="L1718" href="#L1718">1718</a> <em class="jxr_javadoccomment">   * \{(.*)}\s*$      open bracket, the class info, close bracket, optional space, end of string</em>
 <a class="jxr_linenumber" name="L1719" href="#L1719">1719</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L1720" href="#L1720">1720</a> <em class="jxr_javadoccomment">   *</em>
 <a class="jxr_linenumber" name="L1721" href="#L1721">1721</a> <em class="jxr_javadoccomment">   * &lt;/pre&gt;</em>
 <a class="jxr_linenumber" name="L1722" href="#L1722">1722</a> <em class="jxr_javadoccomment">   */</em>
-<a class="jxr_linenumber" name="L1723" href="#L1723">1723</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pattern jsonPattern = Pattern.compile(<span class="jxr_string">"^&#92;&#92;s*&#92;&#92;{&#92;&#92;s*&#92;&#92;\&quot;([^\&quot;]+)&#92;&#92;\&quot;&#92;&#92;s*:&#92;&#92;s*(.*)}$"</span>, Pattern.DOTALL);
+<a class="jxr_linenumber" name="L1723" href="#L1723">1723</a>   <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Pattern jsonPattern = Pattern.compile(<span class="jxr_string">"^&#92;&#92;s*&#92;&#92;{&#92;&#92;s*&#92;&#92;\&quot;([^\&quot;]+)&#92;&#92;\&quot;&#92;&#92;s*:&#92;&#92;s*(.*)}&#92;&#92;s*$"</span>, Pattern.DOTALL);
 <a class="jxr_linenumber" name="L1724" href="#L1724">1724</a> 
 <a class="jxr_linenumber" name="L1725" href="#L1725">1725</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L1726" href="#L1726">1726</a> <em class="jxr_javadoccomment">   * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.</em>
