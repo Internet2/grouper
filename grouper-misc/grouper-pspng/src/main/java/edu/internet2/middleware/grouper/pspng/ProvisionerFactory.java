@@ -58,7 +58,7 @@ public class ProvisionerFactory {
           provisioner = ProvisionerFactory.createProvisionerWithName(consumerName);
           provisioners.put(consumerName, provisioner);
         } catch (PspException e) {
-          LOG.error("Unable to create provisioner {}", consumerName);
+          LOG.error("Unable to create provisioner {}", consumerName, e);
           throw e;
         }
       }

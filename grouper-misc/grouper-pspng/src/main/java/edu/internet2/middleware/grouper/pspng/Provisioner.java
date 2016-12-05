@@ -107,6 +107,10 @@ public abstract class Provisioner
   <ConfigurationClass extends ProvisionerConfiguration, 
    TSUserClass extends TargetSystemUser, 
    TSGroupClass extends TargetSystemGroup> {
+  private static final String DO_NOT_PROVISION_TO_ATTRIBUTE = "do_not_provision_to";
+
+  private static final String PROVISION_TO_ATTRIBUTE = "provision_to";
+
   static final Logger STATIC_LOG = LoggerFactory.getLogger(Provisioner.class);
   
   protected final Logger LOG;
@@ -228,11 +232,11 @@ public abstract class Provisioner
     }
 
     //see if provision_to_def attributeDef is there
-    String provisionToDefName = pspngManagementStemName + ":provision_to_def";
+    String provisionToDefName = pspngManagementStemName + ":" + PROVISION_TO_ATTRIBUTE + "_def";
     AttributeDef provisionToDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
         provisionToDefName, false, new QueryOptions().secondLevelCache(false));
     if (provisionToDef == null) {
-      provisionToDef = pspngManagementStem.addChildAttributeDef("provision_to_def", AttributeDefType.type);
+      provisionToDef = pspngManagementStem.addChildAttributeDef(PROVISION_TO_ATTRIBUTE + "_def", AttributeDefType.type);
       provisionToDef.setAssignToGroup(true);
       provisionToDef.setAssignToStem(true);
       provisionToDef.setMultiAssignable(true);
@@ -241,11 +245,11 @@ public abstract class Provisioner
     }
     
     //see if do_not_provision_to_def attributeDef is there
-    String doNotProvisionToDefName = pspngManagementStemName + ":do_not_provision_to_def";
+    String doNotProvisionToDefName = pspngManagementStemName + ":" + DO_NOT_PROVISION_TO_ATTRIBUTE + "_def";
     AttributeDef doNotProvisionToDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
         doNotProvisionToDefName, false, new QueryOptions().secondLevelCache(false));
     if (doNotProvisionToDef == null) {
-      doNotProvisionToDef = pspngManagementStem.addChildAttributeDef("do_not_provision_to_def", AttributeDefType.type);
+      doNotProvisionToDef = pspngManagementStem.addChildAttributeDef(DO_NOT_PROVISION_TO_ATTRIBUTE+"_def", AttributeDefType.type);
       doNotProvisionToDef.setAssignToGroup(true);
       doNotProvisionToDef.setAssignToStem(true);
       doNotProvisionToDef.setMultiAssignable(true);
@@ -253,8 +257,8 @@ public abstract class Provisioner
       doNotProvisionToDef.store();
     }
     
-    GrouperCheckConfig.checkAttribute(pspngManagementStem, provisionToDef, "provision_to", "provision_to", "Defines what provisioners should process a group or groups within a folder", true);
-    GrouperCheckConfig.checkAttribute(pspngManagementStem, doNotProvisionToDef, "do_not_provision_to", "do_not_provision_to", "Defines what provisioners should not process a group or groups within a folder. Since the default is already for provisioners to not provision any groups, this attribute is to override a provision_to attribute set on an ancestor folder. ", true);
+    GrouperCheckConfig.checkAttribute(pspngManagementStem, provisionToDef, PROVISION_TO_ATTRIBUTE, PROVISION_TO_ATTRIBUTE, "Defines what provisioners should process a group or groups within a folder", true);
+    GrouperCheckConfig.checkAttribute(pspngManagementStem, doNotProvisionToDef, DO_NOT_PROVISION_TO_ATTRIBUTE, DO_NOT_PROVISION_TO_ATTRIBUTE, "Defines what provisioners should not process a group or groups within a folder. Since the default is already for provisioners to not provision any groups, this attribute is to override a provision_to attribute set on an ancestor folder. ", true);
   }
 
 
@@ -603,6 +607,7 @@ public abstract class Provisioner
           cacheUser(subjectInfo.getKey(), subjectInfo.getValue());
       }
       catch (PspException e1) {
+        LOG.warn("Batch-fetching subject information failed. Trying fetching information for each subject individually", e1);
         // Batch-fetching failed. Let's see if we can narrow it down to a single
         // Subject
           for ( Subject subject : batchOfSubjectsToFetch ) {
@@ -611,6 +616,7 @@ public abstract class Provisioner
               cacheUser(subject, tsUser);
             }
             catch (PspException e2) {
+              LOG.error("Problem fetching information about subject '{}'", subject, e2);
               throw new RuntimeException("Problem fetching information on subject " + subject + ": " + e2.getMessage());
             }
           }
@@ -682,6 +688,7 @@ public abstract class Provisioner
           cacheGroup(grouperGroupInfo.getKey(), grouperGroupInfo.getValue());
       }
       catch (PspException e1) {
+        LOG.warn("Batch-fetching group information failed. Trying fetching information for each group individually", e1);
         // Batch-fetching failed. Let's see if we can narrow it down to a single
         // Group
           for ( GrouperGroupInfo grouperGroupInfo : batchOfGroupsToFetch ) {
@@ -690,6 +697,7 @@ public abstract class Provisioner
               cacheGroup(grouperGroupInfo, tsGroup);
             }
             catch (PspException e2) {
+              LOG.error("Problem fetching information on group '{}'", grouperGroupInfo, e2);
               throw new RuntimeException("Problem fetching information on group " + grouperGroupInfo);
             }
           }
@@ -971,7 +979,7 @@ public abstract class Provisioner
 	    doFullSync_cleanupExtraGroups(groupsForThisProvisioner, tsGroups);
 	  }
 	  catch (PspException e) {
-		  LOG.error("Problem while looking for and removing extra groups: {}", e.getMessage());
+		  LOG.error("Problem while looking for and removing extra groups: {}", e);
 		  throw e;
 	  }
 	  finally {
@@ -1276,7 +1284,7 @@ public abstract class Provisioner
           provisionItem(workItem);
         }
         catch (PspException e) {
-          LOG.error( String.format("Problem provisioning %s: %s", workItem), e);
+          LOG.error( "Problem provisioning {}", workItem, e);
           workItem.markAsFailure(e.getMessage());
         }
       }
