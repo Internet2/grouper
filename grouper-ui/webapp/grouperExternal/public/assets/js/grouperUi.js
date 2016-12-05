@@ -2293,11 +2293,15 @@ function showHideMemberAddBlock() {
  * show the privileges block on click of Custom Privileges radio button
  * Also add attributes for accessibility
  * */
-function showCustomPrivilege() {
+function showCustomPrivilege(elementId) {
 	
-  $("#add-members-privileges").show('slow');
-  $("#add-members-privileges").attr("aria-expanded","true");
-  $("#add-members-privileges").attr("role", "alert");
+  $('#'+elementId).show('slow');
+  $('#'+elementId).attr("aria-expanded","true");
+  $('#'+elementId).attr("role", "alert");
+  
+  //$("#add-members-privileges").show('slow');
+  //$("#add-members-privileges").attr("aria-expanded","true");
+  //$("#add-members-privileges").attr("role", "alert");
   
 }
 
@@ -2305,11 +2309,15 @@ function showCustomPrivilege() {
  * Hide the privileges block on click of Default Privileges radio button
  * Also add attributes for accessibility
  * */
-function hideCustomPrivilege() {
+function hideCustomPrivilege(elementId) {
 	
-  $("#add-members-privileges").hide('slow');
-  $("#add-members-privileges").attr("aria-expanded","false");
-  $("#add-members-privileges").removeAttr("role");
+  $('#'+elementId).hide('slow');
+  $('#'+elementId).attr("aria-expanded","false");
+  $('#'+elementId).removeAttr("role");
+	
+  //$("#add-members-privileges").hide('slow');
+  //$("#add-members-privileges").attr("aria-expanded","false");
+  //$("#add-members-privileges").removeAttr("role");
   
 }
 
