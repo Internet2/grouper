@@ -1683,12 +1683,12 @@ public class GrouperUtil {
    * \{\s*         open bracket and optional space
    * \"([^"]+)\"   quote, simple name of class, quote
    * \s*:\s*       optional space, colon, optional space
-   * \{(.*)}$      open bracket, the class info, close bracket, end of string
+   * \{(.*)}\s*$      open bracket, the class info, close bracket, optional space, end of string
    *
    *
    * </pre>
    */
-  private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}$", Pattern.DOTALL);
+  private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}\\s*$", Pattern.DOTALL);
 
   /**
    * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
