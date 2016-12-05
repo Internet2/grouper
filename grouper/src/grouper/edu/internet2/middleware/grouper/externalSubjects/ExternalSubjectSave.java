@@ -120,6 +120,17 @@ public class ExternalSubjectSave {
     return this;
   }
   
+
+  /**
+   * 
+   * @param theInstitution
+   * @return this for chaining
+   */
+  public ExternalSubjectSave assignInstitution(String theInstitution) {
+    this.institution = theInstitution;
+    return this;
+  }
+
   /**
    * 
    * @param theEnabled
