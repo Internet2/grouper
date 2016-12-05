@@ -130,6 +130,7 @@ public class WsExternalSubjectToSave {
       ExternalSubjectSave externalSubjectSave = new ExternalSubjectSave(grouperSession);
       externalSubjectSave.assignIdentifierToEdit(indentifierLookedUp);
       externalSubjectSave.assignIdentifier(this.getWsExternalSubject().getIdentifier());
+      externalSubjectSave.assignInstitution(this.getWsExternalSubject().getInstitution());
       externalSubjectSave.assignUuid(this.getWsExternalSubject().getUuid());
       externalSubjectSave.assignName(this.getWsExternalSubject().getName());
       externalSubjectSave.assignEmail(this.getWsExternalSubject().getEmail());
