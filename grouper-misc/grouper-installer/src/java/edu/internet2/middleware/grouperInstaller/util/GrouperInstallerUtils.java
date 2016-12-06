@@ -10947,6 +10947,22 @@ public class GrouperInstallerUtils  {
    * @param parent
    * @return set of files wont return null
    */
+  public static List<File> fileListRecursive(File parent, String fileName) {
+    List<File> allFiles = GrouperInstallerUtils.fileListRecursive(parent);
+    List<File> result = new ArrayList<File>();
+    for (File file : allFiles) {
+      if (equals(file.getName(), fileName)) {
+        result.add(file);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * list files recursively from parent, dont include 
+   * @param parent
+   * @return set of files wont return null
+   */
   public static List<File> fileListRecursive(File parent) {
     List<File> results = new ArrayList<File>();
     fileListRecursiveHelper(parent, results);
