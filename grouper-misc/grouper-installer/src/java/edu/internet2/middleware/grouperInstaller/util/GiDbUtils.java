@@ -19,14 +19,22 @@
  */
 package edu.internet2.middleware.grouperInstaller.util;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import edu.internet2.middleware.grouperInstaller.driverShim.HsqlShim;
+import edu.internet2.middleware.grouperInstaller.driverShim.MySqlShim;
+import edu.internet2.middleware.grouperInstaller.driverShim.OracleShim;
+import edu.internet2.middleware.grouperInstaller.driverShim.PostgresShim;
+import edu.internet2.middleware.grouperInstaller.driverShim.SqlServerShim;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
 
 
@@ -86,6 +94,90 @@ public class GiDbUtils {
     this.pass = pass;
   }
 
+  /**
+   * strings of driver classes that are registered
+   */
+  private static Set<String> driversRegistered = new HashSet<String>();
+  
+  
+  /**
+   * 
+   * @param appDir where we can find drivers
+   */
+  public void registerDriverOnce(String appDir) {
+    String driver = convertUrlToDriverClassIfNeeded(this.url, null);
+    if (driversRegistered.contains(driver)) {
+      return;
+    }
+    //see if its on classpath
+    try {
+      Class.forName(driver);
+      //already on classpath?  thats good
+    } catch (ClassNotFoundException e) {
+      
+      //we need to find jar and add
+      String prefix = null;
+      if (this.isHsql()) {
+        prefix = "hsql";
+      } else if (this.isMysql()) {
+        prefix = "mysql";
+      } else if (this.isOracle()) {
+        prefix = "ojdbc";
+      } else if (this.isPostgres()) {
+        prefix = "postgres";
+      } else if (this.isSQLServer()) {
+        prefix = "sqljdbc";
+      } else {
+        throw new RuntimeException("What kind of database is this???? " + this.url);
+      }
+
+      List<File> allFiles = GrouperInstallerUtils.fileListRecursive(new File(appDir));
+      File driverJar = null;
+      for (File file : allFiles) {
+        if (file.getName().endsWith(".jar") && file.getName().startsWith(prefix)) {
+          
+          //find the latest file with correct prefix and suffix
+          if (driverJar == null || driverJar.lastModified() < file.lastModified()) {
+            driverJar = file;
+          }
+        }
+      }
+      
+      if (driverJar == null) {
+        System.out.println("Cant find driver jar that starts with '" + prefix + "' and ends with .jar!!! in directory: " + appDir);
+        System.exit(1);
+      }
+      try {
+        if (this.isHsql()) {
+          HsqlShim.init(driverJar);
+          HsqlShim hsqlShim = new HsqlShim();
+          DriverManager.registerDriver(hsqlShim);
+        } else if (this.isMysql()) {
+          MySqlShim.init(driverJar);
+          MySqlShim mysqlShim = new MySqlShim();
+          DriverManager.registerDriver(mysqlShim);
+        } else if (this.isOracle()) {
+          OracleShim.init(driverJar);
+          OracleShim oracleShim = new OracleShim();
+          DriverManager.registerDriver(oracleShim);
+        } else if (this.isPostgres()) {
+          PostgresShim.init(driverJar);
+          PostgresShim postgresShim = new PostgresShim();
+          DriverManager.registerDriver(postgresShim);
+        } else if (this.isSQLServer()) {
+          SqlServerShim.init(driverJar);
+          SqlServerShim sqlServerShim = new SqlServerShim();
+          DriverManager.registerDriver(sqlServerShim);
+        } else {
+          throw new RuntimeException("What kind of database is this???? " + this.url);
+        }
+      } catch (SQLException sqle) {
+        throw new RuntimeException("Problem registering driver: " + this.url, sqle);
+      }
+    }
+    driversRegistered.add(driver);
+  }
+  
   /** 
    * oracle types
    */
@@ -298,10 +390,11 @@ public class GiDbUtils {
     String oracleUrl = null;
     
     try {
-      
-      String driverClass = convertUrlToDriverClassIfNeeded(this.url, null);
-  
-      GrouperInstallerUtils.forName(driverClass);
+
+      // this should be done with original driver or shim by now
+//      String driverClass = convertUrlToDriverClassIfNeeded(this.url, null);
+//  
+//      GrouperInstallerUtils.forName(driverClass);
       
       Connection conn = DriverManager.getConnection(this.url, this.user, this.pass);
       
