@@ -65,7 +65,7 @@
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['attributeDefFilterPrivilegeFormPlaceholder']}" class="span12"
-                       name="privilegeFilterText" id="table-filter" aria-label="Enter Entity Name">
+                       name="privilegeFilterText" id="table-filter" aria-label="${textContainer.text['ariaLabelGuiEntityName']}">
                     </div>
                     <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2AttributeDef.filterPrivileges?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterPrivilegesFormId,attributeDefPagingPrivilegesFormId'}); return false;"> 

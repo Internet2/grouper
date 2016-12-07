@@ -17,7 +17,7 @@
             <div class="pull-right">
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" class="navbar-search">
                 <input type="text" name="searchQuery" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" aria-label="Search"><i class="fa fa-search"></i></a>
+                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery'});" aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
               </form>
             </div>
             <div class="navbar-text pull-right">${textContainer.text['indexLoggedInAs'] } 
@@ -92,7 +92,7 @@
                 </div>
               </div>
               <div class="btn btn-block btn-grouper last" style="cursor: default;">${textContainer.text['indexBrowseFolders'] }
-              <i class="fa fa-refresh" style="cursor: pointer;"
+              <i class="fa fa-refresh" style="cursor: pointer;" aria-label="${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }"
                 onclick="dojoInitMenu()"
               ></i></div>
               <div class="accordion-inner">

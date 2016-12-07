@@ -50,7 +50,7 @@
                     </div>
                     <div class="span4">
                       <input type="text" placeholder="${textContainer.textEscapeXml['thisSubjectsPrivilegesGroupFilterFormPlaceholder']}" 
-                         name="privilegeFilterText" id="table-filter" class="span12" aria-label="Enter Entity Name"/>
+                         name="privilegeFilterText" id="table-filter" class="span12" aria-label="${textContainer.text['ariaLabelGuiEntityName']}"/>
                     </div>
 
                     <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
