@@ -318,7 +318,7 @@ public abstract class GuiObjectBase {
     
     String ariaLabel = TextContainer.retrieveFromRequest().getText().get("guiBreadcrumbsAriaLabel");
     StringBuilder result = new StringBuilder();
-    result.append("<nav role=\"navigation\" aria-label=\""+ariaLabel+"\">");
+    result.append("<nav role=\"navigation\" aria-label=\""+GrouperUtil.xmlEscape(ariaLabel, true)+"\">");
     result.append("<ul class=\"breadcrumb\">");
     result.append(this.getBreadcrumbBullets());
     result.append("</ul>");
