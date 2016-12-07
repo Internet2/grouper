@@ -765,9 +765,9 @@ public class GrouperInstaller {
       if (new File("/bin/ps").exists()) {
         this.psCommandUnix = "/bin/ps";
       } else if (new File("/usr/bin/ps").exists()) {
-        psCommandUnix = "/usr/bin/ps";
+        this.psCommandUnix = "/usr/bin/ps";
       } else if (new File("/usr/local/bin/ps").exists()) {
-        psCommandUnix = "/usr/local/bin/ps";
+        this.psCommandUnix = "/usr/local/bin/ps";
       } else {
         throw new RuntimeException("Cant find 'ps' command!");
       }
@@ -788,11 +788,11 @@ public class GrouperInstaller {
     }
     if (GrouperInstallerUtils.isBlank(this.grepCommand)) {
       if (new File("/bin/grep").exists()) {
-        grepCommand = "/bin/grep";
+        this.grepCommand = "/bin/grep";
       } else if (new File("/usr/bin/grep").exists()) {
-        grepCommand = "/usr/bin/grep";
+        this.grepCommand = "/usr/bin/grep";
       } else if (new File("/usr/local/bin/grep").exists()) {
-        grepCommand = "/usr/local/bin/grep";
+        this.grepCommand = "/usr/local/bin/grep";
       } else {
         throw new RuntimeException("Cant find 'grep' command!");
       }
@@ -813,11 +813,11 @@ public class GrouperInstaller {
     }
     if (GrouperInstallerUtils.isBlank(this.killCommand)) {
       if (new File("/bin/kill").exists()) {
-        killCommand = "/bin/kill";
+        this.killCommand = "/bin/kill";
       } else if (new File("/usr/bin/kill").exists()) {
-        killCommand = "/usr/bin/kill";
+        this.killCommand = "/usr/bin/kill";
       } else if (new File("/usr/local/bin/kill").exists()) {
-        killCommand = "/usr/local/bin/kill";
+        this.killCommand = "/usr/local/bin/kill";
       } else {
         throw new RuntimeException("Cant find 'kill' command!");
       }
@@ -1814,6 +1814,9 @@ public class GrouperInstaller {
       //if subsequent pass, then start fresh
       grouperInstallerIndexFilesToAddToPatch.clear();
       
+      System.out.println("\nThe following could be filename if no dupes: Something.java.\n"
+          + "Could be package path: edu/whatever/Something.java\n"
+          + "could be path in module: dist/build/edu/internet2/middleware/grouper/changeLog/esb/consumer/EsbEvent.java");
       System.out.println("Enter the comma separated list of files (dont use .class, use .java) to make a patch from: [required]\n");
       String filesToMakePatchFromCommaSeparated = readFromStdIn("grouperInstaller.autorun.patchFilesCommaSeparated");
       if (GrouperInstallerUtils.isBlank(filesToMakePatchFromCommaSeparated)) {
@@ -3131,7 +3134,7 @@ public class GrouperInstaller {
     }
 
     //lets see which one
-    File grouperHibernatePropertiesFile = null;
+    File grouperHibernatePropertiesFileLocal = null;
     String url = null;
     
     for (File file : grouperHibernatePropertiesFiles) {
@@ -3139,7 +3142,7 @@ public class GrouperInstaller {
       String urlFromFile = grouperHibernateProperties.getProperty("hibernate.connection.url");
 
       if (url == null) {
-        grouperHibernatePropertiesFile = file;
+        grouperHibernatePropertiesFileLocal = file;
         url = urlFromFile;
       }
       if (!GrouperInstallerUtils.equals(url, urlFromFile)) {
@@ -3153,7 +3156,7 @@ public class GrouperInstaller {
       }
     }
     
-    Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(grouperHibernatePropertiesFile);
+    Properties grouperHibernateProperties = GrouperInstallerUtils.propertiesFromFile(grouperHibernatePropertiesFileLocal);
 
     this.dbUrl = url;
     this.dbUser = GrouperInstallerUtils.defaultString(grouperHibernateProperties.getProperty("hibernate.connection.username"));
@@ -3161,7 +3164,7 @@ public class GrouperInstaller {
     this.giDbUtils = new GiDbUtils(this.dbUrl, this.dbUser, this.dbPass);
     this.giDbUtils.registerDriverOnce(this.grouperInstallDirectoryString);
     
-    System.out.println("grouper.hibernate.properties read from: " + grouperHibernatePropertiesFile.getAbsolutePath());
+    System.out.println("grouper.hibernate.properties read from: " + grouperHibernatePropertiesFileLocal.getAbsolutePath());
     System.out.println("Database URL (hibernate.connection.url from grouper.hibernate.properties) is: " + this.dbUrl);
     
     if (grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.status) {
@@ -3181,7 +3184,7 @@ public class GrouperInstaller {
     } else {          
       if (this.dbUrl.contains(":hsqldb:")) {
 
-        this.untarredApiDir = grouperHibernatePropertiesFile;
+        this.untarredApiDir = grouperHibernatePropertiesFileLocal;
         //find the untarred API dir
         int MAX_TRIES = 6;
         for (int i=0;i<MAX_TRIES;i++) {
@@ -3331,6 +3334,8 @@ public class GrouperInstaller {
               GrouperInstallerUtils.execCommand(
                   GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
                   new File(this.grouperInstallDirectoryString), null, false, false, true);
+              
+              GrouperInstallerUtils.sleep(5000);
             }
           }              
         }
@@ -3350,16 +3355,16 @@ public class GrouperInstaller {
         this.upgradeExistingApplicationDirectoryString = this.grouperInstallDirectoryString;
       }
       
-      String gshCommand = gshCommand();
-      if (gshCommand.endsWith(".sh")) {
-        gshCommand = gshCommand.substring(0, gshCommand.length()-".sh".length());
+      String gshCommandLocal = gshCommand();
+      if (gshCommandLocal.endsWith(".sh")) {
+        gshCommandLocal = gshCommandLocal.substring(0, gshCommandLocal.length()-".sh".length());
       }
-      if (gshCommand.endsWith(".bat")) {
-        gshCommand = gshCommand.substring(0, gshCommand.length()-".bat".length());
+      if (gshCommandLocal.endsWith(".bat")) {
+        gshCommandLocal = gshCommandLocal.substring(0, gshCommandLocal.length()-".bat".length());
       }
       
       if (!GrouperInstallerUtils.isWindows()) {
-        if (gshCommand.contains(" ")) {
+        if (gshCommandLocal.contains(" ")) {
           System.out.println("On unix the gsh command cannot contain whitespace!");
           System.exit(1);
         }
@@ -3369,7 +3374,7 @@ public class GrouperInstaller {
       List<String> psCommands = new ArrayList<String>();
       psCommands.add(shCommand());
       psCommands.add("-c");
-      psCommands.add( psCommand() + " -ef | " + grepCommand() + " " + gshCommand + " | " 
+      psCommands.add( psCommand() + " -ef | " + grepCommand() + " " + gshCommandLocal + " | " 
           + grepCommand() + " -- -loader | " + grepCommand() + " -v grep");
 
       //unix
@@ -3480,6 +3485,7 @@ public class GrouperInstaller {
           || grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.restart) {
         //start
         startLoader(false);
+        GrouperInstallerUtils.sleep(5000);
       }
 
       if (grouperInstallerAdminManageServiceAction == GrouperInstallerAdminManageServiceAction.status && GrouperInstallerUtils.isWindows()) {
@@ -9849,10 +9855,17 @@ public class GrouperInstaller {
       commands.add("-loader");
       
       if (!GrouperInstallerUtils.isWindows()) {
+        
         //let this database run forever
         commands.add(0, "nohup");
         //run in new process
         commands.add("> /dev/null 2>&1 &");
+        
+        String fullCommand = GrouperInstallerUtils.join(commands.iterator(), ' ');
+        commands.clear();
+        commands.add(shCommand());
+        commands.add("-c");
+        commands.add(fullCommand);
         
       }
       System.out.println("\n##################################");
@@ -9952,7 +9965,7 @@ public class GrouperInstaller {
   }
   
   /**
-   * 
+   * @param prompt
    */
   private void startHsqlDb(boolean prompt) {
     boolean startdb = true;
@@ -10733,14 +10746,14 @@ public class GrouperInstaller {
    */
   private GrouperInstallerMainFunction grouperInstallerMainFunction() {
 
-    GrouperInstallerMainFunction grouperInstallerMainFunction = 
+    GrouperInstallerMainFunction grouperInstallerMainFunctionLocal = 
         (GrouperInstallerMainFunction)promptForEnum(
             "Do you want to 'install' a new installation of grouper, 'upgrade' an existing installation,\n"
                 + "  'patch' an existing installation, 'admin' utilities, or 'createPatch' for Grouper developers\n" 
                 + "  (enter: 'install', 'upgrade', 'patch', 'admin', 'createPatch' or blank for the default) ",
             "grouperInstaller.autorun.actionEgInstallUpgradePatch", GrouperInstallerMainFunction.class, 
             GrouperInstallerMainFunction.install, "grouperInstaller.default.installOrUpgrade");
-    return grouperInstallerMainFunction;
+    return grouperInstallerMainFunctionLocal;
   }
 
 
@@ -10938,11 +10951,11 @@ public class GrouperInstaller {
    */
   private AppToUpgrade grouperAppToUpgradeOrPatch(String action) {
 
-    AppToUpgrade appToUpgrade = 
+    AppToUpgrade appToUpgradeLocal = 
         (AppToUpgrade)promptForEnum(
             "What do you want to " + action + "?  api, ui, ws, pspng, or psp? ",
             "grouperInstaller.autorun.appToUpgrade", AppToUpgrade.class, AppToUpgrade.API, "grouperInstaller.default.appToUpgrade");
-    return appToUpgrade;
+    return appToUpgradeLocal;
   }
 
   /**
