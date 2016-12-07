@@ -59,10 +59,14 @@
               </ul>
             </div>
             <div class="leftnav-accordions">
-              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first">${textContainer.text['indexQuickLinksLabel']}<i class="fa fa-plus"></i><i class="fa fa-minus"></i></button>
+              <button type="button" data-toggle="collapse" data-target="#demo2" class="btn btn-block btn-grouper first" aria-expanded="true" role="menu" ariahaspopup="true" 
+              	onclick="$('#demo2').hasClass('in') ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded','true');">
+              	${textContainer.text['indexQuickLinksLabel']}
+              	<i class="fa fa-plus"></i><i class="fa fa-minus"></i>
+              </button>
               <div id="demo2" class="collapse in">
                 <div class="accordion-inner">
-                  <ul class="nav nav-list">
+                  <ul class="nav nav-list" id="quicklinks-nav">
                     <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2MyGroups.myGroups');">${textContainer.text['indexMyGroupsButton'] }</a></li>
                     <li><a href="#" 
