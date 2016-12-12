@@ -15,7 +15,12 @@
                   <h3>${textContainer.text['indexRecentActivity']}<!-- Recent activity --></h3>
   
                   <table class="table table-bottom-borders">
-                    <thead></thead>
+                    <thead>
+                    	<tr class="hidden">
+                    		<th>${textContainer.text['indexRecentActivityTableHeader']}</th>
+                    		<th>${textContainer.text['indexRecentActivityDateTableHeader']}</th>
+                    	</tr>
+                    </thead>
                     <tbody>
                       <c:forEach items="${grouperRequestContainer.indexContainer.guiAuditEntriesRecentActivity}" var="guiAuditEntry">
   
