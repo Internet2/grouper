@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -107,13 +108,23 @@ public class DojoComboLogic {
           isLookup = true;
           
         }
-  
+
+        boolean allowAutocompleteById = true;
+        String allowedAutocompleteByIdPaths = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.search.autocompleteById.allowedPaths");
+        if (!StringUtils.isBlank(allowedAutocompleteByIdPaths)) {
+          allowAutocompleteById = false;
+          List<String> allowedPaths = GrouperUtil.splitTrimToList(allowedAutocompleteByIdPaths, ",");
+          if (allowedPaths.contains(request.getPathInfo())) {
+            allowAutocompleteById = true;
+          }
+        }
+
         Set<T> objects = new LinkedHashSet<T>();
         boolean enterMoreChars = false;
         
         {
           String groupIdOrName = query.endsWith("*") ? query.substring(0, query.length()-1) : query;
-          if (!StringUtils.isBlank(groupIdOrName)) {
+          if (!StringUtils.isBlank(groupIdOrName) && (allowAutocompleteById || !query.endsWith("*"))) {
 
             T t = dojoComboQueryLogic.lookup(request, grouperSession, query);
             if (t != null) {
@@ -124,20 +135,32 @@ public class DojoComboLogic {
 
         if (!isLookup) {
 
-          //take out the asterisk
-          query = StringUtils.replace(query, "*", "");
-
-          //if its a blank query, then dont return anything...
-          if (query.length() > 1 || dojoComboQueryLogic.validQueryOverride(grouperSession, query)) {
-
-            Collection<T> results = dojoComboQueryLogic.search(request, grouperSession, query);
-            
-            if (results != null) {
-              objects.addAll(results);
+          boolean allowAutocompleteSearch = true;
+          String allowedAutocompleteSearchPaths = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.search.autocompleteSearch.allowedPaths");
+          if (!StringUtils.isBlank(allowedAutocompleteSearchPaths)) {
+            allowAutocompleteSearch = false;
+            List<String> allowedPaths = GrouperUtil.splitTrimToList(allowedAutocompleteSearchPaths, ",");
+            if (allowedPaths.contains(request.getPathInfo())) {
+              allowAutocompleteSearch = true;
             }
-            
+          }
+
+          if (allowAutocompleteSearch) {
+            //take out the asterisk
+            query = StringUtils.replace(query, "*", "");
+
+            //if its a blank query, then dont return anything...
+            if (query.length() > 1 || dojoComboQueryLogic.validQueryOverride(grouperSession, query)) {
+
+              Collection<T> results = dojoComboQueryLogic.search(request, grouperSession, query);
+
+              if (results != null) {
+                objects.addAll(results);
+              }
+            }
           } else {
-            enterMoreChars = true;
+            // prevent response "enter 2 or more characters if skipping autocompletion
+            enterMoreChars = allowAutocompleteSearch ? true : false; //yes, can logically shorten it, but then the code is less clear
           }
         }
   
