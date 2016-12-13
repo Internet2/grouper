@@ -85,10 +85,12 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   protected void addMembership(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
       Subject subject, LdapUser ldapUser) throws PspException {
 
-    if ( ldapUser == null )
+    if ( ldapUser == null ) {
       LOG.warn("{}: Skipping addMembership: LdapUser does not exist for subject {}", getName(), subject.getId());
+      return;
+    }
     
-    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, grouperGroupInfo);
+    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, null);
     
     scheduleUserModification(ldapUser, AttributeModificationType.ADD, Arrays.asList(attributeValue));
   }
@@ -97,19 +99,21 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
   protected void deleteMembership(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
       Subject subject, LdapUser ldapUser) throws PspException {
 
-    if ( ldapUser == null )
-      throw new PspException("%s: LdapUser does not exist for subject %s", getName(), subject.getId());
+    if ( ldapUser == null ) {
+      LOG.warn("{}: Skipping deleteMembership: LdapUser does not exist for subject {}", getName(), subject.getId());
+      return;
+    }
     
-    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, grouperGroupInfo);
+    String attributeValue = evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, null);
 
     scheduleUserModification(ldapUser, AttributeModificationType.REMOVE, Arrays.asList(attributeValue));
   }
 
   @Override
   protected void doFullSync(GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup,
-      Set<Subject> correctSubjects, Set<LdapUser> correctTSUsers)
+      Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap, Set<LdapUser> correctTSUsers)
       throws PspException {
-    
+  
     String attributeName = config.getProvisionedAttributeName();
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
@@ -144,7 +148,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
 
 
   protected String getAttributeValueForGroup(GrouperGroupInfo grouperGroupInfo) {
-    return evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), null, grouperGroupInfo);
+    return evaluateJexlExpression(config.getProvisionedAttributeValueFormat(), null, null, grouperGroupInfo, null);
   }
   
   @Override

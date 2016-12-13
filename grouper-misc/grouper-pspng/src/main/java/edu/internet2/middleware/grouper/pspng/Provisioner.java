@@ -337,12 +337,15 @@ public abstract class Provisioner
    * @param grouperGroupInfo Grouper group to fully synchronize with target system
    * @param tsGroup TSGroupClass that maps to group.
    * @param correctSubjects What subjects are members in the Grouper Registry
-   * @param correctTSUsers Collection of TargetSystemUsers which map to the correctSubjects. This will be empty
+   * @param tsUserMap Map of TargetSystemUsers which map to the correctSubjects. This will be empty
    * for provisioners that do not use TargetSystemUsers.
+   * @param correctTSUsers A list of the TSUsers that correspond to correctSubjects. This might be a subset
+   * of the TSUsers in the tsUserMap.
    */
   protected abstract void doFullSync(
       GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup, 
-      Set<Subject> correctSubjects, Set<TSUserClass> correctTSUsers) throws PspException;
+      Set<Subject> correctSubjects, Map<Subject, TSUserClass> tsUserMap, Set<TSUserClass> correctTSUsers) 
+          throws PspException;
 
   /**
    * This method's responsibility is find extra groups within Grouper's responsibility that
@@ -485,7 +488,8 @@ public abstract class Provisioner
    * @param keysAndValues Key/Value pairs that will also be available within the Jexl's variable map
    * @return
    */
-  protected final String evaluateJexlExpression(String expression, Subject subject, GrouperGroupInfo grouperGroupInfo,
+  protected final String evaluateJexlExpression(String expression, Subject subject, TSUserClass tsUser, 
+      GrouperGroupInfo grouperGroupInfo, TSGroupClass tsGroup,
       Object... keysAndValues) {
     
     LOG.trace("Evaluating Jexl expression: {}", expression);
@@ -502,9 +506,9 @@ public abstract class Provisioner
     // Give provisioner subclasses to add information
     populateJexlMap(variableMap, 
         subject, 
-        subject==null ? null : tsUserCache_shortTerm.get(subject), 
+        tsUser,
         grouperGroupInfo, 
-        grouperGroupInfo==null ? null : tsGroupCache_shortTerm.get(grouperGroupInfo));
+        tsGroup);
     
     // Give our config a chance to add information
     config.populateElMap(variableMap);
@@ -518,12 +522,10 @@ public abstract class Provisioner
     catch (RuntimeException e) {
       LOG.error("Jexl Expression {} could not be evaluated for subject '{}/{}' and group '{}/{}' which used variableMap '{}'",
           new Object[] {expression, 
-              subject, 
-              subject==null ? null : tsUserCache_shortTerm.get(subject), 
-              grouperGroupInfo, 
-              grouperGroupInfo==null ? null : tsGroupCache_shortTerm.get(grouperGroupInfo),
+              subject, tsUser,
+              grouperGroupInfo, tsGroup,
               variableMap});
-      throw e;
+      return null;
     }
   }
 
@@ -1011,22 +1013,34 @@ public abstract class Provisioner
         correctSubjects.add(subject);
       }
     }
+    TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
 
     if ( correctSubjects.size() > 0 )
       prepareUserCache(correctSubjects);
     
-    TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
-    Set<TSUserClass> correctTargetSystemUsers = new HashSet<TSUserClass>();
+    Set<TSUserClass> correctTSUsers = new HashSet<TSUserClass>();
     
-    for ( Subject correctSubject: correctSubjects ) {
-      TSUserClass tsUser = tsUserCache_shortTerm.get(correctSubject);
-      if ( tsUser != null )
-        correctTargetSystemUsers.add(tsUser);
+    if ( getConfig().needsTargetSystemUsers() ) {
+      // Loop through a copy of the correct subjects so that we can remove 
+      // subjects that don't have matching TargetSystem users.
+      for ( Subject correctSubject: new ArrayList<Subject>(correctSubjects) ) {
+        TSUserClass tsUser = tsUserCache_shortTerm.get(correctSubject);
+        if ( tsUser == null ) {
+          // User is necessary in target system, but is not present
+          LOG.warn("{}: Member in grouper group {} is being ignored because subject is not present in target system",
+              getName(), grouperGroupInfo);
+          
+          correctSubjects.remove(correctSubject);
+        }
+        else {
+          correctTSUsers.add(tsUser);
+        }
+      }
     }
 
     try {
       MDC.put("step", "prov/");
-      doFullSync(grouperGroupInfo, tsGroup, correctSubjects, correctTargetSystemUsers);
+      doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers);
     }
     finally {
       MDC.remove("step");
@@ -1208,7 +1222,7 @@ public abstract class Provisioner
       return false;
     }
     
-    String resultString = evaluateJexlExpression(config.getGroupSelectionExpression(), null, grouperGroupInfo);
+    String resultString = evaluateJexlExpression(config.getGroupSelectionExpression(), null, null, grouperGroupInfo, null);
     
     boolean result = BooleanUtils.toBoolean(resultString);
     

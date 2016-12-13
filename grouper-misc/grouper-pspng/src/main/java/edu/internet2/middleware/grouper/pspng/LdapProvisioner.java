@@ -177,7 +177,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
 
 
   protected SearchFilter getUserLdapFilter(Subject subject) {
-    String result = evaluateJexlExpression(config.getUserSearchFilter(), subject, null);
+    String result = evaluateJexlExpression(config.getUserSearchFilter(), subject, null, null, null);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("User searching requires userSearchFilter to be configured correctly");
     
@@ -201,7 +201,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
     LOG.info("Creating LDAP account for Subject: {} ", personSubject);
     String ldif = config.getUserCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
-    ldif = evaluateJexlExpression(ldif, personSubject, null);
+    ldif = evaluateJexlExpression(ldif, personSubject, null, null, null);
     
     Connection conn = getLdapSystem().getLdapConnection();
     try {
@@ -602,7 +602,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       
       LOG.info("{}: Creating OU: {}", getName(), ouDn);
       
-      String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(), null, null, "dn", ouDn, "ou", attribute.getStringValue());
+      String ldif = evaluateJexlExpression(config.getOuCreationLdifTemplate_defaultValue(), null, null, null, null, "dn", ouDn, "ou", attribute.getStringValue());
       ldif = ldif.replaceAll("\\|\\|", "\n");
 
       try {

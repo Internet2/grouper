@@ -74,8 +74,16 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
     
-    String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, grouperGroupInfo);
-    scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+    if ( ldapUser == null ) {
+      LOG.warn("{}: Skipping adding membership to group {} because ldap user does not exist: {}",
+          new Object[]{getName(), grouperGroupInfo, subject});
+      return;
+    }
+    
+    String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
+    if ( membershipAttributeValue != null ) {
+      scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.ADD, Arrays.asList(membershipAttributeValue));
+    }
   }
 
   
@@ -108,13 +116,21 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
       return;
     }
     
+    if ( ldapUser == null ) {
+      LOG.warn("{}: Skipping removing membership from group {} because ldap user does not exist: {}",
+          new Object[]{getName(), grouperGroupInfo, subject});
+      return;
+    }
+
     // TODO: Look in memory cache to see if change is necessary: 
     // a) User object's group-listing attribute
     // or b) if the group-membership attribute is being fetched
     
-    String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, grouperGroupInfo);
+    String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), subject, ldapUser, grouperGroupInfo, ldapGroup);
     
-    scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
+    if ( membershipAttributeValue != null ) {
+      scheduleGroupModification(grouperGroupInfo, ldapGroup, AttributeModificationType.REMOVE, Arrays.asList(membershipAttributeValue));
+    }
   }
   
   /**
@@ -146,15 +162,19 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
   @Override
   protected void doFullSync(
       GrouperGroupInfo grouperGroupInfo, LdapGroup ldapGroup , 
-      Set<Subject> correctSubjects, Set<LdapUser> correctTSUsers) throws PspException {
+      Set<Subject> correctSubjects, Map<Subject, LdapUser> tsUserMap,
+      Set<LdapUser> correctTSUsers) throws PspException {
     if ( ldapGroup  == null )
       ldapGroup  = createGroup(grouperGroupInfo);
     
     Set<String> correctMembershipValues = getStringSet();
     
     for ( Subject correctSubject: correctSubjects ) {
-      String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), correctSubject, grouperGroupInfo);
-      correctMembershipValues.add(membershipAttributeValue);
+      String membershipAttributeValue = evaluateJexlExpression(config.getMemberAttributeValueFormat(), correctSubject, tsUserMap.get(correctSubject), grouperGroupInfo, ldapGroup);
+
+      if ( membershipAttributeValue != null ) {
+        correctMembershipValues.add(membershipAttributeValue);
+      }
     }
     
     Collection<String> currentMembershipValues = getStringSet(ldapGroup.getLdapObject().getStringValues(config.getMemberAttributeName()));
@@ -231,7 +251,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
     LOG.info("Creating LDAP group for GrouperGroup: {} ", grouperGroup);
     String ldif = config.getGroupCreationLdifTemplate();
     ldif = ldif.replaceAll("\\|\\|", "\n");
-    ldif = evaluateJexlExpression(ldif, null, grouperGroup);
+    ldif = evaluateJexlExpression(ldif, null, null, grouperGroup, null);
     
     Connection conn = getLdapSystem().getLdapConnection();
     try {
@@ -348,7 +368,7 @@ public class LdapGroupProvisioner extends LdapProvisioner<LdapGroupProvisionerCo
 
 
   private SearchFilter getGroupLdapFilter(GrouperGroupInfo grouperGroup) {
-    String result = evaluateJexlExpression(config.getSingleGroupSearchFilter(), null, grouperGroup);
+    String result = evaluateJexlExpression(config.getSingleGroupSearchFilter(), null, null, grouperGroup, null);
     if ( StringUtils.isEmpty(result) )
       throw new RuntimeException("Group searching requires singleGroupSearchFilter to be configured correctly");
 
