@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-                <li class="dropdown"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="dropdown-toggle"
+                <li class="dropdown"><a role="tab" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" href="#" class="dropdown-toggle"
                 	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#attribute-more-tab').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-tab li').first().focus();return true;});">${textContainer.text['attributeDefMoreTab'] } <b class="caret"></b></a>
                   <ul class="dropdown-menu" id="attribute-more-tab">
                     <c:if test="${grouperRequestContainer.attributeDefContainer.canReadPrivilegeInheritance}">   

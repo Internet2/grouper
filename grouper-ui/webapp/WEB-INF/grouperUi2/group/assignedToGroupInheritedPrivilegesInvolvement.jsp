@@ -8,11 +8,11 @@
             <%@ include file="groupHeader.jsp" %>
 
             <div class="row-fluid">
-              <div class="span12 tab-interface">
+              <div class="span12">
                 <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
                   <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
                   </c:if>
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
@@ -69,4 +69,3 @@
                 </c:choose>
               </div>
             </div>
-            <script>setupAccessibilityTabs();</script>

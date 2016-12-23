@@ -13,9 +13,9 @@
             <div class="row-fluid">
               <div class="span12 tab-interface">
                 <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.viewStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemContents'] }</a></li>
                   <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
+                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
                   </c:if>
                   <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
                     
@@ -32,5 +32,3 @@
                 </div>                
               </div>
             </div>
-            <script>setupAccessibilityTabs();</script>
-            
