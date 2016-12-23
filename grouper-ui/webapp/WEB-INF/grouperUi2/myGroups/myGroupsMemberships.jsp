@@ -13,9 +13,9 @@
             <div class="row-fluid">
               <div class="span12">
                 <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroups', {dontScrollTop: true});" >${textContainer.text['myGroupsTabMyGroups'] }</a></li>
-                  <li class="active"><a href="#" onclick="return false">${textContainer.text['myGroupsTabMyMemberships'] }</a></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroupsJoin', {dontScrollTop: true});" >${textContainer.text['myGroupsTabGroupsCanJoin'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroups', {dontScrollTop: true});" >${textContainer.text['myGroupsTabMyGroups'] }</a></li>
+                  <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false">${textContainer.text['myGroupsTabMyMemberships'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyGroups.myGroupsJoin', {dontScrollTop: true});" >${textContainer.text['myGroupsTabGroupsCanJoin'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['myGroupsMembershipsDescription'] }</p>
                 <form class="form-inline form-filter" id="myGroupsForm"

@@ -11,9 +11,9 @@
 				
 				<div class="tab-interface">
 				  <ul class="nav nav-tabs">
-                    <li class="active"><a href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
+                    <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['groupMembersTab'] }</a></li>
 		            <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-		              <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+		              <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.groupPrivileges&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupPrivilegesTab'] }</a></li>
 		            </c:if>
                     <%@ include file="groupMoreTab.jsp" %>
                   </ul>
@@ -79,5 +79,4 @@
             <c:if test="${grouperRequestContainer.indexContainer.menuRefreshOnView}">
               <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
             </c:if>
-            <script>setupAccessibilityTabs();</script>
             <!-- end group/viewGroup.jsp -->
