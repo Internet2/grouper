@@ -43,6 +43,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -685,6 +686,15 @@ public class StemFinder {
    * @return the set of stems or the empty set if none found
    */
   public Set<Stem> findStems() {
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
+    
+      // if passed in empty set of stem ids and no names, then no stems found
+      // uncomment this if we can search by stem names
+      if (this.stemIds != null && this.stemIds.size() == 0 /* && GrouperUtil.length(this.stemNames) == 0 */ ) {
+        return new HashSet<Stem>();
+      }
+    }    
+
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
     return GrouperDAOFactory.getFactory().getStem()
