@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.permissions;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitBean;
@@ -545,6 +547,19 @@ public class PermissionFinder {
    */
   public Set<PermissionEntry> findPermissions() {
 
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
+      // if passed in empty set of lookups then no results
+      if (this.memberIds != null && this.memberIds.size() == 0) {
+        return new HashSet<PermissionEntry>();
+      }
+      if (this.permissionDefIds != null && this.permissionDefIds.size() == 0) {
+        return new HashSet<PermissionEntry>();
+      }
+      if (this.permissionNameIds != null && this.permissionNameIds.size() == 0) {
+        return new HashSet<PermissionEntry>();
+      }
+    }
+    
     validateProcessor();
 
     Set<PermissionEntry> permissionEntries = null;

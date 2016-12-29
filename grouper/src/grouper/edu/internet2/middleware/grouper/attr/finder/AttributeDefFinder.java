@@ -24,8 +24,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -260,6 +262,15 @@ public class AttributeDefFinder {
    * @return the set of attribute defs or the empty set if none found
    */
   public Set<AttributeDef> findAttributes() {
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
+      // if passed in empty set of attributeDef ids and no names, then no attributeDefs found
+      // uncomment this if we can search by attributeDef names
+      if (this.attributeDefIds != null && this.attributeDefIds.size() == 0 /* && GrouperUtil.length(this.namesOrAttributeDefs) == 0 */ ) {
+        return new HashSet<AttributeDef>();
+      }
+    }
+    
     return GrouperDAOFactory.getFactory().getAttributeDef()
       .findAllAttributeDefsSecure(this.scope, this.splitScope, 
           this.subject, this.privileges, 
