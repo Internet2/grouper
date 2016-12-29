@@ -451,7 +451,7 @@ function guiRegisterDhtmlxCombo(divId, comboName, width, useImages, filterUrl, c
   });
   
   //keep this so we can control it later
-  allComboboxes[comboName] = theCombo;
+  allComboboxes[comboName] = theCombo;  
 }
 
 
@@ -2319,4 +2319,25 @@ function hideCustomPrivilege(elementId) {
   //$("#add-members-privileges").attr("aria-expanded","false");
   //$("#add-members-privileges").removeAttr("role");
   
+}
+
+
+/**
+ * call this with form or html dom element inside form
+ * @param jqueryHandle e.g. #add-members-form
+ */
+function grouperDisableEnterOnCombo(jqueryHandleOfFormElement) {
+  var jqueryElement = $(jqueryHandleOfFormElement);
+  if (!jqueryElement.is('form')) {
+    jqueryElement = jqueryElement.closest('form');
+  }
+  if (jqueryElement.length !== 0) {
+    jqueryElement.on('keyup keypress', function(e) {
+      var keyCode = e.keyCode || e.which;
+      if (keyCode === 13) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  }
 }
