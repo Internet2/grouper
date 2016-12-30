@@ -1180,28 +1180,28 @@ public class GrouperServiceLogic {
             Scope stemDotScope = null;
             if (wsStemLookup == null || stem != null ) {
               
-              if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
-                queryOptions = new QueryOptions();
-                if ((pageSize == null) != (pageNumber == null)) {
-                  throw new RuntimeException("If you pass page size, you must pass page number and vice versa");
-                }
-                if (pageSize != null) {
-                  queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
-                }
-                if (!StringUtils.isBlank(sortString)) {
-                  if (ascending == null) {
-                    ascending = true;
-                  }
-                  queryOptions.sort(new QuerySort(sortString, ascending));
-                }
-              }
-              
               if (stemScope != null) {
                 stemDotScope = stemScope.convertToScope();
               }
               
             }
-            
+
+            if (pageSize != null || pageNumber != null || !StringUtils.isBlank(sortString) || ascending != null) {
+              queryOptions = new QueryOptions();
+              if ((pageSize == null) != (pageNumber == null)) {
+                throw new RuntimeException("If you pass page size, you must pass page number and vice versa");
+              }
+              if (pageSize != null) {
+                queryOptions.paging(new QueryPaging(pageSize, pageNumber, false));
+              }
+              if (!StringUtils.isBlank(sortString)) {
+                if (ascending == null) {
+                  ascending = true;
+                }
+                queryOptions.sort(new QuerySort(sortString, ascending));
+              }
+            }
+
             if (!usePIT) {
               groups = memberFilter.getGroups(member, field, scope, stem, stemDotScope, queryOptions, enabledBoolean);
             } else {
