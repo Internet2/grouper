@@ -38,6 +38,7 @@ public class AllLoaderTests {
         "Test for edu.internet2.middleware.grouper.app.loader");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperLoaderTest.class);
+    suite.addTestSuite(GrouperLoaderCleanLogsTest.class);
     suite.addTestSuite(GrouperLoaderSecurityTest.class);
     suite.addTestSuite(GrouperLoaderOtherJobsTest.class);
     suite.addTestSuite(GrouperLoaderQuartzTest.class);
