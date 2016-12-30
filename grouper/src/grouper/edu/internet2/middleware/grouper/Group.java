@@ -1737,11 +1737,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /**
-   * for testing to see if deleting in transaction
-   */
-  public static boolean testingDeleteMembershipsInTransaction = true;
-  
-  /**
    * Delete this group from the Groups Registry.
    * <pre class="eg">
    * try {
@@ -1761,77 +1756,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + this.extension
       + ", group dExtension: " + this.displayExtension + ", uuid: " + this.uuid + ", ";
 
-    final StopWatch sw = new StopWatch();
-    sw.start();
-    GrouperSession.validate( GrouperSession.staticGrouperSession() );
-    if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), Group.this, 
-        GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(
-          E.CANNOT_ADMIN + errorMessageSuffix);
-    }
-
-    // GRP-1450: tablespace errors when removing group with lots of members (direct or indirect)
-    long dontUseTransactionWhenDeletingGroupWithMembershipsOverSize = 
-          GrouperConfig.retrieveConfig().propertyValueInt("grouper.dontUseTransactionWhenDeletingGroupWithMembershipsOverSize", 1000);
-    
-    testingDeleteMembershipsInTransaction = true;
-    
-    if (dontUseTransactionWhenDeletingGroupWithMembershipsOverSize != -1) {
-
-      //find out how many members this group has
-      long hasMemberSize = -1;
-      {
-        QueryOptions queryOptionsHasMember = new QueryOptions().retrieveCount(true).retrieveResults(false);
-        
-        new MembershipFinder().addGroup(this).addField(Group.getDefaultList())
-          .assignCheckSecurity(false).assignQueryOptionsForMember(
-            queryOptionsHasMember).findMembershipResult();
-        
-        hasMemberSize = queryOptionsHasMember.getCount();
-      }
-      
-      //find out how many times this group is used as a member of other groups (include privileges)
-      long isMemberSize = -1;
-
-      {
-        QueryOptions queryOptionsIsMember = new QueryOptions().retrieveCount(true).retrieveResults(false);
-        
-        new MembershipFinder().addMemberId(this.toMember().getId())
-          .assignCheckSecurity(false).assignQueryOptionsForMember(
-              queryOptionsIsMember).findMembershipResult();
-        
-        isMemberSize = queryOptionsIsMember.getCount();
-        
-      }
-
-      //all the member of this group as effective members of whatever this group is members of
-      if (hasMemberSize * (isMemberSize+1) > dontUseTransactionWhenDeletingGroupWithMembershipsOverSize) {
-        testingDeleteMembershipsInTransaction = false;
-
-        //dont cause lots of audits here
-        HibernateSession.callbackHibernateSession(GrouperTransactionType.NONE, AuditControl.WILL_AUDIT, new HibernateHandler() {
-          
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            
-            //first delete the members of this group
-            for (Member member : Group.this.getImmediateMembers()) {
-              Group.this.deleteMember(member);
-            }
-            
-            //then delete the memberships where this group is a member
-            for (Group parentGroup : Group.this.toMember().getImmediateGroups()) {
-              parentGroup.deleteMember(Group.this.toMember());
-            }
-            return null;
-          }
-        });
-        
-      }
-      
-
-    }
-    
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -1841,6 +1765,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
+            StopWatch sw = new StopWatch();
+            sw.start();
+            GrouperSession.validate( GrouperSession.staticGrouperSession() );
+            if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), Group.this, 
+                GrouperSession.staticGrouperSession().getSubject() ) ) {
+              throw new InsufficientPrivilegeException(
+                  E.CANNOT_ADMIN + errorMessageSuffix);
+            }
             try {
 
               threadLocalInGroupDelete.set(true);
