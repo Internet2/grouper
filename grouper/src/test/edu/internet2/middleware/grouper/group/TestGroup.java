@@ -118,7 +118,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGroupSave"));
+    TestRunner.run(new TestGroup("testDeleteGroupInManyOtherGroups"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -134,6 +134,121 @@ public class TestGroup extends GrouperTest {
         Scope.ONE, grouperSession.getSubject(), AccessPrivilege.ADMIN, null, false, null);
   }
   
+  /**
+   * make sure large groups (membership wise) do not use a transaction when deleting members
+   */
+  public void testDeleteLargeGroup() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.dontUseTransactionWhenDeletingGroupWithMembershipsOverSize", "5");
+
+    try {
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      new StemSave(grouperSession).assignName("test").save();
+      
+      // group3 has two members
+      Group group3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+      group3.addMember(SubjectTestHelper.SUBJ0);
+      group3.addMember(SubjectTestHelper.SUBJ1);
+  
+      // group2 has 10 members
+      Group group2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+  
+      group2.addMember(SubjectTestHelper.SUBJ0);
+      group2.addMember(SubjectTestHelper.SUBJ1);
+      group2.addMember(SubjectTestHelper.SUBJ2);
+      group2.addMember(SubjectTestHelper.SUBJ3);
+      group2.addMember(SubjectTestHelper.SUBJ4);
+      group2.addMember(SubjectTestHelper.SUBJ5);
+      group2.addMember(SubjectTestHelper.SUBJ6);
+      group2.addMember(SubjectTestHelper.SUBJ7);
+      group2.addMember(SubjectTestHelper.SUBJ8);
+      
+      // group has 11 members
+      Group group = new GroupSave(grouperSession).assignName("test:testGroup").save();
+  
+      group.addMember(group2.toSubject());
+  
+      Group.testingDeleteMembershipsInTransaction = false;
+      
+      group3.delete();
+      
+      assertTrue(Group.testingDeleteMembershipsInTransaction);
+  
+      group.delete();
+  
+      assertFalse(Group.testingDeleteMembershipsInTransaction);
+      
+      //in both cases they are gone
+      assertNull(GroupFinder.findByName(grouperSession, "test:testGroup", false));
+      assertNotNull(GroupFinder.findByName(grouperSession, "test:testGroup2", false));
+      assertNull(GroupFinder.findByName(grouperSession, "test:testGroup3", false));
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.dontUseTransactionWhenDeletingGroupWithMembershipsOverSize");
+    }
+    
+  }
+  
+  /**
+   * make sure large groups (membership wise) do not use a transaction when deleting members
+   */
+  public void testDeleteGroupInManyOtherGroups() {
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.dontUseTransactionWhenDeletingGroupWithMembershipsOverSize", "5");
+
+    try {
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      new StemSave(grouperSession).assignName("test").save();
+      
+      // group3 has two member
+      Group group3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+      group3.addMember(SubjectTestHelper.SUBJ0);
+      group3.addMember(SubjectTestHelper.SUBJ1);
+  
+      // group2 has 2 members
+      Group group2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+  
+      group2.addMember(SubjectTestHelper.SUBJ0);
+      group2.addMember(SubjectTestHelper.SUBJ1);
+      
+      // group has 3 members
+      Group group = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      group.addMember(group2.toSubject());
+
+      // group4 has 3 members
+      Group group4 = new GroupSave(grouperSession).assignName("test:testGroup4").save();
+      group4.addMember(group2.toSubject());
+
+      // group5 has 3 members
+      Group group5 = new GroupSave(grouperSession).assignName("test:testGroup5").save();
+      group5.addMember(group2.toSubject());
+
+      // group6 has 3 members
+      Group group6 = new GroupSave(grouperSession).assignName("test:testGroup6").save();
+      group6.addMember(group2.toSubject());
+
+
+      Group.testingDeleteMembershipsInTransaction = false;
+      
+      group3.delete();
+      
+      assertTrue(Group.testingDeleteMembershipsInTransaction);
+  
+      group2.delete();
+  
+      //this is not in a tx since that group is used in a lot of other groups
+      assertFalse(Group.testingDeleteMembershipsInTransaction);
+      
+      //in both cases they are gone
+      assertNotNull(GroupFinder.findByName(grouperSession, "test:testGroup", false));
+      assertNull(GroupFinder.findByName(grouperSession, "test:testGroup2", false));
+      assertNull(GroupFinder.findByName(grouperSession, "test:testGroup3", false));
+    } finally {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("grouper.dontUseTransactionWhenDeletingGroupWithMembershipsOverSize");
+    }
+    
+  }
+  
+
   /**
    * 
    */
