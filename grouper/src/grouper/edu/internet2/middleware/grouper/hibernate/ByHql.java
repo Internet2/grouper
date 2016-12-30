@@ -35,6 +35,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.transform.Transformers;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -310,14 +311,15 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * call hql executeUpdate, e.g. delete or update statement
    * 
    * </pre>
+   * @return number of records affected
    * @throws GrouperDAOException 
    */
-  public void executeUpdate() throws GrouperDAOException {
+  public int executeUpdate() throws GrouperDAOException {
     GrouperContext.incrementQueryCount();
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);
-    query.executeUpdate();
+    return query.executeUpdate();
   }
   
   /** query count exec queries, used for testing */

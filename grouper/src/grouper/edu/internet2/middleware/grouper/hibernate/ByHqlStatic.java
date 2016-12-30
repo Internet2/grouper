@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleStateException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -463,19 +464,72 @@ public class ByHqlStatic implements HqlQuery {
   }
 
   /**
+   * GRP-1439: remove records with a max number and loop so it doesnt fail
+   * select ids in batches of 10k delete records in batches of 100
+   * Note this should be setup to select a list of scalar String ids.  It will page it
+   * @param idType type of id which can be String or long
+   * @param hqlClassNameToDelete
+   * @param columnNameOfId
+   * @return the total number of records deleted
+   */
+  public long deleteInBatches(Class<?> idType, String hqlClassNameToDelete, String columnNameOfId) {
+    
+    int grouperBatchDeleteSelectSize = GrouperConfig.retrieveConfig().propertyValueInt("grouperBatchDeleteSelectSize", 10000);
+    int grouperBatchDeleteDeleteSize = GrouperConfig.retrieveConfig().propertyValueInt("grouperBatchDeleteDeleteSize", 100);
+
+    long totalCount = 0;
+    
+    //loop until deleted
+    while(true) {
+
+      List<?> ids = this.options(new QueryOptions().paging(grouperBatchDeleteSelectSize, 1, false)).list(idType);
+      
+      if (GrouperUtil.length(ids) == 0) {
+        return totalCount;
+      }
+
+      totalCount += GrouperUtil.length(ids);
+      
+      //we have ids, lets delete them in batches
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, grouperBatchDeleteDeleteSize);
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        List<?> idsBatch = GrouperUtil.batchList(ids, grouperBatchDeleteDeleteSize, i);
+        
+        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+        
+        String hql = "delete from " + hqlClassNameToDelete + " where " + columnNameOfId 
+            + " in (" + HibUtils.convertToInClauseAnyType(idsBatch, byHqlStatic) +  ")";
+        
+        byHqlStatic.createQuery(hql).executeUpdate();
+        
+      }
+
+      //we are done if it didnt select the full amount
+      if (GrouperUtil.length(ids) < grouperBatchDeleteSelectSize) {
+        return totalCount;
+      }
+
+    }
+    
+  }  
+
+  /**
    * <pre>
    * call hql executeUpdate, e.g. delete or update statement
    * 
    * </pre>
+   *
    * @throws GrouperDAOException
+   * @return number of records affected
    */
-  public void executeUpdate() throws GrouperDAOException {
+  public int executeUpdate() throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(
+      return (Integer)HibernateSession.callbackHibernateSession(
           grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
@@ -484,8 +538,7 @@ public class ByHqlStatic implements HqlQuery {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              byHql.executeUpdate();
-              return null;
+              return byHql.executeUpdate();
             }
         
       });
