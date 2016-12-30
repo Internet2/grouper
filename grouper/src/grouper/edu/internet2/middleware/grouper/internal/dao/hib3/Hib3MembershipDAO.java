@@ -942,14 +942,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
 
           {
-            boolean pageMembers = queryOptionsForMember != null;
+            boolean pageMembers = queryOptionsForMember != null && queryOptionsForMember.getQueryPaging() != null;
             
             if (pageMembers) {
 
-              if (queryOptionsForMember.getQueryPaging() == null) {
-                throw new RuntimeException("If paging by member, then paging must be set in the query options");
-              }
-  
               //cant page too much...
               if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
                 throw new RuntimeException("Cant get a page size greater then 500! " 
@@ -978,11 +974,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             if (maxMemberships >= 0 && !pageMembers && queryOptionsForGroup == null) {
     
               long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
-              
+
+              if (queryOptionsForMember.isRetrieveCount()) {
+              }
+
               //see if too many
               if (size > maxMemberships) {
+                
+                if (queryOptionsForMember.isRetrieveCount() && !queryOptionsForMember.isRetrieveResults()) {
+                  queryOptionsForMember.setCount(size + GrouperUtil.defaultIfNull(queryOptionsForMember.getCount(), 0L));
+                  return totalResults;
+                }
+                
                 throw new RuntimeException("Too many results: " + size);
               }
+              
               
             }
   
@@ -1154,17 +1160,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
             long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
             
+            if (queryOptionsForMember.isRetrieveCount()) {
+              queryOptionsForMember.setCount(size + GrouperUtil.defaultIfNull(queryOptionsForMember.getCount(), 0L));
+            }
+
             //see if too many
             if (size > maxMemberships) {
+              if (queryOptionsForMember.isRetrieveCount() && !queryOptionsForMember.isRetrieveResults()) {
+                return totalResults;
+              }
               throw new RuntimeException("Too many results: " + size);
             }
             
           }
                    
-          Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
-
-          totalResults.addAll(results);
-          
+          if (queryOptionsForMember.isRetrieveResults()) {
+            Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
+  
+            totalResults.addAll(results);
+          }          
         }
       }
     }
