@@ -65,6 +65,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -712,9 +713,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
             }
             String last = searchValue.substring(0, cp);
             String first = searchValue.substring(cp+1);
-            if (last!=null) filter = filter.replaceAll("%LAST%", escapeSearchFilter(last));
-            if (first!=null) filter = filter.replaceAll("%FIRST%", escapeSearchFilter(first));
-            if (aff!=null) filter = filter.replaceAll("%AFFILIATION%", escapeSearchFilter(aff));
+            if (last!=null) filter = GrouperClientUtils.replace(filter, "%LAST%", escapeSearchFilter(last));
+            if (first!=null) filter = GrouperClientUtils.replace(filter, "%FIRST%", escapeSearchFilter(first));
+            if (aff!=null) filter = GrouperClientUtils.replace(filter, "%AFFILIATION%", escapeSearchFilter(aff));
          } else {
             // simple search
             filter = search.getParam("filter");
@@ -722,7 +723,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
                 log.error("Search filter not found for search type:  " + search.getSearchType());
                 return results;
             }
-            filter = filter.replaceAll("%TERM%", escapeSearchFilter(searchValue));
+            filter = GrouperClientUtils.replace(filter, "%TERM%", escapeSearchFilter(searchValue));
         }
         
         String preStatusFilter = filter;
@@ -885,6 +886,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     protected String escapeSearchFilter(String filter) {
         //From RFC 2254
         String escapedStr = new String(filter);
+        // note, these are regexes, so thats why there is an extra slash
         escapedStr = escapedStr.replaceAll("\\\\","\\\\5c");
         // We want people to be able to use wildcards.
         // escapedStr = escapedStr.replaceAll("\\*","\\\\2a");
