@@ -960,6 +960,11 @@ public class GrouperLoaderResultset {
                 if (!StringUtils.isBlank(subjectAttributeName)) {
                   Attribute subjectAttributeObject = searchResult.getAttributes().get(
                       subjectAttributeName);
+                  if (subjectAttributeObject == null) {
+                    throw new RuntimeException("Cant find attribute " + subjectAttributeName + " in LDAP record.  Maybe you have "
+                        + "bad data in your LDAP or need to add to your filter a restriction that this attribute exists: '" 
+                        + subjectNameInNamespace + "'");
+                  }
                   subjectId = (String) subjectAttributeObject.get(0);
                 }
 
