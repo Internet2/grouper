@@ -10857,6 +10857,25 @@ public class GrouperInstallerUtils  {
     }
     return lines;
   }
+
+  /**
+   * replace newlines with space
+   * @param input
+   * @return the string
+   */
+  public static String replaceNewlinesWithSpace(String input) {
+    
+    if (input == null) {
+      return null;
+    }
+    
+    input = GrouperInstallerUtils.replace(input, "\r\n", " ");
+    input = GrouperInstallerUtils.replace(input, "\r", " ");
+    input = GrouperInstallerUtils.replace(input, "\n", " ");
+
+    return input;
+    
+  }
   
   /**
    * if printed cant find version, put the jar name here

@@ -3752,10 +3752,10 @@ public class GrouperInstaller {
    */
   private void mainUpgradeTaskLogic() {
     
-    GrouperInstallerConvertAction grouperInstallerConvertAction = 
-        (GrouperInstallerConvertAction)promptForEnum(
-            "What upgrade task do you want to do (convertEhcacheXmlToProperties)? : ",
-            "grouperInstaller.autorun.upgradeTaskAction", GrouperInstallerConvertAction.class);
+    GrouperInstallerUpgradeTaskAction grouperInstallerConvertAction = 
+        (GrouperInstallerUpgradeTaskAction)promptForEnum(
+            "What upgrade task do you want to do (convertEhcacheXmlToProperties, convertSourcesXmlToProperties)? : ",
+            "grouperInstaller.autorun.upgradeTaskAction", GrouperInstallerUpgradeTaskAction.class);
 
     switch(grouperInstallerConvertAction) {
       case convertEhcacheXmlToProperties:
@@ -3801,6 +3801,39 @@ public class GrouperInstaller {
         }
 
         System.out.println("File was written: " + grouperCacheProperties.getAbsolutePath());
+
+        break;
+      case convertSourcesXmlToProperties:
+
+        System.out.println("Note, you need to convert the sources.xml file for each Grouper runtime, e.g. loader, WS, UI.");
+        System.out.println("Note, you need to be running Grouper 2.3.0 with API patch 40 installed.");
+        System.out.print("Enter the location of the sources.xml file: ");
+        String convertSourcesXmlLocation = readFromStdIn("grouperInstaller.autorun.convertSourceXmlLocation");
+
+        File sourcesXmlFile = new File(convertSourcesXmlLocation);
+        if (!sourcesXmlFile.exists()) {
+          System.out.println("Cant find sources.xml: " + sourcesXmlFile.getAbsolutePath());
+          System.exit(1);
+        }
+
+        File subjectProperties = new File(sourcesXmlFile.getParentFile().getAbsolutePath() + File.separator + "subject.properties");
+
+        {
+          System.out.print("Enter the location of the grouper.cache.base.properties file [" + subjectProperties.getAbsolutePath() + "]: ");
+          String grouperCacheBasePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertSubjectPropertiesLocation");
+  
+          if (!GrouperInstallerUtils.isBlank(grouperCacheBasePropertiesLocation)) {
+            subjectProperties = new File(grouperCacheBasePropertiesLocation);
+          }
+        }
+        
+        try {
+          convertSourcesXmlToProperties(subjectProperties, sourcesXmlFile.toURI().toURL());
+        } catch (MalformedURLException mue) {
+          throw new RuntimeException("Malformed url on " + convertSourcesXmlLocation);
+        }
+
+        System.out.println("File was written: " + subjectProperties.getAbsolutePath());
 
         break;
     }
@@ -3948,10 +3981,13 @@ public class GrouperInstaller {
   /**
    * 
    */
-  public static enum GrouperInstallerConvertAction {
+  public static enum GrouperInstallerUpgradeTaskAction {
 
     /** convert */
-    convertEhcacheXmlToProperties;
+    convertEhcacheXmlToProperties,
+    
+    /** convert sources xml */
+    convertSourcesXmlToProperties;
     
     /**
      * 
@@ -3960,8 +3996,8 @@ public class GrouperInstaller {
      * @param exceptionIfBlank
      * @return the action
      */
-    public static GrouperInstallerConvertAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
-      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerConvertAction.class, string, exceptionIfBlank, exceptionIfInvalid);
+    public static GrouperInstallerUpgradeTaskAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
+      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerUpgradeTaskAction.class, string, exceptionIfBlank, exceptionIfInvalid);
     }
     
   }
@@ -11797,11 +11833,11 @@ public class GrouperInstaller {
    * @param ehcacheXmlUrl
    */
   public static void convertEhcacheXmlToProperties(File grouperCacheBasePropertiesFile, File grouperCachePropertiesFile, URL ehcacheXmlUrl) {
-
+  
     //look at base properties
     Properties grouperCacheProperties = grouperCachePropertiesFile.exists() ? 
         GrouperInstallerUtils.propertiesFromFile(grouperCachePropertiesFile) : new Properties();
-
+  
     if (!grouperCacheBasePropertiesFile.exists()) {
       throw new RuntimeException(grouperCacheBasePropertiesFile.getAbsolutePath() + " must exist and does not!");
     }
@@ -11809,7 +11845,7 @@ public class GrouperInstaller {
     if (grouperCacheProperties.size() > 0) {
       throw new RuntimeException(grouperCachePropertiesFile.getAbsolutePath() + " exists and must not.  Delete the file and run this again!");
     }
-
+  
     if (!grouperCachePropertiesFile.getParentFile().exists() || !grouperCachePropertiesFile.getParentFile().isDirectory()) {
       throw new RuntimeException(grouperCachePropertiesFile.getParentFile().getAbsolutePath() + " must exist and must be a directory");
     }
@@ -11844,7 +11880,7 @@ public class GrouperInstaller {
             + "# the base settings.  See the grouper.cache.base.properties for the possible\n"
             + "# settings that can be applied to the grouper.cache.properties\n\n"
         );
-
+  
     {
       // <diskStore path="java.io.tmpdir"/>
       NodeList diskStoreNodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheXmlUrl, "/ehcache/diskStore");
@@ -11853,7 +11889,7 @@ public class GrouperInstaller {
       }
   
       Element element = (Element)diskStoreNodeList.item(0);
-
+  
       NamedNodeMap configuredNamedNodeMap = element.getAttributes();
       if (configuredNamedNodeMap.getLength() != 1 || !"path".equals(configuredNamedNodeMap.item(0).getNodeName())) {
         throw new RuntimeException("Expecting one diskStore attribute: path");
@@ -11866,7 +11902,7 @@ public class GrouperInstaller {
       }
       
     }    
-
+  
     {
       //  <defaultCache
       //    maxElementsInMemory="1000"
@@ -11883,21 +11919,21 @@ public class GrouperInstaller {
       }
   
       Element element = (Element)diskStoreNodeList.item(0);
-
+  
       NamedNodeMap configuredNamedNodeMap = element.getAttributes();
       
       if (configuredNamedNodeMap.getLength() != 6) {
         throw new RuntimeException("Expecting defaultCache with these attributes: maxElementsInMemory, "
             + "eternal, timeToIdleSeconds, timeToLiveSeconds, overflowToDisk, statistics");
       }
-
+  
       boolean madeChanges = false;
       
       for (int i=0;i<configuredNamedNodeMap.getLength(); i++) {
         
         String attributeName = configuredNamedNodeMap.item(i).getNodeName();
         String value = element.getAttribute(attributeName);
-
+  
         if ("maxElementsInMemory".equals(attributeName)) {
           if (!"1000".equals(value)) {
             grouperEhcachePropertiesContents.append("cache.defaultCache.maxElementsInMemory = " + value + "\n");
@@ -11936,7 +11972,7 @@ public class GrouperInstaller {
           throw new RuntimeException("Not expecting attribuet defaultCache " + attributeName);
         }
       }
-
+  
       if (madeChanges) {
         grouperEhcachePropertiesContents.append("\n");
       }
@@ -11950,7 +11986,7 @@ public class GrouperInstaller {
     for (int i=0;i<nodeList.getLength();i++) {
       
       Element element = (Element)nodeList.item(i);
-
+  
       //  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.FindBySubject"
       //      maxElementsInMemory="5000"
       //      eternal="false"
@@ -11967,7 +12003,7 @@ public class GrouperInstaller {
       Integer timeToLiveSeconds = GrouperInstallerUtils.intObjectValue(element.getAttribute("timeToLiveSeconds"), true);
       Boolean overflowToDisk = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("overflowToDisk"));
       Boolean statistics = GrouperInstallerUtils.booleanObjectValue(element.getAttribute("statistics"));
-
+  
       //any attributes we dont expect?
       NamedNodeMap configuredNamedNodeMap = element.getAttributes();
       //see which attributes are new or changed
@@ -11993,7 +12029,7 @@ public class GrouperInstaller {
       //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.timeToLiveSeconds = 1
       //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.overflowToDisk = false
       //  cache.name.edu_internet2_middleware_grouper_internal_dao_hib3_Hib3GroupDAO.statistics = false
-
+  
       boolean madeChanges = false;
       
       if (maxElementsInMemory != null && !GrouperInstallerUtils.defaultString((String)grouperCacheBaseProperties.get("cache.name." + key + ".maxElementsInMemory")).equals(maxElementsInMemory.toString())) {
@@ -12026,6 +12062,649 @@ public class GrouperInstaller {
     }
   
     GrouperInstallerUtils.saveStringIntoFile(grouperCachePropertiesFile, grouperEhcachePropertiesContents.toString());
+  }
+
+  /**
+   * get a subelement value.
+   * e.g. if the node is &lt;source&gt;
+   * and the sub element is &lt;id&gt;someId&lt;/id&gt;
+   * It will return "someId" for subElementName "id"
+   * @param parent
+   * @param subElementName
+   * @param required
+   * @param descriptionForError 
+   * @return the string or null if not there
+   */
+  public static String xmlElementValue(Element parent, String subElementName, boolean required, String descriptionForError) {
+    
+    NodeList nodeList = parent.getElementsByTagName(subElementName);
+    
+    if (nodeList.getLength() < 1) {
+      if (required) {
+        throw new RuntimeException("Cant find subElement <" + subElementName 
+            + "> in parent element " + parent.getNodeName() + ", " + descriptionForError);
+      }
+      return null;
+    }    
+    
+    if (nodeList.getLength() > 1) {
+      throw new RuntimeException("Too many subElements <" + subElementName 
+          + "> in parent element " + parent.getNodeName() + ", " 
+          + nodeList.getLength() + ", " + descriptionForError);
+    }
+    return nodeList.item(0).getTextContent();
+  }
+  
+  /**
+   * put in a good comment about this param name
+   * @param paramName
+   * @param paramValue
+   * @param subjectPropertiesContents
+   */
+  private static void convertSourcesXmlParamComment(String paramName, StringBuilder subjectPropertiesContents, String paramValue) {
+    
+    if (paramName == null) {
+      throw new NullPointerException("param-name is null");
+    }
+    
+    if (paramName.startsWith("subjectVirtualAttributeVariable_")) {
+      subjectPropertiesContents.append("\n# when evaluating the virtual attribute EL expression, this variable can be used from this java class.\n"
+          + "# " + paramName + " variable is the " + paramValue + " class.  Call static methods\n");
+    } else if (paramName.startsWith("subjectVirtualAttribute_")) {
+      
+      Pattern pattern = Pattern.compile("^subjectVirtualAttribute_([\\d]+)_(.*)$");
+      Matcher matcher = pattern.matcher(paramName);
+      if (!matcher.matches()) {
+        throw new RuntimeException(paramName + " is invalid, should be of form: subjectVirtualAttribute_<intIndex>_paramName");
+      }
+      
+      String index = matcher.group(1);
+      String attributeName = matcher.group(2);
+      
+      subjectPropertiesContents.append("\n# This virtual attribute index " + index + " is accessible via: subject.getAttributeValue(\"" + attributeName + "\");\n");
+      
+    } else if (GrouperInstallerUtils.equals(paramName, "findSubjectByIdOnCheckConfig")) {
+      
+      subjectPropertiesContents.append("\n# if a system check should try to resolve a subject by id on this source\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "subjectIdToFindOnCheckConfig")) {
+      
+      subjectPropertiesContents.append("\n# by default it will try to find a random string.  If you want a speicific ID to be found enter that here\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "findSubjectByIdentifiedOnCheckConfig")) {
+      
+      subjectPropertiesContents.append("\n# by default it will do a search by subject identifier\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "subjectIdentifierToFindOnCheckConfig")) {
+      
+      subjectPropertiesContents.append("\n# by default it will use a random value for subject identifier to lookup, you can specify a value here\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "findSubjectByStringOnCheckConfig")) {
+      
+      subjectPropertiesContents.append("\n# by default it will search for a subject by string\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "stringToFindOnCheckConfig")) {
+      
+      subjectPropertiesContents.append("\n# you can specify the search string here or it will be a random value\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "sortAttribute0")) {
+      
+      subjectPropertiesContents.append("\n# the 1st sort attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 sort attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "sortAttribute1")) {
+      
+      subjectPropertiesContents.append("\n# the 2nd sort attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 sort attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "sortAttribute2")) {
+      
+      subjectPropertiesContents.append("\n# the 3rd sort attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 sort attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "sortAttribute3")) {
+      
+      subjectPropertiesContents.append("\n# the 4th sort attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 sort attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "sortAttribute4")) {
+      
+      subjectPropertiesContents.append("\n# the 5th sort attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 sort attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "searchAttribute0")) {
+      
+      subjectPropertiesContents.append("\n# the 1st search attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 search attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "searchAttribute1")) {
+      
+      subjectPropertiesContents.append("\n# the 2nd search attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 search attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "searchAttribute2")) {
+      
+      subjectPropertiesContents.append("\n# the 3rd search attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 search attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "searchAttribute3")) {
+      
+      subjectPropertiesContents.append("\n# the 4th search attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 search attributes \n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "searchAttribute4")) {
+      
+      subjectPropertiesContents.append("\n# the 5th search attribute for lists on screen that are derived from member table (e.g. search for member in group)\n"
+          + "# you can have up to 5 search attributes\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "subjectIdentifierAttribute0")) {
+      
+      subjectPropertiesContents.append("\n# subject identifier to store in grouper's member table.  this is used to increase speed of loader and perhaps for provisioning\n"
+          + "# you can have up to max 1 subject identifier\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "maxConnectionAge")) {
+      
+      subjectPropertiesContents.append("\n# seconds of max connection age\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "testConnectionOnCheckout")) {
+      
+      subjectPropertiesContents.append("\n# if connections from pool should be tested when checked out from pool\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "preferredTestQuery")) {
+      
+      subjectPropertiesContents.append("\n# query to use to test the connection when checking out from pool\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "idleConnectionTestPeriod")) {
+      
+      subjectPropertiesContents.append("\n# seconds between tests of idle connections in pool\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "dbDriver")) {
+      
+      subjectPropertiesContents.append("\n#       e.g. mysql:           com.mysql.jdbc.Driver\n"
+          + "#       e.g. p6spy (log sql): com.p6spy.engine.spy.P6SpyDriver\n"
+          + "#         for p6spy, put the underlying driver in spy.properties\n"
+          + "#       e.g. oracle:          oracle.jdbc.driver.OracleDriver\n"
+          + "#       e.g. hsqldb:          org.hsqldb.jdbcDriver\n"
+          + "#       e.g. postgres:        org.postgresql.Driver\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "dbUrl")) {
+      
+      subjectPropertiesContents.append("\n#       e.g. mysql:           jdbc:mysql://localhost:3306/grouper\n"
+          + "#       e.g. p6spy (log sql): [use the URL that your DB requires]\n"
+          + "#       e.g. oracle:          jdbc:oracle:thin:@server.school.edu:1521:sid\n"
+          + "#       e.g. hsqldb (a):      jdbc:hsqldb:dist/run/grouper;create=true\n"
+          + "#       e.g. hsqldb (b):      jdbc:hsqldb:hsql://localhost:9001\n"
+          + "#       e.g. postgres:        jdbc:postgresql:grouper\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "dbUser")) {
+      
+      subjectPropertiesContents.append("\n# username when connecting to the database\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "dbPwd")) {
+      
+      subjectPropertiesContents.append("\n# password when connecting to the database (or file with encrypted password inside)\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "maxResults")) {
+      
+      subjectPropertiesContents.append("\n# maximum number of results from a search, generally no need to get more than 1000\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "dbTableOrView")) {
+      
+      subjectPropertiesContents.append("\n# the table or view to query results from.  Note, could prefix with a schema name\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "subjectIdCol")) {
+      
+      subjectPropertiesContents.append("\n# the column name to get the subjectId from\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "nameCol")) {
+      
+      subjectPropertiesContents.append("\n# the column name to get the name from\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "lowerSearchCol")) {
+      
+      subjectPropertiesContents.append("\n# search col where general searches take place, lower case\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "defaultSortCol")) {
+      
+      subjectPropertiesContents.append("\n# optional col if you want the search results sorted in the API (note, UI might override)\n");
+
+    } else if (paramName.startsWith("subjectIdentifierCol")) {
+      
+      subjectPropertiesContents.append("\n# you can count up from 0 to N of columns to search by identifier (which might also include by id)\n");
+
+    } else if (paramName.startsWith("subjectAttributeName")) {
+      
+      subjectPropertiesContents.append("\n# you can count up from 0 to N of attributes for various cols.  The name is how to reference in subject.getAttribute()\n");
+
+    } else if (paramName.startsWith("subjectAttributeCol")) {
+      
+      subjectPropertiesContents.append("\n# now you can count up from 0 to N of attributes for various cols.  The name is how to reference in subject.getAttribute()\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "statusDatastoreFieldName")) {
+      
+      subjectPropertiesContents.append("\n# STATUS SECTION for searches to filter out inactives and allow\n"
+          + "# the user to filter by status with e.g. status=all\n"
+          + "# this is optional, and advanced\n"
+          + "#\n"
+          + "# field in database or ldap or endpoint that is the status field\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "statusLabel")) {
+      
+      subjectPropertiesContents.append("\n# search string from user which represents the status.  e.g. status=active\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "statusesFromUser")) {
+      
+      subjectPropertiesContents.append("\n# available statuses from screen (if not specified, any will be allowed). comma separated list.\n"
+          + "# Note, this is optional and you probably dont want to configure it, it is mostly necessary\n"
+          + "# when you have multiple sources with statuses...  if someone types an invalid status\n"
+          + "# and you have this configured, it will not filter by it\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "statusAllFromUser")) {
+      
+      subjectPropertiesContents.append("\n# all label from the user\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "statusSearchDefault")) {
+      
+      subjectPropertiesContents.append("\n# if no status is specified, this will be used (e.g. for active only).  Note, the value should be of the\n"
+          + "# form the user would type in\n");
+
+    } else if (paramName.startsWith("statusTranslateUser")) {
+      
+      subjectPropertiesContents.append("\n# translate between screen values of status, and the data store value.  Increment the 0 to 1, 2, etc for more translations.\n"
+          + "# so the user could enter: status=active, and that could translate to status_col=A.  The 'user' is what the user types in,\n"
+          + "# the 'datastore' is what is in the datastore.  The user part is not case-sensitive.  Note, this could be a many to one\n");
+
+    } else if (paramName.startsWith("statusTranslateDatastore")) {
+      
+      //hmmm, nothing to do here
+    } else if (GrouperInstallerUtils.equals(paramName, "INITIAL_CONTEXT_FACTORY")) {
+      
+      subjectPropertiesContents.append("\n# e.g. com.sun.jndi.ldap.LdapCtxFactory\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "PROVIDER_URL")) {
+      
+      subjectPropertiesContents.append("\n# e.g. ldap://localhost:389\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "SECURITY_AUTHENTICATION")) {
+      
+      subjectPropertiesContents.append("\n# e.g. simple, none, sasl_mech\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "SECURITY_PRINCIPAL")) {
+      
+      subjectPropertiesContents.append("\n# e.g. cn=Manager,dc=example,dc=edu\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "SECURITY_CREDENTIALS")) {
+      
+      subjectPropertiesContents.append("\n# can be a password or a filename of the encrypted password\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "SubjectID_AttributeType")) {
+      
+      subjectPropertiesContents.append("\n# ldap attribute which is the subject id.  e.g. exampleEduRegID   Each subject has one and only one subject id.  Generally it is opaque and permanent.\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "SubjectID_formatToLowerCase")) {
+      
+      subjectPropertiesContents.append("\n# if the subject id should be changed to lower case after reading from datastore.  true or false\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "Name_AttributeType")) {
+      
+      subjectPropertiesContents.append("\n# attribute which is the subject name\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "Description_AttributeType")) {
+      
+      subjectPropertiesContents.append("\n# attribute which is the subject description\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "VTLDAP_VALIDATOR")) {
+      
+      subjectPropertiesContents.append("\n# LdapValidator provides an interface for validating ldap objects when they are in the pool.\n"
+          + "# ConnectLdapValidator validates an ldap connection is healthy by testing it is connected.\n"
+          + "# CompareLdapValidator validates an ldap connection is healthy by performing a compare operation.\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "VTLDAP_VALIDATOR_COMPARE_DN")) {
+      
+      subjectPropertiesContents.append("\n# if VTLDAP_VALIDATOR is CompareLdapValidator, this is the DN of the ldap object to get, e.g. ou=People,dc=vt,dc=edu\n");
+
+    } else if (GrouperInstallerUtils.equals(paramName, "VTLDAP_VALIDATOR_COMPARE_SEARCH_FILTER_STRING")) {
+      
+      subjectPropertiesContents.append("\n# if VTLDAP_VALIDATOR is CompareLdapValidator, this is the filter string, e.g. ou=People\n");
+
+    } else {
+      
+      //hmmm, not sure what to do here, no comment
+      subjectPropertiesContents.append("\n");
+
+    }
+
+  }
+  
+  /**
+   * valid source param pattern
+   */
+  private static Pattern sourcesValidParamPattern = Pattern.compile("^[A-Za-z0-9_]+$");
+  
+  /**
+   * 
+   * @param subjectPropertiesFile 
+   * @param ehcacheXmlUrl
+   */
+  public static void convertSourcesXmlToProperties(File subjectPropertiesFile, URL ehcacheXmlUrl) {
+
+    //look at base properties
+    Properties subjectProperties = subjectPropertiesFile.exists() ? 
+        GrouperInstallerUtils.propertiesFromFile(subjectPropertiesFile) : new Properties();
+
+    if (subjectPropertiesFile.exists()) {
+      
+      //lets see if it just has the default.  the default has no properties
+      if (subjectProperties.size() > 0) {
+        throw new RuntimeException(subjectPropertiesFile.getAbsolutePath() + " exists and must not!  Backup your subject.properties and run this again and merge your subject.properties into the result");
+      }
+    }
+    
+    if (!subjectPropertiesFile.getParentFile().exists() || !subjectPropertiesFile.getParentFile().isDirectory()) {
+      throw new RuntimeException(subjectPropertiesFile.getParentFile().getAbsolutePath() + " must exist and must be a directory");
+    }
+    
+    StringBuilder subjectPropertiesContents = new StringBuilder();
+    
+    subjectPropertiesContents.append(
+              "# Copyright 2016 Internet2\n"
+            + "#\n"
+            + "# Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+            + "# you may not use this file except in compliance with the License.\n"
+            + "# You may obtain a copy of the License at\n"
+            + "#\n"
+            + "#   http://www.apache.org/licenses/LICENSE-2.0\n"
+            + "#\n"
+            + "# Unless required by applicable law or agreed to in writing, software\n"
+            + "# distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+            + "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
+            + "# See the License for the specific language governing permissions and\n"
+            + "# limitations under the License.\n"
+            + "\n"
+            + "#\n"
+            + "# Subject configuration\n"
+            + "#\n"
+            + "\n"
+            + "# The subject properties uses Grouper Configuration Overlays (documented on wiki)\n"
+            + "# By default the configuration is read from subject.base.properties\n"
+            + "# (which should not be edited), and the subject.properties overlays\n"
+            + "# the base settings.  See the subject.base.properties for the possible\n"
+            + "# settings that can be applied to the subject.properties\n\n"
+        );
+
+    subjectPropertiesContents.append(
+        "# enter the location of the sources.xml.  Must start with classpath: or file:\n"
+        + "# default is: classpath:sources.xml\n"
+        + "# e.g. file:/dir1/dir2/sources.xml\n"
+        + "subject.sources.xml.location = \n\n");
+      
+    //   <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
+    NodeList sourcesNodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheXmlUrl, "/sources/source");
+    
+    Set<String> usedConfigNames = new HashSet<String>();
+    
+    for (int i=0;i<sourcesNodeList.getLength();i++) {
+
+      Element sourceElement = (Element)sourcesNodeList.item(i);
+      
+      String configName = null;
+      String id = null;
+      {
+        //  #########################################
+        //  ## Configuration for source: whateverId
+        //  #########################################
+        //  # generally the <configName> is the same as or similar to the source id.  This cannot have special characters
+        //  # this links together all the configs for this source
+        //  # subjectApi.source.<configName>.id = sourceId
+        id = xmlElementValue(sourceElement, "id", true, "source index " + i);
+        
+        //these are configured in subject.base.properties
+        if (GrouperInstallerUtils.equals(id, "g:gsa")
+            || GrouperInstallerUtils.equals(id, "grouperEntities")) {
+          continue;
+        }
+        configName = convertEhcacheNameToPropertiesKey(id, usedConfigNames);
+        usedConfigNames.add(configName);
+        
+        subjectPropertiesContents.append(
+            "\n#########################################\n"
+            + "## Configuration for source id: " + id + "\n"
+            + "## Source configName: " + configName + "\n"
+            + "#########################################\n"
+            + "subjectApi.source." + configName + ".id = " + id + "\n"
+            );
+      }
+
+      {
+        // <name>Grouper: Group Source Adapter</name>
+        String name = xmlElementValue(sourceElement, "name", true, "source: " + id);
+        subjectPropertiesContents.append("\n# this is a friendly name for the source\n"
+            + "subjectApi.source." + configName + ".name = " + name + "\n");
+      }
+      
+      {
+        // <type>group</type>
+        NodeList typeNodeList = sourceElement.getElementsByTagName("type");
+        Set<String> typeSet = new LinkedHashSet<String>();
+        
+        for (int typeIndex=0; typeIndex<typeNodeList.getLength(); typeIndex++) {
+          
+          typeSet.add(typeNodeList.item(typeIndex).getTextContent());
+          
+        }
+        if (typeNodeList.getLength() > 0) {
+          
+          subjectPropertiesContents.append("\n# type is not used all that much.  Can have multiple types, comma separate.  Can be person, group, application\n"
+              + "subjectApi.source." + configName + ".types = " + GrouperInstallerUtils.join(typeSet.iterator(), ", ") + "\n"
+              );
+        }
+
+      }
+
+      {
+        NamedNodeMap configuredNamedNodeMap = sourceElement.getAttributes();
+        if (configuredNamedNodeMap.getLength() != 1 || !"adapterClass".equals(configuredNamedNodeMap.item(0).getNodeName())) {
+          throw new RuntimeException("Expecting one source attribute: adapterClass for source: " + id);
+        }
+        
+        String adapterClass = sourceElement.getAttribute("adapterClass");
+
+        subjectPropertiesContents.append("\n# the adapter class implements the interface: edu.internet2.middleware.subject.Source\n");
+        subjectPropertiesContents.append("# adapter class must extend: edu.internet2.middleware.subject.provider.BaseSourceAdapter\n");
+        subjectPropertiesContents.append("# edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2  :  if doing JDBC this should be used if possible.  All subject data in one table/view.\n");
+        subjectPropertiesContents.append("# edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter   :  oldest JDBC source.  Put freeform queries in here\n");
+        subjectPropertiesContents.append("# edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter   :  used for LDAP\n");
+        subjectPropertiesContents.append("subjectApi.source." + configName + ".adapterClass = " + adapterClass + "\n");
+      }      
+
+      //  # You can flag a source as not throwing exception on a findAll (general search) i.e. if it is
+      //  # ok if it is down.  Generally you probably won't want to do this.  It defaults to true if omitted.
+      //  # subjectApi.source.<configName>.param.throwErrorOnFindAllFailure.value = true
+
+      {
+        //  <init-param>
+        //    <param-name>subjectVirtualAttribute_0_searchAttribute0</param-name>
+        //    <param-value>${subject.getAttributeValue('name')},${subject.getAttributeValue('displayName')},${subject.getAttributeValue('alternateName')}</param-value>
+        //  </init-param>
+        NodeList initParamNodeList = sourceElement.getElementsByTagName("init-param");
+        
+        Set<String> usedParamNames = new HashSet<String>();
+
+        for (int initParamIndex=0; initParamIndex<initParamNodeList.getLength(); initParamIndex++) {
+          
+          Element initParamElement = (Element)initParamNodeList.item(initParamIndex);
+          String paramName = xmlElementValue(initParamElement, "param-name", true, "param-name index " + initParamIndex + " in source " + id);
+          String paramValue = xmlElementValue(initParamElement, "param-value", true, "param-value " + paramName + " in source " + id);
+          
+          String paramConfigKey = convertEhcacheNameToPropertiesKey(paramName, usedParamNames);
+          convertSourcesXmlParamComment(paramName, subjectPropertiesContents, paramValue);
+
+          //if the param name is invalid, then have a name config
+          if (!GrouperInstallerUtils.equals(paramName, paramConfigKey)) {
+            subjectPropertiesContents.append("subjectApi.source." + configName + ".param." + paramConfigKey + ".name = " + paramName + "\n");
+          }
+          
+          //cant have newlines in there, convert to spaces
+          paramValue = GrouperInstallerUtils.replaceNewlinesWithSpace(paramValue);
+          
+          //  # subjectApi.source.<configName>.param.throwErrorOnFindAllFailure.value = true
+          subjectPropertiesContents.append("subjectApi.source." + configName + ".param." + paramConfigKey + ".value = " + paramValue + "\n");
+
+        }
+
+      }
+
+      {
+        //  <search>
+        //    <searchType>searchSubject</searchType>
+        //    <param>
+        //      <param-name>sql</param-name>
+        //                <param-value>
+        //                  select
+        //                    s.subjectid as id, s.name as name,
+        //      </param-value>
+        //    </param>
+        //  </search>
+        NodeList searchNodeList = sourceElement.getElementsByTagName("search");
+        
+        for (int searchIndex=0; searchIndex<searchNodeList.getLength(); searchIndex++) {
+          
+          Element searchElement = (Element)searchNodeList.item(searchIndex);
+          
+          String searchType = xmlElementValue(searchElement, "searchType", true, "search element in the source: " + id);
+
+          NodeList searchParamNodeList = searchElement.getElementsByTagName("param");
+
+          if (GrouperInstallerUtils.equals(searchType, "searchSubject")) {
+            subjectPropertiesContents.append("\n#searchSubject: find a subject by ID.  ID is generally an opaque and permanent identifier, e.g. 12345678.\n"
+                + "#  Each subject has one and only on ID.  Returns one result when searching for one ID.\n");
+          } else if (GrouperInstallerUtils.equals(searchType, "searchSubjectByIdentifier")) {
+            subjectPropertiesContents.append("\n#searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely\n"
+                + "#  identifies the user, e.g. jsmith or jsmith@institution.edu.\n"
+                + "#  Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique\n"
+                + "#  even across sources.  Returns one result when searching for one identifier.\n");
+          } else if (GrouperInstallerUtils.equals(searchType, "search")) {
+            subjectPropertiesContents.append("\n#   search: find subjects by free form search.  Returns multiple results.\n");
+          } else {
+            System.out.println("Not expecting searchType: '" + searchType + "'");
+          }
+
+          for (int searchParamIndex=0; searchParamIndex<searchParamNodeList.getLength(); searchParamIndex++) {
+            
+            Element searchParamElement = (Element)searchParamNodeList.item(searchParamIndex);
+            
+            String paramName = xmlElementValue(searchParamElement, "param-name", true, 
+                "search param name element index " + searchParamIndex + " in the source: " + id);
+          
+            String paramValue = xmlElementValue(searchParamElement, "param-value", true, 
+                "search param value element index " + searchParamIndex + " in the source: " + id);
+
+            // cant have newlines in a properties file
+            paramValue = GrouperInstallerUtils.replaceNewlinesWithSpace(paramValue);
+
+            //  #
+            //  # This is how search params are specified.  Note, each source can have different params for each search type
+            //  # subjectApi.source.<configName>.search.<searchType>.param.<paramName>.value = something
+            //  #
+            //  ##############################################
+            //  #
+            //  # Searches for edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider
+            //  #
+            //  # searchSubject:
+            //  #
+            //  # subjectApi.source.<configName>.search.searchSubject.param.sql.value = select s.subjectid as id, s.name as name, (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname, (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid, (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description, (select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email from subject s where {inclause}
+            //  #    inclause allows searching by subject id for multiple ids in one query
+            //  # subjectApi.source.<configName>.search.searchSubject.param.inclause.value = s.subjectid = ?
+
+            if (!sourcesValidParamPattern.matcher(paramName).matches()) {
+              throw new RuntimeException("Source " + id + " search " + searchType + " param name is not valid: '" + paramName + "'");
+            }
+            if (GrouperInstallerUtils.equals(searchType, "searchSubject")) {
+              if (GrouperInstallerUtils.equals("sql", paramName)) {
+                subjectPropertiesContents.append("\n# sql is the sql to search for the subject by id should use an {inclause}\n");
+              } else if (GrouperInstallerUtils.equals("inclause", paramName)) {
+                subjectPropertiesContents.append("\n# inclause allows searching by subject for multiple ids or identifiers in one query, must have {inclause} in the sql query,\n"
+                    + "#    this will be subsituted to in clause with the following.  Should use a question mark ? for bind variable\n");
+              } else if (GrouperInstallerUtils.equals("filter", paramName)) {
+                  subjectPropertiesContents.append("\n# sql is the sql to search for the subject by id.  %TERM% will be subsituted by the id searched for\n");
+              }
+            } else if (GrouperInstallerUtils.equals(searchType, "searchSubjectByIdentifier")) {
+              if (GrouperInstallerUtils.equals("sql", paramName)) {
+                subjectPropertiesContents.append("\n# sql is the sql to search for the subject by identifier should use an {inclause}\n");
+              } else if (GrouperInstallerUtils.equals("inclause", paramName)) {
+                subjectPropertiesContents.append("\n# inclause allows searching by subject for multiple ids or identifiers in one query, must have {inclause} in the sql query,\n"
+                    + "#    this will be subsituted to in clause with the following.  Should use a question mark ? for bind variable\n");
+              } else if (GrouperInstallerUtils.equals("filter", paramName)) {
+                subjectPropertiesContents.append("\n# sql is the sql to search for the subject by identifier.  %TERM% will be subsituted by the identifier searched for\n");
+              }
+            } else if (GrouperInstallerUtils.equals(searchType, "search")) {
+              if (GrouperInstallerUtils.equals("sql", paramName)) {
+                subjectPropertiesContents.append("\n# sql is the sql to search for the subject free-form search.  user question marks for bind variables\n");
+              } else if (GrouperInstallerUtils.equals("inclause", paramName)) {
+                throw new RuntimeException("Should not have incluse for search of type search in source: " + id);
+              } else if (GrouperInstallerUtils.equals("filter", paramName)) {
+                subjectPropertiesContents.append("\n# sql is the sql to search for the subject by free form search.  %TERM% will be subsituted by the text searched for\n");
+              }
+            }
+            if (GrouperInstallerUtils.equals("scope", paramName)) {
+              subjectPropertiesContents.append("\n# Scope Values can be: OBJECT_SCOPE, ONELEVEL_SCOPE, SUBTREE_SCOPE\n");
+            } else if (GrouperInstallerUtils.equals("base", paramName)) {
+              subjectPropertiesContents.append("\n# base dn to search in\n");
+            }
+            
+            //  # subjectApi.source.<configName>.search.<searchType>.param.<paramName>.value = something
+            subjectPropertiesContents.append("subjectApi.source." + configName + ".search." + searchType + ".param." + paramName + ".value = " + paramValue + "\n");
+            
+          }
+        }
+      }
+      
+      {
+        // # attributes from ldap object to become subject attributes.  comma separated
+        // <attribute>cn</attribute>
+        // <attribute>sn</attribute>
+        NodeList attributeNodeList = sourceElement.getElementsByTagName("attribute");
+        Set<String> attributeSet = new LinkedHashSet<String>();
+
+        for (int attributeIndex=0; attributeIndex<attributeNodeList.getLength(); attributeIndex++) {
+
+          attributeSet.add(attributeNodeList.item(attributeIndex).getTextContent());
+        }
+        if (attributeNodeList.getLength() > 0) {
+
+          subjectPropertiesContents.append("\n# attributes from ldap object to become subject attributes.  comma separated\n"
+              + "subjectApi.source." + configName + ".attributes = " + GrouperInstallerUtils.join(attributeSet.iterator(), ", ") + "\n");
+
+        }
+
+      }
+      
+      {
+        // # internal attributes are used by grouper only not exposed to code that uses subjects.  comma separated
+        // <internal-attributes>cn</internal-attributes>
+        // <internal-attributes>sn</internal-attributes>
+        NodeList internalAttributeNodeList = sourceElement.getElementsByTagName("internal-attributes");
+        Set<String> internalAttributeSet = new LinkedHashSet<String>();
+
+        for (int internalAttributeIndex=0; internalAttributeIndex<internalAttributeNodeList.getLength(); internalAttributeIndex++) {
+
+          internalAttributeSet.add(internalAttributeNodeList.item(internalAttributeIndex).getTextContent());
+
+        }
+        if (internalAttributeNodeList.getLength() > 0) {
+
+          subjectPropertiesContents.append("\n# internal attributes are used by grouper only not exposed to code that uses subjects.  comma separated\n"
+              + "subjectApi.source." + configName + ".internalAttributes = " + GrouperInstallerUtils.join(internalAttributeSet.iterator(), ", ") + "\n");
+
+        }
+
+      }
+      //space between sources
+      subjectPropertiesContents.append("\n");
+    }
+
+    GrouperInstallerUtils.saveStringIntoFile(subjectPropertiesFile, subjectPropertiesContents.toString());
+
   }
 
   /**
