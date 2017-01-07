@@ -127,7 +127,7 @@ public class NullSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    String message = "sources.xml null source id:   " + this.getId();
+    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " null source id:   " + this.getId();
     return message;
   }
 

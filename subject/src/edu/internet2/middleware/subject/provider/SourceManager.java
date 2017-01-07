@@ -223,6 +223,16 @@ public class SourceManager {
         }
   
         result.append("sources.xml read from:        " + sourcesXmlFileLocation + "\n");
+        result.append("sources configured in:        sources.xml\n");
+      } else { 
+        result.append("sources configured in:        subject.properties\n");
+        File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
+        if (sourcesXmlFile != null && sourcesXmlFile.exists() && sourcesXmlFile.isFile()) {
+          String sourcesError = "NON-FATAL ERROR:              subject sources are read from subject.properties but you "
+              + "still have a sources.xml on the classpath which is confusing, please backup and remove this file: " + sourcesXmlFile.getAbsolutePath();
+          result.append(sourcesError + "\n");
+          log.error(sourcesError);
+        }
       }
       
       //at this point, we have a sources.xml...  now check it out
@@ -413,6 +423,14 @@ public class SourceManager {
     }
   }
 
+  /**
+   * 
+   * @return true if using subject.properties, false if sources.xml
+   */
+  public static boolean usingSubjectProperties() {
+    return StringUtils.isBlank(SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location"));
+  }
+  
   /**
    * input stream
    * @return the input stream of the config file
