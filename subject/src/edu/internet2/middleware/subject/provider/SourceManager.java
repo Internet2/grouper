@@ -24,7 +24,6 @@ See doc/license.txt in this distribution.
 package edu.internet2.middleware.subject.provider;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -34,12 +33,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.imageio.stream.FileImageInputStream;
-
-import org.apache.commons.digester.Digester;
+import org.apache.commons.digester3.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,8 +46,8 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SubjectUtils;
-import edu.internet2.middleware.subject.util.ExpirableCache;
 import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.util.ExpirableCache;
 
 /**
  * Factory to load and get Sources.  Sources are defined
@@ -207,12 +202,26 @@ public class SourceManager {
     try {
       StringBuilder result = new StringBuilder();
 
-      String sourcesXmlFileLocation = SubjectUtils.getLocationFromResourceName("sources.xml");
-      if (sourcesXmlFileLocation == null) {
-        sourcesXmlFileLocation = " [cant find sources.xml]";
-      }
-      result.append("sources.xml read from:        " + sourcesXmlFileLocation + "\n");
+      String sourcesXmlLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
 
+      File subjectPropertiesFile = SubjectUtils.fileFromResourceName("subject.properties");
+      String subjectPropertiesFileLocation = subjectPropertiesFile == null ? " [cant find subject.properties]"
+          : SubjectUtils.fileCanonicalPath(subjectPropertiesFile);
+      result.append("subject.properties read from: " + subjectPropertiesFileLocation + "\n");
+
+      if (!StringUtils.isBlank(sourcesXmlLocation)) {
+
+        String sourcesXmlFileLocation = sourcesXmlLocation;
+        if (sourcesXmlLocation != null && sourcesXmlLocation.startsWith("classpath:")) {
+          sourcesXmlLocation = sourcesXmlLocation.substring("classpath:".length());
+          File sourcesXmlFile = SubjectUtils.fileFromResourceName(sourcesXmlLocation);
+          sourcesXmlFileLocation = sourcesXmlFile == null ? (" [cant find sources.xml configured as: " + sourcesXmlLocation + "]")
+              : SubjectUtils.fileCanonicalPath(sourcesXmlFile);
+        }
+  
+        result.append("sources.xml read from:        " + sourcesXmlFileLocation + "\n");
+      }
+      
       //at this point, we have a sources.xml...  now check it out
       Collection<Source> sources = SourceManager.getInstance().getSources();
       for (Source source : sources) {
@@ -381,16 +390,24 @@ public class SourceManager {
 
     digester.addSetNext("sources/source", "loadSource");
     
-    
     InputStream is = sourcesXmlConfig();
-    log.debug("Parsing config input stream: " + is);
-    try {
-      digester.parse(is);
-    } catch (Exception e) {
-      String sourcesLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
-      throw new RuntimeException("Problem reading sources xml file: " + sourcesLocation, e );
+    if (is != null) {
+      //doing subjects from sources.xml
+      log.debug("Parsing config input stream: " + is);
+      try {
+        digester.parse(is);
+      } catch (Exception e) {
+        String sourcesLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
+        throw new RuntimeException("Problem reading sources xml file: " + sourcesLocation, e );
+      }
+      is.close();
+    } else {
+      
+      for (Source source : SubjectConfig.retrieveConfig().retrieveSourceConfigs().values()) {
+        loadSource(source);
+      }
+      
     }
-    is.close();
   }
 
   /**
@@ -398,7 +415,12 @@ public class SourceManager {
    * @return the input stream of the config file
    */
   public static InputStream sourcesXmlConfig() {
-    String sourcesXmlLocation = SubjectConfig.retrieveConfig().propertyValueStringRequired("subject.sources.xml.location");
+    String sourcesXmlLocation = SubjectConfig.retrieveConfig().propertyValueString("subject.sources.xml.location");
+    
+    if (StringUtils.isBlank(sourcesXmlLocation)) {
+      return null;
+    }
+    
     return GrouperClientUtils.fileOrClasspathInputstream(sourcesXmlLocation, "In the subject.properties, the entry for subject.sources.xml.location");
   }
   
