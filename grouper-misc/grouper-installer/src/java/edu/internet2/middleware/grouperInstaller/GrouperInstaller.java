@@ -4710,6 +4710,7 @@ public class GrouperInstaller {
 
     this.upgradeEhcacheXml();
     this.upgradeEhcacheXmlToProperties();
+    this.upgradeSourcesXmlToProperties();
 
     this.compareAndCopyFile(this.grouperUtf8File, 
         new File(this.untarredApiDir + File.separator + "conf" + File.separator + "grouperUtf8.txt"),
@@ -4717,10 +4718,13 @@ public class GrouperInstaller {
         new File(this.upgradeExistingClassesDirectoryString)
         );
     
-    System.out.println("\nYou should compare " + this.grouperPropertiesFile.getParentFile().getAbsolutePath() + File.separator + "sources.xml"
-        + "\n  with " + this.untarredApiDir + File.separator + "conf" + File.separator + "sources.xml");
-    System.out.print("Press <enter> to continue after you have merged the sources.xml. ");
-    readFromStdIn("grouperInstaller.autorun.continueAfterMergingSourcesXml");
+    //do this only if less than 2.3.1
+    if (new GiGrouperVersion(this.version).lessThanArg(new GiGrouperVersion("2.3.1"))) {
+      System.out.println("\nYou should compare " + this.grouperPropertiesFile.getParentFile().getAbsolutePath() + File.separator + "sources.xml"
+          + "\n  with " + this.untarredApiDir + File.separator + "conf" + File.separator + "sources.xml");
+      System.out.print("Press <enter> to continue after you have merged the sources.xml. ");
+      readFromStdIn("grouperInstaller.autorun.continueAfterMergingSourcesXml");
+    }
     
     System.out.println("\n##################################");
     System.out.println("Upgrading API jars\n");
@@ -11808,6 +11812,69 @@ public class GrouperInstaller {
 
   /**
    * 
+   */
+  private void upgradeSourcesXmlToProperties() {
+  
+    //dont do this if less than 2.3.1
+    if (new GiGrouperVersion(this.version).lessThanArg(new GiGrouperVersion("2.3.1"))) {
+      return;
+    }
+    
+    //this file is done
+    File sourcesXmlFile = new File(this.grouperPropertiesFile.getParentFile().getAbsolutePath() + File.separator + "sources.xml");
+
+    if (!sourcesXmlFile.exists()) {
+      return;
+    }
+      
+    
+    System.out.print("Do you want to convert from sources.xml to subject.properties, note you need to do this to upgrade (t|f)? [t]: ");
+    boolean convert = readFromStdInBoolean(true, "grouperInstaller.autorun.convertSourcesXmlToProperties");
+  
+    if (!convert) {
+      System.out.println("Note: grouper will not run, but whatever you want to do!!!!");
+    }
+    File bakFile = null;
+    if (this.subjectPropertiesFile.exists()) {
+      //see if there is anything in it
+      Properties grouperCacheProperties = GrouperInstallerUtils.propertiesFromFile(this.subjectPropertiesFile);
+      if (grouperCacheProperties.size() > 0) {
+        bakFile = this.backupAndDeleteFile(this.grouperCachePropertiesFile, true);
+      }
+    }
+    
+    URL sourcesXmlUrl = null;
+    
+    try {
+      sourcesXmlUrl = sourcesXmlFile.toURI().toURL();
+    } catch (Exception e) {
+      throw new RuntimeException("Problem with sources.xml: " + (sourcesXmlFile == null ? null : sourcesXmlFile.getAbsoluteFile()), e);
+    }
+    
+    //convert
+    convertSourcesXmlToProperties(this.subjectPropertiesFile, sourcesXmlUrl);
+    
+    File subjectBakFile = bakFile(this.subjectPropertiesFile);
+    GrouperInstallerUtils.copyFile(this.subjectPropertiesFile, subjectBakFile, true);
+    this.backupAndDeleteFile(sourcesXmlFile, true);
+    
+    {
+      File sourcesExampleXmlFile = new File(this.grouperPropertiesFile.getParentFile().getAbsolutePath() + File.separator + "sources.example.xml");
+      if (sourcesExampleXmlFile.exists()) {
+        this.backupAndDeleteFile(sourcesExampleXmlFile, true);
+      }
+    }
+    
+    if (bakFile != null) {
+      System.out.println("Note, you had settings in your subject.properties (not common), this file has been moved to: " + bakFile.getAbsolutePath());
+      System.out.println("Merge your settings from that file to " + this.subjectPropertiesFile.getAbsolutePath());
+      System.out.print("Press <enter> to continue: ");
+      readFromStdIn("grouperInstaller.autorun.convertSourcesXmlToPropertiesHadPropertiesInFile");
+    }
+  }
+
+  /**
+   * 
    * @param grouperCacheBasePropertiesFile 
    * @param grouperCachePropertiesFile
    * @param ehcacheXmlUrl
@@ -12414,6 +12481,7 @@ public class GrouperInstaller {
 
     subjectPropertiesContents.append(
         "# enter the location of the sources.xml.  Must start with classpath: or file:\n"
+        + "# blank means dont use sources.xml, use subject.properties\n"
         + "# default is: classpath:sources.xml\n"
         + "# e.g. file:/dir1/dir2/sources.xml\n"
         + "subject.sources.xml.location = \n\n");
