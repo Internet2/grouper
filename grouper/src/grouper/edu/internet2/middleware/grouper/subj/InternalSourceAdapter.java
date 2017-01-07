@@ -46,6 +46,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SubjectStatusProcessor;
 import edu.internet2.middleware.subject.provider.SubjectStatusResult;
@@ -349,7 +350,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    String message = "sources.xml internalsource id:" + this.getId();
+    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " internalsource id:" + this.getId();
     return message;
   }
 } // public class InternalSourceAdapter

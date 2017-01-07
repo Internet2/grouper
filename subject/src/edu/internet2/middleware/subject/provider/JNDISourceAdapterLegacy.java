@@ -634,7 +634,7 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
     String dbUser = props.getProperty("SECURITY_PRINCIPAL");
     String dbResult = dbUser + "@" + dbUrl;
 
-    String message = "sources.xml jndi source id:   " + this.getId() + ": " + dbResult;
+    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " jndi source id:   " + this.getId() + ": " + dbResult;
     return message;
 
   }

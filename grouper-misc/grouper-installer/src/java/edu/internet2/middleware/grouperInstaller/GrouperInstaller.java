@@ -3806,7 +3806,7 @@ public class GrouperInstaller {
       case convertSourcesXmlToProperties:
 
         System.out.println("Note, you need to convert the sources.xml file for each Grouper runtime, e.g. loader, WS, UI.");
-        System.out.println("Note, you need to be running Grouper 2.3.0 with API patch 40 installed.");
+        System.out.println("Note, to use subject sources from subject.properties, you need to be running Grouper 2.3.0+ with API patch 40 installed.");
         System.out.print("Enter the location of the sources.xml file: ");
         String convertSourcesXmlLocation = readFromStdIn("grouperInstaller.autorun.convertSourceXmlLocation");
 
@@ -3819,7 +3819,7 @@ public class GrouperInstaller {
         File subjectProperties = new File(sourcesXmlFile.getParentFile().getAbsolutePath() + File.separator + "subject.properties");
 
         {
-          System.out.print("Enter the location of the grouper.cache.base.properties file [" + subjectProperties.getAbsolutePath() + "]: ");
+          System.out.print("Enter the location of the subject.base.properties file [" + subjectProperties.getAbsolutePath() + "]: ");
           String grouperCacheBasePropertiesLocation = readFromStdIn("grouperInstaller.autorun.convertSubjectPropertiesLocation");
   
           if (!GrouperInstallerUtils.isBlank(grouperCacheBasePropertiesLocation)) {
@@ -3834,6 +3834,8 @@ public class GrouperInstaller {
         }
 
         System.out.println("File was written: " + subjectProperties.getAbsolutePath());
+        System.out.println("You should archive your sources.xml and remove it from your project since it is now unused:\n  " 
+            + sourcesXmlFile.getAbsolutePath());
 
         break;
     }
@@ -3952,28 +3954,6 @@ public class GrouperInstaller {
      */
     public static GrouperInstallerAdminAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
       return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerAdminAction.class, string, exceptionIfBlank, exceptionIfInvalid);
-    }
-    
-  }
-  
-  /**
-   * 
-   */
-  public static enum GrouperInstallerMiscConvertAction {
-
-    /** convert ehcache xml to properties */
-    convertEhcacheXmlToProperties
-    ;
-    
-    /**
-     * 
-     * @param string
-     * @param exceptionIfInvalid
-     * @param exceptionIfBlank
-     * @return the action
-     */
-    public static GrouperInstallerMiscConvertAction valueOfIgnoreCase(String string, boolean exceptionIfBlank, boolean exceptionIfInvalid) {
-      return GrouperInstallerUtils.enumValueOfIgnoreCase(GrouperInstallerMiscConvertAction.class, string, exceptionIfBlank, exceptionIfInvalid);
     }
     
   }
@@ -12092,7 +12072,7 @@ public class GrouperInstaller {
           + "> in parent element " + parent.getNodeName() + ", " 
           + nodeList.getLength() + ", " + descriptionForError);
     }
-    return nodeList.item(0).getTextContent();
+    return GrouperInstallerUtils.trimToEmpty(nodeList.item(0).getTextContent());
   }
   
   /**
@@ -12384,9 +12364,9 @@ public class GrouperInstaller {
   /**
    * 
    * @param subjectPropertiesFile 
-   * @param ehcacheXmlUrl
+   * @param sourcesXmlUrl
    */
-  public static void convertSourcesXmlToProperties(File subjectPropertiesFile, URL ehcacheXmlUrl) {
+  public static void convertSourcesXmlToProperties(File subjectPropertiesFile, URL sourcesXmlUrl) {
 
     //look at base properties
     Properties subjectProperties = subjectPropertiesFile.exists() ? 
@@ -12439,7 +12419,7 @@ public class GrouperInstaller {
         + "subject.sources.xml.location = \n\n");
       
     //   <source adapterClass="edu.internet2.middleware.grouper.GrouperSourceAdapter">
-    NodeList sourcesNodeList = GrouperInstallerUtils.xpathEvaluate(ehcacheXmlUrl, "/sources/source");
+    NodeList sourcesNodeList = GrouperInstallerUtils.xpathEvaluate(sourcesXmlUrl, "/sources/source");
     
     Set<String> usedConfigNames = new HashSet<String>();
     
@@ -12489,7 +12469,7 @@ public class GrouperInstaller {
         
         for (int typeIndex=0; typeIndex<typeNodeList.getLength(); typeIndex++) {
           
-          typeSet.add(typeNodeList.item(typeIndex).getTextContent());
+          typeSet.add(GrouperInstallerUtils.trimToEmpty(typeNodeList.item(typeIndex).getTextContent()));
           
         }
         if (typeNodeList.getLength() > 0) {
@@ -12668,7 +12648,7 @@ public class GrouperInstaller {
 
         for (int attributeIndex=0; attributeIndex<attributeNodeList.getLength(); attributeIndex++) {
 
-          attributeSet.add(attributeNodeList.item(attributeIndex).getTextContent());
+          attributeSet.add(GrouperInstallerUtils.trimToEmpty(attributeNodeList.item(attributeIndex).getTextContent()));
         }
         if (attributeNodeList.getLength() > 0) {
 
@@ -12683,12 +12663,12 @@ public class GrouperInstaller {
         // # internal attributes are used by grouper only not exposed to code that uses subjects.  comma separated
         // <internal-attributes>cn</internal-attributes>
         // <internal-attributes>sn</internal-attributes>
-        NodeList internalAttributeNodeList = sourceElement.getElementsByTagName("internal-attributes");
+        NodeList internalAttributeNodeList = sourceElement.getElementsByTagName("internal-attribute");
         Set<String> internalAttributeSet = new LinkedHashSet<String>();
 
         for (int internalAttributeIndex=0; internalAttributeIndex<internalAttributeNodeList.getLength(); internalAttributeIndex++) {
 
-          internalAttributeSet.add(internalAttributeNodeList.item(internalAttributeIndex).getTextContent());
+          internalAttributeSet.add(GrouperInstallerUtils.trimToEmpty(internalAttributeNodeList.item(internalAttributeIndex).getTextContent()));
 
         }
         if (internalAttributeNodeList.getLength() > 0) {

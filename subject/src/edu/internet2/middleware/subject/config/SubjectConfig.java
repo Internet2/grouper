@@ -183,7 +183,7 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
                   if (paramValueKey.startsWith("subjectApi.source." + sourceConfigId + ".param") 
                       && paramValueKey.endsWith(".value") ) {
                     String paramValue = propertyValueString(paramValueKey);
-                    Matcher paramValueMatcher = paramValueConfigPattern.matcher(configName);
+                    Matcher paramValueMatcher = paramValueConfigPattern.matcher(paramValueKey);
                     paramValueMatcher.matches();
                     String paramConfigId = paramValueMatcher.group(1);
                     String paramName = propertyValueString("subjectApi.source." + sourceConfigId + ".param." + paramConfigId + ".name");
@@ -245,7 +245,7 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
                     if (paramValueKey.startsWith("subjectApi.source." + sourceConfigId + ".search." + searchType + ".param.") 
                         && paramValueKey.endsWith(".value") ) {
                       String paramValue = propertyValueString(paramValueKey);
-                      Matcher paramValueMatcher = searchParamValueConfigPattern.matcher(configName);
+                      Matcher paramValueMatcher = searchParamValueConfigPattern.matcher(paramValueKey);
                       paramValueMatcher.matches();
                       String paramConfigId = paramValueMatcher.group(1);
                       String paramName = propertyValueString("subjectApi.source." + sourceConfigId + ".search." + searchType + ".param." + paramConfigId + ".name");
@@ -259,6 +259,7 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
                   }
                   
                   source.loadSearch(search);
+                  theSources.put(sourceConfigId, source);
                 }
               }
             }
