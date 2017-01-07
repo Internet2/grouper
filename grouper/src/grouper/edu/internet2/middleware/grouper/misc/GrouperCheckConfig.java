@@ -93,6 +93,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -347,7 +348,7 @@ public class GrouperCheckConfig {
     checkResource("grouper.hibernate.properties");
     checkResource("log4j.properties");
     checkResource("morphString.properties");
-    checkResource("sources.xml");
+    checkResource("sources.xml", !SourceManager.usingSubjectProperties());
     
   }
   
