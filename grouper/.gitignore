@@ -17,3 +17,6 @@ misc/server/i2midev1
 spy.log
 temp
 test.log
+/grouperHSQL.lck
+/grouperHSQL.properties
+/grouperHSQL.script
