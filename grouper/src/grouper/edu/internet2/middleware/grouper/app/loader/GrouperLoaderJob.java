@@ -351,18 +351,20 @@ public class GrouperLoaderJob implements Job {
   
       //find the groups whose membership we "and" with the dynamic group
       //CH 20110925: why is this not retrieved from the jobGroup???
-      String grouperLoaderAndGroupNames = hib3GrouploaderLog.getAndGroupNames();
-      if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
-        
-        hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroupNames);
-        
-        //there are groups to and with, get the list
-        String[] groupNames = GrouperUtil.splitTrim(grouperLoaderAndGroupNames, ",");
-        
-        
-        for (String groupName : groupNames) {
-          Group group = GroupFinder.findByName(grouperSession, groupName, true);
-          andGroups.add(group);
+      if (jobGroup != null) {
+        String grouperLoaderAndGroupNames = jobGroup.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_AND_GROUPS);
+        if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
+          
+          hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroupNames);
+          
+          //there are groups to and with, get the list
+          String[] groupNames = GrouperUtil.splitTrim(grouperLoaderAndGroupNames, ",");
+          
+          
+          for (String groupName : groupNames) {
+            Group group = GroupFinder.findByName(grouperSession, groupName, true);
+            andGroups.add(group);
+          }
         }
       }
       
