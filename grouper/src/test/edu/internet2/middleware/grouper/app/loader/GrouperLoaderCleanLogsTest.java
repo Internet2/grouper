@@ -48,6 +48,9 @@ public class GrouperLoaderCleanLogsTest extends GrouperTest {
    * 
    */
   public void testCleanLogs() {
+    // clear existing logs
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log");
+
     //lets make a bunch of loader logs and change log records
     for (int i=0;i<723;i++) {
       Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
