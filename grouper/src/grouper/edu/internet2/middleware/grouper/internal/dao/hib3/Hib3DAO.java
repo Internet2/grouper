@@ -196,6 +196,8 @@ public abstract class Hib3DAO {
         addClass(CFG, hibernatableClass);
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
         addClass(CFG, hibernatableClass);
+        hibernatableClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperIncrementalLoader");
+        addClass(CFG, hibernatableClass);
         
         hibernatableClass = Class.forName("edu.internet2.middleware.grouper.subj.TestgrouperSubjAttr");
         addClass(CFG, hibernatableClass);

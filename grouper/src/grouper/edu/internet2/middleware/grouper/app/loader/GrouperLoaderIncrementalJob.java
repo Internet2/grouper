@@ -51,7 +51,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -74,7 +73,16 @@ public class GrouperLoaderIncrementalJob implements Job {
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
     String jobName = context.getJobDetail().getKey().getName();
-    runJob(jobName);
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.startRootSession();
+      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+      
+      runJob(grouperSession, jobName);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**
@@ -103,18 +111,15 @@ public class GrouperLoaderIncrementalJob implements Job {
   }
   
   /**
+   * @param grouperSession 
    * @param jobName
    * @throws JobExecutionException 
    */
-  public static void runJob(String jobName) throws JobExecutionException {
+  public static void runJob(GrouperSession grouperSession, String jobName) throws JobExecutionException {
     long startTime = System.currentTimeMillis();
     final Hib3GrouperLoaderLog hib3GrouperloaderLog = new Hib3GrouperLoaderLog();
-    GrouperSession grouperSession = null;
     
     try {
-      grouperSession = GrouperSession.startRootSession();
-      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
-
       hib3GrouperloaderLog.setJobName(jobName);
       hib3GrouperloaderLog.setHost(GrouperUtil.hostname());
       hib3GrouperloaderLog.setStartedTime(new Timestamp(startTime));
@@ -128,9 +133,9 @@ public class GrouperLoaderIncrementalJob implements Job {
       final String tableName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobProperty + ".tableName");
       int fullSyncThreshold = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob." + jobProperty + ".fullSyncThreshold", 100);
 
-      boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("loader.incrementalThreads", true);
+      boolean useThreads = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.incrementalThreads", true);
       int threadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.incrementalThreadPoolSize", 10);
-      
+
       final GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(databaseName);
       
       Connection connection = null;
@@ -282,8 +287,6 @@ public class GrouperLoaderIncrementalJob implements Job {
       JobExecutionException jobExecutionException = (JobExecutionException)e;
       storeLogInDb(hib3GrouperloaderLog, false, startTime);
       throw jobExecutionException;
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
     }
   }
   
