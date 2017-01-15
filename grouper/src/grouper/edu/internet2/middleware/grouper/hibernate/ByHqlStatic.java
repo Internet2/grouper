@@ -523,13 +523,13 @@ public class ByHqlStatic implements HqlQuery {
    * @throws GrouperDAOException
    * @return number of records affected
    */
-  public int executeUpdate() throws GrouperDAOException {
+  public void executeUpdate() throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      return (Integer)HibernateSession.callbackHibernateSession(
+      HibernateSession.callbackHibernateSession(
           grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
@@ -538,7 +538,8 @@ public class ByHqlStatic implements HqlQuery {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              return byHql.executeUpdate();
+              byHql.executeUpdate();
+              return null;
             }
         
       });
