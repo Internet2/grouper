@@ -230,15 +230,8 @@ public class LoginCheckFilter implements Filter {
 
 		Subject subj = null;
 		UnrecoverableErrorException unrecov = null;
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
 		try {
-		  subj = (Subject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-        
-        @Override
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          return SubjectFinder.findByIdOrIdentifier(remoteUser, true);
-        }
-      });
+		  subj = GrouperUiFilter.retrieveSubjectLoggedIn();
 		} catch (SubjectNotFoundException e) {
 			LOG.error(remoteUser + " is not recognised",e);
 			unrecov = new UnrecoverableErrorException("error.login.not-recognised",e);		
@@ -248,8 +241,6 @@ public class LoginCheckFilter implements Filter {
 		} catch (Exception e) {
 			LOG.error("Problem looking up remote user: " + remoteUser,e);
 			unrecov = new UnrecoverableErrorException("error.login.serious-error",e);
-		} finally {
-		  GrouperSession.stopQuietly(grouperSession);
 		}
 		if(unrecov!=null) {
 			throw unrecov;
