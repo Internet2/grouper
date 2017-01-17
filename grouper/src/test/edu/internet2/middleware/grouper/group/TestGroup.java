@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.group;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -63,6 +64,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
@@ -118,7 +121,7 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testGroupSave"));
+    TestRunner.run(new TestGroup("testDeleteMemberAudit"));
     //TestRunner.run(TestGroup.class);
   }
 
@@ -132,6 +135,50 @@ public class TestGroup extends GrouperTest {
     
     GrouperDAOFactory.getFactory().getGroup().findGroupsInStemWithoutPrivilege(grouperSession, stem.getId(),
         Scope.ONE, grouperSession.getSubject(), AccessPrivilege.ADMIN, null, false, null);
+  }
+  
+  /**
+   * https://bugs.internet2.edu/jira/browse/GRP-1420
+   * 
+   */
+  public void testDeleteMemberAudit() {
+    //    Load the sample quick start data
+    //    Log in as GrouperSystem
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    //    Create test group qsuob:test:AdminAccess
+    Group adminAccess = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+        .assignName("qsuob:test:AdminAccess").save();
+    
+    //    Grant admin to "test.1" (Barry Benson)
+    adminAccess.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    
+    //    In tomcat, add "babe" to the tomcat-users.xml if needed
+    //    In a different browser, login as "babe"
+    //    Go to qsuob:test:AdminAccess
+    GrouperSession.stopQuietly(grouperSession);
+    GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    //    Add test.1 (Barry Windsor) as member
+    adminAccess.addMember(SubjectTestHelper.SUBJ1);
+    
+    //    Remove Barry Windsor as member
+    adminAccess.deleteMember(SubjectTestHelper.SUBJ1);
+    
+    //    Go to Recent Activity
+    UserAuditQuery query = new UserAuditQuery();
+
+    QueryOptions queryOptions = new QueryOptions();
+    query.setQueryOptions(queryOptions);
+
+    queryOptions.sortDesc("lastUpdatedDb");
+    queryOptions.paging(1, 1, false);
+    
+    query.addAuditTypeFieldValue("groupId", adminAccess.getId());
+
+    List<AuditEntry> auditEntries = query.execute();
+    auditEntries.get(0);
+        
   }
   
   /**
