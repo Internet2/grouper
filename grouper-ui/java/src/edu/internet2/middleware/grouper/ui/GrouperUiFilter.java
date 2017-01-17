@@ -108,6 +108,7 @@ import edu.internet2.middleware.grouper.util.GrouperThreadLocalState;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Generic filter for ui for grouper (e.g. set hooks context)
@@ -318,9 +319,23 @@ public class GrouperUiFilter implements Filter {
    * @return the subject
    */
   private static Subject retrieveSubjectLoggedInHelper(boolean allowNoUserLoggedIn) {
+
+    //currently assumes user is in getUserPrincipal
+    HttpServletRequest request = retrieveHttpServletRequest();
+
+    String userIdLoggedIn = remoteUser(request);
+
+    //this cant change!
+    String previousRemoteUser = (String)request.getSession().getAttribute("authUser");
     
-    GrouperSession grouperSession = SessionInitialiser.getGrouperSession(retrieveHttpServletRequest().getSession());
+    if (!StringUtils.isBlank(previousRemoteUser) && !StringUtils.equals(previousRemoteUser, userIdLoggedIn)) {
+      request.getSession().invalidate();
+      throw new RuntimeException("New user logged in!  was: '" + previousRemoteUser + "', and now is: '" + userIdLoggedIn + "'" );
+    }
+
+    GrouperSession grouperSession = SessionInitialiser.getGrouperSession(request.getSession());
     if (grouperSession != null && grouperSession.getSubject() != null) {
+      
       return grouperSession.getSubject();
     }
     
@@ -328,15 +343,10 @@ public class GrouperUiFilter implements Filter {
     
     Subject subjectLoggedIn = sessionContainer.getSubjectLoggedIn();
     
-    HttpServletRequest request = retrieveHttpServletRequest();
-
     if (subjectLoggedIn != null) {
       return subjectLoggedIn;
     }
   
-    //currently assumes user is in getUserPrincipal
-    String userIdLoggedIn = remoteUser(request);
-
     if (StringUtils.isBlank(userIdLoggedIn)) {
       if (allowNoUserLoggedIn) {
         return null;
@@ -346,7 +356,26 @@ public class GrouperUiFilter implements Filter {
     
     GrouperSession rootSession = GrouperSession.startRootSession();
     try {
-      subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+      String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
+      if (StringUtils.isBlank(sourceIds)) {
+        subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+      } else {
+        Subject theSubjectLoggedIn = null;
+        for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
+          Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+          if (tempSubject != null) {
+            if (theSubjectLoggedIn == null) {
+              theSubjectLoggedIn = tempSubject;
+            } else {
+              throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
+            }
+          }
+        }
+        subjectLoggedIn = theSubjectLoggedIn;
+        if (subjectLoggedIn == null) {
+          throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
+        }
+      }
     } catch (RuntimeException re) {
       if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
         return null;
@@ -850,22 +879,9 @@ public class GrouperUiFilter implements Filter {
       UiSection uiSection = uiSectionForRequest();
       
       if (subject == null && !StringUtils.isBlank(remoteUser)) {
-        GrouperSession rootSession = null;
         try {
           
-          rootSession = GrouperSession.startRootSession(false);
-          subject = (Subject)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
-            
-            /**
-             * we need a grouper session since subject searching also looks at groups
-             * @param callbackGrouperSession
-             */
-            @Override
-            public Object callback(GrouperSession callbackGrouperSession) throws GrouperSessionException {
-              
-              return SubjectFinder.findByIdOrIdentifier(remoteUser, true);
-            }
-          });
+          subject = retrieveSubjectLoggedIn();
         } catch (Exception e) {
           if (!uiSection.isAnonymous()) {
             //this is not really ok, but cant do much about it
@@ -879,9 +895,6 @@ public class GrouperUiFilter implements Filter {
             }
             throw new ControllerDone();
           }
-        } finally {
-          GrouperSession.stopQuietly(rootSession);
-  
         }
       }
       
