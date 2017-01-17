@@ -128,6 +128,29 @@ public class TestGroup extends GrouperTest {
   /**
    * 
    */
+  public void testDeleteWhenAdminButNotUpdateOnOtherOwnerGroup() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Subject testSubject0 = SubjectFinder.findById("test.subject.0", true);
+    Group groupToDelete = new GroupSave(grouperSession).assignName("test:groupToDelete").assignCreateParentStemsIfNotExist(true).save();
+    groupToDelete.grantPriv(testSubject0, AccessPrivilege.ADMIN, false);
+
+    Group groupWithMembership = new GroupSave(grouperSession).assignName("test:groupWithMembership").save();
+
+    groupWithMembership.addMember(groupToDelete.toSubject());
+    groupWithMembership.grantPriv(groupToDelete.toSubject(), AccessPrivilege.VIEW, false);
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.start(testSubject0);
+    
+    groupToDelete.delete();
+    
+    GrouperSession.stopQuietly(grouperSession);
+  }
+
+  /**
+   * 
+   */
   public void testFindGroupsInStemWithoutPrivilege() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     Stem stem = new StemSave(grouperSession).assignName("test").save();
