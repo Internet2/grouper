@@ -2633,7 +2633,7 @@ public class UiV2Group {
               Member member = membership.getMember();
               group.deleteMember(member, false);
               
-              if (count[0]++ < 5 && group.hasView(loggedInSubject)) {
+              if (count[0]++ < 5 && group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
                 GrouperUserDataApi.recentlyUsedMemberAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
                     loggedInSubject, member);
 
@@ -2646,7 +2646,7 @@ public class UiV2Group {
             }
           }
           
-          if (group.hasView(loggedInSubject)) {
+          if (group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false)) {
             GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
               loggedInSubject, group);
           }
@@ -2659,7 +2659,8 @@ public class UiV2Group {
       GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures[0]);
 
 
-      if (!group.hasUpdate(loggedInSubject) || !group.hasRead(loggedInSubject)) {
+      if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.UPDATE.getName(), false) 
+          || !group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain')"));
       } else {
         filterHelper(request, response, group);
