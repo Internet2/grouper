@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -943,42 +944,146 @@ public class GrouperInstaller {
       commands.add(this.untarredMavenDir.getAbsolutePath() + File.separator + "bin" + File.separator + "mvn");
     }
   }
+  
+  /**
+   * @param arg
+   * 
+   */
+  private void tomeeBounce(String arg) {
+    
+    if (!GrouperInstallerUtils.equals("start", arg) && !GrouperInstallerUtils.equals("stop", arg) && !GrouperInstallerUtils.equals("restart", arg)) {
+      throw new RuntimeException("Expecting arg: start|stop|restart but received: " + arg);
+    }
+    
+    if (GrouperInstallerUtils.equals("restart", arg)) {
+      
+      tomeeBounce("stop");
+      tomeeBounce("start");
+      return;
+    }
+    
+    if (GrouperInstallerUtils.equals("stop", arg)) {
+      
+      if (GrouperInstallerUtils.portAvailable(this.tomeeHttpPort, this.defaultIpAddress)) {
+        System.out.println("Tomee is supposed to be listening on port: " + this.tomeeHttpPort + ", port not listening, assuming tomee is not running...");
+        if (!shouldContinue("Should we " + arg + " tomee anyway?", "", "grouperInstaller.autorun." + arg + "TomeeAnyway")) {
+          return;
+        }
+      }
 
-//  /**
-//   * @param arg  stop, start, etc
-//   * 
-//   */
-//  private void bounceTomcat(String arg) {
-//    
-//    List<String> commands = new ArrayList<String>();
-//    
-//    commands.add("cmd");
-//    commands.add("/c");
-//    commands.add("start");
-//    commands.add("/b");
-//    commands.add(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + "catalina.bat");
-//    commands.add(arg);
-//    
-//    System.out.println("\n##################################");
-//    System.out.println("Tomcat " + arg + " with command:"
-//        + convertCommandsIntoCommand(commands) + "\n");
-//    
-//    DOESNT WORK WITH ENV VARS!!!!!
-//    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-//        true, true, new String[]{"CATALINA_HOME=" + this.untarredTomcatDir.getAbsolutePath(), 
-//        "JAVA_HOME=" + GrouperInstallerUtils.javaHome(),
-//        "LOGGING_CONFIG=" + this.untarredTomcatDir + File.separator + "conf" + File.separator + "logging.properties"}, 
-//        new File(this.untarredTomcatDir.getAbsolutePath() + File.separator + "bin"));
-//        
-//    
-//    System.out.println("stderr: " + commandResult.getErrorText());
-//    System.out.println("stdout: " + commandResult.getOutputText());
-//    
-//    System.out.println("\nEnd tomcat " + arg );
-//    System.out.println("##################################\n");
-//
-//    
-//  }
+      
+    } else {
+      if (!GrouperInstallerUtils.portAvailable(this.tomeeHttpPort, this.defaultIpAddress)) {
+        System.out.println("Tomee is supposed to be listening on port: " + this.tomeeHttpPort + ", port is already listening!!!!  Why is this????");
+        if (!shouldContinue("Should we " + arg + " tomee anyway?", "", "grouperInstaller.autorun." + arg + "TomeeAnyway")) {
+          return;
+        }
+      }
+      
+    }
+    
+    final List<String> commands = new ArrayList<String>();
+    
+    commands.add(GrouperInstallerUtils.javaCommand());
+    commands.add("-XX:MaxPermSize=150m");
+    commands.add("-Xmx640m");
+    
+    commands.add("-Dcatalina.home=" + this.untarredTomeeDir.getAbsolutePath());
+    //commands.add("-Djava.util.logging.config.file=" + this.untarredTomcatDir.getAbsolutePath() + File.separator + "conf" + File.separator + "logging.properties");
+    
+    commands.add("-cp");
+    commands.add(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "bootstrap.jar:" 
+        + this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "tomcat-juli.jar");
+    commands.add("org.apache.catalina.startup.Bootstrap");
+    
+    if (GrouperInstallerUtils.equals("stop", arg)) {
+      commands.add("stop");
+    }
+    
+    System.out.println("\n##################################");
+    
+    String command = "start".equals(arg) ? "startup" : "shutdown";
+    
+    System.out.println("Tomee " + arg + " with command (note you need CATALINA_HOME and JAVA_HOME set):\n  "
+        + this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + command
+        + (GrouperInstallerUtils.isWindows() ? ".bat" : ".sh") + "\n");
+    
+    //dont wait
+    boolean waitFor = GrouperInstallerUtils.equals("stop", arg) ? true : false;
+    
+    if (waitFor) {
+      try {
+        CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+            true, true, null, 
+            new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin"), null, true);
+        
+        if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+          System.out.println("stderr: " + commandResult.getErrorText());
+        }
+        if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+          System.out.println("stdout: " + commandResult.getOutputText());
+        }
+      } catch (Throwable e) {
+        e.printStackTrace();
+        if (!shouldContinue("grouperInstaller.autorun.continueAfterTomeeError")) {
+          return;
+        }
+      }
+    } else {
+      //start in new thread
+      Thread thread = new Thread(new Runnable() {
+        
+        @Override
+        public void run() {
+          GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+              true, true, null, 
+              new File(GrouperInstaller.this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin"), 
+              GrouperInstaller.this.untarredTomeeDir.getAbsolutePath() + File.separator + "logs" + File.separator + "catalina", false);
+        }
+      });
+      thread.setDaemon(true);
+      thread.start();
+
+    }
+    
+    System.out.println("\nEnd tomee " + arg + " (note: logs are in " + this.untarredTomeeDir.getAbsolutePath() + File.separator + "logs)");
+    System.out.println("##################################\n");
+
+    System.out.print("Should we check ports to see if tomee was able to " + arg + " (t|f)? [t]: ");
+    
+    boolean shouldCheckTomee = readFromStdInBoolean(true, "grouperInstaller.autorun." + arg + "TomeeCheckPorts");
+    
+    if (shouldCheckTomee) {
+      System.out.print("Waiting for tomee to " + arg +  "...");
+      boolean success = false;
+      for (int i=0;i<60;i++) {
+        GrouperInstallerUtils.sleep(1000);
+        //check port
+        boolean portAvailable = GrouperInstallerUtils.portAvailable(this.tomeeHttpPort, this.defaultIpAddress);
+        if (GrouperInstallerUtils.equals("start", arg)) {
+          if (!portAvailable) {
+            success = true;
+            System.out.println("\nTomee listening on port: " + this.tomeeHttpPort);
+            break;
+          }
+        } else {
+          if (portAvailable) {
+            success = true;
+            System.out.println("\nTomee not listening on port: " + this.tomeeHttpPort);
+            break;
+          }
+        }
+        System.out.print(".");
+      }
+      if (!success) {
+        throw new RuntimeException("Trying to " + arg + " tomee but couldnt properly detect " + arg + " on port " + this.tomeeHttpPort);
+      }
+    } else {
+      System.out.println("Waiting 10 seconds for tomee to " + arg + "...");
+      GrouperInstallerUtils.sleep(10000);
+    }
+  }
+
   
   /**
    * @param arg
@@ -1164,6 +1269,9 @@ public class GrouperInstaller {
 
   /** untarred dir */
   private File untarredTomcatDir;
+  
+  /** untarred tomee dir */
+  private File untarredTomeeDir;
 
   /** main install dir, must end in file separator */
   private String grouperTarballDirectoryString;
@@ -1176,6 +1284,68 @@ public class GrouperInstaller {
   
   /** grouper system password */
   private String grouperSystemPassword;
+  
+  /**
+   * 
+   */
+  private void tomeeConfigureGrouperSystem() {
+    
+//    while (true) {
+//      System.out.print("Enter the GrouperSystem password: ");
+//      this.grouperSystemPassword = readFromStdIn("grouperInstaller.autorun.grouperSystemPassword");
+//      this.grouperSystemPassword = GrouperInstallerUtils.defaultString(this.grouperSystemPassword);
+//      
+//      if (!GrouperInstallerUtils.isBlank(this.grouperSystemPassword)) {
+//        break;
+//      }
+//      System.out.println("The GrouperSystem password cannot be blank!");
+//    }
+
+    System.out.print("Do you want to set the GrouperSystem password in " + this.untarredTomeeDir + File.separator + "conf" + File.separator + "tomcat-users.xml? [t]: ");
+    boolean setGrouperSystemPassword = readFromStdInBoolean(true, "grouperInstaller.autorun.setGrouperSystemPasswordInTomeeUsers");
+    if (setGrouperSystemPassword) {
+
+      //write to the tomee_users file
+      //get the password
+      File tomeeUsersXmlFile = new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "conf" + File.separator + "tomcat-users.xml");
+      String existingPassword = GrouperInstallerUtils.xpathEvaluateAttribute(tomeeUsersXmlFile, "tomcat-users/user[@username='GrouperSystem']", "password");
+      
+      System.out.println("Editing file: " + tomeeUsersXmlFile.getAbsolutePath());
+
+      NodeList existingRole = GrouperInstallerUtils.xpathEvaluate(tomeeUsersXmlFile, "tomcat-users/role");
+      
+      //<role rolename="grouper_user"/>
+      //<user username="GrouperSystem" password="chang3m3" roles="grouper_user"/>
+
+      
+      if (existingPassword == null) {
+
+        addToXmlFile(tomeeUsersXmlFile, ">",  new String[]{"<tomcat-users"}, "<user username=\"GrouperSystem\" password=\"" 
+            + this.grouperSystemPassword + "\" roles=\"grouper_user\"/>", "Tomcat user GrouperSystem");
+         
+      } else {
+        
+        if (GrouperInstallerUtils.equals(existingPassword, this.grouperSystemPassword)) {
+          System.out.println("  - password is already set to that value, leaving file unchanged...");
+
+        } else {
+          
+          editFile(tomeeUsersXmlFile, "password=\"([^\"]*)\"", new String[]{"<user", "username=\"GrouperSystem\""}, 
+              null, this.grouperSystemPassword, "Tomcat password for user GrouperSystem");
+          
+        }
+        
+      }
+
+      if (existingRole == null || existingRole.getLength() == 0) {
+        
+        //add the role
+        addToXmlFile(tomeeUsersXmlFile, ">",  new String[]{"<tomcat-users"}, "<role rolename=\"grouper_user\"/>", "Tomcat role grouper_user");
+        
+      }
+    }
+    
+  }
   
   /**
    * 
@@ -2755,6 +2925,64 @@ public class GrouperInstaller {
     }
 
     System.out.println("\nEnd building PSP");
+    System.out.println("##################################\n");
+    
+  }
+  
+  /**
+   * build ws scim
+   * @param wsScimDir
+   */
+  private void buildWsScim() {
+    
+    File grouperWsScimSourcesDir =  new File(this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws-scim");
+    
+    if (!grouperWsScimSourcesDir.exists() || grouperWsScimSourcesDir.isFile()) {
+      throw new RuntimeException("Cant find grouper-ws-scim: " + grouperWsScimSourcesDir.getAbsolutePath());
+    }
+    
+    File grouperWsScimBuildToDir = new File(grouperWsScimSourcesDir.getAbsolutePath() + File.separator + "target" + File.separator + "classes");
+    
+    boolean rebuildWsScim = true;
+    
+    if (grouperWsScimBuildToDir.exists()) {
+      System.out.print("The Grouper WS Scim has been built in the past, do you want it rebuilt? (t|f) [t]: ");
+      rebuildWsScim = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildWsScimAfterHavingBeenBuilt");
+    }
+    
+    if (!rebuildWsScim) {
+      return;
+    }
+    
+    List<String> commands = new ArrayList<String>();
+    
+//    \bin\mvn compile -DskipTests
+    addMavenCommands(commands);
+
+    //put 'compile -DskipTests' in there so it wont run tests which we dont want to do
+    // dependency:copy-dependencies package -DskipTests
+    //not compile
+    commands.add("dependency:copy-dependencies");
+    commands.add("package");
+    commands.add("-DskipTests");
+    commands.add("-Drat.ignoreErrors=true");
+    commands.add("-Dlicense.skip=true");
+    
+    System.out.println("\n##################################");
+    System.out.println("Building Grouper WS Scim with command:\n" + grouperWsScimSourcesDir.getAbsolutePath() + "> " 
+        + convertCommandsIntoCommand(commands) + "\n");
+    
+    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
+        true, true, null, new File(grouperWsScimSourcesDir.getAbsolutePath()), null, true);
+    
+    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+      System.out.println("stderr: " + commandResult.getErrorText());
+    }
+    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+      System.out.println("stdout: " + commandResult.getOutputText());
+    }
+
+    System.out.println("\nEnd building grouper-ws-scim");
     System.out.println("##################################\n");
     
   }
@@ -6185,7 +6413,11 @@ public class GrouperInstaller {
         
         //####################################
         //download and configure ws
-        grouperInstaller.downloadAndConfigureWs();
+        grouperInstaller.downloadAndUntarWs();
+        
+        //####################################
+        //configure where api is
+        grouperInstaller.configureWs();
 
         //####################################
         //get ant
@@ -8270,7 +8502,11 @@ public class GrouperInstaller {
     boolean installWs = readFromStdInBoolean(true, "grouperInstaller.autorun.installWs");
     
     if (installWs) {
-      this.downloadAndConfigureWs();
+      this.downloadAndUntarWs();
+      
+      //#################################### 
+      //configure Ws
+      this.configureWs();
       
       //####################################
       //build WS
@@ -8381,6 +8617,53 @@ public class GrouperInstaller {
     //#####################################
     //start the loader
     startLoader(true);
+    
+    //#####################################
+    // Install Grouper WS Scim Tier API
+    //####################################
+    System.out.print("Do you want to install the grouper ws scim (t|f)? [t]: ");
+    boolean installWsScim = readFromStdInBoolean(true, "grouperInstaller.autorun.installGrouperWsScim");
+    if (installWsScim) {
+      downloadAndUntarWs();
+      
+      //####################################
+      //get maven
+      downloadAndUnzipMaven();
+      
+      //####################################
+      //look for or ask or download apache tomee
+      File tomeeDir = downloadTomee();
+      File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+      this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", 
+          new File(this.grouperInstallDirectoryString));
+
+      //####################################
+      //ask for tomee port
+      configureTomee();
+
+      //####################################
+      //build grouper ws scim
+      buildWsScim();
+
+      //####################################
+      //configureTomeeGrouperWsScimWebapp
+      configureTomeeGrouperWsScimWebapp();
+      
+      //####################################
+      //set the GrouperSystem password
+      tomeeConfigureGrouperSystem();
+
+      //####################################
+      //bounce tomcat
+      tomeeBounce("restart");
+      
+      //####################################
+      //tell user to go to url
+      System.out.println("##################################\n");
+      System.out.println("Go here for the Grouper WS Scim (change hostname if on different host): http://localhost:" + this.tomeeHttpPort + "/" + "grouper-ws-scim" + "/");
+      System.out.println("\n##################################\n");
+    }
+    
 
     //#####################################
     //success
@@ -8451,7 +8734,7 @@ public class GrouperInstaller {
   /**
    * 
    */
-  public void downloadAndConfigureWs() {
+  public void downloadAndUntarWs() {
 
     //####################################
     //download the ws
@@ -8460,12 +8743,9 @@ public class GrouperInstaller {
     //####################################
     //unzip/untar the ws file
     File unzippedWsFile = unzip(wsDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalWsDownloadTarEtc");
+    System.out.println("Unzipped Ws file is "+unzippedWsFile);
     this.untarredWsDir = untar(unzippedWsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalWsDownloadTarEtc", 
         new File(this.grouperInstallDirectoryString));
-
-    //####################################
-    //configure where api is
-    this.configureWs();
 
   }
 
@@ -8790,6 +9070,11 @@ public class GrouperInstaller {
    */
   private int tomcatHttpPort = -1;
   
+  /**
+   * 
+   */
+  private int tomeeHttpPort = -1;
+  
   
   /**
    * 
@@ -8969,6 +9254,191 @@ public class GrouperInstaller {
       editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, null, Integer.toString(jkPort), "tomcat JK port");
       //<Server port="8005" shutdown="SHUTDOWN">
       editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Server", "shutdown=\"SHUTDOWN\""}, null, Integer.toString(shutdownPort), "tomcat shutdown port");
+      break;
+    }
+
+    configureTomcatUriEncoding(serverXmlFile);
+    
+  }
+  
+  /**
+   * 
+   */
+  private void configureTomee() {
+    
+    System.out.print("Do you want to set the tomee memory limit (t|f)? [t]: ");
+    boolean setTomeeMemory = readFromStdInBoolean(true, "grouperInstaller.autorun.setTomeeMemoryLimit");
+    
+    if (setTomeeMemory) {
+      
+      {
+        File catalinaBatFile = new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "catalina.bat");
+        
+        System.out.println("Editing file: " + catalinaBatFile.getAbsolutePath());
+        
+        Boolean edited = editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
+        if (edited == null) {
+          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
+        }
+        if (null == editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
+          throw new RuntimeException("Why not edit permgen in file " + catalinaBatFile);
+        }
+      }
+      
+      {
+        File catalinaShFile = new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + "catalina.sh");
+        
+        System.out.println("Editing file: " + catalinaShFile.getAbsolutePath());
+
+        Boolean edited = editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
+        if (edited == null) {
+          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
+        }
+        if (null == editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
+          throw new RuntimeException("Why not edit permgen in file " + catalinaShFile);
+        }
+      }
+    }      
+    
+    
+    if (!GrouperInstallerUtils.isWindows()) {
+
+      System.out.print("Do you want to set tomee scripts to executable (t|f)? [t]: ");
+      boolean setTomeeFiles = readFromStdInBoolean(true, "grouperInstaller.autorun.setTomeeScriptsToExecutable");
+      
+      //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
+      Set<String> shFileNames = new HashSet<String>();
+
+      File binDir = new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin");
+
+      //get all sh files, doing wildcards doesnt work
+      for (File file : binDir.listFiles()) {
+        String fileName = GrouperInstallerUtils.defaultString(file.getName());
+        if (file.isFile() && fileName.endsWith(".sh")) {
+          shFileNames.add(fileName);
+        }
+      }
+
+      if (setTomeeFiles) {
+      
+        for (String command : shFileNames) {
+          List<String> commands = new ArrayList<String>();
+          
+          commands.add("chmod");
+          commands.add("+x");
+          //have to do * since all the  sh files need chmod
+          commands.add(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+    
+          System.out.println("Making tomee file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+    
+          CommandResult commandResult = GrouperInstallerUtils.execCommand(
+              GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
+              new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "bin"), null, true);
+          
+          if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
+            System.out.println("stderr: " + commandResult.getErrorText());
+          }
+          if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
+            System.out.println("stdout: " + commandResult.getOutputText());
+          }
+        }
+      }
+      
+      Set<File> shFiles = new LinkedHashSet<File>();
+      for (String shFileName : shFileNames) {
+        shFiles.add(new File(shFileName));
+      }
+      
+      dos2unix(shFiles, "tomee sh files", "OnTomeeFiles");
+
+    }
+      
+    //see what the current ports are
+    this.tomeeHttpPort = -1;
+    
+    File serverXmlFile = new File(this.untarredTomeeDir.getAbsolutePath() + File.separator + "conf" + File.separator + "server.xml");
+    
+    int shutdownPort = GrouperInstallerUtils.xpathEvaluateAttributeInt(serverXmlFile, "/Server", "port", -1);
+    
+    int originalShutdownPort = shutdownPort;
+    
+    //  /Server/Service/Connector <Connector port="8080" protocol="HTTP/1.1" 
+    this.tomeeHttpPort = GrouperInstallerUtils.xpathEvaluateAttributeInt(serverXmlFile, "/Server/Service/Connector[@protocol='HTTP/1.1']", "port", -1);
+
+    int originalTomeeHttpPort = this.tomeeHttpPort;
+
+    // <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+    int jkPort = GrouperInstallerUtils.xpathEvaluateAttributeInt(serverXmlFile, "/Server/Service/Connector[@protocol='AJP/1.3']", "port", -1);
+
+    int originalJkPort = jkPort;
+    
+    String portsCommaSeparated = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomeePorts", false);
+    if (!GrouperInstallerUtils.isBlank(portsCommaSeparated)) {
+      
+      String[] portsStrings = GrouperInstallerUtils.splitTrim(portsCommaSeparated, ",");
+      
+      if (portsStrings.length != 3) {
+        throw new RuntimeException("Why is grouperInstaller.default.tomeePorts from grouper.installer.properties not 3 ints comma separated? " + portsCommaSeparated);
+      }
+      
+      this.tomeeHttpPort = GrouperInstallerUtils.intValue(portsStrings[0]);
+      jkPort = GrouperInstallerUtils.intValue(portsStrings[1]);
+      shutdownPort = GrouperInstallerUtils.intValue(portsStrings[2]);
+      
+    }
+    
+    while(true) {
+      System.out.print("What ports do you want tomee to run on (HTTP, JK, shutdown): [" + this.tomeeHttpPort + ", " + jkPort + ", " + shutdownPort + "]: ");
+      
+      String ports = readFromStdIn("grouperInstaller.autorun.tomeePorts");
+      
+      if (GrouperInstallerUtils.isBlank(ports)) {
+        if (this.tomeeHttpPort == originalTomeeHttpPort && jkPort == originalJkPort && shutdownPort == originalShutdownPort) {
+          break;
+        }
+      } else {
+        String[] portsArray = GrouperInstallerUtils.splitTrim(ports, ",");
+        if (GrouperInstallerUtils.length(portsArray) == 3) {
+          for (String portString : portsArray) {
+            try {
+              GrouperInstallerUtils.intValue(portString);
+            } catch (Exception e) {
+              continue;
+            }
+          }
+        } else {
+          continue;
+        }
+        //ok, we have three integer entries
+        this.tomeeHttpPort = GrouperInstallerUtils.intValue(portsArray[0]);
+        jkPort = GrouperInstallerUtils.intValue(portsArray[1]);
+        shutdownPort = GrouperInstallerUtils.intValue(portsArray[2]);
+      }
+      
+      if (!GrouperInstallerUtils.portAvailable(this.tomeeHttpPort, this.defaultIpAddress)) {
+        System.out.print("The tomee HTTP port is in use or unavailable: " + this.tomeeHttpPort + ", do you want to pick different ports? (t|f): ");
+        boolean pickDifferentPorts = readFromStdInBoolean(null, "grouperInstaller.autorun.pickDifferentPortIfInUse");
+        if (pickDifferentPorts) {
+          continue;
+        }
+      }
+      if (!GrouperInstallerUtils.portAvailable(jkPort, this.defaultIpAddress)) {
+        System.out.print("The tomee JK port is in use or unavailable: " + this.tomeeHttpPort + ", do you want to pick different ports? (t|f): ");
+        boolean pickDifferentPorts = readFromStdInBoolean(null, "grouperInstaller.autorun.pickDifferentPortIfInUse");
+        if (pickDifferentPorts) {
+          continue;
+        }
+      }
+      
+      System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
+      //lets edit the file
+      //<Connector port="8080" protocol="HTTP/1.1" 
+      editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"HTTP/1.1\""}, 
+          new String[]{"SSLEnabled=\"true\""}, Integer.toString(this.tomcatHttpPort), "tomee HTTP port");
+      //<Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
+      editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Connector", "protocol=\"AJP/1.3\""}, null, Integer.toString(jkPort), "tomee JK port");
+      //<Server port="8005" shutdown="SHUTDOWN">
+      editFile(serverXmlFile, "port=\"([\\d]+)\"", new String[]{"<Server", "shutdown=\"SHUTDOWN\""}, null, Integer.toString(shutdownPort), "tomee shutdown port");
       break;
     }
 
@@ -9614,13 +10084,16 @@ public class GrouperInstaller {
 
     return uiFile;
   }
-
+  
   /**
    * 
    * @return the file of the directory of WS
    */
   private File downloadWs() {
+    
     String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+    
+    //String urlToDownload = "http://localhost:8085/grouper/grouperExternal/public/assets/dojo/dijit/themes/claro/images";
     
     if (!urlToDownload.endsWith("/")) {
       urlToDownload += "/";
@@ -9632,6 +10105,7 @@ public class GrouperInstaller {
 
     File wsFile = new File(this.grouperTarballDirectoryString + wsFileName);
     
+    System.out.println("wsFile path is "+wsFile.getAbsolutePath());
     downloadFile(urlToDownload, wsFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalWsDownloadTarEtc");
 
     return wsFile;
@@ -9695,6 +10169,28 @@ public class GrouperInstaller {
     downloadFile(urlToDownload, tomcatFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
 
     return tomcatFile;
+  }
+  
+  /**
+   * 
+   * @return the file of the directory of tomee
+   */
+  private File downloadTomee() {
+    String urlToDownload = GrouperInstallerUtils.propertiesValue("download.server.url", true);
+    
+    //String urlToDownload = "http://localhost:8085/grouper/grouperExternal/public/assets/dojo/dijit/themes/claro/images";
+    
+    if (!urlToDownload.endsWith("/")) {
+      urlToDownload += "/";
+    }
+
+    urlToDownload += "downloads/tools/apache-tomee-webprofile-7.0.0.tar.gz";
+    
+    File tomeeFile = new File(this.grouperTarballDirectoryString + "apache-tomee-webprofile-7.0.0.tar.gz");
+    
+    downloadFile(urlToDownload, tomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+
+    return tomeeFile;
   }
 
   /**
@@ -10071,6 +10567,98 @@ public class GrouperInstaller {
       System.out.println("HSQL was not detected to be running (did not successfully stop it)");
     }
   }
+  
+  
+  /**
+   * 
+   */
+  private void configureTomeeGrouperWsScimWebapp() {
+    
+    File serverXmlFile = new File(this.untarredTomeeDir.getAbsolutePath() 
+        + File.separator + "conf" + File.separator + "server.xml");
+    
+    //C:\mchyzer\grouper\trunk\grouper-installer\grouper.ui-2.0.2\dist\grouper
+    //
+    //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
+    //Server
+    //Service
+    //Engine
+    //Host
+
+    System.out.print("Enter the URL path for the Grouper WS Scim [grouper-ws-scim]: ");
+    this.tomeeWsScimPath = readFromStdIn("grouperInstaller.autorun.urlPathForGropuerWsScim");
+    
+    if (GrouperInstallerUtils.isBlank(this.tomeeWsScimPath)) {
+      this.tomeeWsScimPath = "grouper-ws-scim";
+    }
+
+    if (this.tomeeWsScimPath.endsWith("/") || this.tomeeWsScimPath.endsWith("\\")) {
+      this.tomeeWsScimPath = this.tomeeWsScimPath.substring(0, this.tomeeWsScimPath.length()-1);
+    }
+    if (this.tomeeWsScimPath.startsWith("/") || this.tomeeWsScimPath.startsWith("\\")) {
+      this.tomeeWsScimPath = this.tomeeWsScimPath.substring(1, this.tomeeWsScimPath.length());
+    }
+    
+    String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "Server/Service/Engine/Host/Context[@path='/" + this.tomeeWsScimPath + "']", "docBase");
+
+    String shouldBeDocBase = this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws-scim" + File.separator + "target" + File.separator + "grouper-ws-scim";
+
+    System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
+    
+    if (GrouperInstallerUtils.isBlank(currentDocBase)) {
+
+      //need to add it
+      //<Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true" xmlNamespaceAware="false" xmlValidation="false">
+      //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
+      addToXmlFile(serverXmlFile, ">", new String[]{"<Host "}, 
+          "<Context docBase=\"" + shouldBeDocBase + "\" path=\"/" + this.tomeeWsScimPath + "\" reloadable=\"false\"/>", "tomee context for Grouper WS Scim");
+
+    } else {
+
+      if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
+        
+        //lets edit the file
+        //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
+        editFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomeeWsScimPath + "\""}, 
+            null, shouldBeDocBase, "tomee context for Grouper WS Scim");
+
+      } else {
+        
+        System.out.println("  - Context is already set for Grouper WS Scim");
+        
+      }
+      
+      
+    }
+    
+    currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
+        "Server/Service/Engine/Host/Context[@path='/" + this.tomeeWsScimPath + "']", "docBase");
+    
+    if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
+      System.out.println("Tried to edit server.xml but it didnt work, should have context of: '" 
+          + shouldBeDocBase + "', but was: '" + currentDocBase + "'");
+    }
+    
+    File[] allFiles = new File(this.untarredApiDir + File.separator + "conf").listFiles(new FilenameFilter() {
+      
+      @Override
+      public boolean accept(File file, String name) {
+        return name.endsWith(".properties") || name.endsWith(".xml");
+      }
+    });
+    
+    
+    for (File fileToCopyFrom : allFiles) {
+      if (fileToCopyFrom.isFile()) {
+        File destFile = new File(shouldBeDocBase + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + fileToCopyFrom.getName());
+        if (destFile.exists() && destFile.isFile()) {
+          GrouperInstallerUtils.copyFile(fileToCopyFrom, destFile, false);
+        }
+      }
+    }
+    
+  }
 
   /**
    * 
@@ -10334,7 +10922,7 @@ public class GrouperInstaller {
     return this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws" + File.separator 
       + "build" + File.separator + "dist" + File.separator + "grouper-ws";
   }
-
+  
   /**
      * 
      */
@@ -10724,6 +11312,9 @@ public class GrouperInstaller {
 
   /** tomcat ws path */
   private String tomcatWsPath = null;
+  
+  /** tomee grouper ws scim path */
+  private String tomeeWsScimPath = null;
 
   /** untarred dir, this does NOT end in file.separator */
   private File untarredClientDir;
