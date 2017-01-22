@@ -2993,6 +2993,10 @@ public class GrouperInstaller {
   
   /**
    * build ws scim
+<<<<<<< master
+=======
+   * @param wsScimDir
+>>>>>>> 0fbbf62 Let users install Grouper WS SCIM via Grouper Installer
    */
   private void buildWsScim() {
     
@@ -11722,6 +11726,7 @@ public class GrouperInstaller {
     }
     
   }
+  
 
   /**
    * 
