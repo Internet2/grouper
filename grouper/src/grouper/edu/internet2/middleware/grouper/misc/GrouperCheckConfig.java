@@ -1288,7 +1288,7 @@ public class GrouperCheckConfig {
     checkJar("commons-cli.jar", 41123, "org.apache.commons.cli.AlreadySelectedException", "1.2");
     checkJar("commons-codec.jar", 46725, "org.apache.commons.codec.BinaryDecoder", "1.3");
     checkJar("commons-collections.jar", 1224771, "org.apache.commons.collections.ArrayStack", "3.2.1");
-    checkJar("commons-digester.jar", 241614, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
+    checkJar("commons-digester.jar", 384875, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
     checkJar("commons-discovery.jar", 76685, "org.apache.commons.discovery.ant.ServiceDiscoveryTask", "0.4");
     checkJar("commons-httpclient.jar", 279383, "org.apache.commons.httpclient.auth.AuthChallengeException", "3.0");
     checkJar("commons-io.jar", 263589, "org.apache.commons.io.comparator.DefaultFileComparator", "1.4");
