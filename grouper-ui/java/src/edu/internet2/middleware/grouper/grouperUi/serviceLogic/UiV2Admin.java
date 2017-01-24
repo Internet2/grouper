@@ -615,7 +615,7 @@ public class UiV2Admin extends UiServiceLogicBase {
                     hasParamName = false;
                   }
                   subjectApiReport.append("Source param name: '" + GrouperUtil.xmlEscape(paramName) + "' has value: '");
-                  if (paramName.toLowerCase().contains("pass") || paramName.toLowerCase().contains("cred")) {
+                  if (paramName.toLowerCase().contains("pass") || paramName.toLowerCase().contains("cred") || paramName.toLowerCase().contains("pwd")) {
                     subjectApiReport.append("*******'\n");
                   } else {
                     subjectApiReport.append(GrouperUtil.xmlEscape(paramValue) + "'\n");
