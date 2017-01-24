@@ -457,14 +457,14 @@ public class UiV2Admin extends UiServiceLogicBase {
         if (theSubject == null) {
           subjectApiReport.append("<font color='red'>ERROR:</font> Cannot list attributes of a subject if cannot find any subjects\n");
         } else {
-          subjectApiReport.append("Subject id: " + GrouperUtil.xmlEscape(theSubject.getId()) + " with subject.getId()\n");
+          subjectApiReport.append("Subject id: '" + GrouperUtil.xmlEscape(theSubject.getId()) + "' with subject.getId()\n");
           subjectApiReport.append("  - the subject id should be an unchanging opaque identifier\n");
           subjectApiReport.append("  - the subject id is stored in the grouper_members table\n");
-          subjectApiReport.append("Subject name: " + GrouperUtil.xmlEscape(theSubject.getName()) + " with subject.getName()\n");
+          subjectApiReport.append("Subject name: '" + GrouperUtil.xmlEscape(theSubject.getName()) + "' with subject.getName()\n");
           subjectApiReport.append("  - the subject name is generally first last\n");
-          subjectApiReport.append("Subject description: " + GrouperUtil.xmlEscape(theSubject.getDescription()) + " with subject.getDescription()\n");
+          subjectApiReport.append("Subject description: '" + GrouperUtil.xmlEscape(theSubject.getDescription()) + "' with subject.getDescription()\n");
           subjectApiReport.append("  - the subject description can have more info such as the id, name, dept, etc\n");
-          subjectApiReport.append("Subject type: " + GrouperUtil.xmlEscape(theSubject.getTypeName()) + " with subject.getTypeName()\n");
+          subjectApiReport.append("Subject type: '" + GrouperUtil.xmlEscape(theSubject.getTypeName()) + "' with subject.getTypeName()\n");
           subjectApiReport.append("  - the subject type is not really used\n");
           Map<String, Set<String>> attributes = theSubject.getAttributes(true);
           if (attributes != null) {
