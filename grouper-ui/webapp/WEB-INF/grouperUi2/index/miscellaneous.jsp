@@ -19,6 +19,10 @@
                       <a href="#" onclick="return guiV2link('operation=UiV2Main.globalInheritedPrivileges');" style="white-space: nowrap;"
                       >${textContainer.text['miscellaneousGlobalInheritedPrivileges'] }</a>
                     </c:if>
+                    <c:if test="${grouperRequestContainer.adminContainer.subjectApiDiagnosticsShow}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Admin.subjectApiDiagnostics');" style="white-space: nowrap;"
+                      >${textContainer.text['adminSubjectApiDiagnosticsLink'] }</a>
+                    </c:if>
                   </div>
                 </div>
               </div>

@@ -98,6 +98,29 @@ public class GrouperRequestContainer {
   }
 
   /**
+   * admin stuff
+   */
+  private AdminContainer adminContainer;
+  
+  /**
+   * @return the adminContainer
+   */
+  public AdminContainer getAdminContainer() {
+    if (this.adminContainer == null) {
+      this.adminContainer = new AdminContainer();
+    }
+    return this.adminContainer;
+  }
+
+  
+  /**
+   * @param adminContainer1 the adminContainer to set
+   */
+  public void setAdminContainer(AdminContainer adminContainer1) {
+    this.adminContainer = adminContainer1;
+  }
+
+  /**
    * data for importing members into groups
    */
   private GroupImportContainer groupImportContainer;
@@ -139,10 +162,10 @@ public class GrouperRequestContainer {
   
   /**
    * 
-   * @param attributeDefContainer
+   * @param attributeDefContainer1
    */
-  public void setAttributeDefContainer(AttributeDefContainer attributeDefContainer) {
-    this.attributeDefContainer = attributeDefContainer;
+  public void setAttributeDefContainer(AttributeDefContainer attributeDefContainer1) {
+    this.attributeDefContainer = attributeDefContainer1;
   }
 
   /**
