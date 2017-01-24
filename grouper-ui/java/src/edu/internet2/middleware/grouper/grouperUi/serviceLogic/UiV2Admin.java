@@ -30,19 +30,11 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiObjectBase;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboLogic;
 import edu.internet2.middleware.grouper.grouperUi.beans.dojo.DojoComboQueryLogicBase;
@@ -52,7 +44,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.AdminContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
-import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -120,12 +111,12 @@ public class UiV2Admin extends UiServiceLogicBase {
   
     try {
   
+      grouperSession = GrouperSession.start(loggedInSubject);
+
       //if the user allowed
       if (!subjectApiDiagnosticsAllowed()) {
         return;
       }
-
-      grouperSession = GrouperSession.start(loggedInSubject);
 
       final String sourceId = request.getParameter("subjectApiSourceIdName");
 
@@ -303,10 +294,19 @@ public class UiV2Admin extends UiServiceLogicBase {
     GrouperSession grouperSession = null;
     
     try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      //if the user allowed
+      if (!subjectApiDiagnosticsAllowed()) {
+        return;
+      }
+      
       Subject actAsSubject = null;
       { 
         String actAsComboName = request.getParameter("actAsComboName");
         if (!StringUtils.isBlank(actAsComboName)) {
+          GrouperSession.stopQuietly(grouperSession);
           grouperSession = GrouperSession.startRootSession();
           try {
             if (actAsComboName != null && actAsComboName.contains("||")) {
@@ -316,22 +316,15 @@ public class UiV2Admin extends UiServiceLogicBase {
             } else {
               actAsSubject = SubjectFinder.findByIdOrIdentifierAndSource(actAsComboName, SubjectHelper.nonGroupSources(), true);
             }
+            
           } finally {
             GrouperSession.stopQuietly(grouperSession);
           }
         }
       }
       
-      if (actAsSubject == null) {
-        actAsSubject = loggedInSubject;
-      }
-
-      grouperSession = GrouperSession.start(actAsSubject);
-      
-      //if the user allowed
-      if (!subjectApiDiagnosticsAllowed()) {
-        return;
-      }
+      //if there is an act as, use that, otherwise logged in
+      grouperSession = GrouperSession.start(GrouperUtil.defaultIfNull(actAsSubject, loggedInSubject));
       
       StringBuilder subjectApiReport = new StringBuilder();
       
@@ -494,7 +487,7 @@ public class UiV2Admin extends UiServiceLogicBase {
           if (theSubject == null) {
             subjectApiReport.append("<font color='red'>ERROR:</font> Cannot show subject UI view if cannot find any subjects\n");
           } else {
-            GuiObjectBase guiObjectBase = null;
+
             if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), theSubject.getSourceId())) {
               GuiGroup guiGroup = new GuiGroup(((GrouperSubject)theSubject).internal_getGroup());
               subjectApiReport.append("Short link with icon: " + guiGroup.getShortLinkWithIcon() + "\n");
@@ -722,7 +715,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         int subjectCount = 0;
         for (Subject subject : subjectsSearch) {
           if (subjectCount >= 99) {
-            subjectApiReport.append("Only first 100 subjects displayed...\n");
+            subjectApiReport.append("Only first 100 subjects displayed... of " + GrouperUtil.length(subjectsSearch) + "\n");
             break;
           }
           subjectApiReport.append("Subject " + subjectCount +  ": id: " + GrouperUtil.xmlEscape(subject.getId()) 
@@ -732,15 +725,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       }
       
       subjectApiReport.append("\n######## SUBJECT PAGE RESULTS ########\n\n");
-      if (GrouperUtil.length(subjectsSearch) == 0) {
+      if (GrouperUtil.length(subjectsPage) == 0) {
         
         subjectApiReport.append("No subjects found in search page\n");
         
       } else {
         int subjectCount = 0;
-        for (Subject subject : subjectsSearch) {
+        for (Subject subject : subjectsPage) {
           if (subjectCount >= 99) {
-            subjectApiReport.append("Only first 100 subjects displayed...\n");
+            subjectApiReport.append("Only first 100 subjects displayed... of " + GrouperUtil.length(subjectsPage) + "\n");
             break;
           }
           subjectApiReport.append("Subject " + subjectCount +  ": id: " + GrouperUtil.xmlEscape(subject.getId()) 
