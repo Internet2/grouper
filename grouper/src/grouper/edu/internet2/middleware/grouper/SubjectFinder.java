@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectCustomizer;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.SubjectResolver;
 import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -377,6 +378,44 @@ public class SubjectFinder {
       }
       return null;
     }
+  }
+
+  /**
+   * find by id or identifier in certain sources
+   * @param idOrIdentifier
+   * @param sources
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public static Subject findByIdOrIdentifierAndSource(String idOrIdentifier, Set<Source> sources, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+
+    Subject subject = null;
+    for (Source source : GrouperUtil.nonNull(sources)) {
+
+      Subject tempSubject = findByIdOrIdentifierAndSource(idOrIdentifier, source.getId(), false);
+      
+      //found multiple, thats not good
+      if (subject != null && tempSubject != null) {
+        throw new RuntimeException("Found multiple subjects in " + subject.getSourceId() + " and " + tempSubject.getSourceId());
+      }
+      
+      //found one, thats good
+      if (subject == null && tempSubject != null) {
+        subject = tempSubject;
+        //dont break...
+      }
+      
+    }
+    
+    //didnt find one and expecting one
+    if (exceptionIfNull && subject == null) {
+      throw new SubjectNotFoundException("Cant find subject by id or identifier and sources: '" 
+          + idOrIdentifier + "', " + SubjectHelper.sourcesToIdsString(sources));
+    }
+    return subject;
   }
 
   /**
