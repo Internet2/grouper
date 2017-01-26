@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -119,7 +120,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
           this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
           this.wheelGroup = GroupFinder.findByName(
               this.wheelSession,
-              wheelName, true
+              wheelName, GrouperStartup.isFinishedStartupSuccessfully()
               );
         } catch (Exception e) {
   
@@ -154,7 +155,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
           }
           this.wheelViewonlyGroup = GroupFinder.findByName(
               this.wheelSession,
-              wheelViewonlyName, true
+              wheelViewonlyName, GrouperStartup.isFinishedStartupSuccessfully()
               );
         } catch (Exception e) {
   
@@ -189,7 +190,7 @@ public class WheelAttrDefResolver extends AttributeDefResolverDecorator {
           }
           this.wheelReadonlyGroup = GroupFinder.findByName(
               this.wheelSession,
-              wheelReadonlyName, true
+              wheelReadonlyName, GrouperStartup.isFinishedStartupSuccessfully()
               );
         } catch (Exception e) {
   

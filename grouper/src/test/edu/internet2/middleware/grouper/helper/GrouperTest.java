@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.helper;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -59,6 +60,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -165,6 +167,201 @@ public class GrouperTest extends TestCase {
     if (!outer.contains(inner)) {
       fail(StringUtils.defaultString(message) + ", expected string '" + outer + "' to contain '" + inner + "'");
     }
+  }
+  
+  /**
+   * @param message
+   * @param groups
+   * @param group
+   */
+  public void assertContainsGroup(Collection<Group> groups, Group group, String message) {
+    
+    if (groups == null || groups.size() == 0) {
+      fail("Empty set does not contain group: " + group.getName());
+    }
+
+    StringBuilder groupsString = new StringBuilder();
+    
+    for (Group current : groups) {
+      if (StringUtils.equals(current.getId(), group.getId())) {
+        return;
+      }
+      
+      groupsString.append(current.getName()).append(", ");
+      
+    }
+    
+    if (groups.size() > 100) {
+      fail(StringUtils.defaultString(message) + ", expected groups to contain group '" + group.getName() + "' but doesnt");
+    }
+
+    fail(StringUtils.defaultString(message) + ", expected groups to contain group '" + group.getName() + "' but contains: " + groupsString);
+
+  }
+  
+  /**
+   * @param message
+   * @param stems
+   * @param stem
+   */
+  public void assertContainsStem(Collection<Stem> stems, Stem stem, String message) {
+    
+    if (stems == null || stems.size() == 0) {
+      fail("Empty set does not contain stem: " + stem.getName());
+    }
+
+    StringBuilder stemsString = new StringBuilder();
+    
+    for (Stem current : stems) {
+      if (StringUtils.equals(current.getId(), stem.getId())) {
+        return;
+      }
+      
+      stemsString.append(current.getName()).append(", ");
+      
+    }
+    
+    if (stems.size() > 100) {
+      fail(StringUtils.defaultString(message) + ", expected stems to contain stem '" + stem.getName() + "' but doesnt");
+    }
+
+    fail(StringUtils.defaultString(message) + ", expected stems to contain stem '" + stem.getName() + "' but contains: " + stemsString);
+
+  }
+  
+  /**
+   * @param message
+   * @param stems
+   * @param stem
+   */
+  public void assertNotContainsStem(Collection<Stem> stems, Stem stem, String message) {
+    
+    if (stems == null || stems.size() == 0) {
+      return;
+    }
+
+    for (Stem current : stems) {
+      if (StringUtils.equals(current.getId(), stem.getId())) {
+        fail(StringUtils.defaultString(message) + ", expected stems to not contain stem '" + stem.getName() + "' but does");
+      }
+      
+    }
+    
+  }
+  
+  /**
+   * @param message
+   * @param groups
+   * @param group
+   */
+  public void assertNotContainsGroup(Collection<Group> groups, Group group, String message) {
+    
+    if (groups == null || groups.size() == 0) {
+      return;
+    }
+
+    for (Group current : groups) {
+      if (StringUtils.equals(current.getId(), group.getId())) {
+        fail(StringUtils.defaultString(message) + ", expected groups to not contain group '" + group.getName() + "' but does");
+      }
+    }
+  }
+
+  /**
+   * @param message
+   * @param attributeDefs
+   * @param attributeDef
+   */
+  public void assertNotContainsAttributeDef(Collection<AttributeDef> attributeDefs, AttributeDef attributeDef, String message) {
+    
+    if (attributeDefs == null || attributeDefs.size() == 0) {
+      return;
+    }
+
+    for (AttributeDef current : attributeDefs) {
+      if (StringUtils.equals(current.getId(), attributeDef.getId())) {
+        fail(StringUtils.defaultString(message) + ", expected attributeDefs to not contain attributeDef '" + attributeDef.getName() + "' but does");
+      }
+    }
+  }
+  
+
+  /**
+   * @param message
+   * @param attributeDefNames
+   * @param attributeDefName
+   */
+  public void assertNotContainsAttributeDefName(Collection<AttributeDefName> attributeDefNames, AttributeDefName attributeDefName, String message) {
+    
+    if (attributeDefNames == null || attributeDefNames.size() == 0) {
+      return;
+    }
+
+    for (AttributeDefName current : attributeDefNames) {
+      if (StringUtils.equals(current.getId(), attributeDefName.getId())) {
+        fail(StringUtils.defaultString(message) + ", expected attributeDefNames to not contain attributeDef '" + attributeDefName.getName() + "' but does");
+      }
+    }
+  }
+
+  /**
+   * @param message
+   * @param attributeDefs
+   * @param attributeDef
+   */
+  public void assertContainsAttributeDef(Collection<AttributeDef> attributeDefs, AttributeDef attributeDef, String message) {
+    
+    if (attributeDefs == null || attributeDefs.size() == 0) {
+      fail("Empty set does not contain attributeDef: " + attributeDef.getName());
+    }
+
+    StringBuilder attributeDefsString = new StringBuilder();
+    
+    for (AttributeDef current : attributeDefs) {
+      if (StringUtils.equals(current.getId(), attributeDef.getId())) {
+        return;
+      }
+      
+      attributeDefsString.append(current.getName()).append(", ");
+      
+    }
+    
+    if (attributeDefs.size() > 100) {
+      fail(StringUtils.defaultString(message) + ", expected attributeDefs to contain attributeDef '" + attributeDef.getName() + "' but doesnt");
+    }
+
+    fail(StringUtils.defaultString(message) + ", expected attributeDefs to contain attributeDef '" + attributeDef.getName() + "' but contains: " + attributeDefsString);
+
+  }
+  
+  /**
+   * @param message
+   * @param attributeDefNames
+   * @param attributeDefName
+   */
+  public void assertContainsAttributeDefName(Collection<AttributeDefName> attributeDefNames, AttributeDefName attributeDefName, String message) {
+    
+    if (attributeDefNames == null || attributeDefNames.size() == 0) {
+      fail("Empty set does not contain attributeDefName: " + attributeDefName.getName());
+    }
+
+    StringBuilder attributeDefNamesString = new StringBuilder();
+    
+    for (AttributeDefName current : attributeDefNames) {
+      if (StringUtils.equals(current.getId(), attributeDefName.getId())) {
+        return;
+      }
+      
+      attributeDefNamesString.append(current.getName()).append(", ");
+      
+    }
+    
+    if (attributeDefNames.size() > 100) {
+      fail(StringUtils.defaultString(message) + ", expected attributeDefNames to contain attributeDefName '" + attributeDefName.getName() + "' but doesnt");
+    }
+
+    fail(StringUtils.defaultString(message) + ", expected attributeDefNames to contain attributeDefName '" + attributeDefName.getName() + "' but contains: " + attributeDefNamesString);
+
   }
   
   /**
