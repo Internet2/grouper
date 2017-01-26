@@ -122,10 +122,46 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testFindGroupsReadonly"));
+    TestRunner.run(new TestGroup("testDeleteGroupWithUpdateOnAttribute"));
     //TestRunner.run(TestGroup.class);
   }
 
+  /**
+   * 
+   */
+  public void testDeleteGroupWithUpdateOnAttribute() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    String groupName = "test:testGroup";
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(groupName).save();
+
+    group.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.ADMIN, false);
+    
+    //attribute
+    String nameOfAttributeDef = "test:testAttributeDef";
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(nameOfAttributeDef)
+        .assignAttributeDefType(AttributeDefType.attr).assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
+    
+    attributeDef.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_UPDATE, false);
+    
+    String nameOfAttributeDefName = "test:testAttributeNameDef";
+    AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef).assignCreateParentStemsIfNotExist(true)
+        .assignName(nameOfAttributeDefName).save();
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    grouperSession = GrouperSession.startRootSession();
+    
+    group.getAttributeDelegate().assignAttribute(attributeDefName);
+    
+    group.delete();
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+  }
+  
+  
   /**
    * 
    */
