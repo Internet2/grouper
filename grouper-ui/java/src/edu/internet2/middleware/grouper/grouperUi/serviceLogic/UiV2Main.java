@@ -29,8 +29,6 @@ import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.internet2.middleware.subject.SubjectTooManyResults;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
@@ -96,6 +93,7 @@ import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectTooManyResults;
 
 /**
  * main logic for ui
@@ -262,7 +260,7 @@ public class UiV2Main extends UiServiceLogicBase {
         boolean startTreeAtDefaultStem = GrouperUiConfig.retrieveConfig().propertyValueBoolean("default.browse.stem.uiv2.menu", true);
         String defaultBrowseStem = GrouperUiConfig.retrieveConfig().propertyValueString("default.browse.stem");
         if (startTreeAtDefaultStem && !StringUtils.isBlank(defaultBrowseStem)) {
-          stem = StemFinder.findByName(grouperSession, defaultBrowseStem, true);
+          stem = StemFinder.findByName(grouperSession, defaultBrowseStem, false);
         } else {
           stem = StemFinder.findRootStem(grouperSession);
         }
@@ -274,7 +272,7 @@ public class UiV2Main extends UiServiceLogicBase {
         } else {
           stemId = folderQueryString.substring(lastSlash+1, folderQueryString.length());
         }
-        stem = StemFinder.findByUuid(grouperSession, stemId, true);
+        stem = StemFinder.findByUuid(grouperSession, stemId, false);
       }
 
       //find some folders inside
@@ -344,11 +342,9 @@ public class UiV2Main extends UiServiceLogicBase {
         //    null);
         
         json = dojoTreeItem.toJson();
-      } else {
-        throw new RuntimeException("Why is stem null?????");
+        GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
       }
       
-      GrouperUiUtils.printToScreen(json, HttpContentType.APPLICATION_JSON, false, false);
   
     } catch (Exception se) {
       LOG.error("Error searching for folder: '" + folderQueryString + "', " + se.getMessage(), se);
