@@ -18,10 +18,12 @@ package edu.internet2.middleware.grouper.ldap;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -71,13 +73,47 @@ public class LdapSession {
           GrouperLoaderLdapServer grouperLoaderLdapServer = GrouperLoaderConfig.retrieveLdapProfile(ldapServerId);
           
           LdapConfig ldapConfig = null;
+          LdapPoolConfig ldapPoolConfig = null;
           
           // load this vt-ldap config file before the configs here.  load from classpath
           if (!StringUtils.isBlank(grouperLoaderLdapServer.getConfigFileFromClasspath())) {
 
             URL url = GrouperUtil.computeUrl(grouperLoaderLdapServer.getConfigFileFromClasspath(), false);
             try {
-              ldapConfig = LdapConfig.createFromProperties(url.openStream());    
+              ldapConfig = LdapConfig.createFromProperties(url.openStream());
+
+              Properties properties = new Properties();
+              properties.load(url.openStream());
+
+              ldapPoolConfig = new LdapPoolConfig();
+
+              // similar to LdapSourceAdapter in subject library
+              // GRP-1196 - vtldap doesnt set pooling properties
+              Enumeration propertyNames = properties.propertyNames();
+              while (propertyNames.hasMoreElements()) {
+                String propertyName = (String) propertyNames.nextElement();
+
+                if ("edu.vt.middleware.ldap.pool.validatePeriodically".equals(propertyName)) {
+                  String value = properties.getProperty(propertyName);
+                  ldapPoolConfig.setValidatePeriodically(GrouperUtil.booleanValue(value));
+                  properties.remove(propertyName);
+                }
+
+                if ("edu.vt.middleware.ldap.pool.validateOnCheckIn".equals(propertyName)) {
+                  String value = properties.getProperty(propertyName);
+                  ldapPoolConfig.setValidateOnCheckIn(GrouperUtil.booleanValue(value));
+                  properties.remove(propertyName);
+                }
+
+                if ("edu.vt.middleware.ldap.pool.validateOnCheckOut".equals(propertyName)) {
+                  String value = properties.getProperty(propertyName);
+                  ldapPoolConfig.setValidateOnCheckOut(GrouperUtil.booleanValue(value));
+                  properties.remove(propertyName);
+                }
+              }
+
+              ldapPoolConfig.setEnvironmentProperties(properties);
+
             } catch (IOException ioe) {
               throw new RuntimeException("Error processing classpath file: " + grouperLoaderLdapServer.getConfigFileFromClasspath(), ioe);
             }
@@ -88,6 +124,7 @@ public class LdapSession {
           } else {
 
             ldapConfig = new LdapConfig(grouperLoaderLdapServer.getUrl());
+            ldapPoolConfig = new LdapPoolConfig();
 
           }
           
@@ -104,8 +141,6 @@ public class LdapSession {
           if (grouperLoaderLdapServer.isTls()) {
             ldapConfig.setTls(grouperLoaderLdapServer.isTls());
           }
-          
-          LdapPoolConfig ldapPoolConfig = new LdapPoolConfig();
           
           //
           //#optional, if using sasl
@@ -196,6 +231,12 @@ public class LdapSession {
           //#ldap.personLdap.expirationTime = 
           if (grouperLoaderLdapServer.getExpirationTime() != -1) {
             ldapPoolConfig.setExpirationTime(grouperLoaderLdapServer.getExpirationTime());
+          }
+          
+          //#validateOnCheckout defaults to true if all other validate methods are false
+          if (grouperLoaderLdapServer.getValidator() != null
+              && !ldapPoolConfig.isValidateOnCheckIn() && !ldapPoolConfig.isValidateOnCheckOut() && !ldapPoolConfig.isValidatePeriodically()) {
+            ldapPoolConfig.setValidateOnCheckOut(true);
           }
           
           DefaultLdapFactory factory = new DefaultLdapFactory(ldapConfig);
