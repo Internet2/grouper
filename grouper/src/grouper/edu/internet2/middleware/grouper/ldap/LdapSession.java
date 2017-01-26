@@ -147,6 +147,11 @@ public class LdapSession {
             ldapConfig.setPagedResultsSize(grouperLoaderLdapServer.getPagedResultsSize());
           }
 
+          //#ldap.personLdap.searchResultHandlers
+          if (grouperLoaderLdapServer.getSearchResultHandlers() != null) {
+            ldapConfig.setSearchResultHandlers(grouperLoaderLdapServer.getSearchResultHandlers());
+          }
+
           //#ldap.personLdap.referral
           if (!StringUtils.isBlank(grouperLoaderLdapServer.getReferral())) {
             ldapConfig.setReferral(grouperLoaderLdapServer.getReferral());
