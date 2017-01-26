@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -121,10 +122,211 @@ public class TestGroup extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new TestGroup("testNoLocking"));
     //TestRunner.run(TestGroup.class);
-    TestRunner.run(new TestGroup("testDeleteMemberAudit"));
+    TestRunner.run(new TestGroup("testFindGroupsReadonly"));
     //TestRunner.run(TestGroup.class);
   }
 
+  /**
+   * 
+   */
+  public void testFindGroupsReadonly() {
+    
+    int numberOfStemsInTree = 100;
+    int numberOfGroupsInTree = 100;    
+    int numberOfAttributeDefsInTree = 100;    
+    int numberOfAttributeDefNamesInTree = 100;    
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    final Group sysadminViewersGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("etc:sysadminViewersGroup").save();
+    final Group sysadminReadersGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("etc:sysadminReadersGroup").save();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", "etc:sysadminViewersGroup");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", "etc:sysadminReadersGroup");
+
+    GrouperSession.stopQuietly(grouperSession);
+    grouperSession = GrouperSession.startRootSession();
+
+    EhcacheController.ehcacheController().flushCache();
+
+    
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    //subject 0 is a viewer, 1 is a reader, 2 is nothing, 3 is a member
+    sysadminViewersGroup.addMember(SubjectTestHelper.SUBJ0);
+    sysadminReadersGroup.addMember(SubjectTestHelper.SUBJ1);
+    
+    String groupName = "test:testGroup";
+    Group group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(groupName).save();
+    group.addMember(SubjectTestHelper.SUBJ3);
+
+    String stemName = "test2";
+    Stem stem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(stemName).save();
+
+    String stemNameTest = "test";
+    Stem stemTest = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(stemNameTest).save();
+
+    //group has attribute
+    String group2Name = "test:test2Group";
+    Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(group2Name).save();
+    group2.addMember(SubjectTestHelper.SUBJ3);
+
+    //attribute
+    String nameOfAttributeDef = "test:testAttributeDef";
+    AttributeDef attributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(nameOfAttributeDef)
+        .assignAttributeDefType(AttributeDefType.attr).assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
+    String nameOfAttributeDefName = "test:testAttributeNameDef";
+    AttributeDefName attributeDefName = new AttributeDefNameSave(grouperSession, attributeDef).assignCreateParentStemsIfNotExist(true)
+        .assignName(nameOfAttributeDefName).save();
+
+    String name2OfAttributeDef = "test:test2AttributeDef";
+    AttributeDef attributeDef2 = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(name2OfAttributeDef)
+        .assignAttributeDefType(AttributeDefType.attr).assignToGroup(true).assignValueType(AttributeDefValueType.string).save();
+
+    String name2OfAttributeDefName = "test:test2AttributeNameDef";
+    AttributeDefName attributeDefName2 = new AttributeDefNameSave(grouperSession, attributeDef2).assignCreateParentStemsIfNotExist(true)
+        .assignName(name2OfAttributeDefName).save();
+
+    group2.getAttributeDelegate().assignAttribute(attributeDefName2);
+
+    //stem has an attribute
+    String name3OfAttributeDef = "test:test3AttributeDef";
+    AttributeDef attributeDef3 = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName(name3OfAttributeDef)
+        .assignAttributeDefType(AttributeDefType.attr).assignToStem(true).assignValueType(AttributeDefValueType.string).save();
+
+    String name3OfAttributeDefName = "test:test3AttributeNameDef";
+    AttributeDefName attributeDefName3 = new AttributeDefNameSave(grouperSession, attributeDef3).assignCreateParentStemsIfNotExist(true)
+        .assignName(name3OfAttributeDefName).save();
+
+    stem.getAttributeDelegate().assignAttribute(attributeDefName3);
+    
+    GrouperSession.stopQuietly(grouperSession);
+    
+    //############ SUBJ 0 can view, not read, can search
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    {
+      Set<Stem> childrenStems = rootStem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree));
+      
+      assertContainsStem(childrenStems, stemTest, "subj 0 can view all, should be able to view 'test'");
+      
+      assertContainsStem(childrenStems, stemTest, "subj 0 can view all, should be able to view 'test'");
+      assertContainsStem(childrenStems, stem, "subj 0 can view all, should be able to view 'test2'");
+      
+      Set<Group> childrenGroups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, 
+          QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree));
+      
+      assertContainsGroup(childrenGroups, group, "subj 0 can view all, should be able to view 'test:testGroup'");
+      assertContainsGroup(childrenGroups, group2, "subj 0 can view all, should be able to view 'test:test2Group'");
+      
+      Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
+        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree))
+        .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributes();
+
+      assertContainsAttributeDef(childrenAttributeDefs, attributeDef, "subj 0 can view all, should be able to view 'test:testAttributeDef'");
+      assertContainsAttributeDef(childrenAttributeDefs, attributeDef2, "subj 0 can view all, should be able to view 'test:test2AttributeDef'");
+      assertContainsAttributeDef(childrenAttributeDefs, attributeDef3, "subj 0 can view all, should be able to view 'test:test3AttributeDef'");
+
+      Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
+        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefsInTree))
+        .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributeNames();
+
+      assertContainsAttributeDefName(childrenAttributeDefNames, attributeDefName, "subj 0 can view all, should be able to view 'test:testAttributeNameDef'");
+      assertContainsAttributeDefName(childrenAttributeDefNames, attributeDefName2, "subj 0 can view all, should be able to view 'test:test2AttributeNameDef'");
+      assertContainsAttributeDefName(childrenAttributeDefNames, attributeDefName3, "subj 0 can view all, should be able to view 'test:test3AttributeNameDef'");
+
+    }
+    
+
+    //############ SUBJ 1 can view, and read, can search
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    {
+      Set<Stem> childrenStems = rootStem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree));
+      
+      assertContainsStem(childrenStems, stemTest, "subj 1 can read all, should be able to view 'test'");
+      assertContainsStem(childrenStems, stem, "subj 1 can read all, should be able to view 'test2'");
+      
+      Set<Group> childrenGroups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, 
+          QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree));
+      
+      assertContainsGroup(childrenGroups, group, "subj 1 can read all, should be able to view 'test:testGroup'");
+      assertContainsGroup(childrenGroups, group2, "subj 1 can read all, should be able to view 'test:test2Group'");
+      
+      Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
+        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree))
+        .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributes();
+
+      assertContainsAttributeDef(childrenAttributeDefs, attributeDef, "subj 1 can read all, should be able to view 'test:testAttributeDef'");
+      assertContainsAttributeDef(childrenAttributeDefs, attributeDef2, "subj 1 can read all, should be able to view 'test:test2AttributeDef'");
+      assertContainsAttributeDef(childrenAttributeDefs, attributeDef3, "subj 1 can read all, should be able to view 'test:test3AttributeDef'");
+
+      Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
+        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefNamesInTree))
+        .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributeNames();
+
+      assertContainsAttributeDefName(childrenAttributeDefNames, attributeDefName, "subj 1 can read all, should be able to view 'test:testAttributeNameDef'");
+      assertContainsAttributeDefName(childrenAttributeDefNames, attributeDefName2, "subj 1 can read all, should be able to view 'test:test2AttributeNameDef'");
+      assertContainsAttributeDefName(childrenAttributeDefNames, attributeDefName3, "subj 1 can read all, should be able to view 'test:test3AttributeNameDef'");
+
+    }
+
+    //############ SUBJ 2 cant view, or read, or search
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    
+    {
+      Set<Stem> childrenStems = rootStem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree));
+      
+      assertNotContainsStem(childrenStems, stemTest, "subj 2 cant view all, should not be able to view 'test'");
+      
+      assertNotContainsStem(childrenStems, stemTest, "subj 1 can read all, should be able to view 'test'");
+      assertNotContainsStem(childrenStems, stem, "subj 1 can read all, should be able to view 'test2'");
+      
+      
+      Set<Group> childrenGroups = rootStem.getChildGroups(Scope.SUB, AccessPrivilege.VIEW_PRIVILEGES, 
+          QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree));
+      
+      assertNotContainsGroup(childrenGroups, group, "subj 2 cant view all, should not be able to view 'test:testGroup'");
+      assertNotContainsGroup(childrenGroups, group2, "subj 2 cant view all, should not be able to view 'test:test2Group'");
+      
+      Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
+        .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttributeDefsInTree))
+        .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributes();
+
+      assertNotContainsAttributeDef(childrenAttributeDefs, attributeDef, "subj 2 cant view all, should not be able to view 'test:testAttributeDef'");
+      assertNotContainsAttributeDef(childrenAttributeDefs, attributeDef2, "subj 2 cant view all, should not be able to view 'test:test2AttributeDef'");
+      assertNotContainsAttributeDef(childrenAttributeDefs, attributeDef3, "subj 2 cant view all, should not be able to view 'test:test3AttributeDef'");
+
+      Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
+        .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttributeDefNamesInTree))
+        .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
+        .assignSubject(GrouperSession.staticGrouperSession().getSubject())
+        .assignParentStemId(rootStem.getId()).assignStemScope(Scope.SUB).findAttributeNames();
+
+      assertNotContainsAttributeDefName(childrenAttributeDefNames, attributeDefName, "subj 2 cant view all, should not be able to view 'test:testAttributeNameDef'");
+      assertNotContainsAttributeDefName(childrenAttributeDefNames, attributeDefName2, "subj 2 cant view all, should not be able to view 'test:test2AttributeNameDef'");
+      assertNotContainsAttributeDefName(childrenAttributeDefNames, attributeDefName3, "subj 2 cant view all, should not be able to view 'test:test3AttributeNameDef'");
+
+    }
+
+    
+    
+  }
+  
   /**
    * 
    */

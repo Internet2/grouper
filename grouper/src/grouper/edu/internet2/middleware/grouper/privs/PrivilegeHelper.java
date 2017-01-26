@@ -1014,6 +1014,51 @@ public class PrivilegeHelper {
   }
 
   /**
+   * see if a subject is wheel or root or viewonly root (or readonly)
+   * @param subject 
+   * @return true or false
+   */
+  public static boolean isWheelOrRootOrViewonlyRoot(Subject subject) {
+    
+    if (isWheelOrRootOrReadonlyRoot(subject)) {
+      return true;
+    }
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false)) {
+      String name = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
+      try {
+        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
+        return wheel.hasMember(subject);
+      } catch (GroupNotFoundException gnfe) {
+        throw new GrouperException("Cant find wheel group: " + name, gnfe);
+      }
+    }
+    return false;
+
+  }
+
+  
+  /**
+   * see if a subject is wheel or root or readonly root
+   * @param subject 
+   * @return true or false
+   */
+  public static boolean isWheelOrRootOrReadonlyRoot(Subject subject) {
+    if (isWheelOrRoot(subject)) {
+      return true;
+    }
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false)) {
+      String name = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
+      try {
+        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
+        return wheel.hasMember(subject);
+      } catch (GroupNotFoundException gnfe) {
+        throw new GrouperException("Cant find wheel group: " + name, gnfe);
+      }
+    }
+    return false;
+  }
+
+  /**
    * see if a subject is wheel or root
    * @param subject 
    * @return true or false

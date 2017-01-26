@@ -1700,7 +1700,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   private boolean appendQueryFilterIfNeededViewChildObjects(String stemVariable, GrouperSession grouperSession, StringBuilder sql, ByHqlStatic byHqlStatic, boolean changedQuery) {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("security.show.folders.where.user.can.see.subobjects", true)) {
       
-      if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+      if (!PrivilegeHelper.isWheelOrRootOrViewonlyRoot(grouperSession.getSubject())) {
         
         //exclude superusers with lots of privileges if their performance is bad
         final String excludesGroupName = GrouperConfig.retrieveConfig().propertyValueString("security.show.all.folders.if.in.group");
