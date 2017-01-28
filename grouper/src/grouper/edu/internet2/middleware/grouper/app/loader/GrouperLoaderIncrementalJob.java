@@ -256,7 +256,7 @@ public class GrouperLoaderIncrementalJob implements Job {
             if (!useThreads || threadPoolSize <= 1){
               grouperCallable.callLogic();
             } else {
-              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
               futures.add(future);          
               GrouperFuture.waitForJob(futures, threadPoolSize, callablesWithProblems);
             }            
