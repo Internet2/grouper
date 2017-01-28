@@ -801,7 +801,7 @@ public class GrouperUtil {
       SQLException nextException = sqlException.getNextException();
       if (nextException != null) {
         if (isInRetriableCode()) {
-          log.warn("Next exception", nextException);
+          log.info("Next exception (note, this will be retried so it might not be an issue)", nextException);
         } else {
           log.error("Next exception", nextException);
         }
