@@ -146,6 +146,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       
       try {
         connection = grouperLoaderDb.connection();
+        connection.setAutoCommit(false);
         statement = connection.createStatement();
         resultSet = statement.executeQuery(query);
 
@@ -364,6 +365,7 @@ public class GrouperLoaderIncrementalJob implements Job {
 
     try {
       connection = grouperLoaderDb.connection();
+      connection.setAutoCommit(false);
       
       long id = row.getId();
       String subjectId = row.getSubjectId();
@@ -405,7 +407,7 @@ public class GrouperLoaderIncrementalJob implements Job {
       }
       
       if (GrouperLoaderType.SQL_SIMPLE.name().equals(grouperLoaderType)) {
-        String loaderQueryForUser = "select 1 from (" + grouperLoaderQuery + ") where " + subjectColumn + " = ?";
+        String loaderQueryForUser = "select 1 from (" + grouperLoaderQuery + ") innerQuery where " + subjectColumn + " = ?";
         if (sourceId != null) {
           loaderQueryForUser += " and source_id = ?";
         }
@@ -464,7 +466,7 @@ public class GrouperLoaderIncrementalJob implements Job {
           throw new RuntimeException("grouperLoaderGroupsLike is required for SQL_GROUP_LIST");
         }
   
-        String loaderQueryForUser = "select group_name from (" + grouperLoaderQuery + ") where " + subjectColumn + " = ?";
+        String loaderQueryForUser = "select group_name from (" + grouperLoaderQuery + ") innerQuery where " + subjectColumn + " = ?";
         if (sourceId != null) {
           loaderQueryForUser += " and source_id = ?";
         }
