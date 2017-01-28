@@ -326,7 +326,7 @@ public class GrouperStartup {
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.checkDatabaseAndUtf.inNewThread", true)) {
       grouperCallable.callLogic();
     } else {
-      GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+      GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, false);
     }
   }
   

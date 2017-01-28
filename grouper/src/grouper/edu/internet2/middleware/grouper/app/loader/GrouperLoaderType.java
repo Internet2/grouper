@@ -1573,7 +1573,7 @@ public enum GrouperLoaderType {
         if (!useThreads) {
           grouperCallable.callLogic();
         } else {
-          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
           futures.add(future);
           
           GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
@@ -2624,7 +2624,7 @@ public enum GrouperLoaderType {
                 if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
                   grouperCallable.callLogic();
                 } else {
-                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
                   futures.add(future);
                   
                   GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
@@ -2658,7 +2658,7 @@ public enum GrouperLoaderType {
 
                 } else {
 
-                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
                   futures.add(future);
 
                   GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
