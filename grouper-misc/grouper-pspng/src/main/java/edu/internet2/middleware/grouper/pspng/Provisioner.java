@@ -878,6 +878,12 @@ public abstract class Provisioner
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
+        if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+          LOG.info("Ignoring GROUP_ADD event because group {} has been since deleted from grouper", grouperGroupInfo);
+          workItem.markAsSuccess("Ignored: group does not exist any more: %s", workItem.getGroupName());
+          return;
+        }
+        
         if ( tsGroupCache_shortTerm.containsKey(grouperGroupInfo) ) {
           workItem.markAsSuccess("Group %s already exists", grouperGroupInfo);
           return;
