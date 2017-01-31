@@ -17,8 +17,8 @@
               <div class="span12 tab-interface">
 
                 <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
-                  <li class="active"><a href="#" onclick="return false;" >${textContainer.text['groupPrivilegesTab'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});" >${textContainer.text['groupMembersTab'] }</a></li>
+                  <li class="active"><a role="tab"  aria-selected="true" href="#" onclick="return false;" >${textContainer.text['groupPrivilegesTab'] }</a></li>
                   <%@ include file="groupMoreTab.jsp" %>
                 </ul>
                 <p class="lead">${textContainer.text['groupPrivilegesDecription'] }</p>
@@ -79,4 +79,3 @@
                 
               </div>
             </div>
-			<script>setupAccessibilityTabs();</script>

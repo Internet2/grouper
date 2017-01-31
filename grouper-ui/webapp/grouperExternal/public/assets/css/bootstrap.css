@@ -3960,6 +3960,7 @@ input[type="submit"].btn.btn-mini {
   font-size: 11px;
   opacity: 0;
   filter: alpha(opacity=0);
+  white-space: normal;
 }
 .tooltip.in {
   opacity: 0.8;

@@ -775,6 +775,33 @@ public class HibUtils {
   }
   
   /**
+   * convert a collection of strings (no parens) to an in clause
+   * @param collection
+   * @param scalarable to set the string
+   * @return the string of in clause (without parens)
+   */
+  public static String convertToInClauseAnyType(Collection<?> collection, HqlQuery scalarable) {
+    
+    String unique = GrouperUtil.uniqueId();
+    
+    StringBuilder result = new StringBuilder();
+    int collectionSize = collection.size();
+    int i = 0;
+    for (Object object : collection) {
+      String var = unique + i;
+      result.append(":" + var);
+
+      //add to query
+      scalarable.setScalar(var, object);
+      if (i < collectionSize-1) {
+        result.append(", ");
+      }
+      i++;
+    }
+    return result.toString();
+  }
+  
+  /**
    * @param memberAlias is the alias of the table for members, e.g. gm
    * @param subjects collection of subjects
    * @param hqlQuery so far

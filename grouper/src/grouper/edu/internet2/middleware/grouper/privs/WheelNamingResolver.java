@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -119,7 +120,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
           this.wheelGroup = GroupFinder.findByName(
                       //dont replace the current grouper session
               this.wheelSession,
-              wheelGroupName, true
+              wheelGroupName, GrouperStartup.isFinishedStartupSuccessfully()
               );
         } catch (Exception e) {
   
@@ -151,7 +152,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
             }
             this.wheelViewonlyGroup = GroupFinder.findByName(
                 this.wheelSession,
-                wheelViewonlyName, true
+                wheelViewonlyName, GrouperStartup.isFinishedStartupSuccessfully()
                 );
           } catch (Exception e) {
     
@@ -186,7 +187,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
             }
             this.wheelReadonlyGroup = GroupFinder.findByName(
                 this.wheelSession,
-                wheelReadonlyName, true
+                wheelReadonlyName, GrouperStartup.isFinishedStartupSuccessfully()
                 );
           } catch (Exception e) {
     

@@ -296,6 +296,8 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
 
     grouperLoaderLdapServer.setPagedResultsSize(getPropertyInt("ldap." + name + ".pagedResultsSize", -1));
 
+    grouperLoaderLdapServer.setSearchResultHandlers(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + name + ".searchResultHandlers"));
+
     grouperLoaderLdapServer.setReferral(getPropertyString("ldap." + name + ".referral"));
 
     //#validateOnCheckout defaults to true if all other validate methods are false

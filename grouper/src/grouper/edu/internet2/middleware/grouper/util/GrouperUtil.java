@@ -192,6 +192,33 @@ public class GrouperUtil {
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new ThreadLocal<Map<String, Map<String, String>>>();
 
+  
+  /** used to indicate if we're in code that would be retried if there's a failure */
+  private static ThreadLocal<Boolean> inRetriableCode = new InheritableThreadLocal<Boolean>();
+  
+  /**
+   * @return true if we're in code that would be retried if there's a failure
+   */
+  public static boolean isInRetriableCode() {
+    Boolean threadlocalBoolean = inRetriableCode.get();
+    return threadlocalBoolean != null && threadlocalBoolean;
+  }
+  
+  /**
+   * used to indicate if we're in code that would be retried if there's a failure
+   */
+  public static void threadLocalInRetriableCodeAssign() {
+    inRetriableCode.set(true);
+  }
+
+  /**
+   * used to indicate if we're in code that would be retried if there's a failure
+   * call within a finally block to remove
+   */
+  public static void threadLocalInRetriableCodeClear() {
+    inRetriableCode.remove();
+  }
+  
   /**
    * take email addresses from a textarea and turn them into semi separated
    * @param emailAddresses
@@ -773,7 +800,11 @@ public class GrouperUtil {
       SQLException sqlException = (SQLException)throwable;
       SQLException nextException = sqlException.getNextException();
       if (nextException != null) {
-        log.error("Next exception", nextException);
+        if (isInRetriableCode()) {
+          log.info("Next exception (note, this will be retried so it might not be an issue)", nextException);
+        } else {
+          log.error("Next exception", nextException);
+        }
         //maybe there are nested next exceptions....
         logErrorNextException(log, nextException, timeToLive-1);
       }
@@ -11698,6 +11729,20 @@ public class GrouperUtil {
    * @return the future
    */
   public static GrouperFuture executorServiceSubmit(ExecutorService executorService, Callable callable) {
+    Future future = executorService.submit(callable);
+    GrouperFuture grouperFuture = new GrouperFuture(future, callable);
+    return grouperFuture;
+  }
+  
+  /**
+   * 
+   * @param executorService
+   * @param callable
+   * @param willRetry 
+   * @return the future
+   */
+  public static GrouperFuture executorServiceSubmit(ExecutorService executorService, GrouperCallable callable, boolean willRetry) {
+    callable.setWillRetry(willRetry);
     Future future = executorService.submit(callable);
     GrouperFuture grouperFuture = new GrouperFuture(future, callable);
     return grouperFuture;

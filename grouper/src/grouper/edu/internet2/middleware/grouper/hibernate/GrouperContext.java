@@ -27,12 +27,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -121,7 +123,8 @@ public class GrouperContext {
     	  //Means that from GSH, where there is no loggedInMemberId, the current GrouperSession
     	  //determines the actAsMemberId which means that audit log entries can be filtered by
     	  //the nominal subject performing the action
-    	  if(s != null && !s.getMemberUuid().equals(auditEntry.getLoggedInMemberId())) {
+    	  if(s != null && !s.getMemberUuid().equals(auditEntry.getLoggedInMemberId()) 
+    	      && !SubjectHelper.eq(s.getSubject(), SubjectFinder.findRootSubject())) {
     		  auditEntry.setActAsMemberId(s.getMemberUuid());
     	  }
     	}

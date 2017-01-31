@@ -13,9 +13,9 @@
             <div class="row-fluid">
               <div class="span12">
                 <ul class="nav nav-tabs">
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStems', {dontScrollTop: true});" >${textContainer.text['myStemsImanageTab'] }</a></li>
-                  <li class="active"><a href="#" onclick="return false;">${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
-                  <li><a href="#" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingAttributesImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
+                  <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2MyStems.myStems', {dontScrollTop: true});" >${textContainer.text['myStemsImanageTab'] }</a></li>
+                  <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;">${textContainer.text['myStemsContainingGroupsImanageTab'] }</a></li>
+                  <li><a href="#" role="tab" onclick="return guiV2link('operation=UiV2MyStems.myStemsContainingAttributesImanage', {dontScrollTop: true});" >${textContainer.text['myStemsContainingAttributesImanageTab'] }</a></li>
                 </ul>
                 <p class="lead">${textContainer.text['myStemsContainingGroupsImanageDescription'] }</p>
                 <form class="form-inline form-filter" id="myStemsForm"

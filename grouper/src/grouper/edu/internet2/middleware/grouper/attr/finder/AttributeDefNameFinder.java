@@ -25,11 +25,13 @@ import java.util.Set;
 import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -256,6 +258,15 @@ public class AttributeDefNameFinder {
    * @return the set of attribute def names or the empty set if none found
    */
   public Set<AttributeDefName> findAttributeNames() {
+    
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
+      // if passed in empty set of attributeDefName ids and no names, then no attributeDefNames found
+      // uncomment this if we can search by attributeDefName names
+      if (this.idsOfAttributeDefName != null && this.idsOfAttributeDefName.size() == 0 /* && GrouperUtil.length(this.namesOfAttributeDefName) == 0 */ ) {
+        return new HashSet<AttributeDefName>();
+      }
+    }
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     return GrouperDAOFactory.getFactory().getAttributeDefName()

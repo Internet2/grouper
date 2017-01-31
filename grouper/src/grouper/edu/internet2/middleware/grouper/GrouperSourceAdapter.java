@@ -656,7 +656,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    String message = "sources.xml groupersource id: " + this.getId();
+    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " groupersource id: " + this.getId();
     return message;
   }
 

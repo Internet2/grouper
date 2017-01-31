@@ -19,8 +19,15 @@
  */
 package edu.internet2.middleware.grouper.app.loader.ldap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.vt.middleware.ldap.Ldap;
+import edu.vt.middleware.ldap.handler.SearchResultHandler;
+import edu.vt.middleware.ldap.pool.LdapValidator;
 
 
 /**
@@ -116,9 +123,15 @@ public class GrouperLoaderLdapServer {
   /** if validating periodically, this is the period in millis */
   private int validateTimerPeriod = -1;
 
+  /** if validating, the validating function */
+  private LdapValidator<Ldap> validator = null;
+
   /** period for which prune timer will run, in millis */
   private int pruneTimerPeriod = -1;
-  
+
+  /** if the ldap server has a max page size, then this will get the results in pages */
+  private SearchResultHandler[] searchResultHandlers = null;
+
   /** if connections expire after a certain amount of time, this is it, in millis, defaults to 300000 (5 minutes) */
   private int expirationTime = -1;
 
@@ -187,7 +200,31 @@ public class GrouperLoaderLdapServer {
 
   }
 
-  
+
+  /**
+   * comma-separated list of classes to handle search results
+   * @param handlerNames
+   */
+  public void setSearchResultHandlers(String handlerNames) {
+
+    if (!StringUtils.isBlank(handlerNames)) {
+      List<SearchResultHandler> handlerClasses = new ArrayList<SearchResultHandler>();
+      String[] handlerClassNames = GrouperUtil.splitTrim(handlerNames, ",");
+      for (String className : handlerClassNames) {
+        Class<SearchResultHandler> customClass = GrouperUtil.forName(className);
+        SearchResultHandler inst = GrouperUtil.newInstance(customClass);
+        handlerClasses.add(inst);
+      }
+
+      this.searchResultHandlers = handlerClasses.toArray(new SearchResultHandler[handlerClasses.size()]);
+    }
+
+  }
+
+  public SearchResultHandler[] getSearchResultHandlers() {
+    return this.searchResultHandlers;
+  }
+
   /**
    * if using sasl, this is authz id
    * @return authz id
@@ -381,6 +418,23 @@ public class GrouperLoaderLdapServer {
   }
 
   /**
+   * if validating, the LDAPFactory validator
+   * @param validator
+   */
+  public void setValidator(LdapValidator<Ldap> validator) {
+    this.validator = validator;
+  }
+
+  /**
+   * if validating, the LDAPFactory validator
+   * @return the LDAPFactory validator
+   */
+  public LdapValidator<Ldap> getValidator() {
+    return this.validator;
+  }
+
+
+  /**
    * period for which prune timer will run, in millis
    * @return period for which prune timer will run, in millis
    */
@@ -432,7 +486,8 @@ public class GrouperLoaderLdapServer {
         + ", timeLimit=" + timeLimit + ", timeout=" + timeout + ", tls=" + tls + ", url="
         + url + ", user=" + user + ", validateOnCheckIn=" + validateOnCheckIn
         + ", validateOnCheckOut=" + validateOnCheckOut + ", validatePeriodically="
-        + validatePeriodically + ", validateTimerPeriod=" + validateTimerPeriod + "]";
+        + validatePeriodically + ", validateTimerPeriod=" + validateTimerPeriod
+        + ", searchResultHandlers=" + searchResultHandlers + "]";
   }
 
   /**

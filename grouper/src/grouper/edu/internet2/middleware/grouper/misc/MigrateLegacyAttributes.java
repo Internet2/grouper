@@ -378,7 +378,7 @@ public class MigrateLegacyAttributes {
         if (!useThreads){
           grouperCallable.callLogic();
         } else {
-          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
           futures.add(future);          
           GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
         }
@@ -480,7 +480,7 @@ public class MigrateLegacyAttributes {
         if (!useThreads){
           grouperCallable.callLogic();
         } else {
-          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
           futures.add(future);          
           GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
         }

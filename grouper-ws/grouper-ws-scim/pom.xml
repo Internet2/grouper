@@ -122,17 +122,43 @@
 	          <target>1.8</target>
 	        </configuration>
       	</plugin>
-      	<plugin>
+      	<!-- <plugin>
       		<groupId>org.apache.maven.plugins</groupId>
       		<artifactId>maven-war-plugin</artifactId>
       		<configuration>
                 <webXml>${webXmlPath}</webXml>
             </configuration>
-      	</plugin>
+      	</plugin> -->
+      	
+      	
+      	<plugin>
+		    <artifactId>maven-resources-plugin</artifactId>
+		    <executions>
+		        <execution>
+		            <id>copy-appCtx</id>
+		            <phase>generate-resources</phase>
+		            <goals>
+		                <goal>copy-resources</goal>
+		            </goals>
+		            <configuration>
+		                <outputDirectory>${project.build.directory}/classes</outputDirectory>
+		                <overwrite>true</overwrite>
+		                <resources>
+		                    <resource>
+		                        <directory>../../grouper/conf</directory>
+		                        <includes>
+		                            <include>*.*</include>
+		                        </includes>
+		                    </resource>
+		                </resources>
+		            </configuration>
+		        </execution>
+		    </executions>
+		</plugin>
     </plugins>
   </build>
   
-  <profiles>
+  <!-- <profiles>
   	<profile>
   		<id>demo-server</id>
   		<properties>
@@ -165,6 +191,6 @@
 		  </resources>  
 		</build>  
   	</profile>
-  </profiles>
+  </profiles> -->
  
 </project>

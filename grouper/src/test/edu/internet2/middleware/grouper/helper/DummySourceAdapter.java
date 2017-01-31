@@ -37,6 +37,7 @@ import java.util.Set;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
@@ -182,7 +183,7 @@ public class DummySourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#printConfig()
    */
   public String printConfig() {
-    String message = "sources.xml dummy source id:  " + this.getId();
+    String message = (SourceManager.usingSubjectProperties() ? "subject.properties" : "sources.xml       ") + " dummy source id:  " + this.getId();
     return message;
   }
 } 

@@ -11,6 +11,8 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
+
 
 
 /**
@@ -255,6 +257,9 @@ public class GrouperComboboxTag2 extends SimpleTagSupport {
     result.append("          dijit.byId('" + this.idBase + "Id').onChange = function(evt) {\n");
     result.append("            this.focusNode.setSelectionRange(0,0);\n");
     result.append("          }\n");
+    if (GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.disableEnterKeyOnCombobox", true)) {
+      result.append("          grouperDisableEnterOnCombo('#" + this.idBase + "Id');\n");
+    }
     result.append("        },1000);\n");
     
 //    result.append("        dijit.byId('" + this.idBase + "Id').labelFunc = function(item, store) {\n");

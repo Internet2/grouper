@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -31,6 +32,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Field;
@@ -50,6 +56,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -58,6 +66,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueDelegate;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -2019,6 +2028,27 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
       ownerId1 = this.getOwnerAttributeAssignId();
     } else {
       throw new RuntimeException("Unexpected ownerType: " + ownerType);
+    }
+        
+    boolean isSqlLoaderJob = (GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem") + ":" +
+        GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix") +
+        "grouperLoader").equals(this.getAttributeDefName().getName());
+    
+    boolean isLdapLoaderJob = LoaderLdapUtils.grouperLoaderLdapName().equals(this.getAttributeDefName().getName());
+
+    if (isSqlLoaderJob || isLdapLoaderJob) {
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.anyJobGroup())) {
+          if (jobKey.getName() != null && jobKey.getName().contains(ownerId1) &&
+              ((isSqlLoaderJob && jobKey.getName().contains("SQL_")) ||
+              (isLdapLoaderJob && jobKey.getName().contains("LDAP_")))) {
+              scheduler.deleteJob(jobKey);
+          }
+        }
+      } catch (SchedulerException e) {
+        LOG.error("Error while potentially unscheduling job.  Ignoring since restarting the daemon will clean this up anyways.", e);
+      }
     }
     
     // may need to delete group sets if we're unassigning a group type.  also change log entry.

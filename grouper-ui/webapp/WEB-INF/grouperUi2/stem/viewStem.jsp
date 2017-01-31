@@ -8,9 +8,9 @@
             <div class="row-fluid">
               <div class="span12 tab-interface">
                 <ul class="nav nav-tabs">
-                  <li class="active"><a href="#" onclick="return false;" >${textContainer.text['stemContents'] }</a></li>
+                  <li class="active"><a role="tab" aria-selected="true" href="#" onclick="return false;" >${textContainer.text['stemContents'] }</a></li>
                   <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}">
-                    <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
+                    <li><a role="tab" href="#" onclick="return guiV2link('operation=UiV2Stem.stemPrivileges&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {dontScrollTop: true});" >${textContainer.text['stemPrivileges'] }</a></li>
                   </c:if>
                   <c:if test="${grouperRequestContainer.stemContainer.canReadPrivilegeInheritance}">
                     <%@ include file="stemMoreTab.jsp" %>
@@ -38,4 +38,3 @@
             <c:if test="${grouperRequestContainer.indexContainer.menuRefreshOnView}">
               <script>dojoInitMenu(${grouperRequestContainer.indexContainer.menuRefreshOnView});</script>
             </c:if>
-            <script>setupAccessibilityTabs();</script>

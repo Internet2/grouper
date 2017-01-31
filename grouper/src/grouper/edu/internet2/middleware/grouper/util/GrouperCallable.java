@@ -109,6 +109,24 @@ public abstract class GrouperCallable<T> implements Callable<T> {
    */
   static int numberOfThreads = 0;
   
+  private boolean willRetry = false;
+  
+  
+  /**
+   * @return the willRetry
+   */
+  public boolean isWillRetry() {
+    return willRetry;
+  }
+
+  
+  /**
+   * @param willRetry the willRetry to set
+   */
+  public void setWillRetry(boolean willRetry) {
+    this.willRetry = willRetry;
+  }
+
   /**
    * @see java.util.concurrent.Callable#call()
    */
@@ -119,6 +137,10 @@ public abstract class GrouperCallable<T> implements Callable<T> {
     //store the old
     GrouperThreadLocalState oldGrouperThreadLocalState = new GrouperThreadLocalState();
     oldGrouperThreadLocalState.storeCurrentThreadLocals();
+    
+    if (this.isWillRetry()) {
+      GrouperUtil.threadLocalInRetriableCodeAssign();
+    }
     
     try {
       if (LOG.isDebugEnabled()) {
@@ -141,6 +163,11 @@ public abstract class GrouperCallable<T> implements Callable<T> {
       }
       //assign the old thread local state, shouldnt really matter since thread if going back in pool
       oldGrouperThreadLocalState.assignCurrentThreadLocals();
+      
+      if (this.isWillRetry()) {
+        GrouperUtil.threadLocalInRetriableCodeClear();
+        this.setWillRetry(false);
+      }      
     }
     
   }

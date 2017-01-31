@@ -21,8 +21,12 @@ package edu.internet2.middleware.grouper.j2ee.status;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServlet;
@@ -123,7 +127,10 @@ public class GrouperStatusServlet extends HttpServlet {
         + "<html><head></head><body>\n");
     StringBuilder result = new StringBuilder("<pre>");
     
-    DiagnosticTask currentTask = null;
+    List<DiagnosticTask> diagnosticTasksWithErrors = new ArrayList<DiagnosticTask>();
+    // key is name
+    Map<String, String> diagnosticErrorStacks = new HashMap<String, String>();
+    
     GrouperSession grouperSession = null;
     try {
       
@@ -167,32 +174,22 @@ public class GrouperStatusServlet extends HttpServlet {
       // is a failure, the error text (if any) of the task
       // will be picked up and utilized in the catch block.
       boolean failureOverall = false;
-      RuntimeException firstException = null;
-      int failureCount = 0;
+      
       for (DiagnosticTask diagnosticTask : tasksToExecute) {
-        currentTask = diagnosticTask;
         try {
           if (diagnosticTask.executeTask()){
             result.append(diagnosticTask.retrieveSuccessText().toString());
           } else {
+            diagnosticTasksWithErrors.add(diagnosticTask);
             failureOverall = true;
-            failureCount++;
           }
         } catch (RuntimeException re) {
-          failureCount++;
+          diagnosticTasksWithErrors.add(diagnosticTask);
           failureOverall = true;
-          if (firstException == null) {
-            firstException = re;
-          } else {
-            GrouperUtil.injectInException(firstException, "Exception " + failureCount + ": " + GrouperUtil.getFullStackTrace(re));
-          }
+          diagnosticErrorStacks.put(diagnosticTask.retrieveName(), GrouperUtil.getFullStackTrace(re));
         }
       }
 
-      if (firstException != null) {
-        GrouperUtil.injectInException(firstException, failureCount + " errors: ");
-        throw firstException;
-      }
       if (failureOverall) {
         throw new RuntimeException();
       }
@@ -234,8 +231,9 @@ public class GrouperStatusServlet extends HttpServlet {
     } catch (RuntimeException re) {
 
       //this is not a real diagnostics error
-      if (re.getMessage().contains("Cant find DiagnosticType from string")
-          || re.getMessage().contains("You need to pass in the diagnosticType parameter")) {
+      if (re.getMessage() != null && (
+          re.getMessage().contains("Cant find DiagnosticType from string")
+          || re.getMessage().contains("You need to pass in the diagnosticType parameter"))) {
         response.setStatus(500);
 
         LOG.warn("Invalid DiagnosticsType", re);
@@ -244,7 +242,6 @@ public class GrouperStatusServlet extends HttpServlet {
             + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
             + "\n"
             + "<html><head></head><body><h1>Grouper status invalid request!</h1><br /><pre>" + re.getMessage() + "</pre></body></html>");
-        
         
         return;
       }
@@ -260,17 +257,26 @@ public class GrouperStatusServlet extends HttpServlet {
       
       String theLastDiagnosticsError = null;
       
-      if (currentTask != null) {
+      if (diagnosticTasksWithErrors.size() > 0) {
         
-        String message = "\nThere was an error in the diagnostic task " + currentTask.getClass().getSimpleName()  
-            + ", " + currentTask.retrieveNameFriendly() + "\n\n"
-            + currentTask.retrieveFailureText() + ":" + re.getMessage();
+        StringBuilder message = new StringBuilder("\n" + diagnosticTasksWithErrors.size() + " errors in the diagnostic tasks:\n\n");
+        for (DiagnosticTask diagnosticTask : diagnosticTasksWithErrors) {
+          message.append(diagnosticTask.getClass().getSimpleName()  
+              + ", " + diagnosticTask.retrieveNameFriendly() + "\n\n"
+              + diagnosticTask.retrieveFailureText());
+        }
         
-        theLastDiagnosticsError = message + "\n" + ExceptionUtils.getFullStackTrace(re);
+        for (DiagnosticTask diagnosticTask : diagnosticTasksWithErrors) {
+          if (diagnosticErrorStacks.containsKey(diagnosticTask.retrieveName())) {
+            message.append("\n\n");
+            message.append("Error stack for: " + diagnosticTask.retrieveName() + "\n");
+            message.append(diagnosticErrorStacks.get(diagnosticTask.retrieveName()));
+          }
+        }
+        
+        theLastDiagnosticsError = message.toString();
         
         LOG.error(message, re);
-        
-        
         
       } else {
 

@@ -942,14 +942,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
           int maxMemberships = GrouperConfig.retrieveConfig().propertyValueInt("ws.getMemberships.maxResultSize", 30000);
 
           {
-            boolean pageMembers = queryOptionsForMember != null;
+            boolean pageMembers = queryOptionsForMember != null && queryOptionsForMember.getQueryPaging() != null;
             
             if (pageMembers) {
 
-              if (queryOptionsForMember.getQueryPaging() == null) {
-                throw new RuntimeException("If paging by member, then paging must be set in the query options");
-              }
-  
               //cant page too much...
               if (queryOptionsForMember.getQueryPaging().getPageSize() > 500) {
                 throw new RuntimeException("Cant get a page size greater then 500! " 
@@ -981,6 +977,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               
               //see if too many
               if (size > maxMemberships) {
+                
+                if (queryOptionsForMember != null && queryOptionsForMember.isRetrieveCount() && !queryOptionsForMember.isRetrieveResults()) {
+                  queryOptionsForMember.setCount(size + GrouperUtil.defaultIfNull(queryOptionsForMember.getCount(), 0L));
+                  return totalResults;
+                }
+                
                 throw new RuntimeException("Too many results: " + size);
               }
               
@@ -990,7 +992,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             if (pageMembers) {
               
               //sort by default search string if not specified
-              if (queryOptionsForMember.getQuerySort() == null) {
+              if (queryOptionsForMember != null && queryOptionsForMember.getQuerySort() == null) {
                 queryOptionsForMember.sortAsc("m." + SortStringEnum.getDefaultSortString().getFieldName());
               }
   
@@ -1154,17 +1156,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
             long size = byHqlStatic.createQuery(countPrefix + sql.toString()).uniqueResult(long.class);    
             
+            if (queryOptionsForMember != null && queryOptionsForMember.isRetrieveCount()) {
+              queryOptionsForMember.setCount(size + GrouperUtil.defaultIfNull(queryOptionsForMember.getCount(), 0L));
+            }
+
             //see if too many
             if (size > maxMemberships) {
+              if (queryOptionsForMember != null && queryOptionsForMember.isRetrieveCount() && !queryOptionsForMember.isRetrieveResults()) {
+                return totalResults;
+              }
               throw new RuntimeException("Too many results: " + size);
             }
             
           }
                    
-          Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
+          if (queryOptionsForMember == null || queryOptionsForMember.isRetrieveResults()) {
+            Set<Object[]> results = byHqlStatic.createQuery(selectPrefix + sql.toString()).listSet(Object[].class);
 
-          totalResults.addAll(results);
-          
+            totalResults.addAll(results);
+          }
         }
       }
     }

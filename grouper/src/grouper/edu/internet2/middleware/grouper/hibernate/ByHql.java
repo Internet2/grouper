@@ -310,6 +310,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
    * call hql executeUpdate, e.g. delete or update statement
    * 
    * </pre>
+   * @return number of records affected
    * @throws GrouperDAOException 
    */
   public void executeUpdate() throws GrouperDAOException {

@@ -93,6 +93,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -273,6 +274,16 @@ public class GrouperCheckConfig {
    * @return false if problem or if not checking configs
    */
   public static boolean checkResource(String resourcePath) {
+    return checkResource(resourcePath, true);
+  }
+
+  /**
+   * make sure a resource is on the resource path
+   * @param resourcePath
+   * @param required
+   * @return false if problem or if not checking configs
+   */
+  public static boolean checkResource(String resourcePath, boolean required) {
     if (configCheckDisabled()) {
       return false;
     }
@@ -284,6 +295,9 @@ public class GrouperCheckConfig {
       }
     } catch (Exception e) {
       //this means it cant be found
+    }
+    if (!required) {
+      return false;
     }
     String error = "Cant find required resource on classpath: " + resourcePath;
     //this is serious, lets go out and error
@@ -334,7 +348,7 @@ public class GrouperCheckConfig {
     checkResource("grouper.hibernate.properties");
     checkResource("log4j.properties");
     checkResource("morphString.properties");
-    checkResource("sources.xml");
+    checkResource("sources.xml", !SourceManager.usingSubjectProperties());
     
   }
   
@@ -1274,7 +1288,7 @@ public class GrouperCheckConfig {
     checkJar("commons-cli.jar", 41123, "org.apache.commons.cli.AlreadySelectedException", "1.2");
     checkJar("commons-codec.jar", 46725, "org.apache.commons.codec.BinaryDecoder", "1.3");
     checkJar("commons-collections.jar", 1224771, "org.apache.commons.collections.ArrayStack", "3.2.1");
-    checkJar("commons-digester.jar", 136649, "org.apache.commons.digester.AbstractObjectCreationFactory", "0.1.0");
+    checkJar("commons-digester.jar", 384875, "org.apache.commons.digester3.AbstractMethodRule", "3.2");
     checkJar("commons-discovery.jar", 76685, "org.apache.commons.discovery.ant.ServiceDiscoveryTask", "0.4");
     checkJar("commons-httpclient.jar", 279383, "org.apache.commons.httpclient.auth.AuthChallengeException", "3.0");
     checkJar("commons-io.jar", 263589, "org.apache.commons.io.comparator.DefaultFileComparator", "1.4");
@@ -1314,6 +1328,7 @@ public class GrouperCheckConfig {
     checkJar("smack.jar", 1381464, "com.jcraft.jzlib.Deflate", "3.1.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
     checkJar("subject.jar", 266056, "edu.internet2.middleware.subject.InvalidQueryException", "2.2.0");
+    //checkJar("subject.jar", 271917, "edu.internet2.middleware.subject.InvalidQueryException", "2.3.0");
     checkJar("vt-ldap.jar", 472910, "edu.vt.middleware.ldap.AbstractCli", "3.3.5");
     checkJar("xpp3_min.jar", 24979, "org.xmlpull.mxp1.MXParser", "1.1.4c");
     checkJar("xstream.jar", 692061, "com.thoughtworks.xstream.alias.CannotResolveClassException", "1.3");

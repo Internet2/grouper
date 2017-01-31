@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -783,6 +784,20 @@ public class GroupFinder {
    * @return the set of groups or the empty set if none found
    */
   public Set<Group> findGroups() {
+
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
+
+      // if passed in empty set of group ids and no names, then no groups found
+      if (this.groupIds != null && this.groupIds.size() == 0 && GrouperUtil.length(this.groupNames) == 0) {
+        return new HashSet<Group>();
+      }
+      
+      // if passed in empty set of group names and no ids, then no groups found
+      if (this.groupNames != null && this.groupNames.size() == 0 && GrouperUtil.length(this.groupIds) == 0) {
+        return new HashSet<Group>();
+      }
+    }
+    
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     
     if (this.membershipsForSubject && this.field == null) {

@@ -46,11 +46,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
@@ -247,6 +249,21 @@ public class SubjectHelper {
     
   }
   
+  /**
+   * 
+   * @return the sources that are non group
+   */
+  public static Set<Source> nonGroupSources() {
+    Set<Source> result = new HashSet<Source>();
+    for (Source source : SourceManager.getInstance().getSources()) {
+      if (!StringUtils.equals(source.getId(), GrouperSourceAdapter.groupSourceId())) {
+        result.add(source);
+      }
+    }
+    return result;
+  }
+
+
   /**
    * sort a set of subjects for a search, match id's and identifiers at top
    * @param subjectsIn

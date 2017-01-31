@@ -217,8 +217,17 @@ public enum GrouperLoaderType {
               //get however many days in the past
               calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
               //run a query to delete (note, dont retrieve records to java, just delete)
-              int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
-                  (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
+              long records = -1;
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDeleteRecordsInBatches", true)) {
+                records = HibernateSession.byHqlStatic().createQuery(
+                    "select gll.id from Hib3GrouperLoaderLog gll where gll.lastUpdated < :lastUpdated ").setTimestamp("lastUpdated", new Timestamp(calendar.getTimeInMillis()))
+                    .deleteInBatches(String.class, "Hib3GrouperLoaderLog", "id");
+              } else {
+                //this is the old way that we can get rid of at some point
+                records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
+                    (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
+              }
+
               jobMessage.append("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old.  ");
               
             } else {
@@ -235,8 +244,22 @@ public enum GrouperLoaderType {
               //note, this is *1000 so that we can differentiate conflicting records
               long time = calendar.getTimeInMillis()*1000L;
               //run a query to delete (note, dont retrieve records to java, just delete)
-              int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry where created_on < ?", 
-                  (List<Object>)(Object)GrouperUtil.toList(new Long(time)));
+              long records = -1; 
+              
+              if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDeleteRecordsInBatches", true)) {
+
+                records = HibernateSession.byHqlStatic().createQuery(
+                    "select cle.sequenceNumber from ChangeLogEntryEntity cle where cle.createdOnDb < :createdOn ").setLong("createdOn", time)
+                    .deleteInBatches(long.class, "ChangeLogEntryEntity", "sequenceNumber");
+                
+              } else {
+
+                // this is the old way that can go away at some point
+                records = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry where created_on < ?", 
+                    (List<Object>)(Object)GrouperUtil.toList(new Long(time)));
+                
+              }
+            
               jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ")  ");
             } else {
               jobMessage.append("Configured to not delete records from grouper_change_log_entry table.  ");
@@ -1550,7 +1573,7 @@ public enum GrouperLoaderType {
         if (!useThreads) {
           grouperCallable.callLogic();
         } else {
-          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
           futures.add(future);
           
           GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
@@ -2601,7 +2624,7 @@ public enum GrouperLoaderType {
                 if (!useThreads || membershipThreadPoolSize == 1 || membershipThreadPoolSize == 0) {
                   grouperCallable.callLogic();
                 } else {
-                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
                   futures.add(future);
                   
                   GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);
@@ -2635,7 +2658,7 @@ public enum GrouperLoaderType {
 
                 } else {
 
-                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+                  GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
                   futures.add(future);
 
                   GrouperFuture.waitForJob(futures, membershipThreadPoolSize, callablesWithProblems);

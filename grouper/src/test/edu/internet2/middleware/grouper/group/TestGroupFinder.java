@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.group;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -82,6 +83,7 @@ public class TestGroupFinder extends GrouperTest {
     super(name);
   }
 
+  
   
   /**
    * 
@@ -552,6 +554,27 @@ public class TestGroupFinder extends GrouperTest {
   /**
    * 
    */
+  public void testFindNonByEmptySetNameOrId() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
+    @SuppressWarnings("unused")
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    
+    Set<Group> groups = new GroupFinder().assignGroupIds(new HashSet<String>()).findGroups();
+    
+    assertEquals(0, groups.size());
+    
+    groups = new GroupFinder().assignGroupNames(new HashSet<String>()).findGroups();
+    
+    assertEquals(0, groups.size());
+    
+  } // public void testFindByUuid()
+  
+
+  /**
+   * 
+   */
   public void testFindByAttributeDefName() {
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -764,7 +787,7 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testFindByAttributeDefName"));
+    TestRunner.run(new TestGroupFinder("testFindNonByEmptySetNameOrId"));
   }
 
 } // public class TestGroupFinder_FindByAttribute
