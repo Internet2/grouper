@@ -51,7 +51,7 @@
                       <input type="text" placeholder="${textContainer.textEscapeXml['stemFilterPrivilegeFormPlaceholder']}" class="span12"
                        name="privilegeFilterText" id="table-filter" aria-label="${textContainer.text['ariaLabelGuiEntityName']}">
                     </div>
-                    <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
+                    <div class="span4"><input type="submit" class="btn" aria-controls="stemPrivilegeFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Stem.filterPrivileges?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterPrivilegesFormId,stemPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a>
                       <a class="btn stemPrivilegeAdvancedHide" role="button" onclick="$('.stemPrivilegeAdvancedShow').show('slow'); $('.stemPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['stemAdvancedButton'] }</a>
@@ -62,7 +62,7 @@
                   //set this flag so we get one confirm message on this screen
                   confirmedChanges = false;
                 </script>
-                <div id="stemPrivilegeFilterResultsId">
+                <div id="stemPrivilegeFilterResultsId" role="region" aria-live="polite">
                 </div>                
               </div>
             </div>

@@ -62,7 +62,7 @@
                       <input type="text" placeholder="${textContainer.textEscapeXml['groupFilterPrivilegeFormPlaceholder']}" class="span12"
                        name="privilegeFilterText" id="table-filter" aria-label="${textContainer.text['ariaLabelGuiEntityName']}">
                     </div>
-                    <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
+                    <div class="span4"><input type="submit" class="btn" aria-controls="groupPrivilegeFilterResultsId"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Group.filterPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                       <a role="button" class="btn groupPrivilegeAdvancedHide" onclick="$('.groupPrivilegeAdvancedShow').show('slow'); $('.groupPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['groupAdvancedButton'] }</a>
@@ -74,7 +74,7 @@
                   //set this flag so we get one confirm message on this screen
                   confirmedChanges = false;
                 </script>
-                <div id="groupPrivilegeFilterResultsId">
+                <div id="groupPrivilegeFilterResultsId" aria-live="polite" role="region">
                 </div>
                 
               </div>

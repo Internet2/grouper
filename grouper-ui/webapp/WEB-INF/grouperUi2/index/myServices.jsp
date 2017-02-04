@@ -23,12 +23,12 @@
                       <input type="text" name="myServicesFilter" placeholder="${textContainer.textEscapeXml['myServicesSearchNamePlaceholder'] }" id="myServicesFilterId" class="span12"/>
                     </div>
                     <div class="span3"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" onclick="ajax('../app/UiV2Main.myServicesSubmit', {formIds: 'myServicesForm'}); return false;">${textContainer.text['myServicesApplyFilterButton'] }</button>
+                      <button type="submit" class="btn" aria-controls="myServicesResultsId" onclick="ajax('../app/UiV2Main.myServicesSubmit', {formIds: 'myServicesForm'}); return false;">${textContainer.text['myServicesApplyFilterButton'] }</button>
                       <button type="submit" onclick="ajax('../app/UiV2Main.myServicesReset'); return false;" class="btn">${textContainer.text['myServicesResetButton'] }</button>
                     </div>
                   </div>
                 </form>
-                <div id="myServicesResultsId">
+                <div id="myServicesResultsId" role="region" aria-live="polite">
                 </div>
               </div>
 

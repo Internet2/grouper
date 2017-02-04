@@ -40,12 +40,12 @@
                       <input type="text" name="myStemsFilter" placeholder="${textContainer.textEscapeXml['myStemsSearchNamePlaceholder'] }" id="myStemsFilterId" class="span12"/>
                     </div>
                     <div class="span3"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" onclick="ajax('../app/UiV2MyStems.myStemsSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
+                      <button type="submit" class="btn" aria-controls="myStemsResultsId" onclick="ajax('../app/UiV2MyStems.myStemsSubmit', {formIds: 'myStemsPagingFormId,myStemsForm'}); return false;">${textContainer.text['myStemsApplyFilterButton'] }</button>
                       <button type="submit" onclick="ajax('../app/UiV2MyStems.myStemsReset', {formIds: 'myStemsPagingFormId'}); return false;" class="btn">${textContainer.text['myStemsResetButton'] }</button>
                     </div>
                   </div>
                 </form>
-                <div id="myStemsResultsId">
+                <div id="myStemsResultsId" role="region" aria-live="polite">
                 </div>
               </div>
 
