@@ -67,7 +67,7 @@
                       <input type="text" placeholder="${textContainer.textEscapeXml['attributeDefFilterPrivilegeFormPlaceholder']}" class="span12"
                        name="privilegeFilterText" id="table-filter" aria-label="${textContainer.text['ariaLabelGuiEntityName']}">
                     </div>
-                    <div class="span4"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"
+                    <div class="span4"><input type="submit" class="btn" aria-controls="attributeDefPrivilegeFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['attributeDefApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2AttributeDef.filterPrivileges?attributeDefId=${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.id}', {formIds: 'attributeDefFilterPrivilegesFormId,attributeDefPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#people-filter2').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['attributeDefResetButton'] }</a>
                       <a class="btn attributeDefPrivilegeAdvancedHide" role="button" onclick="$('.attributeDefPrivilegeAdvancedShow').show('slow'); $('.attributeDefPrivilegeAdvancedHide').hide('slow'); return false;">${textContainer.text['attributeDefAdvancedButton'] }</a>
@@ -79,7 +79,7 @@
                   //set this flag so we get one confirm message on this screen
                   confirmedChanges = false;
                 </script>
-                <div id="attributeDefPrivilegeFilterResultsId">
+                <div id="attributeDefPrivilegeFilterResultsId" role="region" aria-live="polite">
                 </div>
                 
               </div>

@@ -26,13 +26,13 @@
                     </div>
                     
                     <div class="span4"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" onclick="ajax('../app/UiV2Main.myActivitySubmit', {formIds: 'myActivityForm'}); return false;">${textContainer.text['myActivityApplyFilterButton'] }</button>
+                      <button type="submit" class="btn" aria-controls="myActivityResultsId" onclick="ajax('../app/UiV2Main.myActivitySubmit', {formIds: 'myActivityForm'}); return false;">${textContainer.text['myActivityApplyFilterButton'] }</button>
                       <button type="submit" onclick="ajax('../app/UiV2Main.myActivityReset'); return false;" class="btn">${textContainer.text['myActivityResetButton'] }</button>
                     </div>
                     
                   </div>
                 </form>
-                <div id="myActivityResultsId">
+                <div id="myActivityResultsId" role="region" aria-live="polite">
                 </div>
               </div>
 

@@ -25,13 +25,13 @@
                       <input type="text" placeholder="${textContainer.textEscapeXml['stemFilterFormPlaceholder']}" 
                          name="filterText" id="table-filter" class="span12"/>
                     </div>
-                    <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
+                    <div class="span3"><input type="submit" class="btn" aria-controls="stemFilterResultsId" id="filterSubmitId" value="${textContainer.textEscapeDouble['stemApplyFilterButton'] }"
                       onclick="ajax('../app/UiV2Stem.filter?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'stemFilterFormId,stemPagingFormId'}); return false;"> 
                     <a class="btn" role="button" onclick="$('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['stemResetButton'] }</a></div>
                   </div>
                 </form>
                 <%-- this div will be filled with stemContents.jsp via ajax --%>
-                <div id="stemFilterResultsId">
+                <div id="stemFilterResultsId" role="region" aria-live="polite">
                 </div>
               </div>
             </div>

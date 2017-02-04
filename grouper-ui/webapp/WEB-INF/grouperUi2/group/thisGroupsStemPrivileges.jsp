@@ -41,7 +41,7 @@
                          name="privilegeFilterText" id="table-filter" class="span12" aria-label="${textContainer.text['ariaLabelGuiEntityName']}"/>
                     </div>
 
-                    <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
+                    <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" aria-controls="thisGroupsStemPrivilegesFilterResultsId" value="${textContainer.textEscapeDouble['groupApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Group.filterThisGroupsStemPrivileges?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterPrivilegesFormId,groupPagingPrivilegesFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['groupResetButton'] }</a>
                     </div>
@@ -52,7 +52,7 @@
                   //set this flag so we get one confirm message on this screen
                   confirmedChanges = false;
                 </script>
-                <div id="thisGroupsStemPrivilegesFilterResultsId">
+                <div id="thisGroupsStemPrivilegesFilterResultsId" role="region" aria-live="polite">
                 </div>                
               </div>
             </div>
