@@ -23,12 +23,12 @@
                       <input type="text" name="myFavoritesFilter" placeholder="${textContainer.textEscapeXml['myFavoritesSearchNamePlaceholder'] }" id="myFavoritesFilterId" class="span12"/>
                     </div>
                     <div class="span3"> &nbsp; &nbsp;
-                      <button type="submit" class="btn" onclick="ajax('../app/UiV2Main.myFavoritesSubmit', {formIds: 'myFavoritesForm'}); return false;">${textContainer.text['myFavoritesApplyFilterButton'] }</button>
+                      <button type="submit" class="btn" aria-controls="myFavoritesResultsId" onclick="ajax('../app/UiV2Main.myFavoritesSubmit', {formIds: 'myFavoritesForm'}); return false;">${textContainer.text['myFavoritesApplyFilterButton'] }</button>
                       <button type="submit" onclick="ajax('../app/UiV2Main.myFavoritesReset'); return false;" class="btn">${textContainer.text['myFavoritesResetButton'] }</button>
                     </div>
                   </div>
                 </form>
-                <div id="myFavoritesResultsId">
+                <div id="myFavoritesResultsId" role="region" aria-live="polite">
                 </div>
               </div>
 

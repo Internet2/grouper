@@ -36,7 +36,7 @@
                          name="filterText" id="table-filter" class="span12"/>
                     </div>
 
-                    <div class="span3"><input type="submit" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['subjectApplyFilterButton'] }"
+                    <div class="span3"><input type="submit" aria-controls="subjectFilterResultsId" class="btn"  id="filterSubmitId" value="${textContainer.textEscapeDouble['subjectApplyFilterButton'] }"
                         onclick="ajax('../app/UiV2Subject.filter?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'groupFilterFormId,groupPagingFormId'}); return false;"> 
                       <a class="btn" role="button" onclick="$('#people-filter').val(''); $('#table-filter').val(''); $('#filterSubmitId').click(); return false;">${textContainer.text['subjectResetButton'] }</a>
                     </div>
@@ -47,7 +47,7 @@
                   //set this flag so we get one confirm message on this screen
                   confirmedChanges = false;
                 </script>
-                <div id="subjectFilterResultsId">
+                <div id="subjectFilterResultsId" role="region" aria-live="polite">
                 </div>                
               </div>
             </div>
