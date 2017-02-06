@@ -448,6 +448,10 @@ public class LdapSystem {
       LOG.error("Problem during ldap search {}", request, e);
       throw new PspException("LDAP problem while searching: " + e.getMessage());
     }
+    catch (RuntimeException e) {
+      LOG.error("Runtime problem during ldap search {}", request, e);
+      throw e;
+    }
     finally {
       if ( conn != null )
         conn.close();
@@ -459,8 +463,12 @@ public class LdapSystem {
   protected List<LdapObject> performLdapSearchRequest(String searchBaseDn, SearchScope scope, Collection<String> attributesToReturn, String filterTemplate, Object... filterParams) 
   throws PspException {
     SearchFilter filter = new SearchFilter(filterTemplate);
-    for (int i=0; i<filterParams.length; i++)
+    LOG.debug("Running ldap search: <{}>/{}: {} << {}", 
+        new Object[]{searchBaseDn, scope, filterTemplate, Arrays.toString(filterParams)});
+    
+    for (int i=0; i<filterParams.length; i++) {
       filter.setParameter(i, filterParams[i]);
+    }
     
     SearchRequest request = new SearchRequest(searchBaseDn, filter, attributesToReturn.toArray(new String[0]));
     request.setSearchScope(scope);
