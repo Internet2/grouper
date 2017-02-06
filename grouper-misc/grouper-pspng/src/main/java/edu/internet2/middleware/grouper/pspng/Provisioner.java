@@ -878,7 +878,7 @@ public abstract class Provisioner
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
-        if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+        if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
           LOG.info("Ignoring GROUP_ADD event because group {} has been since deleted from grouper", grouperGroupInfo);
           workItem.markAsSuccess("Ignored: group does not exist any more: %s", workItem.getGroupName());
           return;
@@ -894,6 +894,12 @@ public abstract class Provisioner
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_DELETE ))
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
+        
+        if ( grouperGroupInfo == null ) {
+          workItem.markAsSuccess("Ignoring group-deletion event because information was not found in grouper");
+          return;
+        }
+        
         TSGroupClass tsGroup = tsGroupCache_shortTerm.get(grouperGroupInfo);
         
         deleteGroup(grouperGroupInfo, tsGroup);
@@ -902,7 +908,7 @@ public abstract class Provisioner
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
         
-        if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+        if ( grouperGroupInfo == null || grouperGroupInfo.hasGroupBeenDeleted() ) {
           workItem.markAsSuccess("Ignoring membership-add event for group that was deleted: %s", grouperGroupInfo);
           return;
         }
@@ -929,7 +935,7 @@ public abstract class Provisioner
       else if ( entry.equalsCategoryAndAction(ChangeLogTypeBuiltin.MEMBERSHIP_DELETE))
       {
         GrouperGroupInfo grouperGroupInfo = workItem.getGroupInfo(this);
-        if ( grouperGroupInfo.hasGroupBeenDeleted() ) {
+        if ( grouperGroupInfo==null || grouperGroupInfo.hasGroupBeenDeleted() ) {
           workItem.markAsSuccess("Ignoring membership-delete event for group that was deleted: %s", grouperGroupInfo);
           return;
         }

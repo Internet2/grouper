@@ -118,7 +118,7 @@ public class LdapAttributeProvisioner extends LdapProvisioner<LdapAttributeProvi
     String attributeValue = getAttributeValueForGroup(grouperGroupInfo);
     
     List<LdapObject> currentMatches_ldapObjects = getLdapSystem().performLdapSearchRequest(
-        config.getUserCreationBaseDn(), SearchScope.SUBTREE, 
+        config.getUserSearchBaseDn(), SearchScope.SUBTREE, 
         Arrays.asList(config.getUserSearchAttributes()), attributeName + "={0}",
         attributeValue);
     
